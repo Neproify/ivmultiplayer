@@ -15,5 +15,8 @@
 typedef unsigned char BYTE;
 typedef unsigned long DWORD;
 typedef short unsigned int WORD;
+typedef int BOOL;
 
 char* itoa(int value, char* str, int radix);
+
+#define THREAD_PRIORITY_NORMAL 4
