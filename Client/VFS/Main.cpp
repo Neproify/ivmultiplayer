@@ -39,7 +39,7 @@ EXPORT CVFSInterface * GetVFSInterface()
 }
 
 
-int DllMain(void *, unsigned long, void *)
+int __stdcall DllMain(void *, unsigned long, void *)
 {
 	return 1;
 }

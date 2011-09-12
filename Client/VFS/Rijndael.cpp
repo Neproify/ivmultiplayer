@@ -1298,7 +1298,7 @@ void CRijndael::Encrypt(char const* in, char* result, size_t n, int iMode)
 	//n should be > 0 and multiple of m_blockSize
 	if(0==n || n%m_blockSize!=0)
 		throw exception(sm_szErrorMsg2);
-	int i;
+	unsigned int i;
 	char const* pin;
 	char* presult;
 	if(CBC == iMode) //CBC mode, using the Chain
@@ -1341,7 +1341,7 @@ void CRijndael::Decrypt(char const* in, char* result, size_t n, int iMode)
 	//n should be > 0 and multiple of m_blockSize
 	if(0==n || n%m_blockSize!=0)
 		throw exception(sm_szErrorMsg2);
-	int i;
+	unsigned int i;
 	char const* pin;
 	char* presult;
 	if(CBC == iMode) //CBC mode, using the Chain

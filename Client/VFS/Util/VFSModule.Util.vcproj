@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="Client.VFS.Utility"
 	ProjectGUID="{D1E9326A-0FCA-46B3-86D0-3D39C63340E1}"
 	RootNamespace="Client.VFS"
@@ -41,13 +41,14 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zp1"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\Shared"
+				AdditionalIncludeDirectories="..\..\..\Shared;..\..\Core\CEGUI\dependencies\zlib-1.2.5"
 				PreprocessorDefinitions="WIN32"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4996"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -60,8 +61,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib ws2_32.lib winmm.lib"
+				AdditionalDependencies="zlib_d.lib ws2_32.lib winmm.lib"
 				OutputFile="..\..\..\Binary\$(ProjectName).Debug.exe"
+				AdditionalLibraryDirectories="..\..\Core\CEGUI\dependencies\zlib-1.2.5\projects\Debug"
+				IgnoreAllDefaultLibraries="false"
 				GenerateDebugInformation="true"
 			/>
 			<Tool
@@ -114,12 +117,13 @@
 				AdditionalOptions="/Zp1"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\Shared"
+				AdditionalIncludeDirectories="..\..\..\Shared;..\..\Core\CEGUI\dependencies\zlib-1.2.5"
 				PreprocessorDefinitions="WIN32"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4996"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -134,6 +138,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib.lib ws2_32.lib winmm.lib"
 				OutputFile="..\..\..\Binary\$(ProjectName).exe"
+				AdditionalLibraryDirectories="..\..\Core\CEGUI\dependencies\zlib-1.2.5\projects\Release"
 			/>
 			<Tool
 				Name="VCALinkTool"

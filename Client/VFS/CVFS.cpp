@@ -111,7 +111,7 @@ int media_write(unsigned long sector, unsigned char *buffer)
 void generate_xor(const char *szFileName, int num)
 {
 	FILE * f = fopen(szFileName, "wb");
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	fprintf(f, "unsigned char xorkey_%d[] = { \n", num);
 	for(int i = 0; i < num; i++)
 	{
