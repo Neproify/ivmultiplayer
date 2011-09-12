@@ -3,10 +3,17 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <direct.h>
 #include <sqstdsystem.h>
 #include "../../Shared/CString.h"
 #include "../../Shared/SharedUtility.h"
+
+#ifdef _LINUX
+#include <sys/stat.h>
+#include <sys/types.h>
+#define mkdir(x) mkdir(x, 0777)
+#else
+#include <direct.h>
+#endif
 
 #ifdef SQUNICODE
 #include <wchar.h>

@@ -12,8 +12,8 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <squirrel/squirrel.h>
-#include <squirrel/sqobject.h>
+#include <Squirrel/squirrel.h>
+#include <Squirrel/sqobject.h>
 #include "CSquirrelArguments.h"
 
 #if defined(WIN32) && defined(RegisterClass)

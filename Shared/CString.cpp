@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+inline char* itoa(int value, char* str, int radix);
 #endif
 
 const unsigned int String::nPos = (unsigned int)-1;

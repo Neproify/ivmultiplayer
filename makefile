@@ -1,13 +1,12 @@
 all:
-	make -C Shared/sqlite
-	make -C Shared/tinyxml
-	make -C Shared/Squirrel
+	make -C Vendor/sqlite
+	make -C Vendor/tinyxml
+	make -C Vendor/Squirrel
 	make -C Server/Core
-	cd Binary && sh linux_redist.sh
 
 clean:
-	make -C Shared/sqlite clean
-	make -C Shared/tinyxml clean
-	make -C Shared/Squirrel clean
+	make -C Vendor/sqlite clean
+	make -C Vendor/tinyxml clean
+	make -C Vendor/Squirrel clean
 	make -C Server/Core clean
 
