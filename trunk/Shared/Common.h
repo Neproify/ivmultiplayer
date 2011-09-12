@@ -169,6 +169,7 @@ enum eVehicleEntryExit
 #define CLIENT_LAUNCH_HELPER_NAME "Client.LaunchHelper"
 #define SERVER_CORE_NAME "Server.Core"
 #define NETWORK_MODULE_NAME "Network.Core"
+#define VFS_MODULE_NAME "Client.VFS"
 
 // Library Exports
 #ifdef EXPORT

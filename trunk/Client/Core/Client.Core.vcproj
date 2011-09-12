@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Client.Core"
 	ProjectGUID="{5DD209AC-1B5F-483A-BCA9-150CAD228C5A}"
 	RootNamespace="Client.Core"
@@ -1496,6 +1496,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Shared\CString.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Shared\VFS\CVFSModule.cpp"
 					>
 				</File>
 				<File
