@@ -1,0 +1,597 @@
+//============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
+//
+// File: Main.cpp
+// Project: Server.Core
+// Author(s): jenksta
+//            Einstein
+//            Sebihunter
+//            MaVe
+// License: See LICENSE in root directory
+//
+//==============================================================================
+// TODO: Server socket natives
+
+#include "Main.h"
+#include <stdarg.h>
+#include <queue>
+#include "CNetworkManager.h"
+#include "CPlayerManager.h"
+#include "CVehicleManager.h"
+#include "CObjectManager.h"
+#include "CBlipManager.h"
+#include "CActorManager.h"
+#include "CCheckpointManager.h"
+#include "CPickupManager.h"
+#include "Scripting/CScriptingManager.h"
+#include "CClientFileManager.h"
+#include "Natives.h"
+#include "CModuleManager.h"
+#include "Scripting/CScriptTimerManager.h"
+#include "CMasterList.h"
+#include "tinyxml/tinyxml.h"
+#include "tinyxml/ticpp.h"
+#include "SharedUtility.h"
+#include "CWebserver.h"
+#include <CSettings.h>
+#include <Game/CTime.h>
+#include "CEvents.h"
+#include <Game/CTrafficLights.h>
+#include <Network/CNetworkModule.h>
+#include <CMutex.h>
+#include <CThread.h>
+#include "CQuery.h"
+#include <CExceptionHandler.h>
+
+#define HEIPHEN_GEN(string, stringname) \
+	{ \
+		stringname[0] = '\0'; \
+		for(int i = 0; i < sizeof(string) + 1; i++) \
+			strcat(stringname, "-"); \
+	}
+
+CNetworkManager * g_pNetworkManager = NULL;
+CPlayerManager * g_pPlayerManager = NULL;
+CVehicleManager * g_pVehicleManager = NULL;
+CObjectManager * g_pObjectManager = NULL;
+CBlipManager * g_pBlipManager = NULL;
+CActorManager * g_pActorManager = NULL;
+CPickupManager * g_pPickupManager = NULL;
+CCheckpointManager * g_pCheckpointManager = NULL;
+CScriptingManager * g_pScriptingManager = NULL;
+CClientFileManager * g_pClientScriptFileManager = NULL;
+CClientFileManager * g_pClientResourceFileManager = NULL;
+CModuleManager * g_pModuleManager = NULL;
+CMasterList * g_pMasterList = NULL;
+CWebServer * g_pWebserver = NULL;
+CTime * g_pTime = NULL;
+CTrafficLights * g_pTrafficLights = NULL;
+CEvents * g_pEvents = NULL;
+extern CScriptTimerManager * g_pScriptTimerManager;
+DWORD g_dwStartTick = 0;
+CMutex consoleInputQueueMutex;
+std::queue<String> consoleInputQueue;
+CQuery * g_pQuery = NULL;
+
+void SendConsoleInput(String strInput)
+{
+	if(strInput.IsNotEmpty())
+	{
+		// Print the input to the log
+		CLogFile::PrintfToFile("[INPUT] %s", strInput.Get());
+
+		// Get the command and parameters
+		size_t sSplit = strInput.Find(' ', 0);
+		String strCommand = strInput.SubStr(0, sSplit++);
+		String strParameters = strInput.SubStr(sSplit, (strInput.GetLength() - sSplit));
+
+		// Is the command empty?
+		if(strCommand.IsEmpty())
+			return;
+
+		if(strCommand == "say" || strCommand == "echo" || strCommand == "print")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CBitStream bsSend;
+				bsSend.Write((DWORD)0xFFFFFFAA);
+				bsSend.Write(strParameters);
+				g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+				CLogFile::Print(strParameters);
+			}
+		}
+		else if(strCommand == "loadscript")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CLogFile::Printf("Loading script %s.", strParameters.Get());
+
+				if(g_pScriptingManager->Get(strParameters))
+					CLogFile::Printf("Failed to load script %s (Script is already loaded).", strParameters.Get());
+				else
+				{
+					String strPath(SharedUtility::GetAbsolutePath("scripts/%s", strParameters.Get()));
+					CSquirrel * pScript = g_pScriptingManager->Load(strParameters, strPath);
+
+					if(!pScript)
+						CLogFile::Printf("Failed to load script %s (Script does not exist/Script compilation failed).", strParameters.Get());
+					else
+						CLogFile::Printf("Loaded script %s.", strParameters.Get());
+				}
+			}
+		}
+		else if(strCommand == "loadclientscript")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CLogFile::Printf("Loading client script %s.", strParameters.Get());
+
+				if(g_pClientScriptFileManager->Exists(strParameters))
+					CLogFile::Printf("Failed to load client script %s (Script is already loaded).", strParameters.Get());
+				else if(!g_pClientScriptFileManager->Start(strParameters))
+					CLogFile::Printf("Failed to load client script %s.", strParameters.Get());
+				else
+					CLogFile::Printf("Loaded client script %s.", strParameters.Get());
+			}
+		}
+		else if(strCommand == "loadresource")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CLogFile::Printf("Loading client resource %s.", strParameters.Get());
+
+				if(g_pClientResourceFileManager->Exists(strParameters))
+					CLogFile::Printf("Failed to load client resource %s (Resource is already loaded).", strParameters.Get());
+				else if(!g_pClientResourceFileManager->Start(strParameters))
+					CLogFile::Printf("Failed to load client resource %s.", strParameters.Get());
+				else
+					CLogFile::Printf("Loaded client resource %s.", strParameters.Get());
+			}
+		}
+		else if(strCommand == "unloadscript")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CLogFile::Printf("Unloading script %s.", strParameters.Get());
+				CSquirrel * pScript = g_pScriptingManager->Get(strParameters);
+
+				if(pScript)
+				{
+					g_pScriptTimerManager->HandleScriptUnload(pScript);
+					g_pScriptingManager->Unload(strParameters);
+					CLogFile::Printf("Unloaded script %s.", strParameters.Get());
+				}
+				else
+					CLogFile::Printf("Failed to unload script %s (Script is not loaded).", strParameters.Get());
+
+			}
+		}
+		else if(strCommand == "unloadclientscript")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CLogFile::Printf("Unloading client script %s.", strParameters.Get());
+
+				if(!g_pClientScriptFileManager->Exists(strParameters))
+					CLogFile::Printf("Unloading to load client script %s (Script is not loaded).", strParameters.Get());
+				else if(!g_pClientScriptFileManager->Stop(strParameters))
+					CLogFile::Printf("Failed to unload client script %s.", strParameters.Get());
+				else
+					CLogFile::Printf("Unloaded client script %s.", strParameters.Get());
+			}
+		}
+		else if(strCommand == "unloadresource")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CLogFile::Printf("Unloading client resource %s.", strParameters.Get());
+
+				if(!g_pClientResourceFileManager->Exists(strParameters))
+					CLogFile::Printf("Unloading to load client resource %s (Resource is not loaded).", strParameters.Get());
+				else if(!g_pClientResourceFileManager->Stop(strParameters))
+					CLogFile::Printf("Failed to unload client resource %s.", strParameters.Get());
+				else
+					CLogFile::Printf("Unloaded client resource %s.", strParameters.Get());
+			}
+		}
+		else if(strCommand == "reloadscript")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CLogFile::Printf("Reloading script %s.", strParameters.Get());
+				CSquirrel * pScript = g_pScriptingManager->Get(strParameters);
+
+				if(pScript)
+				{
+					g_pScriptTimerManager->HandleScriptUnload(pScript);
+
+					if(g_pScriptingManager->Unload(strParameters))
+					{
+						String strPath(SharedUtility::GetAbsolutePath("scripts/%s", strParameters.Get()));
+						pScript = g_pScriptingManager->Load(strParameters, strPath);
+
+						if(pScript)
+							CLogFile::Printf("Reloaded script %s.", strParameters.Get());
+						else
+							CLogFile::Printf("Failed to reload script %s (Failed to load script).", strParameters.Get());
+					}
+					else
+						CLogFile::Printf("Failed to reload script %s (Failed to unload script).", strParameters.Get());
+				}
+				else
+					CLogFile::Printf("Failed to reload script %s (Script is not loaded).", strParameters.Get());
+			}
+		}
+		else if(strCommand == "reloadclientscript")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CLogFile::Printf("Reloading client script %s.", strParameters.Get());
+
+				if(!g_pClientScriptFileManager->Exists(strParameters))
+					CLogFile::Printf("Failed to reload script %s (Script is not loaded).", strParameters.Get());
+				else if(!g_pClientScriptFileManager->Restart(strParameters))
+					CLogFile::Printf("Failed to reload client script %s.", strParameters.Get());
+				else
+					CLogFile::Printf("Reloaded client script %s.", strParameters.Get());
+			}
+		}
+		else if(strCommand == "reloadresource")
+		{
+			if(strParameters.IsNotEmpty())
+			{
+				CLogFile::Printf("Reloading client resource %s.", strParameters.Get());
+
+				if(!g_pClientResourceFileManager->Exists(strParameters))
+					CLogFile::Printf("Failed to reload resource %s (Resource is not loaded).", strParameters.Get());
+				else if(!g_pClientResourceFileManager->Restart(strParameters))
+					CLogFile::Printf("Failed to reload client resource %s.", strParameters.Get());
+				else
+					CLogFile::Printf("Reloaded client script %s.", strParameters.Get());
+			}
+		}
+		else if(strCommand == "scriptinfo")
+		{
+			int iScriptsLoaded = 0;
+			int iClientScriptsLoaded = 0;
+
+			for(std::list<CSquirrel *>::iterator iter = g_pScriptingManager->GetScriptList()->begin(); iter != g_pScriptingManager->GetScriptList()->end(); iter++)
+			{
+				CLogFile::Printf("Script: %s (0x%p)", (*iter)->GetName().Get(), (*iter));
+				iScriptsLoaded++;
+			}
+
+			for(CClientFileManager::iterator iter = g_pClientScriptFileManager->begin(); iter != g_pClientScriptFileManager->end(); ++ iter)
+			{
+				CLogFile::Printf("Client Script: %s (Checksum: 0x%p)", (*iter).first.Get(), (*iter).second.GetChecksum());
+				iClientScriptsLoaded++;
+			}
+
+			for(CClientFileManager::iterator iter = g_pClientResourceFileManager->begin(); iter != g_pClientResourceFileManager->end(); ++ iter)
+			{
+				CLogFile::Printf("Resource: %s (Checksum: 0x%p)", (*iter).first.Get(), (*iter).second.GetChecksum());
+				iClientScriptsLoaded++;
+			}
+
+			CLogFile::Printf("%d script(s) and %d client script(s) loaded.", iScriptsLoaded, iClientScriptsLoaded);
+		}
+		else if(strCommand == "uptime")
+		{
+			CLogFile::Printf("Server has been online for %s", SharedUtility::GetTimePassedFromTime(g_dwStartTick).Get());
+		}
+		else if(strCommand == "quit" || strCommand == "exit")
+		{
+			g_pNetworkManager->bRunning = false;
+		}
+		else
+		{
+			CSquirrelArguments pArguments;
+			pArguments.push(strInput);
+			g_pEvents->Call("consoleInput", &pArguments);
+		}
+	}
+}
+
+void InputThread(CThread * pCreator)
+{
+	static String strInputBuffer;
+
+	while(pCreator->GetUserData<bool>())
+	{
+		char szInput[256];
+		fgets(szInput, sizeof(szInput), stdin);
+		size_t len = strlen(szInput);
+
+		if(szInput[len - 1] == '\n')
+		{
+			if(szInput[len - 2] == '\r')
+				szInput[len - 2] = '\0';
+			else
+				szInput[len - 1] = '\0';
+
+			String strInput = strInputBuffer + szInput;
+
+			if(strInput.IsNotEmpty())
+			{
+				strInputBuffer.Clear();
+				consoleInputQueueMutex.Lock();
+				consoleInputQueue.push(strInput);
+				consoleInputQueueMutex.Unlock();
+			}
+		}
+		else
+			strInputBuffer += szInput;
+
+		Sleep(10);
+	}
+}
+
+int main(int argc, char ** argv)
+{
+#ifdef WIN32
+	SetConsoleTitle(VERSION_IDENTIFIER_2 " Server");
+#endif
+
+	// Install the exception handler
+	CExceptionHandler::Install();
+
+	// Open the log file
+	CLogFile::Open("ivmp-svr.log", true);
+
+	// Open the settings file
+	if(!CSettings::Open(SharedUtility::GetAbsolutePath("settings.xml"), false, false))
+		return 0;
+
+	// Parse the command line
+	CSettings::ParseCommandLine(argc, argv);
+
+	char heiphens[128];
+
+	HEIPHEN_GEN(" " VERSION_IDENTIFIER " " OS_STRING " Server", heiphens);
+
+	//----------------------------------------------------------
+	CLogFile::Print("");
+	CLogFile::Print(heiphens);
+	CLogFile::Print(" " VERSION_IDENTIFIER " " OS_STRING " Server");
+	CLogFile::Print(" Copyright (C) 2009-2011 IV:MP Team");
+	CLogFile::Printf(" Port: %d", CVAR_GET_INTEGER("port"));
+	CLogFile::Printf(" HTTP Port: %d", CVAR_GET_INTEGER("httpport"));
+	CLogFile::Printf(" Query Port: %d", (CVAR_GET_INTEGER("port") + QUERY_PORT_OFFSET));
+
+	if(CVAR_GET_STRING("hostaddress").IsNotEmpty())
+		CLogFile::Printf(" Host Address: %s", CVAR_GET_STRING("hostaddress").Get());
+
+	if(CVAR_GET_STRING("httpserver").IsNotEmpty())
+		CLogFile::Printf(" HTTP Server: %s", CVAR_GET_STRING("httpserver").Get());
+
+	CLogFile::Printf(" Max Players: %d", CVAR_GET_INTEGER("maxplayers"));
+	CLogFile::Print(heiphens);
+	CLogFile::Print("");
+	//----------------------------------------------------------
+
+	g_pEvents = new CEvents();
+	g_pScriptingManager = new CScriptingManager();
+	g_pClientScriptFileManager = new CClientFileManager(true);
+	g_pClientResourceFileManager = new CClientFileManager(false);
+
+	// Initialize the network module, if it fails, exit
+	if(!CNetworkModule::Init())
+	{
+		CLogFile::Print("Failed to initialize the network module!\n");
+		return 1;
+	}
+
+	g_pNetworkManager = new CNetworkManager();
+	g_pNetworkManager->Startup(CVAR_GET_INTEGER("port"), CVAR_GET_INTEGER("maxplayers"), CVAR_GET_STRING("password"), CVAR_GET_STRING("hostaddress"));
+	g_pPlayerManager = new CPlayerManager();
+	g_pVehicleManager = new CVehicleManager();
+	g_pObjectManager = new CObjectManager();
+	g_pPickupManager = new CPickupManager();
+	g_pBlipManager = new CBlipManager();
+	g_pActorManager = new CActorManager();
+	g_pCheckpointManager = new CCheckpointManager();
+	g_pModuleManager = new CModuleManager();
+	g_pScriptTimerManager = new CScriptTimerManager();
+	g_pWebserver = new CWebServer(CVAR_GET_INTEGER("httpport"));
+	g_pTime = new CTime();
+	g_pTrafficLights = new CTrafficLights();
+
+	std::list<String> modules = CVAR_GET_LIST("module");
+	if(modules.size() > 0)
+	{
+		CLogFile::Print("Loading modules");
+		CLogFile::Print("----------------");
+
+		for(std::list<String>::iterator iter = modules.begin(); iter != modules.end(); ++iter)
+		{
+			CLogFile::Printf("Loading module %s.", iter->C_String());
+			CModule * pModule = g_pModuleManager->LoadModule(iter->C_String());
+
+			if(!pModule)
+				CLogFile::Printf("Warning: Failed to load module %s.", iter->C_String());
+		}
+
+		CLogFile::Print("");
+	}
+
+	// Register the server natives
+	CServerNatives::Register(g_pScriptingManager);
+
+	// Register the world natives
+	CWorldNatives::Register(g_pScriptingManager);
+
+	// Register the player natives
+	RegisterPlayerNatives(g_pScriptingManager);
+
+	// Register the vehicle natives
+	CVehicleNatives::Register(g_pScriptingManager);
+
+	// Register the object natives
+	RegisterObjectNatives(g_pScriptingManager);
+
+	// Register the blip natives
+	CBlipNatives::Register(g_pScriptingManager);
+
+	// Register the actor natives
+	CActorNatives::Register(g_pScriptingManager);
+
+	// Register the checkpoint natives
+	CCheckpointNatives::Register(g_pScriptingManager);
+
+	// Register the pickup natives
+	RegisterPickupNatives(g_pScriptingManager);
+
+	// Register the area natives
+	CAreaNatives::Register(g_pScriptingManager);
+
+	// Register the hash natives
+	CHashNatives::Register(g_pScriptingManager);
+
+	// Register the event natives
+	CEventNatives::Register(g_pScriptingManager);
+
+	// Register the script natives
+	RegisterScriptNatives(g_pScriptingManager);
+
+	// Register the SQLite natives
+	RegisterSQLiteNatives(g_pScriptingManager);
+
+	// Register the XML natives
+	RegisterXMLNatives(g_pScriptingManager);
+
+	// Register the timer natives
+	RegisterTimerNatives(g_pScriptingManager);
+
+	// Register the default constants
+	g_pScriptingManager->RegisterDefaultConstants();
+
+	g_dwStartTick = SharedUtility::GetTime();
+
+	CLogFile::Print("Loading resources");
+	CLogFile::Print("------------------");
+	int iResourcesLoaded = 0;
+	int iFailedResources = 0;
+
+	std::list<String> scripts = CVAR_GET_LIST("script");
+	for(std::list<String>::iterator iter = scripts.begin(); iter != scripts.end(); iter++)
+	{
+		String strPath(SharedUtility::GetAbsolutePath("scripts/%s", (*iter).Get()));
+
+		if(!g_pScriptingManager->Load(*iter, strPath))
+		{
+			CLogFile::Printf("Warning: Failed to load script %s.", (*iter).Get());
+			iFailedResources++;
+		}
+		else
+			iResourcesLoaded++;
+	}
+
+	std::list<String> clientscripts = CVAR_GET_LIST("clientscript");
+	for(std::list<String>::iterator iter = clientscripts.begin(); iter != clientscripts.end(); iter++)
+	{
+		if(!g_pClientScriptFileManager->Start(*iter))
+		{
+			CLogFile::Printf("Warning: Failed to load client script %s.", (*iter).Get());
+			iFailedResources++;
+		}
+		else
+			iResourcesLoaded++;
+	}
+
+	std::list<String> clientresources = CVAR_GET_LIST("clientresource");
+	for(std::list<String>::iterator iter = clientresources.begin(); iter != clientresources.end(); iter++)
+	{	
+		if(!g_pClientResourceFileManager->Start(*iter))
+		{
+			CLogFile::Printf("Warning: Failed to load client resource %s.", (*iter).Get());
+			iFailedResources++;
+		}
+		else
+			iResourcesLoaded++;
+	}
+
+	CLogFile::Printf("Successfully loaded %d resources (%d failed).", iResourcesLoaded, iFailedResources);
+	CLogFile::Print("------------------");
+
+	// Start the input thread
+	CThread inputThread;
+	inputThread.SetUserData<bool>(true);
+	inputThread.Start(InputThread);
+
+	if(CVAR_GET_BOOL("query"))
+		g_pQuery = new CQuery(CVAR_GET_INTEGER("port"), CVAR_GET_STRING("hostaddress"));
+
+	if(CVAR_GET_BOOL("listed"))
+		g_pMasterList = new CMasterList(MASTERLIST_ADDRESS, MASTERLIST_VERSION, MASTERLIST_TIMEOUT, CVAR_GET_INTEGER("port"));
+
+	CLogFile::Printf("Server started.");
+
+	while(g_pNetworkManager->bRunning)
+	{
+		g_pNetworkManager->Process();
+
+		if(g_pQuery)
+			g_pQuery->Process();
+
+		if(g_pMasterList)
+			g_pMasterList->Pulse();
+
+		g_pScriptTimerManager->Pulse();
+		g_pModuleManager->Pulse();
+
+		if(CVAR_GET_BOOL("frequentevents"))
+			g_pEvents->Call("serverPulse");
+
+		// Try and lock the console input queue mutex
+		if(consoleInputQueueMutex.TryLock(0))
+		{
+			// Process the console input queue
+			while(!consoleInputQueue.empty())
+			{
+				SendConsoleInput(consoleInputQueue.back().GetData());
+				consoleInputQueue.pop();
+			}
+
+			// Unlock the console input queue mutex
+			consoleInputQueueMutex.Unlock();
+		}
+
+		Sleep(5);
+	}
+
+	// Stop the input thread
+	inputThread.SetUserData<bool>(true);
+	inputThread.Stop(false, true);
+
+	// Unload all loaded scripts
+	g_pScriptingManager->UnloadAll();
+
+	CLogFile::Print(" ===== IV:MP Server shutting down. ===== ");
+
+	SAFE_DELETE(g_pMasterList);
+	SAFE_DELETE(g_pQuery);
+	SAFE_DELETE(g_pScriptTimerManager);
+	SAFE_DELETE(g_pModuleManager);
+	SAFE_DELETE(g_pCheckpointManager);
+	SAFE_DELETE(g_pPickupManager);
+	SAFE_DELETE(g_pObjectManager);
+	SAFE_DELETE(g_pBlipManager);
+	SAFE_DELETE(g_pActorManager);
+	SAFE_DELETE(g_pVehicleManager);
+	SAFE_DELETE(g_pPlayerManager);
+	SAFE_DELETE(g_pNetworkManager);
+	CNetworkModule::Shutdown();
+	SAFE_DELETE(g_pClientResourceFileManager);
+	SAFE_DELETE(g_pClientScriptFileManager);
+	SAFE_DELETE(g_pScriptingManager);
+	SAFE_DELETE(g_pWebserver);
+	SAFE_DELETE(g_pTime);
+	SAFE_DELETE(g_pTrafficLights);
+	SAFE_DELETE(g_pEvents);
+	CSettings::Close();
+	CLogFile::Close();
+	// HACK: To fix input thread not ending
+#ifdef WIN32
+	TerminateProcess(GetCurrentProcess(), 0);
+#endif
+	return 0;
+}

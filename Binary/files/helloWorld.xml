@@ -1,0 +1,6 @@
+<rootNode>
+    <test>TestNode1</test>
+    <childNode>
+        <child>Heyho, i am the new Content</child>
+    </childNode>
+</rootNode>

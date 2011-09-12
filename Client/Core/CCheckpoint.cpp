@@ -1,0 +1,197 @@
+//============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
+//
+// File: CCheckpoint.cpp
+// Project: Client.Core
+// Author(s): jenksta
+//            mabako
+// License: See LICENSE in root directory
+//
+//==============================================================================
+
+#include "CCheckpoint.h"
+#include "COffsets.h"
+#include "CLocalPlayer.h"
+#include "CNetworkManager.h"
+
+extern CNetworkManager * g_pNetworkManager;
+extern CLocalPlayer * g_pLocalPlayer;
+
+CIVCheckpoint CCheckpoint::m_checkpointPool[INTERNAL_CHECKPOINT_LIMIT];
+
+CCheckpoint::CCheckpoint(EntityId checkpointId, eCheckpointType type, CVector3 vecPosition, CVector3 vecTargetPosition, float fRadius)
+	: CStreamableEntity(STREAM_ENTITY_CHECKPOINT, 5.0f * fRadius + 150.0f)
+{
+	m_pCheckpoint = NULL;
+	m_checkpointId = checkpointId;
+	m_eType = type;
+	m_vecPosition = vecPosition;
+	m_vecTargetPosition = vecTargetPosition;
+	m_fRadius = fRadius;
+	m_bInCheckpoint = false;
+	m_bIsVisible = true;
+}
+
+CCheckpoint::~CCheckpoint()
+{
+	// Tell the streamer to delete us
+	OnDelete();
+}
+
+CIVCheckpoint * CCheckpoint::GetCheckpoint()
+{
+	return m_pCheckpoint;
+}
+
+void CCheckpoint::Show()
+{
+	if(m_pCheckpoint)
+		m_pCheckpoint->SetActiveState(1);
+
+	m_bIsVisible = true;
+}
+
+void CCheckpoint::Hide()
+{
+	if(m_pCheckpoint)
+		m_pCheckpoint->SetActiveState(0);
+
+	m_bIsVisible = false;
+}
+
+bool CCheckpoint::IsVisible()
+{
+	if(m_pCheckpoint)
+		return (m_pCheckpoint->GetActiveState() != 0);
+
+	return m_bIsVisible;
+}
+
+void CCheckpoint::SetType(eCheckpointType type)
+{
+	if(m_pCheckpoint)
+		m_pCheckpoint->SetType(type);
+
+	m_eType = type;
+}
+
+eCheckpointType CCheckpoint::GetType()
+{
+	return m_eType;
+}
+
+void CCheckpoint::SetPosition(CVector3 vecPosition)
+{
+	if(m_pCheckpoint)
+		m_pCheckpoint->SetPosition(&vecPosition);
+
+	m_vecPosition = vecPosition;
+}
+
+void CCheckpoint::GetPosition(CVector3 * vecPosition)
+{
+	if(m_pCheckpoint)
+		m_pCheckpoint->GetPosition(vecPosition);
+	else
+		memcpy(vecPosition, &m_vecPosition, sizeof(CVector3));
+}
+
+void CCheckpoint::SetTargetPosition(CVector3 vecTargetPosition)
+{
+	if(m_pCheckpoint)
+		m_pCheckpoint->SetTargetPosition(&vecTargetPosition);
+
+	m_vecTargetPosition = vecTargetPosition;
+}
+
+void CCheckpoint::GetTargetPosition(CVector3 * vecTargetPosition)
+{
+	if(m_pCheckpoint)
+		m_pCheckpoint->GetTargetPosition(vecTargetPosition);
+	else
+		memcpy(vecTargetPosition, &m_vecTargetPosition, sizeof(CVector3));
+}
+
+void CCheckpoint::SetRadius(float fRadius)
+{
+	if(m_pCheckpoint)
+		m_pCheckpoint->SetRadius(fRadius);
+
+	m_fRadius = fRadius;
+}
+
+float CCheckpoint::GetRadius()
+{
+	return m_fRadius;
+}
+
+void CCheckpoint::Init()
+{
+	// Set all checkpoints to uninitalized
+	memset(m_checkpointPool, 0, sizeof(m_checkpointPool));
+
+	// Rewrite the checkpoint rendering to use our pool
+	*(DWORD*)(COffsets::VAR_RenderCheckpoints_FirstCP) = (DWORD)m_checkpointPool + 0x18;
+	*(DWORD*)(COffsets::VAR_RenderCheckpoints_LastCP) = (DWORD)m_checkpointPool + 0x18 + INTERNAL_CHECKPOINT_LIMIT * sizeof(IVCheckpoint);
+}
+
+void CCheckpoint::Pulse()
+{
+	// Are we not visible?
+	if(!m_bIsVisible)
+		return;
+
+	CVector3 vecPosition;
+	g_pLocalPlayer->GetPosition(&vecPosition);
+
+	CVector3 vecDistance((m_vecPosition.fX - vecPosition.fX), (m_vecPosition.fY - vecPosition.fY), (m_vecPosition.fZ - vecPosition.fZ));
+
+	// The actual radius of a checkpoint is bigger than its visible entity so we'll add a factor of 5.0
+	if(sqrt((vecDistance.fX * vecDistance.fX) + (vecDistance.fY * vecDistance.fY) + (vecDistance.fZ * vecDistance.fZ)) <= (m_fRadius * 5.0f))
+	{
+		if(!m_bInCheckpoint)
+		{
+			CLogFile::Printf("Entered checkpoint %d", m_checkpointId);
+			CBitStream  bsSend;
+			bsSend.Write(m_checkpointId);
+			g_pNetworkManager->RPC(RPC_CheckpointEntered, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
+			m_bInCheckpoint = true;
+		}
+	}
+	else if(m_bInCheckpoint)
+	{
+		CLogFile::Printf("Left checkpoint %d", m_checkpointId);
+		CBitStream  bsSend;
+		bsSend.Write(m_checkpointId);
+		g_pNetworkManager->RPC(RPC_CheckpointLeft, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
+		m_bInCheckpoint = false;
+	}
+}
+
+void CCheckpoint::StreamIn()
+{
+	// Find a free checkpoint slot
+	for(int i = 0; i < INTERNAL_CHECKPOINT_LIMIT; i++)
+	{
+		CIVCheckpoint * pCheckpoint = &m_checkpointPool[i];
+
+		if(pCheckpoint->GetType() == (WORD)CHECKPOINT_TYPE_NONE)
+		{
+			m_pCheckpoint = pCheckpoint;
+			pCheckpoint->SetType(m_eType);
+			pCheckpoint->SetPosition(&m_vecPosition);
+			pCheckpoint->SetTargetPosition(&m_vecTargetPosition);
+			pCheckpoint->SetRadius(m_fRadius);
+			pCheckpoint->SetActiveState(m_bIsVisible);
+			break;
+		}
+	}
+}
+
+void CCheckpoint::StreamOut()
+{
+	//if(IsVisible()) // commented due to not restoring after StreamIn
+	//	Hide();
+
+	memset(m_pCheckpoint->GetCheckpoint(), 0, sizeof(IVCheckpoint));
+	m_pCheckpoint = NULL;
+}
