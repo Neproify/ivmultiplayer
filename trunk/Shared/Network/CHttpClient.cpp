@@ -183,7 +183,7 @@ int CHttpClient::Read(char * szBuffer, int iLen)
 	u_long sockopt = 1;
 #ifdef _LINUX
         int flags = fcntl(m_iSocket, F_GETFL, 0);
-	flags = flags &= ~O_NONBLOCK;
+	UNSET_BIT(flags, O_NONBLOCK);
         fcntl(m_iSocket, F_SETFL, flags);
 #else
         ioctlsocket(m_iSocket, FIONBIO, &sockopt);

@@ -233,8 +233,7 @@ void CExceptionHandler::Install()
 #ifdef WIN32
 	SetUnhandledExceptionFilter(ExceptionHandler);
 #else
-	// ADAMIX: fix it later
-// 	signal(SIGSEGV, handler);
+ 	signal(SIGSEGV, ExceptionHandler);
 #endif
 }
 #endif
