@@ -25,7 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		"InstallFolder", NULL, szInstallDirectory, sizeof(szInstallDirectory)) || 
 		!SharedUtility::Exists(szInstallDirectory))
 	{
-		if(!SharedUtility::ReadRegistryString(HKEY_CURRENT_USER, "Software\\NIV", "gtaivdir", NULL, 
+		if(!SharedUtility::ReadRegistryString(HKEY_CURRENT_USER, "Software\\IVMP", "gtaivdir", NULL, 
 			szInstallDirectory, sizeof(szInstallDirectory)) || 
 			!SharedUtility::Exists(szInstallDirectory))
 		{
@@ -67,13 +67,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Check if LaunchGTAIV.exe exists
 	if(!SharedUtility::Exists(strApplicationPath.Get()))
 	{
-		ShowMessageBox("Failed to find LaunchGTAIV.exe. Cannot launch Networked: IV.");
+		ShowMessageBox("Failed to find LaunchGTAIV.exe. Cannot launch IV: Multiplayer.");
 		return 1;
 	}
 
 	// If we have a custom directory save it
 	if(bFoundCustomDirectory)
-		SharedUtility::WriteRegistryString(HKEY_CURRENT_USER, "Software\\NIV", "gtaivdir", szInstallDirectory, strlen(szInstallDirectory));
+		SharedUtility::WriteRegistryString(HKEY_CURRENT_USER, "Software\\IVMP", "gtaivdir", szInstallDirectory, strlen(szInstallDirectory));
 
 	// Get the full path of the client core
 	String strClientCore(SharedUtility::GetAbsolutePath(CLIENT_CORE_NAME DEBUG_SUFFIX LIBRARY_EXTENSION));
@@ -81,7 +81,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Check if the client core exists
 	if(!SharedUtility::Exists(strClientCore.Get()))
 	{
-		ShowMessageBox("Failed to find " CLIENT_CORE_NAME DEBUG_SUFFIX LIBRARY_EXTENSION ". Cannot launch Networked: IV.");
+		ShowMessageBox("Failed to find " CLIENT_CORE_NAME DEBUG_SUFFIX LIBRARY_EXTENSION ". Cannot launch IV: Multiplayer.");
 		return 1;
 	}
 
@@ -91,21 +91,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Check if the launch helper exists
 	if(!SharedUtility::Exists(strLaunchHelper.Get()))
 	{
-		ShowMessageBox("Failed to find " CLIENT_LAUNCH_HELPER_NAME DEBUG_SUFFIX LIBRARY_EXTENSION". Cannot launch Networked: IV.");
+		ShowMessageBox("Failed to find " CLIENT_LAUNCH_HELPER_NAME DEBUG_SUFFIX LIBRARY_EXTENSION". Cannot launch IV: Multiplayer.");
 		return 1;
 	}
 
 	// Check if LaunchGTAIV.exe is already running
 	if(SharedUtility::IsProcessRunning("LaunchGTAIV.exe"))
 	{
-		ShowMessageBox("LaunchGTAIV.exe is already running. Cannot launch Networked: IV.");
+		ShowMessageBox("LaunchGTAIV.exe is already running. Cannot launch IV: Multiplayer.");
 		return 1;
 	}
 
 	// Check if GTAIV.exe is already running
 	if(SharedUtility::IsProcessRunning("GTAIV.exe"))
 	{
-		ShowMessageBox("GTAIV.exe is already running. Cannot launch Networked: IV.");
+		ShowMessageBox("GTAIV.exe is already running. Cannot launch IV: Multiplayer.");
 		return 1;
 	}
 
@@ -122,7 +122,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if(!CreateProcess(strApplicationPath.Get(), (char *)strCommandLine.Get(), NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, 
 		SharedUtility::GetAppPath(), &siStartupInfo, &piProcessInfo))
 	{
-		ShowMessageBox("Failed to start LaunchGTAIV.exe. Cannot launch Networked: IV.");
+		ShowMessageBox("Failed to start LaunchGTAIV.exe. Cannot launch IV: Multiplayer.");
 		return 1;
 	}
 
@@ -136,7 +136,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		TerminateProcess(piProcessInfo.hProcess, 0);
 
 		// Show the error message
-		String strError("Unknown error. Cannot launch Networked: IV.");
+		String strError("Unknown error. Cannot launch IV: Multiplayer.");
 
 		if(iReturn == 1)
 			strError = "Failed to write library path into remote process. Cannot launch Networked: IV.";
