@@ -181,12 +181,23 @@ int CHttpClient::Read(char * szBuffer, int iLen)
 	// HACK: Method for non blocking recv calls only
 	// Set the socket to non blocking
 	u_long sockopt = 1;
-	ioctlsocket(m_iSocket, FIONBIO, &sockopt);
+#ifdef _LINUX
+        int flags = fcntl(m_iSocket, F_GETFL, 0);
+	flags = flags &= ~O_NONBLOCK;
+        fcntl(m_iSocket, F_SETFL, flags);
+#else
+        ioctlsocket(m_iSocket, FIONBIO, &sockopt);
+#endif
 	// Try to receive
 	int iBytesRead = recv(m_iSocket, szBuffer, iLen, 0);
 	// Set the socket to blocking
 	sockopt = 0;
+#ifdef _LINUX
+	flags = fcntl(m_iSocket, F_GETFL, 0); 
+	fcntl(m_iSocket, F_SETFL, flags | O_NONBLOCK);
+#else
 	ioctlsocket(m_iSocket, FIONBIO, &sockopt);
+#endif
 	return iBytesRead;
 }
 

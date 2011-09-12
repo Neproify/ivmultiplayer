@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -Wall -D_SERVER -I. -fno-rtti -fno-strict-aliasing
+CFLAGS=-c -Wall -D_SERVER -I. -fno-rtti -fno-strict-aliasing -I../../Shared -D_LINUX
 LDFLAGS=-lpthread
 SOURCES=$(wildcard *.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)

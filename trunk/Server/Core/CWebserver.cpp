@@ -45,7 +45,7 @@ void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn, co
 		{
 			const char * out = ret.GetString();
 			mg_printf(conn, out);
-			return "yes";
+			return NULL;
 		}
 	}
 

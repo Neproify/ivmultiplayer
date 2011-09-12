@@ -13,11 +13,14 @@
 #include <time.h>
 #include "CString.h"
 #include "SharedUtility.h"
-#include "CLogFIle.h"
+#include "CLogFile.h"
 #ifdef WIN32
 #include <dbghelp.h>
 #include <tlhelp32.h>
 #pragma comment(lib, "dbghelp.lib")
+#else
+#include <execinfo.h>
+#include <signal.h>
 #endif
 
 ExceptionHandlerCallback_t CExceptionHandler::m_pfnCallback = NULL;
@@ -213,9 +216,10 @@ long WINAPI CExceptionHandler::ExceptionHandler(_EXCEPTION_POINTERS * ExceptionI
 void CExceptionHandler::ExceptionHandler(int iSignal)
 #endif
 {
+#ifdef WIN32
 	// Write the exception report
 	WriteExceptionReport(ExceptionInfo);
-
+#endif
 	// Exit the current process
 	exit(0);
 #ifdef WIN32
@@ -229,7 +233,8 @@ void CExceptionHandler::Install()
 #ifdef WIN32
 	SetUnhandledExceptionFilter(ExceptionHandler);
 #else
-	signal(SIGSEGV, handler);
+	// ADAMIX: fix it later
+// 	signal(SIGSEGV, handler);
 #endif
 }
 #endif

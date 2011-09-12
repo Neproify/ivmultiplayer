@@ -90,7 +90,7 @@ void CQuery::Process()
 		// Attempt to read data from the socket
 		int iBytesRead = -1;
 
-		while((iBytesRead = recvfrom(m_iSocket, szBuffer, sizeof(szBuffer), NULL, (sockaddr *)&addr, (int *)&iFromLen)) != -1)
+		while((iBytesRead = recvfrom(m_iSocket, szBuffer, sizeof(szBuffer), NULL, (sockaddr *)&addr, (socklen_t *)&iFromLen)) != -1)
 		{
 			// Convert the ip address to a string
 			char szIpAddress[64];

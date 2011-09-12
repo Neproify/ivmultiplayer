@@ -19,6 +19,11 @@
 // or do it like n:iv with Serialize and Deserialize functions
 #include <Math/CMath.h>
 
+// Linux stuff
+#ifdef _LINUX
+#include <Linux.h>
+#endif
+
 // Compile modes
 #define COMPILE_MODE_CUSTOM 0
 #define COMPILE_MODE_RELEASE 1
@@ -213,9 +218,9 @@ enum eNetPadKeys
 
 struct NetPadState
 {
-	BYTE byteLeftAnalogLR[2]; // Left Analog Left/Right (OnFoot: Key 12/13 InCar: Key 30/31)
-	BYTE byteLeftAnalogUD[2]; // Left Analog Up/Down (OnFoot: Key 14/15 InVehicle: Key 32/33)
-	BYTE byteTriggers[2];
+	unsigned char byteLeftAnalogLR[2]; // Left Analog Left/Right (OnFoot: Key 12/13 InCar: Key 30/31)
+	unsigned char byteLeftAnalogUD[2]; // Left Analog Up/Down (OnFoot: Key 14/15 InVehicle: Key 32/33)
+	unsigned char byteTriggers[2];
 	DWORD dwKeys; // All other keys
 
 	NetPadState()
@@ -229,7 +234,7 @@ struct NetPadState
 		dwKeys = 0;
 	}
 
-	NetPadState(BYTE _byteLeftAnalogLR[2], BYTE _byteLeftAnalogUD[2], DWORD _dwKeys)
+	NetPadState(unsigned char _byteLeftAnalogLR[2], unsigned char _byteLeftAnalogUD[2], DWORD _dwKeys)
 	{
 		byteLeftAnalogLR[0] = _byteLeftAnalogLR[0];
 		byteLeftAnalogLR[1] = _byteLeftAnalogLR[1];
@@ -321,7 +326,7 @@ struct InVehicleSyncData
 	CVector3 vecPos;                       // vehicle position
 	CVector3 vecRotation;                  // vehicle rotation
 	unsigned int uiHealth : 16;            // vehicle health
-	BYTE byteColors[4];                    // vehicle colors
+	unsigned char byteColors[4];           // vehicle colors
 	CVector3 vecTurnSpeed;                 // vehicle turn speed
 	CVector3 vecMoveSpeed;                 // vehicle move speed
 	float fDirtLevel;                      // vehicle dirt level
@@ -333,7 +338,7 @@ struct InVehicleSyncData
 struct PassengerSyncData
 {
 	NetPadState padState; // pad state
-	BYTE byteSeatId; // vehicle seat id
+	unsigned char byteSeatId; // vehicle seat id
 	unsigned int uPlayerHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uPlayerWeaponInfo; // player weapon and ammo
 };
