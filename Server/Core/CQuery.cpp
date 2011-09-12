@@ -19,6 +19,8 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #define closesocket close
+#else
+typedef int socklen_t;
 #endif
 
 
