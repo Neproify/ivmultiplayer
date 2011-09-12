@@ -1,0 +1,3 @@
+DirectX SDK (June 08)
+(GTAIV actually uses March 08, but the official Microsoft download had a corrupt installer)
+TODO: Strip unneeded files

@@ -1,0 +1,52 @@
+<settings>
+	<!-- Port the server will listen on -->
+	<port>9999</port>
+	
+	<!-- Port the webserver listens on -->
+	<httpport>9998</httpport>
+	
+	<!-- An external webserver that you host your files on, can be either the server's name or IP -->
+	<!-- httpserver>example.com</httpserver -->
+
+	<!-- Maximum number of players the server will support (Max 32) -->
+	<maxplayers>32</maxplayers>
+
+	<!-- Maximum number of vehicles the server will support (Max 65534) -->
+	<maxvehicles>400</maxvehicles>
+
+	<!-- Password clients will have to enter to connect -->
+	<!-- password>None</password -->
+
+	<!-- Allow the server to be queried -->
+	<query>true</query>
+
+	<!-- Add the server to the master list -->
+	<listed>false</listed>
+
+	<!-- The hostname players will see -->
+	<hostname>IV:MP Server</hostname>
+
+	<!-- The address the server will bind to -->
+	<!-- hostaddress>127.0.0.1</hostaddress -->
+
+	<!-- Toggles frequently called events which has impact on CPU usage  -->
+	<frequentevents>false</frequentevents>
+
+	<!-- The scripts the server will load and run -->
+	<script>cp.nut</script>
+	<script>whisper.nut</script>
+	<script>namecheck.nut</script>
+	<script>runcode.nut</script>
+	
+	<!-- The scripts the client will download and run -->
+	<clientscript>scoreboard.nut</clientscript>
+	
+	<!-- The resources the client will download and used by clientscripts -->
+	<!-- clientresource>ivmp.png</clientresource -->
+	
+	<!-- The modules the server will load and run -->
+	<!-- For windows: -->
+	<!-- module>Sample.dll</module -->
+	<!-- For linux: -->
+	<!-- module>Sample.so</module -->
+</settings>
