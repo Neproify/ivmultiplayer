@@ -39,6 +39,7 @@ EXPORT void DestroyNetClientInterface(CNetClientInterface * pNetClient)
 	delete pNetClient;
 }
 
+#ifndef _LINUX
 BOOL WINAPI DllMain(HMODULE hModule, DWORD dwReason, void *)
 {
 	if(dwReason == DLL_PROCESS_ATTACH)
@@ -49,3 +50,4 @@ BOOL WINAPI DllMain(HMODULE hModule, DWORD dwReason, void *)
 
 	return TRUE;
 }
+#endif
