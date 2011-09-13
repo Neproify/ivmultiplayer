@@ -19,6 +19,16 @@ CIVPedWeapons::CIVPedWeapons(IVPedWeapons * pPedWeapons, CIVPed * pPed)
 
 	for(int i = 0; i < WEAPON_SLOT_MAX; i++)
 		m_pWeapons[i] = new CIVWeapon(&m_pPedWeapons->m_weapons[i], this);
+
+	m_pWeapon = new CIVWeapon(&m_pPedWeapons->m_weapon, this);
+}
+
+CIVPedWeapons::~CIVPedWeapons()
+{
+	for(int i = 0; i < WEAPON_SLOT_MAX; i++)
+		SAFE_DELETE(m_pWeapons[i]);
+
+	SAFE_DELETE(m_pWeapon);
 }
 
 eWeaponSlot CIVPedWeapons::GetCurrentWeaponSlot()
@@ -86,6 +96,8 @@ CIVWeapon * CIVPedWeapons::GetCurrentWeapon()
 
 eWeaponType CIVPedWeapons::GetCurrentWeaponType()
 {
+	// NOTE: Current weapon type is
+	// *(DWORD *)(pPedWeapons + 12 * (*(DWORD *)(pPed + 0x2C8) + 5))
 	if(m_pPedWeapons)
 		return m_pWeapons[m_pPedWeapons->m_byteCurrentWeaponSlot]->GetType();
 

@@ -14,7 +14,8 @@
 class CGraphics 
 {
 private:
-	IDirect3DDevice9  * m_pDevice;
+	IDirect3DDevice9     * m_pDevice;
+	IDirect3DStateBlock9 * m_pStateBlock;
 
 public:
 	CGraphics(IDirect3DDevice9 * pDevice);
@@ -22,6 +23,8 @@ public:
 
 	void OnLostDevice();
 	void OnResetDevice();
+	void Begin();
+	void End();
 	void DrawPixel(float fX, float fY, unsigned long ulColor);
 	void DrawLine(float fStartX, float fStartY, float fEndX, float fEndY, unsigned long ulColor);
 	void DrawRect(float fX, float fY, float fWidth, float fHeight, unsigned long ulColor);

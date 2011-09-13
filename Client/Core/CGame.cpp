@@ -280,13 +280,14 @@ bool CGame::Patch()
 		CPatcher::InstallJmpPatch((GetBase() + 0x814810), (DWORD)CEpisodes__IsEpisodeAvaliable_Hook);
 
 		// Force IsDLCReady to always return 0
-		*(DWORD *)(GetBase() + 0x407320) = 0x90C3C032; // xor al, al; retn; nop
+		// jenksta: This caused startup issues
+		//*(DWORD *)(GetBase() + 0x407320) = 90C3C032; // xor al, al; retn; nop
 
 		// Disable call to CreateWebBrowser
-		CPatcher::InstallNopPatch((GetBase() + 0x42E91A), 5);
+		//CPatcher::InstallNopPatch((GetBase() + 0x42E91A), 5);
 
 		// Disable call to CreateSocialWebBrowser
-		CPatcher::InstallNopPatch((GetBase() + 0x41F68E), 5);
+		//CPatcher::InstallNopPatch((GetBase() + 0x41F68E), 5);
 
 		// Disable vehicle entries
 		*(DWORD *)(GetBase() + 0x9B1ED0) = 0x0CC2C033;
