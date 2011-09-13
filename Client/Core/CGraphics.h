@@ -15,17 +15,14 @@ class CGraphics
 {
 private:
 	IDirect3DDevice9  * m_pDevice;
-	ID3DXSprite       * m_pDXSprite;
-	IDirect3DTexture9 * m_pDXPixelTexture;
-
-	static unsigned int m_uiWidth;
-	static unsigned int m_uiHeight;
 
 public:
 	CGraphics(IDirect3DDevice9 * pDevice);
 	~CGraphics();
 
-	void                OnLostDevice();
-	void                OnResetDevice();
-	void                DrawRect(float fX, float fY, float fWidth, float fHeight, unsigned long ulColor);
+	void OnLostDevice();
+	void OnResetDevice();
+	void DrawPixel(float fX, float fY, unsigned long ulColor);
+	void DrawLine(float fStartX, float fStartY, float fEndX, float fEndY, unsigned long ulColor);
+	void DrawRect(float fX, float fY, float fWidth, float fHeight, unsigned long ulColor);
 };
