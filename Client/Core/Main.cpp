@@ -257,100 +257,129 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 	case DLL_PROCESS_DETACH:
 		{
-			// FIX
-			//TerminateProcess(GetCurrentProcess(), 0);
+			CLogFile::Printf("Shutdown 1");
 
 			// Delete our file transfer
 			SAFE_DELETE(g_pFileTransfer);
+			CLogFile::Printf("Shutdown 2");
 
 			// Delete our camera
 			SAFE_DELETE(g_pCamera);
+			CLogFile::Printf("Shutdown 3");
 
 			// Delete our model manager
 			SAFE_DELETE(g_pModelManager);
+			CLogFile::Printf("Shutdown 4");
 
 			// Delete our pickup manager
 			SAFE_DELETE(g_pPickupManager);
+			CLogFile::Printf("Shutdown 5");
 
 			// Delete our checkpoint manager
 			SAFE_DELETE(g_pCheckpointManager);
+			CLogFile::Printf("Shutdown 6");
 
 			// Delete our object manager
 			SAFE_DELETE(g_pObjectManager);
+			CLogFile::Printf("Shutdown 7");
 
 			// Delete our blip manager
 			SAFE_DELETE(g_pBlipManager);
+			CLogFile::Printf("Shutdown 8");
 
 			// Delete our actor manager
 			SAFE_DELETE(g_pActorManager);
+			CLogFile::Printf("Shutdown 9");
 
 			// Delete our vehicle manager
 			SAFE_DELETE(g_pVehicleManager);
+			CLogFile::Printf("Shutdown 10");
 
 			// Delete our local player
 			SAFE_DELETE(g_pLocalPlayer);
+			CLogFile::Printf("Shutdown 11");
 
 			// Delete our player manager
 			SAFE_DELETE(g_pPlayerManager);
+			CLogFile::Printf("Shutdown 12");
 
 			// Delete our network manager
 			SAFE_DELETE(g_pNetworkManager);
+			CLogFile::Printf("Shutdown 13");
 
 			// Delete our name tags
 			SAFE_DELETE(g_pNameTags);
+			CLogFile::Printf("Shutdown 14");
 
 			// Delete our input window
 			SAFE_DELETE(g_pInputWindow);
+			CLogFile::Printf("Shutdown 15");
 
 			// Delete our chat window
 			SAFE_DELETE(g_pChatWindow);
+			CLogFile::Printf("Shutdown 16");
 
 			// Delete our fps counter
 			SAFE_DELETE(g_pFPSCounter);
+			CLogFile::Printf("Shutdown 17");
 
 			// Delete our credits
 			SAFE_DELETE(g_pCredits);
+			CLogFile::Printf("Shutdown 18");
 
 			// Delete our main menu
 			SAFE_DELETE(g_pMainMenu);
+			CLogFile::Printf("Shutdown 19");
 
 			// Delete our gui
 			SAFE_DELETE(g_pGUI);
+			CLogFile::Printf("Shutdown 20");
 
 			// Delete our streamer class
 			SAFE_DELETE(g_pStreamer);
+			CLogFile::Printf("Shutdown 21");
 
 			// Delete our time class
 			SAFE_DELETE(g_pTime);
+			CLogFile::Printf("Shutdown 22");
 
 			// Delete our traffic lights
 			SAFE_DELETE(g_pTrafficLights);
+			CLogFile::Printf("Shutdown 23");
 
 			// Delete our client task manager
 			SAFE_DELETE(g_pClientTaskManager);
+			CLogFile::Printf("Shutdown 24");
 
 			// Delete our events manager
 			SAFE_DELETE(g_pEvents);
+			CLogFile::Printf("Shutdown 25");
 
 			// Uninstall the Cursor hook
 #ifdef IVMP_DEBUG
 			CCursorHook::Uninstall();
 #endif
+			CLogFile::Printf("Shutdown 26");
 
 			// Uninstall the DirectInput hook
 			CDirectInputHook::Uninstall();
+			CLogFile::Printf("Shutdown 27");
 
 			// Uninstall the Direct3D hook
 			CDirect3DHook::Uninstall();
+			CLogFile::Printf("Shutdown 28");
 
 			// Uninstall the XLive hook
 			// TODO
+			CLogFile::Printf("Shutdown 29");
 
 			// Shutdown our game
 			CGame::Shutdown();
+			CLogFile::Printf("Shutdown 30");
 
 			// Close the settings file
 			CSettings::Close();
+			CLogFile::Printf("Shutdown 31");
 
 			// Close the log file
 			CLogFile::Close();
@@ -365,6 +394,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 void Direct3DRender()
 {
 	//CLogFile::Printf("Direct3DRender: Current thread id is 0x%x", GetCurrentThreadId());
+	// Check for pause menu
+	if(CGame::IsMenuActive() && CGame::GetState() == GAME_STATE_INGAME)
+		CGame::SetState(GAME_STATE_PAUSE_MENU);
+	else if(!CGame::IsMenuActive() && CGame::GetState() == GAME_STATE_PAUSE_MENU)
+		CGame::SetState(GAME_STATE_INGAME);
+
 	// Are we in the main menu?
 	if(CGame::GetState() == GAME_STATE_MAIN_MENU || CGame::GetState() == GAME_STATE_LOADING)
 	{
@@ -512,6 +547,9 @@ void Direct3DRender()
 
 					if(!pVehicle->IsStreamedIn())
 						continue;
+
+					if(!pVehicle->IsOnScreen())
+						continue;
 	
 					pVehicle->GetPosition(&vecWorldPosition);
 					CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
@@ -627,8 +665,48 @@ void GameLoad()
 	InternalResetGame();
 }
 
+bool bDoPlayerShit = false;
+CNetworkPlayer * pPlayer = NULL;
+
 void GameScriptProcess()
 {
+	if(GetAsyncKeyState(VK_F7))
+		bDoPlayerShit = true;
+
+	if(bDoPlayerShit && CGame::GetState() == GAME_STATE_INGAME && g_pNetworkManager && g_pNetworkManager->HasJoinedGame())
+	{
+		if(pPlayer == NULL)
+		{
+			g_pPlayerManager->Add(1, "j3nk5t4");
+			pPlayer = g_pPlayerManager->GetAt(1);
+			g_pPlayerManager->Spawn(1, 90, CVector3(), 0.0f);
+		}
+
+		CVector3 vecPosition;
+		g_pLocalPlayer->GetPosition(&vecPosition);
+		vecPosition.fX += 5;
+		pPlayer->SetPosition(&vecPosition);
+		pPlayer->SetCurrentHeading(g_pLocalPlayer->GetCurrentHeading());
+		NetPadState netPadState;
+		g_pLocalPlayer->GetNetPadState(&netPadState);
+		pPlayer->SetNetPadState(&netPadState);
+		unsigned int uiWeaponId = g_pLocalPlayer->GetCurrentWeapon();
+		unsigned int uiAmmo = g_pLocalPlayer->GetAmmo(uiWeaponId);
+
+		if(pPlayer->GetCurrentWeapon() != uiWeaponId)
+		{
+			g_pChatWindow->AddInfoMessage("Changing weapon to %d (%d ammo)\n", uiWeaponId, uiAmmo);
+			pPlayer->GiveWeapon(uiWeaponId, g_pLocalPlayer->GetAmmo(uiWeaponId));
+			pPlayer->SetCurrentWeapon(uiWeaponId);
+		}
+
+		if(pPlayer->GetAmmo(uiWeaponId) != uiAmmo)
+		{
+			g_pChatWindow->AddInfoMessage("Changing ammo to %d (%d weapon)", uiAmmo, uiWeaponId);
+			pPlayer->SetAmmo(uiWeaponId, uiAmmo);
+		}
+	}
+
 	// Do we need to reset the game?
 	if(g_bResetGame)
 	{
