@@ -37,6 +37,7 @@ private:
 
 public:
 	CIVPedWeapons(IVPedWeapons * pPedWeapons, CIVPed * pPed);
+	~CIVPedWeapons();
 
 	void           SetPedWeapons(IVPedWeapons * pPedWeapons) { m_pPedWeapons = pPedWeapons; }
 	IVPedWeapons * GetPedWeapons() { return m_pPedWeapons; }
