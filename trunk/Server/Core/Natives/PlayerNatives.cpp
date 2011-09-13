@@ -82,6 +82,7 @@ void RegisterPlayerNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerAmmo", sq_player_getammo, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerSerial", sq_player_getserial, 1, "i");
 	pScriptingManager->RegisterFunction("setCameraBehindPlayer", sq_player_setcamerabehind, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerDucking", sq_player_setducking, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerHud", sq_player_togglehud, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerRadar", sq_player_toggleradar, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerNames", sq_player_togglenames, 2, "ib");
@@ -1328,6 +1329,27 @@ SQInteger sq_player_setcamerabehind(SQVM * pVM)
 	g_pNetworkManager->RPC(RPC_ScriptingSetCameraBehindPlayer, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	sq_pushbool(pVM, true);
 
+	return 1;
+}
+
+// setPlayerDucking(playerid, ducking)
+SQInteger sq_player_setducking(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool iDucking;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &iDucking);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(iDucking);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDucking, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
 

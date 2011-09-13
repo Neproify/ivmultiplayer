@@ -68,6 +68,7 @@ SQUIRREL_FUNCTION(player_getweapon);
 SQUIRREL_FUNCTION(player_getammo);
 SQUIRREL_FUNCTION(player_getserial);
 SQUIRREL_FUNCTION(player_setcamerabehind);
+SQUIRREL_FUNCTION(player_setducking);
 SQUIRREL_FUNCTION(player_togglehud);
 SQUIRREL_FUNCTION(player_toggleradar);
 SQUIRREL_FUNCTION(player_togglenames);
