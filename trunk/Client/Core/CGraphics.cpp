@@ -48,6 +48,8 @@ CGraphics::CGraphics(IDirect3DDevice9 * pDevice)
 {
 	m_pDevice = pDevice;
 	m_pStateBlock = NULL;
+
+	OnResetDevice();
 }
 
 CGraphics::~CGraphics()

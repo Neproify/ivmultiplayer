@@ -344,11 +344,10 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0x9F72C1) = 0x0; // 0
 		*(BYTE *)(GetBase() + 0x9F72C5) = 0xC3; // retn
 
-		// Disable rendering of distant cars at night
-		// TODO: Test this
-		//CPatcher::InstallRetnPatch(0x9055D0);
+		// Disable fake cars
+		CPatcher::InstallRetnPatch(GetBase() + 0x9055D0);
 
-		// Overwrite the ESP Check in the func responsible for loading screens
+		// Overwrite the ESP Check in the func responsible for loading load screens
 		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
 
 		// Disable sleep
