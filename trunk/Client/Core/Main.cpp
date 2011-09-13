@@ -548,8 +548,8 @@ void Direct3DRender()
 					if(!pVehicle->IsStreamedIn())
 						continue;
 
-					if(!pVehicle->IsOnScreen())
-						continue;
+					//if(!pVehicle->IsOnScreen())
+					//	continue;
 	
 					pVehicle->GetPosition(&vecWorldPosition);
 					CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
