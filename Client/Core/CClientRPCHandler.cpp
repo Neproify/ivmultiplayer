@@ -654,6 +654,14 @@ void CClientRPCHandler::PlayerDeath(CBitStream * pBitStream, CPlayerSocket * pSe
 		pPlayer->Kill();
 }
 
+void CClientRPCHandler::ScriptingSetPlayerDucking(CBitStream * pBitStream, CPlayerSocket * senderSocket)
+{
+	bool bDucking;
+	pBitStream->Read(bDucking);
+
+	g_pLocalPlayer->SetDucking(bDucking);
+}
+
 void CClientRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -2224,6 +2232,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingWarpPlayerIntoVehicle, ScriptingWarpPlayerIntoVehicle);
 	AddFunction(RPC_ScriptingRemovePlayerFromVehicle, ScriptingRemovePlayerFromVehicle);
 	AddFunction(RPC_ScriptingSetCameraBehindPlayer, ScriptingSetCameraBehindPlayer);
+	AddFunction(RPC_ScriptingSetPlayerDucking, ScriptingSetPlayerDucking);
 	AddFunction(RPC_ScriptingSetActorCoordinates, ScriptingSetActorCoordinates);
 	AddFunction(RPC_ScriptingSetActorHeading, ScriptingSetActorHeading);
 	AddFunction(RPC_ScriptingActorWalkToCoordinates, ScriptingActorWalkToCoordinates);

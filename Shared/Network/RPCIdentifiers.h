@@ -91,6 +91,7 @@ enum eRPCIdentfiers
 	RPC_ScriptingHideCheckpointForPlayer,
 	RPC_NameChange,
 	RPC_ScriptingSetCameraBehindPlayer,
+	RPC_ScriptingSetPlayerDucking,
 	RPC_ScriptingToggleHUD,
 	RPC_ScriptingToggleRadar,
 	RPC_ScriptingToggleNames,
