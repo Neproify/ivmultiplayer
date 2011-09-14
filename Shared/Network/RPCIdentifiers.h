@@ -92,6 +92,7 @@ enum eRPCIdentfiers
 	RPC_NameChange,
 	RPC_ScriptingSetCameraBehindPlayer,
 	RPC_ScriptingSetPlayerDucking,
+	RPC_ScriptingSetPlayerInvincible,
 	RPC_ScriptingToggleHUD,
 	RPC_ScriptingToggleRadar,
 	RPC_ScriptingToggleNames,

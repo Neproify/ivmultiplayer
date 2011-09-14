@@ -83,6 +83,7 @@ void RegisterPlayerNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerSerial", sq_player_getserial, 1, "i");
 	pScriptingManager->RegisterFunction("setCameraBehindPlayer", sq_player_setcamerabehind, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerDucking", sq_player_setducking, 2, "ib");
+	pScriptingManager->RegisterFunction("setPlayerInvincible", sq_player_setinvincible, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerHud", sq_player_togglehud, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerRadar", sq_player_toggleradar, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerNames", sq_player_togglenames, 2, "ib");
@@ -1336,15 +1337,36 @@ SQInteger sq_player_setcamerabehind(SQVM * pVM)
 SQInteger sq_player_setducking(SQVM * pVM)
 {
 	EntityId playerId;
-	SQBool iDucking;
+	SQBool sqbDucking;
 	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &iDucking);
+	sq_getbool(pVM, -1, &sqbDucking);
 
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bsSend.Write(iDucking);
+		bsSend.Write(sqbDucking != 0);
 		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDucking, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerInvincible(playerid, invincible)
+SQInteger sq_player_setinvincible(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbInvincible;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbInvincible);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(sqbInvincible != 0);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerInvincible, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -1364,8 +1386,7 @@ SQInteger sq_player_togglehud(SQVM * pVM)
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bool bToggle = (sqbToggle != 0);
-		bsSend.Write(bToggle);
+		bsSend.Write(sqbToggle != 0);
 		g_pNetworkManager->RPC(RPC_ScriptingToggleHUD, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;

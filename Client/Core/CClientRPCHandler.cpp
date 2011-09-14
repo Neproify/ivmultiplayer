@@ -662,6 +662,14 @@ void CClientRPCHandler::ScriptingSetPlayerDucking(CBitStream * pBitStream, CPlay
 	g_pLocalPlayer->SetDucking(bDucking);
 }
 
+void CClientRPCHandler::ScriptingSetPlayerInvincible(CBitStream * pBitStream, CPlayerSocket * senderSocket)
+{
+	bool bInvincible;
+	pBitStream->Read(bInvincible);
+
+	Scripting::SetCharInvincible(g_pLocalPlayer->GetPedHandle(), bInvincible);
+}
+
 void CClientRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -2233,6 +2241,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingRemovePlayerFromVehicle, ScriptingRemovePlayerFromVehicle);
 	AddFunction(RPC_ScriptingSetCameraBehindPlayer, ScriptingSetCameraBehindPlayer);
 	AddFunction(RPC_ScriptingSetPlayerDucking, ScriptingSetPlayerDucking);
+	AddFunction(RPC_ScriptingSetPlayerInvincible, ScriptingSetPlayerInvincible);
 	AddFunction(RPC_ScriptingSetActorCoordinates, ScriptingSetActorCoordinates);
 	AddFunction(RPC_ScriptingSetActorHeading, ScriptingSetActorHeading);
 	AddFunction(RPC_ScriptingActorWalkToCoordinates, ScriptingActorWalkToCoordinates);
