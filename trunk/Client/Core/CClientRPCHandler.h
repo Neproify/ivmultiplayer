@@ -95,6 +95,7 @@ private:
 	static void ScriptingRemovePlayerFromVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetCameraBehindPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerDucking(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetPlayerInvincible(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 	// FIXUPDATE
 	// Server side actor tasks for better actors
