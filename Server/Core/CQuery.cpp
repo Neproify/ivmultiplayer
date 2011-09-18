@@ -209,6 +209,13 @@ void CQuery::Process()
 
 								// Write the player ping
 								reply.Write(pPlayer->GetPing());
+
+							
+								// Write the player vehicle
+								reply.Write(pPlayer->GetVehicle());
+								
+								// Write the player weapon
+								reply.Write(pPlayer->GetWeapon());
 							}
 						}
 					}
