@@ -656,6 +656,10 @@ void CClientRPCHandler::PlayerDeath(CBitStream * pBitStream, CPlayerSocket * pSe
 
 void CClientRPCHandler::ScriptingSetPlayerDucking(CBitStream * pBitStream, CPlayerSocket * senderSocket)
 {
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
 	bool bDucking;
 	pBitStream->Read(bDucking);
 	g_pLocalPlayer->SetDucking(bDucking);
@@ -663,6 +667,10 @@ void CClientRPCHandler::ScriptingSetPlayerDucking(CBitStream * pBitStream, CPlay
 
 void CClientRPCHandler::ScriptingSetPlayerInvincible(CBitStream * pBitStream, CPlayerSocket * senderSocket)
 {
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
 	bool bInvincible;
 	pBitStream->Read(bInvincible);
 	Scripting::SetCharInvincible(g_pLocalPlayer->GetScriptingHandle(), bInvincible);

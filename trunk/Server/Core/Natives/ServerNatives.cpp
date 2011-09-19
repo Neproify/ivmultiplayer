@@ -20,12 +20,11 @@
 #include "../CQuery.h"
 #include <SharedUtility.h>
 
-extern TiXmlDocument     m_settings;
-extern CPlayerManager  * g_pPlayerManager;
-extern CNetworkManager * g_pNetworkManager;
-extern CQuery          * g_pQuery;
-
+extern CPlayerManager    * g_pPlayerManager;
+extern CNetworkManager   * g_pNetworkManager;
+extern CQuery            * g_pQuery;
 extern CScriptingManager * g_pScriptingManager;
+
 void SendConsoleInput(String strInput);
 
 // Server functions
@@ -37,6 +36,7 @@ void CServerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("addRule", AddRule, 2, "ss");
 	pScriptingManager->RegisterFunction("removeRule", RemoveRule, 1, "s");
 	pScriptingManager->RegisterFunction("setRule", SetRule, 2, "ss");
+	pScriptingManager->RegisterFunction("getRule", GetRule, 1, "s");
 	pScriptingManager->RegisterFunction("shutdown", Shutdown, 0, NULL);
 	pScriptingManager->RegisterFunction("setServerPassword", SetPassword, 1, "s");
 	pScriptingManager->RegisterFunction("getServerPassword", GetPassword, 0, NULL);
@@ -110,10 +110,24 @@ SQInteger CServerNatives::SetRule(SQVM * pVM)
 	return 1;
 }
 
+// getRule(name)
+SQInteger CServerNatives::GetRule(SQVM * pVM)
+{
+	const char* rule;
+	sq_getstring(pVM, -1, &rule);
+	QueryRule * pRule = g_pQuery->GetRule(rule);
+
+	if(pRule)
+		sq_pushstring(pVM, pRule->strValue.Get(), -1);
+	else
+		sq_pushbool(pVM, false);
+
+	return 1;
+}
+
 // shutdown()
 SQInteger CServerNatives::Shutdown(SQVM * pVM)
 {
-	// Einstein: Send something to the players, so they know the server is shutting down
 	g_pNetworkManager->bRunning = false;
 	sq_pushbool(pVM, true);
 	return 1;
