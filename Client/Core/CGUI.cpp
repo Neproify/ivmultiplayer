@@ -365,8 +365,8 @@ void CGUI::DrawText(String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect 
 			CEGUI::ColourRect rColourRect = rColorRect;
 
 			// Temporary strings for unicode conversion
-			unsigned char ucAnsi;
-			WCHAR wcUnicode;
+			unsigned char ucAnsi = 0;
+			WCHAR wcUnicode = 0;
 
 			// Loop through all characters
 			unsigned int uiTextLength = sText.GetLength();
@@ -377,7 +377,7 @@ void CGUI::DrawText(String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect 
 				ucAnsi = sText[c];
 
 				// Convert the current character to unicode
-				SharedUtility::AnsiToUnicode((char *)ucAnsi, 1, (wchar_t *)wcUnicode, 1);
+				SharedUtility::AnsiToUnicode((const char *)&ucAnsi, 1, &wcUnicode, 1);
 
 				// Check for font formatting
 				if(bProcessFormatting)
@@ -1131,7 +1131,7 @@ bool CGUI::OnGUIKeyDown(const CEGUI::EventArgs &eventArgs)
 						// Set the edit box caret index to the new index after the pasted text
 						pEditBox->setCaratIndex(sCaretIndex);
 					}
-				} 
+				}
 				// If its a multi line edit box
 				else
 				{
@@ -1146,7 +1146,10 @@ bool CGUI::OnGUIKeyDown(const CEGUI::EventArgs &eventArgs)
 
 					// Get the edit box text
 					CEGUI::String sMultiLineEditBoxText = pMultiLineEditBox->getText();
-					
+
+					// Get the clipboard text
+					const char * szClipboardText = SharedUtility::GetClipboardText();
+
 					// Do we have any clipboard text?
 					if(szClipboardText)
 					{
