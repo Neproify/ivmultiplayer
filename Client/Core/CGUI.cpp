@@ -719,6 +719,11 @@ void CGUI::RemoveGUIWindow(CGUIEditBox * pEditBox)
 	RemoveGUIWindow((CEGUI::Window *)pEditBox);
 }
 
+void CGUI::RemoveGUIWindow(CGUIMultiLineEditBox * pMultiLineEditBox)
+{
+	RemoveGUIWindow((CEGUI::Window *)pMultiLineEditBox);
+}
+
 void CGUI::RemoveGUIWindow(CGUIStaticImage * pStaticText)
 {
 	RemoveGUIWindow((CEGUI::Window *)pStaticText);
@@ -769,9 +774,19 @@ CGUIEditBox * CGUI::CreateGUIEditBox(CEGUI::String &sName, CEGUI::Window * pPare
 	return (CGUIEditBox *)CreateGUIWindow(STYLE_PREFIX "/Editbox", sName, pParentWindow);
 }
 
+CGUIMultiLineEditBox * CGUI::CreateGUIMultiLineEditBox(CEGUI::String &sName, CEGUI::Window * pParentWindow)
+{
+	return (CGUIMultiLineEditBox *)CreateGUIWindow(STYLE_PREFIX "/MultiLineEditbox", sName, pParentWindow);
+}
+
 CGUIEditBox * CGUI::CreateGUIEditBox(CEGUI::Window * pParentWindow)
 {
 	return (CGUIEditBox *)CreateGUIWindow(STYLE_PREFIX "/Editbox", GetUniqueName(), pParentWindow);
+}
+
+CGUIMultiLineEditBox * CGUI::CreateGUIMultiLineEditBox(CEGUI::Window * pParentWindow)
+{
+	return (CGUIMultiLineEditBox *)CreateGUIWindow(STYLE_PREFIX "/MultiLineEditbox", GetUniqueName(), pParentWindow);
 }
 
 CGUIStaticImage * CGUI::CreateGUIStaticImage(CEGUI::String &sName, CEGUI::Window * pParentWindow)
@@ -986,92 +1001,174 @@ bool CGUI::OnGUIKeyDown(const CEGUI::EventArgs &eventArgs)
 
 				// Set the selection start to 0 and end to the edit box text length
 				pEditBox->setSelection(0, pEditBox->getText().size());
-			}
+			} 
+			// If its an multi line edit box that is selected
+			else if(keyEventArgs.window->getType() == STYLE_PREFIX "/MultiLineEditbox")
+			{
+				// Get the multi line edit box pointer
+				CEGUI::MultiLineEditbox * pMultiLineEditBox = (CEGUI::MultiLineEditbox *)keyEventArgs.window;
+
+				// Set the selection start to 0 and end to the multi line edit box text length
+				pMultiLineEditBox->setSelection(0, pMultiLineEditBox->getText().size());
+			} 
 		}
 		// Check if its the c or x key that was pressed
 		else if(keyEventArgs.scancode == CEGUI::Key::C || keyEventArgs.scancode == CEGUI::Key::X)
 		{
 			// Make sure its an edit box that is selected
-			if(keyEventArgs.window->getType() == STYLE_PREFIX "/Editbox")
+			if(keyEventArgs.window->getType() == STYLE_PREFIX "/Editbox" || keyEventArgs.window->getType() == STYLE_PREFIX "/MultiLineEditbox")
 			{
 				// Get the edit box pointer
-				CEGUI::Editbox * pEditBox = (CEGUI::Editbox *)keyEventArgs.window;
-
-				// Get the edit box selection length
-				size_t sSelectionLength = pEditBox->getSelectionLength();
-
-				// Make sure we have a selection
-				if(sSelectionLength > 0)
+				if(keyEventArgs.window->getType() == STYLE_PREFIX "/Editbox")
 				{
-					// Get the edit box selection start index
-					size_t sSelectionStartIndex = pEditBox->getSelectionStartIndex();
-
-					// Get the edit box selection end index
-					size_t sSelectionEndIndex = (sSelectionStartIndex + sSelectionLength);
-
-					// Get the edit box text
-					CEGUI::String sEditBoxText = pEditBox->getText();
-
-					// Get the text we wish to copy from the edit box text
-					CEGUI::String sSelectionText = sEditBoxText.substr(sSelectionStartIndex, sSelectionEndIndex);
-
-					// Set the clipboard text
-					SharedUtility::SetClipboardText(sSelectionText.c_str(), (sSelectionText.length() + 1));
-
-					// If its the control + x key cut the selection from the edit box text
-					if(keyEventArgs.scancode == CEGUI::Key::X)
+					CEGUI::Editbox * pEditBox = (CEGUI::Editbox *)keyEventArgs.window;
+					// Get the edit box selection length
+					size_t sSelectionLength = pEditBox->getSelectionLength();
+					if(sSelectionLength > 0)
 					{
-						// Cut the text from the edit box text
-						sEditBoxText.replace(sSelectionStartIndex, sSelectionEndIndex, "");
+						// Get the edit box selection start index
+						size_t sSelectionStartIndex = pEditBox->getSelectionStartIndex();
 
-						// Set the edit box text to the new cut text
-						pEditBox->setText(sEditBoxText);
+						// Get the edit box selection end index
+						size_t sSelectionEndIndex = (sSelectionStartIndex + sSelectionLength);
+
+						// Get the edit box text
+						CEGUI::String sEditBoxText = pEditBox->getText();
+
+						// Get the text we wish to copy from the edit box text
+						CEGUI::String sSelectionText = sEditBoxText.substr(sSelectionStartIndex, sSelectionEndIndex);
+
+						// Set the clipboard text
+						SharedUtility::SetClipboardText(sSelectionText.c_str(), (sSelectionText.length() + 1));
+
+						// If its the control + x key cut the selection from the edit box text
+						if(keyEventArgs.scancode == CEGUI::Key::X)
+						{
+							// Cut the text from the edit box text
+							sEditBoxText.replace(sSelectionStartIndex, sSelectionEndIndex, "");
+
+							// Set the edit box text to the new cut text
+							pEditBox->setText(sEditBoxText);
+						}
 					}
-				}
+				} else { // If its a multi line edit box
+					CEGUI::MultiLineEditbox * pMultiLineEditBox = (CEGUI::MultiLineEditbox *)keyEventArgs.window;
+					// Get the edit box selection length
+					size_t sSelectionLength = pMultiLineEditBox->getSelectionLength();
+					if(sSelectionLength > 0)
+					{
+						// Get the edit box selection start index
+						size_t sSelectionStartIndex = pMultiLineEditBox->getSelectionStartIndex();
+
+						// Get the edit box selection end index
+						size_t sSelectionEndIndex = (sSelectionStartIndex + sSelectionLength);
+
+						// Get the edit box text
+						CEGUI::String sMultiLineEditBoxText = pMultiLineEditBox->getText();
+
+						// Get the text we wish to copy from the edit box text
+						CEGUI::String sSelectionText = sMultiLineEditBoxText.substr(sSelectionStartIndex, sSelectionEndIndex);
+
+						// Set the clipboard text
+						SharedUtility::SetClipboardText(sSelectionText.c_str(), (sSelectionText.length() + 1));
+
+						// If its the control + x key cut the selection from the edit box text
+						if(keyEventArgs.scancode == CEGUI::Key::X)
+						{
+							// Cut the text from the edit box text
+							sMultiLineEditBoxText.replace(sSelectionStartIndex, sSelectionEndIndex, "");
+
+							// Set the edit box text to the new cut text
+							pMultiLineEditBox->setText(sMultiLineEditBoxText);
+						}
+					}
+				}		
 			}
 		}
 		// Check if its the v key that was pressed
 		else if(keyEventArgs.scancode == CEGUI::Key::V)
 		{
 			// Make sure its an edit box that is selected
-			if(keyEventArgs.window->getType() == STYLE_PREFIX "/Editbox")
+			if(keyEventArgs.window->getType() == STYLE_PREFIX "/Editbox" || keyEventArgs.window->getType() == STYLE_PREFIX "/MultiLineEditbox")
 			{
-				// Get the edit box pointer
-				CEGUI::Editbox * pEditBox = (CEGUI::Editbox *)keyEventArgs.window;
-
-				// Get the edit box selection length
-				size_t sSelectionLength = pEditBox->getSelectionLength();
-
-				// Get the edit box selection start index
-				size_t sSelectionStartIndex = pEditBox->getSelectionStartIndex();
-
-				// Get the edit box text
-				CEGUI::String sEditBoxText = pEditBox->getText();
-
-				// Get the clipboard text
-				const char * szClipboardText = SharedUtility::GetClipboardText();
-
-				// Do we have any clipboard text?
-				if(szClipboardText)
+				// If its an edit box
+				if(keyEventArgs.window->getType() == STYLE_PREFIX "/Editbox")
 				{
-					// Get the caret index
-					size_t sCaretIndex = pEditBox->getCaratIndex();
+					// Get the edit box pointer
+					CEGUI::Editbox * pEditBox = (CEGUI::Editbox *)keyEventArgs.window;
 
-					// Add the clipboard text length to the caret index
-					sCaretIndex += strlen(szClipboardText);
+					// Get the edit box selection length
+					size_t sSelectionLength = pEditBox->getSelectionLength();
 
-					// If we don't have a selection just insert the text
-					if(sSelectionLength == 0)
-						sEditBoxText.insert(sSelectionStartIndex, szClipboardText);
-					// If we do have a selection overwrite the selected text
-					else
-						sEditBoxText.replace(sSelectionStartIndex, sSelectionLength, szClipboardText);
+					// Get the edit box selection start index
+					size_t sSelectionStartIndex = pEditBox->getSelectionStartIndex();
 
-					// Set the edit box text to the string with the pasted text
-					pEditBox->setText(sEditBoxText);
+					// Get the edit box text
+					CEGUI::String sEditBoxText = pEditBox->getText();
+					
+					// Get the clipboard text
+					const char * szClipboardText = SharedUtility::GetClipboardText();
+					
+					// Do we have any clipboard text?
+					if(szClipboardText)
+					{
+						// Get the caret index
+						size_t sCaretIndex = pEditBox->getCaratIndex();
+						
+						// Add the clipboard text length to the caret index
+						sCaretIndex += strlen(szClipboardText);
+						
+						// If we don't have a selection just insert the text
+						if(sSelectionLength == 0)
+							sEditBoxText.insert(sSelectionStartIndex, szClipboardText);
+						// If we do have a selection overwrite the selected text
+						else
+							sEditBoxText.replace(sSelectionStartIndex, sSelectionLength, szClipboardText);
+						
+						// Set the edit box text to the string with the pasted text
+						pEditBox->setText(sEditBoxText);
+						
+						// Set the edit box caret index to the new index after the pasted text
+						pEditBox->setCaratIndex(sCaretIndex);
+					}
+				} 
+				// If its a multi line edit box
+				else
+				{
+					// Get the edit box pointer
+					CEGUI::MultiLineEditbox * pMultiLineEditBox = (CEGUI::MultiLineEditbox *)keyEventArgs.window;
 
-					// Set the edit box caret index to the new index after the pasted text
-					pEditBox->setCaratIndex(sCaretIndex);
+					// Get the edit box selection length
+					size_t sSelectionLength = pMultiLineEditBox->getSelectionLength();
+
+					// Get the edit box selection start index
+					size_t sSelectionStartIndex = pMultiLineEditBox->getSelectionStartIndex();
+
+					// Get the edit box text
+					CEGUI::String sMultiLineEditBoxText = pMultiLineEditBox->getText();
+					
+					// Do we have any clipboard text?
+					if(szClipboardText)
+					{
+						// Get the caret index
+						size_t sCaretIndex = pMultiLineEditBox->getCaratIndex();
+						
+						// Add the clipboard text length to the caret index
+						sCaretIndex += strlen(szClipboardText);
+						
+						// If we don't have a selection just insert the text
+						if(sSelectionLength == 0)
+							sMultiLineEditBoxText.insert(sSelectionStartIndex, szClipboardText);
+						// If we do have a selection overwrite the selected text
+						else
+							sMultiLineEditBoxText.replace(sSelectionStartIndex, sSelectionLength, szClipboardText);
+						
+						// Set the edit box text to the string with the pasted text
+						pMultiLineEditBox->setText(sMultiLineEditBoxText);
+						
+						// Set the edit box caret index to the new index after the pasted text
+						pMultiLineEditBox->setCaratIndex(sCaretIndex);
+					}
 				}
 			}
 		}

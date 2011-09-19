@@ -45,6 +45,9 @@ _MEMBER_FUNCTION_IMPL(GUIButton, constructor);
 // GUIEditBox
 _MEMBER_FUNCTION_IMPL(GUIEditBox, constructor);
 
+// GUIMultiLineEditBox
+_MEMBER_FUNCTION_IMPL(GUIMultiLineEditBox, constructor);
+
 // GUICheckBox
 _MEMBER_FUNCTION_IMPL(GUICheckBox, constructor);
 _MEMBER_FUNCTION_IMPL(GUICheckBox, setChecked);

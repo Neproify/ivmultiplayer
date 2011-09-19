@@ -545,6 +545,23 @@ _MEMBER_FUNCTION_IMPL(GUIEditBox, constructor)
 	sq_pushbool(pVM, true);
 	return 1;
 }
+// GUIMultiLineEditBox
+_MEMBER_FUNCTION_IMPL(GUIMultiLineEditBox, constructor)
+{
+	CEGUI::Window * pWindow = g_pGUI->CreateGUIMultiLineEditBox();
+	if(!pWindow || SQ_FAILED(sq_setinstance(pVM, pWindow)))
+	{
+		CLogFile::Printf("Can't create GUIMultiLineEditBox.");
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	_SET_RELEASE_HOOK(GUIElement);
+	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
+	pWindow->setVisible(true);
+	sq_pushbool(pVM, true);
+	return 1;
+}
 
 // GUICheckBox
 _MEMBER_FUNCTION_IMPL(GUICheckBox, constructor)
