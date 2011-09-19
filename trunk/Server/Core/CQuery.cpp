@@ -134,7 +134,7 @@ void CQuery::Process()
 				if((result.GetType() == OT_INTEGER && result.GetInteger() == 0) || (result.GetType() == OT_STRING && strlen(result.GetString()) == 0))
 				{
 					// A script refused the query
-					return;
+					continue;
 				}
 
 				// Was a string returned?
@@ -219,9 +219,6 @@ void CQuery::Process()
 								else
 									reply.Write((EntityId)INVALID_ENTITY_ID);
 
-								// Write the player vehicle
-								reply.Write(pPlayer->GetVehicle());
-								
 								// Write the player weapon
 								reply.Write(pPlayer->GetWeapon());
 							}

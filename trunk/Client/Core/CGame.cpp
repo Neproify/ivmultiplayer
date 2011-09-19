@@ -29,6 +29,7 @@
 #include "CPools.h"
 #include "CClientTaskManager.h"
 #include "CCredits.h"
+#include "CContextDataManager.h"
 
 extern CChatWindow        * g_pChatWindow;
 extern CInputWindow       * g_pInputWindow;
@@ -40,6 +41,7 @@ bool           CGame::m_bInputState;
 eState         CGame::m_State;
 bool           CGame::m_bFocused;
 CPools       * CGame::m_pPools;
+CIVPad       * CGame::m_pPad;
 CIVModelInfo   CGame::m_modelInfos[NUM_ModelInfos];
 CIVWeaponInfo  CGame::m_weaponInfos[NUM_WeaponInfos];
 CIVStreaming * CGame::m_pStreaming;
@@ -160,6 +162,9 @@ void CGame::Initialize()
 	// Create our pools class
 	m_pPools = new CPools();
 
+	// Create the pad instance
+	m_pPad = new CIVPad((IVPad *)COffsets::VAR_Pads);
+
 	// Initialize the model infos
 	for(int i = 0; i < NUM_ModelInfos; i++)
 		m_modelInfos[i].SetIndex(i);
@@ -185,14 +190,15 @@ void CGame::Initialize()
 
 void CGame::Shutdown()
 {
-	// Shutdown our game classes
+	// Shutdown our game class instances
 	SAFE_DELETE(m_pWeather);
 	SAFE_DELETE(m_pStreaming);
+	SAFE_DELETE(m_pPad);
 
-	// Shutdown our pools class
+	// Shutdown our pools instance
 	m_pPools->Shutdown();
 
-	// Delete our pools class
+	// Delete our pools instance
 	SAFE_DELETE(m_pPools);
 
 	// Uninstall the script hooks
@@ -265,6 +271,172 @@ it_not:
 	}
 }
 
+unsigned int          uiPlayerInfoIndex = 0;
+IVPlayerInfo        * pReturnedPlayerInfo = NULL;
+unsigned int          uiReturnedIndex = 0;
+IVPlayerPed         * _pPlayerPed = NULL;
+
+IVPlayerInfo * GetPlayerInfoFromIndex(unsigned int uiIndex)
+{
+	// Default to the local player info just incase the index is invalid
+	pReturnedPlayerInfo = CGame::GetPools()->GetPlayerInfoFromIndex(0);
+
+	// Is this not the local player info?
+	if(uiIndex != 0)
+	{
+		CContextData * pContextInfo = CContextDataManager::GetContextData(uiIndex);
+
+		if(pContextInfo)
+			pReturnedPlayerInfo = pContextInfo->GetPlayerInfo()->GetPlayerInfo();
+	}
+	
+	return pReturnedPlayerInfo;
+}
+
+void _declspec(naked) GetPlayerInfoFromIndex_Hook()
+{
+	_asm
+	{
+		mov eax, [esp+4]
+		mov uiPlayerInfoIndex, eax
+		pushad
+	}
+
+	GetPlayerInfoFromIndex(uiPlayerInfoIndex);
+
+	_asm
+	{
+		popad
+		mov eax, pReturnedPlayerInfo
+		retn
+	}
+}
+
+unsigned int GetIndexFromPlayerInfo(IVPlayerInfo * pPlayerInfo)
+{
+	// Default to the local player info just incase the player info is invalid
+	uiReturnedIndex = 0;
+
+	// Is this not the local player info?
+	if(pPlayerInfo != CGame::GetPools()->GetPlayerInfoFromIndex(0))
+	{
+		CContextData * pContextInfo = CContextDataManager::GetContextData(pPlayerInfo);
+
+		if(pContextInfo)
+			uiReturnedIndex = pContextInfo->GetPlayerInfo()->GetPlayerNumber();
+	}
+
+	return uiReturnedIndex;
+}
+
+void _declspec(naked) GetIndexFromPlayerInfo_Hook()
+{
+	_asm
+	{
+		mov eax, [esp+4]
+		mov pReturnedPlayerInfo, eax
+		pushad
+	}
+
+	GetIndexFromPlayerInfo(pReturnedPlayerInfo);
+
+	_asm
+	{
+		popad
+		mov eax, uiReturnedIndex
+		retn
+	}
+}
+
+IVPlayerPed * GetLocalPlayerPed()
+{
+	// Default to the local player ped (If available)
+	IVPlayerInfo * pPlayerInfo = CGame::GetPools()->GetPlayerInfoFromIndex(0);
+
+	if(pPlayerInfo)
+		_pPlayerPed = pPlayerInfo->m_pPlayerPed;
+	else
+		_pPlayerPed = NULL;
+
+	// Is the local player id valid?
+	if(CGame::GetPools()->GetLocalPlayerIndex() != -1)
+	{
+		// Is the player index not the local player?
+		if(CGame::GetPools()->GetLocalPlayerIndex() != 0)
+		{
+			// Get the context info for the player index
+			CContextData * pContextInfo = CContextDataManager::GetContextData((BYTE)CGame::GetPools()->GetLocalPlayerIndex());
+
+			// Is the context info valid?
+			if(pContextInfo)
+			{
+				// Set the player ped to the remote player
+				_pPlayerPed = pContextInfo->GetPlayerPed()->GetPlayerPed();
+			}
+		}
+	}
+	else
+		CLogFile::Printf("GetLocalPlayerPed Invalid Local Player Index");
+
+	if(_pPlayerPed == NULL)
+		CLogFile::Printf("GetLocalPlayerPed Return Is Invalid");
+
+	return _pPlayerPed;
+}
+
+void _declspec(naked) GetLocalPlayerPed_Hook()
+{
+	_asm
+	{
+		pushad
+	}
+
+	GetLocalPlayerPed();
+
+	_asm
+	{
+		popad
+		mov eax, _pPlayerPed
+		retn
+	}
+}
+
+IVPlayerPed * GetPlayerPedFromPlayerInfo(IVPlayerInfo * pPlayerInfo)
+{
+	// Reset the player ped pointer
+	_pPlayerPed = NULL;
+
+	// Is the player info pointer and player info player ped pointer valid?
+	if(pPlayerInfo)
+		_pPlayerPed = pPlayerInfo->m_pPlayerPed;
+	else
+	{
+		// Player info pointer is invalid, use the local player ped
+		_pPlayerPed = GetLocalPlayerPed();
+	}
+
+	return _pPlayerPed;
+}
+
+void _declspec(naked) GetPlayerPedFromPlayerInfo_Hook()
+{
+	_asm
+	{
+		mov eax, [esp+4]
+		mov pReturnedPlayerInfo, eax
+		pushad
+	}
+
+	GetPlayerPedFromPlayerInfo(pReturnedPlayerInfo);
+
+	_asm
+	{
+		popad
+		mov eax, _pPlayerPed
+		retn
+	}
+}
+
 bool CGame::Patch()
 {
 	// Unprotect .text and .rdata memory and leave it unprotected
@@ -272,6 +444,18 @@ bool CGame::Patch()
 
 	if(COffsets::GetVersion() == GAME_VERSION_7)
 	{
+		// Hook GetPlayerInfoFromIndex to use our own function
+		CPatcher::InstallJmpPatch((GetBase() + 0x817F20), (DWORD)GetPlayerInfoFromIndex_Hook);
+
+		// Hook GetIndexFromPlayerInfo to use our own function
+		CPatcher::InstallJmpPatch((GetBase() + 0x817DC0), (DWORD)GetIndexFromPlayerInfo_Hook);
+
+		// Hook GetLocalPlayerPed to use our own function
+		CPatcher::InstallJmpPatch((GetBase() + 0x817F40), (DWORD)GetLocalPlayerPed_Hook);
+
+		// Hook GetPlayerPedFromPlayerInfo to use our own function
+		//CPatcher::InstallJmpPatch((GetBase() + 0x8788D0), (DWORD)GetPlayerPedFromPlayerInfo_Hook);
+
 		// Hook CTask::~CTask to use our own function
 #define FUNC_CTask__Destructor 0xA288D0
 		CPatcher::InstallJmpPatch((GetBase() + FUNC_CTask__Destructor), (DWORD)CTask__Destructor_Hook);
@@ -946,4 +1130,29 @@ bool CGame::DeleteFire(unsigned int uiFire)
 {
 	Scripting::RemoveScriptFire(uiFire);
 	return true;
+}
+
+void * CGame::Alloc(DWORD dwSize)
+{
+	DWORD dwFunc = (CGame::GetBase() + 0x4011D0); // alloc
+	void * pMemory = NULL;
+	_asm
+	{
+		push dwSize
+		call dwFunc
+		mov pMemory, eax
+		add esp, 4
+	}
+	return pMemory;
+}
+
+void CGame::Free(void * pMemory)
+{
+	DWORD dwFunc = (CGame::GetBase() + 0x5B1C10); // gta_free
+	_asm
+	{
+		push pMemory
+		call dwFunc
+		add esp, 4
+	}
 }

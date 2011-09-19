@@ -63,15 +63,17 @@ void CNameTags::Draw()
 				if(!pPlayer->IsSpawned())
 					continue;
 
-				// TODO: Check if player is on screen otherwise its a waste of resources
+				// Is this player on screen?
+				if(!pPlayer->IsOnScreen())
+					continue;
+
+				// Get the player position
+				pPlayer->GetPosition(&vecWorldPosition);
 
 				// Is this player not within our view range?
 				// TODO: Find proper values and base on current weapon e.t.c.
 				if((vecLocalPlayerPosition - vecWorldPosition).Length() > 50.0f)
 					continue;
-
-				// Get the player position
-				pPlayer->GetPosition(&vecWorldPosition);
 
 				// Convert the position to a screen position
 				CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
@@ -83,7 +85,7 @@ void CNameTags::Draw()
 				DWORD dwColor = ((pPlayer->GetColor() >> 8) | 0xFF000000);
 
 				// Draw the name tag
-				g_pGUI->DrawText(strNameTag.Get(), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
+				g_pGUI->DrawText(strNameTag, CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
 			}
 		}
 	}

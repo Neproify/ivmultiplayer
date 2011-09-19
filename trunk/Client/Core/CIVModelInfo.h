@@ -140,7 +140,7 @@ public:
 	PAD(IVBaseModelInfo, pad3, 0x14);   // 58-6C
 	DWORD dwVehicleType;                // 6C-70
 	// 0x8C - DWORD dwHandlingIndex;
-	// CHandling size = 0x110
+	// CHandling (size = 0x110)
 	PAD(IVBaseModelInfo, pad4, 0x52);   // 70-C2
 	BYTE byteTextureVariationCount;     // C2-C3
 	// 0xCC - IVVehicleStruct * m_pVehicleStruct (Vehicle Struct Size = 0x20C)

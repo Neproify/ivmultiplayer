@@ -15,158 +15,64 @@
 #include "COffsets.h"
 #include "CPools.h"
 
-PadState playerPadStates[MAX_PLAYERS];
-Matrix34 playerCamMatrixs[MAX_PLAYERS];
-CIVPlayerPed * playerPedSlots[MAX_PLAYERS];
-
-IVPed * m_pPed;
-IVVehicle * m_pKeySyncIVVehicle;
-unsigned int m_uiLocalPlayerId;
-BYTE m_byteEnterExitVehicleKey[2];
-BYTE byteValue[GTA_KEY_MAX];
+IVPed      * g_pPed = NULL;
+IVVehicle  * g_pKeySyncIVVehicle = NULL;
+unsigned int g_uiLocalPlayerIndex = 0;
+IVPad        g_localPad;
+Matrix       g_matLocalCameraMatrix;
+bool         g_bInLocalContext = true;
 
 extern CLocalPlayer * g_pLocalPlayer;
 extern CVehicleManager * g_pVehicleManager;
 
-void SetLocalPlayerId(unsigned int uiPlayerId)
-{
-	*(unsigned int *)(COffsets::VAR_LocalPlayerId) = uiPlayerId;
-}
-
-unsigned int GetLocalPlayerId()
-{
-	return *(unsigned int *)(COffsets::VAR_LocalPlayerId);
-}
-
-void ResetPlayerPadState(unsigned int uiPlayerId)
-{
-	playerPadStates[uiPlayerId] = PadState();
-}
-
-void ResetPlayerPadStates()
-{
-	for(unsigned int i = 0; i < MAX_PLAYERS; i++)
-		ResetPlayerPadState(i);
-}
-
-void SetPlayerPadState(unsigned int uiPlayerId, PadState * padState)
-{
-	memcpy(&playerPadStates[uiPlayerId], padState, sizeof(PadState));
-}
-
-void GetPlayerPadState(unsigned int uiPlayerId, PadState * padState)
-{
-	memcpy(padState, &playerPadStates[uiPlayerId], sizeof(PadState));
-}
-
-CPad * GetGamePad()
-{
-	return (CPad *)(COffsets::VAR_Pads);
-}
-
-void ResetGamePadState()
-{
-	SetGamePadState(&PadState());
-}
-
-void SetGamePadState(PadState * padState)
-{
-	CPad * pPad = (CPad *)GetGamePad();
-
-	if(pPad)
-	{
-		for(int i = 0; i < GTA_KEY_MAX; i++)
-		{
-			pPad->m_padData[i].m_byteUnknown6 = padState->byteCurrentKeys[i];
-			pPad->m_padData[i].m_byteUnknown7 = padState->bytePreviousKeys[i];
-		}
-	}
-}
-
-void GetGamePadState(PadState * padState)
-{
-	CPad * pPad = (CPad *)GetGamePad();
-
-	if(pPad)
-	{
-		for(int i = 0; i < GTA_KEY_MAX; i++)
-		{
-			padState->byteCurrentKeys[i] = pPad->m_padData[i].m_byteUnknown6;
-			padState->bytePreviousKeys[i] = pPad->m_padData[i].m_byteUnknown7;
-		}
-	}
-}
-
-void ResetPlayerCameraMatrix(unsigned int uPlayerId)
-{
-	memset(&playerCamMatrixs[uPlayerId], 0, sizeof(Matrix34));
-}
-
-void ResetPlayerCameraMatrixs()
-{
-	for(unsigned int i = 0; i < MAX_PLAYERS; i++)
-		ResetPlayerCameraMatrix(i);
-}
-
-void SetPlayerCameraMatrix(unsigned int uiPlayerId, Matrix34 * matMatrix)
-{
-	memcpy(&playerCamMatrixs[uiPlayerId], matMatrix, sizeof(Matrix34));
-}
-
-void GetPlayerCameraMatrix(unsigned int uiPlayerId, Matrix34 * matMatrix)
-{
-	memcpy(matMatrix, &playerCamMatrixs[uiPlayerId], sizeof(Matrix34));
-}
-
 CCam * GetGameCam()
 {
-	CCam * pCam = NULL;
+	/*CCam * pCam = NULL;
 	_asm
 	{
 		mov ecx, offset COffsets::VAR_CameraManager
 		mov eax, [ecx+0Ch]
 		mov pCam, eax
-	}
+	}*/
 	//DWORD dwCameraManager = *(DWORD **)COffsets::VAR_CameraManager;
 	//return (CCam *)(dwCameraManager + 0xC);
-}
-
-void SetGameCameraMatrix(Matrix34 * matMatrix)
-{
-	CCam * pCam = GetGameCam();
-
-	if(pCam)
-		memcpy(&pCam->m_matMatrix, matMatrix, sizeof(Matrix34));
-}
-
-void GetGameCameraMatrix(Matrix34 * matMatrix)
-{
-	CCam * pCam = GetGameCam();
-
-	if(pCam)
-		memcpy(matMatrix, &pCam->m_matMatrix, sizeof(Matrix34));
-}
-
-void SetPlayerPedSlot(unsigned int uiPlayerId, CIVPlayerPed * pPlayerPed)
-{
-	playerPedSlots[uiPlayerId] = pPlayerPed;
-}
-
-unsigned int GetPlayerIdFromPedPointer(IVPed * pPed)
-{
-	// Loop through all player info slots
-	for(unsigned int i = 0; i < MAX_PLAYERS; i++)
+	// todo: defines for addresses
+	void * unkn = (void **)(CGame::GetBase() + 0xF21A6C);
+	DWORD dwFunc = (CGame::GetBase() + 0xC4E4C0);
+	CCam * pCam = NULL;
+	_asm
 	{
-		// Get the player info
-		IVPlayerInfo * pPlayerInfo = CGame::GetPools()->GetPlayerInfoFromIndex(i);
-
-		// Is the player info valid and does it match our ped?
-		if(pPlayerInfo && pPlayerInfo->m_pPlayerPed == pPed)
-			return i;
+		mov ecx, unkn
+		call dwFunc
+		mov pCam, eax
 	}
+	return pCam;
+}
 
-	// Player info slot not found
-	return INVALID_ENTITY_ID;
+void SetGameCameraMatrix(Matrix * matMatrix)
+{
+	CCam * pCam = GetGameCam();
+
+	if(pCam)
+	{
+		memcpy(&pCam->m_matMatrix.vecRight, &matMatrix->vecRight, sizeof(CVector3));
+		memcpy(&pCam->m_matMatrix.vecForward, &matMatrix->vecForward, sizeof(CVector3));
+		memcpy(&pCam->m_matMatrix.vecUp, &matMatrix->vecUp, sizeof(CVector3));
+		memcpy(&pCam->m_matMatrix.vecPosition, &matMatrix->vecPosition, sizeof(CVector3));
+	}
+}
+
+void GetGameCameraMatrix(Matrix * matMatrix)
+{
+	CCam * pCam = GetGameCam();
+
+	if(pCam)
+	{
+		memcpy(&matMatrix->vecRight, &pCam->m_matMatrix.vecRight, sizeof(CVector3));
+		memcpy(&matMatrix->vecForward, &pCam->m_matMatrix.vecForward, sizeof(CVector3));
+		memcpy(&matMatrix->vecUp, &pCam->m_matMatrix.vecUp, sizeof(CVector3));
+		memcpy(&matMatrix->vecPosition, &pCam->m_matMatrix.vecPosition, sizeof(CVector3));
+	}
 }
 
 #include "CChatWindow.h"
@@ -174,69 +80,95 @@ extern CChatWindow * g_pChatWindow;
 
 void ContextSwitch(IVPed * pPed, bool bPost)
 {
+	// Do we have a valid ped pointer?
 	if(pPed)
 	{
-		unsigned int uiPlayerId = GetPlayerIdFromPedPointer(pPed);
-
-		if(uiPlayerId > 0 && uiPlayerId < INVALID_ENTITY_ID)
+		// Is this not the local player ped?
+		if((IVPlayerPed *)pPed != CGame::GetPools()->GetPlayerInfoFromIndex(0)->m_pPlayerPed)
 		{
-			if(!bPost)
+			if(!bPost && !g_bInLocalContext)
 			{
-				// TODO: Context switch current/desired move states?
-				// Context switch the local player id with the remote players
-				m_uiLocalPlayerId = CGame::GetPools()->GetLocalPlayerIndex();
-				CGame::GetPools()->SetLocalPlayerIndex(uiPlayerId);
+				CLogFile::Printf("Not switching due to not being in local context!");
+				return;
+			}
 
-				// Context switch the local players keys with the remote players
-				GetGamePadState(&playerPadStates[0]);
-				SetGamePadState(&playerPadStates[uiPlayerId]);
-				CPad * pGamePad = GetGamePad();
+			if(bPost && g_bInLocalContext)
+			{
+				CLogFile::Printf("Not switching due to being in local context!");
+				return;
+			}
 
-				for(int i = 0; i < GTA_KEY_MAX; i++)
+			// Get the remote players context info
+			CContextData * pContextInfo = CContextDataManager::GetContextData((IVPlayerPed *)pPed);
+
+			// Do we have a valid context info?
+			if(pContextInfo)
+			{
+				// Get the game pad
+				CIVPad * pPad = CGame::GetPad();
+
+				if(!bPost)
 				{
-					if(pGamePad->m_padData[i].m_pUnknown)
-					{
-						byteValue[i] = pGamePad->m_padData[i].m_pUnknown->m_unknown[pGamePad->m_padData[i].m_byteUnknown8].m_byteUnknown0;
-						pGamePad->m_padData[i].m_pUnknown->m_unknown[pGamePad->m_padData[i].m_byteUnknown8].m_byteUnknown0 = playerPadStates[uiPlayerId].byteCurrentKeys[i];
-					}
-				}
+					// Store the local players index
+					g_uiLocalPlayerIndex = CGame::GetPools()->GetLocalPlayerIndex();
 
-				// Context switch the local players cam matrix with the remote players
-				GetGameCameraMatrix(&playerCamMatrixs[0]);
-				SetGameCameraMatrix(&playerCamMatrixs[uiPlayerId]);
+					// Store the local players pad
+					memcpy(&g_localPad, pPad->GetPad(), sizeof(IVPad));
+
+					// Store the local players camera matrix
+					GetGameCameraMatrix(&g_matLocalCameraMatrix);
+
+					// Swap the local player index with the remote players index
+					CGame::GetPools()->SetLocalPlayerIndex(pContextInfo->GetPlayerInfo()->GetPlayerNumber());
+
+					// Set the history values
+					for(int i = 0; i < INPUT_COUNT; i++)
+					{
+						IVPadData * pPadData = &pContextInfo->GetPad()->GetPad()->m_padData[i];
+
+						if(pPadData->m_pHistory)
+						{
+							pPadData->m_byteHistoryIndex++;
+
+							if(pPadData->m_byteHistoryIndex >= MAX_HISTORY_ITEMS)
+								pPadData->m_byteHistoryIndex = 0;
+
+							pPadData->m_pHistory->m_historyItems[pPadData->m_byteHistoryIndex].m_byteValue = pContextInfo->GetPad()->GetPad()->m_padData[i].m_byteLastValue;
+							pPadData->m_pHistory->m_historyItems[pPadData->m_byteHistoryIndex].m_dwLastUpdateTime = CGame::GetTime();
+						}
+					}
+
+					CPadState padState;
+					pContextInfo->GetPad()->GetCurrentClientPadState(padState);
+					//g_pChatWindow->AddInfoMessage("L: %d R: %d U: %d D: %d", padState.ucOnFootMove[0], padState.ucOnFootMove[1], padState.ucOnFootMove[2], padState.ucOnFootMove[3]);
+
+					// Swap the local players pad with the remote players pad
+					memcpy(pPad->GetPad(), pContextInfo->GetPad()->GetPad(), sizeof(IVPad));
+
+					// Swap the local players camera matrix with the remote players camera matrix
+					//SetGameCameraMatrix(pContextInfo->GetCameraMatrix());
+
+					// Flag ourselves as no longer in local context
+					g_bInLocalContext = false;
+				}
+				else
+				{
+					// Restore the local players camera matrix
+					SetGameCameraMatrix(&g_matLocalCameraMatrix);
+
+					// Restore the local players pad
+					memcpy(pPad->GetPad(), &g_localPad, sizeof(IVPad));
+
+					// Restore the local players index
+					CGame::GetPools()->SetLocalPlayerIndex(g_uiLocalPlayerIndex);
+
+					// Flag ourselves as back in local context
+					g_bInLocalContext = true;
+				}
 			}
 			else
-			{
-				// Restore the local players cam matrix
-				SetGameCameraMatrix(&playerCamMatrixs[0]);
-
-				// Restore the local players keys
-				SetGamePadState(&playerPadStates[0]);
-				CPad * pGamePad = GetGamePad();
-
-				for(int i = 0; i < GTA_KEY_MAX; i++)
-				{
-					if(pGamePad->m_padData[i].m_pUnknown)
-					{
-						pGamePad->m_padData[i].m_pUnknown->m_unknown[pGamePad->m_padData[i].m_byteUnknown8].m_byteUnknown0 = byteValue[i];
-						byteValue[i] = 0;
-					}
-				}
-
-				// Restore the local player id
-				CGame::GetPools()->SetLocalPlayerIndex(m_uiLocalPlayerId);
-			}
+				CLogFile::Printf("ContextSwitch Warning: Invalid Player Ped");
 		}
-		else if(uiPlayerId != 0)
-		{
-			CLogFile::Printf("ContextSwitch Warning: Invalid Player Ped");
-		}
-
-		//if(g_pChatWindow)
-		//{
-		//	GetGameCameraMatrix(&playerCamMatrixs[0]);
-		//	g_pChatWindow->AddInfoMessage("{%.02f,%.02f, %.02f},{%.02f,%.02f, %.02f},{%.02f,%.02f, %.02f},{%.02f,%.02f, %.02f}", playerCamMatrixs[0].vecRight.fX, playerCamMatrixs[0].vecRight.fY, playerCamMatrixs[0].vecRight.fZ, playerCamMatrixs[0].vecForward.fX, playerCamMatrixs[0].vecForward.fY, playerCamMatrixs[0].vecForward.fZ, playerCamMatrixs[0].vecUp.fX, playerCamMatrixs[0].vecUp.fY, playerCamMatrixs[0].vecUp.fZ, playerCamMatrixs[0].vecPosition.fX, playerCamMatrixs[0].vecPosition.fY, playerCamMatrixs[0].vecPosition.fZ);
-		//}
 	}
 }
 
@@ -244,11 +176,11 @@ void _declspec(naked) CPlayerPed__ProcessInput_Hook()
 {
 	_asm
 	{
-		mov m_pPed, ecx
+		mov g_pPed, ecx
 		pushad
 	}
 
-	ContextSwitch(m_pPed, false);
+	ContextSwitch(g_pPed, false);
 
 	_asm
 	{
@@ -257,7 +189,7 @@ void _declspec(naked) CPlayerPed__ProcessInput_Hook()
 		pushad
 	}
 
-	ContextSwitch(m_pPed, true);
+	ContextSwitch(g_pPed, true);
 
 	_asm
 	{
@@ -270,11 +202,11 @@ void _declspec(naked) CAutomobile_ProcessInput_Hook()
 {
 	_asm
 	{
-		mov m_pKeySyncIVVehicle, ecx
+		mov g_pKeySyncIVVehicle, ecx
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, false);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, false);
 
 	_asm
 	{
@@ -283,7 +215,7 @@ void _declspec(naked) CAutomobile_ProcessInput_Hook()
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, true);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, true);
 
 	_asm
 	{
@@ -296,11 +228,11 @@ void _declspec(naked) CBike_ProcessInput_Hook()
 {
 	_asm
 	{
-		mov m_pKeySyncIVVehicle, ecx
+		mov g_pKeySyncIVVehicle, ecx
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, false);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, false);
 
 	_asm
 	{
@@ -309,7 +241,7 @@ void _declspec(naked) CBike_ProcessInput_Hook()
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, true);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, true);
 
 	_asm
 	{
@@ -322,11 +254,11 @@ void _declspec(naked) CBoat_ProcessInput_Hook()
 {
 	_asm
 	{
-		mov m_pKeySyncIVVehicle, ecx
+		mov g_pKeySyncIVVehicle, ecx
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, false);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, false);
 
 	_asm
 	{
@@ -335,7 +267,7 @@ void _declspec(naked) CBoat_ProcessInput_Hook()
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, true);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, true);
 
 	_asm
 	{
@@ -348,11 +280,11 @@ void _declspec(naked) CTrain_ProcessInput_Hook()
 {
 	_asm
 	{
-		mov m_pKeySyncIVVehicle, ecx
+		mov g_pKeySyncIVVehicle, ecx
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, false);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, false);
 
 	_asm
 	{
@@ -361,7 +293,7 @@ void _declspec(naked) CTrain_ProcessInput_Hook()
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, true);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, true);
 
 	_asm
 	{
@@ -374,11 +306,11 @@ void _declspec(naked) CHeli_ProcessInput_Hook()
 {
 	_asm
 	{
-		mov m_pKeySyncIVVehicle, ecx
+		mov g_pKeySyncIVVehicle, ecx
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, false);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, false);
 
 	_asm
 	{
@@ -387,7 +319,7 @@ void _declspec(naked) CHeli_ProcessInput_Hook()
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, true);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, true);
 
 	_asm
 	{
@@ -400,11 +332,11 @@ void _declspec(naked) CPlane_ProcessInput_Hook()
 {
 	_asm
 	{
-		mov m_pKeySyncIVVehicle, ecx
+		mov g_pKeySyncIVVehicle, ecx
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, false);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, false);
 
 	_asm
 	{
@@ -413,7 +345,7 @@ void _declspec(naked) CPlane_ProcessInput_Hook()
 		pushad
 	}
 
-	ContextSwitch(m_pKeySyncIVVehicle->m_pDriver, true);
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, true);
 
 	_asm
 	{
@@ -422,13 +354,33 @@ void _declspec(naked) CPlane_ProcessInput_Hook()
 	}
 }
 
+// test
+DWORD dwFunc = 0;
+
+void _declspec(naked) CTaskSimpleAimGun__SetPedPosition_Hook()
+{
+	_asm
+	{
+		pushad
+	}
+
+	dwFunc = (CGame::GetBase() + 0xCC8140);
+	g_pChatWindow->AddInfoMessage("InLocalContext: %d", g_bInLocalContext);
+	//SetGameCameraMatrix(&playerCamMatrixs[0]);
+
+	_asm
+	{
+		popad
+		jmp dwFunc
+	}
+}
+// end test
+
 void InstallKeySyncHooks()
 {
-	// Reset all player pad states
-	ResetPlayerPadStates();
-
-	// Reset all player cam matrixs
-	ResetPlayerCameraMatrixs();
+	// test
+	CPatcher::InstallMethodPatch((CGame::GetBase() + 0xDCD6C0), (DWORD)CTaskSimpleAimGun__SetPedPosition_Hook);
+	// end test
 
 	// CPlayerPed::ProcessInput
 	CPatcher::InstallMethodPatch((COffsets::VAR_CPlayerPed__VFTable + 0x74), (DWORD)CPlayerPed__ProcessInput_Hook);

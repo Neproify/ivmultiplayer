@@ -903,23 +903,6 @@ void CScriptingManager::RegisterDefaultConstants()
 	RegisterConstant("INVALID_BLIP_ID", INVALID_ENTITY_ID);
 	RegisterConstant("INVALID_PICKUP_ID", INVALID_ENTITY_ID);
 	RegisterConstant("IVMP_VERSION", MOD_VERSION_STRING);
-	RegisterConstant("PAD_KEY_SPRINT", NET_PAD_KEY_SPRINT);
-	RegisterConstant("PAD_KEY_JUMP", NET_PAD_KEY_JUMP);
-	RegisterConstant("PAD_KEY_ATTACK", NET_PAD_KEY_ATTACK);
-	RegisterConstant("PAD_KEY_FREE_AIM_1", NET_PAD_KEY_FREE_AIM_1);
-	RegisterConstant("PAD_KEY_FREE_AIM_2", NET_PAD_KEY_FREE_AIM_2);
-	RegisterConstant("PAD_KEY_MOUSE_AIM", NET_PAD_KEY_MOUSE_AIM);
-	RegisterConstant("PAD_KEY_COMBAT_PUNCH_1", NET_PAD_KEY_COMBAT_PUNCH_1);
-	RegisterConstant("PAD_KEY_COMBAT_PUNCH_2", NET_PAD_KEY_COMBAT_PUNCH_2);
-	RegisterConstant("PAD_KEY_COMBAT_KICK", NET_PAD_KEY_COMBAT_KICK);
-	RegisterConstant("PAD_KEY_COMBAT_BLOCK", NET_PAD_KEY_COMBAT_BLOCK);
-	RegisterConstant("PAD_KEY_ACCELERATE", NET_PAD_KEY_ACCELERATE);
-	RegisterConstant("PAD_KEY_REVERSE", NET_PAD_KEY_REVERSE);
-	RegisterConstant("PAD_KEY_HANDBRAKE_1", NET_PAD_KEY_HANDBRAKE_1);
-	RegisterConstant("PAD_KEY_HANDBRAKE_2", NET_PAD_KEY_HANDBRAKE_2);
-	RegisterConstant("PAD_KEY_HORN", NET_PAD_KEY_HORN);
-	RegisterConstant("PAD_KEY_DRIVE_BY", NET_PAD_KEY_DRIVE_BY);
-	RegisterConstant("PAD_KEY_HELI_PRIMARY_FIRE", NET_PAD_KEY_HELI_PRIMARY_FIRE);
 }
 
 CSquirrel * CScriptingManager::Get(String strName)

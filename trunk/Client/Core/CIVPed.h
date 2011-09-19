@@ -90,7 +90,7 @@ public:
 	// 0x338 - BYTE m_byteShootRate;
 	// 0x389 - BYTE m_byteAccuracy;
 	// 0x3A8 - Target Entity?
-	// 0x580 - CPedAudio (audPedAudioEntity)
+	// 0x580 - CPedAudio (audSpeechAudioEntity)
 	PAD(IVPed, pad5, 0x6A6);                // 3CA-A70
 	// 0x61C - DWORD m_dwVoiceHash;
 	// 0x7F1 - BYTE m_byteWeaponObjectVisible;
@@ -108,7 +108,7 @@ public:
 	PAD(IVPed, pad9, 0x88);                 // AB8-B40
 	IVVehicle * m_pCurrentVehicle;          // B40-B44
 	PAD(IVPed, pad10, 0x7C);                // B44-BC0
-	void * m_pPedIKManager;                 // BC0-BC4 // +0x210 = pPed
+	void * m_pPedIKManager;                 // BC0-BC4 // +0x210 = pPed (CIKManager)
 	PAD(IVPed, pad11, 0x17C);               // BC4-D40
 	BYTE m_byteRingState;                  // D40-D41
 	PAD(IVPed, pad12, 0x17);                // D41-D58

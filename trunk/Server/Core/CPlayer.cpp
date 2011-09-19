@@ -47,8 +47,8 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_iModelId = 0;
 	m_pVehicle = NULL;
 	m_byteVehicleSeatId = -1;
-	memset(&m_previousPadState, 0, sizeof(NetPadState));
-	memset(&m_currentPadState, 0, sizeof(NetPadState));
+	memset(&m_previousPadState, 0, sizeof(CPadState));
+	memset(&m_currentPadState, 0, sizeof(CPadState));
 	m_fHeading = 0;
 	m_uHealth = 200;
 	m_uArmour = 0;
@@ -457,19 +457,18 @@ void CPlayer::Process()
 	
 }
 
-bool CPlayer::SetName(String sName, bool requestedByClient)
+bool CPlayer::SetName(String strName)
 {
-	if(sName.GetLength() < 2 || sName.GetLength() > MAX_NAME)
+	if(strName.GetLength() < 2 || strName.GetLength() > MAX_NAME)
 		return false;
 
-	if(sName == m_strName || g_pPlayerManager->IsNameInUse(sName))
+	if(strName == m_strName || g_pPlayerManager->IsNameInUse(strName))
 		return false;
 
-	m_strName = sName;
+	m_strName = strName;
 	CBitStream bsSend;
 	bsSend.Write(m_playerId);
-	bsSend.Write(true);
-	bsSend.Write(sName);
+	bsSend.Write(strName);
 	g_pNetworkManager->RPC(RPC_NameChange, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	return true;
 }
@@ -680,12 +679,12 @@ String CPlayer::GetSerial()
 	return g_pNetworkManager->GetPlayerSerial(m_playerId);
 }
 
-void CPlayer::SetPadState(NetPadState * padState)
+void CPlayer::SetPadState(CPadState * padState)
 {
 	if(m_currentPadState != *padState)
 	{
-		memcpy(&m_previousPadState, &m_currentPadState, sizeof(NetPadState));
-		memcpy(&m_currentPadState, padState, sizeof(NetPadState));
+		memcpy(&m_previousPadState, &m_currentPadState, sizeof(CPadState));
+		memcpy(&m_currentPadState, padState, sizeof(CPadState));
 
 		if(CVAR_GET_BOOL("frequentevents"))
 		{
@@ -696,14 +695,14 @@ void CPlayer::SetPadState(NetPadState * padState)
 	}
 }
 
-void CPlayer::GetPreviousPadState(NetPadState * padState)
+void CPlayer::GetPreviousPadState(CPadState * padState)
 {
-	memcpy(padState, &m_previousPadState, sizeof(NetPadState));
+	memcpy(padState, &m_previousPadState, sizeof(CPadState));
 }
 
-void CPlayer::GetPadState(NetPadState * padState)
+void CPlayer::GetPadState(CPadState * padState)
 {
-	memcpy(padState, &m_currentPadState, sizeof(NetPadState));
+	memcpy(padState, &m_currentPadState, sizeof(CPadState));
 }
 
 void CPlayer::SetColor(unsigned int color)

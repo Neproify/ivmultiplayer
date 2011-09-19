@@ -11,6 +11,7 @@
 #include <CString.h>
 #include "CNetworkManager.h"
 #include <Network/PacketIdentifiers.h>
+#include "CGameFileChecker.h"
 
 extern CChatWindow     * g_pChatWindow;
 extern String            g_strNick;
@@ -31,6 +32,7 @@ void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerS
 	CBitStream  bsSend;
 	bsSend.Write(NETWORK_VERSION);
 	bsSend.Write(g_strNick);
+	bsSend.Write(!CGameFileChecker::CheckFiles());
 	g_pNetworkManager->RPC(RPC_PlayerJoin, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 }
 

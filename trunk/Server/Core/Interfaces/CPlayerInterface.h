@@ -23,7 +23,7 @@ public:
 	virtual CNetworkVehicle * GetVehicle() { return m_pVehicle; }
 	virtual void              SetVehicleSeatId(BYTE byteSeatId) { m_byteVehicleSeatId = byteSeatId; }
 	virtual BYTE              GetVehicleSeatId() { return m_byteVehicleSeatId; }*/
-	virtual bool           SetName(String strName, bool requestedByClient = false) = 0;
+	virtual bool           SetName(String strName) = 0;
 	virtual String         GetName() = 0;
 	virtual bool           IsSpawned() = 0;
 	virtual bool           SetModel(int iModelId) = 0;
@@ -50,9 +50,9 @@ public:
 	virtual void           SetAmmo(unsigned int uAmmo) = 0;
 	virtual unsigned int   GetAmmo() = 0;
 	virtual String         GetSerial() = 0;
-	virtual void           SetPadState(NetPadState * padState) = 0;
-	virtual void           GetPreviousPadState(NetPadState * padState) = 0;
-	virtual void           GetPadState(NetPadState * padState) = 0;
+	virtual void           SetPadState(CPadState * padState) = 0;
+	virtual void           GetPreviousPadState(CPadState * padState) = 0;
+	virtual void           GetPadState(CPadState * padState) = 0;
 	virtual void           SetColor(unsigned int color) = 0;	
 	virtual unsigned int   GetColor() = 0;
 	virtual unsigned short GetPing() = 0;

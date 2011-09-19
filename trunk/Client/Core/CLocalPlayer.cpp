@@ -81,7 +81,7 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true)
 	m_fSpawnAngle = 0;
 	m_ulLastPureSyncTime = 0;
 	m_uiLastInterior = 0;
-	memset(&m_lastNetPadStateSent, 0, sizeof(NetPadState));
+	memset(&m_lastPadStateSent, 0, sizeof(CPadState));
 
 	// Patch to override spawn position and let the game call HandleSpawn
 	CPatcher::InstallCallPatch(COffsets::FUNC_GetLocalPlayerSpawnPosition, (DWORD)GetLocalPlayerSpawnPosition, 5);
@@ -236,11 +236,11 @@ void CLocalPlayer::SendOnFootSync()
 	CBitStream bsSend;
 	OnFootSyncData syncPacket;
 
-	// Get their pad state
-	GetNetPadState(&syncPacket.padState);
+	// Get our pad state
+	GetPadState(&syncPacket.padState);
 
-	// Update the last sent net pad state
-	memcpy(&m_lastNetPadStateSent, &syncPacket.padState, sizeof(NetPadState));
+	// Update the last sent pad state
+	memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
 
 	// Get their position
 	GetPosition(&syncPacket.vecPos);
@@ -299,11 +299,11 @@ void CLocalPlayer::SendInVehicleSync()
 		// Write the vehicle id
 		bsSend.WriteCompressed(pVehicle->GetVehicleId());
 
-		// Get their pad state
-		GetNetPadState(&syncPacket.padState);
+		// Get our pad state
+		GetPadState(&syncPacket.padState);
 
-		// Update the last sent net pad state
-		memcpy(&m_lastNetPadStateSent, &syncPacket.padState, sizeof(NetPadState));
+		// Update the last sent pad state
+		memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
 
 		// Get their vehicles position
 		pVehicle->GetPosition(&syncPacket.vecPos);
@@ -377,11 +377,11 @@ void CLocalPlayer::SendPassengerSync()
 		// Write the vehicle id
 		bsSend.WriteCompressed(pVehicle->GetVehicleId());
 
-		// Get their pad state
-		GetNetPadState(&syncPacket.padState);
+		// Get our pad state
+		GetPadState(&syncPacket.padState);
 
-		// Update the last sent net pad state
-		memcpy(&m_lastNetPadStateSent, &syncPacket.padState, sizeof(NetPadState));
+		// Update the last sent pad state
+		memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
 
 		// Get their seat id
 		syncPacket.byteSeatId = GetVehicleSeatId();
@@ -427,8 +427,11 @@ void CLocalPlayer::SendSmallSync()
 	CBitStream bsSend;
 	SmallSyncData syncPacket;
 
-	// Get their pad state
-	GetNetPadState(&syncPacket.padState);
+	// Get our pad state
+	GetPadState(&syncPacket.padState);
+
+	// Update the last sent pad state
+	memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
 
 	// Get their ducking state
 	syncPacket.bDuckState = IsDucking();
@@ -483,18 +486,13 @@ bool CLocalPlayer::IsSmallSyncNeeded()
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		// Get the current net pad state
-		NetPadState netPadState;
-		GetNetPadState(&netPadState);
+		// Get the current pad state
+		CPadState padState;
+		GetPadState(&padState);
 
-		// Is the current net pad state different to the last sent
-		// net pad state?
-		if(netPadState != m_lastNetPadStateSent)
-		{
-			// Update the last sent net pad state
-			memcpy(&m_lastNetPadStateSent, &netPadState, sizeof(NetPadState));
+		// Is the current pad state different to the last sent pad state?
+		if(padState != m_lastPadStateSent)
 			return true;
-		}
 	}
 
 	return false;

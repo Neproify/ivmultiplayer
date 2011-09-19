@@ -16,7 +16,6 @@
 #include "CGraphics.h"
 
 extern CChatWindow * g_pChatWindow;
-extern CGame       * g_pGame;
 
 // TODO: Make CGUI message box members
 bool m_bMessageBoxHideCursor = false;
@@ -42,7 +41,7 @@ CGUI::CGUI(IDirect3DDevice9 * pD3DDevice)
 	m_iCurrentId = 0;
 	m_dwDoubleClickTime = GetDoubleClickTime();
 	memset(&m_clickPosition, 0, sizeof(POINT));
-	m_iCurrentKyeFag = 0;
+	m_uiCurrentKyeFag = 0;
 }
 
 CGUI::~CGUI()
@@ -67,27 +66,27 @@ CGUI::~CGUI()
 	// Destroy the text drawing geometry buffer
 	m_pRenderer->destroyGeometryBuffer(*m_pTextDrawingGeometryBuffer);
 
-	// Destroy the gui fonts
+	// Destroy the GUI fonts
 	CEGUI::FontManager::getSingleton().destroyAll();
 
-	// Destroy the default gui window
+	// Destroy the default GUI window
 	m_pWindowManager->destroyWindow(m_pDefaultWindow);
 
-	// Destroy the gui scheme
+	// Destroy the GUI scheme
 	CEGUI::SchemeManager::getSingleton().destroy(*m_pScheme);
 
-	// Destroy the gui system
+	// Destroy the GUI system
 	m_pSystem->destroy();
 
-	// Destroy the gui renderer
+	// Destroy the GUI renderer
 	m_pRenderer->destroy(*m_pRenderer);
 }
 
 char * CGUI::GetUniqueName()
 {
 	static char szKyeFag[20];
-	sprintf(szKyeFag, "window%d", m_iCurrentKyeFag);
-	m_iCurrentKyeFag++;
+	sprintf(szKyeFag, "window%d", m_uiCurrentKyeFag);
+	m_uiCurrentKyeFag++;
 	return szKyeFag;
 }
 
@@ -96,16 +95,32 @@ bool CGUI::Initialize()
 	// Make sure we are not initialized
 	if(!m_bInitialized)
 	{
-		// Create the gui renderer
+		// Create the GUI renderer
 		m_pRenderer = &CEGUI::Direct3D9Renderer::create(m_pD3DDevice);
 
-		// Create the gui system
-		m_pSystem = &CEGUI::System::create(*m_pRenderer, NULL, NULL, NULL, NULL, "", SharedUtility::GetAbsolutePath("CEGUI.log").Get());
+		// Create the GUI system
+		m_pSystem = &CEGUI::System::create(*m_pRenderer);
 
-		// Get a pointer to the gui window manager
+		// Get a pointer to the GUI logger
+		CEGUI::Logger * pLogger = CEGUI::Logger::getSingletonPtr();
+
+		// Set the GUI log file name
+		pLogger->setLogFilename(SharedUtility::GetAbsolutePath("CEGUI.log").Get());
+
+		// Set the GUI log file level
+#ifdef IVMP_DEBUG
+		pLogger->setLoggingLevel(CEGUI::Informative);
+#else
+		pLogger->setLoggingLevel(CEGUI::Informative);
+#endif
+
+		// Get a pointer to the GUI window manager
 		m_pWindowManager = CEGUI::WindowManager::getSingletonPtr();
 
-		// Initialize the required directorys for the DefaultResourceProvider
+		// Get a pointer to the GUI font manager
+		m_pFontManager = CEGUI::FontManager::getSingletonPtr();
+
+		// Initialize the required directories for the DefaultResourceProvider
 		CEGUI::DefaultResourceProvider * rp = (CEGUI::DefaultResourceProvider *)m_pSystem->getResourceProvider();
 
 		// For each resource type, set a resource group directory
@@ -132,9 +147,6 @@ bool CGUI::Initialize()
 
 		// Clearing this queue actually makes sure it's created
 		m_pRenderer->getDefaultRenderingRoot().clearGeometry(CEGUI::RQ_OVERLAY);
-
-		// Set the gui logging level
-		CEGUI::Logger::getSingleton().setLoggingLevel(CEGUI::Informative);
 
 		// Load the gui scheme
 		m_pScheme = &CEGUI::SchemeManager::getSingleton().create(STYLE_SCHEME);
@@ -163,6 +175,9 @@ bool CGUI::Initialize()
 		// Setup text drawing geometry buffer
 		m_pTextDrawingGeometryBuffer = &m_pRenderer->createGeometryBuffer();
 		m_pTextDrawingGeometryBuffer->setClippingRegion(CEGUI::Rect(CEGUI::Vector2(0, 0), m_pRenderer->getDisplaySize()));
+
+		// Set the default GUI font
+		m_pSystem->setDefaultFont(GetFont("tahoma"));
 
 		// Create the input
 		if(FAILED(DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8A, (LPVOID *)&m_pInput, NULL)))
@@ -203,11 +218,6 @@ bool CGUI::Initialize()
 		}
 
 		m_bInitialized = true;
-
-		// Set the default gui font (Is this needed?, CEGUI seems to use the first created font as default
-		// (Which is what we want it to do))
-		m_pSystem->setDefaultFont(GetFont("tahoma"));
-
 		return true;
 	}
 	return false;
@@ -237,7 +247,7 @@ void CGUI::Render()
 	// Make sure we are initialized
 	if(m_bInitialized)
 	{
-		// Render our gui
+		// Render our GUI
 		if(m_pSystem)
 			m_pSystem->renderGUI();
 
@@ -246,7 +256,6 @@ void CGUI::Render()
 		{
 			if(m_pCursor->isVisible())
 			{
-				// TODO: Log when input device is lost
 				// If we have lost the input device re-acquire it
 				if(m_pInputMouse->GetDeviceState(sizeof(m_MouseState), (LPVOID)&m_MouseState) == DIERR_INPUTLOST)
 				{
@@ -255,9 +264,6 @@ void CGUI::Render()
 				}
 
 				// Handle mouse position changes
-				// Dunno if it can stay like this or if
-				// i need to check for changes before i
-				// set stuff.
 				m_rCursorPosition.left += m_MouseState.lX;
 
 				if(m_rCursorPosition.left > (long)GetDisplayWidth())
@@ -276,11 +282,10 @@ void CGUI::Render()
 
 				// If the window has focus sync the windows cursor position with 
 				// the direct input cursor position
-				if(g_pGame->IsFocused())
+				if(CGame::IsFocused())
 					SetCursorPos(m_rCursorPosition.left, m_rCursorPosition.top);
 
 				// Check the mouse wheel for changes
-				// TODO: I don't think this is right, check it
 				if(m_MouseState.lZ != 0)
 					m_pSystem->injectMouseWheelChange((float)m_MouseState.lZ);
 
@@ -336,17 +341,19 @@ void CGUI::Render()
 	}
 }
 
-void CGUI::DrawText(CEGUI::String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect, CEGUI::Font * pFont, bool bProcessFormatting, bool bAllowColorFormatting, CEGUI::Rect * rClipRect, float fSpaceExtra, float fXScale, float fYScale)
+// Custom replacement for CEGUI::Font::drawText
+void CGUI::DrawText(String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect, CEGUI::Font * pFont, bool bProcessFormatting, bool bAllowColorFormatting, CEGUI::Rect * rClipRect, float fSpaceExtra, float fXScale, float fYScale)
 {
-	// Custom replacement for CEGUI::Font::drawText
 	if(m_bInitialized)
 	{
+		// Get the font pointer
 		CEGUI::Font * pTextFont = pFont;
 
+		// If we have no valid font use the default one
 		if(!pTextFont)
 			pTextFont = GetFont("tahoma");
 
-		// TODO: Caching
+		// Do we have a valid font?
 		if(pTextFont)
 		{
 			// Reset the text geometry buffer
@@ -358,20 +365,19 @@ void CGUI::DrawText(CEGUI::String sText, CEGUI::Vector2 vecPosition, CEGUI::Colo
 			CEGUI::ColourRect rColourRect = rColorRect;
 
 			// Temporary strings for unicode conversion
-			unsigned char ucAnsi[2];
-			WCHAR * wUnicode = new WCHAR[1];
-			memset(ucAnsi, 0, sizeof(ucAnsi));
+			unsigned char ucAnsi;
+			WCHAR wcUnicode;
 
 			// Loop through all characters
-			unsigned int uiTextLength = sText.length();
+			unsigned int uiTextLength = sText.GetLength();
 
-			for(size_t c = 0; c < uiTextLength; c++)
+			for(unsigned int c = 0; c < uiTextLength; c++)
 			{
 				// Set the current character in our ANSI string
-				ucAnsi[0] = sText[c];
+				ucAnsi = sText[c];
 
 				// Convert the current character to unicode
-				MultiByteToWideChar(CP_THREAD_ACP, 0, (char *)ucAnsi, -1, wUnicode, 1); // can be CP_ACP too
+				SharedUtility::AnsiToUnicode((char *)ucAnsi, 1, (wchar_t *)wcUnicode, 1);
 
 				// Check for font formatting
 				if(bProcessFormatting)
@@ -426,9 +432,10 @@ void CGUI::DrawText(CEGUI::String sText, CEGUI::Vector2 vecPosition, CEGUI::Colo
 				}
 
 				// Attempt to get the glyph data
-				const CEGUI::FontGlyph * glyph;
+				const CEGUI::FontGlyph * glyph = pTextFont->getGlyphData((unsigned long)wcUnicode);
 
-				if((glyph = pTextFont->getGlyphData((unsigned long)wUnicode[0]))) // NB: assignment
+				// Do we have valid glyph data?
+				if(glyph)
 				{
 					// Get the glyph image
 					const CEGUI::Image * const img = glyph->getImage();
@@ -448,18 +455,15 @@ void CGUI::DrawText(CEGUI::String sText, CEGUI::Vector2 vecPosition, CEGUI::Colo
 				}
 			}
 
-			// Delete our temporary unicode string
-			delete wUnicode;
-
 			// Draw the text geometry buffer
 			m_pTextDrawingGeometryBuffer->draw();
 		}
 	}
 }
 
-void CGUI::DrawText(CEGUI::String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect, CEGUI::String sFontName, bool bProcessFormatting, bool bAllowColorFormatting, CEGUI::Rect * rClipRect, float fSpaceExtra, float fXScale, float fYScale)
+void CGUI::DrawText(String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect, String strFontName, bool bProcessFormatting, bool bAllowColorFormatting, CEGUI::Rect * rClipRect, float fSpaceExtra, float fXScale, float fYScale)
 {
-	DrawText(sText, vecPosition, rColorRect, &CEGUI::FontManager::getSingleton().get(sFontName), bProcessFormatting, bAllowColorFormatting, rClipRect, fSpaceExtra, fXScale, fYScale);
+	DrawText(sText, vecPosition, rColorRect, GetFont(strFontName), bProcessFormatting, bAllowColorFormatting, rClipRect, fSpaceExtra, fXScale, fYScale);
 }
 
 bool CGUI::OnMessageBoxClick(const CEGUI::EventArgs &eventArgs)
@@ -874,25 +878,25 @@ DWORD ScanCodeToDIK(WORD wScanCode)
 {
 	switch(wScanCode)
 	{
-	case 0x41: return DIK_A; // Control + A (Select All)
-	case 0x43: return DIK_C; // Control + C (Copy)
-	case 0x58: return DIK_X; // Control + X (Cut)
-	case 0x56: return DIK_V; // Control + V (Paste)
-	case VK_TAB: return DIK_TAB; // Tab
-	case VK_HOME: return DIK_HOME; // Home
-	case VK_END: return DIK_END; // End
-	case VK_INSERT: return DIK_INSERT; // Insert
-	case VK_DELETE: return DIK_DELETE; // Delete
-	case VK_UP: return DIK_UP; // Arrow Up
-	case VK_DOWN: return DIK_DOWN; // Arrow Down
-	case VK_LEFT: return DIK_LEFT; // Arrow Left
-	case VK_RIGHT: return DIK_RIGHT; // Arrow Right
-	case VK_SHIFT: return DIK_LSHIFT; // Shift
-	case VK_LSHIFT: return DIK_LSHIFT; // Left Shift
-	case VK_RSHIFT: return DIK_RSHIFT; // Right Shift
-	case VK_BACK: return DIK_BACK; // Backspace
-	case VK_RETURN: return DIK_RETURN; // Enter
-	case VK_CONTROL: return DIK_LCONTROL; // Control
+	case 0x41: return DIK_A;               // Control + A (Select All)
+	case 0x43: return DIK_C;               // Control + C (Copy)
+	case 0x58: return DIK_X;               // Control + X (Cut)
+	case 0x56: return DIK_V;               // Control + V (Paste)
+	case VK_TAB: return DIK_TAB;           // Tab
+	case VK_HOME: return DIK_HOME;         // Home
+	case VK_END: return DIK_END;           // End
+	case VK_INSERT: return DIK_INSERT;     // Insert
+	case VK_DELETE: return DIK_DELETE;     // Delete
+	case VK_UP: return DIK_UP;             // Arrow Up
+	case VK_DOWN: return DIK_DOWN;         // Arrow Down
+	case VK_LEFT: return DIK_LEFT;         // Arrow Left
+	case VK_RIGHT: return DIK_RIGHT;       // Arrow Right
+	case VK_SHIFT: return DIK_LSHIFT;      // Shift
+	case VK_LSHIFT: return DIK_LSHIFT;     // Left Shift
+	case VK_RSHIFT: return DIK_RSHIFT;     // Right Shift
+	case VK_BACK: return DIK_BACK;         // Backspace
+	case VK_RETURN: return DIK_RETURN;     // Enter
+	case VK_CONTROL: return DIK_LCONTROL;  // Control
 	case VK_LCONTROL: return DIK_LCONTROL; // Left Control
 	case VK_RCONTROL: return DIK_RCONTROL; // Right Control
 	}
@@ -963,34 +967,6 @@ bool CGUI::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return false;
 }
 
-void SetClipboardDataFromString(const char * szString, size_t sStringSize)
-{
-	// Open the clipboard
-	if(OpenClipboard(NULL))
-	{
-		// Empty the clipboard
-		EmptyClipboard();
-
-		// Allocate the memory globally to store our cut text
-		HGLOBAL hMemory = GlobalAlloc(GMEM_DDESHARE, sStringSize);
-
-		// Lock the globally allocated memory then get a pointer to it
-		char * szMemory = (char *)GlobalLock(hMemory);
-
-		// Copy the cut text to the globally allocated memory
-		strcpy(szMemory, szString);
-
-		// Unlock the globally allocated memory
-		GlobalUnlock(hMemory);
-
-		// Set the clipboard data to the allocated memory
-		SetClipboardData(CF_TEXT, hMemory);
-
-		// Close the clipboard
-		CloseClipboard();
-	}
-}
-
 bool CGUI::OnGUIKeyDown(const CEGUI::EventArgs &eventArgs)
 {
 	// Cast the argument to a key event args structure
@@ -1039,8 +1015,8 @@ bool CGUI::OnGUIKeyDown(const CEGUI::EventArgs &eventArgs)
 					// Get the text we wish to copy from the edit box text
 					CEGUI::String sSelectionText = sEditBoxText.substr(sSelectionStartIndex, sSelectionEndIndex);
 
-					// Copy the selection text to the clip board
-					SetClipboardDataFromString(sSelectionText.c_str(), (sSelectionText.length() + 1));
+					// Set the clipboard text
+					SharedUtility::SetClipboardText(sSelectionText.c_str(), (sSelectionText.length() + 1));
 
 					// If its the control + x key cut the selection from the edit box text
 					if(keyEventArgs.scancode == CEGUI::Key::X)
@@ -1072,34 +1048,30 @@ bool CGUI::OnGUIKeyDown(const CEGUI::EventArgs &eventArgs)
 				// Get the edit box text
 				CEGUI::String sEditBoxText = pEditBox->getText();
 
-				// Open the clipboard
-				if(OpenClipboard(NULL))
+				// Get the clipboard text
+				const char * szClipboardText = SharedUtility::GetClipboardText();
+
+				// Do we have any clipboard text?
+				if(szClipboardText)
 				{
-					// Get a pointer to the clipboard text
-					char * szClipboardText = (char *)GetClipboardData(CF_TEXT);
+					// Get the caret index
+					size_t sCaretIndex = pEditBox->getCaratIndex();
 
-					// Make sure we have clipboard text
-					if(szClipboardText)
-					{
-						// Get the caret index
-						size_t sCaretIndex = pEditBox->getCaratIndex();
+					// Add the clipboard text length to the caret index
+					sCaretIndex += strlen(szClipboardText);
 
-						// Add the clipboard text length to the caret index
-						sCaretIndex += strlen(szClipboardText);
+					// If we don't have a selection just insert the text
+					if(sSelectionLength == 0)
+						sEditBoxText.insert(sSelectionStartIndex, szClipboardText);
+					// If we do have a selection overwrite the selected text
+					else
+						sEditBoxText.replace(sSelectionStartIndex, sSelectionLength, szClipboardText);
 
-						// If we don't have a selection just insert the text
-						if(sSelectionLength == 0)
-							sEditBoxText.insert(sSelectionStartIndex, szClipboardText);
-						// If we do have a selection overwrite the selected text
-						else
-							sEditBoxText.replace(sSelectionStartIndex, sSelectionLength, szClipboardText);
+					// Set the edit box text to the string with the pasted text
+					pEditBox->setText(sEditBoxText);
 
-						// Set the edit box text to the string with the pasted text
-						pEditBox->setText(sEditBoxText);
-
-						// Set the edit box caret index to the new index after the pasted text
-						pEditBox->setCaratIndex(sCaretIndex);
-					}
+					// Set the edit box caret index to the new index after the pasted text
+					pEditBox->setCaratIndex(sCaretIndex);
 				}
 			}
 		}
@@ -1110,39 +1082,29 @@ bool CGUI::OnGUIKeyDown(const CEGUI::EventArgs &eventArgs)
 
 CEGUI::Font * CGUI::GetFont(String strFont, unsigned int uiSize, bool bScaled)
 {
-	if(m_bInitialized && strFont.GetLength() > 1)
+	if(m_bInitialized && strFont.IsNotEmpty())
 	{
-		// Try loading it from the name passed
-		/*
-		try
-		{
-			return &CEGUI::FontManager::getSingleton().get(font.C_String());
-		}
-		catch(CEGUI::Exception e) {}*/
-
-		// Try loading it from the internal name
+		// Get the font internal name
 		String strInternalFont("%s#%d#%d", strFont.ToLower().Get(), uiSize, bScaled);
-		try
-		{
-			return &CEGUI::FontManager::getSingleton().get(strInternalFont.Get());
-		}
-		catch(CEGUI::Exception e) {}
 
-		// Try to create the font
-		try
-		{
-			return &CEGUI::FontManager::getSingleton().createFreeTypeFont(strInternalFont.Get(), (float)uiSize, true, String("%s.ttf", strFont.ToLower().Get()).Get(), "", bScaled);
-		}
-		catch(CEGUI::Exception e) {}
+		// Is the font already loaded?
+		if(m_pFontManager->isDefined(strInternalFont.Get()))
+			return &m_pFontManager->get(strInternalFont.Get());
 
-		// Since that still didn't work, try to load it from the client-side resources
-		try
-		{
-			return &CEGUI::FontManager::getSingleton().createFreeTypeFont(strInternalFont.C_String(), (float)uiSize, true, String("%s.ttf", strFont.ToLower().Get()).Get(), "resources", bScaled);
-		}
-		catch(CEGUI::Exception e) {}
+		// Get the font name
+		String strName("%s.ttf", strFont.ToLower().Get());
 
-		// Still failed to create the font
+		// Attempt to create the front from the fonts directory
+		try {
+			return &CEGUI::FontManager::getSingleton().createFreeTypeFont(strInternalFont.Get(), (float)uiSize, true, strName.Get(), "", bScaled);
+		} catch(CEGUI::Exception e) {}
+
+		// Attempt to create the font from the client resource directory
+		try {
+			return &CEGUI::FontManager::getSingleton().createFreeTypeFont(strInternalFont.C_String(), (float)uiSize, true, strName.Get(), "resources", bScaled);
+		} catch(CEGUI::Exception e) {}
 	}
+
+	// Font does not exist and font creation failed
 	return NULL;
 }

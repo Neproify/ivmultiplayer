@@ -107,14 +107,15 @@ bool CNetworkVehicle::Create()
 		// Add our model info reference
 		m_pModelInfo->AddReference(true);
 
+#if 0
 		// Get our model index
-		/*int iModelIndex = m_pModelInfo->GetIndex();
+		int iModelIndex = m_pModelInfo->GetIndex();
 
 		CLogFile::Printf("CNetworkVehicle::Create 3 - 3");
 
 		CLogFile::Printf("pModelInfo + 0x70 = %d", *(DWORD *)(m_pModelInfo->GetModelInfo() + 0x70));
-		memset((void *)(CGame::GetBase() + 0x841808), 0x90, 5);
-		memset((void *)(CGame::GetBase() + 0x8419B8), 0x90, 5);
+		//memset((void *)(CGame::GetBase() + 0x841808), 0x90, 5);
+		//memset((void *)(CGame::GetBase() + 0x8419B8), 0x90, 5);
 
 		// Create the vehicle
 		DWORD dwFunc = (CGame::GetBase() + 0x8415D0);
@@ -122,8 +123,8 @@ bool CNetworkVehicle::Create()
 		IVVehicle * pVehicle = NULL;
 		_asm
 		{
-			push 1 ; last param of CREATE_CAR (try 1 if vehicle physics seem strange)
-			push 0 // was 1 and above was 0
+			push 0 ; last param of CREATE_CAR (try 1 if vehicle physics seem strange)
+			push 1 // was 1 and above was 0
 			push pVecPosition
 			push iModelIndex
 			call dwFunc
@@ -140,7 +141,8 @@ bool CNetworkVehicle::Create()
 		CLogFile::Printf("CNetworkVehicle::Create 4 - 4");
 
 		// Create the vehicle instance
-		m_pVehicle = new CIVVehicle(pVehicle);*/
+		m_pVehicle = new CIVVehicle(pVehicle);
+#endif
 
 		// Create the vehicle
 		// TODO: Don't use natives for this
@@ -1033,4 +1035,13 @@ unsigned char CNetworkVehicle::GetVariation()
 	}
 	else
 		return m_ucVariation;
+}
+
+bool CNetworkVehicle::IsOnScreen()
+{
+	// Are we spawned?
+	if(IsSpawned())
+		return /*Scripting::IsCarOnScreen(GetScriptingHandle())*/true;
+
+	return false;
 }

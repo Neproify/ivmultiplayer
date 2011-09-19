@@ -74,6 +74,12 @@ int AnsiToUnicode(const char * szAnsiString, size_t sAnsiStringLength, wchar_t *
 
 // Convert a Unicode string to an Ansi string
 int UnicodeToAnsi(const wchar_t * wszUnicodeString, size_t sUnicodeStringLength, char * szAnsiString, size_t sAnsiStringLength, DWORD dwFlags = NULL);
+
+// Set the text in the windows clipboard
+bool SetClipboardText(const char * szString, size_t sStringSize);
+
+// Get the text in the windows clipboard
+const char * GetClipboardText();
 #endif
 
 // Returns the current time and date in the

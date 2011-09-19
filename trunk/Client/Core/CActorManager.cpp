@@ -22,15 +22,11 @@ CActorManager::CActorManager()
 
 CActorManager::~CActorManager()
 {
-	CLogFile::Printf("PreActorManagerShutdown");
-
 	for(EntityId x = 0; x < MAX_ACTORS; x++)
 	{
 		if(m_bActive[x])
 			Delete(x);
 	}
-
-	CLogFile::Printf("PostActorManagerShutdown");
 }
 
 void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading)

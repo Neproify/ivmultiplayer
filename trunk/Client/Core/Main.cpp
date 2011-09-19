@@ -52,7 +52,6 @@
 #include "CClientTaskManager.h"
 #include "CPools.h"
 #include "CIVWeather.h"
-#include "CGameFileChecker.h"
 #include <CExceptionHandler.h>
 
 IDirect3DDevice9     * g_pDevice = NULL;
@@ -132,14 +131,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			g_strPassword = CVAR_GET_STRING("pass");
 			g_bWindowedMode = CVAR_GET_BOOL("windowed");
 			g_bFPSToggle = CVAR_GET_BOOL("fps");
-
-			// Check for modified game files
-			// TODO: Send the value this function returns to the server,
-			// and if the server does not allow file modifications then
-			// make the server kick them (Make sure they know the reason
-			// is because of modified files) or something like that?
-			if(!CGameFileChecker::CheckFiles())
-				ExitProcess(0);
 
 			// IE9 fix - disabled if disableie9fix is set or shift is pressed
 			if(!CVAR_GET_BOOL("disableie9fix") || GetAsyncKeyState(VK_SHIFT) > 0)
@@ -483,7 +474,7 @@ void Direct3DRender()
 			strStats.AppendF("Checkpoints (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_CHECKPOINT), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_CHECKPOINT));
 
 			// Draw the string
-			g_pGUI->DrawText(strStats.Get(), CEGUI::Vector2(26, 30), (CEGUI::colour)D3DCOLOR_RGBA(255, 255, 255, 255), g_pGUI->GetFont("tahoma-bold", 10));
+			g_pGUI->DrawText(strStats, CEGUI::Vector2(26, 30), (CEGUI::colour)D3DCOLOR_RGBA(255, 255, 255, 255), g_pGUI->GetFont("tahoma-bold", 10));
 		}
 		else
 		{
@@ -548,12 +539,12 @@ void Direct3DRender()
 					if(!pVehicle->IsStreamedIn())
 						continue;
 
-					//if(!pVehicle->IsOnScreen())
-					//	continue;
+					if(!pVehicle->IsOnScreen())
+						continue;
 	
 					pVehicle->GetPosition(&vecWorldPosition);
 					CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
-					g_pGUI->DrawText(String("Vehicle %d", i).Get(), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y));
+					g_pGUI->DrawText(String("Vehicle %d", i), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y));
 				}
 			}
 		}
@@ -668,8 +659,53 @@ void GameLoad()
 bool bDoPlayerShit = false;
 CNetworkPlayer * pPlayer = NULL;
 
+#if 0
+CNetworkPlayer * pPlayers[32];
+bool bFirst = true;
+#endif
+
 void GameScriptProcess()
 {
+#if 0
+	if(bFirst)
+	{
+		for(int i = 0; i < 32; i++)
+			pPlayers[i] = NULL;
+
+		bFirst = false;
+	}
+
+	if(GetAsyncKeyState(VK_F5))
+	{
+		CLogFile::Printf("Player creation test");
+		for(int i = 0; i < 100; i++)
+		{
+			CLogFile::Printf("Create players %d time", i);
+			for(int x = 1; x < 32; x++)
+			{
+				CLogFile::Printf("New player %d", x);
+				pPlayers[x] = new CNetworkPlayer(false);
+				CLogFile::Printf("New player done %d", x);
+				CLogFile::Printf("Create player %d", x);
+				pPlayers[x]->Create();
+				CLogFile::Printf("Create player done %d", x);
+			}
+			CLogFile::Printf("Create players done %d time", i);
+			CLogFile::Printf("Destroy players %d time", i);
+			for(int x = 1; x < 32; x++)
+			{
+				CLogFile::Printf("Destroy player %d", x);
+				pPlayers[x]->Destroy();
+				CLogFile::Printf("Destroy player done %d", x);
+				CLogFile::Printf("Delete player %d", x);
+				delete pPlayers[x];
+				pPlayers[x] = NULL;
+				CLogFile::Printf("Delete player done %d", x);
+			}
+			CLogFile::Printf("Destroy players done %d time", i);
+		}
+		CLogFile::Printf("Player creation done test");
+	}
 	if(GetAsyncKeyState(VK_F7))
 		bDoPlayerShit = true;
 
@@ -687,9 +723,14 @@ void GameScriptProcess()
 		vecPosition.fX += 5;
 		pPlayer->SetPosition(&vecPosition);
 		pPlayer->SetCurrentHeading(g_pLocalPlayer->GetCurrentHeading());
-		NetPadState netPadState;
-		g_pLocalPlayer->GetNetPadState(&netPadState);
-		pPlayer->SetNetPadState(&netPadState);
+		CPadState padState;
+		g_pLocalPlayer->GetPadState(&padState);
+		pPlayer->SetPadState(&padState);
+		AimSyncData aimSyncData;
+		g_pLocalPlayer->GetAimSyncData(&aimSyncData);
+		//pPlayer->SetAimSyncData(&aimSyncData);
+		pPlayer->LockHealth(g_pLocalPlayer->GetHealth());
+		pPlayer->LockArmour(g_pLocalPlayer->GetArmour());
 		unsigned int uiWeaponId = g_pLocalPlayer->GetCurrentWeapon();
 		unsigned int uiAmmo = g_pLocalPlayer->GetAmmo(uiWeaponId);
 
@@ -706,6 +747,7 @@ void GameScriptProcess()
 			pPlayer->SetAmmo(uiWeaponId, uiAmmo);
 		}
 	}
+#endif
 
 	// Do we need to reset the game?
 	if(g_bResetGame)

@@ -858,35 +858,27 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
 	if(!pBitStream)
 		return;
 
+	// Read the refuse reason
 	int iReason;
 	pBitStream->Read(iReason);
 
-	if(iReason == REFUSE_REASON_INVALIDVERSION)
-	{
-		g_pChatWindow->AddInfoMessage("Connection Refused.");
-		g_pChatWindow->AddInfoMessage("You are using an invalid version.");
-	}
-	else if(iReason == REFUSE_REASON_TOOSHORT)
-	{
-		g_pChatWindow->AddInfoMessage("Connection Refused.");
-		g_pChatWindow->AddInfoMessage("Your name is too short.");
-	}
-	else if(iReason == REFUSE_REASON_TOOLONG)
-	{
-		g_pChatWindow->AddInfoMessage("Connection Refused.");
-		g_pChatWindow->AddInfoMessage("Your name is too long.");
-	}
-	else if(iReason == REFUSE_REASON_INUSE)
-	{
-		g_pChatWindow->AddInfoMessage("Connection Refused.");
-		g_pChatWindow->AddInfoMessage("Your name is already in use.");
-	}
-	else if(iReason == REFUSE_REASON_INVALIDNAME)
-	{
-		g_pChatWindow->AddInfoMessage("Connection Refused.");
-		g_pChatWindow->AddInfoMessage("Your name is invalid.");
-	}
+	// Add the refuse message and refuse reason to the chat window
+	g_pChatWindow->AddInfoMessage("Connection Refused.");
 
+	if(iReason == REFUSE_REASON_INVALIDVERSION)
+		g_pChatWindow->AddInfoMessage("You are using an invalid version.");
+	else if(iReason == REFUSE_REASON_TOOSHORT)
+		g_pChatWindow->AddInfoMessage("Your name is too short.");
+	else if(iReason == REFUSE_REASON_TOOLONG)
+		g_pChatWindow->AddInfoMessage("Your name is too long.");
+	else if(iReason == REFUSE_REASON_INUSE)
+		g_pChatWindow->AddInfoMessage("Your name is already in use.");
+	else if(iReason == REFUSE_REASON_INVALIDNAME)
+		g_pChatWindow->AddInfoMessage("Your name is invalid.");
+	else if(iReason == REFUSE_REASON_FILES_MODIFIED)
+		g_pChatWindow->AddInfoMessage("Your game files are modified.");
+
+	// Disconnect from the server
 	g_pNetworkManager->Disconnect();
 }
 
@@ -1032,29 +1024,24 @@ void CClientRPCHandler::NameChange(CBitStream * pBitStream, CPlayerSocket * pSen
 		return;
 
 	EntityId playerId;
-	bool bSuccessfull;
 	pBitStream->Read(playerId);
-	pBitStream->Read(bSuccessfull);
 
-	if(bSuccessfull)
+	String strName;
+	pBitStream->Read(strName);
+
+	if(playerId == g_pLocalPlayer->GetPlayerId())
 	{
-		String strName;
-		pBitStream->Read(strName);
-
-		if(playerId == g_pLocalPlayer->GetPlayerId())
-			g_pLocalPlayer->SetName(strName);
-		else
-		{
-			CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-
-			if(pPlayer)
-				pPlayer->SetName(strName);
-		}
+		g_strNick = strName;
+		g_pLocalPlayer->SetName(strName);
+		g_pMainMenu->m_pSettingsWindowNickEditBox->setText(strName.Get());
+		CVAR_SET_STRING("nick", strName);
 	}
 	else
 	{
-		if(playerId == g_pLocalPlayer->GetPlayerId())
-			g_pMainMenu->m_pSettingsWindowNickEditBox->setText(g_strNick.Get());
+		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+		if(pPlayer)
+			pPlayer->SetName(strName);
 	}
 }
 
@@ -1269,7 +1256,7 @@ void CClientRPCHandler::ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlay
 
 	float grav;
 	pBitStream->Read(grav);
-	Scripting::SetCharGravity(g_pLocalPlayer->GetPedHandle(), grav);
+	Scripting::SetCharGravity(g_pLocalPlayer->GetScriptingHandle(), grav);
 }
 
 // Broken :(
