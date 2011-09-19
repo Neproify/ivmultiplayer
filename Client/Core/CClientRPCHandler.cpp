@@ -658,7 +658,6 @@ void CClientRPCHandler::ScriptingSetPlayerDucking(CBitStream * pBitStream, CPlay
 {
 	bool bDucking;
 	pBitStream->Read(bDucking);
-
 	g_pLocalPlayer->SetDucking(bDucking);
 }
 
@@ -666,8 +665,7 @@ void CClientRPCHandler::ScriptingSetPlayerInvincible(CBitStream * pBitStream, CP
 {
 	bool bInvincible;
 	pBitStream->Read(bInvincible);
-
-	Scripting::SetCharInvincible(g_pLocalPlayer->GetPedHandle(), bInvincible);
+	Scripting::SetCharInvincible(g_pLocalPlayer->GetScriptingHandle(), bInvincible);
 }
 
 void CClientRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
