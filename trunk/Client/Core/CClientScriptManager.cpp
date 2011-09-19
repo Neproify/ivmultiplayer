@@ -65,6 +65,11 @@ _BEGIN_CLASS(GUIEditBox)
 _MEMBER_FUNCTION(GUIEditBox, constructor, 0, NULL)
 _END_CLASS_BASE(GUIEditBox, GUIElement)
 
+// GUIMultiLineEditBox
+_BEGIN_CLASS(GUIMultiLineEditBox)
+_MEMBER_FUNCTION(GUIMultiLineEditBox, constructor, 0, NULL)
+_END_CLASS_BASE(GUIMultiLineEditBox, GUIElement)
+
 // GUICheckBox
 _BEGIN_CLASS(GUICheckBox)
 _MEMBER_FUNCTION(GUICheckBox, constructor, 0, NULL)
@@ -128,6 +133,7 @@ CClientScriptManager::CClientScriptManager()
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIText));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIButton));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIEditBox));
+	m_pScripting->RegisterClass(&_CLASS_DECL(GUIMultiLineEditBox));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUICheckBox));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIImage));
 }

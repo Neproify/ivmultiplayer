@@ -46,6 +46,7 @@ struct CGUITitleBar : CEGUI::Window {};
 struct CGUIButton : CEGUI::Window {};
 struct CGUIFrameWindow : CEGUI::Window {};
 struct CGUIEditBox : CEGUI::Window {};
+struct CGUIMultiLineEditBox : CEGUI::Window {};
 struct CGUIStaticImage : CEGUI::Window {};
 struct CGUIStaticText : CEGUI::Window {};
 struct CGUICheckBox : CEGUI::Window {};
@@ -146,6 +147,7 @@ public:
 	void                       RemoveGUIWindow(CGUIButton * pButton);
 	void                       RemoveGUIWindow(CGUIFrameWindow * pFrameWindow);
 	void                       RemoveGUIWindow(CGUIEditBox * pEditBox);
+	void                       RemoveGUIWindow(CGUIMultiLineEditBox * pMultiLineEditBox);
 	void                       RemoveGUIWindow(CGUIStaticImage * pStaticText);
 	void                       RemoveGUIWindow(CGUIStaticText * pStaticText);
 	void                       RemoveGUIWindow(CGUICheckBox * pCheckBox);
@@ -157,6 +159,8 @@ public:
 	CGUIFrameWindow          * CreateGUIFrameWindow(CEGUI::Window * pParentWindow = NULL);
 	CGUIEditBox              * CreateGUIEditBox(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
 	CGUIEditBox              * CreateGUIEditBox(CEGUI::Window * pParentWindow = NULL);
+	CGUIMultiLineEditBox	 * CreateGUIMultiLineEditBox(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
+	CGUIMultiLineEditBox     * CreateGUIMultiLineEditBox(CEGUI::Window * pParentWindow = NULL);
 	CGUIStaticImage          * CreateGUIStaticImage(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
 	CGUIStaticImage          * CreateGUIStaticImage(CEGUI::Window * pParentWindow = NULL);
 	CGUIStaticText           * CreateGUIStaticText(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
