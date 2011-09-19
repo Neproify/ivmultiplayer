@@ -210,7 +210,15 @@ void CQuery::Process()
 								// Write the player ping
 								reply.Write(pPlayer->GetPing());
 
-							
+								// Get the players vehicle
+								CVehicle * pVehicle = pPlayer->GetVehicle();
+
+								// Is in the player in a vehicle?
+								if(pVehicle)
+									reply.Write(pVehicle->GetVehicleId());
+								else
+									reply.Write((EntityId)INVALID_ENTITY_ID);
+
 								// Write the player vehicle
 								reply.Write(pPlayer->GetVehicle());
 								
