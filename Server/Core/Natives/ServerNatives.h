@@ -20,6 +20,7 @@ private:
 	static SQInteger AddRule(SQVM * pVM);
 	static SQInteger RemoveRule(SQVM * pVM);
 	static SQInteger SetRule(SQVM * pVM);
+	static SQInteger GetRule(SQVM * pVM);
 	static SQInteger Shutdown(SQVM * pVM);
 	static SQInteger SetPassword(SQVM * pVM);
 	static SQInteger GetPassword(SQVM * pVM);
