@@ -10,6 +10,7 @@
 
 #include "CIVPlayerInfo.h"
 #include "CGame.h"
+#include <CLogFile.h>
 
 CIVPlayerInfo::CIVPlayerInfo()
 {
@@ -19,18 +20,13 @@ CIVPlayerInfo::CIVPlayerInfo()
 
 CIVPlayerInfo::CIVPlayerInfo(BYTE bytePlayerNumber)
 {
-	const DWORD dwSize = sizeof(IVPlayerInfo);
-	DWORD dwFunc = (CGame::GetBase() + 0x4011D0); // alloc
-	IVPlayerInfo * pPlayerInfo = NULL;
-	_asm
-	{
-		push dwSize
-		call dwFunc
-		mov pPlayerInfo, eax
-		add esp, 4
-	}
+	IVPlayerInfo * pPlayerInfo = (IVPlayerInfo *)CGame::Alloc(sizeof(IVPlayerInfo));
+
+	if(!pPlayerInfo)
+		CLogFile::Printf("ERROR: CIVPlayerInfo::Constructor: Alloc failed.");
+
 #define FUNC_CPlayerInfo__Constructor 0x87AB70
-	dwFunc = (CGame::GetBase() + FUNC_CPlayerInfo__Constructor);
+	DWORD dwFunc = (CGame::GetBase() + FUNC_CPlayerInfo__Constructor);
 	_asm
 	{
 		mov ecx, pPlayerInfo
@@ -59,24 +55,32 @@ CIVPlayerInfo::CIVPlayerInfo(IVPlayerInfo * pPlayerInfo)
 
 CIVPlayerInfo::~CIVPlayerInfo()
 {
+	SetPlayerInfo(NULL);
+}
+
+void CIVPlayerInfo::SetPlayerInfo(IVPlayerInfo * pPlayerInfo)
+{
 	if(m_bCreatedByUs)
 	{
 		XLivePBufferFree(m_pPlayerInfo->m_pDisplayScore);
 		XLivePBufferFree(m_pPlayerInfo->m_pScore);
 		IVPlayerInfo * pPlayerInfo = m_pPlayerInfo;
-		DWORD dwFunc = (CGame::GetBase() + 0x5B1C10); // gta_free
+		DWORD dwFunc = (CGame::GetBase() + 0x878AF0); // CPlayerInfo::Destructor(or Reset)
 		_asm
 		{
-			push pPlayerInfo
+			mov ecx, pPlayerInfo
 			call dwFunc
-			add esp, 4
 		}
+		/*dwFunc = (CGame::GetBase() + 0x878AE0);
+		DWORD dwUnknown = (DWORD)(pPlayerInfo + 0x60);
+		_asm
+		{
+			push dwUnknown
+			call dwFunc
+		}*/
+		CGame::Free(pPlayerInfo);
 	}
-}
 
-void CIVPlayerInfo::SetPlayerInfo(IVPlayerInfo * pPlayerInfo)
-{
-	// If created by us should delete here?
 	m_pPlayerInfo = pPlayerInfo;
 }
 

@@ -12,6 +12,7 @@
 #include "Scripting.h"
 #include "CIVPlayerPed.h"
 #include "CIVPlayerInfo.h"
+#include "CContextDataManager.h"
 
 class CNetworkVehicle;
 
@@ -23,6 +24,7 @@ private:
 	unsigned int      m_byteGamePlayerNumber;
 	CIVPlayerPed    * m_pPlayerPed;
 	CIVPlayerInfo   * m_pPlayerInfo;
+	CContextData    * m_pContextData;
 	String            m_strName;
 	CIVModelInfo    * m_pModelInfo;
 	bool              m_bSpawned;
@@ -42,8 +44,8 @@ private:
 	}                 m_interp;
 	unsigned char     m_ucClothes[11];
 	bool              m_bUseCustomClothesOnSpawn;
-	NetPadState       m_previousNetPadState;
-	NetPadState       m_currentNetPadState;
+	CPadState         m_previousPadState;
+	CPadState         m_currentPadState;
 	unsigned short    m_usPing;
 	CNetworkVehicle * m_pVehicle;
 	BYTE              m_byteVehicleSeatId;
@@ -55,6 +57,10 @@ private:
 		bool              bExiting;
 		bool              bRequesting;
 	}                 m_vehicleEnterExit;
+	bool              m_bHealthLocked;
+	unsigned int      m_uiLockedHealth;
+	bool              m_bArmourLocked;
+	unsigned int      m_uiLockedArmour;
 
 public:
 	CNetworkPlayer(bool bIsLocalPlayer = false);
@@ -68,6 +74,12 @@ public:
 	CIVPlayerPed           * GetGamePlayerPed() { return m_pPlayerPed; }
 	CIVPlayerInfo          * GetGamePlayerInfo() { return m_pPlayerInfo; }
 	CIVModelInfo           * GetModelInfo() { return m_pModelInfo; }
+	bool                     IsSpawned() { return m_bSpawned; }
+	void                     SetSpawned(bool bSpawned) { m_bSpawned = bSpawned; } 
+	void                     SetName(String strName);
+	String                   GetName() { return m_strName; }
+	void                     SetPing(unsigned short usPing) { m_usPing = usPing; }
+	unsigned short           GetPing() { return m_usPing; }
 	virtual bool             Create();
 	virtual void             Init();
 	virtual void             Destroy();
@@ -95,7 +107,7 @@ public:
 	CNetworkVehicle        * GetEnterExitVehicle() { return m_vehicleEnterExit.pVehicle; }
 	bool                     IsAPassenger() { return (m_pVehicle != NULL && m_byteVehicleSeatId != 0); }
 
-	unsigned int             GetPedHandle();
+	unsigned int             GetScriptingHandle();
 
 	//
 	void                     SetModel(DWORD dwModelHash);
@@ -114,8 +126,10 @@ public:
 	void					 GiveHelmet();
 	void					 RemoveHelmet();
 	void                     SetHealth(unsigned int uiHealth);
+	void                     LockHealth(unsigned int uiHealth);
 	unsigned int             GetHealth();
 	void                     SetArmour(unsigned int uiArmour);
+	void                     LockArmour(unsigned int uiArmour);
 	unsigned int             GetArmour();
 	void                     GiveWeapon(unsigned int uiWeaponId, unsigned int uiAmmo);
 	void                     RemoveWeapon(unsigned int uiWeaponId);
@@ -128,9 +142,9 @@ public:
 	void                     SetMoney(int iAmount);
 	void                     ResetMoney();
 	int                      GetMoney();
-	void                     SetNetPadState(NetPadState * netPadState);
-	void                     GetPreviousNetPadState(NetPadState * netPadState);
-	void                     GetNetPadState(NetPadState * netPadState);
+	void                     SetPadState(CPadState * padState);
+	void                     GetPreviousPadState(CPadState * padState);
+	void                     GetPadState(CPadState * padState);
 	void                     SetAimSyncData(AimSyncData * aimSyncData);
 	void                     GetAimSyncData(AimSyncData * aimSyncData);
 	void                     AddToWorld();
@@ -174,10 +188,5 @@ public:
 	bool                     GetRequestingVehicleEnterExit() { return m_vehicleEnterExit.bRequesting; }
 
 	void                     ToggleRagdoll(bool bToggle);
-	bool                     IsSpawned() { return m_bSpawned; }
-	void                     SetSpawned(bool bSpawned) { m_bSpawned = bSpawned; } 
-	void                     SetName(String strName);
-	String                   GetName() { return m_strName; }
-	void                     SetPing(unsigned short usPing) { m_usPing = usPing; }
-	unsigned short           GetPing() { return m_usPing; }
+	bool                     IsOnScreen();
 };

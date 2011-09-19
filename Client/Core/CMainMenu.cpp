@@ -199,17 +199,6 @@ bool CMainMenu::OnServerBrowserWindowRowClick(const CEGUI::EventArgs &eventArgs)
 	return true;
 }
 
-// Sample sub-class for ListboxTextItem that auto-sets the selection brush
-// image.  This saves doing it manually every time in the code.
-class MyListItem : public CEGUI::ListboxTextItem
-{
-public:
-	MyListItem(const CEGUI::String& text) : ListboxTextItem(text)
-	{
-		setSelectionBrushImage("WindowsLook", "MultiListSelectionBrush");
-	}
-};
-
 void CMainMenu::ServerQueryHandler(String strHost, unsigned short usPort, String strQuery, CBitStream * pReply)
 {
 	// Read the query type
@@ -251,13 +240,13 @@ void CMainMenu::ServerQueryHandler(String strHost, unsigned short usPort, String
 		// Add the server to the multi column list
 		CEGUI::MultiColumnList * pMultiColumnList = (CEGUI::MultiColumnList *)CMainMenu::GetSingleton()->m_serverBrowser.pServerMultiColumnList;
 		unsigned int iRowIndex = pMultiColumnList->addRow();
-		pMultiColumnList->setItem(new MyListItem(strHostName.Get()), 0, iRowIndex);
-		pMultiColumnList->setItem(new MyListItem(strHostAndPort.Get()), 1, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem(strHostName.Get()), 0, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem(strHostAndPort.Get()), 1, iRowIndex);
 		char szTempBuf[64];
-		pMultiColumnList->setItem(new MyListItem(itoa(iPlayerCount, szTempBuf, 10)), 2, iRowIndex);
-		pMultiColumnList->setItem(new MyListItem(itoa(iMaxPlayers, szTempBuf, 10)), 3, iRowIndex);
-		pMultiColumnList->setItem(new MyListItem("9999"), 4, iRowIndex);
-		pMultiColumnList->setItem(new MyListItem(bPassworded ? "Yes" : "No"), 5, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem(itoa(iPlayerCount, szTempBuf, 10)), 2, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem(itoa(iMaxPlayers, szTempBuf, 10)), 3, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem("9999"), 4, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem(bPassworded ? "Yes" : "No"), 5, iRowIndex);
 		pMultiColumnList->invalidate();
 
 		// Save the current time to the ping map
@@ -486,14 +475,6 @@ bool CMainMenu::OnSettingsWindowSaveButtonClick(const CEGUI::EventArgs &eventArg
 	if(bWindowed != g_bWindowedMode)
 		g_pGUI->ShowMessageBox("You must restart IV:MP for the windowed mode option to take effect", "Information.");
 
-	bool bNameChanged = (CVAR_GET_STRING("nick").Compare(m_pSettingsWindowNickEditBox->getText().c_str()) != 0);
-
-	if(bNameChanged)
-	{
-		CVAR_SET_STRING("nick", m_pSettingsWindowNickEditBox->getText().c_str());
-		g_strNick.Set(m_pSettingsWindowNickEditBox->getText().c_str());
-	}
-
 	CVAR_SET_BOOL("windowed", bWindowed);
 	CVAR_SET_BOOL("fps", g_bFPSToggle);
 	CVAR_SET_INTEGER("chatfont", strFont.ToInteger());
@@ -510,7 +491,9 @@ bool CMainMenu::OnSettingsWindowSaveButtonClick(const CEGUI::EventArgs &eventArg
 	SetSettingsWindowVisible(false);
 
 	// Are we connected to a server and have we changed our name?
-	if(g_pNetworkManager && g_pNetworkManager->IsConnected() && !bNameChanged)
+	bool bNameChanged = (CVAR_GET_STRING("nick").Compare(m_pSettingsWindowNickEditBox->getText().c_str()) != 0);
+
+	if(g_pNetworkManager && g_pNetworkManager->IsConnected() && bNameChanged)
 	{
 		// Send the name change request
 		CBitStream bsSend;
@@ -865,8 +848,6 @@ CMainMenu::CMainMenu()
 
 CMainMenu::~CMainMenu()
 {
-	CLogFile::Printf("PreMainMenuShutdown");
-
 	// Settings Window
 	if(m_pSettingsWindow)
 		g_pGUI->RemoveGUIWindow(m_pSettingsWindow);
@@ -888,8 +869,6 @@ CMainMenu::~CMainMenu()
 
 	// Delete the master list query instance
 	SAFE_DELETE(m_pMasterListQuery);
-
-	CLogFile::Printf("PostMainMenuShutdown");
 }
 
 void CMainMenu::OnResetDevice()

@@ -35,10 +35,13 @@ CChatWindow::~CChatWindow()
 
 void CChatWindow::Draw()
 {
+	// Are we enabled and do we have a valid GUI instance?
 	if(m_bEnabled && g_pGUI)
 	{
+		// Draw the font background
 		g_pGraphics->DrawRect(5, 5, 500, 30 + MAX_DISPLAYED_MESSAGES * 20, m_ulBackgroundColor);
 
+		// Do we have a valid font?
 		if(m_pFont)
 		{
 			int iCurrentMessage = (m_iCurrentPage * MAX_DISPLAYED_MESSAGES) - 1;
@@ -179,6 +182,10 @@ void CChatWindow::InitFontAndBackground()
 {
 	// Load our chat font
 	m_pFont = g_pGUI->GetFont(CVAR_GET_STRING("chatfont").Get(), CVAR_GET_INTEGER("chatsize"));
+
+	// Do we not have a valid font?
+	if(!m_pFont)
+		g_pGUI->ShowMessageBox("Invalid chat font.\nPlease set a valid font in the Chat tab of the Settings menu.", "Warning");
 
 	// Set our background colors
 	m_ulBackgroundColor = D3DCOLOR_ARGB(CVAR_GET_INTEGER("chatbga"), 

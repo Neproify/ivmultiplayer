@@ -13,6 +13,16 @@
 #include "CMasterListQuery.h"
 #include "CServerQuery.h"
 
+// Custom ListboxTextItem class to automatically set the selection brush image on creation
+class ServerBrowserListItem : public CEGUI::ListboxTextItem
+{
+public:
+	ServerBrowserListItem(const CEGUI::String& text) : ListboxTextItem(text)
+	{
+		setSelectionBrushImage("WindowsLook", "MultiListSelectionBrush");
+	}
+};
+
 class CMainMenu
 {
 private:

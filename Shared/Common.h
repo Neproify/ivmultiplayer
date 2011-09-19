@@ -15,9 +15,10 @@
 
 #pragma once
 
-// TODO: Move this and sync structures to seperate file
+// TODO: Move this and sync structures to separate file
 // or do it like n:iv with Serialize and Deserialize functions
-#include <Math/CMath.h>
+#include "Math/CMath.h"
+#include "Game/CPadState.h"
 
 // Linux stuff
 #ifdef _LINUX
@@ -189,129 +190,9 @@ enum eVehicleEntryExit
 // Debug Commands Enabled
 //#define DEBUG_COMMANDS_ENABLED
 
-enum eNetPadKeys
-{
-	// On Foot/In Vehicle
-	NET_PAD_KEY_ENTEREXIT_VEHICLE = 1, // Enter/Exit Vehicle (Key 3)
-
-	// On Foot
-	NET_PAD_KEY_SPRINT = 2, // Sprint (Key 1)
-	NET_PAD_KEY_JUMP = 4, // Jump (Key 2)
-	NET_PAD_KEY_ATTACK = 8, // Attack (Key 4)
-	NET_PAD_KEY_FREE_AIM_1 = 16, // Free Aim/Melee Lock On (Key 5)
-	NET_PAD_KEY_FREE_AIM_2 = 32, // Free Aim/Melee Lock On 2 (Key 6)
-	NET_PAD_KEY_MOUSE_AIM = 64, // Mouse Aim (Key 87)
-	NET_PAD_KEY_COMBAT_PUNCH_1 = 128, // Combat Punch 1 (Key 59)
-	NET_PAD_KEY_COMBAT_PUNCH_2 = 256, // Combat Punch 2 (Key 60)
-	NET_PAD_KEY_COMBAT_KICK = 512, // Combat Kick (Key 62)
-	NET_PAD_KEY_COMBAT_BLOCK = 1024, // Combat Block (Key 63)
-
-	// In Vehicle
-	NET_PAD_KEY_ACCELERATE = 2048, // Accelerate (Key 40)
-	NET_PAD_KEY_REVERSE = 4096, // Reverse (Key 41)
-	NET_PAD_KEY_HANDBRAKE_1 = 8192, // Handbrake (Key 44)
-	NET_PAD_KEY_HANDBRAKE_2 = 16384, // Handbrake 2 (Key 45)
-	NET_PAD_KEY_HORN = 32768, // Horn (Key 54)
-	NET_PAD_KEY_DRIVE_BY = 65536, // Drive By (Key 38)
-	NET_PAD_KEY_HELI_PRIMARY_FIRE = 131072, // Heli Primary Fire (Key 39)
-};
-
-struct NetPadState
-{
-	unsigned char byteLeftAnalogLR[2]; // Left Analog Left/Right (OnFoot: Key 12/13 InCar: Key 30/31)
-	unsigned char byteLeftAnalogUD[2]; // Left Analog Up/Down (OnFoot: Key 14/15 InVehicle: Key 32/33)
-	unsigned char byteTriggers[2];
-	DWORD dwKeys; // All other keys
-
-	NetPadState()
-	{
-		byteLeftAnalogLR[0] = 0;
-		byteLeftAnalogLR[1] = 0;
-		byteLeftAnalogUD[0] = 0;
-		byteLeftAnalogUD[1] = 0;
-		byteTriggers[0] = 0;
-		byteTriggers[1] = 0;
-		dwKeys = 0;
-	}
-
-	NetPadState(unsigned char _byteLeftAnalogLR[2], unsigned char _byteLeftAnalogUD[2], DWORD _dwKeys)
-	{
-		byteLeftAnalogLR[0] = _byteLeftAnalogLR[0];
-		byteLeftAnalogLR[1] = _byteLeftAnalogLR[1];
-		byteLeftAnalogUD[0] = _byteLeftAnalogUD[0];
-		byteLeftAnalogUD[1] = _byteLeftAnalogUD[1];
-		dwKeys = _dwKeys;
-	}
-
-	bool operator== (const NetPadState& o) const
-	{
-		return (byteLeftAnalogLR[0] == o.byteLeftAnalogLR[0] && 
-				byteLeftAnalogLR[1] == o.byteLeftAnalogLR[1] && 
-				byteLeftAnalogUD[0] == o.byteLeftAnalogUD[0] && 
-				byteLeftAnalogUD[1] == o.byteLeftAnalogUD[1] && 
-				dwKeys == o.dwKeys);
-	}
-
-	bool operator!= (const NetPadState& o) const
-	{
-		return (byteLeftAnalogLR[0] != o.byteLeftAnalogLR[0] || 
-			byteLeftAnalogLR[1] != o.byteLeftAnalogLR[1] || 
-			byteLeftAnalogUD[0] != o.byteLeftAnalogUD[0] || 
-			byteLeftAnalogUD[1] != o.byteLeftAnalogUD[1] || 
-			dwKeys != o.dwKeys);
-	}
-
-	bool IsDoingCombat()
-	{
-		return (dwKeys & NET_PAD_KEY_COMBAT_PUNCH_1 || dwKeys & NET_PAD_KEY_COMBAT_PUNCH_2 || 
-			    dwKeys & NET_PAD_KEY_COMBAT_KICK);
-	}
-
-	bool IsFiring()
-	{
-		return ((dwKeys & NET_PAD_KEY_ATTACK) != 0);
-	}
-
-	bool IsAiming()
-	{
-		return (dwKeys & NET_PAD_KEY_FREE_AIM_1 || dwKeys & NET_PAD_KEY_FREE_AIM_2 || 
-				dwKeys & NET_PAD_KEY_MOUSE_AIM);
-	}
-
-	bool IsDoingDriveBy()
-	{
-		return ((dwKeys & NET_PAD_KEY_DRIVE_BY) != 0);
-	}
-
-	bool IsFiringHelicoptor()
-	{
-		return ((dwKeys & NET_PAD_KEY_HELI_PRIMARY_FIRE) != 0);
-	}
-
-	bool IsSprinting()
-	{
-		return ((dwKeys & NET_PAD_KEY_SPRINT) != 0);
-	}
-
-	bool IsUsingHorn()
-	{
-		return ((dwKeys & NET_PAD_KEY_HORN) != 0);
-	}
-
-	bool IsJumping()
-	{
-		return ((dwKeys & NET_PAD_KEY_JUMP) != 0);
-	}
-
-	bool IsUsingHandbrake()
-	{
-		return (dwKeys & NET_PAD_KEY_HANDBRAKE_1 || dwKeys & NET_PAD_KEY_HANDBRAKE_2);
-	}
-};
-
 struct OnFootSyncData
 {
-	NetPadState padState;            // pad state
+	CPadState padState;              // pad state
 	CVector3 vecPos;                 // player position
 	float fHeading;                  // player heading
 	CVector3 vecMoveSpeed;           // player move speed
@@ -322,7 +203,7 @@ struct OnFootSyncData
 
 struct InVehicleSyncData
 {
-	NetPadState padState;                  // pad state
+	CPadState padState;                    // pad state
 	CVector3 vecPos;                       // vehicle position
 	CVector3 vecRotation;                  // vehicle rotation
 	unsigned int uiHealth : 16;            // vehicle health
@@ -337,16 +218,16 @@ struct InVehicleSyncData
 
 struct PassengerSyncData
 {
-	NetPadState padState; // pad state
-	unsigned char byteSeatId; // vehicle seat id
+	CPadState padState;                    // pad state
+	unsigned char byteSeatId;              // vehicle seat id
 	unsigned int uPlayerHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
-	unsigned int uPlayerWeaponInfo; // player weapon and ammo
+	unsigned int uPlayerWeaponInfo;        // player weapon and ammo
 };
 
 struct SmallSyncData
 {
-	NetPadState padState; // pad state
-	bool bDuckState : 1; // ducking
+	CPadState padState;       // pad state
+	bool bDuckState : 1;      // ducking
 	unsigned int uWeaponInfo; // weapon and ammo
 };
 
@@ -365,7 +246,7 @@ struct EMPTYVEHICLESYNCPACKET
 struct AimSyncData
 {
 	CVector3 vecRight;
-	CVector3 vecFront;
+	CVector3 vecForward;
 	CVector3 vecUp;
 	CVector3 vecPosition;
 };
@@ -377,7 +258,8 @@ enum eRefuseReason
 	REFUSE_REASON_TOOSHORT,
 	REFUSE_REASON_TOOLONG,
 	REFUSE_REASON_INUSE,
-	REFUSE_REASON_INVALIDNAME
+	REFUSE_REASON_INVALIDNAME,
+	REFUSE_REASON_FILES_MODIFIED
 };
 
 // State types

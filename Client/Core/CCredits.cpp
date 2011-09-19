@@ -222,6 +222,6 @@ void CCredits::Process()
 		float fY = (float)((m_pGUI->GetDisplayHeight() / 2) - (fFontHeight / 2));
 
 		// Draw the text
-		m_pGUI->DrawText(pCreditText->strText.Get(), CEGUI::Vector2(fX, fY), (CEGUI::colour)D3DCOLOR_RGBA(255, 255, 255, 255), m_pCurrentFont, true, true, NULL, 0.0, fScale, fScale);
+		m_pGUI->DrawText(pCreditText->strText, CEGUI::Vector2(fX, fY), (CEGUI::colour)D3DCOLOR_RGBA(255, 255, 255, 255), m_pCurrentFont, true, true, NULL, 0.0, fScale, fScale);
 	}
 }

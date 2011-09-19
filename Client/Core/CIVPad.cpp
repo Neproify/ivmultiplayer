@@ -19,10 +19,10 @@
 
 // Helper macros for the FromPadState function
 #define GET_ANALOG_KEY(key, analog) \
-	(bCurrent ? (m_pPad->m_padData[key].m_byteCurrentValue = analog) : (m_pPad->m_padData[key].m_byteLastValue = analog))
+	if(bCurrent) { m_pPad->m_padData[key].m_byteCurrentValue = analog; } else { m_pPad->m_padData[key].m_byteLastValue = analog; }
 
 #define GET_BINARY_KEY(key, binary) \
-	(bCurrent ? (m_pPad->m_padData[key].m_byteCurrentValue = (binary ? MAX_INPUT_VALUE : DEFAULT_BINARY_INPUT_VALUE)) : (m_pPad->m_padData[key].m_byteLastValue = (binary ? MAX_INPUT_VALUE : DEFAULT_BINARY_INPUT_VALUE)))
+	if(bCurrent) { m_pPad->m_padData[key].m_byteCurrentValue = (binary ? MAX_INPUT_VALUE : DEFAULT_BINARY_INPUT_VALUE); } else { m_pPad->m_padData[key].m_byteLastValue = (binary ? MAX_INPUT_VALUE : DEFAULT_BINARY_INPUT_VALUE); }
 
 CIVPad::CIVPad()
 {
@@ -138,17 +138,17 @@ void CIVPad::FromPadState(CPadState padState, bool bCurrent)
 		return;
 
 	// Analog keys
-	GET_BINARY_KEY(INPUT_MOVE_LEFT,         padState.ucOnFootMove[0]);
-	GET_BINARY_KEY(INPUT_MOVE_RIGHT,        padState.ucOnFootMove[1]);
-	GET_BINARY_KEY(INPUT_MOVE_UP,           padState.ucOnFootMove[2]);
-	GET_BINARY_KEY(INPUT_MOVE_DOWN,         padState.ucOnFootMove[3]);
-	GET_BINARY_KEY(INPUT_VEH_MOVE_LEFT,     padState.ucInVehicleMove[0]);
-	GET_BINARY_KEY(INPUT_VEH_MOVE_RIGHT,    padState.ucInVehicleMove[1]);
-	GET_BINARY_KEY(INPUT_VEH_MOVE_UP,       padState.ucInVehicleMove[2]);
-	GET_BINARY_KEY(INPUT_VEH_MOVE_DOWN,     padState.ucInVehicleMove[3]);
+	GET_ANALOG_KEY(INPUT_MOVE_LEFT,         padState.ucOnFootMove[0]);
+	GET_ANALOG_KEY(INPUT_MOVE_RIGHT,        padState.ucOnFootMove[1]);
+	GET_ANALOG_KEY(INPUT_MOVE_UP,           padState.ucOnFootMove[2]);
+	GET_ANALOG_KEY(INPUT_MOVE_DOWN,         padState.ucOnFootMove[3]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     padState.ucInVehicleMove[0]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    padState.ucInVehicleMove[1]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       padState.ucInVehicleMove[2]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     padState.ucInVehicleMove[3]);
 
 	// Binary keys
-	//GET_BINARY_KEY(INPUT_ENTER,             padState.keys.bEnterExitVehicle);
+	GET_BINARY_KEY(INPUT_ENTER,             padState.keys.bEnterExitVehicle);
 	GET_BINARY_KEY(INPUT_SPRINT,            padState.keys.bSprint);
 	GET_BINARY_KEY(INPUT_JUMP,              padState.keys.bJump);
 	GET_BINARY_KEY(INPUT_ATTACK,            padState.keys.bAttack);

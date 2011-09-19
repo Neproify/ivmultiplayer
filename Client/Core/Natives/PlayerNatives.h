@@ -37,8 +37,10 @@ private:
 	static SQInteger GetAmmo(SQVM * pVM);
 	static SQInteger GetInterior(SQVM * pVM);
 	static SQInteger GetPadState(SQVM * pVM);
+	static SQInteger GetPreviousPadState(SQVM * pVM);
 	static SQInteger GetPing(SQVM * pVM);
 	static SQInteger GetColor(SQVM * pVM);
+
 public:
 	static void      Register(CScriptingManager * pScriptingManager);
 };

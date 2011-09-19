@@ -130,4 +130,5 @@ public:
 	bool             GetComponentState(unsigned char ucSlot);
 	void             SetVariation(unsigned char ucVariation);
 	unsigned char    GetVariation();
+	bool             IsOnScreen();
 };

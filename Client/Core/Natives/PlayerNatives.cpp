@@ -56,6 +56,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerAmmo", GetAmmo, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerInterior", GetInterior, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerPadState", GetPadState, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerPreviousPadState", GetPreviousPadState, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerPing", GetPing, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerColor", GetColor, 1, "i");
 }
@@ -500,35 +501,207 @@ SQInteger CPlayerNatives::GetInterior(SQVM * pVM)
 // getPlayerPadState(playerid)
 SQInteger CPlayerNatives::GetPadState(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
+		// Get the player pad state
+		CPadState padState;
+		pPlayer->GetPadState(&padState);
 
-		if(pPlayer)
+		// Create the table
+		sq_newtable(pVM);
+
+		// Create the 'onFootMove' array
+		sq_pushstring(pVM, "onFootMove", -1);
+		sq_newarray(pVM, 0);
+
+		for(int i = 0; i < 4; i++)
 		{
-			NetPadState padState;
-			pPlayer->GetNetPadState(&padState);
-			sq_newtable(pVM);
-			sq_pushstring(pVM, "leftAnalogLR0", -1);
-			sq_pushinteger(pVM, padState.byteLeftAnalogLR[0]);
-			sq_createslot(pVM, -3);
-			sq_pushstring(pVM, "leftAnalogLR1", -1);
-			sq_pushinteger(pVM, padState.byteLeftAnalogLR[1]);
-			sq_createslot(pVM, -3);
-			sq_pushstring(pVM, "leftAnalogUD0", -1);
-			sq_pushinteger(pVM, padState.byteLeftAnalogUD[0]);
-			sq_createslot(pVM, -3);
-			sq_pushstring(pVM, "leftAnalogUD1", -1);
-			sq_pushinteger(pVM, padState.byteLeftAnalogUD[1]);
-			sq_createslot(pVM, -3);
-			sq_pushstring(pVM, "keys", -1);
-			sq_pushinteger(pVM, padState.dwKeys);
-			sq_createslot(pVM, -3);
-			return 1;
+			sq_pushinteger(pVM, padState.ucOnFootMove[i]);
+			sq_arrayappend(pVM, -2);
 		}
+
+		sq_createslot(pVM, -3);
+
+		// Create the 'inVehicleMove' array
+		sq_pushstring(pVM, "inVehicleMove", -1);
+		sq_newarray(pVM, 0);
+
+		for(int i = 0; i < 4; i++)
+		{
+			sq_pushinteger(pVM, padState.ucInVehicleMove[i]);
+			sq_arrayappend(pVM, -2);
+		}
+
+		sq_createslot(pVM, -3);
+
+		// Create the on foot keys slots
+		sq_pushstring(pVM, "enterExitVehicle", -1);
+		sq_pushbool(pVM, padState.keys.bEnterExitVehicle);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "sprint", -1);
+		sq_pushbool(pVM, padState.keys.bSprint);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "jump", -1);
+		sq_pushbool(pVM, padState.keys.bJump);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "attack", -1);
+		sq_pushbool(pVM, padState.keys.bAttack);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "attack2", -1);
+		sq_pushbool(pVM, padState.keys.bAttack2);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "aim", -1);
+		sq_pushbool(pVM, padState.keys.bAim);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "freeAim", -1);
+		sq_pushbool(pVM, padState.keys.bFreeAim);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "meleeAttack1", -1);
+		sq_pushbool(pVM, padState.keys.bMeleeAttack1);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "meleeAttack2", -1);
+		sq_pushbool(pVM, padState.keys.bMeleeAttack2);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "meleeKick", -1);
+		sq_pushbool(pVM, padState.keys.bMeleeKick);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "meleeBlock", -1);
+		sq_pushbool(pVM, padState.keys.bMeleeBlock);
+		sq_createslot(pVM, -3);
+
+		// Create the in vehicle keys slots
+		sq_pushstring(pVM, "accelerate", -1);
+		sq_pushbool(pVM, padState.keys.bAccelerate);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "brake", -1);
+		sq_pushbool(pVM, padState.keys.bBrake);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "handbrake", -1);
+		sq_pushbool(pVM, padState.keys.bHandbrake);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "handbrake2", -1);
+		sq_pushbool(pVM, padState.keys.bHandbrake2);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "horn", -1);
+		sq_pushbool(pVM, padState.keys.bHorn);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "driveBy", -1);
+		sq_pushbool(pVM, padState.keys.bDriveBy);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "heliPrimaryFire", -1);
+		sq_pushbool(pVM, padState.keys.bHeliPrimaryFire);
+		sq_createslot(pVM, -3);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getPlayerPreviousPadState(playerid)
+SQInteger CPlayerNatives::GetPreviousPadState(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		// Get the player pad state
+		CPadState padState;
+		pPlayer->GetPreviousPadState(&padState);
+
+		// Create the table
+		sq_newtable(pVM);
+
+		// Create the 'onFootMove' array
+		sq_pushstring(pVM, "onFootMove", -1);
+		sq_newarray(pVM, 0);
+
+		for(int i = 0; i < 4; i++)
+		{
+			sq_pushinteger(pVM, padState.ucOnFootMove[i]);
+			sq_arrayappend(pVM, -2);
+		}
+
+		sq_createslot(pVM, -3);
+
+		// Create the 'inVehicleMove' array
+		sq_pushstring(pVM, "inVehicleMove", -1);
+		sq_newarray(pVM, 0);
+
+		for(int i = 0; i < 4; i++)
+		{
+			sq_pushinteger(pVM, padState.ucInVehicleMove[i]);
+			sq_arrayappend(pVM, -2);
+		}
+
+		sq_createslot(pVM, -3);
+
+		// Create the on foot keys slots
+		sq_pushstring(pVM, "enterExitVehicle", -1);
+		sq_pushbool(pVM, padState.keys.bEnterExitVehicle);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "sprint", -1);
+		sq_pushbool(pVM, padState.keys.bSprint);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "jump", -1);
+		sq_pushbool(pVM, padState.keys.bJump);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "attack", -1);
+		sq_pushbool(pVM, padState.keys.bAttack);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "attack2", -1);
+		sq_pushbool(pVM, padState.keys.bAttack2);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "aim", -1);
+		sq_pushbool(pVM, padState.keys.bAim);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "freeAim", -1);
+		sq_pushbool(pVM, padState.keys.bFreeAim);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "meleeAttack1", -1);
+		sq_pushbool(pVM, padState.keys.bMeleeAttack1);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "meleeAttack2", -1);
+		sq_pushbool(pVM, padState.keys.bMeleeAttack2);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "meleeKick", -1);
+		sq_pushbool(pVM, padState.keys.bMeleeKick);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "meleeBlock", -1);
+		sq_pushbool(pVM, padState.keys.bMeleeBlock);
+		sq_createslot(pVM, -3);
+
+		// Create the in vehicle keys slots
+		sq_pushstring(pVM, "accelerate", -1);
+		sq_pushbool(pVM, padState.keys.bAccelerate);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "brake", -1);
+		sq_pushbool(pVM, padState.keys.bBrake);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "handbrake", -1);
+		sq_pushbool(pVM, padState.keys.bHandbrake);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "handbrake2", -1);
+		sq_pushbool(pVM, padState.keys.bHandbrake2);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "horn", -1);
+		sq_pushbool(pVM, padState.keys.bHorn);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "driveBy", -1);
+		sq_pushbool(pVM, padState.keys.bDriveBy);
+		sq_createslot(pVM, -3);
+		sq_pushstring(pVM, "heliPrimaryFire", -1);
+		sq_pushbool(pVM, padState.keys.bHeliPrimaryFire);
+		sq_createslot(pVM, -3);
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);

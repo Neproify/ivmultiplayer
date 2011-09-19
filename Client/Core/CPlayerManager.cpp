@@ -223,15 +223,11 @@ CPlayerManager::CPlayerManager()
 
 CPlayerManager::~CPlayerManager()
 {
-	CLogFile::Printf("PrePlayerManagerShutdown");
-
 	for(EntityId x = 0; x < MAX_PLAYERS; x++)
 	{
 		if(m_bActive[x] && !m_pPlayers[x]->IsLocalPlayer())
 			Remove(x);
 	}
-
-	CLogFile::Printf("PostPlayerManagerShutdown");
 }
 
 void CPlayerManager::Add(EntityId playerId, String sPlayerName)

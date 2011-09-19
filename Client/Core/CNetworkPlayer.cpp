@@ -20,9 +20,6 @@
 #include "CPools.h"
 #include "IVTasks.h"
 
-#define SET_KEY(to, from, flag) to = IS_BIT_SET(from, flag) ? 255 : 0
-#define GET_KEY(to, flag, from) if(from == 255) SET_BIT(to, flag)
-
 extern CNetworkManager    * g_pNetworkManager;
 extern CVehicleManager    * g_pVehicleManager;
 extern CPlayerManager     * g_pPlayerManager;
@@ -33,6 +30,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 {
 	m_bIsLocalPlayer = bIsLocalPlayer;
 	m_playerId = INVALID_ENTITY_ID;
+	m_pContextData = NULL;
 	m_byteGamePlayerNumber = 0;
 	m_pPlayerInfo = NULL;
 	m_pModelInfo = CGame::GetModelInfo(MODEL_PLAYER_INDEX);
@@ -41,12 +39,14 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	m_interp.pos.ulFinishTime = 0;
 	memset(&m_ucClothes, 0, sizeof(m_ucClothes));
 	m_bUseCustomClothesOnSpawn = false;
-	memset(&m_previousNetPadState, 0, sizeof(NetPadState));
-	memset(&m_currentNetPadState, 0, sizeof(NetPadState));
+	memset(&m_previousPadState, 0, sizeof(CPadState));
+	memset(&m_currentPadState, 0, sizeof(CPadState));
 	m_usPing = 0;
 	m_pVehicle = NULL;
 	m_byteVehicleSeatId = 0;
 	ResetVehicleEnterExit();
+	m_bHealthLocked = false;
+	m_bArmourLocked = false;
 
 	if(IsLocalPlayer())
 	{
@@ -55,6 +55,9 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 
 		// Get the local player info pointer
 		m_pPlayerInfo = new CIVPlayerInfo(CGame::GetPools()->GetPlayerInfoFromIndex(0));
+
+		// Add our model info reference
+		m_pModelInfo->AddReference(false);
 
 		// Flag ourselves as spawned
 		m_bSpawned = true;
@@ -80,18 +83,12 @@ CNetworkPlayer::~CNetworkPlayer()
 		// Destroy the player ped
 		Destroy();
 	}
-
-	// Delete our player ped instance
-	SAFE_DELETE(m_pPlayerPed);
-
-	// Delete our player info instance
-	SAFE_DELETE(m_pPlayerInfo);
 }
 
 bool CNetworkPlayer::Create()
 {
 	// Are we already spawned or are we the local player?
-	if(IsSpawned() && IsLocalPlayer())
+	if(IsSpawned() || IsLocalPlayer())
 		return false;
 
 	// Find a free player number
@@ -107,6 +104,120 @@ bool CNetworkPlayer::Create()
 	// Get our model index
 	int iModelIndex = m_pModelInfo->GetIndex();
 
+	// Begin new creation code
+	// Create player info instance
+	m_pPlayerInfo = new CIVPlayerInfo(m_byteGamePlayerNumber);
+
+	// Create a context data instance for this player
+	m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
+
+	CLogFile::Printf("Create 1");
+
+	// Allocate the player ped
+	IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();
+
+	CLogFile::Printf("Create 2");
+
+	// Ensure the player ped pointer is valid
+	if(!pPlayerPed)
+	{
+		CLogFile::Printf("Create 2 FAIL");
+		Destroy();
+		return false;
+	}
+
+	CLogFile::Printf("Create 3");
+
+	// Call the CPlayerPed constructor
+#define FUNC_CPlayerPed__Constructor 0x9C1910
+	DWORD dwFunc = (CGame::GetBase() + FUNC_CPlayerPed__Constructor);
+	unsigned int uiPlayerIndex = (unsigned int)m_byteGamePlayerNumber;
+	WORD wPlayerData = MAKEWORD(0, 1);
+	WORD * pwPlayerData = &wPlayerData;
+	_asm
+	{
+		push uiPlayerIndex
+		push iModelIndex
+		push pwPlayerData
+		mov ecx, pPlayerPed
+		call dwFunc
+	}
+
+	CLogFile::Printf("Create 4");
+
+	// Setup the player ped
+	// jenksta: crash here
+	// perhaps some sort of memory leak?
+	// maybe a pool limit is passed?
+	// maybe theres a function to destroy what this creates when the player ped is destroyed and im not calling it?
+	// crash is in some func called from CPlayerPed::SetModelIndex which allocates something to do with ped props
+#define VAR_PedFactory 0x15E35A0
+#define FUNC_SetupPed 0x43A6A0
+	DWORD dwPedFactory = (CGame::GetBase() + VAR_PedFactory);
+	Matrix34 * pMatrix = NULL;
+	dwFunc = (CGame::GetBase() + FUNC_SetupPed);
+	_asm
+	{
+		push iModelIndex
+		push dwPedFactory
+		mov edi, pMatrix
+		mov esi, pPlayerPed
+		call dwFunc
+	}
+
+	CLogFile::Printf("Create 5");
+
+	*(DWORD *)(pPlayerPed + 0x260) |= 1u;
+
+	CLogFile::Printf("Create 6");
+
+	// Setup the player ped intelligence
+#define FUNC_SetupPedIntelligence 0x89EC20
+	dwFunc = (CGame::GetBase() + FUNC_SetupPedIntelligence);
+	_asm
+	{
+		push 2
+		mov ecx, pPlayerPed
+		call dwFunc
+	}
+
+	CLogFile::Printf("Create 7");
+
+	//*(DWORD *)(pPlayerInfo + 0x4DC) = 2;
+
+	CLogFile::Printf("Create 8");
+
+	// Set our player info ped pointer
+	m_pPlayerInfo->SetPlayerPed(pPlayerPed);
+
+	CLogFile::Printf("Create 9");
+
+	// Set our player peds player info pointer
+	pPlayerPed->m_pPlayerInfo = m_pPlayerInfo->GetPlayerInfo();
+
+	CLogFile::Printf("Create 10");
+
+	// Set game player info pointer
+	CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, m_pPlayerInfo->GetPlayerInfo());
+
+	CLogFile::Printf("Create 11");
+
+	// Create player ped instance
+	m_pPlayerPed = new CIVPlayerPed(pPlayerPed);
+
+	CLogFile::Printf("Create 12");
+
+	// Set the context data player ped pointer
+	m_pContextData->SetPlayerPed(m_pPlayerPed);
+
+	CLogFile::Printf("Create 13");
+
+	// Add to world
+	m_pPlayerPed->AddToWorld();
+	CLogFile::Printf("Create 14");
+	// End new creation code
+
+#if 0
 	// Save local player id
 	unsigned int uiLocalPlayerId = GetLocalPlayerId();
 
@@ -154,9 +265,10 @@ bool CNetworkPlayer::Create()
 
 	// Set player info slot to our new player info
 	CGame::GetPools()->SetPlayerInfoAtIndex(m_byteGamePlayerNumber, m_pPlayerInfo->GetPlayerInfo());
+#endif
 
 	// Flag as spawned
-	SetSpawned(true);
+	m_bSpawned = true;
 
 	// Set health
 	SetHealth(200);
@@ -170,6 +282,7 @@ bool CNetworkPlayer::Create()
 	// Reset interpolation
 	ResetInterpolation();
 
+	CLogFile::Printf("Done: PlayerNumber: %d, ScriptingHandle: %d", m_byteGamePlayerNumber, GetScriptingHandle());
 	return true;
 }
 
@@ -179,11 +292,15 @@ void CNetworkPlayer::Init()
 
 void CNetworkPlayer::Destroy()
 {
+	// Are we the local player?
+	if(IsLocalPlayer())
+		return;
+
 	// Are we spawned and not the local player?
-	if(IsSpawned() && !IsLocalPlayer())
+	if(IsSpawned())
 	{
 		// Remove from world
-		CGame::RemoveEntityFromWorld(m_pPlayerPed->GetEntity());
+		/*CGame::RemoveEntityFromWorld(m_pPlayerPed->GetEntity());
 
 		// Call destructor
 		DWORD dwFunc = m_pPlayerPed->GetEntity()->m_VFTable->ScalarDeletingDestructor;
@@ -212,11 +329,90 @@ void CNetworkPlayer::Destroy()
 
 			// Invalidate the player number
 			m_byteGamePlayerNumber = INVALID_PLAYER_PED;
-		}
+		}*/
+		CLogFile::Printf("Destroy 1");
+		// Get the player ped pointer
+		IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
+		CLogFile::Printf("Destroy 2");
 
-		// Flag ourselves as despawned
-		SetSpawned(false);
+		IVPedIntelligence * pPedIntelligence = pPlayerPed->m_pPedIntelligence;
+#define FUNC_ShutdownPedIntelligence 0x9C4DF0
+		DWORD dwFunc = (CGame::GetBase() + FUNC_ShutdownPedIntelligence);
+		_asm
+		{
+			push 0
+			mov ecx, pPedIntelligence
+			call dwFunc
+		}
+		CLogFile::Printf("Destroy 3");
+
+		*(DWORD *)(pPlayerPed + 0x260) &= 0xFFFFFFFE;
+		CLogFile::Printf("Destroy 4");
+
+		// Remove the player ped from the world
+		m_pPlayerPed->RemoveFromWorld();
+		CLogFile::Printf("Destroy 5");
+
+		// Delete the player ped
+		// We use the CPed destructor and not the CPlayerPed destructor because the CPlayerPed destructor
+		// messes with our player info (which we handle manually)
+		//dwFunc = m_pPlayerPed->GetPlayerPed()->m_VFTable->ScalarDeletingDestructor;
+#define FUNC_CPed__ScalarDeletingDestructor 0x8ACAC0
+		dwFunc = (CGame::GetBase() + FUNC_CPed__ScalarDeletingDestructor);
+		_asm
+		{
+			push 1
+			mov ecx, pPlayerPed
+			call dwFunc
+		}
+		CLogFile::Printf("Destroy 6");
+
+		// Remove our model info reference
+		m_pModelInfo->RemoveReference();
+		CLogFile::Printf("Destroy 7");
 	}
+
+	CLogFile::Printf("Destroy 8");
+
+	// Do we have a context data instance
+	if(m_pContextData)
+	{
+		CLogFile::Printf("Destroy 9");
+		// Delete the context data instance
+		CContextDataManager::DestroyContextData(m_pContextData);
+		CLogFile::Printf("Destroy 10");
+
+		// Set the context data pointer to NULL
+		m_pContextData = NULL;
+		CLogFile::Printf("Destroy 11");
+	}
+	CLogFile::Printf("Destroy 12");
+
+	// Delete the player ped instance
+	SAFE_DELETE(m_pPlayerPed);
+	CLogFile::Printf("Destroy 13");
+
+	// Delete our player info instance
+	SAFE_DELETE(m_pPlayerInfo);
+	CLogFile::Printf("Destroy 14");
+
+	// Do we have a valid player number?
+	if(m_byteGamePlayerNumber != INVALID_PLAYER_PED)
+	{
+		CLogFile::Printf("Destroy 15");
+		// Reset game player info pointer
+		CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
+		CLogFile::Printf("Destroy 16");
+
+		// Invalidate the player number
+		m_byteGamePlayerNumber = INVALID_PLAYER_PED;
+		CLogFile::Printf("Destroy 17");
+	}
+	CLogFile::Printf("Destroy 18");
+
+	// Flag ourselves as despawned
+	m_bSpawned = false;
+	CLogFile::Printf("Destroy 19");
 }
 
 void CNetworkPlayer::Kill(bool bInstantly)
@@ -262,8 +458,8 @@ void CNetworkPlayer::Kill(bool bInstantly)
 		SetArmour(0);
 
 		// Reset the pad state
-		NetPadState padState;
-		SetNetPadState(&padState);
+		CPadState padState;
+		SetPadState(&padState);
 
 		// Reset vehicle entry/exit flags
 		ResetVehicleEnterExit();
@@ -431,12 +627,12 @@ void CNetworkPlayer::InternalPutInVehicle(CNetworkVehicle * pVehicle, BYTE byteS
 	{
 		// Is the seat the driver seat?
 		if(byteSeatId == 0)
-			Scripting::WarpCharIntoCar(GetPedHandle(), pVehicle->GetScriptingHandle());
+			Scripting::WarpCharIntoCar(GetScriptingHandle(), pVehicle->GetScriptingHandle());
 		else
 		{
 			// Is the passenger seat valid?
 			if(byteSeatId <= pVehicle->GetMaxPassengers())
-				Scripting::WarpCharIntoCarAsPassenger(GetPedHandle(), pVehicle->GetScriptingHandle(), (byteSeatId - 1));
+				Scripting::WarpCharIntoCarAsPassenger(GetScriptingHandle(), pVehicle->GetScriptingHandle(), (byteSeatId - 1));
 		}
 	}
 }
@@ -452,11 +648,11 @@ void CNetworkPlayer::InternalRemoveFromVehicle()
 		// Warp ourselves out of the vehicle
 		CVector3 vecPos;
 		m_pVehicle->GetPosition(&vecPos);
-		Scripting::WarpCharFromCarToCoord(GetPedHandle(), vecPos.fX, vecPos.fY, (vecPos.fZ + 1.0f));
+		Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecPos.fX, vecPos.fY, (vecPos.fZ + 1.0f));
 	}
 }
 
-unsigned int CNetworkPlayer::GetPedHandle()
+unsigned int CNetworkPlayer::GetScriptingHandle()
 {
 	if(IsSpawned())
 		return CGame::GetPools()->GetPedPool()->HandleOf(m_pPlayerPed->GetPed());
@@ -516,7 +712,7 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 		if(!m_bUseCustomClothesOnSpawn)
 		{
 			// Set the default clothes variation
-			Scripting::SetCharDefaultComponentVariation(GetPedHandle());
+			Scripting::SetCharDefaultComponentVariation(GetScriptingHandle());
 
 			// Reset our clothes
 			memset(&m_ucClothes, 0, sizeof(m_ucClothes));
@@ -546,7 +742,7 @@ void CNetworkPlayer::Teleport(CVector3 * vecCoordinates, bool bResetInterpolatio
 		{
 			// FIXUPDATE
 			// Reverse code from below native and use it here
-			Scripting::SetCharCoordinatesNoOffset(GetPedHandle(), vecCoordinates->fX, vecCoordinates->fY, vecCoordinates->fZ);
+			Scripting::SetCharCoordinatesNoOffset(GetScriptingHandle(), vecCoordinates->fX, vecCoordinates->fY, vecCoordinates->fZ);
 
 			/*
 			// This still causes players to be invisible occasionally
@@ -562,7 +758,7 @@ void CNetworkPlayer::Teleport(CVector3 * vecCoordinates, bool bResetInterpolatio
 			*/
 		}
 		else
-			Scripting::WarpCharFromCarToCoord(GetPedHandle(), vecCoordinates->fX, vecCoordinates->fY, vecCoordinates->fZ);
+			Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecCoordinates->fX, vecCoordinates->fY, vecCoordinates->fZ);
 	}
 
 	// Reset interpolation if requested
@@ -692,44 +888,88 @@ void CNetworkPlayer::GetTurnSpeed(CVector3 * vecTurnSpeed)
 
 void CNetworkPlayer::SetHealth(unsigned int uiHealth)
 {
+	// Are we spawned?
 	if(IsSpawned())
-		Scripting::SetCharHealth(GetPedHandle(), uiHealth);
+		Scripting::SetCharHealth(GetScriptingHandle(), uiHealth);
+
+	// Unlock our health
+	m_bHealthLocked = false;
+}
+
+void CNetworkPlayer::LockHealth(unsigned int uiHealth)
+{
+	// Set our health
+	SetHealth(uiHealth);
+
+	// Set our locked health
+	m_uiLockedHealth = uiHealth;
+
+	// Flag our health as locked
+	m_bHealthLocked = true;
 }
 
 unsigned int CNetworkPlayer::GetHealth()
 {
+	// If our health is locked return our locked health
+	if(m_bHealthLocked)
+		return m_uiLockedHealth;
+
+	// Are we spawned?
 	if(IsSpawned())
 	{
 		unsigned int uiHealth;
-		Scripting::GetCharHealth(GetPedHandle(), &uiHealth);
+		Scripting::GetCharHealth(GetScriptingHandle(), &uiHealth);
 		return uiHealth;
 	}
 
+	// Not spawned
 	return 0;
 }
 
 void CNetworkPlayer::SetArmour(unsigned int uiArmour)
 {
+	// Are we spawned?
 	if(IsSpawned())
-		Scripting::AddArmourToChar(GetPedHandle(), uiArmour - GetArmour());
+		Scripting::AddArmourToChar(GetScriptingHandle(), (uiArmour - GetArmour()));
+
+	// Unlock our armour
+	m_bArmourLocked = false;
+}
+
+void CNetworkPlayer::LockArmour(unsigned int uiArmour)
+{
+	// Set our armour
+	SetArmour(uiArmour);
+
+	// Set our locked armour
+	m_uiLockedArmour = uiArmour;
+
+	// Flag our armour as locked
+	m_bArmourLocked = true;
 }
 
 unsigned int CNetworkPlayer::GetArmour()
 {
+	// If our armour is locked return our locked armour
+	if(m_bArmourLocked)
+		return m_uiLockedArmour;
+
+	// Are we spawned?
 	if(IsSpawned())
 	{
 		unsigned int uiArmour;
-		Scripting::GetCharArmour(GetPedHandle(), &uiArmour);
+		Scripting::GetCharArmour(GetScriptingHandle(), &uiArmour);
 		return uiArmour;
 	}
 
+	// Not spawned
 	return 0;
 }
 
 void CNetworkPlayer::GiveWeapon(unsigned int uiWeaponId, unsigned int uiAmmo)
 {
 	if(IsSpawned())
-		Scripting::GiveWeaponToChar(GetPedHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo, true);
+		Scripting::GiveWeaponToChar(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo, true);
 }
 
 void CNetworkPlayer::RemoveWeapon(unsigned int uiWeaponId)
@@ -754,10 +994,14 @@ unsigned int CNetworkPlayer::GetCurrentWeapon()
 {
 	if(IsSpawned())
 	{
-		CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
+		// TODO: Fix, IVPedWeapons::m_byteCurrentWeaponSlot isn't right
+		/*CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
 
 		if(pWeapon)
-			return pWeapon->GetType();
+			return pWeapon->GetType();*/
+		unsigned int uiWeaponId;
+		Scripting::GetCurrentCharWeapon(GetScriptingHandle(), (Scripting::eWeapon *)&uiWeaponId);
+		return uiWeaponId;
 	}
 
 	return 0;
@@ -767,10 +1011,12 @@ void CNetworkPlayer::SetAmmo(unsigned int uiWeaponId, unsigned int uiAmmo)
 {
 	if(IsSpawned())
 	{
-		CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
+		// TODO: Fix, IVPedWeapons::m_byteCurrentWeaponSlot isn't right
+		/*CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
 
 		if(pWeapon)
-			pWeapon->SetAmmo(uiAmmo);
+			pWeapon->SetAmmo(uiAmmo);*/
+		Scripting::SetCharAmmo(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo);
 	}
 }
 
@@ -780,10 +1026,14 @@ unsigned int CNetworkPlayer::GetAmmo(unsigned int uiWeaponId)
 	{
 		// TODO: Create a function for SetAmmoInClip
 		//SetAmmoInClip()
-		CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
+		// TODO: Fix, IVPedWeapons::m_byteCurrentWeaponSlot isn't right
+		/*CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
 
 		if(pWeapon)
-			return pWeapon->GetAmmo();
+			return pWeapon->GetAmmo();*/
+		unsigned int uiAmmo;
+		Scripting::GetAmmoInCharWeapon(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, &uiAmmo);
+		return uiAmmo;
 	}
 
 	return 0;
@@ -833,259 +1083,90 @@ int CNetworkPlayer::GetMoney()
 	return 0;
 }
 
-void CNetworkPlayer::SetNetPadState(NetPadState * netPadState)
+void CNetworkPlayer::SetPadState(CPadState * padState)
 {
-	// Get the appropriate pad state
-	PadState padState;
+	// Copy the current  pad state to the previous pad state
+	memcpy(&m_previousPadState, &m_currentPadState, sizeof(CPadState));
 
-	// Is this the local player?
-	if(IsLocalPlayer())
+	// Copy the pad state to the current pad state
+	memcpy(&m_currentPadState, padState, sizeof(CPadState));
+
+	// Are we spawned?
+	if(IsSpawned())
 	{
+		// Get the game pad
+		CIVPad * pPad = CGame::GetPad();
+
+		// Are we not the local player?
+		if(!IsLocalPlayer())
+		{
+			// Do we have a valid context data pointer?
+			if(m_pContextData)
+			{
+				// Get the context data pad
+				pPad = m_pContextData->GetPad();
+			}
+		}
+
 		// Get the current pad state
-		GetGamePadState(&padState);
-	}
-	else
-	{
-		// Copy the current net pad state to the previous net pad state
-		memcpy(&m_previousNetPadState, &m_currentNetPadState, sizeof(NetPadState));
+		CPadState currentPadState;
+		pPad->GetCurrentClientPadState(currentPadState);
 
-		// Get the player pad state
-		GetPlayerPadState(m_byteGamePlayerNumber, &padState);
-	}
+		// Set the last pad state
+		pPad->SetLastClientPadState(currentPadState);
 
-	// Invalidate the pad state
-	padState.Invalidate();
-
-	// Are we not in a vehicle?
-	if(!IsInVehicle())
-	{
-		// Left Analog L/R
-		padState.byteCurrentKeys[GTA_KEY_ON_FOOT_MOVE_LEFT] = netPadState->byteLeftAnalogLR[0];
-		padState.byteCurrentKeys[GTA_KEY_ON_FOOT_MOVE_RIGHT] = netPadState->byteLeftAnalogLR[1];
-
-		// Left Analog U/D
-		padState.byteCurrentKeys[GTA_KEY_ON_FOOT_MOVE_FORWARD] = netPadState->byteLeftAnalogUD[0];
-		padState.byteCurrentKeys[GTA_KEY_ON_FOOT_MOVE_BACKWARDS] = netPadState->byteLeftAnalogUD[1];
-	}
-	else
-	{
-		// In Vehicle Turn Left/Right
-		padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_STEER_LEFT] = netPadState->byteLeftAnalogLR[0];
-		padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_STEER_RIGHT] = netPadState->byteLeftAnalogLR[1];
-
-		// In Vehicle Lean Forwards/Backwards
-		padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_LEAN_FORWARD] = netPadState->byteLeftAnalogUD[0];
-		padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_LEAN_BACK] = netPadState->byteLeftAnalogUD[1];
-	}
-
-	// Enter/Exit Vehicle (Only set if this is the local player)
-	if(IsLocalPlayer())
-		SET_KEY(padState.byteCurrentKeys[GTA_KEY_ENTEREXIT_VEHICLE], netPadState->dwKeys, NET_PAD_KEY_ENTEREXIT_VEHICLE);
-
-	// On Foot Sprint
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_SPRINT], netPadState->dwKeys, NET_PAD_KEY_SPRINT);
-
-	// On Foot Jump
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_JUMP], netPadState->dwKeys, NET_PAD_KEY_JUMP);
-
-	// On Foot Attack
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_ATTACK], netPadState->dwKeys, NET_PAD_KEY_ATTACK);
-
-	// On Foot Free Aim/Melee Lock On 1
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_LOCK_ON_1], netPadState->dwKeys, NET_PAD_KEY_FREE_AIM_1);
-
-	// On Foot Free Aim/Melee Lock On 2
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_LOCK_ON_2], netPadState->dwKeys, NET_PAD_KEY_FREE_AIM_2);
-
-	// On Foot Mouse Aim
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_LOCK_ON_3], netPadState->dwKeys, NET_PAD_KEY_MOUSE_AIM);
-
-	// On Foot Combat Punch 1
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_COMBAT_PUNCH_1], netPadState->dwKeys, NET_PAD_KEY_COMBAT_PUNCH_1);
-
-	// On Foot Combat Punch 2
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_COMBAT_PUNCH_2], netPadState->dwKeys, NET_PAD_KEY_COMBAT_PUNCH_2);
-
-	// On Foot Combat Kick
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_COMBAT_KICK], netPadState->dwKeys, NET_PAD_KEY_COMBAT_KICK);
-
-	// On Foot Combat Block
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_ON_FOOT_COMBAT_BLOCK], netPadState->dwKeys, NET_PAD_KEY_COMBAT_BLOCK);
-
-	// In Vehicle Accelerate
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_ACCELERATE], netPadState->dwKeys, NET_PAD_KEY_ACCELERATE);
-
-	// In Vehicle Reverse
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_REVERSE], netPadState->dwKeys, NET_PAD_KEY_REVERSE);
-
-	// In Vehicle Handbrake 1
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_HANDBRAKE_1], netPadState->dwKeys, NET_PAD_KEY_HANDBRAKE_1);
-
-	// In Vehicle Handbrake 2
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_HANDBRAKE_2], netPadState->dwKeys, NET_PAD_KEY_HANDBRAKE_2);
-
-	// In Vehicle Horn
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_HORN], netPadState->dwKeys, NET_PAD_KEY_HORN);
-
-	// In Vehicle Drive By
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_SHOOT], netPadState->dwKeys, NET_PAD_KEY_DRIVE_BY);
-
-	// In Vehicle Heli Primary Fire
-	SET_KEY(padState.byteCurrentKeys[GTA_KEY_IN_HELI_PRIMARY_FIRE], netPadState->dwKeys, NET_PAD_KEY_HELI_PRIMARY_FIRE);
-
-	// Set the appropriate pad state
-	// Is this the local player?
-	if(IsLocalPlayer())
-	{
 		// Set the current pad state
-		SetGamePadState(&padState);
-	}
-	else
-	{
-		// Copy the net pad state to the current net pad state
-		memcpy(&m_currentNetPadState, netPadState, sizeof(NetPadState));
-
-		// Set the player pad state
-		SetPlayerPadState(m_byteGamePlayerNumber, &padState);
+		pPad->SetCurrentClientPadState(*padState);
 	}
 }
 
-void CNetworkPlayer::GetPreviousNetPadState(NetPadState * netPadState)
+void CNetworkPlayer::GetPreviousPadState(CPadState * padState)
 {
-	// Copy the previous net pad state to the net pad state
-	memcpy(netPadState, &m_previousNetPadState, sizeof(NetPadState));
+	// Copy the previous pad state to the pad state
+	memcpy(padState, &m_previousPadState, sizeof(CPadState));
 }
 
-void CNetworkPlayer::GetNetPadState(NetPadState * netPadState)
+void CNetworkPlayer::GetPadState(CPadState * padState)
 {
-	// TODO: Only get the local players keys in CNetworkPlayer::Pulse then use that cached
-	// version here
-	// Is this the local player?
-	if(IsLocalPlayer())
-	{
-		// Reset the net pad state
-		memset(netPadState, 0, sizeof(NetPadState));
-
-		// Get the current pad state
-		PadState padState;
-		GetGamePadState(&padState);
-
-		// Are we not in a vehicle?
-		if(!IsInVehicle())
-		{
-			// On Foot Left Analog L/R
-			netPadState->byteLeftAnalogLR[0] = padState.byteCurrentKeys[GTA_KEY_ON_FOOT_MOVE_LEFT];
-			netPadState->byteLeftAnalogLR[1] = padState.byteCurrentKeys[GTA_KEY_ON_FOOT_MOVE_RIGHT];
-
-			// On Foot Left Analog U/D
-			netPadState->byteLeftAnalogUD[0] = padState.byteCurrentKeys[GTA_KEY_ON_FOOT_MOVE_FORWARD];
-			netPadState->byteLeftAnalogUD[1] = padState.byteCurrentKeys[GTA_KEY_ON_FOOT_MOVE_BACKWARDS];
-		}
-		else
-		{
-			// In Vehicle Turn Left/Right
-			netPadState->byteLeftAnalogLR[0] = padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_STEER_LEFT];
-			netPadState->byteLeftAnalogLR[1] = padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_STEER_RIGHT];
-
-			// In Vehicle Lean Forwards/Backwards
-			netPadState->byteLeftAnalogUD[0] = padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_LEAN_FORWARD];
-			netPadState->byteLeftAnalogUD[1] = padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_LEAN_BACK];
-		}
-
-		// Enter/Exit Vehicle
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_ENTEREXIT_VEHICLE, padState.byteCurrentKeys[GTA_KEY_ENTEREXIT_VEHICLE]);
-
-		// On Foot Sprint
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_SPRINT, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_SPRINT]);
-
-		// On Foot Jump
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_JUMP, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_JUMP]);
-
-		// On Foot Attack
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_ATTACK, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_ATTACK]);
-
-		// On Foot Free Aim/Melee Lock On 1
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_FREE_AIM_1, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_LOCK_ON_1]);
-
-		// On Foot Free Aim/Melee Lock On 2
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_FREE_AIM_2, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_LOCK_ON_2]);
-
-		// On Foot Mouse Aim
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_MOUSE_AIM, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_LOCK_ON_3]);
-
-		// On Foot Combat Punch 1
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_COMBAT_PUNCH_1, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_COMBAT_PUNCH_1]);
-
-		// On Foot Combat Punch 2
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_COMBAT_PUNCH_2, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_COMBAT_PUNCH_2]);
-
-		// On Foot Combat Kick
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_COMBAT_KICK, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_COMBAT_KICK]);
-
-		// On Foot Combat Block
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_COMBAT_BLOCK, padState.byteCurrentKeys[GTA_KEY_ON_FOOT_COMBAT_BLOCK]);
-
-		// In Vehicle Accelerate
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_ACCELERATE, padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_ACCELERATE]);
-
-		// In Vehicle Reverse
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_REVERSE, padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_REVERSE]);
-
-		// In Vehicle Handbrake 1
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_HANDBRAKE_1, padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_HANDBRAKE_1]);
-
-		// In Vehicle Handbrake 2
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_HANDBRAKE_2, padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_HANDBRAKE_2]);
-
-		// In Vehicle Horn
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_HORN, padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_HORN]);
-
-		// In Vehicle Drive By
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_DRIVE_BY, padState.byteCurrentKeys[GTA_KEY_IN_VEHICLE_SHOOT]);
-
-		// In Vehicle Heli Primary Fire
-		GET_KEY(netPadState->dwKeys, NET_PAD_KEY_HELI_PRIMARY_FIRE, padState.byteCurrentKeys[GTA_KEY_IN_HELI_PRIMARY_FIRE]);
-	}
-	else
-	{
-		// Copy the current net pad state to the net pad state
-		memcpy(netPadState, &m_currentNetPadState, sizeof(NetPadState));
-	}
+	// Copy the current pad state to the pad state
+	memcpy(padState, &m_currentPadState, sizeof(CPadState));
 }
 
 void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 {
-	Matrix34 matCameraMatrix;
+	Matrix matAim;
+	memcpy(&matAim.vecRight, &aimSyncData->vecRight, sizeof(CVector3));
+	memcpy(&matAim.vecForward, &aimSyncData->vecForward, sizeof(CVector3));
+	memcpy(&matAim.vecUp, &aimSyncData->vecUp, sizeof(CVector3));
+	memcpy(&matAim.vecPosition, &aimSyncData->vecPosition, sizeof(CVector3));
 
 	if(IsLocalPlayer())
-		GetGameCameraMatrix(&matCameraMatrix);
+		SetGameCameraMatrix(&matAim);
 	else
-		GetPlayerCameraMatrix(m_byteGamePlayerNumber, &matCameraMatrix);
-
-	memcpy(&matCameraMatrix.vecRight, &aimSyncData->vecRight, sizeof(CVector3));
-	memcpy(&matCameraMatrix.vecForward, &aimSyncData->vecFront, sizeof(CVector3));
-	memcpy(&matCameraMatrix.vecUp, &aimSyncData->vecUp, sizeof(CVector3));
-	memcpy(&matCameraMatrix.vecPosition, &aimSyncData->vecPosition, sizeof(CVector3));
-
-	if(IsLocalPlayer())
-		SetGameCameraMatrix(&matCameraMatrix);
-	else
-		SetPlayerCameraMatrix(m_byteGamePlayerNumber, &matCameraMatrix);
+	{
+		if(m_pContextData)
+			memcpy(m_pContextData->GetCameraMatrix(), &matAim, sizeof(Matrix));
+	}
 }
 
 void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 {
-	Matrix34 matCameraMatrix;
+	Matrix matAim;
 
 	if(IsLocalPlayer())
-		GetGameCameraMatrix(&matCameraMatrix);
+		GetGameCameraMatrix(&matAim);
 	else
-		GetPlayerCameraMatrix(m_byteGamePlayerNumber, &matCameraMatrix);
+	{
+		if(m_pContextData)
+			memcpy(&matAim, m_pContextData->GetCameraMatrix(), sizeof(Matrix));
+		else
+			matAim.Identity();
+	}
 
-	memcpy(&aimSyncData->vecRight, &matCameraMatrix.vecRight, sizeof(CVector3));
-	memcpy(&aimSyncData->vecFront, &matCameraMatrix.vecForward, sizeof(CVector3));
-	memcpy(&aimSyncData->vecUp, &matCameraMatrix.vecUp, sizeof(CVector3));
-	memcpy(&aimSyncData->vecPosition, &matCameraMatrix.vecPosition, sizeof(CVector3));
+	memcpy(&aimSyncData->vecRight, &matAim.vecRight, sizeof(CVector3));
+	memcpy(&aimSyncData->vecForward, &matAim.vecForward, sizeof(CVector3));
+	memcpy(&aimSyncData->vecUp, &matAim.vecUp, sizeof(CVector3));
+	memcpy(&aimSyncData->vecPosition, &matAim.vecPosition, sizeof(CVector3));
 }
 
 void CNetworkPlayer::AddToWorld()
@@ -1110,7 +1191,7 @@ void CNetworkPlayer::GiveHelmet()
 {
 	if(IsSpawned())
 	{
-		Scripting::GivePedHelmet(GetPedHandle());
+		Scripting::GivePedHelmet(GetScriptingHandle());
 
 		m_bHelmet = true;
 	}
@@ -1120,7 +1201,7 @@ void CNetworkPlayer::RemoveHelmet()
 {
 	if(IsSpawned())
 	{
-		Scripting::RemovePedHelmet(GetPedHandle(), true);
+		Scripting::RemovePedHelmet(GetScriptingHandle(), true);
 
 		m_bHelmet = false;
 	}
@@ -1130,7 +1211,7 @@ void CNetworkPlayer::RemoveHelmet()
 void CNetworkPlayer::SetInterior(unsigned int uiInterior)
 {
 	if(IsSpawned() && GetInterior() != uiInterior)
-		Scripting::SetRoomForCharByKey(GetPedHandle(), (Scripting::eInteriorRoomKey)uiInterior);
+		Scripting::SetRoomForCharByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
 }
 
 // TODO: Don't use natives for this
@@ -1139,7 +1220,7 @@ unsigned int CNetworkPlayer::GetInterior()
 	if(IsSpawned())
 	{
 		unsigned int uiInterior;
-		Scripting::GetKeyForCharInRoom(GetPedHandle(), (Scripting::eInteriorRoomKey *)&uiInterior);
+		Scripting::GetKeyForCharInRoom(GetScriptingHandle(), (Scripting::eInteriorRoomKey *)&uiInterior);
 		return uiInterior;
 	}
 
@@ -1257,18 +1338,18 @@ void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothe
 	{
 		// TODO: Array of this, then just check if valid, then set on char and variable
 		unsigned char ucClothesIdx = 0;
-		unsigned int uiDrawableVariations = Scripting::GetNumberOfCharDrawableVariations(GetPedHandle(), (Scripting::ePedComponent)ucBodyPart);
+		unsigned int uiDrawableVariations = Scripting::GetNumberOfCharDrawableVariations(GetScriptingHandle(), (Scripting::ePedComponent)ucBodyPart);
 
 		for(unsigned int uiDrawable = 0; uiDrawable < uiDrawableVariations; ++uiDrawable)
 		{
-			unsigned int uiTextureVariations = Scripting::GetNumberOfCharTextureVariations(GetPedHandle(), (Scripting::ePedComponent)ucBodyPart, uiDrawable);
+			unsigned int uiTextureVariations = Scripting::GetNumberOfCharTextureVariations(GetScriptingHandle(), (Scripting::ePedComponent)ucBodyPart, uiDrawable);
 
 			for(unsigned int uiTexture = 0; uiTexture < uiTextureVariations; ++uiTexture)
 			{
 				if(ucClothesIdx == ucClothes)
 				{
 					//CLogFile::Printf(__FILE__,__LINE__,"CNetworkPlayer::SetClothes body: %d variat: %d text: %d", ucBodyPart, uiDrawable, uiTexture);
-					Scripting::SetCharComponentVariation(GetPedHandle(), (Scripting::ePedComponent)ucBodyPart, uiDrawable, uiTexture);
+					Scripting::SetCharComponentVariation(GetScriptingHandle(), (Scripting::ePedComponent)ucBodyPart, uiDrawable, uiTexture);
 					m_ucClothes[ucBodyPart] = ucClothes;
 					return;
 				}
@@ -1278,7 +1359,7 @@ void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothe
 		}
 
 		// No clothes available - use default clothes
-		Scripting::SetCharComponentVariation(GetPedHandle(), (Scripting::ePedComponent)ucBodyPart, 0, 0);
+		Scripting::SetCharComponentVariation(GetScriptingHandle(), (Scripting::ePedComponent)ucBodyPart, 0, 0);
 		m_ucClothes[ucBodyPart] = 0;
 	}
 	else
@@ -1311,7 +1392,7 @@ void CNetworkPlayer::SetCameraBehind()
 {
 	// TODO: Move this to CCamera class (CCamera::SetBehindPlayer(CNetworkPlayer * pPlayer))
 	if(IsSpawned())
-		Scripting::SetCamBehindPed(GetPedHandle());
+		Scripting::SetCamBehindPed(GetScriptingHandle());
 }
 
 void CNetworkPlayer::Pulse()
@@ -1319,6 +1400,14 @@ void CNetworkPlayer::Pulse()
 	// Are we spawned?
 	if(IsSpawned())
 	{
+		// If our health is locked set our health
+		if(m_bHealthLocked)
+			SetHealth(m_uiLockedHealth);
+
+		// If our armour is locked set our armour
+		if(m_bArmourLocked)
+			SetArmour(m_uiLockedArmour);
+
 		// Process vehicle entry/exit
 		ProcessVehicleEntryExit();
 
@@ -1328,11 +1417,11 @@ void CNetworkPlayer::Pulse()
 			// Check vehicle entry/exit key
 			CheckVehicleEntryExitKey();
 
-			// Copy the current net pad state to the previous net pad state
-			memcpy(&m_previousNetPadState, &m_currentNetPadState, sizeof(NetPadState));
+			// Copy the current pad state to the previous pad state
+			memcpy(&m_previousPadState, &m_currentPadState, sizeof(CPadState));
 
-			// Update the current net pad state
-			GetNetPadState(&m_currentNetPadState);
+			// Update the current pad state
+			CGame::GetPad()->GetCurrentClientPadState(m_currentPadState);
 		}
 		else
 		{
@@ -1615,12 +1704,12 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			if(byteSeatId == 0)
 			{
 				// Start the enter car as driver task
-				Scripting::TaskEnterCarAsDriver(GetPedHandle(), pVehicle->GetScriptingHandle(), -2);
+				Scripting::TaskEnterCarAsDriver(GetScriptingHandle(), pVehicle->GetScriptingHandle(), -2);
 			}
 			else
 			{
 				// Start the enter car as passenger task
-				Scripting::TaskEnterCarAsPassenger(GetPedHandle(), pVehicle->GetScriptingHandle(), -2, (byteSeatId - 1));
+				Scripting::TaskEnterCarAsPassenger(GetScriptingHandle(), pVehicle->GetScriptingHandle(), -2, (byteSeatId - 1));
 			}
 
 			CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 4", pVehicle, byteSeatId);
@@ -1786,8 +1875,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 	if(IsSpawned() && CGame::GetInputState() && !m_bControlsDisabled)
 	{
 		// Has the enter/exit vehicle key just been pressed?
-		if(IS_BIT_SET(m_currentNetPadState.dwKeys, NET_PAD_KEY_ENTEREXIT_VEHICLE) && 
-			!IS_BIT_SET(m_previousNetPadState.dwKeys, NET_PAD_KEY_ENTEREXIT_VEHICLE))
+		if(m_currentPadState.IsUsingEnterExitVehicle() && !m_previousPadState.IsUsingEnterExitVehicle())
 		{
 			if(!m_vehicleEnterExit.bRequesting && IsInVehicle() && !m_vehicleEnterExit.bExiting)
 			{
@@ -1826,15 +1914,13 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 			// Has the enter/exit vehicle key just been released?
 			bool bEnterExitVehicleKeyReleased = false;
 
-			if(IS_BIT_SET(m_previousNetPadState.dwKeys, NET_PAD_KEY_ENTEREXIT_VEHICLE) && 
-				!IS_BIT_SET(m_currentNetPadState.dwKeys, NET_PAD_KEY_ENTEREXIT_VEHICLE))
+			if(m_previousPadState.IsUsingEnterExitVehicle() && !m_currentPadState.IsUsingEnterExitVehicle())
 				bEnterExitVehicleKeyReleased = true;
 
 			// Has the horn key just been released?
 			bool bHornKeyReleased = false;
 
-			if(IS_BIT_SET(m_previousNetPadState.dwKeys, NET_PAD_KEY_HORN) && 
-				!IS_BIT_SET(m_currentNetPadState.dwKeys, NET_PAD_KEY_HORN))
+			if(m_previousPadState.IsUsingHorn() && !m_currentPadState.IsUsingHorn())
 				bHornKeyReleased = true;
 
 			// Has the enter/exit vehicle key or the horn key just been released?
@@ -2104,5 +2190,14 @@ void CNetworkPlayer::ResetVehicleEnterExit()
 void CNetworkPlayer::ToggleRagdoll(bool bToggle)
 {
 	if(IsSpawned())
-		Scripting::UnlockRagdoll(GetPedHandle(), bToggle);
+		Scripting::UnlockRagdoll(GetScriptingHandle(), bToggle);
+}
+
+bool CNetworkPlayer::IsOnScreen()
+{
+	// Are we spawned?
+	if(IsSpawned())
+		return /*Scripting::IsCharOnScreen(GetScriptingHandle())*/true;
+
+	return false;
 }

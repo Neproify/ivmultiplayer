@@ -319,6 +319,54 @@ namespace SharedUtility
 	{
 		return WideCharToMultiByte(CP_UTF8, dwFlags, wszUnicodeString, sUnicodeStringLength, szAnsiString, sAnsiStringLength, NULL, NULL);
 	}
+
+	bool SetClipboardText(const char * szString, size_t sStringSize)
+	{
+		// Attempt to open the clipboard
+		if(OpenClipboard(NULL))
+		{
+			// Empty the clipboard
+			EmptyClipboard();
+
+			// Allocate the memory globally to store our cut text
+			HGLOBAL hMemory = GlobalAlloc(GMEM_DDESHARE, sStringSize);
+
+			// Lock the globally allocated memory then get a pointer to it
+			char * szMemory = (char *)GlobalLock(hMemory);
+
+			// Copy the cut text to the globally allocated memory
+			strcpy(szMemory, szString);
+
+			// Unlock the globally allocated memory
+			GlobalUnlock(hMemory);
+
+			// Set the clipboard data to the allocated memory
+			SetClipboardData(CF_TEXT, hMemory);
+
+			// Close the clipboard
+			CloseClipboard();
+			return true;
+		}
+
+		// Failed to open the clipboard
+		return false;
+	}
+
+	const char * GetClipboardText()
+	{
+		// Attempt to open the clipboard
+		if(OpenClipboard(NULL))
+		{
+			// Get a pointer to the clipboard text
+			char * szClipboardText = (char *)GetClipboardData(CF_TEXT);
+
+			// Return the clipboard text pointer
+			return szClipboardText;
+		}
+
+		// Failed to open the clipboard
+		return NULL;
+	}
 #endif
 
 	const char * GetTimeAndDateString()

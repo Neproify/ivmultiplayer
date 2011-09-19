@@ -24,15 +24,11 @@ CBlipManager::CBlipManager()
 
 CBlipManager::~CBlipManager()
 {
-	CLogFile::Printf("PreBlipManagerShutdown");
-
 	for(EntityId x = 0; x < MAX_BLIPS; x++)
 	{
 		if(m_bActive[x])
 			Delete(x);
 	}
-
-	CLogFile::Printf("PostBlipManagerShutdown");
 }
 
 void CBlipManager::Create(EntityId blipId, int iSprite, CVector3 vecPosition)

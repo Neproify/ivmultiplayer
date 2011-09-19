@@ -16,6 +16,7 @@
 #include <Common.h>
 #include <Math/CMath.h>
 #include <CString.h>
+#include "CIVPad.h"
 #include "CIVModelInfo.h"
 #include "CIVWeaponInfo.h"
 #include "CIVStreaming.h"
@@ -46,6 +47,7 @@ private:
 	static eState         m_State;
 	static bool           m_bFocused;
 	static CPools       * m_pPools;
+	static CIVPad       * m_pPad;
 	static CIVModelInfo   m_modelInfos[NUM_ModelInfos];
 	static CIVWeaponInfo  m_weaponInfos[NUM_WeaponInfos];
 	static CIVStreaming * m_pStreaming;
@@ -60,6 +62,7 @@ public:
 	static void            SetFocused(bool bFocused);
 	static bool            IsFocused() { return m_bFocused; }
 	static CPools        * GetPools() { return m_pPools; }
+	static CIVPad        * GetPad() { return m_pPad; }
 	static CIVModelInfo  * GetModelInfo(int iModelIndex);
 	static unsigned int    GetLoadedModelCount();
 	static unsigned int    GetUnloadedModelCount();
@@ -105,4 +108,6 @@ public:
 	static void            CreateExplosion(CVector3 vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound = true, bool bInvisible = false, float fCameraShake = 0.0f);
 	static unsigned int    CreateFire(CVector3 vecPosition, unsigned char ucAllowedGenerations, unsigned int uiStrength);
 	static bool            DeleteFire(unsigned int uiFire);
+	static void          * Alloc(DWORD dwSize);
+	static void            Free(void * pMemory);
 };

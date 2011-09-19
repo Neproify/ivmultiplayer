@@ -99,7 +99,8 @@ HRESULT STDMETHODCALLTYPE CDirectInputDevice8Proxy::GetDeviceState(DWORD p0, LPV
 			}
 		}
 
-		if(CGame::GetState() == GAME_STATE_LOADING)
+		// HACK: This fakes a key press for the DLC menu and main menu
+		if(CGame::GetState() == GAME_STATE_NONE || CGame::GetState() == GAME_STATE_LOADING)
 		{
 			cOldReturn = !cOldReturn;
 			keyBuffer[DIK_RETURN] = cOldReturn;

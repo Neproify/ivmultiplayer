@@ -75,21 +75,19 @@ void CRemotePlayer::Init()
 {
 	if(IsSpawned())
 	{
-		Scripting::SetDontActivateRagdollFromPlayerImpact(GetPedHandle(), true);
-		Scripting::AddBlipForChar(GetPedHandle(), &m_uiBlipId);
+		Scripting::SetDontActivateRagdollFromPlayerImpact(GetScriptingHandle(), true);
+		Scripting::AddBlipForChar(GetScriptingHandle(), &m_uiBlipId);
 		Scripting::ChangeBlipSprite(m_uiBlipId, Scripting::BLIP_OBJECTIVE);
 		Scripting::ChangeBlipScale(m_uiBlipId, 0.5);
 		Scripting::ChangeBlipNameFromAscii(m_uiBlipId, GetName());
-		//Nametags[GetPlayerId()].SetPed(GetPlayerPed()->GetPed());
-		SetColor(GetColor());
-		SetName(GetName());
 		ToggleRagdoll(false);
-		Scripting::SetPedDiesWhenInjured(GetPedHandle(), false);
-		Scripting::SetCharInvincible(GetPedHandle(), true);
+		SetColor(GetColor());
+		Scripting::SetPedDiesWhenInjured(GetScriptingHandle(), false);
+		Scripting::SetCharInvincible(GetScriptingHandle(), true);
 		// These two will be useful for a setPlayerUseModelAnims native
 		//Scripting::SetAnimGroupForChar(m_pedIndex, "move_player");
 		//Scripting::SetCharGestureGroup(m_pedIndex, "GESTURES@MALE");
-		Scripting::BlockCharHeadIk(GetPedHandle(), true);
+		Scripting::BlockCharHeadIk(GetScriptingHandle(), true);
 		m_stateType = STATE_TYPE_SPAWN;
 	}
 }
@@ -100,40 +98,43 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	if(IsInVehicle())
 		RemoveFromVehicle();
 
-	// Set their pad state
-	SetNetPadState(&syncPacket->padState);
+	// Set our pad state
+	SetPadState(&syncPacket->padState);
 
-	// Set their position
+	// Set our position
 	SetTargetPosition(syncPacket->vecPos, TICK_RATE);
 
-	// Set their heading
+	// Set our heading
 	SetCurrentHeading(syncPacket->fHeading);
 
-	// Set their move speed
+	// Set our move speed
 	SetMoveSpeed(&syncPacket->vecMoveSpeed);
 
-	// Set their ducking state
+	// Set our ducking state
 	SetDucking(syncPacket->bDuckState);
 
-	// Set their health
-	SetHealth(syncPacket->uHealthArmour >> 16);
+	// Lock our health
+	LockHealth(syncPacket->uHealthArmour >> 16);
 
-	// Set their armour
-	SetArmour((syncPacket->uHealthArmour << 16) >> 16);
+	// Lock our armour
+	LockArmour((syncPacket->uHealthArmour << 16) >> 16);
 
-	unsigned int uWeapon = (syncPacket->uWeaponInfo >> 20);
-	unsigned int uAmmo = ((syncPacket->uWeaponInfo << 12) >> 12);
+	// Get our new weapon and ammo
+	unsigned int uiWeapon = (syncPacket->uWeaponInfo >> 20);
+	unsigned int uiAmmo = ((syncPacket->uWeaponInfo << 12) >> 12);
 
-	if(GetCurrentWeapon() != uWeapon)
+	// Do we not have the right weapon equipped?
+	if(GetCurrentWeapon() != uiWeapon)
 	{
-		// Set their current weapon
-		GiveWeapon(uWeapon, uAmmo);
-		// TODO: Use swap weapon task instead?
+		// Set our current weapon
+		GiveWeapon(uiWeapon, uiAmmo);
 	}
-	else
+
+	// Do we not have the right ammo?
+	if(GetAmmo(uiWeapon) != uiAmmo)
 	{
-		// Set their current ammo
-		SetAmmo(uWeapon, uAmmo);
+		// Set our ammo
+		SetAmmo(uiWeapon, uiAmmo);
 	}
 
 	m_stateType = STATE_TYPE_ONFOOT;
@@ -174,7 +175,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		}
 
 		// Set their pad state
-		SetNetPadState(&syncPacket->padState);
+		SetPadState(&syncPacket->padState);
 
 		// Set their vehicles target position
 		pVehicle->SetTargetPosition(syncPacket->vecPos, TICK_RATE);
@@ -204,24 +205,32 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		// TODO: This should only be sent when it changes
 		pVehicle->SetDirtLevel(syncPacket->fDirtLevel);
 
-		// Set their health
-		SetHealth(syncPacket->uPlayerHealthArmour >> 16);
+		// Lock our health
+		LockHealth(syncPacket->uPlayerHealthArmour >> 16);
 
-		// Set their armour
-		SetArmour((syncPacket->uPlayerHealthArmour << 16) >> 16);
+		// Lock our armour
+		LockArmour((syncPacket->uPlayerHealthArmour << 16) >> 16);
 
-		// NOTE: Setting weapon and ammo does not work
-		// in vehicles, fix it
+		// Get our new weapon and ammo
+		unsigned int uiWeapon = (syncPacket->uPlayerWeaponInfo >> 20);
+		unsigned int uiAmmo = ((syncPacket->uPlayerWeaponInfo << 12) >> 12);
 
-		// Set their current weapon
-		unsigned int uPlayerWeapon = (syncPacket->uPlayerWeaponInfo >> 20);
-		SetCurrentWeapon(uPlayerWeapon);
+		// Do we not have the right weapon equipped?
+		if(GetCurrentWeapon() != uiWeapon)
+		{
+			// Set our current weapon
+			GiveWeapon(uiWeapon, uiAmmo);
+		}
 
-		// Set their current ammo
-		SetAmmo(uPlayerWeapon, ((syncPacket->uPlayerWeaponInfo << 12) >> 12));
-
-	//Is the vehicle streamed out?
-	}else if(pVehicle && !(pVehicle->IsStreamedIn())){
+		// Do we not have the right ammo?
+		if(GetAmmo(uiWeapon) != uiAmmo)
+		{
+			// Set our ammo
+			SetAmmo(uiWeapon, uiAmmo);
+		}
+	}
+	else if(pVehicle && !(pVehicle->IsStreamedIn()))
+	{
 		//set the vehicle position
 		pVehicle->SetPosition(syncPacket->vecPos, false, true);
 
@@ -248,23 +257,31 @@ void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * s
 			PutInVehicle(pVehicle, 0);
 
 		// Set their pad state
-		SetNetPadState(&syncPacket->padState);
+		SetPadState(&syncPacket->padState);
 
-		// Set their health
-		SetHealth(syncPacket->uPlayerHealthArmour >> 16);
+		// Lock our health
+		LockHealth(syncPacket->uPlayerHealthArmour >> 16);
 
-		// Set their armour
-		SetArmour((syncPacket->uPlayerHealthArmour << 16) >> 16);
+		// Lock our armour
+		LockArmour((syncPacket->uPlayerHealthArmour << 16) >> 16);
 
-		// NOTE: Setting weapon and ammo does not work
-		// in vehicles, fix it
+		// Get our new weapon and ammo
+		unsigned int uiWeapon = (syncPacket->uPlayerWeaponInfo >> 20);
+		unsigned int uiAmmo = ((syncPacket->uPlayerWeaponInfo << 12) >> 12);
 
-		// Set their current weapon
-		unsigned int uPlayerWeapon = (syncPacket->uPlayerWeaponInfo >> 20);
-		SetCurrentWeapon(uPlayerWeapon);
+		// Do we not have the right weapon equipped?
+		if(GetCurrentWeapon() != uiWeapon)
+		{
+			// Set our current weapon
+			GiveWeapon(uiWeapon, uiAmmo);
+		}
 
-		// Set their current ammo
-		SetAmmo(uPlayerWeapon, ((syncPacket->uPlayerWeaponInfo << 12) >> 12));
+		// Do we not have the right ammo?
+		if(GetAmmo(uiWeapon) != uiAmmo)
+		{
+			// Set our ammo
+			SetAmmo(uiWeapon, uiAmmo);
+		}
 	}
 
 	m_stateType = STATE_TYPE_PASSENGER;
@@ -273,24 +290,27 @@ void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * s
 void CRemotePlayer::StoreSmallSync(SmallSyncData * syncPacket)
 {
 	// Set their pad state
-	SetNetPadState(&syncPacket->padState);
+	SetPadState(&syncPacket->padState);
 
 	// Set their ducking state
 	SetDucking(syncPacket->bDuckState);
 
-	unsigned int uWeapon = (syncPacket->uWeaponInfo >> 20);
-	unsigned int uAmmo = ((syncPacket->uWeaponInfo << 12) >> 12);
+	// Get our new weapon and ammo
+	unsigned int uiWeapon = (syncPacket->uWeaponInfo >> 20);
+	unsigned int uiAmmo = ((syncPacket->uWeaponInfo << 12) >> 12);
 
-	if(GetCurrentWeapon() != uWeapon)
+	// Do we not have the right weapon equipped?
+	if(GetCurrentWeapon() != uiWeapon)
 	{
-		// Set their current weapon
-		GiveWeapon(uWeapon, uAmmo);
-		// TODO: Use swap weapon task instead?
+		// Set our current weapon
+		GiveWeapon(uiWeapon, uiAmmo);
 	}
-	else
+
+	// Do we not have the right ammo?
+	if(GetAmmo(uiWeapon) != uiAmmo)
 	{
-		// Set their current ammo
-		SetAmmo(uWeapon, uAmmo);
+		// Set our ammo
+		SetAmmo(uiWeapon, uiAmmo);
 	}
 }
 

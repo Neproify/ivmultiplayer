@@ -78,12 +78,6 @@ void CScriptVM__Process()
 		Scripting::DoScreenFadeIn(0);
 		iFrames++;
 	}
-
-	// Check for pause menu
-	if(CGame::IsMenuActive() && CGame::GetState() != GAME_STATE_PAUSE_MENU)
-		CGame::SetState(GAME_STATE_PAUSE_MENU);
-	else if(!CGame::IsMenuActive() && CGame::GetState() == GAME_STATE_PAUSE_MENU)
-		CGame::SetState(GAME_STATE_INGAME);
 }
 
 void _declspec(naked) CScriptVM__Process_Hook()

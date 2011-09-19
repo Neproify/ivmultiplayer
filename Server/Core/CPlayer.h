@@ -23,8 +23,8 @@ private:
 	int           m_iModelId;
 	CVehicle    * m_pVehicle;
 	BYTE          m_byteVehicleSeatId;
-	NetPadState   m_previousPadState;
-	NetPadState   m_currentPadState;
+	CPadState     m_previousPadState;
+	CPadState     m_currentPadState;
 	CVector3      m_vecPosition;
 	float         m_fHeading;
 	CVector3      m_vecMoveSpeed;
@@ -72,7 +72,7 @@ public:
 	void           StorePassengerSync(CVehicle * pVehicle, PassengerSyncData * syncPacket, bool bHasAimSyncData, AimSyncData * aimSyncData);
 	void           StoreSmallSync(SmallSyncData * syncPacket, bool bHasAimSyncData, AimSyncData * aimSyncData);
 	void           Process();
-	bool           SetName(String sName, bool requestedByClient = false);
+	bool           SetName(String strName);
 	String         GetName();
 	bool           IsSpawned();
 	bool           SetModel(int iModelId);
@@ -101,9 +101,9 @@ public:
 	void           SetAmmo(unsigned int uAmmo);
 	unsigned int   GetAmmo();
 	String         GetSerial();
-	void           SetPadState(NetPadState * padState);
-	void           GetPreviousPadState(NetPadState * padState);
-	void           GetPadState(NetPadState * padState);
+	void           SetPadState(CPadState * padState);
+	void           GetPreviousPadState(CPadState * padState);
+	void           GetPadState(CPadState * padState);
 	void           SetColor(unsigned int color);	
 	unsigned int   GetColor();
 	unsigned short GetPing();

@@ -14,15 +14,14 @@
 class CFPSCounter
 {
 private:
-	DWORD m_dwLastTime;
-	int m_iFrames;
-	int m_iValue;
-	char m_szFPSTextBuffer[16];
+	unsigned long m_ulLastTime;
+	unsigned int  m_uiCurrentFrames;
+	unsigned int  m_uiTotalFramesPerSecond;
 
 public:
 	CFPSCounter();
 	~CFPSCounter();
 
-	int  Get();
-	void Pulse();
+	unsigned int Get() { return m_uiTotalFramesPerSecond; }
+	void         Pulse();
 };

@@ -95,6 +95,7 @@ private:
 	CEGUI::MouseCursor       * m_pCursor;
 	CEGUI::WindowManager     * m_pWindowManager;
 	CEGUI::DefaultWindow     * m_pDefaultWindow;
+	CEGUI::FontManager       * m_pFontManager;
 	CEGUI::GeometryBuffer    * m_pTextDrawingGeometryBuffer;
 
 	struct
@@ -118,7 +119,7 @@ private:
 	int                        m_iCurrentId;
 	DWORD                      m_dwDoubleClickTime;
 	POINT                      m_clickPosition;
-	int                        m_iCurrentKyeFag;
+	unsigned int               m_uiCurrentKyeFag;
 
 public:
 	CGUI(IDirect3DDevice9 * pD3DDevice);
@@ -130,8 +131,8 @@ public:
 	unsigned int               GetDisplayWidth();
 	unsigned int               GetDisplayHeight();
 	void                       Render();
-	void                       DrawText(CEGUI::String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect = CEGUI::colour(0xFFFFFFFF), CEGUI::Font * pFont = NULL, bool bProcessFormatting = true, bool bAllowColorFormatting = true, CEGUI::Rect * rClipRect = NULL, float fSpaceExtra = 0.0f, float fXScale = 1.0f, float fYScale = 1.0f);
-	void                       DrawText(CEGUI::String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect, CEGUI::String sFontName, bool bProcessFormatting = true, bool bAllowColorFormatting = true, CEGUI::Rect * rClipRect = NULL, float fSpaceExtra = 0.0f, float fXScale = 1.0f, float fYScale = 1.0f);
+	void                       DrawText(String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect = CEGUI::colour(0xFFFFFFFF), CEGUI::Font * pFont = NULL, bool bProcessFormatting = true, bool bAllowColorFormatting = true, CEGUI::Rect * rClipRect = NULL, float fSpaceExtra = 0.0f, float fXScale = 1.0f, float fYScale = 1.0f);
+	void                       DrawText(String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect, String sFontName, bool bProcessFormatting = true, bool bAllowColorFormatting = true, CEGUI::Rect * rClipRect = NULL, float fSpaceExtra = 0.0f, float fXScale = 1.0f, float fYScale = 1.0f);
 
 	// Message box
 	bool                       OnMessageBoxClick(const CEGUI::EventArgs& eventArgs);
