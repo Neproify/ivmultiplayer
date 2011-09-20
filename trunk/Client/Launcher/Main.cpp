@@ -55,7 +55,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			if(!bFoundCustomDirectory)
 			{
-				ShowMessageBox("Failed to retrieve GTA IV install directory from registry. Cannot launch Networked: IV.");
+				ShowMessageBox("Failed to retrieve GTA IV install directory from registry. Cannot launch IV: Multiplayer.");
 				return 1;
 			}
 		}
@@ -139,11 +139,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		String strError("Unknown error. Cannot launch IV: Multiplayer.");
 
 		if(iReturn == 1)
-			strError = "Failed to write library path into remote process. Cannot launch Networked: IV.";
+			strError = "Failed to write library path into remote process. Cannot launch IV: Multiplayer.";
 		else if(iReturn == 2)
-			strError = "Failed to create remote thread in remote process. Cannot launch Networked: IV.";
+			strError = "Failed to create remote thread in remote process. Cannot launch IV: Multiplayer.";
 		else if(iReturn == 3)
-			strError = "Failed to open the remote process, Cannot launch Networked: IV.";
+			strError = "Failed to open the remote process, Cannot launch IV: Multiplayer.";
 
 		ShowMessageBox(strError.Get());
 		return 1;
