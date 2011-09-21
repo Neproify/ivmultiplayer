@@ -17,19 +17,19 @@ extern CNetworkManager * g_pNetworkManager;
 
 // Object functions
 
-void RegisterObjectNatives(CScriptingManager * pScriptingManager)
+void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 {
-	pScriptingManager->RegisterFunction("createObject", sq_object_create, 7, "iffffff");
-	pScriptingManager->RegisterFunction("deleteObject", sq_object_delete, 1, "i");
-	pScriptingManager->RegisterFunction("getObjectModel", sq_object_getmodel, 1, "i");
-	pScriptingManager->RegisterFunction("setObjectCoordinates", sq_object_setcoordinates, 4, "ifff");
-	pScriptingManager->RegisterFunction("getObjectCoordinates", sq_object_getcoordinates, 1, "i");
-	pScriptingManager->RegisterFunction("setObjectPosition", sq_object_setcoordinates, 4, "ifff");
-	pScriptingManager->RegisterFunction("getObjectPosition", sq_object_getcoordinates, 1, "i");
+	pScriptingManager->RegisterFunction("createObject", Create, 7, "iffffff");
+	pScriptingManager->RegisterFunction("deleteObject", Delete, 1, "i");
+	pScriptingManager->RegisterFunction("getObjectModel", GetModel, 1, "i");
+	pScriptingManager->RegisterFunction("setObjectCoordinates", SetCoordinates, 4, "ifff");
+	pScriptingManager->RegisterFunction("getObjectCoordinates", GetCoordinates, 1, "i");
+	pScriptingManager->RegisterFunction("setObjectPosition", SetCoordinates, 4, "ifff");
+	pScriptingManager->RegisterFunction("getObjectPosition", GetCoordinates, 1, "i");
 }
 
 // createObject(modelhash, x, y, z, rx, ry, rz)
-SQInteger sq_object_create(SQVM * pVM)
+SQInteger CObjectNatives::Create(SQVM * pVM)
 {
 	SQInteger modelhash;
 	float x, y, z, rx, ry, rz;
@@ -45,7 +45,7 @@ SQInteger sq_object_create(SQVM * pVM)
 }
 
 // deleteObject(objectid)
-SQInteger sq_object_delete(SQVM * pVM)
+SQInteger CObjectNatives::Delete(SQVM * pVM)
 {
 	SQInteger objectid;
 	sq_getinteger(pVM, -1, &objectid);
@@ -60,7 +60,7 @@ SQInteger sq_object_delete(SQVM * pVM)
 }
 
 // getObjectModel(objectid)
-SQInteger sq_object_getmodel(SQVM * pVM)
+SQInteger CObjectNatives::GetModel(SQVM * pVM)
 {
 	SQInteger objectid;
 	sq_getinteger(pVM, 2, &objectid);
@@ -74,7 +74,7 @@ SQInteger sq_object_getmodel(SQVM * pVM)
 }
 
 // setObjectCoordinates(objectid, x, y, z)
-SQInteger sq_object_setcoordinates(SQVM * pVM)
+SQInteger CObjectNatives::SetCoordinates(SQVM * pVM)
 {
 	SQInteger objectid;
 	sq_getinteger(pVM, 2, &objectid);
@@ -90,7 +90,7 @@ SQInteger sq_object_setcoordinates(SQVM * pVM)
 }
 
 // getObjectCoordinates(objectid)
-SQInteger sq_object_getcoordinates(SQVM * pVM)
+SQInteger CObjectNatives::GetCoordinates(SQVM * pVM)
 {
 	SQInteger objectid;
 	sq_getinteger(pVM, 2, &objectid);
@@ -115,7 +115,7 @@ SQInteger sq_object_getcoordinates(SQVM * pVM)
 
 
 // setObjectRotation(objectid, x, y, z)
-SQInteger sq_object_setrotation(SQVM * pVM)
+SQInteger CObjectNatives::SetRotation(SQVM * pVM)
 {
 	SQInteger objectid;
 	sq_getinteger(pVM, 2, &objectid);
@@ -131,7 +131,7 @@ SQInteger sq_object_setrotation(SQVM * pVM)
 }
 
 // getObjectRotation(objectid)
-SQInteger sq_object_getrotation(SQVM * pVM)
+SQInteger CObjectNatives::GetRotation(SQVM * pVM)
 {
 	SQInteger objectid;
 	sq_getinteger(pVM, 2, &objectid);

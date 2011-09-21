@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "CString.h"
+#include "Threading/CMutex.h"
 
 typedef void (* LogFileCallback_t)(const char * szBuffer);
 
@@ -21,13 +22,15 @@ private:
 	static bool              m_bUseCallback;
 	static LogFileCallback_t m_pfnCallback;
 	static bool              m_bUseTimeStamp;
+	static CMutex            m_mutex;
 
 public: 
-	static void              SetUseCallback(bool bUseCallback) { m_bUseCallback = bUseCallback; }
-	static bool              GetUseCallback() { return m_bUseCallback; }
-	static void              SetCallback(LogFileCallback_t pfnCallback) { m_pfnCallback = pfnCallback; }
-	static LogFileCallback_t GetCallback() { return m_pfnCallback; }
-	static void				 SetTimeStamp(bool bTimeStamp) { m_bUseTimeStamp = bTimeStamp; }
+	static void              SetUseCallback(bool bUseCallback) { m_mutex.Lock(); m_bUseCallback = bUseCallback; m_mutex.Unlock(); }
+	static bool              GetUseCallback() { m_mutex.Lock(); bool bUseCallback = m_bUseCallback; m_mutex.Unlock(); return bUseCallback; }
+	static void              SetCallback(LogFileCallback_t pfnCallback) { m_mutex.Lock(); m_pfnCallback = pfnCallback; m_mutex.Unlock(); }
+	static LogFileCallback_t GetCallback() { m_mutex.Lock(); LogFileCallback_t pfnLogFileCallback = m_pfnCallback; m_mutex.Unlock(); return pfnLogFileCallback; }
+	static void				 SetUseTimeStamp(bool bTimeStamp) { m_mutex.Lock(); m_bUseTimeStamp = bTimeStamp; m_mutex.Unlock(); }
+	static bool              GetUseTimeStamp() { m_mutex.Lock(); bool bTimeStamp = m_bUseTimeStamp; m_mutex.Unlock(); return bTimeStamp; }
 	static void              Open(String strLogFile, bool bAppend = false);
 	static void              Print(const char * szString);
 	static void              Printf(const char * szFormat, ...);

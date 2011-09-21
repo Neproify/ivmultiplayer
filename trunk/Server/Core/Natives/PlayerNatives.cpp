@@ -24,90 +24,90 @@ extern CTime * g_pTime;
 
 // Player functions
 
-void RegisterPlayerNatives(CScriptingManager * pScriptingManager)
+void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 {
-	pScriptingManager->RegisterFunction("isPlayerConnected", sq_player_isconnected, 1, "i");
-	pScriptingManager->RegisterFunction("getPlayerName", sq_player_getname, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerName", sq_player_setname, 2, "is");
-	pScriptingManager->RegisterFunction("setPlayerHealth", sq_player_sethealth, 2, "ii");
-	pScriptingManager->RegisterFunction("getPlayerHealth", sq_player_gethealth, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerArmour", sq_player_setarmour, 2, "ii");
-	pScriptingManager->RegisterFunction("getPlayerArmour", sq_player_getarmour, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerCoordinates", sq_player_setcoordinates, 4, "ifff");
-	pScriptingManager->RegisterFunction("getPlayerCoordinates", sq_player_getcoordinates, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerCameraPos", sq_player_setcamerapos, 4, "ifff");
-	pScriptingManager->RegisterFunction("setPlayerCameraLookAt", sq_player_setcameralookat, 4, "ifff");
-	pScriptingManager->RegisterFunction("setPlayerPosition", sq_player_setcoordinates, 4, "ifff");
-	pScriptingManager->RegisterFunction("getPlayerPosition", sq_player_getcoordinates, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerTime", sq_player_settime, 3, "iii");
-	pScriptingManager->RegisterFunction("setPlayerWeather", sq_player_setweather, 2, "ii");
-	pScriptingManager->RegisterFunction("setPlayerGravity", sq_player_setgravity, 2, "if");
-	pScriptingManager->RegisterFunction("sendPlayerMessage", sq_player_sendmessage, -1, NULL);
-	pScriptingManager->RegisterFunction("sendMessageToAll", sq_player_sendmessagetoall, -1, NULL);
-	pScriptingManager->RegisterFunction("isPlayerInAnyVehicle", sq_player_isinanyvehicle, 1, "i");
-	pScriptingManager->RegisterFunction("isPlayerInVehicle", sq_player_isinvehicle, 2, "ii");
-	pScriptingManager->RegisterFunction("getPlayerVehicleId", sq_player_getvehicleid, 1, "i");
-	pScriptingManager->RegisterFunction("getPlayerSeatId", sq_player_getseatid, 1, "i");
-	pScriptingManager->RegisterFunction("isPlayerOnFoot", sq_player_isonfoot, 1, "i");
-	pScriptingManager->RegisterFunction("togglePlayerPayAndSpray", sq_player_togglepayandspray, 2, "ib");
-	pScriptingManager->RegisterFunction("togglePlayerAutoAim", sq_player_toggleautoaim, 2, "ib");
-	//pScriptingManager->RegisterFunction("setPlayerDrunk", sq_player_setplayerdrunk, 2, "ii");
-	pScriptingManager->RegisterFunction("givePlayerWeapon", sq_player_giveweapon, 3, "iii");
-	pScriptingManager->RegisterFunction("removePlayerWeapons", sq_player_removeweapons, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerSpawnLocation", sq_player_setspawnlocation, 5, "iffff");
-	pScriptingManager->RegisterFunction("setPlayerModel", sq_player_setmodel, 2, "ii");
-	pScriptingManager->RegisterFunction("getPlayerModel", sq_player_getmodel, 1, "i");
-	pScriptingManager->RegisterFunction("togglePlayerControls", sq_player_togglecontrols, 2, "ib");
-	pScriptingManager->RegisterFunction("isPlayerSpawned", sq_player_isspawned, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerHeading", sq_player_setheading, 2, "if");
-	pScriptingManager->RegisterFunction("getPlayerHeading", sq_player_getheading, 1, "1");
-	pScriptingManager->RegisterFunction("togglePlayerPhysics", sq_player_togglephysics, 2, "ib");
-	pScriptingManager->RegisterFunction("kickPlayer", sq_player_kick, 2, "ib");
-	pScriptingManager->RegisterFunction("banPlayer", sq_player_ban, 2, "ii");
-	pScriptingManager->RegisterFunction("getPlayerIp", sq_player_getip, 1, "i");
-	pScriptingManager->RegisterFunction("givePlayerMoney", sq_player_givemoney, 2, "ii");
-	pScriptingManager->RegisterFunction("setPlayerMoney", sq_player_setmoney, 2, "ii");
-	pScriptingManager->RegisterFunction("resetPlayerMoney", sq_player_resetmoney, 1, "ii");
-	pScriptingManager->RegisterFunction("getPlayerMoney", sq_player_getmoney, 1, "i");
-	pScriptingManager->RegisterFunction("displayPlayerText", sq_player_displaytext, 5, "iffsi");
-	pScriptingManager->RegisterFunction("displayTextForAll", sq_player_displaytextforall, 4, "ffsi");
-	pScriptingManager->RegisterFunction("displayPlayerInfoText", sq_player_displayinfotext, 3, "isi");
-	pScriptingManager->RegisterFunction("displayInfoTextForAll", sq_player_displayinfotextforall, 2, "si");
-	pScriptingManager->RegisterFunction("togglePlayerFrozen", sq_player_togglefrozen, 2, "ib");
-	pScriptingManager->RegisterFunction("getPlayerState", sq_player_getstate, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerVelocity", sq_player_setvelocity, 4, "ifff");
-	pScriptingManager->RegisterFunction("getPlayerVelocity", sq_player_getvelocity, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerWantedLevel", sq_player_setwantedlevel, 2, "ii");
-	pScriptingManager->RegisterFunction("warpPlayerIntoVehicle", sq_player_warpintovehicle, -1, NULL);
-	pScriptingManager->RegisterFunction("removePlayerFromVehicle", sq_player_removefromvehicle, -1, NULL);
-	pScriptingManager->RegisterFunction("getPlayerWeapon", sq_player_getweapon, 1, "i");
-	pScriptingManager->RegisterFunction("getPlayerAmmo", sq_player_getammo, 1, "i");
-	pScriptingManager->RegisterFunction("getPlayerSerial", sq_player_getserial, 1, "i");
-	pScriptingManager->RegisterFunction("setCameraBehindPlayer", sq_player_setcamerabehind, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerDucking", sq_player_setducking, 2, "ib");
-	pScriptingManager->RegisterFunction("setPlayerInvincible", sq_player_setinvincible, 2, "ib");
-	pScriptingManager->RegisterFunction("togglePlayerHud", sq_player_togglehud, 2, "ib");
-	pScriptingManager->RegisterFunction("togglePlayerRadar", sq_player_toggleradar, 2, "ib");
-	pScriptingManager->RegisterFunction("togglePlayerNames", sq_player_togglenames, 2, "ib");
-	pScriptingManager->RegisterFunction("togglePlayerAreaNames", sq_player_toggleareanames, 2, "ib");
-	pScriptingManager->RegisterFunction("getEmptyPlayerPadState", sq_player_getemptypadstate, 0, NULL);
-	pScriptingManager->RegisterFunction("getPlayerPreviousPadState", sq_player_getpreviouspadstate, 1, "i");
-	pScriptingManager->RegisterFunction("getPlayerPadState", sq_player_getpadstate, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerColor", sq_player_setcolor, 2, "ii");
-	pScriptingManager->RegisterFunction("getPlayerColor", sq_player_getcolor, 1, "i");
-	pScriptingManager->RegisterFunction("getPlayerPing", sq_player_getping, 1, "i");
-	pScriptingManager->RegisterFunction("givePlayerHelmet", sq_player_givehelmet, 1, "i");
-	pScriptingManager->RegisterFunction("removePlayerHelmet", sq_player_removehelmet, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerClothes", sq_player_setclothes, 3, "iii");
-	pScriptingManager->RegisterFunction("getPlayerClothes", sq_player_getclothes, 1, "i");
-	pScriptingManager->RegisterFunction("resetPlayerClothes", sq_player_resetclothes, 1, "i");
-	pScriptingManager->RegisterFunction("respawnPlayer", sq_player_respawn, 1, "i");
+	pScriptingManager->RegisterFunction("isPlayerConnected", IsConnected, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerName", GetName, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerName", SetName, 2, "is");
+	pScriptingManager->RegisterFunction("setPlayerHealth", SetHealth, 2, "ii");
+	pScriptingManager->RegisterFunction("getPlayerHealth", GetHealth, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerArmour", SetArmour, 2, "ii");
+	pScriptingManager->RegisterFunction("getPlayerArmour", GetArmour, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerCoordinates", SetCoordinates, 4, "ifff");
+	pScriptingManager->RegisterFunction("getPlayerCoordinates", GetCoordinates, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerCameraPos", SetCameraPos, 4, "ifff");
+	pScriptingManager->RegisterFunction("setPlayerCameraLookAt", SetCameraLookAt, 4, "ifff");
+	pScriptingManager->RegisterFunction("setPlayerPosition", SetCoordinates, 4, "ifff");
+	pScriptingManager->RegisterFunction("getPlayerPosition", GetCoordinates, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerTime", SetTime, 3, "iii");
+	pScriptingManager->RegisterFunction("setPlayerWeather", SetWeather, 2, "ii");
+	pScriptingManager->RegisterFunction("setPlayerGravity", SetGravity, 2, "if");
+	pScriptingManager->RegisterFunction("sendPlayerMessage", SendMessage, -1, NULL);
+	pScriptingManager->RegisterFunction("sendMessageToAll", SendMessageToAll, -1, NULL);
+	pScriptingManager->RegisterFunction("isPlayerInAnyVehicle", IsInAnyVehicle, 1, "i");
+	pScriptingManager->RegisterFunction("isPlayerInVehicle", IsInVehicle, 2, "ii");
+	pScriptingManager->RegisterFunction("getPlayerVehicleId", GetVehicleId, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerSeatId", GetSeatId, 1, "i");
+	pScriptingManager->RegisterFunction("isPlayerOnFoot", IsOnFoot, 1, "i");
+	pScriptingManager->RegisterFunction("togglePlayerPayAndSpray", TogglePayAndSpray, 2, "ib");
+	pScriptingManager->RegisterFunction("togglePlayerAutoAim", ToggleAutoAim, 2, "ib");
+	//pScriptingManager->RegisterFunction("setPlayerDrunk", SetPlayerDrunk, 2, "ii");
+	pScriptingManager->RegisterFunction("givePlayerWeapon", GiveWeapon, 3, "iii");
+	pScriptingManager->RegisterFunction("removePlayerWeapons", RemoveWeapons, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerSpawnLocation", SetSpawnLocation, 5, "iffff");
+	pScriptingManager->RegisterFunction("setPlayerModel", SetModel, 2, "ii");
+	pScriptingManager->RegisterFunction("getPlayerModel", GetModel, 1, "i");
+	pScriptingManager->RegisterFunction("togglePlayerControls", ToggleControls, 2, "ib");
+	pScriptingManager->RegisterFunction("isPlayerSpawned", IsSpawned, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerHeading", SetHeading, 2, "if");
+	pScriptingManager->RegisterFunction("getPlayerHeading", GetHeading, 1, "1");
+	pScriptingManager->RegisterFunction("togglePlayerPhysics", TogglePhysics, 2, "ib");
+	pScriptingManager->RegisterFunction("kickPlayer", Kick, 2, "ib");
+	pScriptingManager->RegisterFunction("banPlayer", Ban, 2, "ii");
+	pScriptingManager->RegisterFunction("getPlayerIp", GetIp, 1, "i");
+	pScriptingManager->RegisterFunction("givePlayerMoney", GiveMoney, 2, "ii");
+	pScriptingManager->RegisterFunction("setPlayerMoney", SetMoney, 2, "ii");
+	pScriptingManager->RegisterFunction("resetPlayerMoney", ResetMoney, 1, "ii");
+	pScriptingManager->RegisterFunction("getPlayerMoney", GetMoney, 1, "i");
+	pScriptingManager->RegisterFunction("displayPlayerText", DisplayText, 5, "iffsi");
+	pScriptingManager->RegisterFunction("displayTextForAll", DisplayTextForAll, 4, "ffsi");
+	pScriptingManager->RegisterFunction("displayPlayerInfoText", DisplayInfoText, 3, "isi");
+	pScriptingManager->RegisterFunction("displayInfoTextForAll", DisplayInfoTextForAll, 2, "si");
+	pScriptingManager->RegisterFunction("togglePlayerFrozen", ToggleFrozen, 2, "ib");
+	pScriptingManager->RegisterFunction("getPlayerState", GetState, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerVelocity", SetVelocity, 4, "ifff");
+	pScriptingManager->RegisterFunction("getPlayerVelocity", GetVelocity, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerWantedLevel", SetWantedLevel, 2, "ii");
+	pScriptingManager->RegisterFunction("warpPlayerIntoVehicle", WarpIntoVehicle, -1, NULL);
+	pScriptingManager->RegisterFunction("removePlayerFromVehicle", RemoveFromVehicle, -1, NULL);
+	pScriptingManager->RegisterFunction("getPlayerWeapon", GetWeapon, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerAmmo", GetAmmo, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerSerial", GetSerial, 1, "i");
+	pScriptingManager->RegisterFunction("setCameraBehindPlayer", SetCameraBehind, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerDucking", SetDucking, 2, "ib");
+	pScriptingManager->RegisterFunction("setPlayerInvincible", SetInvincible, 2, "ib");
+	pScriptingManager->RegisterFunction("togglePlayerHud", ToggleHUD, 2, "ib");
+	pScriptingManager->RegisterFunction("togglePlayerRadar", ToggleRadar, 2, "ib");
+	pScriptingManager->RegisterFunction("togglePlayerNames", ToggleNames, 2, "ib");
+	pScriptingManager->RegisterFunction("togglePlayerAreaNames", ToggleAreaNames, 2, "ib");
+	pScriptingManager->RegisterFunction("getEmptyPlayerPadState", GetEmptyPadState, 0, NULL);
+	pScriptingManager->RegisterFunction("getPlayerPreviousPadState", GetPreviousPadState, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerPadState", GetPadState, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerColor", SetColor, 2, "ii");
+	pScriptingManager->RegisterFunction("getPlayerColor", GetColor, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerPing", GetPing, 1, "i");
+	pScriptingManager->RegisterFunction("givePlayerHelmet", GiveHelmet, 1, "i");
+	pScriptingManager->RegisterFunction("removePlayerHelmet", RemoveHelmet, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerClothes", SetClothes, 3, "iii");
+	pScriptingManager->RegisterFunction("getPlayerClothes", GetClothes, 1, "i");
+	pScriptingManager->RegisterFunction("resetPlayerClothes", ResetClothes, 1, "i");
+	pScriptingManager->RegisterFunction("respawnPlayer", Respawn, 1, "i");
 
-	pScriptingManager->RegisterFunction("triggerClientEvent", sq_player_trigger_event, -1, NULL);
+	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 }
 
 // isPlayerConnected(playerid)
-SQInteger sq_player_isconnected(SQVM * pVM)
+SQInteger CPlayerNatives::IsConnected(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -116,7 +116,7 @@ SQInteger sq_player_isconnected(SQVM * pVM)
 }
 
 // getPlayerName(playerid)
-SQInteger sq_player_getname(SQVM * pVM)
+SQInteger CPlayerNatives::GetName(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -133,7 +133,7 @@ SQInteger sq_player_getname(SQVM * pVM)
 	return 1;
 }
 
-SQInteger sq_player_setname(SQVM * pVM)
+SQInteger CPlayerNatives::SetName(SQVM * pVM)
 {
 	EntityId playerId;
 	const char* szName;
@@ -153,7 +153,7 @@ SQInteger sq_player_setname(SQVM * pVM)
 }
 
 // givePlayerWeapon(playerid, weaponid, ammo)
-SQInteger sq_player_giveweapon(SQVM * pVM)
+SQInteger CPlayerNatives::GiveWeapon(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger iWeaponId;
@@ -177,7 +177,7 @@ SQInteger sq_player_giveweapon(SQVM * pVM)
 }
 
 // removePlayerWeapons(playerid)
-SQInteger sq_player_removeweapons(SQVM * pVM)
+SQInteger CPlayerNatives::RemoveWeapons(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -194,7 +194,7 @@ SQInteger sq_player_removeweapons(SQVM * pVM)
 }
 
 //setPlayerWantedLevel(playerid, wantedlevel)
-SQInteger sq_player_setwantedlevel(SQVM * pVM)
+SQInteger CPlayerNatives::SetWantedLevel(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger iWantedLevel;
@@ -215,7 +215,7 @@ SQInteger sq_player_setwantedlevel(SQVM * pVM)
 }
 
 // setPlayerHealth(playerid, health)
-SQInteger sq_player_sethealth(SQVM * pVM)
+SQInteger CPlayerNatives::SetHealth(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger iHealth;
@@ -236,7 +236,7 @@ SQInteger sq_player_sethealth(SQVM * pVM)
 }
 
 // getPlayerHealth(playerid)
-SQInteger sq_player_gethealth(SQVM * pVM)
+SQInteger CPlayerNatives::GetHealth(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -254,7 +254,7 @@ SQInteger sq_player_gethealth(SQVM * pVM)
 }
 
 // setPlayerArmour(playerid)
-SQInteger sq_player_setarmour(SQVM * pVM)
+SQInteger CPlayerNatives::SetArmour(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger iArmour;
@@ -275,7 +275,7 @@ SQInteger sq_player_setarmour(SQVM * pVM)
 }
 
 // getPlayerArmour(playerid)
-SQInteger sq_player_getarmour(SQVM * pVM)
+SQInteger CPlayerNatives::GetArmour(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -293,7 +293,7 @@ SQInteger sq_player_getarmour(SQVM * pVM)
 }
 
 // setPlayerCameraPos(playerid, x, y, z)
-SQInteger sq_player_setcamerapos(SQVM * pVM)
+SQInteger CPlayerNatives::SetCameraPos(SQVM * pVM)
 {
 	EntityId playerId;
 	CVector3 vecPos;
@@ -313,7 +313,7 @@ SQInteger sq_player_setcamerapos(SQVM * pVM)
 }
 
 // setPlayerCameraLookAt(playerid, x, y, z)
-SQInteger sq_player_setcameralookat(SQVM * pVM)
+SQInteger CPlayerNatives::SetCameraLookAt(SQVM * pVM)
 {
 	EntityId playerId;
 	CVector3 vecPos;
@@ -333,7 +333,7 @@ SQInteger sq_player_setcameralookat(SQVM * pVM)
 }
 
 // setPlayerCoordinates(playerid, x, y, z)
-SQInteger sq_player_setcoordinates(SQVM * pVM)
+SQInteger CPlayerNatives::SetCoordinates(SQVM * pVM)
 {
 	EntityId playerId;
 	CVector3 vecPos;
@@ -353,7 +353,7 @@ SQInteger sq_player_setcoordinates(SQVM * pVM)
 }
 
 // getPlayerCoordinates(playerid)
-SQInteger sq_player_getcoordinates(SQVM * pVM)
+SQInteger CPlayerNatives::GetCoordinates(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -381,37 +381,8 @@ SQInteger sq_player_getcoordinates(SQVM * pVM)
 	return 1;
 }
 
-// getPlayerVelocity(playerid)
-SQInteger sq_player_getVelocity(SQVM * pVM)
-{
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-
-	if(pPlayer)
-	{
-		CVector3 vecMoveSpeed;
-		pPlayer->GetMoveSpeed(&vecMoveSpeed);
-		sq_newtable(pVM);
-		sq_pushinteger(pVM, 0);
-		sq_pushfloat(pVM, vecMoveSpeed.fX);
-		sq_createslot(pVM, -3);
-		sq_pushinteger(pVM, 1);
-		sq_pushfloat(pVM, vecMoveSpeed.fY);
-		sq_createslot(pVM, -3);
-		sq_pushinteger(pVM, 2);
-		sq_pushfloat(pVM, vecMoveSpeed.fZ);
-		sq_createslot(pVM, -3);
-		return 1;
-	}
-
-	sq_pushbool(pVM, false);
-	return 1;
-}
-
 // setPlayerTime(playerid, hour, minute)
-SQInteger sq_player_settime(SQVM * pVM)
+SQInteger CPlayerNatives::SetTime(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger iHour;
@@ -438,7 +409,7 @@ SQInteger sq_player_settime(SQVM * pVM)
 }
 
 // setPlayerTime(playerid, weather)
-SQInteger sq_player_setweather(SQVM * pVM)
+SQInteger CPlayerNatives::SetWeather(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger iWeather;
@@ -459,7 +430,7 @@ SQInteger sq_player_setweather(SQVM * pVM)
 }
 
 // setPlayerGravity(playerid, gravity)
-SQInteger sq_player_setgravity(SQVM * pVM)
+SQInteger CPlayerNatives::SetGravity(SQVM * pVM)
 {
 	EntityId playerId;
 	float fGravity;
@@ -480,7 +451,7 @@ SQInteger sq_player_setgravity(SQVM * pVM)
 }
 
 // sendPlayerMessage(playerid, message [, color = 0xFFFFFFAA, allowformatting = true])
-SQInteger sq_player_sendmessage(SQVM * pVM)
+SQInteger CPlayerNatives::SendMessage(SQVM * pVM)
 {
 	SQInteger iTop = (sq_gettop(pVM) - 1);
 
@@ -539,7 +510,7 @@ SQInteger sq_player_sendmessage(SQVM * pVM)
 }
 
 // sendMessageToAll(message [, color = 0x999999, allowformatting = true])
-SQInteger sq_player_sendmessagetoall(SQVM * pVM)
+SQInteger CPlayerNatives::SendMessageToAll(SQVM * pVM)
 {
 	SQInteger vtop = (sq_gettop(pVM) - 1);
 
@@ -590,7 +561,7 @@ SQInteger sq_player_sendmessagetoall(SQVM * pVM)
 }
 
 // isPlayerInAnyVehicle(playerid)
-SQInteger sq_player_isinanyvehicle(SQVM * pVM)
+SQInteger CPlayerNatives::IsInAnyVehicle(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -608,7 +579,7 @@ SQInteger sq_player_isinanyvehicle(SQVM * pVM)
 }
 
 // isPlayerInVehicle(playerid, vehicleid)
-SQInteger sq_player_isinvehicle(SQVM * pVM)
+SQInteger CPlayerNatives::IsInVehicle(SQVM * pVM)
 {
 	EntityId playerId;
 	EntityId vehicleId;
@@ -631,7 +602,7 @@ SQInteger sq_player_isinvehicle(SQVM * pVM)
 }
 
 // getPlayerVehicleId(playerid)
-SQInteger sq_player_getvehicleid(SQVM * pVM)
+SQInteger CPlayerNatives::GetVehicleId(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -652,7 +623,7 @@ SQInteger sq_player_getvehicleid(SQVM * pVM)
 }
 
 // getPlayerSeatId(playerid)
-SQInteger sq_player_getseatid(SQVM * pVM)
+SQInteger CPlayerNatives::GetSeatId(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -670,7 +641,7 @@ SQInteger sq_player_getseatid(SQVM * pVM)
 }
 
 // isPlayerOnFoot(playerid)
-SQInteger sq_player_isonfoot(SQVM * pVM)
+SQInteger CPlayerNatives::IsOnFoot(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -688,7 +659,7 @@ SQInteger sq_player_isonfoot(SQVM * pVM)
 }
 
 // togglePlayerPayAndSpray(playerid, toggle)
-SQInteger sq_player_togglepayandspray(SQVM * pVM)
+SQInteger CPlayerNatives::TogglePayAndSpray(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbToggle;
@@ -710,7 +681,7 @@ SQInteger sq_player_togglepayandspray(SQVM * pVM)
 }
 
 // togglePlayerAutoAim(playerid, toggle)
-SQInteger sq_player_toggleautoaim(SQVM * pVM)
+SQInteger CPlayerNatives::ToggleAutoAim(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbToggle;
@@ -732,7 +703,7 @@ SQInteger sq_player_toggleautoaim(SQVM * pVM)
 }
 
 // setPlayerDrunk(playerid, toggle)
-/*SQInteger sq_player_setplayerdrunk(SQVM * pVM)
+/*SQInteger CPlayerNatives::SetPlayerDrunk(SQVM * pVM)
 {
 	SQInteger playerid;
 	bool toggle;
@@ -746,7 +717,7 @@ SQInteger sq_player_toggleautoaim(SQVM * pVM)
 }*/
 
 // setPlayerSpawnLocation(playerid, x, y, z, r)
-SQInteger sq_player_setspawnlocation(SQVM * pVM)
+SQInteger CPlayerNatives::SetSpawnLocation(SQVM * pVM)
 {
 	EntityId playerId;
 	CVector3 vecPos;
@@ -769,7 +740,7 @@ SQInteger sq_player_setspawnlocation(SQVM * pVM)
 }
 
 // setPlayerModel(playerid, model)
-SQInteger sq_player_setmodel(SQVM * pVM)
+SQInteger CPlayerNatives::SetModel(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger iModelId;
@@ -789,7 +760,7 @@ SQInteger sq_player_setmodel(SQVM * pVM)
 }
 
 // getPlayerModel(playerid)
-SQInteger sq_player_getmodel(SQVM * pVM)
+SQInteger CPlayerNatives::GetModel(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -807,7 +778,7 @@ SQInteger sq_player_getmodel(SQVM * pVM)
 }
 
 // togglePlayerControls(playerid, toggle)
-SQInteger sq_player_togglecontrols(SQVM * pVM)
+SQInteger CPlayerNatives::ToggleControls(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbControls;
@@ -829,7 +800,7 @@ SQInteger sq_player_togglecontrols(SQVM * pVM)
 }
 
 // isPlayerSpawned(playerid)
-SQInteger sq_player_isspawned(SQVM * pVM)
+SQInteger CPlayerNatives::IsSpawned(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -847,7 +818,7 @@ SQInteger sq_player_isspawned(SQVM * pVM)
 }
 
 // setPlayerHeading(playerid, heading)
-SQInteger sq_player_setheading(SQVM * pVM)
+SQInteger CPlayerNatives::SetHeading(SQVM * pVM)
 {
 	EntityId playerId;
 	float fHeading;
@@ -868,7 +839,7 @@ SQInteger sq_player_setheading(SQVM * pVM)
 }
 
 // getPlayerHeading(playerid)
-SQInteger sq_player_getheading(SQVM * pVM)
+SQInteger CPlayerNatives::GetHeading(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -886,7 +857,7 @@ SQInteger sq_player_getheading(SQVM * pVM)
 }
 
 // togglePlayerPhysics(playerid, toggle)
-SQInteger sq_player_togglephysics(SQVM * pVM)
+SQInteger CPlayerNatives::TogglePhysics(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbToggle;
@@ -908,7 +879,7 @@ SQInteger sq_player_togglephysics(SQVM * pVM)
 }
 
 // kickPlayer(playerid, sendkickmessage)
-SQInteger sq_player_kick(SQVM * pVM)
+SQInteger CPlayerNatives::Kick(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbKickMessage;
@@ -929,7 +900,7 @@ SQInteger sq_player_kick(SQVM * pVM)
 }
 
 // banPlayer(playerid, milliseconds)
-SQInteger sq_player_ban(SQVM * pVM)
+SQInteger CPlayerNatives::Ban(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger uiSeconds;
@@ -950,7 +921,7 @@ SQInteger sq_player_ban(SQVM * pVM)
 }
 
 // getPlayerIp(playerid)
-SQInteger sq_player_getip(SQVM * pVM)
+SQInteger CPlayerNatives::GetIp(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -968,7 +939,7 @@ SQInteger sq_player_getip(SQVM * pVM)
 }
 
 // givePlayerMoney(playerid, money)
-SQInteger sq_player_givemoney(SQVM * pVM)
+SQInteger CPlayerNatives::GiveMoney(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger iMoney;
@@ -988,7 +959,7 @@ SQInteger sq_player_givemoney(SQVM * pVM)
 }
 
 // setPlayerMoney(playerid, money)
-SQInteger sq_player_setmoney(SQVM * pVM)
+SQInteger CPlayerNatives::SetMoney(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger iMoney;
@@ -1008,7 +979,7 @@ SQInteger sq_player_setmoney(SQVM * pVM)
 }
 
 // resetPlayerMoney(playerid)
-SQInteger sq_player_resetmoney(SQVM * pVM)
+SQInteger CPlayerNatives::ResetMoney(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1026,7 +997,7 @@ SQInteger sq_player_resetmoney(SQVM * pVM)
 }
 
 // getPlayerMoney(playerid)
-SQInteger sq_player_getmoney(SQVM * pVM)
+SQInteger CPlayerNatives::GetMoney(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1045,7 +1016,7 @@ SQInteger sq_player_getmoney(SQVM * pVM)
 
 
 // togglePlayerFrozen(playerid, playerfrozen, camerafrozen)
-SQInteger sq_player_togglefrozen(SQVM * pVM)
+SQInteger CPlayerNatives::ToggleFrozen(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbPlayerFrozen;
@@ -1072,7 +1043,7 @@ SQInteger sq_player_togglefrozen(SQVM * pVM)
 }
 
 // getPlayerState(playerid)
-SQInteger sq_player_getstate(SQVM * pVM)
+SQInteger CPlayerNatives::GetState(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1098,7 +1069,7 @@ SQInteger sq_player_getstate(SQVM * pVM)
 }
 
 // displayPlayerText(playerid, x, y, text, time)
-SQInteger sq_player_displaytext(SQVM * pVM)
+SQInteger CPlayerNatives::DisplayText(SQVM * pVM)
 {
 	EntityId playerId;
 	float fPos[2];
@@ -1127,7 +1098,7 @@ SQInteger sq_player_displaytext(SQVM * pVM)
 }
 
 // displayTextForAll(x, y, text, time)
-SQInteger sq_player_displaytextforall(SQVM * pVM)
+SQInteger CPlayerNatives::DisplayTextForAll(SQVM * pVM)
 {
 	float fPos[2];
 	const char * szText;
@@ -1146,8 +1117,8 @@ SQInteger sq_player_displaytextforall(SQVM * pVM)
 	return 1;
 }
 
-// DisplayInfoText(playerid, text, time)
-SQInteger sq_player_displayinfotext(SQVM * pVM)
+// displayInfoText(playerid, text, time)
+SQInteger CPlayerNatives::DisplayInfoText(SQVM * pVM)
 {
 	EntityId playerId;
 	const char * szText;
@@ -1170,8 +1141,8 @@ SQInteger sq_player_displayinfotext(SQVM * pVM)
 	return 1;
 }
 
-// DisplayInfoTextForAll(playerid, text, time)
-SQInteger sq_player_displayinfotextforall(SQVM * pVM)
+// displayInfoTextForAll(playerid, text, time)
+SQInteger CPlayerNatives::DisplayInfoTextForAll(SQVM * pVM)
 {
 	const char * szText;
 	SQInteger iTime;
@@ -1186,7 +1157,7 @@ SQInteger sq_player_displayinfotextforall(SQVM * pVM)
 }
 
 // setPlayerVelocity(playerid, x, y, z)
-SQInteger sq_player_setvelocity(SQVM * pVM)
+SQInteger CPlayerNatives::SetVelocity(SQVM * pVM)
 {
 	EntityId playerId;
 	CVector3 vecMoveSpeed;
@@ -1207,7 +1178,7 @@ SQInteger sq_player_setvelocity(SQVM * pVM)
 }
 
 // getPlayerVelocity(playerid)
-SQInteger sq_player_getvelocity(SQVM * pVM)
+SQInteger CPlayerNatives::GetVelocity(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1236,7 +1207,7 @@ SQInteger sq_player_getvelocity(SQVM * pVM)
 }
 
 // warpPlayerIntoVehicle(playerid, vehicleid, seatid = 0)
-SQInteger sq_player_warpintovehicle(SQVM * pVM)
+SQInteger CPlayerNatives::WarpIntoVehicle(SQVM * pVM)
 {
 	SQInteger iParams = sq_gettop(pVM) - 1;
 
@@ -1272,7 +1243,7 @@ SQInteger sq_player_warpintovehicle(SQVM * pVM)
 }
 
 // removePlayerFromVehicle(playerid)
-SQInteger sq_player_removefromvehicle(SQVM * pVM)
+SQInteger CPlayerNatives::RemoveFromVehicle(SQVM * pVM)
 {
 	CHECK_PARAMS_MIN("removePlayerFromVehicle", 1);
 	CHECK_TYPE("removePlayerFromVehicle", 1, 2, OT_INTEGER);
@@ -1303,7 +1274,7 @@ SQInteger sq_player_removefromvehicle(SQVM * pVM)
 }
 
 // getPlayerWeapon(playerid)
-SQInteger sq_player_getweapon(SQVM * pVM)
+SQInteger CPlayerNatives::GetWeapon(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1321,7 +1292,7 @@ SQInteger sq_player_getweapon(SQVM * pVM)
 }
 
 // getPlayerAmmo(playerid)
-SQInteger sq_player_getammo(SQVM * pVM)
+SQInteger CPlayerNatives::GetAmmo(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1339,7 +1310,7 @@ SQInteger sq_player_getammo(SQVM * pVM)
 }
 
 // getPlayerSerial(playerid)
-SQInteger sq_player_getserial(SQVM * pVM)
+SQInteger CPlayerNatives::GetSerial(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1357,7 +1328,7 @@ SQInteger sq_player_getserial(SQVM * pVM)
 }
 
 // setCameraBehindPlayer(playerid)
-SQInteger sq_player_setcamerabehind(SQVM * pVM)
+SQInteger CPlayerNatives::SetCameraBehind(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1376,7 +1347,7 @@ SQInteger sq_player_setcamerabehind(SQVM * pVM)
 }
 
 // setPlayerDucking(playerid, ducking)
-SQInteger sq_player_setducking(SQVM * pVM)
+SQInteger CPlayerNatives::SetDucking(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbDucking;
@@ -1397,7 +1368,7 @@ SQInteger sq_player_setducking(SQVM * pVM)
 }
 
 // setPlayerInvincible(playerid, invincible)
-SQInteger sq_player_setinvincible(SQVM * pVM)
+SQInteger CPlayerNatives::SetInvincible(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbInvincible;
@@ -1418,7 +1389,7 @@ SQInteger sq_player_setinvincible(SQVM * pVM)
 }
 
 // togglePlayerHUD(playerid, toggle)
-SQInteger sq_player_togglehud(SQVM * pVM)
+SQInteger CPlayerNatives::ToggleHUD(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbToggle;
@@ -1439,7 +1410,7 @@ SQInteger sq_player_togglehud(SQVM * pVM)
 }
 
 // togglePlayerRadar(playerid, toggle)
-SQInteger sq_player_toggleradar(SQVM * pVM)
+SQInteger CPlayerNatives::ToggleRadar(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbToggle;
@@ -1461,7 +1432,7 @@ SQInteger sq_player_toggleradar(SQVM * pVM)
 }
 
 // togglePlayerNames(playerid, toggle)
-SQInteger sq_player_togglenames(SQVM * pVM)
+SQInteger CPlayerNatives::ToggleNames(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbToggle;
@@ -1483,7 +1454,7 @@ SQInteger sq_player_togglenames(SQVM * pVM)
 }
 
 // togglePlayerAreaNames(playerid, toggle)
-SQInteger sq_player_toggleareanames(SQVM * pVM)
+SQInteger CPlayerNatives::ToggleAreaNames(SQVM * pVM)
 {
 	EntityId playerId;
 	SQBool sqbToggle;
@@ -1505,7 +1476,7 @@ SQInteger sq_player_toggleareanames(SQVM * pVM)
 }
 
 // getEmptyPlayerPadState()
-SQInteger sq_player_getemptypadstate(SQVM * pVM)
+SQInteger CPlayerNatives::GetEmptyPadState(SQVM * pVM)
 {
 	// Create a new pad state
 	CPadState padState;
@@ -1598,7 +1569,7 @@ SQInteger sq_player_getemptypadstate(SQVM * pVM)
 }
 
 // getPlayerPreviousPadState(playerid)
-SQInteger sq_player_getpreviouspadstate(SQVM * pVM)
+SQInteger CPlayerNatives::GetPreviousPadState(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1703,7 +1674,7 @@ SQInteger sq_player_getpreviouspadstate(SQVM * pVM)
 }
 
 // getPlayerPadState(playerid)
-SQInteger sq_player_getpadstate(SQVM * pVM)
+SQInteger CPlayerNatives::GetPadState(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1808,7 +1779,7 @@ SQInteger sq_player_getpadstate(SQVM * pVM)
 }
 
 // triggerClientEvent( playerid, eventname, ... )
-SQInteger sq_player_trigger_event(SQVM * pVM)
+SQInteger CPlayerNatives::TriggerEvent(SQVM * pVM)
 {
 	SQInteger playerid;
 	sq_getinteger(pVM, 2, &playerid);
@@ -1835,7 +1806,7 @@ SQInteger sq_player_trigger_event(SQVM * pVM)
 }
 
 // setPlayerColor(playerid, rgba)
-SQInteger sq_player_setcolor(SQVM * pVM)
+SQInteger CPlayerNatives::SetColor(SQVM * pVM)
 {
 	EntityId playerId;
 	SQInteger color;
@@ -1855,7 +1826,7 @@ SQInteger sq_player_setcolor(SQVM * pVM)
 	return 1;
 }
 
-SQInteger sq_player_getcolor(SQVM * pVM)
+SQInteger CPlayerNatives::GetColor(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);
@@ -1872,7 +1843,7 @@ SQInteger sq_player_getcolor(SQVM * pVM)
 	return 1;
 }
 
-SQInteger sq_player_getping(SQVM* pVM)
+SQInteger CPlayerNatives::GetPing(SQVM* pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);
@@ -1889,7 +1860,7 @@ SQInteger sq_player_getping(SQVM* pVM)
 	return 1;
 }
 
-SQInteger sq_player_setclothes(SQVM * pVM)
+SQInteger CPlayerNatives::SetClothes(SQVM * pVM)
 {
 	SQInteger iPlayerId, iBodyPart, iClothes;
 	sq_getinteger(pVM, 2, &iPlayerId);
@@ -1907,7 +1878,7 @@ SQInteger sq_player_setclothes(SQVM * pVM)
 	return 1;
 }
 
-SQInteger sq_player_getclothes(SQVM * pVM)
+SQInteger CPlayerNatives::GetClothes(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);
@@ -1931,7 +1902,7 @@ SQInteger sq_player_getclothes(SQVM * pVM)
 	return 1;
 }
 
-SQInteger sq_player_resetclothes(SQVM * pVM)
+SQInteger CPlayerNatives::ResetClothes(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);
@@ -1949,7 +1920,7 @@ SQInteger sq_player_resetclothes(SQVM * pVM)
 	return 1;
 }
 
-SQInteger sq_player_respawn(SQVM * pVM)
+SQInteger CPlayerNatives::Respawn(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);
@@ -1967,7 +1938,7 @@ SQInteger sq_player_respawn(SQVM * pVM)
 	return 1;
 }
 
-SQInteger sq_player_givehelmet(SQVM * pVM)
+SQInteger CPlayerNatives::GiveHelmet(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);
@@ -1985,7 +1956,7 @@ SQInteger sq_player_givehelmet(SQVM * pVM)
 	return 1;
 }
 
-SQInteger sq_player_removehelmet(SQVM * pVM)
+SQInteger CPlayerNatives::RemoveHelmet(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);

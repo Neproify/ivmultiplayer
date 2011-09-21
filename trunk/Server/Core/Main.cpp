@@ -37,8 +37,8 @@
 #include "CEvents.h"
 #include <Game/CTrafficLights.h>
 #include <Network/CNetworkModule.h>
-#include <CMutex.h>
-#include <CThread.h>
+#include <Threading/CMutex.h>
+#include <Threading/CThread.h>
 #include "CQuery.h"
 #include <CExceptionHandler.h>
 
@@ -67,7 +67,7 @@ CTime * g_pTime = NULL;
 CTrafficLights * g_pTrafficLights = NULL;
 CEvents * g_pEvents = NULL;
 extern CScriptTimerManager * g_pScriptTimerManager;
-DWORD g_dwStartTick = 0;
+unsigned long g_ulStartTick = 0;
 CMutex consoleInputQueueMutex;
 std::queue<String> consoleInputQueue;
 CQuery * g_pQuery = NULL;
@@ -276,7 +276,7 @@ void SendConsoleInput(String strInput)
 		}
 		else if(strCommand == "uptime")
 		{
-			CLogFile::Printf("Server has been online for %s", SharedUtility::GetTimePassedFromTime(g_dwStartTick).Get());
+			CLogFile::Printf("Server has been online for %s.", SharedUtility::GetTimePassedFromTime(g_ulStartTick).Get());
 		}
 		else if(strCommand == "quit" || strCommand == "exit")
 		{
@@ -420,13 +420,13 @@ int main(int argc, char ** argv)
 	CWorldNatives::Register(g_pScriptingManager);
 
 	// Register the player natives
-	RegisterPlayerNatives(g_pScriptingManager);
+	CPlayerNatives::Register(g_pScriptingManager);
 
 	// Register the vehicle natives
 	CVehicleNatives::Register(g_pScriptingManager);
 
 	// Register the object natives
-	RegisterObjectNatives(g_pScriptingManager);
+	CObjectNatives::Register(g_pScriptingManager);
 
 	// Register the blip natives
 	CBlipNatives::Register(g_pScriptingManager);
@@ -464,7 +464,7 @@ int main(int argc, char ** argv)
 	// Register the default constants
 	g_pScriptingManager->RegisterDefaultConstants();
 
-	g_dwStartTick = SharedUtility::GetTime();
+	g_ulStartTick = SharedUtility::GetTime();
 
 	CLogFile::Print("Loading resources");
 	CLogFile::Print("------------------");
