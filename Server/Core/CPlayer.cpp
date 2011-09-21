@@ -515,6 +515,22 @@ int CPlayer::GetModel()
 	return m_iModelId;
 }
 
+void CPlayer::SetCameraPos(CVector3 vecPosition)
+{
+	memcpy(&m_vecPosition, &vecPosition, sizeof(CVector3));
+	CBitStream bsSend;
+	bsSend.Write(vecPosition);
+	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraPos, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
+}
+
+void CPlayer::SetCameraLookAt(CVector3 vecPosition)
+{
+	memcpy(&m_vecPosition, &vecPosition, sizeof(CVector3));
+	CBitStream bsSend;
+	bsSend.Write(vecPosition);
+	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraLookAt, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
+}
+
 void CPlayer::SetPosition(CVector3 vecPosition)
 {
 	memcpy(&m_vecPosition, &vecPosition, sizeof(CVector3));

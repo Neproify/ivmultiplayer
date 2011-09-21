@@ -58,6 +58,7 @@ extern CEvents * g_pEvents;
 extern CNameTags * g_pNameTags;
 
 bool m_bControlsDisabled = false;
+unsigned int cam_pos;
 
 void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -1116,6 +1117,34 @@ void CClientRPCHandler::ScriptingSetPlayerCoordinates(CBitStream * pBitStream, C
 	CVector3 vecPosition;
 	pBitStream->Read(vecPosition);
 	g_pLocalPlayer->Teleport(&vecPosition);
+}
+
+void CClientRPCHandler::ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	CVector3 vecPosition;
+	pBitStream->Read(vecPosition);
+	Scripting::ActivateScriptedCams(true, true);
+	Scripting::CreateCam(14, &cam_pos);
+	Scripting::SetCamPos(cam_pos, vecPosition.fX,vecPosition.fY,vecPosition.fZ);
+	CGame::GetStreaming()->LoadWorldAtPosition(vecPosition);
+	Scripting::SetCamActive(cam_pos, true);
+	Scripting::SetCamPropagate(cam_pos, true);
+}
+
+void CClientRPCHandler::ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	CVector3 vecPosition;
+	pBitStream->Read(vecPosition);
+	if(!Scripting::IsCamActive(cam_pos)) return; // cam need to be pos before
+	Scripting::PointCamAtCoord(cam_pos, vecPosition.fX,vecPosition.fY,vecPosition.fZ);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerTime(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2195,6 +2224,8 @@ void CClientRPCHandler::Register()
 	// Scripting
 	AddFunction(RPC_ScriptingSetPlayerHealth, ScriptingSetPlayerHealth);
 	AddFunction(RPC_ScriptingSetPlayerCoordinates, ScriptingSetPlayerCoordinates);
+	AddFunction(RPC_ScriptingSetPlayerCameraPos, ScriptingSetPlayerCameraPos);
+	AddFunction(RPC_ScriptingSetPlayerCameraLookAt, ScriptingSetPlayerCameraLookAt);
 	AddFunction(RPC_ScriptingSetPlayerTime, ScriptingSetPlayerTime);
 	AddFunction(RPC_ScriptingSetPlayerWeather, ScriptingSetPlayerWeather);
 	AddFunction(RPC_ScriptingTogglePayAndSpray, ScriptingTogglePayAndSpray);
@@ -2301,6 +2332,8 @@ void CClientRPCHandler::Unregister()
 	// Scripting
 	RemoveFunction(RPC_ScriptingSetPlayerHealth);
 	RemoveFunction(RPC_ScriptingSetPlayerCoordinates);
+	RemoveFunction(RPC_ScriptingSetPlayerCameraPos);
+	RemoveFunction(RPC_ScriptingSetPlayerCameraLookAt);
 	RemoveFunction(RPC_ScriptingSetPlayerTime);
 	RemoveFunction(RPC_ScriptingSetPlayerWeather);
 	RemoveFunction(RPC_ScriptingTogglePayAndSpray);

@@ -77,6 +77,8 @@ public:
 	bool           IsSpawned();
 	bool           SetModel(int iModelId);
 	int            GetModel();
+	void           SetCameraPos(CVector3 vecPosition);
+	void           SetCameraLookAt(CVector3 vecPosition);
 	void           SetPosition(CVector3 vecPosition);
 	void           GetPosition(CVector3 * vecPosition);
 	void           SetCurrentHeading(float fHeading);
