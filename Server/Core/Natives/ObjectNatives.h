@@ -12,12 +12,17 @@
 
 #include "../Natives.h"
 
-void RegisterObjectNatives(CScriptingManager * pScriptingManager);
+class CObjectNatives
+{
+private:
+	static SQInteger Create(SQVM * pVM);
+	static SQInteger Delete(SQVM * pVM);
+	static SQInteger GetModel(SQVM * pVM);
+	static SQInteger GetCoordinates(SQVM * pVM);
+	static SQInteger SetCoordinates(SQVM * pVM);
+	static SQInteger GetRotation(SQVM * pVM);
+	static SQInteger SetRotation(SQVM * pVM);
 
-SQUIRREL_FUNCTION(object_create);
-SQUIRREL_FUNCTION(object_delete);
-SQUIRREL_FUNCTION(object_getmodel);
-SQUIRREL_FUNCTION(object_getcoordinates);
-SQUIRREL_FUNCTION(object_setcoordinates);
-SQUIRREL_FUNCTION(object_getrotation);
-SQUIRREL_FUNCTION(object_setrotation);
+public:
+	static void      Register(CScriptingManager * pScriptingManager);
+};
