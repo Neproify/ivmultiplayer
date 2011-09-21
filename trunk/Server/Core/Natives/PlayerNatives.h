@@ -21,6 +21,8 @@ SQUIRREL_FUNCTION(player_sethealth);
 SQUIRREL_FUNCTION(player_gethealth);
 SQUIRREL_FUNCTION(player_setarmour);
 SQUIRREL_FUNCTION(player_getarmour);
+SQUIRREL_FUNCTION(player_setcamerapos);
+SQUIRREL_FUNCTION(player_setcameralookat);
 SQUIRREL_FUNCTION(player_setcoordinates);
 SQUIRREL_FUNCTION(player_getcoordinates);
 SQUIRREL_FUNCTION(player_settime);

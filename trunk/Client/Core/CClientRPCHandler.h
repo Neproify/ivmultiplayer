@@ -55,6 +55,8 @@ private:
 	// Scripting
 	static void ScriptingSetPlayerHealth(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerTime(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerWeather(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingTogglePayAndSpray(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

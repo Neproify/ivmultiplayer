@@ -35,6 +35,8 @@ void RegisterPlayerNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerArmour", sq_player_getarmour, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerCoordinates", sq_player_setcoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("getPlayerCoordinates", sq_player_getcoordinates, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerCameraPos", sq_player_setcamerapos, 4, "ifff");
+	pScriptingManager->RegisterFunction("setPlayerCameraLookAt", sq_player_setcameralookat, 4, "ifff");
 	pScriptingManager->RegisterFunction("setPlayerPosition", sq_player_setcoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("getPlayerPosition", sq_player_getcoordinates, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerTime", sq_player_settime, 3, "iii");
@@ -284,6 +286,46 @@ SQInteger sq_player_getarmour(SQVM * pVM)
 	{
 		sq_pushinteger(pVM, pPlayer->GetArmour());
 		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerCameraPos(playerid, x, y, z)
+SQInteger sq_player_setcamerapos(SQVM * pVM)
+{
+	EntityId playerId;
+	CVector3 vecPos;
+	sq_getentity(pVM, -4, &playerId);
+	sq_getvector3(pVM, -3, &vecPos);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(vecPos);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraPos, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerCameraLookAt(playerid, x, y, z)
+SQInteger sq_player_setcameralookat(SQVM * pVM)
+{
+	EntityId playerId;
+	CVector3 vecPos;
+	sq_getentity(pVM, -4, &playerId);
+	sq_getvector3(pVM, -3, &vecPos);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(vecPos);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraLookAt, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
 	}
 
 	sq_pushbool(pVM, false);

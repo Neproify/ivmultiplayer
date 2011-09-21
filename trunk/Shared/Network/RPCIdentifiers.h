@@ -20,6 +20,8 @@ enum eRPCIdentfiers
 	RPC_ScriptingToggleAutoAim,
 	RPC_ScriptingGivePlayerWeapon,
 	RPC_ScriptingSetPlayerHealth,
+	RPC_ScriptingSetPlayerCameraPos,
+	RPC_ScriptingSetPlayerCameraLookAt,
 	RPC_ScriptingSetPlayerCoordinates,
 	RPC_ScriptingSetPlayerTime,
 	RPC_ScriptingSetPlayerWeather,
