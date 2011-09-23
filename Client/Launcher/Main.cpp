@@ -101,13 +101,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ShowMessageBox("LaunchGTAIV.exe is already running. Cannot launch IV: Multiplayer.");
 		return 1;
 	}
-
-	// Check if GTAIV.exe is already running
-	if(SharedUtility::IsProcessRunning("GTAIV.exe"))
+	
+	// Check if GTAIV is already running
+	SetLastError(0);
+	HANDLE hMutex = CreateMutex(NULL, NULL, L"GTANY-088FA840-B10D-11D3-BC36-006067709674");
+	if(GetLastError() != 0)
 	{
-		ShowMessageBox("GTAIV.exe is already running. Cannot launch IV: Multiplayer.");
+		ShowMessageBox("GTA:IV is already running. Cannot launch IV: Multiplayer.");
 		return 1;
 	}
+	if(hMutex != NULL)
+		CloseHandle(hMutex);
 
 	// Generate the command line
 	String strCommandLine("%s %s", strApplicationPath.Get(), lpCmdLine);
