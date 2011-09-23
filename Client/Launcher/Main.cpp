@@ -104,7 +104,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	// Check if GTAIV is already running
 	SetLastError(0);
-	HANDLE hMutex = CreateMutex(NULL, NULL, L"GTANY-088FA840-B10D-11D3-BC36-006067709674");
+	HANDLE hMutex = CreateMutex(NULL, NULL, "GTANY-088FA840-B10D-11D3-BC36-006067709674");
 	if(GetLastError() != 0)
 	{
 		ShowMessageBox("GTA:IV is already running. Cannot launch IV: Multiplayer.");
