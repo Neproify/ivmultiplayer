@@ -30,6 +30,7 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("setVehicleRotation", SetRotation, 4, "ifff");
 	pScriptingManager->RegisterFunction("setVehicleSirenState", SetSirenState, 2, "ib");
 	pScriptingManager->RegisterFunction("setVehicleDirtLevel", SetDirtLevel, 2, "if");
+	pScriptingManager->RegisterFunction("getVehicleDirtLevel", GetDirtLevel, 1, "i");
 	pScriptingManager->RegisterFunction("soundVehicleHorn", SoundHorn, 2, "ii");
 	pScriptingManager->RegisterFunction("getVehicleRotation", GetRotation, 1, "i");
 	pScriptingManager->RegisterFunction("isVehicleValid", IsValid, 1, "i");
@@ -206,6 +207,24 @@ SQInteger CVehicleNatives::SetDirtLevel(SQVM * pVM)
 
 			sq_pushbool(pVM, true);
 
+			return 1;
+		}
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::GetDirtLevel(SQVM * pVM)
+{
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+	if(g_pVehicleManager->DoesExist(vehicleid))
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
+
+		if(pVehicle)
+		{
+			sq_pushfloat(pVM, (float)pVehicle->GetDirtLevel());
 			return 1;
 		}
 	}

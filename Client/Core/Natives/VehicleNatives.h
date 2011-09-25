@@ -25,6 +25,7 @@ private:
 	static SQInteger GetVelocity(SQVM * pVM);
 	static SQInteger GetAngularVelocity(SQVM * pVM);
 	static SQInteger GetLocked(SQVM * pVM);
+	static SQInteger GetDirtLevel(SQVM * pVM);
 public:
 	static void      Register(CScriptingManager * pScriptingManager);
 };
