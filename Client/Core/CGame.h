@@ -74,7 +74,6 @@ public:
 	static void            Initialize();
 	static void            Shutdown();
 	static bool            Patch();
-	static void            StartGame();
 	static bool            IsMenuActive();
 	static void            SetTime(int uHour, int uMinute);
 	static void            SetDayOfWeek(int uDay);
@@ -110,4 +109,5 @@ public:
 	static bool            DeleteFire(unsigned int uiFire);
 	static void          * Alloc(DWORD dwSize);
 	static void            Free(void * pMemory);
+	static void            ToggleLazlowStation(bool bToggle);
 };

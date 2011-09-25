@@ -19,12 +19,15 @@
 #include "CIVTask.h"
 #include "CPools.h"
 #include "IVTasks.h"
+#include "CCamera.h"
 
-extern CNetworkManager    * g_pNetworkManager;
-extern CVehicleManager    * g_pVehicleManager;
-extern CPlayerManager     * g_pPlayerManager;
-extern CLocalPlayer       * g_pLocalPlayer;
-extern bool                 m_bControlsDisabled;
+extern CNetworkManager * g_pNetworkManager;
+extern CVehicleManager * g_pVehicleManager;
+extern CPlayerManager  * g_pPlayerManager;
+extern CLocalPlayer    * g_pLocalPlayer;
+extern CCamera         * g_pCamera;
+extern CStreamer       * g_pStreamer;
+extern bool              m_bControlsDisabled;
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 {
@@ -586,7 +589,7 @@ bool CNetworkPlayer::IsMoving()
 	if(IsSpawned())
 	{
 		CVector3 vecMoveSpeed;
-		GetMoveSpeed(&vecMoveSpeed);
+		GetMoveSpeed(vecMoveSpeed);
 
 		// TODO: This should use code reversed from the IS_CHAR_STOPPED native?
 		if(!(vecMoveSpeed.fX == 0 && vecMoveSpeed.fY == 0 && (vecMoveSpeed.fZ >= -0.000020 && vecMoveSpeed.fZ <= 0.000020)))
@@ -599,7 +602,7 @@ bool CNetworkPlayer::IsMoving()
 void CNetworkPlayer::StopMoving()
 {
 	if(IsSpawned())
-		SetMoveSpeed(&CVector3());
+		SetMoveSpeed(CVector3());
 }
 
 bool CNetworkPlayer::InternalIsInVehicle()
@@ -647,7 +650,7 @@ void CNetworkPlayer::InternalRemoveFromVehicle()
 		// Find a task to set a ped out of a vehicle (like sa)
 		// Warp ourselves out of the vehicle
 		CVector3 vecPos;
-		m_pVehicle->GetPosition(&vecPos);
+		m_pVehicle->GetPosition(vecPos);
 		Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecPos.fX, vecPos.fY, (vecPos.fZ + 1.0f));
 	}
 }
@@ -732,7 +735,7 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 	}
 }
 
-void CNetworkPlayer::Teleport(CVector3 * vecCoordinates, bool bResetInterpolation)
+void CNetworkPlayer::Teleport(const CVector3& vecCoordinates, bool bResetInterpolation)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -742,7 +745,7 @@ void CNetworkPlayer::Teleport(CVector3 * vecCoordinates, bool bResetInterpolatio
 		{
 			// FIXUPDATE
 			// Reverse code from below native and use it here
-			Scripting::SetCharCoordinatesNoOffset(GetScriptingHandle(), vecCoordinates->fX, vecCoordinates->fY, vecCoordinates->fZ);
+			Scripting::SetCharCoordinatesNoOffset(GetScriptingHandle(), vecCoordinates.fX, vecCoordinates.fY, vecCoordinates.fZ);
 
 			/*
 			// This still causes players to be invisible occasionally
@@ -758,7 +761,7 @@ void CNetworkPlayer::Teleport(CVector3 * vecCoordinates, bool bResetInterpolatio
 			*/
 		}
 		else
-			Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecCoordinates->fX, vecCoordinates->fY, vecCoordinates->fZ);
+			Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecCoordinates.fX, vecCoordinates.fY, vecCoordinates.fZ);
 	}
 
 	// Reset interpolation if requested
@@ -766,7 +769,7 @@ void CNetworkPlayer::Teleport(CVector3 * vecCoordinates, bool bResetInterpolatio
 		RemoveTargetPosition();
 }
 
-void CNetworkPlayer::SetPosition(CVector3 * vecCoordinates, bool bResetInterpolation)
+void CNetworkPlayer::SetPosition(const CVector3& vecCoordinates, bool bResetInterpolation)
 {
 	// FIXUPDATE
 	// This doesn't work for long distances
@@ -805,7 +808,7 @@ void CNetworkPlayer::SetPosition(CVector3 * vecCoordinates, bool bResetInterpola
 		RemoveTargetPosition();
 }
 
-void CNetworkPlayer::GetPosition(CVector3 * vecCoordinates)
+void CNetworkPlayer::GetPosition(CVector3& vecCoordinates)
 {
 	if(IsSpawned())
 	{
@@ -814,11 +817,9 @@ void CNetworkPlayer::GetPosition(CVector3 * vecCoordinates)
 			m_pVehicle->GetPosition(vecCoordinates);
 		else
 			m_pPlayerPed->GetPosition(vecCoordinates);
-
-		return;
 	}
-
-	memset(vecCoordinates, 0, sizeof(CVector3));
+	else
+		vecCoordinates = CVector3();
 }
 
 void CNetworkPlayer::SetCurrentHeading(float fHeading)
@@ -852,38 +853,32 @@ float CNetworkPlayer::GetDesiredHeading()
 	return 0.0f;
 }
 
-void CNetworkPlayer::SetMoveSpeed(CVector3 * vecMoveSpeed)
+void CNetworkPlayer::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
 	if(IsSpawned())
 		m_pPlayerPed->SetMoveSpeed(vecMoveSpeed);
 }
 
-void CNetworkPlayer::GetMoveSpeed(CVector3 * vecMoveSpeed)
+void CNetworkPlayer::GetMoveSpeed(CVector3& vecMoveSpeed)
 {
 	if(IsSpawned())
-	{
 		m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
-		return;
-	}
-
-	memset(vecMoveSpeed, 0, sizeof(CVector3));
+	else
+		vecMoveSpeed = CVector3();
 }
 
-void CNetworkPlayer::SetTurnSpeed(CVector3 * vecTurnSpeed)
+void CNetworkPlayer::SetTurnSpeed(const CVector3& vecTurnSpeed)
 {
 	if(IsSpawned())
 		m_pPlayerPed->SetTurnSpeed(vecTurnSpeed);
 }
 
-void CNetworkPlayer::GetTurnSpeed(CVector3 * vecTurnSpeed)
+void CNetworkPlayer::GetTurnSpeed(CVector3& vecTurnSpeed)
 {
 	if(IsSpawned())
-	{
 		m_pPlayerPed->GetTurnSpeed(vecTurnSpeed);
-		return;
-	}
-
-	memset(vecTurnSpeed, 0, sizeof(CVector3));
+	else
+		vecTurnSpeed = CVector3();
 }
 
 void CNetworkPlayer::SetHealth(unsigned int uiHealth)
@@ -1235,7 +1230,7 @@ void CNetworkPlayer::UpdateTargetPosition()
 
 		// Get our position
 		CVector3 vecCurrentPosition;
-		GetPosition(&vecCurrentPosition);
+		GetPosition(vecCurrentPosition);
 
 		// Get the factor of time spent from the interpolation start
 		// to the current time.
@@ -1267,7 +1262,7 @@ void CNetworkPlayer::UpdateTargetPosition()
 		}
 
 		// Set our new position
-		SetPosition(&vecNewPosition, false);
+		SetPosition(vecNewPosition, false);
 	}
 }
 
@@ -1288,7 +1283,7 @@ void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned lon
 
 		// Get our position
 		CVector3 vecCurrentPosition;
-		GetPosition(&vecCurrentPosition);
+		GetPosition(vecCurrentPosition);
 
 		// Set the target position
 		m_interp.pos.vecTarget = vecPosition;
@@ -1390,9 +1385,8 @@ bool CNetworkPlayer::IsDucking()
 
 void CNetworkPlayer::SetCameraBehind()
 {
-	// TODO: Move this to CCamera class (CCamera::SetBehindPlayer(CNetworkPlayer * pPlayer))
 	if(IsSpawned())
-		Scripting::SetCamBehindPed(GetScriptingHandle());
+		g_pCamera->SetBehindPed(m_pPlayerPed);
 }
 
 void CNetworkPlayer::Pulse()
@@ -1557,7 +1551,7 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 
 		// Get our position
 		CVector3 vecPlayerPos;
-		GetPosition(&vecPlayerPos);
+		GetPosition(vecPlayerPos);
 
 		// Loop through all streamed in vehicles
 		std::list<CStreamableEntity *> * streamedVehicles = g_pStreamer->GetStreamedInEntitiesOfType(STREAM_ENTITY_VEHICLE);
@@ -1567,7 +1561,7 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 			CNetworkVehicle * pTestVehicle = reinterpret_cast<CNetworkVehicle *>(*iter);
 
 			// Get the vehicle position
-			pTestVehicle->GetPosition(&vecVehiclePos);
+			pTestVehicle->GetPosition(vecVehiclePos);
 
 			// Get the distance between us and the vehicle
 			float fDistance = Math::GetDistanceBetweenPoints3D(vecPlayerPos.fX, vecPlayerPos.fY, vecPlayerPos.fZ, vecVehiclePos.fX, vecVehiclePos.fY, vecVehiclePos.fZ);
@@ -2062,7 +2056,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 						{
 							// Get our position
 							CVector3 vecPosition;
-							GetPosition(&vecPosition);
+							GetPosition(vecPosition);
 
 							// Send the network rpc
 							CBitStream bitStream;

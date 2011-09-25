@@ -33,32 +33,33 @@
 #include "CNameTags.h"
 #include "COffsets.h"
 #include "CIVWeather.h"
+#include "CCamera.h"
 
-extern String g_strNick;
-extern String g_strHost;
-extern CLocalPlayer * g_pLocalPlayer;
-extern CNetworkManager * g_pNetworkManager;
-extern CChatWindow * g_pChatWindow;
-extern CPlayerManager * g_pPlayerManager;
-extern CVehicleManager * g_pVehicleManager;
-extern CObjectManager * g_pObjectManager;
-extern CBlipManager * g_pBlipManager;
-extern CActorManager * g_pActorManager;
-extern CCheckpointManager * g_pCheckpointManager;
-extern CPickupManager * g_pPickupManager;
-extern CModelManager * g_pModelManager;
-extern CMainMenu * g_pMainMenu;
+extern String                 g_strNick;
+extern String                 g_strHost;
+extern CLocalPlayer         * g_pLocalPlayer;
+extern CNetworkManager      * g_pNetworkManager;
+extern CChatWindow          * g_pChatWindow;
+extern CPlayerManager       * g_pPlayerManager;
+extern CVehicleManager      * g_pVehicleManager;
+extern CObjectManager       * g_pObjectManager;
+extern CBlipManager         * g_pBlipManager;
+extern CActorManager        * g_pActorManager;
+extern CCheckpointManager   * g_pCheckpointManager;
+extern CPickupManager       * g_pPickupManager;
+extern CModelManager        * g_pModelManager;
+extern CMainMenu            * g_pMainMenu;
 extern CClientScriptManager * g_pClientScriptManager;
-extern CFileTransfer * g_pFileTransfer;
-extern CTime * g_pTime;
-extern CTrafficLights * g_pTrafficLights;
-extern CScriptingManager * g_pScriptingManager;
-extern CTime * g_pTime;
-extern CEvents * g_pEvents;
-extern CNameTags * g_pNameTags;
+extern CFileTransfer        * g_pFileTransfer;
+extern CTime                * g_pTime;
+extern CTrafficLights       * g_pTrafficLights;
+extern CScriptingManager    * g_pScriptingManager;
+extern CTime                * g_pTime;
+extern CEvents              * g_pEvents;
+extern CNameTags            * g_pNameTags;
+extern CCamera              * g_pCamera;
 
 bool m_bControlsDisabled = false;
-unsigned int cam_pos;
 
 void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -286,10 +287,10 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	pVehicle->SetHealth(uiHealth);
 
 	// Set the vehicle turn speed vector
-	pVehicle->SetTurnSpeed(&vecTurnSpeed);
+	pVehicle->SetTurnSpeed(vecTurnSpeed);
 
 	// Set the vehicle move speed vector
-	pVehicle->SetMoveSpeed(&vecMoveSpeed);
+	pVehicle->SetMoveSpeed(vecMoveSpeed);
 
 	// Set the vehicle dirt level
 	pVehicle->SetDirtLevel(fDirtLevel);
@@ -1116,35 +1117,7 @@ void CClientRPCHandler::ScriptingSetPlayerCoordinates(CBitStream * pBitStream, C
 
 	CVector3 vecPosition;
 	pBitStream->Read(vecPosition);
-	g_pLocalPlayer->Teleport(&vecPosition);
-}
-
-void CClientRPCHandler::ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
-{
-	// Ensure we have a valid bit stream
-	if(!pBitStream)
-		return;
-
-	CVector3 vecPosition;
-	pBitStream->Read(vecPosition);
-	Scripting::ActivateScriptedCams(true, true);
-	Scripting::CreateCam(14, &cam_pos);
-	Scripting::SetCamPos(cam_pos, vecPosition.fX,vecPosition.fY,vecPosition.fZ);
-	CGame::GetStreaming()->LoadWorldAtPosition(vecPosition);
-	Scripting::SetCamActive(cam_pos, true);
-	Scripting::SetCamPropagate(cam_pos, true);
-}
-
-void CClientRPCHandler::ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
-{
-	// Ensure we have a valid bit stream
-	if(!pBitStream)
-		return;
-
-	CVector3 vecPosition;
-	pBitStream->Read(vecPosition);
-	if(!Scripting::IsCamActive(cam_pos)) return; // cam need to be pos before
-	Scripting::PointCamAtCoord(cam_pos, vecPosition.fX,vecPosition.fY,vecPosition.fZ);
+	g_pLocalPlayer->Teleport(vecPosition);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerTime(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1567,7 +1540,7 @@ void CClientRPCHandler::ScriptingSetPlayerMoveSpeed(CBitStream * pBitStream, CPl
 
 	CVector3 vecMoveSpeed;
 	pBitStream->Read(vecMoveSpeed);
-	g_pLocalPlayer->SetMoveSpeed(&vecMoveSpeed);
+	g_pLocalPlayer->SetMoveSpeed(vecMoveSpeed);
 }
 
 void CClientRPCHandler::ScriptingSetVehicleMoveSpeed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1583,7 +1556,7 @@ void CClientRPCHandler::ScriptingSetVehicleMoveSpeed(CBitStream * pBitStream, CP
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
 	if(pVehicle)
-		pVehicle->SetMoveSpeed(&vecMoveSpeed);
+		pVehicle->SetMoveSpeed(vecMoveSpeed);
 }
 
 void CClientRPCHandler::ScriptingRemoveWeapons(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2186,6 +2159,44 @@ void CClientRPCHandler::ScriptingSetPickupRotation(CBitStream * pBitStream, CPla
 	}
 }
 
+void CClientRPCHandler::ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	// Read the camera position
+	CVector3 vecPosition;
+
+	if(!pBitStream->Read(vecPosition))
+		return;
+
+	// Set the camera position
+	g_pCamera->SetPosition(vecPosition);
+}
+
+void CClientRPCHandler::ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	// Read the camera look at
+	CVector3 vecLookAt;
+
+	if(!pBitStream->Read(vecLookAt))
+		return;
+
+	// Set the camera look at
+	g_pCamera->SetLookAt(vecLookAt);
+}
+
+void CClientRPCHandler::ScriptingResetPlayerCamera(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Reset the camera
+	g_pCamera->Reset();
+}
+
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -2224,8 +2235,6 @@ void CClientRPCHandler::Register()
 	// Scripting
 	AddFunction(RPC_ScriptingSetPlayerHealth, ScriptingSetPlayerHealth);
 	AddFunction(RPC_ScriptingSetPlayerCoordinates, ScriptingSetPlayerCoordinates);
-	AddFunction(RPC_ScriptingSetPlayerCameraPos, ScriptingSetPlayerCameraPos);
-	AddFunction(RPC_ScriptingSetPlayerCameraLookAt, ScriptingSetPlayerCameraLookAt);
 	AddFunction(RPC_ScriptingSetPlayerTime, ScriptingSetPlayerTime);
 	AddFunction(RPC_ScriptingSetPlayerWeather, ScriptingSetPlayerWeather);
 	AddFunction(RPC_ScriptingTogglePayAndSpray, ScriptingTogglePayAndSpray);
@@ -2234,13 +2243,10 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingGivePlayerWeapon, ScriptingGivePlayerWeapon);
 	AddFunction(RPC_ScriptingSetPlayerGravity, ScriptingSetPlayerGravity);
 	AddFunction(RPC_ScriptingSetSpawnLocation, ScriptingSetSpawnLocation);
-
 	AddFunction(RPC_ScriptingSetVehicleIndicators, ScriptingSetVehicleIndicators);
 	AddFunction(RPC_ScriptingSoundVehicleHorn, ScriptingSoundVehicleHorn);
-
 	AddFunction(RPC_ScriptingGiveHelmet, ScriptingGiveHelmet);
 	AddFunction(RPC_ScriptingRemoveHelmet, ScriptingRemoveHelmet);
-
 	AddFunction(RPC_ScriptingSetModel, ScriptingSetModel);
 	AddFunction(RPC_ScriptingToggleControls, ScriptingToggleControls);
 	AddFunction(RPC_ScriptingSetHeading, ScriptingSetHeading);
@@ -2292,6 +2298,9 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingSetObjectRotation, ScriptingSetObjectRotation);
 	AddFunction(RPC_ScriptingSetPickupPosition, ScriptingSetPickupPosition);
 	AddFunction(RPC_ScriptingSetPickupRotation, ScriptingSetPickupRotation);
+	AddFunction(RPC_ScriptingSetPlayerCameraPos, ScriptingSetPlayerCameraPos);
+	AddFunction(RPC_ScriptingSetPlayerCameraLookAt, ScriptingSetPlayerCameraLookAt);
+	AddFunction(RPC_ScriptingResetPlayerCamera, ScriptingResetPlayerCamera);
 }
 
 void CClientRPCHandler::Unregister()
@@ -2332,8 +2341,6 @@ void CClientRPCHandler::Unregister()
 	// Scripting
 	RemoveFunction(RPC_ScriptingSetPlayerHealth);
 	RemoveFunction(RPC_ScriptingSetPlayerCoordinates);
-	RemoveFunction(RPC_ScriptingSetPlayerCameraPos);
-	RemoveFunction(RPC_ScriptingSetPlayerCameraLookAt);
 	RemoveFunction(RPC_ScriptingSetPlayerTime);
 	RemoveFunction(RPC_ScriptingSetPlayerWeather);
 	RemoveFunction(RPC_ScriptingTogglePayAndSpray);
@@ -2342,13 +2349,10 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingSetPlayerGravity);
 	RemoveFunction(RPC_ScriptingGivePlayerWeapon);
 	RemoveFunction(RPC_ScriptingSetSpawnLocation);
-
 	RemoveFunction(RPC_ScriptingSetVehicleIndicators);
 	RemoveFunction(RPC_ScriptingSoundVehicleHorn);
-
 	RemoveFunction(RPC_ScriptingGiveHelmet);
 	RemoveFunction(RPC_ScriptingRemoveHelmet);
-
 	RemoveFunction(RPC_ScriptingSetModel);
 	RemoveFunction(RPC_ScriptingToggleControls);
 	RemoveFunction(RPC_ScriptingSetHeading);
@@ -2397,4 +2401,7 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingSetObjectRotation);
 	RemoveFunction(RPC_ScriptingSetPickupPosition);
 	RemoveFunction(RPC_ScriptingSetPickupRotation);
+	RemoveFunction(RPC_ScriptingSetPlayerCameraPos);
+	RemoveFunction(RPC_ScriptingSetPlayerCameraLookAt);
+	RemoveFunction(RPC_ScriptingResetPlayerCamera);
 }

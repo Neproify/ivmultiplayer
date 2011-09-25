@@ -15,6 +15,7 @@
 #include <SharedUtility.h>
 
 extern CLocalPlayer * g_pLocalPlayer;
+extern CStreamer    * g_pStreamer;
 
 CStreamableEntity::CStreamableEntity(eStreamEntityType eType, float fDistance)
 {
@@ -144,15 +145,19 @@ void CStreamer::Reset()
 
 inline bool SortStreamableEntites(CStreamableEntity * pEntity, CStreamableEntity * pOther)
 {
+	// Get the local player position
 	CVector3 vecPlayerPos;
-	g_pLocalPlayer->GetPosition(&vecPlayerPos);
+	g_pLocalPlayer->GetPosition(vecPlayerPos);
 
+	// Get the first entities position
 	CVector3 vecPos;
-	pEntity->GetStreamPosition(&vecPos);
+	pEntity->GetStreamPosition(vecPos);
 
+	// Get the second entities position
 	CVector3 vecPosOther;
-	pOther->GetStreamPosition(&vecPosOther);
+	pOther->GetStreamPosition(vecPosOther);
 
+	// Compare the positions against the local player position
 	return (Math::GetDistanceBetweenPoints3D(vecPlayerPos.fX, vecPlayerPos.fY, vecPlayerPos.fZ, vecPos.fX, vecPos.fY, vecPos.fZ) < Math::GetDistanceBetweenPoints3D(vecPlayerPos.fX, vecPlayerPos.fY, vecPlayerPos.fZ, vecPosOther.fX, vecPosOther.fY, vecPosOther.fZ));
 }
 
@@ -169,7 +174,7 @@ void CStreamer::Pulse()
 		std::list<CStreamableEntity *> newEntities[STREAM_ENTITY_MAX];
 
 		CVector3 vecPlayerPos;
-		g_pLocalPlayer->GetPosition(&vecPlayerPos);
+		g_pLocalPlayer->GetPosition(vecPlayerPos);
 
 		// Loop through all streamable elements
 		for(iterator iter = begin(); iter != end(); ++ iter)
@@ -179,7 +184,7 @@ void CStreamer::Pulse()
 			{
 				// check distance
 				CVector3 vecPos;
-				(*iter)->GetStreamPosition(&vecPos);
+				(*iter)->GetStreamPosition(vecPos);
 				float fDistance = (vecPlayerPos - vecPos).Length();
 				bool bInRange = (fDistance <= (*iter)->GetStreamingDistance());
 

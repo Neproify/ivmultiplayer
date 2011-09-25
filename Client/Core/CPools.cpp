@@ -8,16 +8,28 @@
 //==============================================================================
 
 #include "CPools.h"
+#include "COffsets.h"
 
 void CPools::Initialize()
 {
-	m_pPedPool = new CIVPool<IVPed>(*(IVPool **)(CGame::GetBase() + VAR_PedPool_7));
-	m_pVehiclePool = new CIVPool<IVVehicle>(*(IVPool **)(CGame::GetBase() + VAR_VehiclePool_7));
-	m_pTaskPool = new CIVPool<IVTask>(*(IVPool **)(CGame::GetBase() + VAR_TaskPool_7));
+	// Initialize game pools
+	m_pPedPool = new CIVPool<IVPed>(*(IVPool **)COffsets::VAR_PedPool);
+	m_pVehiclePool = new CIVPool<IVVehicle>(*(IVPool **)COffsets::VAR_VehiclePool);
+	m_pTaskPool = new CIVPool<IVTask>(*(IVPool **)COffsets::VAR_TaskPool);
+	m_pCamPool = new CIVPool<IVCam>(*(IVPool **)COffsets::VAR_CamPool);
+
+	// Clear our custom checkpoint array
+	memset(&m_checkpoints, 0, sizeof(m_checkpoints));
+
+	// Modify checkpoint rendering to use our custom array
+	*(DWORD*)(COffsets::VAR_RenderCheckpoints_FirstCP) = (DWORD)(m_checkpoints + 0x18);
+	*(DWORD*)(COffsets::VAR_RenderCheckpoints_LastCP) = (DWORD)(m_checkpoints + 0x18 + CHECKPOINT_ARRAY_SIZE * sizeof(IVCheckpoint));
 }
 
 void CPools::Shutdown()
 {
+	// Delete game pools
+	SAFE_DELETE(m_pCamPool);
 	SAFE_DELETE(m_pTaskPool);
 	SAFE_DELETE(m_pVehiclePool);
 	SAFE_DELETE(m_pPedPool);
@@ -106,4 +118,28 @@ unsigned int CPools::GetLocalPlayerIndex()
 void CPools::SetLocalPlayerIndex(unsigned int uiIndex)
 {
 	*(unsigned int *)(CGame::GetBase() + VAR_LocalPlayerId_7) = uiIndex;
+}
+
+IVCheckpoint * CPools::GetCheckpointFromIndex(unsigned int uiIndex)
+{
+	// Is the index more than the checkpoint array size?
+	if(uiIndex > CHECKPOINT_ARRAY_SIZE)
+		return NULL;
+
+	// Return the checkpoint pointer
+	return &m_checkpoints[uiIndex];
+}
+
+unsigned int CPools::FindFreeCheckpointIndex()
+{
+	// Loop through all checkpoint indexes
+	for(unsigned int i = 0; i < CHECKPOINT_ARRAY_SIZE; i++)
+	{
+		// Is the current index free?
+		if(m_checkpoints[i].m_wType == CHECKPOINT_TYPE_NONE)
+			return i;
+	}
+
+	// No free checkpoint indexes found
+	return INVALID_CHECKPOINT;
 }

@@ -63,6 +63,7 @@ public:
 	CSquirrelArgument(float f){type=OT_FLOAT; data.f=f;}
 	CSquirrelArgument(String str){type = OT_STRING; data.str = new String(str);}
 	CSquirrelArgument(String* str){type=OT_STRING; data.str=str;}
+	CSquirrelArgument(CSquirrelArguments array, bool isArray);
 	CSquirrelArgument(CSquirrelArguments * pArray, bool isArray) { type = (isArray ? OT_ARRAY : OT_TABLE); data.pArray = pArray; }
 	CSquirrelArgument(SQObject o);
 	CSquirrelArgument(SQInstance * pInstance) {  }
@@ -75,6 +76,7 @@ public:
 	void                 free();
 
 	bool                 push(SQVM* pVM);
+	bool                 pushFromStack(SQVM* pVM, int idx);
 
 	void                 serialize(CBitStream * pBitStream);
 	void                 deserialize(CBitStream * pBitStream);

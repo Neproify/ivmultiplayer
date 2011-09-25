@@ -1,23 +1,13 @@
-//============== Copyright © 2010 IV:MP Team. All rights reserved. ==============
+//============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
 // File: Natives.h
-// Project: Server
+// Project: Shared
 // Author(s): jenksta
 //            Einstein
 //            Sebihunter
+// License: See LICENSE in root directory
 //
-// Unless specified above, The copyright to the contents herein is the
-// property of the IV:MP Team. The contents may be used and/or copied only
-// with the written permission of the current IV:MP Developer(s).
-//
-//===============================================================================
-
-// TODO: Add error checking for ALL functions.
-// TODO: Only allow 1 and 0 with as integer boolean types.
-// TODO: MODEL_ auto defines.
-// TODO: OT_PLAYER, OT_VEHICLE, OT_OBJECT so they all have their own types.
-// TODO: CServerNatives class, CPlayerNatives class, CVehicleNatives class, CObjectNatives class, e.t.c
-// TODO: SQ_RETURN(ret, val) which does (sq_pushbool(pVM, val); return ret;)
+//==============================================================================
 
 #pragma once
 
@@ -100,6 +90,16 @@ static SQRESULT sq_getvector3(SQVM * pVM, SQInteger iIndex, CVector3 * pVector)
 	sq_getfloat(pVM, iIndex + 1, (SQFloat *)&(pVector->fY));
 	sq_getfloat(pVM, iIndex + 2, (SQFloat *)&(pVector->fZ));
 	return SQ_OK;
+}
+
+static void sq_pusharg(SQVM * pVM, CSquirrelArgument arg)
+{
+	arg.push(pVM);
+}
+
+static void sq_getarg(SQVM * pVM, SQInteger iIndex, CSquirrelArgument * arg)
+{
+	arg->pushFromStack(pVM, iIndex);
 }
 
 // Natives

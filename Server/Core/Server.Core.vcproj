@@ -461,6 +461,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Natives.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Natives\ObjectNatives.h"
 						>
 					</File>
@@ -500,7 +504,7 @@
 							>
 						</File>
 						<File
-							RelativePath=".\Natives.h"
+							RelativePath="..\..\Shared\Scripting\Natives\Natives.h"
 							>
 						</File>
 						<File

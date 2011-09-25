@@ -22,15 +22,16 @@
 #include "Patcher/CPatcher.h"
 #include "CCutsceneInteriors.h"
 #include "COffsets.h"
+#include "CCamera.h"
 
 extern CNetworkManager * g_pNetworkManager;
-extern CPlayerManager * g_pPlayerManager;
-extern unsigned int cam;
+extern CPlayerManager  * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
-extern CStreamer * g_pStreamer;
-extern CChatWindow * g_pChatWindow;
-extern CInputWindow * g_pInputWindow;
-extern bool m_bControlsDisabled;
+extern CStreamer       * g_pStreamer;
+extern CChatWindow     * g_pChatWindow;
+extern CInputWindow    * g_pInputWindow;
+extern CCamera         * g_pCamera;
+extern bool              m_bControlsDisabled;
 
 void * pAddress = NULL;
 void * pReturnAddress = NULL;
@@ -103,20 +104,27 @@ void CLocalPlayer::HandleSpawn()
 {
 	CLogFile::Printf("HandleSpawn(LocalPlayer)");
 
+	// Enable input if needed
 	if(!g_pInputWindow->IsEnabled() && !m_bControlsDisabled)
 		CGame::SetInputState(true);
 
+	// Reset vehicle entry/exit flags
 	ResetVehicleEnterExit();
+
+	// Enable our controls
 	SetPlayerControlAdvanced(true, true);
+
+	// Enable the HUD
 	CGame::SetHudVisible(true);
+
+	// Enable the radar
 	CGame::SetRadarVisible(true);
+
+	// Enable the area names
 	CGame::SetAreaNamesEnabled(true);
 
-	// Ensure all scripted cams are disabled
-	Scripting::ActivateScriptedCams(false, false);
-	Scripting::SetCamActive(cam, false);
-	Scripting::DestroyCam(cam);
-	Scripting::DoScreenFadeIn(0);
+	// Reset the camera
+	g_pCamera->Reset();
 
 	// Send the spawn notification to the server
 	CBitStream bsSend;
@@ -227,7 +235,7 @@ void CLocalPlayer::SetSpawnLocation(CVector3 vecPosition, float fHeading)
 
 void CLocalPlayer::SetPlayerControlAdvanced(bool bControl, bool bCamera)
 {
-	Scripting::SetPlayerControlAdvanced(0, bControl, bControl, bControl);
+	Scripting::SetPlayerControlAdvanced(GetGamePlayerNumber(), bControl, bControl, bControl);
 	Scripting::SetCameraControlsDisabledWithPlayerControls(bCamera);
 }
 
@@ -243,13 +251,13 @@ void CLocalPlayer::SendOnFootSync()
 	memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
 
 	// Get their position
-	GetPosition(&syncPacket.vecPos);
+	GetPosition(syncPacket.vecPos);
 
 	// Get their heading
 	syncPacket.fHeading = GetCurrentHeading();
 
 	// Get their move speed
-	GetMoveSpeed(&syncPacket.vecMoveSpeed);
+	GetMoveSpeed(syncPacket.vecMoveSpeed);
 
 	// Get their ducking state
 	syncPacket.bDuckState = IsDucking();
@@ -306,10 +314,10 @@ void CLocalPlayer::SendInVehicleSync()
 		memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
 
 		// Get their vehicles position
-		pVehicle->GetPosition(&syncPacket.vecPos);
+		pVehicle->GetPosition(syncPacket.vecPos);
 
 		// Get their vehicles rotation
-		pVehicle->GetRotation(&syncPacket.vecRotation);
+		pVehicle->GetRotation(syncPacket.vecRotation);
 
 		// Get their vehicles engine health
 		syncPacket.uiHealth = pVehicle->GetHealth();
@@ -321,10 +329,10 @@ void CLocalPlayer::SendInVehicleSync()
 		syncPacket.bSirenState = pVehicle->GetSirenState();
 
 		// Get their vehicles turn speed
-		pVehicle->GetTurnSpeed(&syncPacket.vecTurnSpeed);
+		pVehicle->GetTurnSpeed(syncPacket.vecTurnSpeed);
 
 		// Get their vehicles move speed
-		pVehicle->GetMoveSpeed(&syncPacket.vecMoveSpeed);
+		pVehicle->GetMoveSpeed(syncPacket.vecMoveSpeed);
 
 		// Get their vehicles dirt level
 		syncPacket.fDirtLevel = pVehicle->GetDirtLevel();

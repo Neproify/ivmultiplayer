@@ -22,8 +22,6 @@ private:
 	static SQInteger GetHealth(SQVM * pVM);
 	static SQInteger SetArmour(SQVM * pVM);
 	static SQInteger GetArmour(SQVM * pVM);
-	static SQInteger SetCameraPos(SQVM * pVM);
-	static SQInteger SetCameraLookAt(SQVM * pVM);
 	static SQInteger SetCoordinates(SQVM * pVM);
 	static SQInteger GetCoordinates(SQVM * pVM);
 	static SQInteger SetTime(SQVM * pVM);
@@ -90,6 +88,9 @@ private:
 	static SQInteger Respawn(SQVM * pVM);
 	static SQInteger GiveHelmet(SQVM * pVM);
 	static SQInteger RemoveHelmet(SQVM * pVM);
+	static SQInteger SetCameraPos(SQVM * pVM);
+	static SQInteger SetCameraLookAt(SQVM * pVM);
+	static SQInteger ResetCamera(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

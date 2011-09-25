@@ -21,9 +21,6 @@ typedef unsigned char DimensionId;
 // Define used for invalid dimension ids
 #define INVALID_DIMENSION_ID 0xFF
 
-// Custom (increased) checkpoint pool size
-#define INTERNAL_CHECKPOINT_LIMIT 128
-
 // TODO: Adjust?
 #define STREAMING_TICK 1000
 
@@ -49,8 +46,8 @@ private:
 	DimensionId       m_dimensionId;
 	bool              m_bCanBeStreamedIn;
 
-	void StreamInInternal();
-	void StreamOutInternal();
+	void              StreamInInternal();
+	void              StreamOutInternal();
 
 public:
 	CStreamableEntity(eStreamEntityType eType, float fDistance = 200.0f);
@@ -64,7 +61,7 @@ public:
 	void              SetCanBeStreamedIn(bool bCanBeStreamedIn) { m_bCanBeStreamedIn = bCanBeStreamedIn; }
 	bool              CanBeStreamedIn() { return m_bCanBeStreamedIn; }
 
-	virtual void      GetStreamPosition(CVector3 * vecCoordinates) { };
+	virtual void      GetStreamPosition(CVector3& vecCoordinates) { };
 	virtual void      UpdateInterior(unsigned int uiInterior) { };
 
 	virtual void      StreamIn() { };
@@ -100,5 +97,3 @@ public:
 	//CNetworkPlayer                 * GetPlayerFromGamePlayerPed(IVPlayerPed * pGamePlayerPed);
 	CNetworkVehicle                * GetVehicleFromGameVehicle(IVVehicle * pGameVehicle);
 };
-
-extern CStreamer * g_pStreamer;

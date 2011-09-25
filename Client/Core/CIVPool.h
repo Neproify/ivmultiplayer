@@ -11,11 +11,7 @@
 #pragma once
 
 #include "CGame.h"
-
-#define FUNC_CPool__Allocate 0x439CB0
-#define FUNC_CPool__HandleOf_7 0x447230
-#define FUNC_CPool__AtHandle_7 0x426700
-#define FUNC_CPool__Release_7 0x448300
+#include "COffsets.h"
 
 // From OpenLC by listener
 class IVPool
@@ -65,11 +61,10 @@ public:
 		if(m_pPool)
 		{
 			IVPool * pPool = m_pPool;
-			DWORD dwFunc = (CGame::GetBase() + FUNC_CPool__Allocate);
 			_asm
 			{
 				mov ecx, pPool
-				call dwFunc
+				call COffsets::FUNC_CPool__Allocate
 				mov pObject, eax
 			}
 		}
@@ -109,12 +104,11 @@ public:
 		{
 			T * _pObject = pObject;
 			IVPool * pPool = m_pPool;
-			DWORD dwFunc = (CGame::GetBase() + FUNC_CPool__HandleOf_7);
 			_asm
 			{
 				push _pObject
 				mov ecx, pPool
-				call dwFunc
+				call COffsets::FUNC_CPool__HandleOf
 				mov uiHandle, eax
 			}
 		}
@@ -129,12 +123,11 @@ public:
 		if(m_pPool)
 		{
 			IVPool * pPool = m_pPool;
-			DWORD dwFunc = (CGame::GetBase() + FUNC_CPool__AtHandle_7);
 			_asm
 			{
 				mov ecx, pPool
 				push uiHandle
-				call dwFunc
+				call COffsets::FUNC_CPool__AtHandle
 				mov pObject, eax
 
 			}
@@ -148,12 +141,11 @@ public:
 		if(m_pPool)
 		{
 			IVPool * pPool = m_pPool;
-			DWORD dwFunc = (CGame::GetBase() + FUNC_CPool__Release_7);
 			_asm
 			{
 				mov ecx, pPool
 				push pObject
-				call dwFunc
+				call COffsets::FUNC_CPool__Release
 			}
 		}
 	}

@@ -153,26 +153,12 @@ SQInteger CPlayerNatives::GetCoordinates(SQVM * pVM)
 		if(pPlayer)
 		{
 			CVector3 vecPosition;
-			
-			if(pPlayer->IsInVehicle())
-			{
-				pPlayer->GetVehicle()->GetPosition(&vecPosition);
-			}
-			else
-			{
-				pPlayer->GetPosition(&vecPosition);
-			}
-
-			sq_newtable(pVM);
-			sq_pushinteger(pVM, 0);
-			sq_pushfloat(pVM, vecPosition.fX);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 1);
-			sq_pushfloat(pVM, vecPosition.fY);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 2);
-			sq_pushfloat(pVM, vecPosition.fZ);
-			sq_createslot(pVM, -3);
+			pPlayer->GetPosition(vecPosition);
+			CSquirrelArguments args;
+			args.push(vecPosition.fX);
+			args.push(vecPosition.fY);
+			args.push(vecPosition.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
 	}
@@ -194,17 +180,12 @@ SQInteger CPlayerNatives::GetVelocity(SQVM * pVM)
 		if(pPlayer)
 		{
 			CVector3 vecMoveSpeed;
-			pPlayer->GetMoveSpeed(&vecMoveSpeed);
-			sq_newtable(pVM);
-			sq_pushinteger(pVM, 0);
-			sq_pushfloat(pVM, vecMoveSpeed.fX);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 1);
-			sq_pushfloat(pVM, vecMoveSpeed.fY);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 2);
-			sq_pushfloat(pVM, vecMoveSpeed.fZ);
-			sq_createslot(pVM, -3);
+			pPlayer->GetMoveSpeed(vecMoveSpeed);
+			CSquirrelArguments args;
+			args.push(vecMoveSpeed.fX);
+			args.push(vecMoveSpeed.fY);
+			args.push(vecMoveSpeed.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
 	}

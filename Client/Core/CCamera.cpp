@@ -8,61 +8,142 @@
 //==============================================================================
 
 #include "CCamera.h"
+#include "CGame.h"
+#include "CPools.h"
+#include <CLogFile.h>
+#include "Scripting.h"
+#include "CLocalPlayer.h"
+
+extern CLocalPlayer * g_pLocalPlayer;
 
 CCamera::CCamera()
 {
-	Scripting::CreateCam(14, &m_uiCamIndex);
-	Scripting::SetCamActive(m_uiCamIndex, false);
-	m_bActive = false;
+	// Get the game cam pointer
+	IVCam * pCam = NULL;
+	void * unkn = (void **)(CGame::GetBase() + 0xF21A6C);
+	_asm
+	{
+		mov ecx, unkn
+		mov eax, [ecx+0Ch]
+		mov pCam, eax
+	}
+
+	// Create the game cam instance
+	m_pGameCam = new CIVCam(pCam);
+
+	// Create the script cam
+	unsigned int uiScriptCam;
+	Scripting::CreateCam(14, &uiScriptCam);
+	Scripting::SetCamPropagate(uiScriptCam, true);
+
+	// Create the script cam instance
+	m_pScriptCam = new CIVCam(CGame::GetPools()->GetCamPool()->AtHandle(uiScriptCam));
+
+	// Flag the script cam as inactive
+	m_bScriptCamActive = false;
 }
 
 CCamera::~CCamera()
 {
-	if(m_bActive)
-		Scripting::SetCamActive(m_uiCamIndex, false);
+	// Deactivate the script cam if needed
+	if(m_bScriptCamActive)
+		DeactivateScriptCam();
 
-	Scripting::DestroyCam(m_uiCamIndex);
+	// Destroy the script cam
+	Scripting::DestroyCam(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()));
 }
 
-void CCamera::Activate()
+void CCamera::ActivateScriptCam()
 {
-	Scripting::ActivateScriptedCams(true, true);
-	Scripting::SetCamActive(m_uiCamIndex, true);
-	m_bActive = true;
+	// Is the script cam not active?
+	if(!m_bScriptCamActive)
+	{
+		// Activate script cams
+		Scripting::ActivateScriptedCams(true, true);
+
+		// Activate the script cam
+		Scripting::SetCamActive(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), true);
+
+		// Flag the script cam as active
+		m_bScriptCamActive = true;
+	}
+}
+
+void CCamera::DeactivateScriptCam()
+{
+	// Is the script cam active?
+	if(m_bScriptCamActive)
+	{
+		// Deactivate the script cam
+		Scripting::SetCamActive(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), false);
+
+		// Deactivate scripted cams
+		Scripting::ActivateScriptedCams(false, false);
+
+		// Flag the script cam as inactive
+		m_bScriptCamActive = false;
+	}
 }
 
 void CCamera::Reset()
 {
-	if(m_bActive)
+	// Deactivate the script cam if needed
+	if(m_bScriptCamActive)
+		DeactivateScriptCam();
+
+	// Set the camera behind the local player
+	g_pLocalPlayer->SetCameraBehind();
+}
+
+void CCamera::SetBehindPed(CIVPed * pPed)
+{
+	// Deactivate the script cam if needed
+	if(m_bScriptCamActive)
+		DeactivateScriptCam();
+
+	// Set the cam behind the specified ped
+	Scripting::SetCamBehindPed(CGame::GetPools()->GetPedPool()->HandleOf(pPed->GetPed()));
+}
+
+void CCamera::SetPosition(const CVector3& vecPosition)
+{
+	// Activate the script cam if needed
+	if(!m_bScriptCamActive)
+		ActivateScriptCam();
+
+	// Set the script cam position
+	m_pScriptCam->SetPosition(vecPosition);
+}
+
+void CCamera::GetPosition(CVector3& vecPosition)
+{
+	// Is the script cam active?
+	if(m_bScriptCamActive)
 	{
-		Scripting::SetCamActive(m_uiCamIndex, false);
-		Scripting::ActivateScriptedCams(false, false);
-		m_vecPosition = CVector3();
-		m_vecLookAt = CVector3();
+		// Get the script cam position
+		m_pScriptCam->GetPosition(vecPosition);
+	}
+	else
+	{
+		// Get the game cam position
+		m_pGameCam->GetPosition(vecPosition);
 	}
 }
 
-void CCamera::SetPostion(CVector3 vecPosition)
+void CCamera::SetLookAt(const CVector3& vecLookAt)
 {
-	if(m_bActive)
-	{
-		Scripting::SetCamPos(m_uiCamIndex, vecPosition.fX, vecPosition.fY, vecPosition.fZ);
-		m_vecPosition = vecPosition;
-	}
+	// Activate the script cam if needed
+	if(!m_bScriptCamActive)
+		ActivateScriptCam();
+
+	// Load the world at the look at
+	CGame::GetStreaming()->LoadWorldAtPosition(vecLookAt);
+
+	// Set the script cam look at
+	Scripting::PointCamAtCoord(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ);
 }
 
-CVector3 CCamera::GetPostion()
+void CCamera::GetLookAt(CVector3& vecLookAt)
 {
-	return m_vecPosition;
-}
-
-void CCamera::SetLookAt(CVector3 vecLookAt)
-{
-	Scripting::PointCamAtCoord(m_uiCamIndex, vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ);
-	m_vecLookAt = vecLookAt;
-}
-
-CVector3 CCamera::GetLookAt()
-{
-	return m_vecLookAt;
+	// TODO
 }

@@ -272,7 +272,7 @@ bool CPlayerManager::Remove(EntityId playerId)
 
 	m_bActive[playerId] = false;
 	m_pPlayers[playerId]->Destroy();
-	m_pPlayers[playerId]->Teleport(&CVector3(0.0f, 0.0f, -20.0f));
+	m_pPlayers[playerId]->Teleport(CVector3(0.0f, 0.0f, -20.0f));
 	//delete m_pPlayers[playerId];
 	//m_pPlayers[playerId] = NULL;
 	return true;
@@ -319,7 +319,7 @@ void CPlayerManager::Pulse()
 		else
 		{
 			if(m_bCreated[x])
-				m_pPlayers[x]->Teleport(&CVector3(0.0f, 0.0f, -20.0f));
+				m_pPlayers[x]->Teleport(CVector3(0.0f, 0.0f, -20.0f));
 		}
 	}
 }

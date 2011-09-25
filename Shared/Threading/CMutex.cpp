@@ -10,14 +10,14 @@
 #include "CMutex.h"
 #include <SharedUtility.h>
 
-CMutex::CMutex(String strName)
+CMutex::CMutex()
 {
 	// Create the mutex
 #ifdef WIN32
 #ifdef USE_CRITICAL_SECTION
 	InitializeCriticalSection(&m_criticalSection);
 #else
-	m_hMutex = CreateMutex(NULL, FALSE, strName.C_String());
+	m_hMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
 #else
 	pthread_mutex_init(&m_mutex, NULL);

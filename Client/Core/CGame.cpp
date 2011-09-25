@@ -589,33 +589,6 @@ bool CGame::Patch()
 	return false;
 }
 
-#if 0
-// UPDATE
-#define VAR_AudioFrontend_4 0x1004020
-#define VAR_AudioFrontend_5 0x11F2468
-#define VAR_AudioFrontend_6 0x10F75A0
-#define FUNC_StartGame_4 0xCC2437
-#define FUNC_StartGame_5 0xCEF690
-#define FUNC_StartGame_6 /*0x7B9A10*/0x420AE1
-
-// TODO: Find a way to shut the game down and get it back to this state
-// TODO: Find a faster way of doing this than just setting a flag
-void CGame::StartGame()
-{
-	CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
-	*(BYTE *)(CGame::GetBase() + 0x119DB14) = 1;
-	ptr g_audioFrontend = ptr_cast(GetBase() + VAR_AudioFrontend_6);
-	ptr func = ptr_cast(GetBase() + FUNC_StartGame_6);
-	_asm
-	{
-		mov ecx, g_audioFrontend
-		call func
-	}
-	SetInputState(false);
-	SetState(GAME_STATE_LOADING);
-}
-#endif
-
 bool CGame::IsMenuActive()
 {
 	DWORD dwMenuActive1 = (COffsets::VAR_MenuActive_1);
@@ -1155,4 +1128,11 @@ void CGame::Free(void * pMemory)
 		call dwFunc
 		add esp, 4
 	}
+}
+
+void CGame::ToggleLazlowStation(bool bToggle)
+{
+	if(!bToggle) bToggle = true; // cause we all love lazlow :D
+	*(BYTE *)(GetBase() + 0xF38728) = (bToggle == false);
+	*(BYTE *)(GetBase() + 0x166805C) = (bToggle == true);
 }

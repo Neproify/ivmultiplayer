@@ -81,26 +81,26 @@ float CIVCheckpoint::GetRadius()
 	return 0.0f;
 }
 
-void CIVCheckpoint::SetPosition(CVector3 * vecPosition)
+void CIVCheckpoint::SetPosition(const CVector3& vecPosition)
 {
 	if(m_pCheckpoint)
-		memcpy(&m_pCheckpoint->m_vecPosition, vecPosition, sizeof(CVector3));
+		memcpy(&m_pCheckpoint->m_vecPosition, &vecPosition, sizeof(CVector3));
 }
 
-void CIVCheckpoint::GetPosition(CVector3 * vecPosition)
+void CIVCheckpoint::GetPosition(CVector3& vecPosition)
 {
 	if(m_pCheckpoint)
-		memcpy(vecPosition, &m_pCheckpoint->m_vecPosition, sizeof(CVector3));
+		memcpy(&vecPosition, &m_pCheckpoint->m_vecPosition, sizeof(CVector3));
 }
 
-void CIVCheckpoint::SetTargetPosition(CVector3 * vecTargetPosition)
+void CIVCheckpoint::SetTargetPosition(const CVector3& vecTargetPosition)
 {
 	if(m_pCheckpoint)
-		memcpy(&m_pCheckpoint->m_vecTargetPosition, vecTargetPosition, sizeof(CVector3));
+		memcpy(&m_pCheckpoint->m_vecTargetPosition, &vecTargetPosition, sizeof(CVector3));
 }
 
-void CIVCheckpoint::GetTargetPosition(CVector3 * vecTargetPosition)
+void CIVCheckpoint::GetTargetPosition(CVector3& vecTargetPosition)
 {
 	if(m_pCheckpoint)
-		memcpy(vecTargetPosition, &m_pCheckpoint->m_vecTargetPosition, sizeof(CVector3));
+		memcpy(&vecTargetPosition, &m_pCheckpoint->m_vecTargetPosition, sizeof(CVector3));
 }

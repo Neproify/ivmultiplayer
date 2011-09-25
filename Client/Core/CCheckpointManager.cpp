@@ -13,14 +13,9 @@
 #include "CPlayerManager.h"
 #include "CNetworkManager.h"
 
-extern CLocalPlayer * g_pLocalPlayer;
+extern CLocalPlayer    * g_pLocalPlayer;
 extern CNetworkManager * g_pNetworkManager;
-
-CCheckpointManager::CCheckpointManager()
-{
-	// Initialize game checkpoints
-	CCheckpoint::Init();
-}
+extern CStreamer       * g_pStreamer;
 
 void CCheckpointManager::Pulse()
 {

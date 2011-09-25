@@ -13,14 +13,7 @@
 #include <windows.h>
 #include "IVCommon.h"
 
-struct CCam
-{
-	PAD(CCam, pad0, 0x10); // 000-010
-	Matrix34 m_matMatrix;  // 010-050
-	PAD(CCam, pad1, 0xF0); // 050-140
-};
-
-CCam *       GetGameCam();
-void         SetGameCameraMatrix(Matrix * matMatrix);
-void         GetGameCameraMatrix(Matrix * matMatrix);
-void         InstallKeySyncHooks();
+//CCam *       GetGameCam();
+void SetGameCameraMatrix(Matrix * matMatrix);
+void GetGameCameraMatrix(Matrix * matMatrix);
+void InstallKeySyncHooks();

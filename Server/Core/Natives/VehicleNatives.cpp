@@ -146,18 +146,13 @@ SQInteger CVehicleNatives::GetCoordinates(SQVM * pVM)
 
 		if(pVehicle)
 		{
-			CVector3 vecPos;
-			pVehicle->GetPosition(&vecPos);
-			sq_newtable(pVM);
-			sq_pushinteger(pVM, 0);
-			sq_pushfloat(pVM, vecPos.fX);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 1);
-			sq_pushfloat(pVM, vecPos.fY);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 2);
-			sq_pushfloat(pVM, vecPos.fZ);
-			sq_createslot(pVM, -3);
+			CVector3 vecPosition;
+			pVehicle->GetPosition(&vecPosition);
+			CSquirrelArguments args;
+			args.push(vecPosition.fX);
+			args.push(vecPosition.fY);
+			args.push(vecPosition.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
 	}
@@ -276,16 +271,11 @@ SQInteger CVehicleNatives::GetRotation(SQVM * pVM)
 		{
 			CVector3 vecRotation;
 			pVehicle->GetRotation(&vecRotation);
-			sq_newtable(pVM);
-			sq_pushinteger(pVM, 0);
-			sq_pushfloat(pVM, vecRotation.fX);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 1);
-			sq_pushfloat(pVM, vecRotation.fY);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 2);
-			sq_pushfloat(pVM, vecRotation.fZ);
-			sq_createslot(pVM, -3);
+			CSquirrelArguments args;
+			args.push(vecRotation.fX);
+			args.push(vecRotation.fY);
+			args.push(vecRotation.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
 	}
@@ -342,19 +332,12 @@ SQInteger CVehicleNatives::GetColor(SQVM * pVM)
 		{
 			BYTE byteColors[4];
 			pVehicle->GetColors(byteColors[0], byteColors[1], byteColors[2], byteColors[3]);
-			sq_newtable(pVM);
-			sq_pushinteger(pVM, 0);
-			sq_pushinteger(pVM, byteColors[0]);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 1);
-			sq_pushinteger(pVM, byteColors[1]);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 2);
-			sq_pushinteger(pVM, byteColors[2]);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 3);
-			sq_pushinteger(pVM, byteColors[3]);
-			sq_createslot(pVM, -3);
+			CSquirrelArguments args;
+			args.push((int)byteColors[0]);
+			args.push((int)byteColors[1]);
+			args.push((int)byteColors[2]);
+			args.push((int)byteColors[3]);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
 	}
@@ -504,16 +487,11 @@ SQInteger CVehicleNatives::GetVelocity(SQVM * pVM)
 		{
 			CVector3 vecMoveSpeed;
 			pVehicle->GetMoveSpeed(&vecMoveSpeed);
-			sq_newtable(pVM);
-			sq_pushinteger(pVM, 0);
-			sq_pushfloat(pVM, vecMoveSpeed.fX);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 1);
-			sq_pushfloat(pVM, vecMoveSpeed.fY);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 2);
-			sq_pushfloat(pVM, vecMoveSpeed.fZ);
-			sq_createslot(pVM, -3);
+			CSquirrelArguments args;
+			args.push(vecMoveSpeed.fX);
+			args.push(vecMoveSpeed.fY);
+			args.push(vecMoveSpeed.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
 	}
@@ -560,16 +538,11 @@ SQInteger CVehicleNatives::GetAngularVelocity(SQVM * pVM)
 		{
 			CVector3 vecTurnSpeed;
 			pVehicle->GetTurnSpeed(&vecTurnSpeed);
-			sq_newtable(pVM);
-			sq_pushinteger(pVM, 0);
-			sq_pushfloat(pVM, vecTurnSpeed.fX);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 1);
-			sq_pushfloat(pVM, vecTurnSpeed.fY);
-			sq_createslot(pVM, -3);
-			sq_pushinteger(pVM, 2);
-			sq_pushfloat(pVM, vecTurnSpeed.fZ);
-			sq_createslot(pVM, -3);
+			CSquirrelArguments args;
+			args.push(vecTurnSpeed.fX);
+			args.push(vecTurnSpeed.fY);
+			args.push(vecTurnSpeed.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
 	}
@@ -632,21 +605,16 @@ SQInteger CVehicleNatives::GetOccupants(SQVM * pVM)
 
 		if(pVehicle)
 		{
-			sq_newtable(pVM);
+			CSquirrelArguments args;
 
 			for(BYTE i = 0; i < (MAX_VEHICLE_PASSENGERS + 1); i++)
 			{
-				sq_pushinteger(pVM, (i + 1));
+				args.push((int)(i + 1));
 				CPlayer * pOccupant = pVehicle->GetOccupant(i);
-
-				if(pOccupant)
-					sq_pushinteger(pVM, pOccupant->GetPlayerId());
-				else
-					sq_pushinteger(pVM, INVALID_ENTITY_ID);
-
-				sq_createslot(pVM, -3);
+				args.push(pOccupant ? (int)pOccupant->GetPlayerId() : (int)INVALID_ENTITY_ID);
 			}
 
+			sq_pusharg(pVM, CSquirrelArgument(args, false));
 			return 1;
 		}
 	}
