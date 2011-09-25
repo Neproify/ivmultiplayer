@@ -913,11 +913,11 @@
 					Name="Threading"
 					>
 					<File
-						RelativePath="..\..\Shared\CMutex.h"
+						RelativePath="..\..\Shared\Threading\CMutex.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\Shared\CThread.h"
+						RelativePath="..\..\Shared\Threading\CThread.h"
 						>
 					</File>
 				</Filter>
@@ -1570,11 +1570,11 @@
 					Name="Threading"
 					>
 					<File
-						RelativePath="..\..\Shared\CMutex.cpp"
+						RelativePath="..\..\Shared\Threading\CMutex.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\Shared\CThread.cpp"
+						RelativePath="..\..\Shared\Threading\CThread.cpp"
 						>
 					</File>
 				</Filter>
