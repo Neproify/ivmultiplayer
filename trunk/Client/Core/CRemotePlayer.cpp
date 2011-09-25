@@ -45,7 +45,7 @@ bool CRemotePlayer::Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontR
 	}
 
 	//CLogFile::Printf("CIVPlayerPed + 0x218 = %d", *(BYTE *)(m_pPlayer->GetPlayerPed() + 0x218));
-	Teleport(&vecSpawnPos);
+	Teleport(vecSpawnPos);
 	SetCurrentHeading(fSpawnHeading);
 	Init();
 	return true;
@@ -108,7 +108,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	SetCurrentHeading(syncPacket->fHeading);
 
 	// Set our move speed
-	SetMoveSpeed(&syncPacket->vecMoveSpeed);
+	SetMoveSpeed(syncPacket->vecMoveSpeed);
 
 	// Set our ducking state
 	SetDucking(syncPacket->bDuckState);
@@ -196,10 +196,10 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		pVehicle->SetSirenState(syncPacket->bSirenState);
 
 		// Set their vehicles turn speed
-		pVehicle->SetTurnSpeed(&syncPacket->vecTurnSpeed);
+		pVehicle->SetTurnSpeed(syncPacket->vecTurnSpeed);
 
 		// Set their vehicles move speed
-		pVehicle->SetMoveSpeed(&syncPacket->vecMoveSpeed);
+		pVehicle->SetMoveSpeed(syncPacket->vecMoveSpeed);
 
 		// Set their vehicles dirt level
 		// TODO: This should only be sent when it changes
@@ -235,7 +235,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		pVehicle->SetPosition(syncPacket->vecPos, false, true);
 
 		//set the player position
-		SetPosition(&(syncPacket->vecPos), true);
+		SetPosition(syncPacket->vecPos, true);
 	}
 
 	m_stateType = STATE_TYPE_INVEHICLE;

@@ -54,9 +54,7 @@ void SavePosCommand(char * szParams)
 		return;
 	}
 
-	CVector3 vecPos;
-	CVector3 vecRotation;
-	float fHeading;
+	CVector3 vecPosition;
 
 	if(g_pLocalPlayer->IsInVehicle())
 	{
@@ -64,19 +62,20 @@ void SavePosCommand(char * szParams)
 
 		if(pVehicle)
 		{
-			pVehicle->GetPosition(&vecPos);
-			pVehicle->GetRotation(&vecRotation);
+			pVehicle->GetPosition(vecPosition);
+			CVector3 vecRotation;
+			pVehicle->GetRotation(vecRotation);
 			BYTE byteColors[4];
 			pVehicle->GetColors(byteColors[0], byteColors[1], byteColors[2], byteColors[3]);
-			fprintf(file, "createVehicle(%d, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d);%s%s\n", g_pModelManager->ModelHashToVehicleId(pVehicle->GetModelInfo()->GetHash()), vecPos.fX, vecPos.fY, vecPos.fZ, vecRotation.fX, vecRotation.fY, vecRotation.fZ, byteColors[0], byteColors[1], byteColors[2], byteColors[3], szParams ? " // " : "", szParams ? szParams : "");
+			fprintf(file, "createVehicle(%d, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d);%s%s\n", g_pModelManager->ModelHashToVehicleId(pVehicle->GetModelInfo()->GetHash()), vecPosition.fX, vecPosition.fY, vecPosition.fZ, vecRotation.fX, vecRotation.fY, vecRotation.fZ, byteColors[0], byteColors[1], byteColors[2], byteColors[3], szParams ? " // " : "", szParams ? szParams : "");
 		}
 	}
 	else
 	{
-		g_pLocalPlayer->GetPosition(&vecPos);
-		fHeading = g_pLocalPlayer->GetCurrentHeading();
+		g_pLocalPlayer->GetPosition(vecPosition);
+		float fHeading = g_pLocalPlayer->GetCurrentHeading();
 		int iModelId = ModelHashToSkinId(g_pLocalPlayer->GetModelInfo()->GetHash());
-		fprintf(file, "PlayerData(%d, %f, %f, %f, %f);%s%s\n", iModelId, vecPos.fX, vecPos.fY, vecPos.fZ, fHeading, szParams ? " // " : "", szParams ? szParams : "");
+		fprintf(file, "PlayerData(%d, %f, %f, %f, %f);%s%s\n", iModelId, vecPosition.fX, vecPosition.fY, vecPosition.fZ, fHeading, szParams ? " // " : "", szParams ? szParams : "");
 	}
 
 	fclose(file);

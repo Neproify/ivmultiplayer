@@ -14,7 +14,7 @@
 // Natives
 
 // Shared
-#include "../Shared/Scripting/Natives/Natives.h"
+#include <Scripting/Natives/Natives.h>
 
 // Server and Timer functions
 #include "Natives/ServerNatives.h"

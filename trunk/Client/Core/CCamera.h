@@ -6,30 +6,31 @@
 // License: See LICENSE in root directory
 //
 //==============================================================================
-// FIXUPDATE
-// Either update this (and not use scripting functions) and use it
-// or remove it
 
 #pragma once
 
-#include "Scripting.h"
+#include "CIVCam.h"
+#include "CIVPed.h"
 
 class CCamera
 {
 private:
-	unsigned int m_uiCamIndex;
-	bool         m_bActive;
-	CVector3     m_vecPosition;
-	CVector3     m_vecLookAt;
+	CIVCam * m_pGameCam;
+	CIVCam * m_pScriptCam;
+	bool     m_bScriptCamActive;
 
 public:
 	CCamera();
 	~CCamera();
 
-	void Activate();
-	void Reset();
-	void SetPostion(CVector3 vecPosition);
-	CVector3 GetPostion();
-	void SetLookAt(CVector3 vecLookAt);
-	CVector3 GetLookAt();
+	CIVCam * GetGameCam() { return m_pGameCam; }
+	CIVCam * GetScriptCam() { return m_pScriptCam; }
+	void     ActivateScriptCam();
+	void     DeactivateScriptCam();
+	void     Reset();
+	void     SetBehindPed(CIVPed * pPed);
+	void     SetPosition(const CVector3& vecPosition);
+	void     GetPosition(CVector3& vecPosition);
+	void     SetLookAt(const CVector3& vecLookAt);
+	void     GetLookAt(CVector3& vecLookAt);
 };

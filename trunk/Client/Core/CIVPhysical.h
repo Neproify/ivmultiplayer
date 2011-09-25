@@ -68,10 +68,10 @@ public:
 	void         SetPhysical(IVPhysical * pPhysical);
 	IVPhysical * GetPhysical();
 
-	void         SetMoveSpeed(CVector3 * vecMoveSpeed);
-	void         GetMoveSpeed(CVector3 * vecMoveSpeed);
-	void         SetTurnSpeed(CVector3 * vecTurnSpeed);
-	void         GetTurnSpeed(CVector3 * vecTurnSpeed);
+	void         SetMoveSpeed(const CVector3& vecMoveSpeed);
+	void         GetMoveSpeed(CVector3& vecMoveSpeed);
+	void         SetTurnSpeed(const CVector3& vecTurnSpeed);
+	void         GetTurnSpeed(CVector3& vecTurnSpeed);
 	void         SetLastDamageEntity(IVEntity * pLastDamageEntity);
 	IVEntity *   GetLastDamageEntity();
 	void         SetHealth(float fHealth);

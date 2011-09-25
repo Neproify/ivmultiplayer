@@ -365,6 +365,10 @@
 					Name="IV"
 					>
 					<File
+						RelativePath=".\CIVCam.h"
+						>
+					</File>
+					<File
 						RelativePath=".\CIVCheckpoint.h"
 						>
 					</File>
@@ -654,6 +658,10 @@
 					</File>
 					<File
 						RelativePath=".\Natives\GUINatives.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Natives.h"
 						>
 					</File>
 					<File
@@ -1117,6 +1125,10 @@
 				<Filter
 					Name="IV"
 					>
+					<File
+						RelativePath=".\CIVCam.cpp"
+						>
+					</File>
 					<File
 						RelativePath=".\CIVCheckpoint.cpp"
 						>

@@ -11,6 +11,18 @@
 
 #include "IVCommon.h"
 
+enum eCheckpointType
+{
+	CHECKPOINT_TYPE_NONE,
+	CHECKPOINT_TYPE_ARROW_TUBE = 2,
+	CHECKPOINT_TYPE_FLAG_TUBE,
+	CHECKPOINT_TYPE_ARROW_CORONA,
+	CHECKPOINT_TYPE_FLAG_CORONA,
+	CHECKPOINT_TYPE_ARROW,
+	CHECKPOINT_TYPE_FLAG,
+	CHECKPOINT_TYPE_CORONA
+};
+
 class IVCheckpoint
 {
 public:
@@ -47,8 +59,8 @@ public:
 	WORD           GetType();
 	void           SetRadius(float fRadius);
 	float          GetRadius();
-	void           SetPosition(CVector3 * vecPosition);
-	void           GetPosition(CVector3 * vecPosition);
-	void           SetTargetPosition(CVector3 * vecTargetPosition);
-	void           GetTargetPosition(CVector3 * vecTargetPosition);
+	void           SetPosition(const CVector3& vecPosition);
+	void           GetPosition(CVector3& vecPosition);
+	void           SetTargetPosition(const CVector3& vecTargetPosition);
+	void           GetTargetPosition(CVector3& vecTargetPosition);
 };

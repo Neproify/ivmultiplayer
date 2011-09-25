@@ -46,7 +46,7 @@ public:
 			case 0xfa8eb76:  // Michelle? (mich_a.cut 934.73 -189.6 34.16)
 				{
 					CVector3 vecPosition;
-					g_pLocalPlayer->GetPosition(&vecPosition);
+					g_pLocalPlayer->GetPosition(vecPosition);
 
 					if(vecPosition.fZ < 10.0f)
 						break;

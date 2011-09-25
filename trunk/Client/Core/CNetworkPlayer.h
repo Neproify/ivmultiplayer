@@ -112,17 +112,17 @@ public:
 	//
 	void                     SetModel(DWORD dwModelHash);
 
-	void                     Teleport(CVector3 * vecCoordinates, bool bResetInterpolation = true);
-	void                     SetPosition(CVector3 * vecCoordinates, bool bResetInterpolation = true);
-	void                     GetPosition(CVector3 * vecCoordinates);
+	void                     Teleport(const CVector3& vecCoordinates, bool bResetInterpolation = true);
+	void                     SetPosition(const CVector3& vecCoordinates, bool bResetInterpolation = true);
+	void                     GetPosition(CVector3& vecCoordinates);
 	void                     SetCurrentHeading(float fHeading);
 	float                    GetCurrentHeading();
 	void                     SetDesiredHeading(float fHeading);
 	float                    GetDesiredHeading();
-	void                     SetMoveSpeed(CVector3 * vecMoveSpeed);
-	void                     GetMoveSpeed(CVector3 * vecMoveSpeed);
-	void                     SetTurnSpeed(CVector3 * vecTurnSpeed);
-	void                     GetTurnSpeed(CVector3 * vecTurnSpeed);
+	void                     SetMoveSpeed(const CVector3& vecMoveSpeed);
+	void                     GetMoveSpeed(CVector3& vecMoveSpeed);
+	void                     SetTurnSpeed(const CVector3& vecTurnSpeed);
+	void                     GetTurnSpeed(CVector3& vecTurnSpeed);
 	void					 GiveHelmet();
 	void					 RemoveHelmet();
 	void                     SetHealth(unsigned int uiHealth);

@@ -78,7 +78,7 @@ public:
 	CIVModelInfo   * GetModelInfo() { return m_pModelInfo; }
 	void             StreamIn();
 	void             StreamOut();
-	void             GetStreamPosition(CVector3 * vecPosition) { GetPosition(vecPosition); }
+	void             GetStreamPosition(CVector3& vecPosition) { GetPosition(vecPosition); }
 	bool             IsMoving();
 	void             StopMoving();
 	unsigned int     GetScriptingHandle();
@@ -88,16 +88,16 @@ public:
 
 	void             SetColors(BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4);
 	void             GetColors(BYTE &byteColor1, BYTE &byteColor2, BYTE &byteColor3, BYTE &byteColor4);
-	void             SetPosition(CVector3 vecPosition, bool bDontCancelTasks = false, bool bResetInterpolation = true);
-	void             GetPosition(CVector3 * vecPosition);
-	void             SetRotation(CVector3 vecRotation, bool bResetInterpolation = true);
-	void             GetRotation(CVector3 * vecRotation);
+	void             SetPosition(const CVector3& vecPosition, bool bDontCancelTasks = false, bool bResetInterpolation = true);
+	void             GetPosition(CVector3& vecPosition);
+	void             SetRotation(const CVector3& vecRotation, bool bResetInterpolation = true);
+	void             GetRotation(CVector3& vecRotation);
 	void             SetHealth(unsigned int uiHealth);
 	unsigned int     GetHealth();
-	void             SetMoveSpeed(CVector3 * vecMoveSpeed);
-	void             GetMoveSpeed(CVector3 * vecMoveSpeed);
-	void             SetTurnSpeed(CVector3 * vecTurnSpeed);
-	void             GetTurnSpeed(CVector3 * vecTurnSpeed);
+	void             SetMoveSpeed(const CVector3& vecMoveSpeed);
+	void             GetMoveSpeed(CVector3& vecMoveSpeed);
+	void             SetTurnSpeed(const CVector3& vecTurnSpeed);
+	void             GetTurnSpeed(CVector3& vecTurnSpeed);
 	void             SetSirenState(bool bSirenState);
 	bool             GetSirenState();
 	void             SetDirtLevel(float fDirtLevel);
@@ -115,8 +115,8 @@ public:
 	void             UpdateTargetPosition();
 	void             UpdateTargetRotation();
 	void             Interpolate();
-	void             SetTargetPosition(CVector3 vecPosition, unsigned long ulDelay);
-	void             SetTargetRotation(CVector3 vecRotation, unsigned long ulDelay);
+	void             SetTargetPosition(const CVector3& vecPosition, unsigned long ulDelay);
+	void             SetTargetRotation(const CVector3& vecRotation, unsigned long ulDelay);
 	void             RemoveTargetPosition();
 	void             RemoveTargetRotation();
 	void             ResetInterpolation();

@@ -25,6 +25,7 @@ bool         g_bInLocalContext = true;
 extern CLocalPlayer * g_pLocalPlayer;
 extern CVehicleManager * g_pVehicleManager;
 
+#if 0
 CCam * GetGameCam()
 {
 	/*CCam * pCam = NULL;
@@ -37,9 +38,16 @@ CCam * GetGameCam()
 	//DWORD dwCameraManager = *(DWORD **)COffsets::VAR_CameraManager;
 	//return (CCam *)(dwCameraManager + 0xC);
 	// todo: defines for addresses
+	//CCam * pCam = (DWORD **)(CGame::GetBase() + 0xF21A6C);
 	void * unkn = (void **)(CGame::GetBase() + 0xF21A6C);
 	DWORD dwFunc = (CGame::GetBase() + 0xC4E4C0);
 	CCam * pCam = NULL;
+	_asm
+	{
+		mov ecx, unkn
+		mov eax, [ecx+0Ch]
+		mov pCam, eax
+	}
 	_asm
 	{
 		mov ecx, unkn
@@ -48,31 +56,32 @@ CCam * GetGameCam()
 	}
 	return pCam;
 }
+#endif
 
 void SetGameCameraMatrix(Matrix * matMatrix)
 {
-	CCam * pCam = GetGameCam();
+	/*CCam * pCam = GetGameCam();
 
 	if(pCam)
 	{
-		memcpy(&pCam->m_matMatrix.vecRight, &matMatrix->vecRight, sizeof(CVector3));
-		memcpy(&pCam->m_matMatrix.vecForward, &matMatrix->vecForward, sizeof(CVector3));
-		memcpy(&pCam->m_matMatrix.vecUp, &matMatrix->vecUp, sizeof(CVector3));
-		memcpy(&pCam->m_matMatrix.vecPosition, &matMatrix->vecPosition, sizeof(CVector3));
-	}
+		memcpy(&pCam->m_data1.m_matMatrix.vecRight, &matMatrix->vecRight, sizeof(CVector3));
+		memcpy(&pCam->m_data1.m_matMatrix.vecForward, &matMatrix->vecForward, sizeof(CVector3));
+		memcpy(&pCam->m_data1.m_matMatrix.vecUp, &matMatrix->vecUp, sizeof(CVector3));
+		memcpy(&pCam->m_data1.m_matMatrix.vecPosition, &matMatrix->vecPosition, sizeof(CVector3));
+	}*/
 }
 
 void GetGameCameraMatrix(Matrix * matMatrix)
 {
-	CCam * pCam = GetGameCam();
+	/*CCam * pCam = GetGameCam();
 
 	if(pCam)
 	{
-		memcpy(&matMatrix->vecRight, &pCam->m_matMatrix.vecRight, sizeof(CVector3));
-		memcpy(&matMatrix->vecForward, &pCam->m_matMatrix.vecForward, sizeof(CVector3));
-		memcpy(&matMatrix->vecUp, &pCam->m_matMatrix.vecUp, sizeof(CVector3));
-		memcpy(&matMatrix->vecPosition, &pCam->m_matMatrix.vecPosition, sizeof(CVector3));
-	}
+		memcpy(&matMatrix->vecRight, &pCam->m_data1.m_matMatrix.vecRight, sizeof(CVector3));
+		memcpy(&matMatrix->vecForward, &pCam->m_data1.m_matMatrix.vecForward, sizeof(CVector3));
+		memcpy(&matMatrix->vecUp, &pCam->m_data1.m_matMatrix.vecUp, sizeof(CVector3));
+		memcpy(&matMatrix->vecPosition, &pCam->m_data1.m_matMatrix.vecPosition, sizeof(CVector3));
+	}*/
 }
 
 #include "CChatWindow.h"

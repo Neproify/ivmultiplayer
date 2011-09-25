@@ -1,23 +1,20 @@
-//============== Copyright © 2010 IV:MP Team. All rights reserved. ==============
+//============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
 // File: Natives.h
-// Project: Server
+// Project: Shared
 // Author(s): jenksta
 //            Einstein
 //            Sebihunter
+// License: See LICENSE in root directory
 //
-// Unless specified elsewhere, The copyright to the contents herein is the
-// property of the IV:MP Team. The contents may be used and/or copied only
-// with the written permission of the current IV:MP Developer(s).
-//
-//===============================================================================
+//==============================================================================
 
 #pragma once
 
 // Natives
 
 // Shared
-#include "../Shared/Scripting/Natives/Natives.h"
+#include <Scripting/Natives/Natives.h>
 
 // Client functions
 #include "Natives/ClientNatives.h"

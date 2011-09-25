@@ -91,24 +91,18 @@ void CChatWindow::AddChatMessage(EntityId playerId, const char * szMessage)
 	if(!szMessage)
 		return;
 
-	String sName;
-	unsigned int color = 0xFFFFFFFF;
-
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
-	if(pPlayer)
-	{
-		sName = pPlayer->GetName();
-		color = pPlayer->GetColor();
-	}
-	else
+	if(!pPlayer)
 		return;
 
+	String strName = pPlayer->GetName();
+	unsigned int uiColor = pPlayer->GetColor();
 	MoveUp();
 	strcpy_s(m_chatMessages[0].szMessage, MAX_MESSAGE_LENGTH, szMessage);
-	sprintf(m_chatMessages[0].szName, "%s: ", sName.C_String());
+	sprintf(m_chatMessages[0].szName, "%s: ", strName.Get());
 	m_chatMessages[0].messageColor = MESSAGE_CHAT_COLOR;
-	m_chatMessages[0].nameColor = CEGUI::colour(0xFF000000 | (color >> 8));
+	m_chatMessages[0].nameColor = CEGUI::colour(0xFF000000 | (uiColor >> 8));
 	float fTextExtent = 0;
 
 	if(m_pFont)

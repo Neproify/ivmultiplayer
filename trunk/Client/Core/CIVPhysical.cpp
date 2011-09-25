@@ -35,64 +35,68 @@ IVPhysical * CIVPhysical::GetPhysical()
 	return (IVPhysical *)GetDynamicEntity();
 }
 
-void CIVPhysical::SetMoveSpeed(CVector3 * vecMoveSpeed)
+void CIVPhysical::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
 	{
+		const CVector3 * pVecMoveSpeed = &vecMoveSpeed;
 		DWORD dwFunc = (CGame::GetBase() + FUNC_CPhysical__SetMoveSpeed_7);
 		_asm
 		{
-			push vecMoveSpeed
+			push pVecMoveSpeed
 			mov ecx, pPhysical
 			call dwFunc
 		}
 	}
 }
 
-void CIVPhysical::GetMoveSpeed(CVector3 * vecMoveSpeed)
+void CIVPhysical::GetMoveSpeed(CVector3& vecMoveSpeed)
 {
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
 	{
+		CVector3 * pVecMoveSpeed = &vecMoveSpeed;
 		DWORD dwFunc = (CGame::GetBase() + FUNC_CPhysical__GetMoveSpeed_7);
 		_asm
 		{
-			push vecMoveSpeed
+			push pVecMoveSpeed
 			mov ecx, pPhysical
 			call dwFunc
 		}
 	}
 }
 
-void CIVPhysical::SetTurnSpeed(CVector3 * vecTurnSpeed)
+void CIVPhysical::SetTurnSpeed(const CVector3& vecTurnSpeed)
 {
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
 	{
+		const CVector3 * pVecTurnSpeed = &vecTurnSpeed;
 		DWORD dwFunc = (CGame::GetBase() + FUNC_CPhysical__SetTurnSpeed_7);
 		_asm
 		{
-			push vecTurnSpeed
+			push pVecTurnSpeed
 			mov ecx, pPhysical
 			call dwFunc
 		}
 	}
 }
 
-void CIVPhysical::GetTurnSpeed(CVector3 * vecTurnSpeed)
+void CIVPhysical::GetTurnSpeed(CVector3& vecTurnSpeed)
 {
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
 	{
+		CVector3 * pVecTurnSpeed = &vecTurnSpeed;
 		DWORD dwFunc = (CGame::GetBase() + FUNC_CPhysical__GetTurnSpeed_7);
 		_asm
 		{
-			push vecTurnSpeed
+			push pVecTurnSpeed
 			mov ecx, pPhysical
 			call dwFunc
 		}

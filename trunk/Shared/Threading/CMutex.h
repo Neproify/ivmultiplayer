@@ -32,8 +32,7 @@ private:
 	int m_iLockCount;
 
 public:
-	// NOTE: Name is only used if on windows and NOT using a critical section
-	CMutex(String strName = "");
+	CMutex();
 	~CMutex();
 
 	void Lock();

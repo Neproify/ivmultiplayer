@@ -249,10 +249,10 @@ void CNetworkVehicle::StreamIn()
 		SetRotation(m_vecRotation);
 
 		// Set the move speed
-		SetMoveSpeed(&m_vecMoveSpeed);
+		SetMoveSpeed(m_vecMoveSpeed);
 
 		// Set the turn speed
-		SetTurnSpeed(&m_vecTurnSpeed);
+		SetTurnSpeed(m_vecTurnSpeed);
 		
 		// Set the colors
 		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
@@ -309,16 +309,16 @@ void CNetworkVehicle::StreamOut()
 		CLogFile::Printf("STREAM OUT ON LOCAL PLAYERS VEHICLE!");
 
 	// Save the coordinates
-	GetPosition(&m_vecPosition);
+	GetPosition(m_vecPosition);
 
 	// Save the rotation
-	GetRotation(&m_vecRotation);
+	GetRotation(m_vecRotation);
 
 	// Save the move speed
-	GetMoveSpeed(&m_vecMoveSpeed);
+	GetMoveSpeed(m_vecMoveSpeed);
 
 	// Save the turn speed
-	GetTurnSpeed(&m_vecTurnSpeed);
+	GetTurnSpeed(m_vecTurnSpeed);
 
 	// Save the color
 	GetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
@@ -342,7 +342,7 @@ void CNetworkVehicle::StreamOut()
 bool CNetworkVehicle::IsMoving()
 {
 	CVector3 vecMoveSpeed;
-	GetMoveSpeed(&vecMoveSpeed);
+	GetMoveSpeed(vecMoveSpeed);
 
 	if(!vecMoveSpeed.IsEmpty())
 		return true;
@@ -352,7 +352,7 @@ bool CNetworkVehicle::IsMoving()
 
 void CNetworkVehicle::StopMoving()
 {
-	SetMoveSpeed(&CVector3());
+	SetMoveSpeed(CVector3());
 }
 
 void CNetworkVehicle::SoundHorn(int iDuration)
@@ -448,7 +448,7 @@ void CNetworkVehicle::GetColors(BYTE &byteColor1, BYTE &byteColor2, BYTE &byteCo
 	}
 }
 
-void CNetworkVehicle::SetPosition(CVector3 vecPosition, bool bDontCancelTasks, bool bResetInterpolation)
+void CNetworkVehicle::SetPosition(const CVector3& vecPosition, bool bDontCancelTasks, bool bResetInterpolation)
 {
 	if(IsSpawned())
 	{
@@ -460,7 +460,7 @@ void CNetworkVehicle::SetPosition(CVector3 vecPosition, bool bDontCancelTasks, b
 			m_pVehicle->RemoveFromWorld();
 
 			// Set the position in the matrix
-			m_pVehicle->SetPosition(&vecPosition);
+			m_pVehicle->SetPosition(vecPosition);
 
 			// Re add the vehicle to the world to apply the matrix change
 			m_pVehicle->AddToWorld();
@@ -474,15 +474,15 @@ void CNetworkVehicle::SetPosition(CVector3 vecPosition, bool bDontCancelTasks, b
 		RemoveTargetPosition();
 }
 
-void CNetworkVehicle::GetPosition(CVector3 * vecPosition)
+void CNetworkVehicle::GetPosition(CVector3& vecPosition)
 {
 	if(IsSpawned())
 		m_pVehicle->GetPosition(vecPosition);
 	else
-		memcpy(vecPosition, &m_vecPosition, sizeof(CVector3));
+		vecPosition = m_vecPosition;
 }
 
-void CNetworkVehicle::SetRotation(CVector3 vecRotation, bool bResetInterpolation)
+void CNetworkVehicle::SetRotation(const CVector3& vecRotation, bool bResetInterpolation)
 {
 	if(IsSpawned())
 	{
@@ -491,7 +491,7 @@ void CNetworkVehicle::SetRotation(CVector3 vecRotation, bool bResetInterpolation
 
 		// Get the vehicle matrix
 		Matrix matMatrix;
-		m_pVehicle->GetMatrix(&matMatrix);
+		m_pVehicle->GetMatrix(matMatrix);
 
 		// Convert the rotation from degrees to radians
 		CVector3 vecNewRotation = Math::ConvertDegreesToRadians(vecRotation);
@@ -500,7 +500,7 @@ void CNetworkVehicle::SetRotation(CVector3 vecRotation, bool bResetInterpolation
 		CGame::ConvertEulerAnglesToRotationMatrix(vecNewRotation, matMatrix);
 
 		// Set the new vehicle matrix
-		m_pVehicle->SetMatrix(&matMatrix);
+		m_pVehicle->SetMatrix(matMatrix);
 
 		// Re add the vehicle to the world to apply the matrix change
 		m_pVehicle->AddToWorld();
@@ -513,13 +513,13 @@ void CNetworkVehicle::SetRotation(CVector3 vecRotation, bool bResetInterpolation
 		RemoveTargetRotation();
 }
 
-void CNetworkVehicle::GetRotation(CVector3 * vecRotation)
+void CNetworkVehicle::GetRotation(CVector3& vecRotation)
 {
 	if(IsSpawned())
 	{
 		// Get the vehicle matrix
 		Matrix matMatrix;
-		m_pVehicle->GetMatrix(&matMatrix);
+		m_pVehicle->GetMatrix(matMatrix);
 
 		// Convert the matrix to euler angles
 		CVector3 vecNewRotation;
@@ -532,10 +532,10 @@ void CNetworkVehicle::GetRotation(CVector3 * vecRotation)
 		vecNewRotation.fZ = ((2 * PI) - vecNewRotation.fZ);
 
 		// Convert the rotation from radians to degrees
-		*vecRotation = Math::ConvertRadiansToDegrees(vecNewRotation);
+		vecRotation = Math::ConvertRadiansToDegrees(vecNewRotation);
 	}
 	else
-		memcpy(vecRotation, &m_vecRotation, sizeof(CVector3));
+		vecRotation = m_vecRotation;
 }
 
 void CNetworkVehicle::SetHealth(unsigned int uiHealth)
@@ -556,40 +556,40 @@ unsigned int CNetworkVehicle::GetHealth()
 	return m_uiHealth;
 }
 
-void CNetworkVehicle::SetMoveSpeed(CVector3 * vecMoveSpeed)
+void CNetworkVehicle::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
 	// Are we spawned?
 	if(IsSpawned())
 		m_pVehicle->SetMoveSpeed(vecMoveSpeed);
 
-	memcpy(&m_vecMoveSpeed, vecMoveSpeed, sizeof(CVector3));
+	m_vecMoveSpeed = vecMoveSpeed;
 }
 
-void CNetworkVehicle::GetMoveSpeed(CVector3 * vecMoveSpeed)
+void CNetworkVehicle::GetMoveSpeed(CVector3& vecMoveSpeed)
 {
 	// Are we spawned?
 	if(IsSpawned())
 		m_pVehicle->GetMoveSpeed(vecMoveSpeed);
 	else
-		memcpy(vecMoveSpeed, &m_vecMoveSpeed, sizeof(CVector3));
+		vecMoveSpeed = m_vecMoveSpeed;
 }
 
-void CNetworkVehicle::SetTurnSpeed(CVector3 * vecTurnSpeed)
+void CNetworkVehicle::SetTurnSpeed(const CVector3& vecTurnSpeed)
 {
 	// Are we spawned?
 	if(IsSpawned())
 		m_pVehicle->SetTurnSpeed(vecTurnSpeed);
 
-	memcpy(&m_vecTurnSpeed, vecTurnSpeed, sizeof(CVector3));
+	m_vecTurnSpeed = vecTurnSpeed;
 }
 
-void CNetworkVehicle::GetTurnSpeed(CVector3 * vecTurnSpeed)
+void CNetworkVehicle::GetTurnSpeed(CVector3& vecTurnSpeed)
 {
 	// Are we spawned?
 	if(IsSpawned())
 		m_pVehicle->GetTurnSpeed(vecTurnSpeed);
 	else
-		memcpy(vecTurnSpeed, &m_vecTurnSpeed, sizeof(CVector3));
+		vecTurnSpeed = m_vecTurnSpeed;
 }
 
 void CNetworkVehicle::SetSirenState(bool bSirenState)
@@ -652,8 +652,8 @@ void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 	SetPosition(emptyVehicleSync->vecPos);
 	//SetHeading(emptyVehicleSync->fHeading);
 	//SetQuaternion(&emptyVehicleSync->quatQuaternion);
-	SetTurnSpeed(&emptyVehicleSync->vecTurnSpeed);
-	SetMoveSpeed(&emptyVehicleSync->vecMoveSpeed);
+	SetTurnSpeed(emptyVehicleSync->vecTurnSpeed);
+	SetMoveSpeed(emptyVehicleSync->vecMoveSpeed);
 }
 
 BYTE CNetworkVehicle::GetMaxPassengers()
@@ -751,7 +751,7 @@ void CNetworkVehicle::UpdateTargetPosition()
 	{
 		// Get our position
 		CVector3 vecCurrentPosition;
-		GetPosition(&vecCurrentPosition);
+		GetPosition(vecCurrentPosition);
 
 		// Get the factor of time spent from the interpolation start
 		// to the current time.
@@ -802,7 +802,7 @@ void CNetworkVehicle::UpdateTargetRotation()
 	{
 		// Get our current rotation
 		CVector3 vecCurrentRotation;
-		GetRotation(&vecCurrentRotation);
+		GetRotation(vecCurrentRotation);
 
 		// Get the factor of time spent from the interpolation start
 		// to the current time.
@@ -849,7 +849,7 @@ void CNetworkVehicle::Interpolate()
 	}
 }
 
-void CNetworkVehicle::SetTargetPosition(CVector3 vecPosition, unsigned long ulDelay)
+void CNetworkVehicle::SetTargetPosition(const CVector3& vecPosition, unsigned long ulDelay)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -862,7 +862,7 @@ void CNetworkVehicle::SetTargetPosition(CVector3 vecPosition, unsigned long ulDe
 
 		// Get our local position
 		CVector3 vecLocalPosition;
-		GetPosition(&vecLocalPosition);
+		GetPosition(vecLocalPosition);
 
 		// Set the target position
 		m_interp.pos.vecTarget = vecPosition;
@@ -885,7 +885,7 @@ void CNetworkVehicle::SetTargetPosition(CVector3 vecPosition, unsigned long ulDe
 	m_vecPosition = vecPosition;
 }
 
-void CNetworkVehicle::SetTargetRotation(CVector3 vecRotation, unsigned long ulDelay)
+void CNetworkVehicle::SetTargetRotation(const CVector3& vecRotation, unsigned long ulDelay)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -898,7 +898,7 @@ void CNetworkVehicle::SetTargetRotation(CVector3 vecRotation, unsigned long ulDe
 
 		// Get our local rotation
 		CVector3 vecLocalRotation;
-		GetRotation(&vecLocalRotation);
+		GetRotation(vecLocalRotation);
 
 		// Set the target rotation
 		m_interp.rot.vecTarget = vecRotation;

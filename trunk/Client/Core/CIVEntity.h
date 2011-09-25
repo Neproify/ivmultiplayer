@@ -120,14 +120,14 @@ public:
 	void       SetEntity(IVEntity * pEntity);
 	IVEntity * GetEntity();
 
-	void       SetMatrix(Matrix * matMatrix);
-	void       GetMatrix(Matrix * matMatrix);
-	void       SetPosition(CVector3 * vecPosition);
-	void       GetPosition(CVector3 * vecPosition);
-	void       SetRoll(CVector3 * vecRoll);
-	void       GetRoll(CVector3 * vecRoll);
-	void       SetDirection(CVector3 * vecDirection);
-	void       GetDirection(CVector3 * vecDirection);
+	void       SetMatrix(const Matrix& matMatrix);
+	void       GetMatrix(Matrix& matMatrix);
+	void       SetPosition(const CVector3& vecPosition);
+	void       GetPosition(CVector3& vecPosition);
+	void       SetRoll(const CVector3& vecRoll);
+	void       GetRoll(CVector3& vecRoll);
+	void       SetDirection(const CVector3& vecDirection);
+	void       GetDirection(CVector3& vecDirection);
 	void       SetModelIndex(WORD wModelIndex);
 	WORD       GetModelIndex();
 	void       SetAlpha(BYTE byteAlpha);

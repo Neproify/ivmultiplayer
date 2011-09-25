@@ -55,8 +55,6 @@ private:
 	// Scripting
 	static void ScriptingSetPlayerHealth(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-	static void ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-	static void ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerTime(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerWeather(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingTogglePayAndSpray(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
@@ -65,13 +63,10 @@ private:
 	static void ScriptingGivePlayerWeapon(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetSpawnLocation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-
 	static void ScriptingSetVehicleIndicators(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSoundVehicleHorn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-
 	static void ScriptingGiveHelmet(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingRemoveHelmet(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-
 	static void ScriptingSetModel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingToggleControls(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetHeading(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
@@ -98,10 +93,6 @@ private:
 	static void ScriptingSetCameraBehindPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerDucking(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerInvincible(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-
-	// FIXUPDATE
-	// Server side actor tasks for better actors
-	// (Start off with simple move tasks then go onto better ones)
 	static void ScriptingSetActorCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetActorHeading(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingActorWalkToCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
@@ -128,6 +119,9 @@ private:
 	static void ScriptingSetObjectRotation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPickupPosition(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPickupRotation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingResetPlayerCamera(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();

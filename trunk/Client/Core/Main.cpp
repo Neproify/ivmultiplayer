@@ -90,7 +90,6 @@ unsigned short g_usPort;
 String         g_strHost;
 String         g_strNick;
 String         g_strPassword;
-unsigned int   cam;
 
 // TODO: Move this to another class?
 extern float fTextPos[2];
@@ -506,7 +505,7 @@ void Direct3DRender()
 		{
 			g_pChatWindow->AddInfoMessage("Creating explosion near your position");
 			CVector3 vecPosition;
-			g_pLocalPlayer->GetPosition(&vecPosition);
+			g_pLocalPlayer->GetPosition(vecPosition);
 			vecPosition.fX += 10.0f;
 			CGame::CreateExplosion(vecPosition, 0, 1.0f, true, false);
 			g_pChatWindow->AddInfoMessage("Created explosion near your position");
@@ -542,7 +541,7 @@ void Direct3DRender()
 					if(!pVehicle->IsOnScreen())
 						continue;
 	
-					pVehicle->GetPosition(&vecWorldPosition);
+					pVehicle->GetPosition(vecWorldPosition);
 					CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
 					g_pGUI->DrawText(String("Vehicle %d", i), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y));
 				}
@@ -784,10 +783,6 @@ void InternalResetGame()
 	CLogFile::Printf("Initializing game for multiplayer activities");
 
 	// TODO: Reset functions for all of these classes or something so i don't have to delete and recreate them?
-	SAFE_DELETE(g_pCamera);
-	g_pCamera = new CCamera();
-	CLogFile::Printf("Created camera instance");
-
 	SAFE_DELETE(g_pModelManager);
 	g_pModelManager = new CModelManager();
 	CLogFile::Printf("Created model manager instance");
@@ -828,7 +823,7 @@ void InternalResetGame()
 
 	g_pLocalPlayer->SetPlayerId(INVALID_ENTITY_ID);
 	g_pLocalPlayer->SetModel(Scripting::MODEL_PLAYER);
-	g_pLocalPlayer->Teleport(&CVector3());
+	g_pLocalPlayer->Teleport(CVector3());
 	g_pLocalPlayer->SetPlayerControlAdvanced(false, false);
 	g_pLocalPlayer->RemoveAllWeapons();
 	g_pLocalPlayer->ResetMoney();
@@ -874,27 +869,26 @@ void InternalResetGame()
 	CGame::GetWeather()->SetWeather(WEATHER_EXTRA_SUNNY);
 	CGame::ResetScrollBars();
 	CGame::SetScrollBarColor();
+	CGame::ToggleLazlowStation(true);
 	Scripting::SetScenarioPedDensityMultiplier(0, 0);
 	// SetCanBurstCarTyres(bool canburst);
 	// SetSirenWithNoDriver
 	Scripting::SetMaxWantedLevel(0);
 	Scripting::SetCreateRandomCops(false);
-	Scripting::UnlockLazlowStation(); // cause we all love Lazlow :D
 	// Test if this is needed (Script is unloaded, so it shouldn't be)
 	Scripting::AllowStuntJumpsToTrigger(false);
-	/* CAM STUFF */
-	CGame::GetStreaming()->LoadWorldAtPosition(CVector3(HAPPINESS_CAMERA_LOOK_AT));
-	// TODO: Move all this camera shit to another class
-	Scripting::ActivateScriptedCams(true, true);
-	Scripting::CreateCam(14, &cam);
-	//Scripting::GetGameCam(&cam);
-	Scripting::SetCamPos(cam, HAPPINESS_CAMERA_POS);
-	Scripting::PointCamAtCoord(cam, HAPPINESS_CAMERA_LOOK_AT);
-	Scripting::SetCamActive(cam, true);
-	Scripting::SetCamPropagate(cam, true);
-	//Scripting::SetCamFov(cam, ?); // Field of view
-	/* CAM STUFF END */
 	CLogFile::Printf("Reset world");
+
+	if(!g_pCamera)
+	{
+		g_pCamera = new CCamera();
+		CLogFile::Printf("Created camera instance");
+	}
+
+	g_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
+	g_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT));
+	CLogFile::Printf("Reset camera instance");
+	
 
 	g_pNetworkManager->Connect();
 	CLogFile::Print("Sent network connection request");

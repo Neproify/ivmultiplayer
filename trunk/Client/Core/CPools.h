@@ -14,43 +14,21 @@
 #include "CIVVehicle.h"
 #include "CIVTask.h"
 #include "CIVPlayerInfo.h"
+#include "CIVCam.h"
+#include "CIVCheckpoint.h"
 
-#define VAR_PedPool_7 0x18A82AC
-#define VAR_VehiclePool_7 0x1619240
-#define VAR_PtrNodeSinglePool_7 0x16B7758
-#define VAR_PtrNodeDoublePool_7 0x16B775C
-#define VAR_EntryInfoNodesPool_7 0x1706E98
-#define VAR_AnimatedBuildingPool_7 0x1706E94
-#define VAR_BuildingPool_7 0x168FED0
-#define VAR_ObjectPool_7 0x1350CE0
-#define VAR_DummyObjectPool_7 0x168FF90
-#define VAR_InteriorInstPool_7 0x165D2E4
-#define VAR_PortalInstPool_7 0x16C3364
-#define VAR_AnimBlenderPool_7 0x16397B0
-#define VAR_AtdNodeAnimChangePooledObjectPool_7 0x16397B8
-#define VAR_AtdNodeAnimPlayerPool_7 0x16397B4
-#define VAR_crFrameFilterBoneMaskPool_7 0x16397BC
-#define VAR_crFrameFilterBoneAnaloguePool_7 0x16397C0
-#define VAR_crExpressionProcessorPool_7 0x16397C4
-#define VAR_crmtObserverPool_7 0x16397C8
-#define VAR_TaskPool_7 0x164B01C
-#define VAR_DummyTaskPool_7 0x1706E8C
-#define VAR_EventPool_7 0x152F4B4
-#define VAR_PointRoutePool_7 0x1706E80
-#define VAR_PatrolRoutePool_7 0x1706E88
-#define VAR_NavMeshRoutePool_7 0x1706E84
-#define VAR_CamPool_7 0x1618020
-#define VAR_ExplosionTypePool_7 0x1706E78
-#define VAR_PedMoveBlendPool_7 0x18A82B4
-#define VAR_ParticleSystemPool_7 0x169F4C4
-#define VAR_VehicleStructPool_7 0x16D6594
-#define VAR_PedBasePool_7 0x18A82B8
-#define VAR_TaskInfoPool_7 0x1618040
-#define VAR_PedAttractorPool_7 0x17168BC
-#define VAR_TargettingPool_7 0x1711134 // look into this...
+// Game pool addresses
 #define VAR_PlayerInfoArray 0x11A7008
 #define VAR_LocalPlayerId_7 0xF1CC68
+
+// Player info array size
 #define PLAYER_INFO_ARRAY_SIZE 32
+
+// Custom (increased) checkpoint array size
+#define CHECKPOINT_ARRAY_SIZE 128
+
+// Invalid checkpoint array index
+#define INVALID_CHECKPOINT 255
 
 template <class T>
 class CIVPool;
@@ -58,14 +36,18 @@ class CIVPool;
 class CPools
 {
 private:
+	// Game pools
 	CIVPool<IVPed>     * m_pPedPool;
 	CIVPool<IVVehicle> * m_pVehiclePool;
 	//#define VAR_BuildingPool_7 0x168FED0
 	//#define VAR_ObjectPool_7 0x1350CE0
 	CIVPool<IVTask>    * m_pTaskPool;
 	//#define VAR_EventPool_7 0x152F4B4
-	//#define VAR_CamPool_7 0x1618020
+	CIVPool<IVCam>     * m_pCamPool;
 	//#define VAR_TaskInfoPool_7 0x1618040
+
+	// Custom checkpoint array
+	IVCheckpoint         m_checkpoints[CHECKPOINT_ARRAY_SIZE];
 
 public:
 	void                 Initialize();
@@ -75,6 +57,7 @@ public:
 	CIVPool<IVPed>     * GetPedPool() { return m_pPedPool; }
 	CIVPool<IVVehicle> * GetVehiclePool() { return m_pVehiclePool; }
 	CIVPool<IVTask>    * GetTaskPool() { return m_pTaskPool; }
+	CIVPool<IVCam>     * GetCamPool() { return m_pCamPool; }
 
 	// Player Infos (An array not a pool)
 	IVPlayerInfo       * GetPlayerInfoFromIndex(unsigned int uiIndex);
@@ -86,4 +69,8 @@ public:
 	// Current Player Info Index (Doesn't really belong here, but it was the only place to put it)
 	unsigned int         GetLocalPlayerIndex();
 	void                 SetLocalPlayerIndex(unsigned int uiIndex);
+
+	// Checkpoints (An array not a pool)
+	IVCheckpoint       * GetCheckpointFromIndex(unsigned int uiIndex);
+	unsigned int         FindFreeCheckpointIndex();
 };

@@ -35,8 +35,6 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerArmour", GetArmour, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerCoordinates", SetCoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("getPlayerCoordinates", GetCoordinates, 1, "i");
-	pScriptingManager->RegisterFunction("setPlayerCameraPos", SetCameraPos, 4, "ifff");
-	pScriptingManager->RegisterFunction("setPlayerCameraLookAt", SetCameraLookAt, 4, "ifff");
 	pScriptingManager->RegisterFunction("setPlayerPosition", SetCoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("getPlayerPosition", GetCoordinates, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerTime", SetTime, 3, "iii");
@@ -102,6 +100,9 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerClothes", GetClothes, 1, "i");
 	pScriptingManager->RegisterFunction("resetPlayerClothes", ResetClothes, 1, "i");
 	pScriptingManager->RegisterFunction("respawnPlayer", Respawn, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerCameraPos", SetCameraPos, 4, "ifff");
+	pScriptingManager->RegisterFunction("setPlayerCameraLookAt", SetCameraLookAt, 4, "ifff");
+	pScriptingManager->RegisterFunction("resetPlayerCamera", ResetCamera, 1, "i");
 
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 }
@@ -292,46 +293,6 @@ SQInteger CPlayerNatives::GetArmour(SQVM * pVM)
 	return 1;
 }
 
-// setPlayerCameraPos(playerid, x, y, z)
-SQInteger CPlayerNatives::SetCameraPos(SQVM * pVM)
-{
-	EntityId playerId;
-	CVector3 vecPos;
-	sq_getentity(pVM, -4, &playerId);
-	sq_getvector3(pVM, -3, &vecPos);
-
-	if(g_pPlayerManager->DoesExist(playerId))
-	{
-		CBitStream bsSend;
-		bsSend.Write(vecPos);
-		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraPos, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-		sq_pushbool(pVM, true);
-	}
-
-	sq_pushbool(pVM, false);
-	return 1;
-}
-
-// setPlayerCameraLookAt(playerid, x, y, z)
-SQInteger CPlayerNatives::SetCameraLookAt(SQVM * pVM)
-{
-	EntityId playerId;
-	CVector3 vecPos;
-	sq_getentity(pVM, -4, &playerId);
-	sq_getvector3(pVM, -3, &vecPos);
-
-	if(g_pPlayerManager->DoesExist(playerId))
-	{
-		CBitStream bsSend;
-		bsSend.Write(vecPos);
-		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraLookAt, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-		sq_pushbool(pVM, true);
-	}
-
-	sq_pushbool(pVM, false);
-	return 1;
-}
-
 // setPlayerCoordinates(playerid, x, y, z)
 SQInteger CPlayerNatives::SetCoordinates(SQVM * pVM)
 {
@@ -346,6 +307,7 @@ SQInteger CPlayerNatives::SetCoordinates(SQVM * pVM)
 		bsSend.Write(vecPos);
 		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCoordinates, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -509,7 +471,7 @@ SQInteger CPlayerNatives::SendMessage(SQVM * pVM)
 	return 1;
 }
 
-// sendMessageToAll(message [, color = 0x999999, allowformatting = true])
+// sendMessageToAll(message [, color = 0xFFFFFFAA, allowformatting = true])
 SQInteger CPlayerNatives::SendMessageToAll(SQVM * pVM)
 {
 	SQInteger vtop = (sq_gettop(pVM) - 1);
@@ -650,7 +612,7 @@ SQInteger CPlayerNatives::IsOnFoot(SQVM * pVM)
 
 	if(pPlayer)
 	{
-		sq_pushbool(pVM, !pPlayer->IsInVehicle());
+		sq_pushbool(pVM, pPlayer->IsOnFoot());
 		return 1;
 	}
 
@@ -1970,6 +1932,65 @@ SQInteger CPlayerNatives::RemoveHelmet(SQVM * pVM)
 		return 1;
 	}
 	
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerCameraPos(playerid, x, y, z)
+SQInteger CPlayerNatives::SetCameraPos(SQVM * pVM)
+{
+	EntityId playerId;
+	CVector3 vecPos;
+	sq_getentity(pVM, -4, &playerId);
+	sq_getvector3(pVM, -3, &vecPos);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(vecPos);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraPos, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerCameraLookAt(playerid, x, y, z)
+SQInteger CPlayerNatives::SetCameraLookAt(SQVM * pVM)
+{
+	EntityId playerId;
+	CVector3 vecPos;
+	sq_getentity(pVM, -4, &playerId);
+	sq_getvector3(pVM, -3, &vecPos);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(vecPos);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraLookAt, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// resetPlayerCamera(playerid)
+SQInteger CPlayerNatives::ResetCamera(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		g_pNetworkManager->RPC(RPC_ScriptingResetPlayerCamera, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }

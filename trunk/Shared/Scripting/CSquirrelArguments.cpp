@@ -12,6 +12,12 @@
 #include "../../Vendor/Squirrel/sqvm.h"
 #include "../../Vendor/Squirrel/sqstring.h"
 
+CSquirrelArgument::CSquirrelArgument(CSquirrelArguments array, bool isArray)
+{
+	type = (isArray ? OT_ARRAY : OT_TABLE);
+	data.pArray = new CSquirrelArguments(array);
+}
+
 CSquirrelArgument::CSquirrelArgument(SQObject o)
 {
 	type = o._type;
@@ -125,6 +131,99 @@ bool CSquirrelArgument::push(SQVM* pVM)
 			assert(0);
 			return false;
 	}
+	return true;
+}
+
+bool CSquirrelArgument::pushFromStack(SQVM* pVM, int idx)
+{
+	SQObjectType _type = sq_gettype(pVM, idx);
+
+	switch(_type)
+	{
+	case OT_NULL:
+		SetNull();
+		break;
+	case OT_INTEGER:
+		{
+			SQInteger i;
+			sq_getinteger(pVM, idx, &i);
+			SetInteger((int)i);
+		}
+		break;
+	case OT_BOOL:
+		{
+			SQBool b;
+			sq_getbool(pVM, idx, &b);
+			SetBool(b != 0);
+		}
+		break;
+	case OT_FLOAT:
+		{
+			float f;
+			sq_getfloat(pVM, idx, &f);
+			SetFloat(f);
+		}
+		break;
+	case OT_STRING:
+		{
+			const char* szTemp;
+			sq_getstring(pVM, idx, &szTemp);
+			SetString(szTemp);
+		}
+		break;
+	case OT_TABLE:
+		{
+			CSquirrelArguments* pArguments = new CSquirrelArguments();
+			sq_push(pVM, idx);
+			sq_pushnull(pVM);
+
+			while(SQ_SUCCEEDED(sq_next(pVM,-2)))
+			{
+				if(!pArguments->pushFromStack(pVM, -2) || !pArguments->pushFromStack(pVM,-1))
+				{
+					sq_pop(pVM,4);
+					delete pArguments;
+					return false;
+				}
+				sq_pop(pVM,2);
+			}
+
+			sq_pop(pVM,2);
+			SetTable(pArguments);
+		}
+		break;
+	case OT_ARRAY:
+		{
+			CSquirrelArguments* pArguments = new CSquirrelArguments();
+			sq_push(pVM, idx);
+			sq_pushnull(pVM);
+
+			while(SQ_SUCCEEDED(sq_next(pVM,-2)))
+			{
+				if(!pArguments->pushFromStack(pVM,-1))
+				{
+					sq_pop(pVM,4);
+					delete pArguments;
+					return false;
+				}
+				sq_pop(pVM,2);
+			}
+
+			sq_pop(pVM,2);
+			SetArray(pArguments);
+		}
+		break;
+	case OT_CLOSURE:
+	case OT_NATIVECLOSURE:
+		{
+			type = _type;
+			data.sqObject = SQObject(stack_get(pVM, idx));
+		}
+		break;
+	default:
+		return false;
+	}
+
 	return true;
 }
 
@@ -440,91 +539,15 @@ void CSquirrelArguments::push(CSquirrelArguments* pArray, bool isArray)
 
 bool CSquirrelArguments::pushFromStack(SQVM* pVM, int idx)
 {
-	switch(sq_gettype(pVM, idx))
-	{
-		case OT_NULL:
-			push();
-			break;
-		case OT_INTEGER:
-			{
-				SQInteger i;
-				sq_getinteger(pVM, idx, &i);
-				push((int)i);
-			}
-			break;
-		case OT_BOOL:
-			{
-				SQBool b;
-				sq_getbool(pVM, idx, &b);
-				push(b!=0);
-			}
-			break;
-		case OT_FLOAT:
-			{
-				float f;
-				sq_getfloat(pVM, idx, &f);
-				push(f);
-			}
-			break;
-		case OT_STRING:
-			{
-				const char* szTemp;
-				sq_getstring(pVM, idx, &szTemp);
-				push(szTemp);
-			}
-			break;
-		case OT_TABLE:
-			{
-				CSquirrelArguments* pArguments = new CSquirrelArguments();
-				
-				sq_push(pVM, idx);
-				sq_pushnull(pVM);
+	CSquirrelArgument * arg = new CSquirrelArgument();
+	bool bValid = arg->pushFromStack(pVM, idx);
 
-				while(SQ_SUCCEEDED(sq_next(pVM,-2)))
-				{
-					if(!pArguments->pushFromStack(pVM, -2) || !pArguments->pushFromStack(pVM,-1))
-					{
-						sq_pop(pVM,4);
-						delete pArguments;
-						return false;
-					}
-					sq_pop(pVM,2);
-				}
-				sq_pop(pVM,2);
+	if(bValid)
+		push_back(arg);
+	else
+		delete arg;
 
-				push(pArguments, false);
-			}
-			break;
-		case OT_ARRAY:
-			{
-				CSquirrelArguments* pArguments = new CSquirrelArguments();
-				
-				sq_push(pVM, idx);
-				sq_pushnull(pVM);
-
-				while(SQ_SUCCEEDED(sq_next(pVM,-2)))
-				{
-					if(!pArguments->pushFromStack(pVM,-1))
-					{
-						sq_pop(pVM,4);
-						delete pArguments;
-						return false;
-					}
-					sq_pop(pVM,2);
-				}
-				sq_pop(pVM,2);
-
-				push(pArguments, true);
-			}
-			break;
-		case OT_CLOSURE:
-		case OT_NATIVECLOSURE:
-			pushObject(SQObject(stack_get(pVM, idx)));
-			break;
-		default:
-			return false;
-	}
-	return true;
+	return bValid;
 }
 
 CSquirrelArgument CSquirrelArguments::pop()

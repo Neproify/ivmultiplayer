@@ -17,7 +17,5 @@
 class CCheckpointManager : public CNetworkEntityManager<CCheckpoint, MAX_CHECKPOINTS>
 {
 public:
-	CCheckpointManager();
-
 	void Pulse();
 };

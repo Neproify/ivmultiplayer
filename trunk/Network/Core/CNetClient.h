@@ -47,7 +47,6 @@ public:
 	bool                     IsConnected();
 	void                     SetPacketHandler(PacketHandler_t pfnPacketHandler) { m_pfnPacketHandler = pfnPacketHandler; }
 	PacketHandler_t          GetPacketHandler() { return m_pfnPacketHandler; }
-	const char             * GetSerial() { return "00000000000000000000000000000000"; }
 	CPlayerSocket          * GetServerSocket() { return &m_serverSocket; }
 	CNetStats              * GetNetStats();
 	int                      GetLastPing();

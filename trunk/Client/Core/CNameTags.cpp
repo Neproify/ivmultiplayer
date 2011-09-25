@@ -41,7 +41,7 @@ void CNameTags::Draw()
 		// Get the local player position
 		// TODO: Use camera position instead of local player position
 		CVector3 vecLocalPlayerPosition;
-		g_pLocalPlayer->GetPosition(&vecLocalPlayerPosition);
+		g_pLocalPlayer->GetPosition(vecLocalPlayerPosition);
 
 		CVector3 vecWorldPosition;
 		Vector2 vecScreenPosition;
@@ -68,7 +68,7 @@ void CNameTags::Draw()
 					continue;
 
 				// Get the player position
-				pPlayer->GetPosition(&vecWorldPosition);
+				pPlayer->GetPosition(vecWorldPosition);
 
 				// Is this player not within our view range?
 				// TODO: Find proper values and base on current weapon e.t.c.

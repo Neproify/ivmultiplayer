@@ -41,7 +41,7 @@ static float ConvertRadiansToDegrees(float fRotation)
 	return WrapAround((float)(fRotation * 180.0f / PI + 360.0f), 360.0f);
 }
 
-static CVector3 ConvertRadiansToDegrees(CVector3 &vecRotation)
+static CVector3 ConvertRadiansToDegrees(const CVector3 &vecRotation)
 {
 	return CVector3(ConvertRadiansToDegrees(vecRotation.fX), 
 					ConvertRadiansToDegrees(vecRotation.fY), 
@@ -54,7 +54,7 @@ static float ConvertDegreesToRadians(float fRotation)
 	return WrapAround((float)(fRotation * PI / 180.0f + 2 * PI), (float)(2 * PI));
 }
 
-static CVector3 ConvertDegreesToRadians(CVector3 &vecRotation)
+static CVector3 ConvertDegreesToRadians(const CVector3 &vecRotation)
 {
 	return CVector3(ConvertDegreesToRadians(vecRotation.fX), 
 					ConvertDegreesToRadians(vecRotation.fY), 
@@ -74,7 +74,7 @@ static float GetOffsetDegrees(float a, float b)
 	return c;
 }
 
-static CVector3 GetOffsetDegrees(CVector3 a, CVector3 b)
+static CVector3 GetOffsetDegrees(const CVector3& a, const CVector3& b)
 {
 	return CVector3(GetOffsetDegrees(a.fX, b.fX), GetOffsetDegrees(a.fY, b.fY), GetOffsetDegrees(a.fZ, b.fZ));
 }

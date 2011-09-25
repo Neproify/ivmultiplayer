@@ -51,7 +51,6 @@ public:
 	virtual bool                     IsConnected() = 0;
 	virtual void                     SetPacketHandler(PacketHandler_t pfnPacketHandler) = 0;
 	virtual PacketHandler_t          GetPacketHandler() = 0;
-	virtual const char             * GetSerial() = 0;
 	virtual CPlayerSocket          * GetServerSocket() = 0;
 	virtual CNetStats              * GetNetStats() = 0;
 	virtual int                      GetLastPing() = 0;
