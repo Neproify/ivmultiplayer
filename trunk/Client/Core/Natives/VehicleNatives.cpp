@@ -35,6 +35,7 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleVelocity", GetVelocity, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleAngularVelocity", GetAngularVelocity, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleLocked", GetLocked, 1, "i");
+	pScriptingManager->RegisterFunction("getVehicleDirtLevel", GetDirtLevel, 1, "i");
 }
 
 // getVehicleCoordinates(vehicleid)
@@ -252,6 +253,25 @@ SQInteger CVehicleNatives::GetLocked(SQVM * pVM)
 		if(pVehicle)
 		{
 			sq_pushinteger(pVM, pVehicle->GetDoorLockState());
+			return 1;
+		}
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::GetDirtLevel(SQVM * pVM)
+{
+	int vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+
+	if(g_pVehicleManager->Exists(vehicleid))
+	{
+		CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleid);
+		if(pVehicle)
+		{
+			sq_pushfloat(pVM, (float)pVehicle->GetDirtLevel());
 			return 1;
 		}
 	}

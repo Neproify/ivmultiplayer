@@ -841,12 +841,15 @@ void InternalResetGame()
 	g_pNetworkManager->Startup(g_strHost, g_usPort, g_strPassword);
 	CLogFile::Printf("Started network manager instance");
 
-	// Delete all gui elements
 	if(g_pClientScriptManager)
+	{
+		// Delete all gui elements
 		g_pClientScriptManager->GetGUIManager()->DeleteAll();
 
-	// Delete client script manager
-	SAFE_DELETE(g_pClientScriptManager);
+		// Delete client script manager
+		SAFE_DELETE(g_pClientScriptManager);
+	}
+
 	g_pClientScriptManager = new CClientScriptManager();
 	CLogFile::Printf("Created client script manager instance");
 
