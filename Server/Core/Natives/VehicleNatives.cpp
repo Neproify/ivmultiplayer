@@ -597,44 +597,39 @@ SQInteger CVehicleNatives::IsOccupied(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	if(g_pVehicleManager->DoesExist(vehicleId))
-	{
-		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
-		if(pVehicle)
-		{
-			sq_pushbool(pVM, pVehicle->IsOccupied());
-			return 1;
-		}
+	if(pVehicle)
+	{
+		sq_pushbool(pVM, pVehicle->IsOccupied());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
 	return 1;
 }
 
+// getVehicleOccupants(vehicleid)
 SQInteger CVehicleNatives::GetOccupants(SQVM * pVM)
 {
-	SQInteger vehicleid;
-	sq_getinteger(pVM, -1, &vehicleid);
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
-	if(g_pVehicleManager->DoesExist(vehicleid))
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+	if(pVehicle)
 	{
-		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
+		CSquirrelArguments args;
 
-		if(pVehicle)
+		for(BYTE i = 0; i < (MAX_VEHICLE_PASSENGERS + 1); i++)
 		{
-			CSquirrelArguments args;
-
-			for(BYTE i = 0; i < (MAX_VEHICLE_PASSENGERS + 1); i++)
-			{
-				args.push((int)(i + 1));
-				CPlayer * pOccupant = pVehicle->GetOccupant(i);
-				args.push(pOccupant ? (int)pOccupant->GetPlayerId() : (int)INVALID_ENTITY_ID);
-			}
-
-			sq_pusharg(pVM, CSquirrelArgument(args, false));
-			return 1;
+			args.push((int)(i + 1));
+			CPlayer * pOccupant = pVehicle->GetOccupant(i);
+			args.push(pOccupant ? (int)pOccupant->GetPlayerId() : (int)INVALID_ENTITY_ID);
 		}
+
+		sq_pusharg(pVM, CSquirrelArgument(args, false));
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
