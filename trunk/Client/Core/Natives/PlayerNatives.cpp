@@ -23,12 +23,12 @@
 #include "../CLocalPlayer.h"
 #include "../CGUI.h"
 
-extern CPlayerManager * g_pPlayerManager;
+extern CPlayerManager  * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
 extern CNetworkManager * g_pNetworkManager;
-extern CChatWindow * g_pChatWindow;
-extern CLocalPlayer * g_pLocalPlayer;
-extern CGUI * g_pGUI;
+extern CChatWindow     * g_pChatWindow;
+extern CLocalPlayer    * g_pLocalPlayer;
+extern CGUI            * g_pGUI;
 
 // Player functions
 
@@ -241,16 +241,18 @@ SQInteger CPlayerNatives::IsInVehicle(SQVM * pVM)
 // getPlayerVehicleId(playerid)
 SQInteger CPlayerNatives::GetVehicleId(SQVM * pVM)
 {
-	int iPlayerId;
+	SQInteger iPlayerId;
 	sq_getinteger(pVM, -1, &iPlayerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
-	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
 
-		if(pPlayer)
+	if(pPlayer)
+	{
+		CNetworkVehicle * pVehicle = pPlayer->GetVehicle();
+
+		if(pVehicle)
 		{
-			sq_pushinteger(pVM, pPlayer->GetVehicle()->GetVehicleId());
+			sq_pushinteger(pVM, pVehicle->GetVehicleId());
 			return 1;
 		}
 	}
