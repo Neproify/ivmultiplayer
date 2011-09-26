@@ -216,18 +216,17 @@ SQInteger CVehicleNatives::SetDirtLevel(SQVM * pVM)
 
 SQInteger CVehicleNatives::GetDirtLevel(SQVM * pVM)
 {
-	SQInteger vehicleid;
-	sq_getinteger(pVM, -1, &vehicleid);
-	if(g_pVehicleManager->DoesExist(vehicleid))
-	{
-		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
-		if(pVehicle)
-		{
-			sq_pushfloat(pVM, (float)pVehicle->GetDirtLevel());
-			return 1;
-		}
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+	if(pVehicle)
+	{
+		sq_pushfloat(pVM, pVehicle->GetDirtLevel());
+		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }

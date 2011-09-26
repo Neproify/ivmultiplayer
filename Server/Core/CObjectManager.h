@@ -15,30 +15,30 @@
 struct _Object
 {
 	DWORD dwModelHash;
-	CVector3 vecSpawnPos;
-	CVector3 vecSpawnRot;
+	CVector3 vecPosition;
+	CVector3 vecRotation;
 };
 
 class CObjectManager : public CObjectManagerInterface
 {
 private:
-	bool m_bActive[MAX_OBJECTS];
+	bool    m_bActive[MAX_OBJECTS];
 	_Object m_Objects[MAX_OBJECTS];
 
 public:
 	CObjectManager();
 	~CObjectManager();
 
-	EntityId Create(DWORD dwModelHash, float fX, float fY, float fZ, float fRX, float fRY, float fRZ);
-	void Delete(EntityId objectId);
-	void HandleClientJoin(EntityId playerId);
-	bool DoesExist(EntityId objectId);
+	EntityId Create(DWORD dwModelHash, const CVector3& vecPosition, const CVector3& vecRotation);
+	void     Delete(EntityId objectId);
+	void     HandleClientJoin(EntityId playerId);
+	bool     DoesExist(EntityId objectId);
 
 	EntityId GetObjectCount();
 
-	DWORD GetModel(EntityId objectId);
-	bool SetPosition(EntityId objectId, CVector3 vecPosition);
-	bool GetPosition(EntityId objectId, CVector3* vecPosition);
-	bool SetRotation(EntityId objectId, CVector3 vecRotation);
-	bool GetRotation(EntityId objectId, CVector3* vecRotation);
+	DWORD    GetModel(EntityId objectId);
+	bool     SetPosition(EntityId objectId, const CVector3& vecPosition);
+	bool     GetPosition(EntityId objectId, CVector3& vecPosition);
+	bool     SetRotation(EntityId objectId, const CVector3& vecRotation);
+	bool     GetRotation(EntityId objectId, CVector3& vecRotation);
 };

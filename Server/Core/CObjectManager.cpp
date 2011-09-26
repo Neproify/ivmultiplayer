@@ -13,8 +13,8 @@
 #include "CModuleManager.h"
 
 extern CNetworkManager * g_pNetworkManager;
-extern CEvents * g_pEvents;
-extern CModuleManager * g_pModuleManager;
+extern CEvents         * g_pEvents;
+extern CModuleManager  * g_pModuleManager;
 
 CObjectManager::CObjectManager()
 {
@@ -33,23 +33,21 @@ CObjectManager::~CObjectManager()
 	}
 }
 
-EntityId CObjectManager::Create(DWORD dwModelHash, float fX, float fY, float fZ, float fRX, float fRY, float fRZ)
+EntityId CObjectManager::Create(DWORD dwModelHash, const CVector3& vecPosition, const CVector3& vecRotation)
 {
 	for(EntityId x = 0; x < MAX_OBJECTS; x++)
 	{
 		if(!m_bActive[x])
 		{
 			CBitStream bsSend;
-			CVector3 vecPos(fX, fY, fZ);
-			CVector3 vecRot(fRX, fRY, fRZ);
 			bsSend.WriteCompressed(x);
 			bsSend.Write(dwModelHash);
-			bsSend.Write(vecPos);
-			bsSend.Write(vecRot);
+			bsSend.Write(vecPosition);
+			bsSend.Write(vecRotation);
 			g_pNetworkManager->RPC(RPC_NewObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 			m_Objects[x].dwModelHash = dwModelHash;
-			m_Objects[x].vecSpawnPos = vecPos;
-			m_Objects[x].vecSpawnRot = vecRot;
+			m_Objects[x].vecPosition = vecPosition;
+			m_Objects[x].vecRotation = vecRotation;
 			m_bActive[x] = true;
 			
 			CSquirrelArguments pArguments;
@@ -89,8 +87,8 @@ void CObjectManager::HandleClientJoin(EntityId playerId)
 			{
 				bsSend.WriteCompressed(x);
 				bsSend.Write(m_Objects[x].dwModelHash);
-				bsSend.Write(m_Objects[x].vecSpawnPos);
-				bsSend.Write(m_Objects[x].vecSpawnRot);
+				bsSend.Write(m_Objects[x].vecPosition);
+				bsSend.Write(m_Objects[x].vecRotation);
 			}
 		}
 
@@ -122,17 +120,16 @@ EntityId CObjectManager::GetObjectCount()
 DWORD CObjectManager::GetModel(EntityId objectId)
 {
 	if(DoesExist(objectId))
-	{
 		return m_Objects[objectId].dwModelHash;
-	}
+
 	return 0;
 }
 
-bool CObjectManager::SetPosition(EntityId objectId, CVector3 vecPosition)
+bool CObjectManager::SetPosition(EntityId objectId, const CVector3& vecPosition)
 {
 	if(DoesExist(objectId))
 	{
-		m_Objects[objectId].vecSpawnPos = vecPosition;
+		m_Objects[objectId].vecPosition = vecPosition;
 
 		CBitStream bsSend;
 		bsSend.WriteCompressed(objectId);
@@ -141,24 +138,26 @@ bool CObjectManager::SetPosition(EntityId objectId, CVector3 vecPosition)
 
 		return true;
 	}
+
 	return false;
 }
 
-bool CObjectManager::GetPosition(EntityId objectId, CVector3* vecPosition)
+bool CObjectManager::GetPosition(EntityId objectId, CVector3& vecPosition)
 {
 	if(DoesExist(objectId))
 	{
-		memcpy(vecPosition, &m_Objects[objectId].vecSpawnPos, sizeof(CVector3));
+		vecPosition = m_Objects[objectId].vecPosition;
 		return true;
 	}
+
 	return false;
 }
 
-bool CObjectManager::SetRotation(EntityId objectId, CVector3 vecRotation)
+bool CObjectManager::SetRotation(EntityId objectId, const CVector3& vecRotation)
 {
 	if(DoesExist(objectId))
 	{
-		m_Objects[objectId].vecSpawnRot = vecRotation;
+		m_Objects[objectId].vecRotation = vecRotation;
 
 		CBitStream bsSend;
 		bsSend.WriteCompressed(objectId);
@@ -167,15 +166,17 @@ bool CObjectManager::SetRotation(EntityId objectId, CVector3 vecRotation)
 
 		return true;
 	}
+
 	return false;
 }
 
-bool CObjectManager::GetRotation(EntityId objectId, CVector3* vecRotation)
+bool CObjectManager::GetRotation(EntityId objectId, CVector3& vecRotation)
 {
 	if(DoesExist(objectId))
 	{
-		memcpy(vecRotation, &m_Objects[objectId].vecSpawnRot, sizeof(CVector3));
+		vecRotation = m_Objects[objectId].vecRotation;
 		return true;
 	}
+
 	return false;
 }

@@ -26,35 +26,36 @@ void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getObjectCoordinates", GetCoordinates, 1, "i");
 	pScriptingManager->RegisterFunction("setObjectPosition", SetCoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("getObjectPosition", GetCoordinates, 1, "i");
+	pScriptingManager->RegisterFunction("setObjectRotation", SetRotation, 4, "ifff");
+	pScriptingManager->RegisterFunction("getObjectRotation", GetRotation, 1, "i");
 }
 
 // createObject(modelhash, x, y, z, rx, ry, rz)
 SQInteger CObjectNatives::Create(SQVM * pVM)
 {
 	SQInteger modelhash;
-	float x, y, z, rx, ry, rz;
+	CVector3 vecPosition;
+	CVector3 vecRotation;
 	sq_getinteger(pVM, -7, &modelhash);
-	sq_getfloat(pVM, -6, &x);
-	sq_getfloat(pVM, -5, &y);
-	sq_getfloat(pVM, -4, &z);
-	sq_getfloat(pVM, -3, &rx);
-	sq_getfloat(pVM, -2, &ry);
-	sq_getfloat(pVM, -1, &rz);
-	sq_pushinteger(pVM, g_pObjectManager->Create(modelhash, x, y, z, rx, ry, rz));
+	sq_getvector3(pVM, -6, &vecPosition);
+	sq_getvector3(pVM, -3, &vecRotation);
+	sq_pushentity(pVM, g_pObjectManager->Create(modelhash, vecPosition, vecRotation));
 	return 1;
 }
 
 // deleteObject(objectid)
 SQInteger CObjectNatives::Delete(SQVM * pVM)
 {
-	SQInteger objectid;
-	sq_getinteger(pVM, -1, &objectid);
-	if(g_pObjectManager->DoesExist(objectid))
+	EntityId objectId;
+	sq_getentity(pVM, -1, &objectId);
+
+	if(g_pObjectManager->DoesExist(objectId))
 	{
-		g_pObjectManager->Delete(objectid);
+		g_pObjectManager->Delete(objectId);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -62,13 +63,15 @@ SQInteger CObjectNatives::Delete(SQVM * pVM)
 // getObjectModel(objectid)
 SQInteger CObjectNatives::GetModel(SQVM * pVM)
 {
-	SQInteger objectid;
-	sq_getinteger(pVM, 2, &objectid);
-	if(g_pObjectManager->DoesExist(objectid))
+	EntityId objectId;
+	sq_getentity(pVM, 2, &objectId);
+
+	if(g_pObjectManager->DoesExist(objectId))
 	{
-		sq_pushinteger(pVM, g_pObjectManager->GetModel(objectid));
+		sq_pushinteger(pVM, g_pObjectManager->GetModel(objectId));
 		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -76,15 +79,17 @@ SQInteger CObjectNatives::GetModel(SQVM * pVM)
 // setObjectCoordinates(objectid, x, y, z)
 SQInteger CObjectNatives::SetCoordinates(SQVM * pVM)
 {
-	SQInteger objectid;
-	sq_getinteger(pVM, 2, &objectid);
-	if(g_pObjectManager->DoesExist(objectid))
+	EntityId objectId;
+	sq_getentity(pVM, 2, &objectId);
+
+	if(g_pObjectManager->DoesExist(objectId))
 	{
 		CVector3 vecPosition;
 		sq_getvector3(pVM, 3, &vecPosition);
-		sq_pushbool(pVM, g_pObjectManager->SetPosition(objectid, vecPosition));
+		sq_pushbool(pVM, g_pObjectManager->SetPosition(objectId, vecPosition));
 		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -92,23 +97,24 @@ SQInteger CObjectNatives::SetCoordinates(SQVM * pVM)
 // getObjectCoordinates(objectid)
 SQInteger CObjectNatives::GetCoordinates(SQVM * pVM)
 {
-	SQInteger objectid;
-	sq_getinteger(pVM, 2, &objectid);
-	if(g_pObjectManager->DoesExist(objectid))
+	EntityId objectId;
+	sq_getentity(pVM, 2, &objectId);
+
+	if(g_pObjectManager->DoesExist(objectId))
 	{
 		CVector3 vecPosition;
-		if(g_pObjectManager->GetPosition(objectid, &vecPosition))
+
+		if(g_pObjectManager->GetPosition(objectId, vecPosition))
 		{
-			sq_newarray(pVM, 0);
-			sq_pushfloat(pVM, vecPosition.fX);
-			sq_arrayappend(pVM, -2);
-			sq_pushfloat(pVM, vecPosition.fY);
-			sq_arrayappend(pVM, -2);
-			sq_pushfloat(pVM, vecPosition.fZ);
-			sq_arrayappend(pVM, -2);
+			CSquirrelArguments args;
+			args.push(vecPosition.fX);
+			args.push(vecPosition.fY);
+			args.push(vecPosition.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -117,15 +123,17 @@ SQInteger CObjectNatives::GetCoordinates(SQVM * pVM)
 // setObjectRotation(objectid, x, y, z)
 SQInteger CObjectNatives::SetRotation(SQVM * pVM)
 {
-	SQInteger objectid;
-	sq_getinteger(pVM, 2, &objectid);
-	if(g_pObjectManager->DoesExist(objectid))
+	EntityId objectId;
+	sq_getentity(pVM, 2, &objectId);
+
+	if(g_pObjectManager->DoesExist(objectId))
 	{
 		CVector3 vecPosition;
 		sq_getvector3(pVM, 3, &vecPosition);
-		sq_pushbool(pVM, g_pObjectManager->SetRotation(objectid, vecPosition));
+		sq_pushbool(pVM, g_pObjectManager->SetRotation(objectId, vecPosition));
 		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -133,23 +141,24 @@ SQInteger CObjectNatives::SetRotation(SQVM * pVM)
 // getObjectRotation(objectid)
 SQInteger CObjectNatives::GetRotation(SQVM * pVM)
 {
-	SQInteger objectid;
-	sq_getinteger(pVM, 2, &objectid);
-	if(g_pObjectManager->DoesExist(objectid))
+	EntityId objectId;
+	sq_getentity(pVM, 2, &objectId);
+
+	if(g_pObjectManager->DoesExist(objectId))
 	{
-		CVector3 vecPosition;
-		if(g_pObjectManager->GetRotation(objectid, &vecPosition))
+		CVector3 vecRotation;
+
+		if(g_pObjectManager->GetRotation(objectId, vecRotation))
 		{
-			sq_newarray(pVM, 0);
-			sq_pushfloat(pVM, vecPosition.fX);
-			sq_arrayappend(pVM, -2);
-			sq_pushfloat(pVM, vecPosition.fY);
-			sq_arrayappend(pVM, -2);
-			sq_pushfloat(pVM, vecPosition.fZ);
-			sq_arrayappend(pVM, -2);
+			CSquirrelArguments args;
+			args.push(vecRotation.fX);
+			args.push(vecRotation.fY);
+			args.push(vecRotation.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
