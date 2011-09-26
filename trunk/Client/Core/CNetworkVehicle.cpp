@@ -67,6 +67,26 @@ CNetworkVehicle::~CNetworkVehicle()
 	OnDelete();
 }
 
+bool CNetworkVehicle::IsOccupied()
+{
+	// Do we have a driver?
+	if(m_pDriver)
+		return true;
+	else
+	{
+		// Loop through all passenger seats
+		for(BYTE i = 0; i < MAX_VEHICLE_PASSENGERS; i++)
+		{
+			// Do we have a passenger in this seat?
+			if(m_pPassengers[i])
+				return true;
+		}
+	}
+
+	// Vehicle is not occupied
+	return false;
+}
+
 void CNetworkVehicle::SetPassenger(BYTE bytePassengerId, CNetworkPlayer * pPassenger)
 {
 	if(bytePassengerId < MAX_VEHICLE_PASSENGERS)

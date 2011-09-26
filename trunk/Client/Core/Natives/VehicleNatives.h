@@ -26,6 +26,9 @@ private:
 	static SQInteger GetAngularVelocity(SQVM * pVM);
 	static SQInteger GetLocked(SQVM * pVM);
 	static SQInteger GetDirtLevel(SQVM * pVM);
+	static SQInteger IsOccupied(SQVM * pVM);
+	static SQInteger GetOccupants(SQVM * pVM);
+
 public:
 	static void      Register(CScriptingManager * pScriptingManager);
 };

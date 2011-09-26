@@ -64,34 +64,31 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 // isPlayerConnected(playerid)
 SQInteger CPlayerNatives::IsConnected(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
-	sq_pushbool(pVM, g_pPlayerManager->DoesExist(iPlayerId));
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+	sq_pushbool(pVM, g_pPlayerManager->DoesExist(playerId));
 	return 1;
 }
 
 // getLocalPlayer()
 SQInteger CPlayerNatives::GetLocal(SQVM * pVM)
 {
-	sq_pushinteger(pVM, g_pLocalPlayer->GetPlayerId());
+	sq_pushentity(pVM, g_pLocalPlayer->GetPlayerId());
 	return 1;
 }
 
 // getPlayerName(playerid)
 SQInteger CPlayerNatives::GetName(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushstring(pVM, pPlayer->GetName(), -1);
-			return 1;
-		}
+		sq_pushstring(pVM, pPlayer->GetName(), -1);
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -101,18 +98,15 @@ SQInteger CPlayerNatives::GetName(SQVM * pVM)
 // getPlayerHealth(playerid)
 SQInteger CPlayerNatives::GetHealth(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushinteger(pVM, (pPlayer->GetHealth() - 100));
-			return 1;
-		}
+		sq_pushinteger(pVM, (pPlayer->GetHealth() - 100));
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -122,18 +116,15 @@ SQInteger CPlayerNatives::GetHealth(SQVM * pVM)
 // getPlayerArmour(playerid)
 SQInteger CPlayerNatives::GetArmour(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushinteger(pVM, pPlayer->GetArmour());
-			return 1;
-		}
+		sq_pushinteger(pVM, pPlayer->GetArmour());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -143,24 +134,21 @@ SQInteger CPlayerNatives::GetArmour(SQVM * pVM)
 // getPlayerCoordinates(playerid)
 SQInteger CPlayerNatives::GetCoordinates(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			CVector3 vecPosition;
-			pPlayer->GetPosition(vecPosition);
-			CSquirrelArguments args;
-			args.push(vecPosition.fX);
-			args.push(vecPosition.fY);
-			args.push(vecPosition.fZ);
-			sq_pusharg(pVM, CSquirrelArgument(args, true));
-			return 1;
-		}
+		CVector3 vecPosition;
+		pPlayer->GetPosition(vecPosition);
+		CSquirrelArguments args;
+		args.push(vecPosition.fX);
+		args.push(vecPosition.fY);
+		args.push(vecPosition.fZ);
+		sq_pusharg(pVM, CSquirrelArgument(args, true));
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -170,24 +158,21 @@ SQInteger CPlayerNatives::GetCoordinates(SQVM * pVM)
 // getPlayerVelocity(playerid)
 SQInteger CPlayerNatives::GetVelocity(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			CVector3 vecMoveSpeed;
-			pPlayer->GetMoveSpeed(vecMoveSpeed);
-			CSquirrelArguments args;
-			args.push(vecMoveSpeed.fX);
-			args.push(vecMoveSpeed.fY);
-			args.push(vecMoveSpeed.fZ);
-			sq_pusharg(pVM, CSquirrelArgument(args, true));
-			return 1;
-		}
+		CVector3 vecMoveSpeed;
+		pPlayer->GetMoveSpeed(vecMoveSpeed);
+		CSquirrelArguments args;
+		args.push(vecMoveSpeed.fX);
+		args.push(vecMoveSpeed.fY);
+		args.push(vecMoveSpeed.fZ);
+		sq_pusharg(pVM, CSquirrelArgument(args, true));
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -197,18 +182,15 @@ SQInteger CPlayerNatives::GetVelocity(SQVM * pVM)
 // isPlayerInAnyVehicle(playerid)
 SQInteger CPlayerNatives::IsInAnyVehicle(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushbool(pVM, pPlayer->IsInVehicle());
-			return 1;
-		}
+		sq_pushbool(pVM, pPlayer->IsInVehicle());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -218,18 +200,20 @@ SQInteger CPlayerNatives::IsInAnyVehicle(SQVM * pVM)
 // isPlayerInVehicle(playerid, vehicleid)
 SQInteger CPlayerNatives::IsInVehicle(SQVM * pVM)
 {
-	int iPlayerId;
-	int iVehicleId;
-	sq_getinteger(pVM, -2, &iPlayerId);
-	sq_getinteger(pVM, -1, &iVehicleId);
+	EntityId playerId;
+	EntityId vehicleId;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getentity(pVM, -1, &vehicleId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
+		CNetworkVehicle * pVehicle = pPlayer->GetVehicle();
 
-		if(pPlayer)
+		if(pVehicle)
 		{
-			sq_pushbool(pVM, (pPlayer->GetVehicle()->GetVehicleId() == iVehicleId));
+			sq_pushbool(pVM, (pVehicle->GetVehicleId() == vehicleId));
 			return 1;
 		}
 	}
@@ -241,20 +225,21 @@ SQInteger CPlayerNatives::IsInVehicle(SQVM * pVM)
 // getPlayerVehicleId(playerid)
 SQInteger CPlayerNatives::GetVehicleId(SQVM * pVM)
 {
-	SQInteger iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
 	if(pPlayer)
 	{
 		CNetworkVehicle * pVehicle = pPlayer->GetVehicle();
 
 		if(pVehicle)
-		{
-			sq_pushinteger(pVM, pVehicle->GetVehicleId());
-			return 1;
-		}
+			sq_pushentity(pVM, pVehicle->GetVehicleId());
+		else
+			sq_pushentity(pVM, INVALID_ENTITY_ID);
+
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -264,18 +249,15 @@ SQInteger CPlayerNatives::GetVehicleId(SQVM * pVM)
 // getPlayerSeatId(playerid)
 SQInteger CPlayerNatives::GetSeatId(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer && pPlayer->IsInVehicle())
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushinteger(pVM, pPlayer->GetVehicleSeatId());
-			return 1;
-		}
+		sq_pushinteger(pVM, pPlayer->GetVehicleSeatId());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -285,18 +267,15 @@ SQInteger CPlayerNatives::GetSeatId(SQVM * pVM)
 // isPlayerOnFoot(playerid)
 SQInteger CPlayerNatives::IsOnFoot(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushbool(pVM, !pPlayer->IsInVehicle());
-			return 1;
-		}
+		sq_pushbool(pVM, pPlayer->IsOnFoot());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -306,18 +285,15 @@ SQInteger CPlayerNatives::IsOnFoot(SQVM * pVM)
 // getPlayerModel(playerid)
 SQInteger CPlayerNatives::GetModel(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushinteger(pVM, ModelHashToSkinId(pPlayer->GetModelInfo()->GetHash()));
-			return 1;
-		}
+		sq_pushinteger(pVM, ModelHashToSkinId(pPlayer->GetModelInfo()->GetHash()));
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -327,18 +303,15 @@ SQInteger CPlayerNatives::GetModel(SQVM * pVM)
 // isPlayerSpawned(playerid)
 SQInteger CPlayerNatives::IsSpawned(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushbool(pVM, pPlayer->IsSpawned());
-			return 1;
-		}
+		sq_pushbool(pVM, pPlayer->IsSpawned());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -348,18 +321,15 @@ SQInteger CPlayerNatives::IsSpawned(SQVM * pVM)
 // getPlayerHeading(playerid)
 SQInteger CPlayerNatives::GetHeading(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushfloat(pVM, pPlayer->GetCurrentHeading());
-			return 1;
-		}
+		sq_pushfloat(pVM, pPlayer->GetCurrentHeading());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -369,18 +339,15 @@ SQInteger CPlayerNatives::GetHeading(SQVM * pVM)
 // getPlayerMoney(playerid)
 SQInteger CPlayerNatives::GetMoney(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushinteger(pVM, pPlayer->GetMoney());
-			return 1;
-		}
+		sq_pushinteger(pVM, pPlayer->GetMoney());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -390,27 +357,24 @@ SQInteger CPlayerNatives::GetMoney(SQVM * pVM)
 // getPlayerState(playerid)
 SQInteger CPlayerNatives::GetState(SQVM * pVM)
 {
-	// TODO: Re-enable this
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer && !pPlayer->IsLocalPlayer())
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
+		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
 
-		if(pPlayer && !pPlayer->IsLocalPlayer())
+		if(pRemotePlayer)
 		{
-			CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(pPlayer);
-			if(pRemotePlayer)
-			{
-				sq_pushinteger(pVM, pRemotePlayer->GetStateType());
-				return 1;
-			}
+			sq_pushinteger(pVM, pRemotePlayer->GetStateType());
+			return 1;
 		}
 	}
-	else if(iPlayerId >= 0 && iPlayerId < MAX_PLAYERS)
+	else if(playerId < MAX_PLAYERS)
 	{
-		sq_pushinteger(pVM, -1);
+		sq_pushinteger(pVM, STATE_TYPE_DISCONNECT);
 		return 1;
 	}
 
@@ -421,18 +385,15 @@ SQInteger CPlayerNatives::GetState(SQVM * pVM)
 // getPlayerWeapon(playerid)
 SQInteger CPlayerNatives::GetWeapon(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushinteger(pVM, pPlayer->GetCurrentWeapon());
-			return 1;
-		}
+		sq_pushinteger(pVM, pPlayer->GetCurrentWeapon());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -442,18 +403,15 @@ SQInteger CPlayerNatives::GetWeapon(SQVM * pVM)
 // getPlayerAmmo(playerid)
 SQInteger CPlayerNatives::GetAmmo(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushinteger(pVM, pPlayer->GetAmmo(pPlayer->GetCurrentWeapon()));
-			return 1;
-		}
+		sq_pushinteger(pVM, pPlayer->GetAmmo(pPlayer->GetCurrentWeapon()));
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -463,18 +421,15 @@ SQInteger CPlayerNatives::GetAmmo(SQVM * pVM)
 // getPlayerInterior(playerid)
 SQInteger CPlayerNatives::GetInterior(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, -1, &iPlayerId);
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(iPlayerId);
-
-		if(pPlayer)
-		{
-			sq_pushinteger(pVM, pPlayer->GetInterior());
-			return 1;
-		}
+		sq_pushinteger(pVM, pPlayer->GetInterior());
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -694,11 +649,14 @@ SQInteger CPlayerNatives::GetPreviousPadState(SQVM * pVM)
 // getPlayerPing(playerid)
 SQInteger CPlayerNatives::GetPing(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, 2, &iPlayerId);
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	EntityId playerId;
+	sq_getentity(pVM, 2, &playerId);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		sq_pushinteger(pVM, g_pPlayerManager->GetAt(iPlayerId)->GetPing());
+		sq_pushinteger(pVM, pPlayer->GetPing());
 		return 1;
 	}
 
@@ -709,11 +667,14 @@ SQInteger CPlayerNatives::GetPing(SQVM * pVM)
 // getPlayerColor(playerid)
 SQInteger CPlayerNatives::GetColor(SQVM * pVM)
 {
-	int iPlayerId;
-	sq_getinteger(pVM, 2, &iPlayerId);
-	if(g_pPlayerManager->DoesExist(iPlayerId))
+	EntityId playerId;
+	sq_getentity(pVM, 2, &playerId);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
 	{
-		sq_pushinteger(pVM, g_pPlayerManager->GetAt(iPlayerId)->GetColor());
+		sq_pushinteger(pVM, pPlayer->GetColor());
 		return 1;
 	}
 

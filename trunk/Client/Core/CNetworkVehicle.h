@@ -69,6 +69,7 @@ public:
 	EntityId         GetVehicleId() { return m_vehicleId; }
 	CIVVehicle *     GetGameVehicle() { return m_pVehicle; }
 	bool             IsSpawned() { return (m_pVehicle != NULL); }
+	bool             IsOccupied();
 	void             SetDriver(CNetworkPlayer * pDriver) { m_pDriver = pDriver; }
 	CNetworkPlayer * GetDriver() { return m_pDriver; }
 	void             SetPassenger(BYTE bytePassengerId, CNetworkPlayer * pPassenger);
