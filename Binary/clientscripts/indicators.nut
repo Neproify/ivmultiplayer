@@ -1,24 +1,96 @@
 /**
  * Indicators script
  *
- * Press 'Q' or 'E' to enable your vehicle's indicators
+ * Press 'Q' or 'E' to toggle your vehicle's indicators.
+ * Indicators automatically go off after turning in desired direction.
  *
  * Author: mabako
  */
-addEvent("keyPress",
+
+local waitingTurn = 0;
+local doneTurn = 0;
+
+addEvent("keyPress", 
 	function(button, state)
 	{
 		if(state == "down" && getPlayerVehicleId(getLocalPlayer()) != INVALID_VEHICLE_ID)
 		{
-			// Q - toggle left indicator
+			// pressed Q (left indicator)?
 			if(button == "q")
 			{
-				triggerServerEvent("indicators:left");
+				// indicator already on?
+				if(waitingTurn > 0)
+				{
+					triggerServerEvent("indicators:off");
+					waitingTurn = 0;
+				}
+				// turn indicator on
+				else
+				{
+					triggerServerEvent("indicators:left");
+					waitingTurn = 1;
+					doneTurn = 0;
+				}
 			}
-			// E - toggle right indicator
-			if(button == "e")
+			// pressed E (right indicator)?
+			else if(button == "e")
 			{
-				triggerServerEvent("indicators:right")
+				// indicator already on?
+				if(waitingTurn > 0)
+				{
+					triggerServerEvent("indicators:off");
+					waitingTurn = 0;
+				}
+				// turn indicator on
+				else
+				{
+					triggerServerEvent("indicators:right");
+					waitingTurn = 2;
+					doneTurn = 0;
+				}
+			}
+		}
+	}
+);
+
+
+addEvent("frameRender", 
+	function()
+	{
+		if(waitingTurn > 0 || doneTurn > 0)
+		{
+			local pad = getPlayerPadState(getLocalPlayer());
+			local leftright = pad.inVehicleMove[0];
+
+			if(waitingTurn > 0)
+			{
+				// waiting to turn left?
+				if(waitingTurn == 1 && leftright > 128)
+				{
+					doneTurn = 1;
+					waitingTurn = 0;
+				}
+				// waiting to turn right?
+				else if(waitingTurn == 2 && leftright < 128)
+				{
+					doneTurn = 2;
+					waitingTurn = 0;
+				}
+			}
+			else if(doneTurn > 0)
+			{
+				// waiting to stop turning left?
+				if(doneTurn == 1 && leftright == 128)
+				{
+					triggerServerEvent("indicators:off");
+					doneTurn = 0;
+				}
+				// waiting to stop turning right?
+				else if(doneTurn == 2 && leftright == 128)
+				{
+					triggerServerEvent("indicators:off");
+					doneTurn = 0;
+				}
 			}
 		}
 	}

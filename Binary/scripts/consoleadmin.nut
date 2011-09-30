@@ -1,5 +1,6 @@
-// WARNING: DO NOT USE THIS SCRIPT WITHOUT CHANGING THE PASSWORD BELOW
+// NOTE: Script will not work without changing the password below
 const CONSOLE_PASSWORD = "changeme";
+
 const White = 0xFFFFFFAA;
 
 // TODO: Console login events
