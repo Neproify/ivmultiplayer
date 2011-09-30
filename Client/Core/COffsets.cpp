@@ -151,12 +151,9 @@ unsigned int COffsets::FUNC_CPhysical__SetTurnSpeed = 0;
 unsigned int COffsets::FUNC_CPhysical__GetTurnSpeed = 0;
 
 // Indicators
-unsigned int COffsets::FUNC_CVehicle__DrawIndicator = 0;
 unsigned int COffsets::PATCH_CVehicle__HazzardLightsOn = 0;
-unsigned int COffsets::PATCH_CVehicle__DrawIndicator1 = 0;
-unsigned int COffsets::PATCH_CVehicle__DrawIndicator2 = 0;
-unsigned int COffsets::PATCH_CVehicle__DrawIndicator3 = 0;
-unsigned int COffsets::PATCH_CVehicle__DrawIndicator4 = 0;
+unsigned int COffsets::FUNC_CVehicle__DrawIndicator = 0;
+unsigned int COffsets::RETURN_CVehicle__DrawIndicator = 0;
 
 // Streaming
 unsigned int COffsets::VAR_ResourceTypeWdrIndex = 0;
@@ -341,12 +338,9 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CPhysical__GetTurnSpeed           = (uiBase +  0xA478E0);
 
 			// Indicators
-			FUNC_CVehicle__DrawIndicator           = (uiBase +  0x9CD0F0);
 			PATCH_CVehicle__HazzardLightsOn        = (uiBase +  0x9D1D53);
-			PATCH_CVehicle__DrawIndicator1         = (uiBase +  0x9D2216);
-			PATCH_CVehicle__DrawIndicator2         = (uiBase +  0x9D2234);
-			PATCH_CVehicle__DrawIndicator3         = (uiBase +  0x9D224E);
-			PATCH_CVehicle__DrawIndicator4         = (uiBase +  0x9D2268);
+			FUNC_CVehicle__DrawIndicator           = (uiBase +  0x9CD0F0);
+			RETURN_CVehicle__DrawIndicator         = (uiBase +  0x9CD0F6);
 
 			// Streaming
 			VAR_ResourceTypeWdrIndex               = (uiBase + 0x15F73A0);

@@ -15,17 +15,34 @@
 
 extern CStreamer * g_pStreamer;
 
-DWORD dwOriginalIndicatorFunc = 0;
 IVVehicle * pIndicatorIVVehicle;
-CNetworkVehicle * pIndicatorVehicle;
-int iIndicatorType;
+int         iIndicatorType;
 
-void _declspec(naked) CVehicle__DrawIndicator()
+bool GetIndicatorState(IVVehicle * pGameVehicle, int iIndicatorNumber)
+{
+	if(!pGameVehicle)
+		return false;
+
+	if(iIndicatorNumber < 0 || iIndicatorNumber > 3)
+		return false;
+
+	CNetworkVehicle * pVehicle = g_pStreamer->GetVehicleFromGameVehicle(pGameVehicle);
+
+	if(!pVehicle)
+		return false;
+
+	return pVehicle->GetIndicatorState(iIndicatorNumber);
+}
+
+void _declspec(naked) CVehicle__DrawIndicator_Hook()
 {
 	_asm
 	{
-		mov eax, [ebp]
+		push ebp
+		mov ebp, esp
+		mov eax, [ebp+8]
 		mov iIndicatorType, eax
+		pop ebp
 		mov pIndicatorIVVehicle, ecx
 		pushad
 	}
@@ -34,15 +51,17 @@ void _declspec(naked) CVehicle__DrawIndicator()
 	// 55 = Front Right
 	// 56 = Back Left
 	// 57 = Back Right
-	iIndicatorType -= 54; // Subtract 54 to make it a valid value for CNetworkVehicle::GetIndicatorState
-	pIndicatorVehicle = g_pStreamer->GetVehicleFromGameVehicle(pIndicatorIVVehicle);
+	iIndicatorType -= 54; // Subtract 54 to make it a valid indicator number (0-3)
 
-	if(pIndicatorVehicle != NULL && pIndicatorVehicle->GetIndicatorState(iIndicatorType))
+	if(GetIndicatorState(pIndicatorIVVehicle, iIndicatorType))
 	{
 		_asm
 		{
 			popad
-			jmp dwOriginalIndicatorFunc
+			push ebp
+			mov ebp, esp
+			and esp, 0FFFFFFF0h
+			jmp COffsets::RETURN_CVehicle__DrawIndicator
 		}
 	}
 	else
@@ -57,9 +76,6 @@ void _declspec(naked) CVehicle__DrawIndicator()
 
 void InstallIndicatorHooks()
 {
-	// Save the original CNetworkVehicle::DrawIndicator function address
-	dwOriginalIndicatorFunc = COffsets::FUNC_CVehicle__DrawIndicator;
-
 	// TODO: When you're away from a vehicle and look at the front indicators, there's two possibilities:
 	//       Front Left Indicator is on -> from a distance, both appear to be on
 	//       Front Right Indicator is on -> from a distance, both appear to be off
@@ -69,9 +85,5 @@ void InstallIndicatorHooks()
 	CPatcher::InstallNopPatch(COffsets::PATCH_CVehicle__HazzardLightsOn, 2);
 
 	// TODO: Hook CNetworkVehicle::DrawIndicator function instead of all individual calls to it
-	// Draws individual indicators
-	CPatcher::InstallCallPatch(COffsets::PATCH_CVehicle__DrawIndicator1, (DWORD)CVehicle__DrawIndicator, 5);
-	CPatcher::InstallCallPatch(COffsets::PATCH_CVehicle__DrawIndicator2, (DWORD)CVehicle__DrawIndicator, 5);
-	CPatcher::InstallCallPatch(COffsets::PATCH_CVehicle__DrawIndicator3, (DWORD)CVehicle__DrawIndicator, 5);
-	CPatcher::InstallCallPatch(COffsets::PATCH_CVehicle__DrawIndicator4, (DWORD)CVehicle__DrawIndicator, 5);
+	CPatcher::InstallJmpPatch(COffsets::FUNC_CVehicle__DrawIndicator, (DWORD)CVehicle__DrawIndicator_Hook, 5);
 }
