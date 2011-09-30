@@ -170,12 +170,9 @@ public:
 	static unsigned int FUNC_CPhysical__GetTurnSpeed;
 
 	// Indicators
-	static unsigned int FUNC_CVehicle__DrawIndicator;
 	static unsigned int PATCH_CVehicle__HazzardLightsOn;
-	static unsigned int PATCH_CVehicle__DrawIndicator1;
-	static unsigned int PATCH_CVehicle__DrawIndicator2;
-	static unsigned int PATCH_CVehicle__DrawIndicator3;
-	static unsigned int PATCH_CVehicle__DrawIndicator4;
+	static unsigned int FUNC_CVehicle__DrawIndicator;
+	static unsigned int RETURN_CVehicle__DrawIndicator;
 
 	// Streaming
 	static unsigned int VAR_ResourceTypeWdrIndex;

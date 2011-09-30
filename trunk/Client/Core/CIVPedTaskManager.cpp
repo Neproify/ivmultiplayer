@@ -27,7 +27,7 @@ void CIVPedTaskManager::SetTask(CIVTask * pTask, int iTaskPriority, bool bForceN
 	if(m_pPedTaskManager)
 	{
 		IVPedTaskManager * pPedTaskManager = m_pPedTaskManager;
-		IVTask * pGameTask = pTask->GetTask();
+		IVTask * pGameTask = (pTask ? pTask->GetTask() : NULL);
 		_asm
 		{
 			push bForceNewTask
@@ -68,7 +68,7 @@ void CIVPedTaskManager::SetTaskSecondary(CIVTask * pTask, int iType)
 	if(m_pPedTaskManager)
 	{
 		IVPedTaskManager * pPedTaskManager = m_pPedTaskManager;
-		IVTask * pGameTask = pTask->GetTask();
+		IVTask * pGameTask = (pTask ? pTask->GetTask() : NULL);
 		_asm
 		{
 			push iType
@@ -83,9 +83,7 @@ void CIVPedTaskManager::RemoveTaskSecondary(int iType)
 {
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
-	{
 		SetTaskSecondary(NULL, iType);
-	}
 }
 
 CIVTask * CIVPedTaskManager::GetTaskSecondary(int iType)
