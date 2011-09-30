@@ -388,6 +388,31 @@ function onPlayerCommand(playerid, command)
 			}
 		}
 	}
+
+	if(cmd[0] == "/ind")
+	{
+		if(cmd.len() == 3)
+		{
+			if(isPlayerInAnyVehicle(playerid))
+			{
+				local index = cmd[1].tointeger();
+
+				if(index < 0 || index > 3)
+				{
+					sendPlayerMessage(playerid, "Invalid indicator index.");
+				}
+				else
+				{
+					local vehicle = getPlayerVehicleId(playerid);
+					local indicators = getVehicleIndicators(vehicle);
+					local toggle = ((cmd[2].tointeger() == 1) ? true : false);
+					indicators[index] = toggle;
+					setVehicleIndicators(vehicle, indicators[0], indicators[1], indicators[2], indicators[3]);
+					sendPlayerMessage(playerid, "Indicator index " + index + " set to " + toggle + ".");
+				}
+			}
+		}
+	}
 	
 	return 0;
 }
