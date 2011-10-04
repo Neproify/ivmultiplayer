@@ -47,6 +47,9 @@ void CLogFile::Print(const char * szString)
 	// Print the message
 	printf("%s\n", szString);
 
+	// Flush the output buffer
+	fflush(stdout);
+
 	// Print the message to the log file
 	PrintToFile(szString);
 
@@ -91,7 +94,7 @@ void CLogFile::PrintToFile(const char * szString)
 		else
 			fprintf(m_fLogFile, "%s\n", szString);
 
-		// Flush the log file
+		// Flush the log file buffer
 		fflush(m_fLogFile);
 	}
 
