@@ -3,7 +3,9 @@
 
 ;======================================================
 ; Includes
+!include nsDialogs.nsh
 !include "MUI2.nsh"
+!include LogicLib.nsh
 
 ;======================================================
 ; Configuration
@@ -29,15 +31,57 @@ RequestExecutionLevel admin
 
 ;======================================================
 ; Pages
-; Check For GTAIV Existence
+; Check For GTAIV Directory Page
 
-; Remove Any Old Installations
+; Remove Any Old Installations Page
 
-; Get Install Directory
+; Get Install Directory Page
 Page directory
 
 DirText "Welcome to the installer for ${NAME} ${VERSION}.$\n$\nYou must have Grand Theft Auto IV installed in order to install ${NAME}." "Please select the directory to install IVMP to."
 InstallDir "$PROGRAMFILES\IVMP"
+
+; Options Page
+
+Var OptionsWindow
+Var OptionsPageText
+Var CreateStartMenuShortcutsCheckbox
+Var CreateDesktopShortcutCheckbox
+Var CreateStartMenuShortcuts
+Var CreateDesktopShortcut
+
+Page custom OptionsPage OptionsPageLeave
+
+Function OptionsPage
+	nsDialogs::Create 1018
+	Pop $OptionsWindow
+
+	${If} $OptionsWindow == error
+		Abort
+	${EndIf}
+
+	${NSD_CreateLabel} 0 0 100% 20u "Please select the following installation options, then click Install to proceed with the installation."
+	Pop $OptionsPageText
+
+	${NSD_CreateCheckbox} 0 40u 100% 10u "&Create Start Menu Shortcuts"
+	Pop $CreateStartMenuShortcutsCheckbox
+
+	${NSD_Check} $CreateStartMenuShortcutsCheckbox
+
+	${NSD_CreateCheckbox} 0 55u 100% 10u "&Create Desktop Shortcut"
+	Pop $CreateDesktopShortcutCheckbox
+
+	nsDialogs::Show
+FunctionEnd
+
+Function OptionsPageLeave
+	${NSD_GetState} $CreateStartMenuShortcutsCheckbox $CreateStartMenuShortcuts
+
+	${NSD_GetState} $CreateDesktopShortcutCheckbox $CreateDesktopShortcut
+FunctionEnd
+
+;======================================================
+; Installer
 
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_UNPAGE_CONFIRM
@@ -110,15 +154,24 @@ Section "Install" SecDummy
 
 	CreateDirectory "$SMPROGRAMS\IVMP"
 
-	; Create Start Menu Shortcuts
+	; Create Start Menu Shortcuts If Requested
 
-	CreateShortCut "$SMPROGRAMS\IVMP\${NAME}.lnk" "$INSTDIR\Client.Launcher.exe"
+	${If} $CreateStartMenuShortcuts == ${BST_CHECKED}
+		CreateShortCut "$SMPROGRAMS\IVMP\${NAME}.lnk" "$INSTDIR\Client.Launcher.exe"
 
-	CreateShortCut "$SMPROGRAMS\IVMP\Uninstall ${NAME}.lnk" "$INSTDIR\Uninstall_${NAME}.exe"
+		CreateShortCut "$SMPROGRAMS\IVMP\Uninstall ${NAME}.lnk" "$INSTDIR\Uninstall_${NAME}.exe"
+	${EndIf}
+
+	; Create Desktop Shortcut If Requested
+	
+	${If} $CreateDesktopShortcut == ${BST_CHECKED}
+		CreateShortCut "$DESKTOP\${NAME}.lnk" "$INSTDIR\Client.Launcher.exe"
+	${EndIf}
 
 	; Create Uninstaller
 
 	WriteUninstaller "$INSTDIR\Uninstall_${NAME}.exe"
+	
 SectionEnd
 
 Section "Uninstall"
@@ -147,6 +200,10 @@ Section "Uninstall"
 	; Remove Start Menu Folder
 
 	RMDIR "$SMPROGRAMS\IVMP"
+
+	; Delete The Desktop Shortcut
+
+	Delete "$DESKTOP\${NAME}.lnk"
 	
 	; Delete Installer
 
