@@ -30,10 +30,38 @@ ShowUninstDetails show
 RequestExecutionLevel admin
 
 ;======================================================
-; Pages
-; Check For GTAIV Directory Page
+; Initialize Function
+Var GTAIVDirectory
 
-; Remove Any Old Installations Page
+Function .onInit
+	; Try to get the GTAIV directory from the registry
+	ReadRegStr $GTAIVDirectory HKLM "Software\Rockstar Games\Grand Theft Auto IV" "InstallFolder"
+
+	; Did we find it?
+	IfFileExists $GTAIVDirectory\LaunchGTAIV.exe done
+
+	; Try to get the GTAIV directory from the registry
+	ReadRegStr $GTAIVDirectory HKCU "Software\IVMP" "gtaivdir"
+
+	; Did we find it?
+	IfFileExists $GTAIVDirectory\LaunchGTAIV.exe done
+
+	; Show a dialog to find the GTAIV directory
+	nsDialogs::SelectFolderDialog "Please select your Grand Theft Auto IV directory" ""
+	Pop $GTAIVDirectory
+
+	; Did we find it?
+	IfFileExists $GTAIVDirectory\LaunchGTAIV.exe done
+
+	; GTAIV directory not found
+	MessageBox MB_OK "Failed to find Grand Theft Auto IV directory. Grand Theft Auto IV must be installed in order to install IV:MP"
+	Abort
+
+done:
+FunctionEnd
+
+;======================================================
+; Pages
 
 ; Get Install Directory Page
 Page directory
