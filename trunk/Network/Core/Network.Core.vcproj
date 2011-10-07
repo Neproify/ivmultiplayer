@@ -491,6 +491,26 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\RakNet\DS_BytePool.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\RakNet\DS_ByteQueue.cpp"
 					>
 					<FileConfiguration
@@ -911,6 +931,26 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\RakNet\LocklessTypes.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\RakNet\LogCommandParser.cpp"
 					>
 					<FileConfiguration
@@ -1211,6 +1251,26 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\RakNet\Rackspace.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\RakNet\RakMemoryOverride.cpp"
 					>
 					<FileConfiguration
@@ -1392,6 +1452,26 @@
 				</File>
 				<File
 					RelativePath=".\RakNet\RakThread.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\RakNet\RakWString.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1991,6 +2071,26 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\RakNet\VitaIncludes.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\RakNet\WSAStartupSingleton.cpp"
 					>
 					<FileConfiguration
@@ -2110,10 +2210,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CRakNetInterface.h"
-				>
-			</File>
-			<File
 				RelativePath=".\StdInc.h"
 				>
 			</File>
@@ -2170,6 +2266,10 @@
 				</File>
 				<File
 					RelativePath=".\RakNet\ConsoleServer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CRakNetInterface.h"
 					>
 				</File>
 				<File
@@ -2361,6 +2461,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\RakNet\LocklessTypes.h"
+					>
+				</File>
+				<File
 					RelativePath=".\RakNet\LogCommandParser.h"
 					>
 				</File>
@@ -2449,6 +2553,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\RakNet\PS3Includes.h"
+					>
+				</File>
+				<File
+					RelativePath=".\RakNet\Rackspace.h"
+					>
+				</File>
+				<File
 					RelativePath=".\RakNet\RakAlloca.h"
 					>
 				</File>
@@ -2521,6 +2633,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\RakNet\RakWString.h"
+					>
+				</File>
+				<File
 					RelativePath=".\RakNet\Rand.h"
 					>
 				</File>
@@ -2586,6 +2702,10 @@
 				</File>
 				<File
 					RelativePath=".\RakNet\SingleProducerConsumer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\RakNet\SocketDefines.h"
 					>
 				</File>
 				<File
@@ -2673,11 +2793,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\RakNet\VitaIncludes.h"
+					>
+				</File>
+				<File
 					RelativePath=".\RakNet\WindowsIncludes.h"
 					>
 				</File>
 				<File
 					RelativePath=".\RakNet\WSAStartupSingleton.h"
+					>
+				</File>
+				<File
+					RelativePath=".\RakNet\XBox360Includes.h"
 					>
 				</File>
 			</Filter>

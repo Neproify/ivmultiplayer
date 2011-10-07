@@ -42,6 +42,7 @@ public:
 
 	/// When the message ID_REMOTE_NEW_INCOMING_CONNECTION arrives, we try to connect to that system
 	/// If \a attemptConnection is false, you can manually connect to all systems listed in ID_REMOTE_NEW_INCOMING_CONNECTION with ConnectToRemoteNewIncomingConnections()
+	/// \note This will not work on any console. It will also not work if NAT punchthrough is needed. Generally, this should be false and you should connect manually. It is here for legacy reasons.
 	/// \param[in] attemptConnection If true, we try to connect to any systems we are notified about with ID_REMOTE_NEW_INCOMING_CONNECTION, which comes from the ConnectionGraph2 plugin. Defaults to true.
 	/// \param[in] pw The password to use to connect with. Only used if \a attemptConnection is true
 	void SetConnectOnNewRemoteConnection(bool attemptConnection, RakNet::RakString pw);
@@ -49,7 +50,8 @@ public:
 	/// \brief The connected host is whichever system we are connected to that has been running the longest.
 	/// \details Will return UNASSIGNED_RAKNET_GUID if we are not connected to anyone, or if we are connected and are calculating the host
 	/// If includeCalculating is true, will return the estimated calculated host as long as the calculation is nearly complete
-	/// includeCalculating should be true if you are taking action based on another system becoming host, because not all host calculations may compelte at the exact same time
+	/// includeCalculating should be true if you are taking action based on another system becoming host, because not all host calculations may complete at the exact same time
+	/// \sa ConnectionGraph2::GetLowestAveragePingSystem() . If you need one system in the peer to peer group to relay data, have the host call this function after host migration, and use that system
 	/// \return System address of whichever system is host. 
 	RakNetGUID GetConnectedHost(void) const;
 	SystemAddress GetConnectedHostAddr(void) const;
@@ -59,6 +61,10 @@ public:
 
 	/// \return If our system is host
 	bool IsHostSystem(void) const;
+
+	/// Get the list of connected systems, from oldest connected to newest
+	/// This is also the order that the hosts will be chosen in
+	void GetHostOrder(DataStructures::List<RakNetGUID> &hostList);
 
 	/// \param[in] includeCalculating If true, and we are currently calculating a new host, return the new host if the calculation is nearly complete
 	/// \return If our system is host
@@ -71,6 +77,7 @@ public:
 	void SetAutoparticipateConnections(bool b);
 
 	/// Clear our own host order, and recalculate as if we had just reconnected
+	/// Call this to reset the running time of the host just before joining/creating a game room for networking
 	void ResetHostCalculation(void);
 
 	/// \brief if SetAutoparticipateConnections() is called with false, then you need to use AddParticipant before these systems will be added to the mesh 
@@ -78,6 +85,10 @@ public:
 	/// Each remote system that you want to check should be added as a participant, either through SetAutoparticipateConnections() or by calling this function
 	/// \param[in] participant The new participant
 	void AddParticipant(RakNetGUID rakNetGuid);
+
+	/// Get the participants added with AddParticipant()
+	/// \param[out] participantList Participants added with AddParticipant();
+	void GetParticipantList(DataStructures::List<RakNetGUID> &participantList);
 
 	/// Connect to all systems from ID_REMOTE_NEW_INCOMING_CONNECTION
 	/// You can call this if SetConnectOnNewRemoteConnection is false
@@ -103,9 +114,9 @@ public:
 	/// \internal
 	virtual void OnRakPeerShutdown(void);
 	/// \internal
-	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
+	virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
 	/// \internal
-	virtual void OnNewConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, bool isIncoming);
+	virtual void OnNewConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, bool isIncoming);
 
 	/// \internal
 	struct FCM2Participant
@@ -119,6 +130,9 @@ public:
 		RakNetGUID rakNetGuid;
 	};
 
+	/// \internal for debugging
+	unsigned int GetTotalConnectionCount(void) const;
+
 protected:
 	void PushNewHost(const RakNetGUID &guid, RakNetGUID oldHost);
 	void SendOurFCMGuid(SystemAddress addr);
@@ -127,6 +141,7 @@ protected:
 	void OnRequestFCMGuid(Packet *packet);
 	void OnRespondConnectionCount(Packet *packet);
 	void OnInformFCMGuid(Packet *packet);
+	void OnUpdateMinTotalConnectionCount(Packet *packet);
 	void AssignOurFCMGuid(void);
 	void CalculateHost(RakNetGUID *rakNetGuid, FCM2Guid *fcm2Guid);
 	bool AddParticipantInternal( RakNetGUID rakNetGuid, FCM2Guid theirFCMGuid );
@@ -149,7 +164,7 @@ protected:
 	FCM2Guid ourFCMGuid;
 
 	/// List of systems we know the FCM2Guid for
-	DataStructures::List<FCM2Participant> participantList;
+	DataStructures::List<FCM2Participant> fcm2ParticipantList;
 
 	RakNetGUID lastPushedHost;
 

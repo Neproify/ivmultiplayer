@@ -6,7 +6,7 @@
 /// Usage of RakNet is subject to the appropriate license agreement.
 
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_FileListTransfer==1
+#if _RAKNET_SUPPORT_FileListTransfer==1 && _RAKNET_SUPPORT_FileOperations==1
 
 #ifndef __FILE_LIST_TRANFER_H
 #define __FILE_LIST_TRANFER_H
@@ -111,7 +111,7 @@ public:
 	/// \internal For plugin handling
 	virtual void OnRakPeerShutdown(void);
 	/// \internal For plugin handling
-	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
+	virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
 	/// \internal For plugin handling
 	virtual void Update(void);
 

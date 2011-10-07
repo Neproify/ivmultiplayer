@@ -6,6 +6,9 @@
 /// Usage of RakNet is subject to the appropriate license agreement.
 
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_UDPForwarder==1
+
 #ifndef __UDP_FORWARDER_H
 #define __UDP_FORWARDER_H
 
@@ -51,7 +54,7 @@ public:
 	void Shutdown(void);
 
 	/// Call on a regular basis, unless using UDP_FORWARDER_EXECUTE_THREADED.
-	/// Will call select() on all sockets and forward messages.
+	/// Will call select__() on all sockets and forward messages.
 	void Update(void);
 
 	/// Sets the maximum number of forwarding entries allowed
@@ -75,10 +78,12 @@ public:
 	/// \param[in] destination Where to forward to (and vice-versa)
 	/// \param[in] timeoutOnNoDataMS If no messages are forwarded for this many MS, then automatically remove this entry. Currently hardcoded to UDP_FORWARDER_MAXIMUM_TIMEOUT (else the call fails)
 	/// \param[in] forceHostAddress Force binding on a particular address. 0 to use any.
+	/// \param[in] socketFamily IP version: For IPV4, use AF_INET (default). For IPV6, use AF_INET6. To autoselect, use AF_UNSPEC.
+	short socketFamily;
 	/// \param[out] forwardingPort New opened port for forwarding
 	/// \param[out] forwardingSocket New opened socket for forwarding
 	/// \return UDPForwarderResult
-	UDPForwarderResult StartForwarding(SystemAddress source, SystemAddress destination, RakNet::TimeMS timeoutOnNoDataMS, const char *forceHostAddress,
+	UDPForwarderResult StartForwarding(SystemAddress source, SystemAddress destination, RakNet::TimeMS timeoutOnNoDataMS, const char *forceHostAddress, unsigned short socketFamily,
 		unsigned short *forwardingPort, SOCKET *forwardingSocket);
 
 	/// No longer forward datagrams from source to destination
@@ -115,9 +120,10 @@ public:
 		SOCKET socket;
 		RakNet::TimeMS timeoutOnNoDataMS;
 		bool updatedSourcePort, updatedDestPort;
+		short socketFamily;
 	};
 
-#ifdef UDP_FORWARDER_EXECUTE_THREADED
+
 	struct ThreadOperation
 	{
 		enum {
@@ -133,26 +139,34 @@ public:
 		unsigned short forwardingPort;
 		SOCKET forwardingSocket;
 		UDPForwarderResult result;
+		unsigned short socketFamily;
 	};
 	SimpleMutex threadOperationIncomingMutex,threadOperationOutgoingMutex;
 	DataStructures::Queue<ThreadOperation> threadOperationIncomingQueue;
 	DataStructures::Queue<ThreadOperation> threadOperationOutgoingQueue;
-#endif
+
+#if RAKNET_SUPPORT_IPV6==1
 	void UpdateThreaded(void);
-	UDPForwarderResult StartForwardingThreaded(SystemAddress source, SystemAddress destination, RakNet::TimeMS timeoutOnNoDataMS, const char *forceHostAddress,
+#endif
+	void UpdateThreaded_Old(void);
+	UDPForwarderResult StartForwardingThreaded(SystemAddress source, SystemAddress destination, RakNet::TimeMS timeoutOnNoDataMS, const char *forceHostAddress, unsigned short socketFamily,
 		unsigned short *forwardingPort, SOCKET *forwardingSocket);
 	void StopForwardingThreaded(SystemAddress source, SystemAddress destination);
 
 	DataStructures::Multilist<ML_ORDERED_LIST, ForwardEntry*, SrcAndDest> forwardList;
 	unsigned short maxForwardEntries;
 
-	UDPForwarderResult AddForwardingEntry(SrcAndDest srcAndDest, RakNet::TimeMS timeoutOnNoDataMS, unsigned short *port, const char *forceHostAddress);
+	UDPForwarderResult AddForwardingEntry(SrcAndDest srcAndDest, RakNet::TimeMS timeoutOnNoDataMS, unsigned short *port, const char *forceHostAddress, short socketFamily);
 
 
 	bool isRunning, threadRunning;
+
+
 
 };
 
 } // End namespace
 
 #endif
+
+#endif // #if _RAKNET_SUPPORT_UDPForwarder==1

@@ -362,7 +362,10 @@ namespace DataStructures
 	void Queue<queue_type>::ClearAndForceAllocation( int size, const char *file, unsigned int line )
 	{
 		RakNet::OP_DELETE_ARRAY(array, file, line);
-		array = RakNet::OP_NEW_ARRAY<queue_type>(size, file, line );
+		if (size>0)
+			array = RakNet::OP_NEW_ARRAY<queue_type>(size, file, line );
+		else
+			array=0;
 		allocation_size = size;
 		head = 0;
 		tail = 0;

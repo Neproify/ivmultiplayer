@@ -1,21 +1,31 @@
 #include "FileList.h"
+
+#if _RAKNET_SUPPORT_FileOperations==1
+
 #include <stdio.h> // RAKNET_DEBUG_PRINTF
 #include "RakAssert.h"
 #if defined(ANDROID)
 #include <asm/io.h>
 #elif defined(_WIN32) || defined(__CYGWIN__)
 #include <io.h>
-#elif !defined ( __APPLE__ ) && !defined ( __APPLE_CC__ ) && !defined ( __PPC__ ) && !defined ( __FreeBSD__ )
+
+
+#elif !defined ( __APPLE__ ) && !defined ( __APPLE_CC__ ) && !defined ( __PPC__ ) && !defined ( __FreeBSD__ ) && !defined ( __S3E__ )
 #include <sys/io.h>
 #endif
-#include "DS_Queue.h"
+
+
 #ifdef _WIN32 
 // For mkdir
 #include <direct.h>
+
+
 #else
 #include <sys/stat.h>
 #endif
+
 //#include "SHA1.h"
+#include "DS_Queue.h"
 #include "StringCompressor.h"
 #include "BitStream.h"
 #include "FileOperations.h"
@@ -24,14 +34,16 @@
 #include "LinuxStrings.h"
 
 #define MAX_FILENAME_LENGTH 512
-static const unsigned HASH_LENGTH=sizeof(unsigned int);
+static const unsigned HASH_LENGTH=4;
 
 using namespace RakNet;
 
 // alloca
-#if defined(_XBOX) || defined(X360)
-#elif defined(_WIN32)
+
+#if   defined(_WIN32)
 #include <malloc.h>
+
+
 #else
 #if !defined ( __FreeBSD__ )
 #include <alloca.h>
@@ -112,7 +124,7 @@ void FileList::AddFile(const char *filepath, const char *filename, FileListNodeC
 	}
 
 
-#if !defined(_XBOX) && !defined(_X360)
+
 	bool usedAlloca=false;
 	if (length < MAX_ALLOCA_STACK_ALLOCATION)
 	{
@@ -120,7 +132,7 @@ void FileList::AddFile(const char *filepath, const char *filename, FileListNodeC
 		usedAlloca=true;
 	}
 	else
-#endif
+
 	{
 		data = (char*) rakMalloc_Ex( length, _FILE_AND_LINE_ );
 	}
@@ -129,9 +141,9 @@ void FileList::AddFile(const char *filepath, const char *filename, FileListNodeC
 	AddFile(filename, filepath, data, length, length, context);
 	fclose(fp);
 
-#if !defined(_XBOX) && !defined(_X360)
+
 	if (usedAlloca==false)
-#endif
+
 		rakFree_Ex(data, _FILE_AND_LINE_ );
 
 }
@@ -187,6 +199,10 @@ void FileList::AddFile(const char *filename, const char *fullPathToFile, const c
 	n.fileLengthBytes=fileLength;
 	n.isAReference=isAReference;
 	n.context=context;
+	if (n.context.dataPtr==0)
+		n.context.dataPtr=n.data;
+	if (n.context.dataLength==0)
+		n.context.dataLength=dataLength;
 	n.filename=filename;
 	n.fullPathToFile=fullPathToFile;
 		
@@ -194,6 +210,9 @@ void FileList::AddFile(const char *filename, const char *fullPathToFile, const c
 }
 void FileList::AddFilesFromDirectory(const char *applicationDirectory, const char *subDirectory, bool writeHash, bool writeData, bool recursive, FileListNodeContext context)
 {
+
+
+
 	DataStructures::Queue<char*> dirList;
 	char root[260];
 	char fullPath[520];
@@ -337,6 +356,7 @@ void FileList::AddFilesFromDirectory(const char *applicationDirectory, const cha
 		_findclose(dir);
 		rakFree_Ex(dirSoFar, _FILE_AND_LINE_ );
 	}
+
 }
 void FileList::Clear(void)
 {
@@ -356,8 +376,10 @@ void FileList::Serialize(RakNet::BitStream *outBitStream)
 		outBitStream->WriteCompressed(fileList[i].context.op);
 		outBitStream->WriteCompressed(fileList[i].context.fileId);
 		StringCompressor::Instance()->EncodeString(fileList[i].filename.C_String(), MAX_FILENAME_LENGTH, outBitStream);
-		outBitStream->Write((bool)(fileList[i].dataLengthBytes>0==true));
-		if (fileList[i].dataLengthBytes>0)
+
+		bool writeFileData = fileList[i].dataLengthBytes>0==true;
+		outBitStream->Write(writeFileData);
+		if (writeFileData)
 		{
 			outBitStream->WriteCompressed(fileList[i].dataLengthBytes);
 			outBitStream->Write(fileList[i].data, fileList[i].dataLengthBytes);
@@ -683,6 +705,9 @@ void FileList::WriteDataToDisk(const char *applicationDirectory)
 #endif
 void FileList::DeleteFiles(const char *applicationDirectory)
 {
+
+
+
 	char fullPath[512];
 	unsigned i,j;
 
@@ -714,6 +739,7 @@ void FileList::DeleteFiles(const char *applicationDirectory)
 			RAKNET_DEBUG_PRINTF("FileList::DeleteFiles: unlink (%s) failed.\n", fullPath);
 		}
 	}
+
 }
 
 void FileList::AddCallback(FileListProgress *cb)
@@ -721,7 +747,7 @@ void FileList::AddCallback(FileListProgress *cb)
 	if (cb==0)
 		return;
 
-	if (fileListProgressCallbacks.GetIndexOf(cb)==-1)
+	if ((unsigned int) fileListProgressCallbacks.GetIndexOf(cb)==(unsigned int)-1)
 		fileListProgressCallbacks.Push(cb, _FILE_AND_LINE_);
 }
 void FileList::RemoveCallback(FileListProgress *cb)
@@ -762,3 +788,5 @@ bool FileList::FixEndingSlash(char *str)
 #ifdef _MSC_VER
 #pragma warning( pop )
 #endif
+
+#endif // _RAKNET_SUPPORT_FileOperations

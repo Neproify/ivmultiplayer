@@ -43,11 +43,12 @@ public:
 	// --------------------------------------------------------------------------------------------Major Low Level Functions - Functions needed by most users--------------------------------------------------------------------------------------------
 	/// \brief Starts the network threads, opens the listen port.
 	/// \details You must call this before calling Connect().
+	/// \pre On the PS3, call Startup() after Client_Login()
 	/// Multiple calls while already active are ignored.  To call this function again with different settings, you must first call Shutdown().
 	/// \note Call SetMaximumIncomingConnections if you want to accept incoming connections
 	/// \param[in] maxConnections The maximum number of connections between this instance of RakPeer and another instance of RakPeer. Required so the network can preallocate and for thread safety. A pure client would set this to 1.  A pure server would set it to the number of allowed clients.- A hybrid would set it to the sum of both types of connections
 	/// \param[in] localPort The port to listen for connections on. On linux the system may be set up so thast ports under 1024 are restricted for everything but the root user. Use a higher port for maximum compatibility. 
-	/// \param[in] socketDescriptors An array of SocketDescriptor structures to force RakNet to listen on a particular IP address or port (or both).  Each SocketDescriptor will represent one unique socket.  Do not pass redundant structures.  To listen on a specific port, you can pass SocketDescriptor(myPort,0); such as for a server.  For a client, it is usually OK to just pass SocketDescriptor();
+	/// \param[in] socketDescriptors An array of SocketDescriptor structures to force RakNet to listen on a particular IP address or port (or both).  Each SocketDescriptor will represent one unique socket.  Do not pass redundant structures.  To listen on a specific port, you can pass SocketDescriptor(myPort,0); such as for a server.  For a client, it is usually OK to just pass SocketDescriptor(); However, on the XBOX be sure to use IPPROTO_VDP
 	/// \param[in] socketDescriptorCount The size of the \a socketDescriptors array.  Pass 1 if you are not sure what to pass.
 	/// \param[in] threadPriority Passed to the thread creation routine. Use THREAD_PRIORITY_NORMAL for Windows. For Linux based systems, you MUST pass something reasonable based on the thread priorities for your application.
 	/// \return RAKNET_STARTED on success, otherwise appropriate failure enumeration.
@@ -111,7 +112,7 @@ public:
 	/// \brief Connect to the specified host (ip or domain name) and server port.
 	/// Calling Connect and not calling SetMaximumIncomingConnections acts as a dedicated client.
 	/// Calling both acts as a true peer. This is a non-blocking connection.
-	/// You know the connection is successful when GetConnectionState() returns IS_CONNECTED or Receive() gets a message with the type identifier ID_CONNECTION_ACCEPTED.
+	/// You know the connection is successful when GetConnectionState() returns IS_CONNECTED or Receive() gets a message with the type identifier ID_CONNECTION_REQUEST_ACCEPTED.
 	/// If the connection is not successful, such as a rejected connection or no response then neither of these things will happen.
 	/// \pre Requires that you first call Initialize
 	/// \param[in] host Either a dotted IP address or a domain name
@@ -282,7 +283,7 @@ public:
 	/// Indices match each other, so \a addresses[0] and \a guids[0] refer to the same system
 	/// \param[out] addresses All system addresses. Size of the list is the number of connections. Size of the list will match the size of the \a guids list.
 	/// \param[out] guids All guids. Size of the list is the number of connections. Size of the list will match the size of the \a addresses list.
-	virtual void GetSystemList(DataStructures::List<SystemAddress> &addresses, DataStructures::List<RakNetGUID> &guids)=0;
+	virtual void GetSystemList(DataStructures::List<SystemAddress> &addresses, DataStructures::List<RakNetGUID> &guids) const=0;
 
 	/// Bans an IP from connecting.  Banned IPs persist between connections but are not saved on shutdown nor loaded on startup.
 	/// param[in] IP Dotted IP address. Can use * as a wildcard, such as 128.0.0.* will ban all IP addresses starting with 128.0.0
@@ -337,7 +338,7 @@ public:
 	virtual int GetLowestPing( const AddressOrGUID systemIdentifier ) const=0;
 
 	/// Ping the remote systems every so often, or not. Can be called anytime.
-	/// By default this is true if GET_TIME_SPIKE_LIMIT is non-zero from RakNetDefines, false otherwise
+	/// By default this is true. Recommended to leave on, because congestion control uses it to determine how often to resend lost packets.
 	/// It would be true by default to prevent timestamp drift, since in the event of a clock spike, the timestamp deltas would no longer be accurate
 	/// \param[in] doPing True to start occasional pings.  False to stop them.
 	virtual void SetOccasionalPing( bool doPing )=0;
@@ -358,6 +359,7 @@ public:
 
 	//--------------------------------------------------------------------------------------------Network Functions - Functions dealing with the network in general--------------------------------------------------------------------------------------------
 	/// Return the unique address identifier that represents you or another system on the the network and is based on your local IP / port.
+	/// \note Not supported by the XBOX
 	/// \param[in] systemAddress Use UNASSIGNED_SYSTEM_ADDRESS to get your behind-LAN address. Use a connected system to get their behind-LAN address
 	/// \param[in] index When you have multiple internal IDs, which index to return? Currently limited to MAXIMUM_NUMBER_OF_INTERNAL_IDS (so the maximum value of this variable is MAXIMUM_NUMBER_OF_INTERNAL_IDS-1)
 	/// \return the identifier of your system internally, which may not be how other systems see if you if you are behind a NAT or proxy
@@ -370,6 +372,9 @@ public:
 
 	/// Return my own GUID
 	virtual const RakNetGUID GetMyGUID(void)=0;
+
+	/// Return the address bound to a socket at the specified index
+	virtual SystemAddress GetMyBoundAddress(const int socketIndex=0)=0;
 
 	/// Get a random number (to generate a GUID)
 	static uint64_t Get64BitUniqueRandomNumber(void);
@@ -398,6 +403,7 @@ public:
 
 	/// Set the time, in MS, to use before considering ourselves disconnected after not being able to deliver a reliable message.
 	/// Default time is 10,000 or 10 seconds in release and 30,000 or 30 seconds in debug.
+	/// Do not set different values for different computers that are connected to each other, or you won't be able to reconnect after ID_CONNECTION_LOST
 	/// \param[in] timeMS Time, in MS
 	/// \param[in] target Which system to do this for. Pass UNASSIGNED_SYSTEM_ADDRESS for all systems.
 	virtual void SetTimeoutTime( RakNet::TimeMS timeMS, const SystemAddress target )=0;
@@ -482,7 +488,7 @@ public:
 	/// \brief For a given system identified by \a guid, change the SystemAddress to send to.
 	/// \param[in] guid The connection we are referring to
 	/// \param[in] systemAddress The new address to send to
-	virtual void ChangeSystemAddress(RakNetGUID guid, SystemAddress systemAddress)=0;
+	virtual void ChangeSystemAddress(RakNetGUID guid, const SystemAddress &systemAddress)=0;
 
 	/// \returns a packet for you to write to if you want to create a Packet for some reason.
 	/// You can add it to the receive buffer with PushBackPacket
@@ -550,7 +556,11 @@ public:
 	/// \internal
 	virtual bool SendOutOfBand(const char *host, unsigned short remotePort, const char *data, BitSize_t dataLength, unsigned connectionSocketIndex=0 )=0;
 
-};
+}
+// #if defined(SN_TARGET_PSP2)
+// __attribute__((aligned(8)))
+// #endif
+;
 
 } // namespace RakNet
 

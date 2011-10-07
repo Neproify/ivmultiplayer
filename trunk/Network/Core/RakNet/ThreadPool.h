@@ -176,11 +176,16 @@ protected:
 	RakNet::SimpleMutex numThreadsRunningMutex;
 
 	RakNet::SignaledEvent quitAndIncomingDataEvents;
+
+// #if defined(SN_TARGET_PSP2)
+// 	RakNet::RakThread::UltUlThreadRuntime *runtime;
+// #endif
 };
 
 #include "ThreadPool.h"
 #include "RakSleep.h"
 #ifdef _WIN32
+
 #else
 #include <unistd.h>
 #endif
@@ -200,8 +205,13 @@ void* WorkerThread( void* arguments )
 #endif
 */
 {
-	bool returnOutput;
+
+
+
 	ThreadPool<ThreadInputType, ThreadOutputType> *threadPool = (ThreadPool<ThreadInputType, ThreadOutputType>*) arguments;
+
+
+	bool returnOutput;
 	ThreadOutputType (*userCallback)(ThreadInputType, bool *, void*);
 	ThreadInputType inputData;
 	ThreadOutputType callbackOutput;
@@ -278,7 +288,11 @@ void* WorkerThread( void* arguments )
 	else if (threadPool->threadDataInterface)
 		threadPool->threadDataInterface->PerThreadDestructor(perThreadData, threadPool->tdiContext);
 
+
+
+
 	return 0;
+
 }
 template <class InputType, class OutputType>
 ThreadPool<InputType, OutputType>::ThreadPool()
@@ -300,6 +314,10 @@ template <class InputType, class OutputType>
 bool ThreadPool<InputType, OutputType>::StartThreads(int numThreads, int stackSize, void* (*_perThreadDataFactory)(), void (*_perThreadDataDestructor)(void *))
 {
 	(void) stackSize;
+
+// #if defined(SN_TARGET_PSP2)
+// 	runtime = RakNet::RakThread::AllocRuntime(numThreads);
+// #endif
 
 	runThreadsMutex.Lock();
 	if (runThreads==true)
@@ -325,7 +343,13 @@ bool ThreadPool<InputType, OutputType>::StartThreads(int numThreads, int stackSi
 	int i;
 	for (i=0; i < numThreads; i++)
 	{
-		int errorCode = RakNet::RakThread::Create(WorkerThread<InputType, OutputType>, this);
+		int errorCode;
+
+
+
+
+		errorCode = RakNet::RakThread::Create(WorkerThread<InputType, OutputType>, this);
+
 		if (errorCode!=0)
 		{
 			StopThreads();
@@ -378,6 +402,12 @@ void ThreadPool<InputType, OutputType>::StopThreads(void)
 	}
 
 	quitAndIncomingDataEvents.CloseEvent();
+
+// #if defined(SN_TARGET_PSP2)
+// 	RakNet::RakThread::DeallocRuntime(runtime);
+// 	runtime=0;
+// #endif
+
 }
 template <class InputType, class OutputType>
 void ThreadPool<InputType, OutputType>::AddInput(OutputType (*workerThreadCallback)(InputType, bool *returnOutput, void* perThreadData), InputType inputData)

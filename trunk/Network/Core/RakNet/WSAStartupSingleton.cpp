@@ -1,10 +1,17 @@
 #include "WSAStartupSingleton.h"
 
-#if defined(_XBOX) || defined(X360)
-                                                                                             
-#elif defined(_WIN32)
+
+
+
+
+#if   defined(_WIN32)
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
+
+
+
+
 #endif
 #include "RakNetDefines.h"
 #include <stdio.h>
@@ -22,14 +29,14 @@ void WSAStartupSingleton::AddRef(void)
 	if (refCount!=1)
 		return;
 
-#if defined(_XBOX) || defined(X360)
-               
-#endif
+
+
+
 
 	WSADATA winsockInfo;
 	if ( WSAStartup( MAKEWORD( 2, 2 ), &winsockInfo ) != 0 )
 	{
-#if !defined(_XBOX) && !defined(X360) && defined(_DEBUG)
+#if   defined(_DEBUG)
 		DWORD dwIOError = GetLastError();
 		LPVOID messageBuffer;
 		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -58,9 +65,9 @@ void WSAStartupSingleton::Deref(void)
 	
 	WSACleanup();
 
-#if defined(_XBOX) || defined(X360)
-                
-#endif
+
+
+
 
 	
 	refCount=0;

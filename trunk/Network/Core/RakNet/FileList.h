@@ -4,6 +4,9 @@
 ///
 /// Usage of RakNet is subject to the appropriate license agreement.
 
+#include "NativeFeatureIncludes.h"
+#if _RAKNET_SUPPORT_FileOperations==1
+
 #ifndef __FILE_LIST
 #define __FILE_LIST
 
@@ -150,7 +153,7 @@ public:
 	/// \brief Add all the files at a given directory.
 	/// \param[in] applicationDirectory The first part of the path. This is not stored as part of the filename.  Use \ as the path delineator.
 	/// \param[in] subDirectory The rest of the path to the file. This is stored as a prefix to the filename
-	/// \param[in] writeHash The first SHA1_LENGTH bytes is a hash of the file, with the remainder the actual file data (should \a writeData be true)
+	/// \param[in] writeHash The first 4 bytes is a hash of the file, with the remainder the actual file data (should \a writeData be true)
 	/// \param[in] writeData Write the contents of each file
 	/// \param[in] recursive Whether or not to visit subdirectories
 	/// \param[in] context User defined byte to store with each file. Use for whatever you want.
@@ -249,3 +252,5 @@ protected:
 #endif
 
 #endif
+
+#endif // _RAKNET_SUPPORT_FileOperations

@@ -1,6 +1,7 @@
 #include "NatTypeDetectionCommon.h"
 #include "SocketLayer.h"
 #include "SocketIncludes.h"
+#include "SocketDefines.h"
 
 using namespace RakNet;
 
@@ -82,12 +83,13 @@ const char *RakNet::NATTypeDetectionResultToStringFriendly(NATTypeDetectionResul
 
 SOCKET RakNet::CreateNonblockingBoundSocket(const char *bindAddr )
 {
-	SOCKET s = SocketLayer::CreateBoundSocket( 0, false, bindAddr, true, 0 );
+	SOCKET s = SocketLayer::CreateBoundSocket( 0, false, bindAddr, true, 0, AF_INET );
 	#ifdef _WIN32
 		unsigned long nonblocking = 1;
-		ioctlsocket( s, FIONBIO, &nonblocking );
-	#elif defined(_PS3) || defined(__PS3__) || defined(SN_TARGET_PS3)
-                                                                                                     
+		ioctlsocket__( s, FIONBIO, &nonblocking );
+
+
+
 	#else
 		fcntl( s, F_SETFL, O_NONBLOCK );
 	#endif
@@ -102,11 +104,13 @@ int RakNet::NatTypeRecvFrom(char *data, SOCKET socket, SystemAddress &sender)
 	len2 = sizeof( sa );
 	sa.sin_family = AF_INET;
 	sa.sin_port=0;
-	int len = recvfrom( socket, data, MAXIMUM_MTU_SIZE, flag, ( sockaddr* ) & sa, ( socklen_t* ) & len2 );
+	int len = recvfrom__( socket, data, MAXIMUM_MTU_SIZE, flag, ( sockaddr* ) & sa, ( socklen_t* ) & len2 );
 	if (len>0)
 	{
-		sender.binaryAddress = sa.sin_addr.s_addr;
-		sender.port = ntohs( sa.sin_port );
+		sender.address.addr4.sin_family=AF_INET;
+		sender.address.addr4.sin_addr.s_addr = sa.sin_addr.s_addr;
+		//sender.SetPort( ntohs( sa.sin_port ) );
+		sender.SetPort( ntohs( sa.sin_port ) );
 	}
 	return len;
 }

@@ -1,5 +1,5 @@
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_FileListTransfer==1
+#if _RAKNET_SUPPORT_FileListTransfer==1 && _RAKNET_SUPPORT_FileOperations==1
 
 #include "FileListTransfer.h"
 #include "DS_HuffmanEncodingTree.h"
@@ -541,7 +541,7 @@ void FileListTransfer::Clear(void)
 
 	//filesToPush.Clear(false, _FILE_AND_LINE_);
 }
-void FileListTransfer::OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
+void FileListTransfer::OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
 {
 	(void) lostConnectionReason;
 	(void) rakNetGUID;

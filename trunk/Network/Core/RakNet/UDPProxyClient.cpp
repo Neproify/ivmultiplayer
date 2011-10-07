@@ -256,7 +256,7 @@ void UDPProxyClient::OnPingServers(Packet *packet)
 		swp.ping=DEFAULT_UNRESPONSIVE_PING_TIME;
 		psg->serversToPing.Push(swp, _FILE_AND_LINE_ );
 		swp.serverAddress.ToString(false,ipStr);
-		rakPeerInterface->Ping(ipStr,swp.serverAddress.port,false,0);
+		rakPeerInterface->Ping(ipStr,swp.serverAddress.GetPort(),false,0);
 	}
 	pingServerGroups.Push(psg,_FILE_AND_LINE_);
 }

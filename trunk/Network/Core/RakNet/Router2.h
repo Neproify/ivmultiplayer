@@ -6,7 +6,7 @@
 /// Usage of RakNet is subject to the appropriate license agreement.
 
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_Router2==1
+#if _RAKNET_SUPPORT_Router2==1 && _RAKNET_SUPPORT_UDPForwarder==1
 
 #ifndef __ROUTER_2_PLUGIN_H
 #define __ROUTER_2_PLUGIN_H
@@ -17,6 +17,8 @@
 #include "Export.h"
 #include "UDPForwarder.h"
 #include "MessageIdentifiers.h"
+#include "DS_List.h"
+#include "SimpleMutex.h"
 
 namespace RakNet
 {
@@ -49,6 +51,10 @@ public:
 
 	Router2();
 	virtual ~Router2();
+
+	/// Sets the socket family to use, either IPV4 or IPV6
+	/// \param[in] socketFamily For IPV4, use AF_INET (default). For IPV6, use AF_INET6. To autoselect, use AF_UNSPEC.
+	void SetSocketFamily(unsigned short _socketFamily);
 
 	/// \brief Query all connected systems to connect through them to a third system.
 	/// System will return ID_ROUTER_2_FORWARDING_NO_PATH if unable to connect.
@@ -85,7 +91,7 @@ public:
 	// --------------------------------------------------------------------------------------------
 	virtual PluginReceiveResult OnReceive(Packet *packet);
 	virtual void Update(void);
-	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
+	virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
 	virtual void OnFailedConnectionAttempt(Packet *packet, PI2_FailedConnectionAttemptReason failedConnectionAttemptReason);
 	virtual void OnRakPeerShutdown(void);
 
@@ -156,7 +162,7 @@ protected:
 	void OnMiniPunchReplyBounce(Packet *packet);
 	bool OnForwardingSuccess(Packet *packet);
 	int GetLargestPingAmongConnectedSystems(void) const;
-	void ReturnToUser(MessageID messageId, RakNetGUID endpointGuid, SystemAddress systemAddress, bool wasGeneratedLocally);
+	void ReturnToUser(MessageID messageId, RakNetGUID endpointGuid, const SystemAddress &systemAddress, bool wasGeneratedLocally);
 	bool ConnectInternal(RakNetGUID endpointGuid, bool returnConnectionLostOnFailure);
 
 	UDPForwarder *udpForwarder;
@@ -179,6 +185,7 @@ protected:
 	void SendOOBMessages(MiniPunchRequest *mpr);
 
 	Router2DebugInterface *debugInterface;
+	unsigned short socketFamily;
 };
 
 }

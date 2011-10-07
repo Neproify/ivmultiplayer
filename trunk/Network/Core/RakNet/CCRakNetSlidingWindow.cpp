@@ -181,8 +181,7 @@ void CCRakNetSlidingWindow::OnAck(CCTimeType curTime, CCTimeType rtt, bool hasBA
 	(void) curTime;
 	(void) rtt;
 
-// Use OnExternalPing, no need to send timestamp for every datagram because accuracy is not important with this method
-//	RTT=(double) rtt;
+	RTT=(double) rtt;
 
 	_isContinuousSend=isContinuousSend;
 
@@ -205,7 +204,14 @@ void CCRakNetSlidingWindow::OnAck(CCTimeType curTime, CCTimeType rtt, bool hasBA
 		{
 			// Keep the number in range to avoid overflow
 			if (cwnd<10000000)
+			{
 				cwnd*=2;
+				if (cwnd>ssThresh && ssThresh!=0)
+				{
+					cwnd=ssThresh;
+					cwnd+=MAXIMUM_MTU_INCLUDING_UDP_HEADER*MAXIMUM_MTU_INCLUDING_UDP_HEADER/cwnd;
+				}
+			}
 		}
 	}
 	else
@@ -249,10 +255,10 @@ void CCRakNetSlidingWindow::OnSendNACK(CCTimeType curTime, uint32_t numBytes)
 CCTimeType CCRakNetSlidingWindow::GetRTOForRetransmission(void) const
 {
 #if CC_TIME_TYPE_BYTES==4
-	const CCTimeType maxThreshold=10000;
+	const CCTimeType maxThreshold=2000;
 	const CCTimeType minThreshold=100;
 #else
-	const CCTimeType maxThreshold=1000000;
+	const CCTimeType maxThreshold=2000000;
 	const CCTimeType minThreshold=100000;
 #endif
 
@@ -321,15 +327,6 @@ CCTimeType CCRakNetSlidingWindow::GetSenderRTOForACK(void) const
 bool CCRakNetSlidingWindow::IsInSlowStart(void) const
 {
 	return cwnd <= ssThresh || ssThresh==0;
-}
-// ----------------------------------------------------------------------------------------------------------------------------
-void CCRakNetSlidingWindow::OnExternalPing(double pingMS)
-{
-#if CC_TIME_TYPE_BYTES==4
-	RTT=pingMS;
-#else
-	RTT=pingMS*1000;
-#endif
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 #endif

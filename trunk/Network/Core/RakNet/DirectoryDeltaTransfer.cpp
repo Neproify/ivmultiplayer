@@ -1,5 +1,5 @@
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_DirectoryDeltaTransfer==1
+#if _RAKNET_SUPPORT_DirectoryDeltaTransfer==1 && _RAKNET_SUPPORT_FileOperations==1
 
 #include "DirectoryDeltaTransfer.h"
 #include "FileList.h"

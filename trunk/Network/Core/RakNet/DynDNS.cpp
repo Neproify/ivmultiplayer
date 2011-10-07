@@ -1,5 +1,5 @@
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_DynDNS==1
+#if _RAKNET_SUPPORT_DynDNS==1 && _RAKNET_SUPPORT_TCPInterface==1
 
 #include "TCPInterface.h"
 #include "SocketLayer.h"
@@ -154,7 +154,7 @@ void DynDNS::Update(void)
 							if (*result)
 							{
 								SystemAddress parser;
-								parser.SetBinaryAddress(result);
+								parser.FromString(result);
 								parser.ToString(false, myIPStr);
 							}
 						}
@@ -201,7 +201,7 @@ void DynDNS::Update(void)
 			{
 				result+=strlen("Current IP Address: ");
 				SystemAddress myIp;
-				myIp.SetBinaryAddress(result); // TODO
+				myIp.FromString(result);
 				myIp.ToString(false, myIPStr);
 
 				// Resolve DNS we are setting. If equal to current then abort

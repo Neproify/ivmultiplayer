@@ -37,7 +37,7 @@ PacketLogger::~PacketLogger()
 {
 }
 void PacketLogger::FormatLine(
-char* into, const char* dir, const char* type, unsigned int packet, unsigned int frame, unsigned char id
+char* into, const char* dir, const char* type, unsigned int reliableMessageNumber, unsigned int frame, unsigned char id
 , const BitSize_t bitLen, unsigned long long time, const SystemAddress& local, const SystemAddress& remote,
 unsigned int splitPacketId, unsigned int splitPacketIndex, unsigned int splitPacketCount, unsigned int orderingIndex)
 {
@@ -59,11 +59,11 @@ unsigned int splitPacketId, unsigned int splitPacketIndex, unsigned int splitPac
 		idToPrint = numericID;
 	}
 
-	FormatLine(into, dir, type, packet, frame, idToPrint, bitLen, time, local, remote,splitPacketId,splitPacketIndex,splitPacketCount, orderingIndex);
+	FormatLine(into, dir, type, reliableMessageNumber, frame, idToPrint, bitLen, time, local, remote,splitPacketId,splitPacketIndex,splitPacketCount, orderingIndex);
 }
 
 void PacketLogger::FormatLine(
-char* into, const char* dir, const char* type, unsigned int packet, unsigned int frame, const char* idToPrint
+char* into, const char* dir, const char* type, unsigned int reliableMessageNumber, unsigned int frame, const char* idToPrint
 , const BitSize_t bitLen, unsigned long long time, const SystemAddress& local, const SystemAddress& remote,
 unsigned int splitPacketId, unsigned int splitPacketIndex, unsigned int splitPacketCount, unsigned int orderingIndex)
 {
@@ -72,13 +72,25 @@ unsigned int splitPacketId, unsigned int splitPacketIndex, unsigned int splitPac
 	remote.ToString(true, str2);
 	char localtime[128];
 	GetLocalTime(localtime);
+	char str3[64];
+	if (reliableMessageNumber==(unsigned int)-1)
+	{
+		str3[0]='N';
+		str3[1]='/';
+		str3[2]='A';
+		str3[3]=0;
+	}
+	else
+	{
+		sprintf(str3,"%5u",reliableMessageNumber);
+	}
 
-	sprintf(into, "%s,%s%s,%s,%5u,%5u,%s,%u,%"PRINTF_64_BIT_MODIFIER"u,%s,%s,%i,%i,%i,%i,%s,"
+	sprintf(into, "%s,%s%s,%s,%s,%5u,%s,%u,%"PRINTF_64_BIT_MODIFIER"u,%s,%s,%i,%i,%i,%i,%s,"
 					, localtime
 					, prefix
 					, dir
 					, type
-					, packet
+					, str3
 					, frame
 					, idToPrint
 					, bitLen
@@ -105,7 +117,7 @@ void PacketLogger::OnDirectSocketSend(const char *data, const BitSize_t bitsUsed
 void PacketLogger::LogHeader(void)
 {
 	// Last 5 are splitpacket id, split packet index, split packet count, ordering index, suffix
-	AddToLog("Clock,S|R,Typ,Pckt#,Frm #,PktID,BitLn,Time     ,Local IP:Port   ,RemoteIP:Port,SPID,SPIN,SPCO,OI,Suffix,Miscellaneous\n");
+	AddToLog("Clock,S|R,Typ,Reliable#,Frm #,PktID,BitLn,Time     ,Local IP:Port   ,RemoteIP:Port,SPID,SPIN,SPCO,OI,Suffix,Miscellaneous\n");
 }
 void PacketLogger::OnDirectSocketReceive(const char *data, const BitSize_t bitsUsed, SystemAddress remoteSystemAddress)
 {
@@ -179,13 +191,19 @@ void PacketLogger::OnInternalPacket(InternalPacket *internalPacket, unsigned fra
 	const char *sendType = sendTypes[isSend];
 	SystemAddress localSystemAddress = rakPeerInterface->GetExternalID(remoteSystemAddress);
 
+	unsigned int reliableMessageNumber;
+	if (internalPacket->reliability==UNRELIABLE || internalPacket->reliability==UNRELIABLE_SEQUENCED || internalPacket->reliability==UNRELIABLE_WITH_ACK_RECEIPT)
+		reliableMessageNumber=(unsigned int)-1;
+	else
+		reliableMessageNumber=internalPacket->reliableMessageNumber;
+
 	if (internalPacket->data[0]==ID_TIMESTAMP)
 	{
-		FormatLine(str, sendType, "Tms", internalPacket->reliableMessageNumber, frameNumber, internalPacket->data[1+sizeof(RakNet::Time)], internalPacket->dataBitLength, (unsigned long long)time, localSystemAddress, remoteSystemAddress, internalPacket->splitPacketId, internalPacket->splitPacketIndex, internalPacket->splitPacketCount, internalPacket->orderingIndex);
+		FormatLine(str, sendType, "Tms", reliableMessageNumber, frameNumber, internalPacket->data[1+sizeof(RakNet::Time)], internalPacket->dataBitLength, (unsigned long long)time, localSystemAddress, remoteSystemAddress, internalPacket->splitPacketId, internalPacket->splitPacketIndex, internalPacket->splitPacketCount, internalPacket->orderingIndex);
 	}
 	else
 	{
-		FormatLine(str, sendType, "Nrm", internalPacket->reliableMessageNumber, frameNumber, internalPacket->data[0], internalPacket->dataBitLength, (unsigned long long)time, localSystemAddress, remoteSystemAddress, internalPacket->splitPacketId, internalPacket->splitPacketIndex, internalPacket->splitPacketCount, internalPacket->orderingIndex);
+		FormatLine(str, sendType, "Nrm", reliableMessageNumber, frameNumber, internalPacket->data[0], internalPacket->dataBitLength, (unsigned long long)time, localSystemAddress, remoteSystemAddress, internalPacket->splitPacketId, internalPacket->splitPacketIndex, internalPacket->splitPacketCount, internalPacket->orderingIndex);
 	}
 
 	AddToLog(str);
@@ -277,9 +295,6 @@ const char* PacketLogger::BaseIDTOString(unsigned char Id)
 		"ID_REPLICA_MANAGER_SERIALIZE",
 		"ID_REPLICA_MANAGER_DOWNLOAD_STARTED",
 		"ID_REPLICA_MANAGER_DOWNLOAD_COMPLETE",
-		"ID_REPLICA_MANAGER_3_SERIALIZE_CONSTRUCTION_EXISTING",
-		"ID_REPLICA_MANAGER_3_LOCAL_CONSTRUCTION_REJECTED",
-		"ID_REPLICA_MANAGER_3_LOCAL_CONSTRUCTION_ACCEPTED",
 		"ID_RAKVOICE_OPEN_CHANNEL_REQUEST",
 		"ID_RAKVOICE_OPEN_CHANNEL_REPLY",
 		"ID_RAKVOICE_CLOSE_CHANNEL",
@@ -294,6 +309,8 @@ const char* PacketLogger::BaseIDTOString(unsigned char Id)
 		"ID_AUTOPATCHER_FINISHED",
 		"ID_AUTOPATCHER_RESTART_APPLICATION",
 		"ID_NAT_PUNCHTHROUGH_REQUEST",
+		"ID_NAT_GROUP_PUNCHTHROUGH_REQUEST",
+		"ID_NAT_GROUP_PUNCHTHROUGH_REPLY",
 		"ID_NAT_CONNECT_AT_TIME",
 		"ID_NAT_GET_MOST_RECENT_PORT",
 		"ID_NAT_CLIENT_READY",
@@ -303,6 +320,8 @@ const char* PacketLogger::BaseIDTOString(unsigned char Id)
 		"ID_NAT_ALREADY_IN_PROGRESS",
 		"ID_NAT_PUNCHTHROUGH_FAILED",
 		"ID_NAT_PUNCHTHROUGH_SUCCEEDED",
+		"ID_NAT_GROUP_PUNCH_FAILED",
+		"ID_NAT_GROUP_PUNCH_SUCCEEDED",
 		"ID_READY_EVENT_SET",
 		"ID_READY_EVENT_UNSET",
 		"ID_READY_EVENT_ALL_SET",
@@ -321,6 +340,7 @@ const char* PacketLogger::BaseIDTOString(unsigned char Id)
 		"ID_FCM2_REQUEST_FCMGUID",
 		"ID_FCM2_RESPOND_CONNECTION_COUNT",
 		"ID_FCM2_INFORM_FCMGUID",
+		"ID_FCM2_UPDATE_MIN_TOTAL_CONNECTION_COUNT",
 		"ID_UDP_PROXY_GENERAL",
 		"ID_SQLite3_EXEC",
 		"ID_SQLite3_UNKNOWN_DB",

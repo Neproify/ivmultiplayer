@@ -43,6 +43,7 @@ struct FilterSet
 	void *timeoutUserData;
 	int filterSetID;
 	bool allowedIDs[MESSAGE_FILTER_MAX_MESSAGE_ID];
+	DataStructures::OrderedList<RakNet::RakString,RakNet::RakString> allowedRPC4;
 };
 
 /// \internal Has to be public so some of the shittier compilers can use it.
@@ -96,6 +97,12 @@ public:
 	/// \param[in] messageIDEnd The last ID_* message to allow in the range.  Inclusive.
 	/// \param[in] filterSetID A user defined ID to represent a filter set.  If no filter with this ID exists, one will be created with default settings.
 	void SetAllowMessageID(bool allow, int messageIDStart, int messageIDEnd,int filterSetID);
+
+	/// Allow a specific RPC4 call
+	/// \pre MessageFilter must be attached before RPC4
+	/// \param[in] uniqueID Identifier passed to RegisterFunction()
+	/// \param[in] filterSetID A user defined ID to represent a filter set.  If no filter with this ID exists, one will be created with default settings.
+	void SetAllowRPC4(bool allow, const char* uniqueID, int filterSetID);
 
 	/// What action to take on a disallowed message.  You can kick or not.  You can add them to the ban list for some time
 	/// By default no action is taken.  The message is simply ignored.
@@ -159,8 +166,8 @@ public:
 	// --------------------------------------------------------------------------------------------
 	virtual void Update(void);
 	virtual PluginReceiveResult OnReceive(Packet *packet);
-	virtual void OnNewConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, bool isIncoming);
-	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
+	virtual void OnNewConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, bool isIncoming);
+	virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
 
 protected:
 

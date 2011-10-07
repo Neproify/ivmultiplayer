@@ -1,5 +1,5 @@
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_UDPProxyCoordinator==1
+#if _RAKNET_SUPPORT_UDPProxyCoordinator==1 && _RAKNET_SUPPORT_UDPForwarder==1
 
 #include "UDPProxyCoordinator.h"
 #include "BitStream.h"
@@ -99,7 +99,7 @@ PluginReceiveResult UDPProxyCoordinator::OnReceive(Packet *packet)
 	}
 	return RR_CONTINUE_PROCESSING;
 }
-void UDPProxyCoordinator::OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
+void UDPProxyCoordinator::OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
 {
 	(void) lostConnectionReason;
 	(void) rakNetGUID;
