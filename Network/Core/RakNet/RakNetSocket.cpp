@@ -1,5 +1,6 @@
 #include "RakNetSocket.h"
 #include "SocketIncludes.h"
+#include "SocketDefines.h"
 
 using namespace RakNet;
 
@@ -12,7 +13,7 @@ RakNetSocket::RakNetSocket() {
 RakNetSocket::~RakNetSocket() 
 {
 	if ((SOCKET)s != (SOCKET)-1)
-		closesocket(s);
+		closesocket__(s);
 
 #if defined (_WIN32) && defined(USE_WAIT_FOR_MULTIPLE_EVENTS)
 	if (recvEvent!=INVALID_HANDLE_VALUE)

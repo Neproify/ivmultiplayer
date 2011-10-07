@@ -8,8 +8,6 @@
 
 #ifndef MAXIMUM_MTU_SIZE
 
-/// The MTU size to use if RakPeer::SetMTUSize() is not called.
-/// \remarks I think many people forget to call RakPeer::SetMTUSize() so I'm setting this to 1500 by default for efficiency.
 /// \li \em 17914 16 Mbit/Sec Token Ring
 /// \li \em 4464 4 Mbits/Sec Token Ring
 /// \li \em 4352 FDDI
@@ -22,12 +20,11 @@
 /// \li \em 1400. Maximum size for AOL DSL.
 /// \li \em 576. Typical value to connect to dial-up ISPs.
 /// The largest value for an UDP datagram
-/// \sa RakPeer::SetMTUSize()
-#if defined(_XBOX) || defined(X360)
-                             
-#else
+
+
+
 #define MAXIMUM_MTU_SIZE 1492
-#endif
+
 
 #define MINIMUM_MTU_SIZE 400
 

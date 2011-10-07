@@ -35,6 +35,9 @@ class RakPeerInterface;
 class RAK_DLL_EXPORT CloudServerQueryFilter
 {
 public:
+	CloudServerQueryFilter() {}
+	virtual ~CloudServerQueryFilter() {}
+
 	/// Called when a local client wants to post data
 	/// \return true to allow, false to reject
 	virtual bool OnPostRequest(RakNetGUID clientGuid, SystemAddress clientAddress, CloudKey key, uint32_t dataLength, const char *data)=0;
@@ -117,7 +120,7 @@ public:
 protected:
 	virtual void Update(void);
 	virtual PluginReceiveResult OnReceive(Packet *packet);
-	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
+	virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
 	virtual void OnRakPeerShutdown(void);
 
 
@@ -213,7 +216,7 @@ protected:
 		DataStructures::OrderedList<CloudKey,KeySubscriberID*,CloudServer::KeySubscriberIDComp> subscribedKeys;
 		uint64_t uploadedBytes;
 	};
-	DataStructures::Hash<RakNetGUID, RemoteCloudClient*, 2048, RakNetGUID::ToInteger> remoteSystems;
+	DataStructures::Hash<RakNetGUID, RemoteCloudClient*, 2048, RakNetGUID::ToUint32> remoteSystems;
 
 	// For a given user, release all subscribed and uploaded keys
 	void ReleaseSystem(RakNetGUID clientAddress );

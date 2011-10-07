@@ -771,6 +771,59 @@ RakNet::RakString& RakString::URLDecode(void)
 	*this = result;
 	return *this;
 }
+void RakString::SplitURI(RakNet::RakString &header, RakNet::RakString &domain, RakNet::RakString &path)
+{
+	header.Clear();
+	domain.Clear();
+	path.Clear();
+
+	size_t strLen = strlen(sharedString->c_str);
+
+	char c;
+	unsigned int i=0;
+	if (strncmp(sharedString->c_str, "http://", 7)==0)
+		i+=(unsigned int) strlen("http://");
+	else if (strncmp(sharedString->c_str, "https://", 8)==0)
+		i+=(unsigned int) strlen("https://");
+	
+	if (strncmp(sharedString->c_str, "www.", 4)==0)
+		i+=(unsigned int) strlen("www.");
+
+	if (i!=0)
+	{
+		header.Allocate(i+1);
+		strncpy(header.sharedString->c_str, sharedString->c_str, i);
+		header.sharedString->c_str[i]=0;
+	}
+
+
+	domain.Allocate(strLen-i+1);
+	char *domainOutput=domain.sharedString->c_str;
+	unsigned int outputIndex=0;
+	for (; i < strLen; i++)
+	{
+		c=sharedString->c_str[i];
+		if (c=='/')
+		{
+			break;
+		}
+		else
+		{
+			domainOutput[outputIndex++]=sharedString->c_str[i];
+		}
+	}
+
+	domainOutput[outputIndex]=0;
+
+	path.Allocate(strLen-header.GetLength()-outputIndex+1);
+	outputIndex=0;
+	char *pathOutput=path.sharedString->c_str;
+	for (; i < strLen; i++)
+	{
+		pathOutput[outputIndex++]=sharedString->c_str[i];
+	}
+	pathOutput[outputIndex]=0;
+}
 RakNet::RakString& RakString::SQLEscape(void)
 {
 	int strLen=(int)GetLength();
@@ -866,11 +919,11 @@ void RakString::Serialize(const char *str, BitStream *bs)
 	bs->Write(l);
 	bs->WriteAlignedBytes((const unsigned char*) str, (const unsigned int) l);
 }
-void RakString::SerializeCompressed(BitStream *bs, int languageId, bool writeLanguageId) const
+void RakString::SerializeCompressed(BitStream *bs, uint8_t languageId, bool writeLanguageId) const
 {
 	SerializeCompressed(C_String(), bs, languageId, writeLanguageId);
 }
-void RakString::SerializeCompressed(const char *str, BitStream *bs, int languageId, bool writeLanguageId)
+void RakString::SerializeCompressed(const char *str, BitStream *bs, uint8_t languageId, bool writeLanguageId)
 {
 	if (writeLanguageId)
 		bs->WriteCompressed(languageId);
@@ -912,7 +965,7 @@ bool RakString::Deserialize(char *str, BitStream *bs)
 }
 bool RakString::DeserializeCompressed(BitStream *bs, bool readLanguageId)
 {
-	unsigned int languageId;
+	uint8_t languageId;
 	if (readLanguageId)
 		bs->ReadCompressed(languageId);
 	else
@@ -921,7 +974,7 @@ bool RakString::DeserializeCompressed(BitStream *bs, bool readLanguageId)
 }
 bool RakString::DeserializeCompressed(char *str, BitStream *bs, bool readLanguageId)
 {
-	unsigned int languageId;
+	uint8_t languageId;
 	if (readLanguageId)
 		bs->ReadCompressed(languageId);
 	else

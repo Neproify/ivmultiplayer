@@ -90,8 +90,8 @@ public:
 	virtual PluginReceiveResult OnReceive(Packet *packet);
 
 	/// \internal For plugin handling
-	virtual void OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
-	virtual void OnNewConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, bool isIncoming);
+	virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
+	virtual void OnNewConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, bool isIncoming);
 
 	// Each connected user has a ready state. Ready means ready for nat punchthrough.
 	struct User;
@@ -113,6 +113,7 @@ public:
 		SystemAddress systemAddress;
 		unsigned short mostRecentPort;
 		bool isReady;
+		DataStructures::OrderedList<RakNetGUID,RakNetGUID> groupPunchthroughRequests;
 
 		DataStructures::List<ConnectionAttempt *> connectionAttempts;
 		bool HasConnectionAttemptToUser(User *user);

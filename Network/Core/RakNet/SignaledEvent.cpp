@@ -9,10 +9,16 @@
 
 using namespace RakNet;
 
+
+
+
+
 SignaledEvent::SignaledEvent()
 {
 #ifdef _WIN32
 	eventList=INVALID_HANDLE_VALUE;
+
+
 #else
 	isSignaled=false;
 #endif
@@ -26,6 +32,15 @@ void SignaledEvent::InitEvent(void)
 {
 #ifdef _WIN32
 		eventList=CreateEvent(0, false, false, 0);
+
+
+
+
+
+
+
+
+
 #else
 
 #if !defined(ANDROID)
@@ -47,6 +62,15 @@ void SignaledEvent::CloseEvent(void)
 		CloseHandle(eventList);
 		eventList=INVALID_HANDLE_VALUE;
 	}
+
+
+
+
+
+
+
+
+
 #else
 	pthread_cond_destroy(&eventList);
 	pthread_mutex_destroy(&hMutex);
@@ -61,6 +85,16 @@ void SignaledEvent::SetEvent(void)
 {
 #ifdef _WIN32
 	::SetEvent(eventList);
+
+
+
+
+
+
+
+
+
+
 #else
 	// Different from SetEvent which stays signaled.
 	// We have to record manually that the event was signaled
@@ -82,6 +116,47 @@ void SignaledEvent::WaitOnEvent(int timeoutMs)
 //		false,
 //		timeoutMs);
 	WaitForSingleObject(eventList,timeoutMs);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #else
 
 	// If was previously set signaled, just unset and return
@@ -98,15 +173,26 @@ void SignaledEvent::WaitOnEvent(int timeoutMs)
 	struct timespec   ts;
 
 	// Else wait for SetEvent to be called
-#if defined(_PS3) || defined(__PS3__) || defined(SN_TARGET_PS3)
-                                                                                                                                                                                                                                                                                                                                      
-	#else
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		int rc;
 		struct timeval    tp;
 		rc =  gettimeofday(&tp, NULL);
 		ts.tv_sec  = tp.tv_sec;
 		ts.tv_nsec = tp.tv_usec * 1000;
-	#endif
+
 
 		while (timeoutMs > 30)
 		{
@@ -118,7 +204,16 @@ void SignaledEvent::WaitOnEvent(int timeoutMs)
 			        ts.tv_nsec -= 1000000000;
 			        ts.tv_sec++;
 			}
+			
+			// [SBC] added mutex lock/unlock around cond_timedwait.
+            // this prevents airplay from generating a whole much of errors.
+            // not sure how this works on other platforms since according to
+            // the docs you are suppost to hold the lock before you wait
+            // on the cond.
+            pthread_mutex_lock(&hMutex);
 			pthread_cond_timedwait(&eventList, &hMutex, &ts);
+            pthread_mutex_unlock(&hMutex);
+
 			timeoutMs-=30;
 
 			isSignaledMutex.Lock();
@@ -138,7 +233,10 @@ void SignaledEvent::WaitOnEvent(int timeoutMs)
 		        ts.tv_nsec -= 1000000000;
 		        ts.tv_sec++;
 		}
+
+		pthread_mutex_lock(&hMutex);
 		pthread_cond_timedwait(&eventList, &hMutex, &ts);
+        pthread_mutex_unlock(&hMutex);
 
 		isSignaledMutex.Lock();
 		isSignaled=false;

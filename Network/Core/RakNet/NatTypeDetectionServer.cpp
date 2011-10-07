@@ -10,6 +10,7 @@
 #include "MessageIdentifiers.h"
 #include "GetTime.h"
 #include "BitStream.h"
+#include "SocketDefines.h"
 
 using namespace RakNet;
 
@@ -46,22 +47,22 @@ void NatTypeDetectionServer::Shutdown()
 {
 	if (s1p2!=INVALID_SOCKET)
 	{
-		closesocket(s1p2);
+		closesocket__(s1p2);
 		s1p2=INVALID_SOCKET;
 	}
 	if (s2p3!=INVALID_SOCKET)
 	{
-		closesocket(s2p3);
+		closesocket__(s2p3);
 		s2p3=INVALID_SOCKET;
 	}
 	if (s3p4!=INVALID_SOCKET)
 	{
-		closesocket(s3p4);
+		closesocket__(s3p4);
 		s3p4=INVALID_SOCKET;
 	}
 	if (s4p5!=INVALID_SOCKET)
 	{
-		closesocket(s4p5);
+		closesocket__(s4p5);
 		s4p5=INVALID_SOCKET;
 	}
 }
@@ -130,6 +131,7 @@ void NatTypeDetectionServer::Update(void)
 		{
 			natDetectionAttempts[i].detectionState=(NATDetectionState)((int)natDetectionAttempts[i].detectionState+1);
 			natDetectionAttempts[i].nextStateTime=time+natDetectionAttempts[i].timeBetweenAttempts;
+			SystemAddress saOut;
 			unsigned char c;
 			bs.Reset();
 			switch (natDetectionAttempts[i].detectionState)
@@ -139,7 +141,9 @@ void NatTypeDetectionServer::Update(void)
 				c = NAT_TYPE_NONE;
 				printf("Testing NAT_TYPE_NONE\n");
 				// S4P5 sends to C2. If arrived, no NAT. Done. (Else S4P5 potentially banned, do not use again).
-				SocketLayer::SendTo_PC( s4p5, (const char*) &c, 1, natDetectionAttempts[i].systemAddress.binaryAddress, natDetectionAttempts[i].c2Port, __FILE__, __LINE__  );
+				saOut=natDetectionAttempts[i].systemAddress;
+				saOut.SetPort(natDetectionAttempts[i].c2Port);
+				SocketLayer::SendTo_PC( s4p5, (const char*) &c, 1, saOut, __FILE__, __LINE__  );
 				break;
 			case STATE_TESTING_FULL_CONE_1:
 			case STATE_TESTING_FULL_CONE_2:
@@ -148,7 +152,9 @@ void NatTypeDetectionServer::Update(void)
 				bs.Write((unsigned char) ID_NAT_TYPE_DETECT);
 				bs.Write((unsigned char) NAT_TYPE_FULL_CONE);
 				// S2P3 sends to C1 (Different address, different port, to previously used port on client). If received, Full-cone nat. Done.  (Else S2P3 potentially banned, do not use again).
-				SocketLayer::SendTo_PC( s2p3, (const char*) bs.GetData(), bs.GetNumberOfBytesUsed(), natDetectionAttempts[i].systemAddress.binaryAddress, natDetectionAttempts[i].systemAddress.port, __FILE__, __LINE__  );
+				saOut=natDetectionAttempts[i].systemAddress;
+				saOut.SetPort(natDetectionAttempts[i].systemAddress.GetPort());
+				SocketLayer::SendTo_PC( s2p3, (const char*) bs.GetData(), bs.GetNumberOfBytesUsed(), saOut, __FILE__, __LINE__  );
 				break;
 			case STATE_TESTING_ADDRESS_RESTRICTED_1:
 			case STATE_TESTING_ADDRESS_RESTRICTED_2:
@@ -157,7 +163,9 @@ void NatTypeDetectionServer::Update(void)
 				bs.Write((unsigned char) ID_NAT_TYPE_DETECT);
 				bs.Write((unsigned char) NAT_TYPE_ADDRESS_RESTRICTED);
 				// S1P2 sends to C1 (Same address, different port, to previously used port on client). If received, address-restricted cone nat. Done.
-				SocketLayer::SendTo_PC( s1p2, (const char*) bs.GetData(), bs.GetNumberOfBytesUsed(), natDetectionAttempts[i].systemAddress.binaryAddress, natDetectionAttempts[i].systemAddress.port, __FILE__, __LINE__  );
+				saOut=natDetectionAttempts[i].systemAddress;
+				saOut.SetPort(natDetectionAttempts[i].systemAddress.GetPort());
+				SocketLayer::SendTo_PC( s1p2, (const char*) bs.GetData(), bs.GetNumberOfBytesUsed(), saOut, __FILE__, __LINE__  );
 				break;
 			case STATE_TESTING_PORT_RESTRICTED_1:
 			case STATE_TESTING_PORT_RESTRICTED_2:
@@ -192,7 +200,7 @@ PluginReceiveResult NatTypeDetectionServer::OnReceive(Packet *packet)
 	}
 	return RR_CONTINUE_PROCESSING;
 }
-void NatTypeDetectionServer::OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
+void NatTypeDetectionServer::OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
 {
 	(void) lostConnectionReason;
 	(void) rakNetGUID;
@@ -208,7 +216,7 @@ void NatTypeDetectionServer::OnDetectionRequest(Packet *packet)
 
 	RakNet::BitStream bsIn(packet->data, packet->length, false);
 	bsIn.IgnoreBytes(1);
-	bool isRequest;
+	bool isRequest=false;
 	bsIn.Read(isRequest);
 	if (isRequest)
 	{
@@ -233,7 +241,7 @@ void NatTypeDetectionServer::OnDetectionRequest(Packet *packet)
 	}
 
 }
-unsigned int NatTypeDetectionServer::GetDetectionAttemptIndex(SystemAddress sa)
+unsigned int NatTypeDetectionServer::GetDetectionAttemptIndex(const SystemAddress &sa)
 {
 	for (unsigned int i=0; i < natDetectionAttempts.Size(); i++)
 	{

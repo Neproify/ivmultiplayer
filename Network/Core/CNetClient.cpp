@@ -190,10 +190,10 @@ PacketId CNetClient::ProcessPacket(RakNet::SystemAddress systemAddress, PacketId
 			m_serverSocket.playerId = playerId;
 
 			// Set the player socket binary address
-			m_serverSocket.ulBinaryAddress = systemAddress.binaryAddress;
+			m_serverSocket.ulBinaryAddress = systemAddress.address.addr4.sin_addr.s_addr;
 
 			// Set the player socket port
-			m_serverSocket.usPort = systemAddress.port;
+			m_serverSocket.usPort = ntohs(systemAddress.address.addr4.sin_port);
 
 			// Reset the bit stream for reuse
 			CBitStream bitStreamSend;

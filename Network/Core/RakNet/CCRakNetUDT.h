@@ -16,11 +16,11 @@
 namespace RakNet
 {
 
-#if CC_TIME_TYPE_BYTES==8
+
 typedef uint64_t CCTimeType;
-#else
-typedef uint32_t CCTimeType;
-#endif
+
+
+
 
 typedef uint24_t DatagramSequenceNumberType;
 typedef double BytesPerMicrosecond;
@@ -177,8 +177,6 @@ class CCRakNetUDT
 	static bool LessThan(DatagramSequenceNumberType a, DatagramSequenceNumberType b);
 //	void SetTimeBetweenSendsLimit(unsigned int bitsPerSecond);
 	uint64_t GetBytesPerSecondLimitByCongestionControl(void) const;
-
-	void OnExternalPing(double pingMS) {(void) ping;}
 
 	protected:
 	// --------------------------- PROTECTED VARIABLES ---------------------------

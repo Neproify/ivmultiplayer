@@ -179,10 +179,10 @@ PacketId CNetServer::ProcessPacket(RakNet::SystemAddress systemAddress, PacketId
 			pPlayerSocket->playerId = playerId;
 
 			// Set the player socket binary address
-			pPlayerSocket->ulBinaryAddress = systemAddress.binaryAddress;
+			pPlayerSocket->ulBinaryAddress = systemAddress.address.addr4.sin_addr.s_addr;
 
 			// Set the player socket port
-			pPlayerSocket->usPort = systemAddress.port;
+			pPlayerSocket->usPort = ntohs(systemAddress.address.addr4.sin_port);
 
 			// Add the player socket to the player socket list
 			m_playerSocketList.push_back(pPlayerSocket);

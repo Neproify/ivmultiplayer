@@ -9,9 +9,9 @@
 
 
 #ifdef _WIN32
-#if defined(_XBOX) || defined(X360)
-                            
-#endif
+
+
+
 #include "WindowsIncludes.h"
 #endif
 
@@ -189,6 +189,9 @@ public:
 	/// URL decode the string
 	RakNet::RakString& URLDecode(void);
 
+	/// https://servers.api.rackspacecloud.com/v1.0 to https://,  servers.api.rackspacecloud.com, /v1.0
+	void SplitURI(RakNet::RakString &header, RakNet::RakString &domain, RakNet::RakString &path);
+
 	/// Scan for quote, double quote, and backslash and prepend with backslash
 	RakNet::RakString& SQLEscape(void);
 
@@ -213,10 +216,10 @@ public:
 	/// \param[in] languageId languageId to pass to the StringCompressor class
 	/// \param[in] writeLanguageId encode the languageId variable in the stream. If false, 0 is assumed, and DeserializeCompressed will not look for this variable in the stream (saves bandwidth)
 	/// \pre StringCompressor::AddReference must have been called to instantiate the class (Happens automatically from RakPeer::Startup())
-	void SerializeCompressed(BitStream *bs, int languageId=0, bool writeLanguageId=false) const;
+	void SerializeCompressed(BitStream *bs, uint8_t languageId=0, bool writeLanguageId=false) const;
 
 	/// Static version of the SerializeCompressed function
-	static void SerializeCompressed(const char *str, BitStream *bs, int languageId=0, bool writeLanguageId=false);
+	static void SerializeCompressed(const char *str, BitStream *bs, uint8_t languageId=0, bool writeLanguageId=false);
 
 	/// Deserialize what was written by Serialize
 	/// \param[in] bs Bitstream to serialize from

@@ -10,6 +10,7 @@
 #include "RakPeerInterface.h"
 #include "MessageIdentifiers.h"
 #include "SocketLayer.h"
+#include "SocketDefines.h"
 
 using namespace RakNet;
 
@@ -23,7 +24,7 @@ NatTypeDetectionClient::~NatTypeDetectionClient()
 {
 	if (c2!=INVALID_SOCKET)
 	{
-		closesocket(c2);
+		closesocket__(c2);
 	}
 }
 void NatTypeDetectionClient::DetectNATType(SystemAddress _serverAddress)
@@ -35,7 +36,8 @@ void NatTypeDetectionClient::DetectNATType(SystemAddress _serverAddress)
 	{
 		DataStructures::List<RakNetSmartPtr<RakNetSocket> > sockets;
 		rakPeerInterface->GetSockets(sockets);
-		SystemAddress sockAddr = SocketLayer::GetSystemAddress(sockets[0]->s);
+		SystemAddress sockAddr;
+		SocketLayer::GetSystemAddress(sockets[0]->s, &sockAddr);
 		char str[64];
 		sockAddr.ToString(false,str);
 		c2=CreateNonblockingBoundSocket(str);
@@ -110,8 +112,13 @@ PluginReceiveResult NatTypeDetectionClient::OnReceive(Packet *packet)
 			}
 			break;
 		case ID_NAT_TYPE_DETECTION_RESULT:
-			OnCompletion((NATTypeDetectionResult)packet->data[1]);
-			return RR_STOP_PROCESSING_AND_DEALLOCATE;
+			if (packet->wasGeneratedLocally==false)
+			{
+				OnCompletion((NATTypeDetectionResult)packet->data[1]);
+				return RR_STOP_PROCESSING_AND_DEALLOCATE;
+			}
+			else
+				break;
 		case ID_NAT_TYPE_DETECTION_REQUEST:
 			OnTestPortRestricted(packet);
 			return RR_STOP_PROCESSING_AND_DEALLOCATE;
@@ -120,7 +127,7 @@ PluginReceiveResult NatTypeDetectionClient::OnReceive(Packet *packet)
 
 	return RR_CONTINUE_PROCESSING;
 }
-void NatTypeDetectionClient::OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
+void NatTypeDetectionClient::OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
 {
 	(void) lostConnectionReason;
 	(void) rakNetGUID;
@@ -136,24 +143,25 @@ void NatTypeDetectionClient::OnTestPortRestricted(Packet *packet)
 	bsIn.Read(s3p4StrAddress);
 	unsigned short s3p4Port;
 	bsIn.Read(s3p4Port);
-	SystemAddress s3p4Addr(s3p4StrAddress.C_String(), s3p4Port);
 
 	DataStructures::List<RakNetSmartPtr<RakNetSocket> > sockets;
 	rakPeerInterface->GetSockets(sockets);
+	SystemAddress s3p4Addr = sockets[0]->boundAddress;
+	s3p4Addr.FromStringExplicitPort(s3p4StrAddress.C_String(), s3p4Port);
 
 	// Send off the RakNet socket to the specified address, message is unformatted
 	// Server does this twice, so don't have to unduly worry about packetloss
 	RakNet::BitStream bsOut;
 	bsOut.Write((MessageID) NAT_TYPE_PORT_RESTRICTED);
 	bsOut.Write(rakPeerInterface->GetGuidFromSystemAddress(UNASSIGNED_SYSTEM_ADDRESS));
-	SocketLayer::SendTo_PC( sockets[0]->s, (const char*) bsOut.GetData(), bsOut.GetNumberOfBytesUsed(), s3p4Addr.binaryAddress, s3p4Addr.port, __FILE__, __LINE__ );
+	SocketLayer::SendTo_PC( sockets[0]->s, (const char*) bsOut.GetData(), bsOut.GetNumberOfBytesUsed(), s3p4Addr, __FILE__, __LINE__ );
 }
 void NatTypeDetectionClient::Shutdown(void)
 {
 	serverAddress=UNASSIGNED_SYSTEM_ADDRESS;
 	if (c2!=INVALID_SOCKET)
 	{
-		closesocket(c2);
+		closesocket__(c2);
 		c2=INVALID_SOCKET;
 	}
 

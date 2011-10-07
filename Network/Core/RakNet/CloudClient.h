@@ -141,6 +141,9 @@ protected:
 class RAK_DLL_EXPORT CloudClientCallback
 {
 public:
+	CloudClientCallback() {}
+	virtual ~CloudClientCallback() {}
+
 	/// \brief Called in response to ID_CLOUD_GET_RESPONSE
 	/// \param[out] result Contains the original query passed to Get(), and a list of rows returned.
 	/// \param[out] deallocateRowsAfterReturn CloudQueryResult::rowsReturned will be deallocated after the function returns by default. Set to false to not deallocate these pointers. The pointers are allocated through CloudAllocator.

@@ -49,8 +49,10 @@ struct InternalPacketFixedSizeTransmissionHeader
 {
 	/// A unique numerical identifier given to this user message. Used to identify reliable messages on the network
 	MessageNumberType reliableMessageNumber;
-	///The ID used as identification for ordering channels
+	///The ID used as identification for ordering messages. Also included in sequenced messages
 	OrderingIndexType orderingIndex;
+	// Used only with sequenced messages
+	OrderingIndexType sequencingIndex;
 	///What ordering channel this packet is on, if the reliability type uses ordering channels
 	unsigned char orderingChannel;
 	///The ID of the split packet, if we have split packets.  This is the maximum number of split messages we can send simultaneously per connection.
@@ -102,11 +104,15 @@ struct InternalPacket : public InternalPacketFixedSizeTransmissionHeader
 		NORMAL,
 
 		/// data points to a larger block of data, where the larger block is reference counted. internalPacketRefCountedData is used in this case
-		REF_COUNTED
+		REF_COUNTED,
+	
+		/// If allocation scheme is STACK, data points to stackData and should not be deallocated
+		/// This is only used when sending. Received packets are deallocated in RakPeer
+		STACK
 	} allocationScheme;
 	InternalPacketRefCountedData *refCountedData;
 	/// How many attempts we made at sending this message
-	unsigned char timesSent;
+//	unsigned char timesSent;
 	/// The priority level of this packet
 	PacketPriority priority;
 	/// If the reliability type requires a receipt, then return this number with it
@@ -115,6 +121,8 @@ struct InternalPacket : public InternalPacketFixedSizeTransmissionHeader
 	// Used for the resend queue
 	// Linked list implementation so I can remove from the list via a pointer, without finding it in the list
 	InternalPacket *resendPrev, *resendNext,*unreliablePrev,*unreliableNext;
+
+	unsigned char stackData[128];
 };
 
 } // namespace RakNet

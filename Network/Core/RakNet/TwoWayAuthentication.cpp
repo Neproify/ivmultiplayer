@@ -195,8 +195,13 @@ PluginReceiveResult TwoWayAuthentication::OnReceive(Packet *packet)
 		case ID_TWO_WAY_AUTHENTICATION_OUTGOING_CHALLENGE_FAILURE:
 		case ID_TWO_WAY_AUTHENTICATION_OUTGOING_CHALLENGE_SUCCESS:
 		{
-			OnPasswordResult(packet);
-			return RR_STOP_PROCESSING_AND_DEALLOCATE;
+			if (packet->wasGeneratedLocally==false)
+			{
+				OnPasswordResult(packet);
+				return RR_STOP_PROCESSING_AND_DEALLOCATE;
+			}
+			else
+				break;
 		}
 		break;
 		// These should only be generated locally
@@ -214,7 +219,7 @@ void TwoWayAuthentication::OnRakPeerShutdown(void)
 {
 	Clear();
 }
-void TwoWayAuthentication::OnClosedConnection(SystemAddress systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
+void TwoWayAuthentication::OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
 {
 	(void) lostConnectionReason;
 

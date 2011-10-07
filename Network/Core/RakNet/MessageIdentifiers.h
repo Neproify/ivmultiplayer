@@ -85,7 +85,7 @@ enum DefaultMessageIDTypes
 	/// This number will be returned by RakPeerInterface::Send() or RakPeerInterface::SendList(). ID_SND_RECEIPT_ACKED means that
 	/// the message arrived
 	ID_SND_RECEIPT_ACKED,
-	/// If RakPeerInterface::Send() is called where PacketReliability contains _WITH_ACK_RECEIPT, then on a later call to
+	/// If RakPeerInterface::Send() is called where PacketReliability contains UNRELIABLE_WITH_ACK_RECEIPT, then on a later call to
 	/// RakPeerInterface::Receive() you will get ID_SND_RECEIPT_ACKED or ID_SND_RECEIPT_LOSS. The message will be 5 bytes long,
 	/// and bytes 1-4 inclusive will contain a number in native order containing a number that identifies this message. This number
 	/// will be returned by RakPeerInterface::Send() or RakPeerInterface::SendList(). ID_SND_RECEIPT_LOSS means that an ack for the
@@ -147,7 +147,7 @@ enum DefaultMessageIDTypes
 	/// ConnectionGraph2 plugin - In a client/server environment, a client other than ourselves has been forcefully dropped.
 	///  Packet::systemAddress is modified to reflect the systemAddress of this client.
 	ID_REMOTE_CONNECTION_LOST,
-	/// ConnectionGraph2 plugin: Bytes 1-4 = count. for (count items) contains {SystemAddress, RakNetGUID}
+	/// ConnectionGraph2 plugin: Bytes 1-4 = count. for (count items) contains {SystemAddress, RakNetGUID, 2 byte ping}
 	ID_REMOTE_NEW_INCOMING_CONNECTION,
 
 	/// FileListTransfer plugin - Setup data
@@ -173,10 +173,6 @@ enum DefaultMessageIDTypes
 	ID_REPLICA_MANAGER_DOWNLOAD_STARTED,
  	/// ReplicaManager plugin - Finished downloading all serialized objects
 	ID_REPLICA_MANAGER_DOWNLOAD_COMPLETE,
-	/// Serialize construction for an object that already exists on the remote system
-	ID_REPLICA_MANAGER_3_SERIALIZE_CONSTRUCTION_EXISTING,
-	ID_REPLICA_MANAGER_3_LOCAL_CONSTRUCTION_REJECTED,
-	ID_REPLICA_MANAGER_3_LOCAL_CONSTRUCTION_ACCEPTED,
 
 	/// RakVoice plugin - Open a communication channel
 	ID_RAKVOICE_OPEN_CHANNEL_REQUEST,
@@ -208,11 +204,17 @@ enum DefaultMessageIDTypes
 	/// NATPunchthrough plugin: internal
 	ID_NAT_PUNCHTHROUGH_REQUEST,
 	/// NATPunchthrough plugin: internal
+	ID_NAT_GROUP_PUNCHTHROUGH_REQUEST,
+	/// NATPunchthrough plugin: internal
+	ID_NAT_GROUP_PUNCHTHROUGH_REPLY,
+	/// NATPunchthrough plugin: internal
 	ID_NAT_CONNECT_AT_TIME,
 	/// NATPunchthrough plugin: internal
 	ID_NAT_GET_MOST_RECENT_PORT,
 	/// NATPunchthrough plugin: internal
 	ID_NAT_CLIENT_READY,
+	/// NATPunchthrough plugin: internal
+	ID_NAT_GROUP_PUNCHTHROUGH_FAILURE_NOTIFICATION,
 
 	/// NATPunchthrough plugin: Destination system is not connected to the server. Bytes starting at offset 1 contains the
 	///  RakNetGUID destination field of NatPunchthroughClient::OpenNAT().
@@ -230,9 +232,23 @@ enum DefaultMessageIDTypes
 	/// NATPunchthrough plugin: This message is generated on the local system, and does not come from the network.
 	///  packet::guid contains the destination field of NatPunchthroughClient::OpenNAT(). Byte 1 contains 1 if you are the sender, 0 if not
 	ID_NAT_PUNCHTHROUGH_FAILED,
-	/// NATPunchthrough plugin: Punchthrough suceeded. See packet::systemAddress and packet::guid. Byte 1 contains 1 if you are the sender,
+	/// NATPunchthrough plugin: Punchthrough succeeded. See packet::systemAddress and packet::guid. Byte 1 contains 1 if you are the sender,
 	///  0 if not. You can now use RakPeer::Connect() or other calls to communicate with this system.
 	ID_NAT_PUNCHTHROUGH_SUCCEEDED,
+	/// NATPunchthrough plugin: OpenNATGroup failed.
+	/// packet::guid contains the facilitator field of NatPunchthroughClient::OpenNAT()
+	/// Data format starts at byte 1:<BR>
+	/// (char) passedSystemsCount,<BR>
+	/// (RakNetGuid, SystemAddress) (for passedSystemsCount),<BR>
+	/// (char) ignoredSystemsCount (caused by ID_NAT_TARGET_NOT_CONNECTED, ID_NAT_CONNECTION_TO_TARGET_LOST, ID_NAT_TARGET_UNRESPONSIVE),<BR>
+	/// RakNetGuid (for ignoredSystemsCount),<BR>
+	/// (char) failedSystemsCount,<BR>
+	/// RakNetGuid (for failedSystemsCount)<BR>
+	ID_NAT_GROUP_PUNCH_FAILED,
+	/// NATPunchthrough plugin: OpenNATGroup succeeded.
+	/// packet::guid contains the facilitator field of NatPunchthroughClient::OpenNAT()
+	/// See ID_NAT_GROUP_PUNCH_FAILED for data format
+	ID_NAT_GROUP_PUNCH_SUCCEEDED,
 
 	/// ReadyEvent plugin - Set the ready state for a particular system
 	/// First 4 bytes after the message contains the id
@@ -270,6 +286,7 @@ enum DefaultMessageIDTypes
 	ID_LOBBY2_SERVER_ERROR,
 
 	/// Informs user of a new host GUID. Packet::Guid contains this new host RakNetGuid. The old host can be read out using BitStream->Read(RakNetGuid) starting on byte 1
+	/// This is not returned until connected to a remote system
 	ID_FCM2_NEW_HOST,
 	/// \internal For FullyConnectedMesh2 plugin
 	ID_FCM2_REQUEST_FCMGUID,
@@ -277,6 +294,8 @@ enum DefaultMessageIDTypes
 	ID_FCM2_RESPOND_CONNECTION_COUNT,
 	/// \internal For FullyConnectedMesh2 plugin
 	ID_FCM2_INFORM_FCMGUID,
+	/// \internal For FullyConnectedMesh2 plugin
+	ID_FCM2_UPDATE_MIN_TOTAL_CONNECTION_COUNT,
 
 	/// UDP proxy messages. Second byte indicates type.
 	ID_UDP_PROXY_GENERAL,

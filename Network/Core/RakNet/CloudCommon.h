@@ -18,6 +18,9 @@ struct CloudQueryRow;
 class RAK_DLL_EXPORT CloudAllocator
 {
 public:
+	CloudAllocator() {}
+	virtual ~CloudAllocator() {}
+
 	/// \brief Allocate a row
 	virtual CloudQueryRow* AllocateCloudQueryRow(void);
 	/// \brief Free a row
