@@ -23,7 +23,7 @@ CMutex            CLogFile::m_mutex;
 void CLogFile::Open(String strLogFile, bool bAppend)
 {
 	// Lock the mutex
-	m_mutex.Lock();
+	m_mutex.TryLock(1);
 
 	// Open the log file
 	m_fLogFile = fopen(SharedUtility::GetAbsolutePath(strLogFile).Get(), bAppend ? "a" : "w");
@@ -42,7 +42,7 @@ void CLogFile::Open(String strLogFile, bool bAppend)
 void CLogFile::Print(const char * szString)
 {
 	// Lock the mutex
-	m_mutex.Lock();
+	m_mutex.TryLock(1);
 
 	// Print the message
 	printf("%s\n", szString);
@@ -60,7 +60,7 @@ void CLogFile::Print(const char * szString)
 void CLogFile::Printf(const char * szFormat, ...)
 {
 	// Lock the mutex
-	m_mutex.Lock();
+	m_mutex.TryLock(1);
 
 	// Collect the arguments
 	va_list vaArgs;
@@ -79,7 +79,7 @@ void CLogFile::Printf(const char * szFormat, ...)
 void CLogFile::PrintToFile(const char * szString)
 {
 	// Lock the mutex
-	m_mutex.Lock();
+	m_mutex.TryLock(1);
 
 	// If we have a callback and it is enabled call it
 	if(m_bUseCallback && m_pfnCallback)
@@ -105,7 +105,7 @@ void CLogFile::PrintToFile(const char * szString)
 void CLogFile::PrintfToFile(const char * szFormat, ...)
 {
 	// Lock the mutex
-	m_mutex.Lock();
+	m_mutex.TryLock(1);
 
 	// Collect the arguments
 	va_list vaArgs;
@@ -124,7 +124,7 @@ void CLogFile::PrintfToFile(const char * szFormat, ...)
 void CLogFile::Close()
 {
 	// Lock the mutex
-	m_mutex.Lock();
+	m_mutex.TryLock(1);
 
 	// Is the log file open?
 	if(m_fLogFile)
