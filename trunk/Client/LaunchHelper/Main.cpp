@@ -1,7 +1,7 @@
 //============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
 // File: Main.cpp
-// Project: Client.Core.LaunchHelper
+// Project: Client.LaunchHelper
 // Author(s): jenksta
 // License: See LICENSE in root directory
 //

@@ -54,7 +54,7 @@ Function .onInit
 	IfFileExists $GTAIVDirectory\LaunchGTAIV.exe done
 
 	; GTAIV directory not found
-	MessageBox MB_OK "Failed to find Grand Theft Auto IV directory. Grand Theft Auto IV must be installed in order to install IV:MP"
+	MessageBox MB_OK "Failed to find Grand Theft Auto IV directory. Grand Theft Auto IV must be installed in order to install IV:MP."
 	Abort
 
 done:

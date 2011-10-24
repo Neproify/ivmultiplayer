@@ -1389,11 +1389,26 @@ void CNetworkPlayer::SetCameraBehind()
 		g_pCamera->SetBehindPed(m_pPlayerPed);
 }
 
+#include "CChatWindow.h"
+extern CChatWindow * g_pChatWindow;
+
 void CNetworkPlayer::Pulse()
 {
 	// Are we spawned?
 	if(IsSpawned())
 	{
+		// Is this the local player?
+		if(IsLocalPlayer())
+		{
+			// Copy the current pad state to the previous pad state
+			memcpy(&m_previousPadState, &m_currentPadState, sizeof(CPadState));
+
+			// Update the current pad state
+			CGame::GetPad()->GetCurrentClientPadState(m_currentPadState);
+			g_pChatWindow->AddInfoMessage("Local player l/r/u/d is %d:%d:%d:%d", m_currentPadState.ucOnFootMove[0], 
+				m_currentPadState.ucOnFootMove[1], m_currentPadState.ucOnFootMove[2], m_currentPadState.ucOnFootMove[3]);
+		}
+
 		// If our health is locked set our health
 		if(m_bHealthLocked)
 			SetHealth(m_uiLockedHealth);
@@ -1410,12 +1425,6 @@ void CNetworkPlayer::Pulse()
 		{
 			// Check vehicle entry/exit key
 			CheckVehicleEntryExitKey();
-
-			// Copy the current pad state to the previous pad state
-			memcpy(&m_previousPadState, &m_currentPadState, sizeof(CPadState));
-
-			// Update the current pad state
-			CGame::GetPad()->GetCurrentClientPadState(m_currentPadState);
 		}
 		else
 		{

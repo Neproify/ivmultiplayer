@@ -20,12 +20,11 @@ public:
 	// In Vehicle Move
 	unsigned char ucInVehicleMove[4]; // left, right, up, down
 
-	// Triggers (TODO: Implement trigger keys as this analog value instead of binary value)
-	//unsigned char ucLeftTrigger;
-	//unsigned char ucRightTrigger;
+	// In Vehicle Triggers
+	unsigned char ucInVehicleTriggers[2]; // left, right
 
 	// Binary Key Count
-	enum { KEY_COUNT = 18 };
+	enum { KEY_COUNT = 16 };
 
 	// Binary Keys
 	struct 
@@ -46,8 +45,6 @@ public:
 		bool bMeleeBlock : 1;
 
 		// In Vehicle
-		bool bAccelerate : 1;
-		bool bBrake : 1;
 		bool bHandbrake : 1;
 		bool bHandbrake2 : 1;
 		bool bHorn : 1;

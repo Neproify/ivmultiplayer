@@ -132,4 +132,6 @@ public:
 	void             SetVariation(unsigned char ucVariation);
 	unsigned char    GetVariation();
 	bool             IsOnScreen();
+	void             SetSteeringAngle(float fSteeringAngle);
+	float            GetSteeringAngle();
 };

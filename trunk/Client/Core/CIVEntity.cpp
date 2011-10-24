@@ -8,6 +8,7 @@
 //==============================================================================
 
 #include "CIVEntity.h"
+#include "COffsets.h"
 #include "CGame.h"
 
 CIVEntity::CIVEntity()
@@ -140,18 +141,18 @@ BYTE CIVEntity::GetAlpha()
 	return 0;
 }
 
-bool CIVEntity::IsTouchingEntity(IVEntity * pTouchingEntity)
+bool CIVEntity::IsTouchingEntity(CIVEntity * pTouchingEntity)
 {
 	if(m_pEntity)
 	{
-		DWORD dwFunc = (CGame::GetBase() + FUNC_CEntity__IsTouchingEntity_7);
-		IVEntity * pEntity = m_pEntity;
+		IVEntity * pGameEntity = m_pEntity;
+		IVEntity * pTouchingGameEntity = pTouchingEntity->GetEntity();
 		bool bResult = false;
 		_asm
 		{
-			push pTouchingEntity
-			push pEntity
-			call dwFunc
+			push pTouchingGameEntity
+			push pGameEntity
+			call COffsets::FUNC_CEntity__IsTouchingEntity
 			mov bResult, al
 		}
 		return bResult;
@@ -163,11 +164,11 @@ bool CIVEntity::IsTouchingEntity(IVEntity * pTouchingEntity)
 void  CIVEntity::AddToWorld()
 {
 	if(m_pEntity)
-		CGame::AddEntityToWorld(m_pEntity);
+		CGame::GetWorld()->AddEntity(this);
 }
 
 void CIVEntity::RemoveFromWorld()
 {
 	if(m_pEntity)
-		CGame::RemoveEntityFromWorld(m_pEntity);
+		CGame::GetWorld()->RemoveEntity(this);
 }

@@ -21,9 +21,7 @@
 #include "CIVWeaponInfo.h"
 #include "CIVStreaming.h"
 #include "CIVWeather.h"
-
-#define VAR_HWnd 0x1849DDC
-#define VAR_Time 0x11DDE74
+#include "CIVWorld.h"
 
 enum eState
 {
@@ -52,6 +50,7 @@ private:
 	static CIVWeaponInfo  m_weaponInfos[NUM_WeaponInfos];
 	static CIVStreaming * m_pStreaming;
 	static CIVWeather   * m_pWeather;
+	static CIVWorld     * m_pWorld;
 
 public:
 	static unsigned int    GetBase() { return m_uiBaseAddress; }
@@ -69,6 +68,7 @@ public:
 	static CIVWeaponInfo * GetWeaponInfo(eWeaponType weaponType);
 	static CIVStreaming  * GetStreaming() { return m_pStreaming; }
 	static CIVWeather    * GetWeather() { return m_pWeather; }
+	static CIVWorld      * GetWorld() { return m_pWorld; }
 	static HWND            GetHWnd();
 	static DWORD           GetTime();
 	static void            Initialize();
@@ -89,8 +89,6 @@ public:
 	static BYTE            ArePlayerNamesVisible();
 	static void            SetAreaNamesEnabled(bool bEnabled);
 	static bool            AreAreaNamesEnabled();
-	static void            AddEntityToWorld(IVEntity * pEntity);
-	static void            RemoveEntityFromWorld(IVEntity * pEntity);
 	static void            ConvertRotationMatrixToEulerAngles(Matrix &matRotation, CVector3 &vecRotation);
 	static void            ConvertEulerAnglesToRotationMatrix(CVector3 &vecRotation, Matrix &matRotation);
 	/*static void            ConvertQuaternionToRotationMatrix(Quaternion * quatRotation, GameMatrix34 * matRotation);

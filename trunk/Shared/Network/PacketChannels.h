@@ -17,6 +17,9 @@ enum ePacketChannels
 	// Packet channel used for input
 	PACKET_CHANNEL_INPUT,
 
+	// Packet channel used for script
+	PACKET_CHANNEL_SCRIPT,
+
 	// Number of packet channels
 	PACKET_CHANNEL_COUNT
 };

@@ -10,13 +10,13 @@
 #include "CPools.h"
 #include "COffsets.h"
 
-void CPools::Initialize()
+CPools::CPools()
 {
-	// Initialize game pools
-	m_pPedPool = new CIVPool<IVPed>(*(IVPool **)COffsets::VAR_PedPool);
-	m_pVehiclePool = new CIVPool<IVVehicle>(*(IVPool **)COffsets::VAR_VehiclePool);
-	m_pTaskPool = new CIVPool<IVTask>(*(IVPool **)COffsets::VAR_TaskPool);
-	m_pCamPool = new CIVPool<IVCam>(*(IVPool **)COffsets::VAR_CamPool);
+	// Reset the pool pointers
+	m_pPedPool = NULL;
+	m_pVehiclePool = NULL;
+	m_pTaskPool = NULL;
+	m_pCamPool = NULL;
 
 	// Clear our custom checkpoint array
 	memset(&m_checkpoints, 0, sizeof(m_checkpoints));
@@ -26,13 +26,22 @@ void CPools::Initialize()
 	*(DWORD*)(COffsets::VAR_RenderCheckpoints_LastCP) = (DWORD)(m_checkpoints + 0x18 + CHECKPOINT_ARRAY_SIZE * sizeof(IVCheckpoint));
 }
 
-void CPools::Shutdown()
+CPools::~CPools()
 {
 	// Delete game pools
 	SAFE_DELETE(m_pCamPool);
 	SAFE_DELETE(m_pTaskPool);
 	SAFE_DELETE(m_pVehiclePool);
 	SAFE_DELETE(m_pPedPool);
+}
+
+void CPools::Initialize()
+{
+	// Initialize game pools
+	m_pPedPool = new CIVPool<IVPed>(*(IVPool **)COffsets::VAR_PedPool);
+	m_pVehiclePool = new CIVPool<IVVehicle>(*(IVPool **)COffsets::VAR_VehiclePool);
+	m_pTaskPool = new CIVPool<IVTask>(*(IVPool **)COffsets::VAR_TaskPool);
+	m_pCamPool = new CIVPool<IVCam>(*(IVPool **)COffsets::VAR_CamPool);
 }
 
 IVPlayerInfo * CPools::GetPlayerInfoFromIndex(unsigned int uiIndex)

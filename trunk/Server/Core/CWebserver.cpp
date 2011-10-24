@@ -25,30 +25,47 @@
 #include <CLogFile.h>
 
 extern CEvents * g_pEvents;
+CMutex           g_webMutex;
 
 void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn, const mg_request_info * request_info)
 {
 	if(event == MG_NEW_REQUEST)
 	{
-		long lip = htonl(request_info->remote_ip);
-		in_addr sa;
-		sa.s_addr = lip;
-		char * ip = inet_ntoa(sa);
+		// Lock the web mutex
+		g_webMutex.Lock();
 
+		// Get the ip address
+		in_addr sa;
+		memset(&sa, 0, sizeof(in_addr));
+		sa.s_addr = htonl(request_info->remote_ip);
+		char * szIpAddress = inet_ntoa(sa);
+
+		// Call the scripting event
 		CSquirrelArguments args;
 		args.push(request_info->uri);
-		args.push(ip);
+		args.push(szIpAddress);
 		args.push(request_info->request_method);
 		CSquirrelArgument ret = g_pEvents->Call("webRequest", &args);
 
+		// Do we have a string returned?
 		if(ret.GetType() == OT_STRING)
 		{
+			// Output the string to the web client
 			const char * out = ret.GetString();
 			mg_printf(conn, out);
-			return (void*)"yes";
+
+			// Unlock the web mutex
+			g_webMutex.Unlock();
+
+			// Handled
+			return (void *)"yes";
 		}
+
+		// Unlock the web mutex
+		g_webMutex.Unlock();
 	}
 
+	// Not handled
 	return NULL;
 }
 

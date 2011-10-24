@@ -445,6 +445,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\CIVWorld.h"
+						>
+					</File>
+					<File
 						RelativePath=".\IVCommon.h"
 						>
 					</File>
@@ -1199,6 +1203,10 @@
 					</File>
 					<File
 						RelativePath=".\CIVWeather.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\CIVWorld.cpp"
 						>
 					</File>
 				</Filter>

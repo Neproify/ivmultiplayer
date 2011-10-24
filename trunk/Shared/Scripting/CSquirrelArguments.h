@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "../../Vendor/Squirrel/squirrel.h"
+#include <Squirrel/squirrel.h>
 #include <list>
 // FIXUPDATE
 // jenksta: this is very hacky :/
@@ -73,7 +73,7 @@ public:
 
 	SQObjectType         GetType() const { return type; }
 
-	void                 free();
+	void                 reset();
 
 	bool                 push(SQVM* pVM);
 	bool                 pushFromStack(SQVM* pVM, int idx);
@@ -82,14 +82,14 @@ public:
 	void                 deserialize(CBitStream * pBitStream);
 
 	void                 set(const CSquirrelArgument& p);
-	void                 SetNull()                 { free(); type = OT_NULL; }
-	void                 SetInteger(int i)         { free(); type = OT_INTEGER; data.i = i; }
-	void                 SetBool   (bool b)        { free(); type = OT_BOOL; data.b = b; }
-	void                 SetFloat  (float f)       { free(); type = OT_FLOAT; data.f = f; }
-	void                 SetString (const char* s) { free(); type = OT_STRING; data.str = new String(s); }
-	void                 SetArray(CSquirrelArguments * pArray) { free(); type = OT_ARRAY; data.pArray = pArray; }
-	void                 SetTable(CSquirrelArguments * pTable) { free(); type = OT_TABLE; data.pArray = pTable; }
-	void                 SetInstance(SQInstance * pInstance) { free(); type = OT_INSTANCE; data.pInstance = pInstance; }
+	void                 SetNull()                 { reset(); type = OT_NULL; }
+	void                 SetInteger(int i)         { reset(); type = OT_INTEGER; data.i = i; }
+	void                 SetBool   (bool b)        { reset(); type = OT_BOOL; data.b = b; }
+	void                 SetFloat  (float f)       { reset(); type = OT_FLOAT; data.f = f; }
+	void                 SetString (const char* s) { reset(); type = OT_STRING; data.str = new String(s); }
+	void                 SetArray(CSquirrelArguments * pArray) { reset(); type = OT_ARRAY; data.pArray = pArray; }
+	void                 SetTable(CSquirrelArguments * pTable) { reset(); type = OT_TABLE; data.pArray = pTable; }
+	void                 SetInstance(SQInstance * pInstance) { reset(); type = OT_INSTANCE; data.pInstance = pInstance; }
 
 	int                  GetInteger() const { return type == OT_INTEGER ? data.i : 0; }
 	bool                 GetBool()    const { return type == OT_BOOL    ? data.b : false; }
@@ -112,6 +112,8 @@ public:
 	CSquirrelArguments(const CSquirrelArguments& p);
 	~CSquirrelArguments();
 
+	void reset();
+
 	void push_to_vm(SQVM* pVM);
 
 	void push();
@@ -121,6 +123,7 @@ public:
 	void push(float f);
 	void push(const char* c);
 	void push(String str);
+	void push(CSquirrelArguments array, bool isArray);
 	void push(CSquirrelArguments* pArray, bool isArray);
 	bool pushFromStack(SQVM* pVM, int idx);
 

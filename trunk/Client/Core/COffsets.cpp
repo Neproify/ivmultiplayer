@@ -77,6 +77,8 @@ unsigned int COffsets::VAR_CurrentStreetName = 0;
 unsigned int COffsets::VAR_NumLoadingScreens = 0;
 unsigned int COffsets::VAR_FirstLoadingScreenDuration = 0;
 unsigned int COffsets::VAR_FirstLoadingScreenType = 0;
+unsigned int COffsets::VAR_HWnd = 0;
+unsigned int COffsets::VAR_Time = 0;
 
 // Input
 unsigned int COffsets::VAR_Pads = 0;
@@ -180,9 +182,11 @@ unsigned int COffsets::FUNC_LoadWorldAtPosition = 0;
 unsigned int COffsets::FUNC_CPed__SetDucking = 0;
 unsigned int COffsets::FUNC_CPed__IsDucking = 0;
 
-// Ped Task Manager
+// Tasks
 unsigned int COffsets::FUNC_CPedTaskManager__SetTask = 0;
 unsigned int COffsets::FUNC_CPedTaskManager__SetTaskSecondary = 0;
+unsigned int COffsets::VAR_CTask__VFTable = 0;
+unsigned int COffsets::RETURN_CTask__Destructor = 0;
 
 // Weapons
 unsigned int COffsets::FUNC_CPedWeapons__RemoveWeapon = 0;
@@ -264,6 +268,8 @@ void COffsets::Init(unsigned int uiBase)
 			VAR_NumLoadingScreens                  = (uiBase + 0x18A8258);
 			VAR_FirstLoadingScreenDuration         = (uiBase + 0x18A8F40);
 			VAR_FirstLoadingScreenType             = (uiBase + 0x18A8F48);
+			VAR_HWnd                               = (uiBase + 0x1849DDC);
+			VAR_Time                               = (uiBase + 0x11DDE74);
 
 			// Input
 			VAR_Pads                               = (uiBase + 0x10FB818);
@@ -367,9 +373,11 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CPed__SetDucking                  = (uiBase +  0x8A70C0);
 			FUNC_CPed__IsDucking                   = (uiBase +  0x89C780);
 
-			// Ped Task Manager
+			// Tasks
 			FUNC_CPedTaskManager__SetTask          = (uiBase +  0x9E58B0);
 			FUNC_CPedTaskManager__SetTaskSecondary = (uiBase +  0x9E5AC0);
+			VAR_CTask__VFTable                     = (uiBase +  0xD87224);
+			RETURN_CTask__Destructor               = (uiBase +  0xA288DA);
 
 			// Weapons
 			FUNC_CPedWeapons__RemoveWeapon         = (uiBase +  0x9ABFD0);

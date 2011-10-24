@@ -96,6 +96,8 @@ public:
 	static unsigned int VAR_NumLoadingScreens;
 	static unsigned int VAR_FirstLoadingScreenDuration;
 	static unsigned int VAR_FirstLoadingScreenType;
+	static unsigned int VAR_HWnd;
+	static unsigned int VAR_Time;
 
 	// Input
 	static unsigned int VAR_Pads;
@@ -199,9 +201,11 @@ public:
 	static unsigned int FUNC_CPed__SetDucking;
 	static unsigned int FUNC_CPed__IsDucking;
 
-	// Ped Task Manager
+	// Tasks
 	static unsigned int FUNC_CPedTaskManager__SetTask;
 	static unsigned int FUNC_CPedTaskManager__SetTaskSecondary;
+	static unsigned int VAR_CTask__VFTable;
+	static unsigned int RETURN_CTask__Destructor;
 
 	// Weapons
 	static unsigned int FUNC_CPedWeapons__RemoveWeapon;

@@ -290,7 +290,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Shared\SharedUtil.h"
+					RelativePath="..\..\Shared\SharedUtility.h"
 					>
 				</File>
 			</Filter>

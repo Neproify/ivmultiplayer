@@ -9,8 +9,8 @@
 //==============================================================================
 
 #include "Natives.h"
-#include "../../../Vendor/Squirrel/sqstate.h"
-#include "../../../Vendor/Squirrel/sqvm.h"
+#include <Squirrel/sqstate.h>
+#include <Squirrel/sqvm.h>
 #include "../CScriptingManager.h"
 #include "CEvents.h"
 

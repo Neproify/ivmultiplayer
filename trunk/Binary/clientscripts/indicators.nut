@@ -61,17 +61,18 @@ addEvent("frameRender",
 		{
 			local pad = getPlayerPadState(getLocalPlayer());
 			local leftright = pad.inVehicleMove[0];
+			local right = pad.inVehicleMove[1];
 
 			if(waitingTurn > 0)
 			{
 				// waiting to turn left?
-				if(waitingTurn == 1 && leftright > 128)
+				if(waitingTurn == 1 && left > 128)
 				{
 					doneTurn = 1;
 					waitingTurn = 0;
 				}
 				// waiting to turn right?
-				else if(waitingTurn == 2 && leftright < 128)
+				else if(waitingTurn == 2 && right > 128)
 				{
 					doneTurn = 2;
 					waitingTurn = 0;
@@ -80,13 +81,13 @@ addEvent("frameRender",
 			else if(doneTurn > 0)
 			{
 				// waiting to stop turning left?
-				if(doneTurn == 1 && leftright == 128)
+				if(doneTurn == 1 && left == 128)
 				{
 					triggerServerEvent("indicators:off");
 					doneTurn = 0;
 				}
 				// waiting to stop turning right?
-				else if(doneTurn == 2 && leftright == 128)
+				else if(doneTurn == 2 && right == 128)
 				{
 					triggerServerEvent("indicators:off");
 					doneTurn = 0;

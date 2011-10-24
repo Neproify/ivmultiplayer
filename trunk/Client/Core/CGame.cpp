@@ -36,16 +36,17 @@ extern CInputWindow       * g_pInputWindow;
 extern CClientTaskManager * g_pClientTaskManager;
 extern CCredits           * g_pCredits;
 
-unsigned int   CGame::m_uiBaseAddress;
-bool           CGame::m_bInputState;
-eState         CGame::m_State;
-bool           CGame::m_bFocused;
-CPools       * CGame::m_pPools;
-CIVPad       * CGame::m_pPad;
+unsigned int   CGame::m_uiBaseAddress = 0;
+bool           CGame::m_bInputState = false;
+eState         CGame::m_State = GAME_STATE_NONE;
+bool           CGame::m_bFocused = false;
+CPools       * CGame::m_pPools = NULL;
+CIVPad       * CGame::m_pPad = NULL;
 CIVModelInfo   CGame::m_modelInfos[NUM_ModelInfos];
 CIVWeaponInfo  CGame::m_weaponInfos[NUM_WeaponInfos];
-CIVStreaming * CGame::m_pStreaming;
-CIVWeather   * CGame::m_pWeather;
+CIVStreaming * CGame::m_pStreaming = NULL;
+CIVWeather   * CGame::m_pWeather = NULL;
+CIVWorld     * CGame::m_pWorld = NULL;
 
 void CGame::SetFocused(bool bFocused)
 {
@@ -108,26 +109,25 @@ CIVWeaponInfo * CGame::GetWeaponInfo(eWeaponType weaponType)
 
 HWND CGame::GetHWnd()
 {
-	return *(HWND *)(GetBase() + VAR_HWnd);
+	return *(HWND *)COffsets::VAR_HWnd;
 }
 
 DWORD CGame::GetTime()
 {
-	return *(DWORD *)(GetBase() + VAR_Time);
+	return *(DWORD *)COffsets::VAR_Time;
 }
 
 void CGame::Initialize()
 {
 	m_uiBaseAddress = (unsigned int)GetModuleHandle(NULL);
 
-	if(m_uiBaseAddress)
-		CLogFile::Printf("Game Base: 0x%p (0x%p)", m_uiBaseAddress, (m_uiBaseAddress - 0x400000));
-	else
+	if(m_uiBaseAddress == 0)
 	{
 		CLogFile::Printf("Invalid Game Base Detected. Exiting...");
 		ExitProcess(0);
 	}
 
+	CLogFile::Printf("Game Base: 0x%p (0x%p)", m_uiBaseAddress, (m_uiBaseAddress - 0x400000));
 	m_uiBaseAddress -= 0x400000;
 	COffsets::Init(m_uiBaseAddress);
 
@@ -165,6 +165,11 @@ void CGame::Initialize()
 	// Create the pad instance
 	m_pPad = new CIVPad((IVPad *)COffsets::VAR_Pads);
 
+	// Initialize our game classes
+	m_pStreaming = new CIVStreaming();
+	m_pWeather = new CIVWeather();
+	m_pWorld = new CIVWorld();
+
 	// Initialize the model infos
 	for(int i = 0; i < NUM_ModelInfos; i++)
 		m_modelInfos[i].SetIndex(i);
@@ -182,21 +187,15 @@ void CGame::Initialize()
 		m_weaponInfos[i].SetType((eWeaponType)i);
 		m_weaponInfos[i].SetWeaponInfo((IVWeaponInfo *)((GetBase() + ARRAY_WeaponInfos) + (i * sizeof(IVWeaponInfo))));
 	}
-
-	// Initialize our game classes
-	m_pStreaming = new CIVStreaming();
-	m_pWeather = new CIVWeather();
 }
 
 void CGame::Shutdown()
 {
 	// Shutdown our game class instances
+	SAFE_DELETE(m_pWorld);
 	SAFE_DELETE(m_pWeather);
 	SAFE_DELETE(m_pStreaming);
 	SAFE_DELETE(m_pPad);
-
-	// Shutdown our pools instance
-	m_pPools->Shutdown();
 
 	// Delete our pools instance
 	SAFE_DELETE(m_pPools);
@@ -215,16 +214,14 @@ void UnprotectMemory()
 
 	for(int iSection = 0; iSection < pNtHeader->FileHeader.NumberOfSections; iSection++, pSection++)
 	{
-			char * pszSectionName = (char *)pSection->Name;
+		char * pszSectionName = (char *)pSection->Name;
 
-			if(!strcmp(pszSectionName, ".text") || !strcmp(pszSectionName, ".rdata"))
-				CPatcher::Unprotect((DWORD)(pImageBase + pSection->VirtualAddress), ((pSection->Misc.VirtualSize + 4095) & ~4095));
+		if(!strcmp(pszSectionName, ".text") || !strcmp(pszSectionName, ".rdata"))
+			CPatcher::Unprotect((DWORD)(pImageBase + pSection->VirtualAddress), ((pSection->Misc.VirtualSize + 4095) & ~4095));
 	}
 }
 
 IVTask * ___pTask = NULL;
-DWORD dwTaskDestructorReturn = NULL;
-DWORD dwTaskVFTable = NULL;
 
 void _declspec(naked) CTask__Destructor_Hook()
 {
@@ -242,17 +239,14 @@ void _declspec(naked) CTask__Destructor_Hook()
 		g_pClientTaskManager->HandleTaskDelete(___pTask);
 	}
 
-	dwTaskDestructorReturn = (CGame::GetBase() + 0xA288DA);
-	dwTaskVFTable = (CGame::GetBase() + 0xD87224);
-
 	_asm
 	{
 		popad
 		push esi
 		mov esi, ecx
 		push esi
-		mov dword ptr [esi], offset dwTaskVFTable
-		jmp dwTaskDestructorReturn
+		mov dword ptr [esi], offset COffsets::VAR_CTask__VFTable
+		jmp COffsets::RETURN_CTask__Destructor
 	}
 }
 
@@ -348,6 +342,8 @@ void _declspec(naked) GetIndexFromPlayerInfo_Hook()
 	}
 }
 
+bool bInvalidIndex = false;
+
 IVPlayerPed * GetLocalPlayerPed()
 {
 	// Default to the local player ped (If available)
@@ -375,11 +371,24 @@ IVPlayerPed * GetLocalPlayerPed()
 			}
 		}
 	}
-	else
-		CLogFile::Printf("GetLocalPlayerPed Invalid Local Player Index");
 
+	// Some code to test a theory
 	if(_pPlayerPed == NULL)
-		CLogFile::Printf("GetLocalPlayerPed Return Is Invalid");
+	{
+		if(!bInvalidIndex)
+		{
+			CLogFile::Printf("GetLocalPlayerPed Return Is Invalid (Index is %d)", CGame::GetPools()->GetLocalPlayerIndex());
+			bInvalidIndex = true;
+		}
+	}
+	else
+	{
+		if(bInvalidIndex)
+		{
+			CLogFile::Printf("GetLocalPlayerPed Return Is Now Valid");
+			bInvalidIndex = false;
+		}
+	}
 
 	return _pPlayerPed;
 }
@@ -575,14 +584,6 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC180) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC190) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
-
-		// UPDATE
-		// Bypass main menu
-		// TODO: If i'm not gonna use the StartGame function
-		// then write its code directly to this address
-		//CPatcher::InstallCallPatch(0x40BF8D, (DWORD)StartGame);
-		// Works fine (Except black loading screens)
-		//CPatcher::InstallCallPatch(0x40BFBC, (DWORD)StartGame);
 		return true;
 	}
 
@@ -628,15 +629,14 @@ void CGame::LockTime(int uHour, int uMinute)
 void CGame::GetTime(int * uHour, int * uMinute)
 {
 	*uHour = *(DWORD *)(COffsets::VAR_CClock__LockedHour);
+
 	if(*uHour == -1)
-	{
 		*uHour = *(DWORD *)(COffsets::VAR_CClock__Hour);
-	}
+
 	*uMinute = *(DWORD *)(COffsets::VAR_CClock__LockedMinute);
+
 	if(*uMinute == -1)
-	{
 		*uMinute = *(DWORD *)(COffsets::VAR_CClock__Minute);
-	}
 }
 
 void CGame::SetWantedLevel(DWORD dwLevel)
@@ -690,30 +690,6 @@ void CGame::SetAreaNamesEnabled(bool bEnabled)
 bool CGame::AreAreaNamesEnabled()
 {
 	return !(*(bool *)COffsets::VAR_AreaNamesDisabled);
-}
-
-void CGame::AddEntityToWorld(IVEntity * pEntity)
-{
-	DWORD dwFunc = COffsets::FUNC_CWorld__AddEntity;
-	_asm
-	{
-		push 0
-		push pEntity
-		call dwFunc
-		add esp, 8
-	}
-}
-
-void CGame::RemoveEntityFromWorld(IVEntity * pEntity)
-{
-	DWORD dwFunc = COffsets::FUNC_CWorld__RemoveEntity;
-	_asm
-	{
-		push 0
-		push pEntity
-		call dwFunc
-		add esp, 8
-	}
 }
 
 /**@brief Get the matrix represented as euler angles around ZYX
