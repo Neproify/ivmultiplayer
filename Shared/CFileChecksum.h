@@ -12,6 +12,7 @@
 
 #include <CString.h>
 #include <SharedUtility.h>
+#include <stdio.h>
 
 #define ADD_TEMPLATE(in, size) \
 	/* Add to the checksum */ \
