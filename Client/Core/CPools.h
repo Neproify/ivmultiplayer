@@ -50,8 +50,10 @@ private:
 	IVCheckpoint         m_checkpoints[CHECKPOINT_ARRAY_SIZE];
 
 public:
+	CPools();
+	~CPools();
+
 	void                 Initialize();
-	void                 Shutdown();
 
 	// Pools
 	CIVPool<IVPed>     * GetPedPool() { return m_pPedPool; }

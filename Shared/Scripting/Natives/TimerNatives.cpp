@@ -10,8 +10,8 @@
 //==============================================================================
 
 #include "Natives.h"
-#include "../../../Vendor/Squirrel/sqstate.h"
-#include "../../../Vendor/Squirrel/sqvm.h"
+#include <Squirrel/sqstate.h>
+#include <Squirrel/sqvm.h>
 #include "../CSquirrel.h"
 #include "../CScriptingManager.h"
 #include "../CScriptTimerManager.h"
@@ -59,7 +59,8 @@ _MEMBER_FUNCTION_IMPL(timer, constructor)
 	sq_getinteger(pVM, 3, &interval);
 	sq_getinteger(pVM, 4, &repeations);
 
-	if(interval < 50 || repeations < -1 || repeations == 0)
+	// Ensure we have a valid repeations value
+	if(repeations < -1 || repeations == 0)
 	{
 		sq_pushbool(pVM, false);
 		return 1;
@@ -67,17 +68,14 @@ _MEMBER_FUNCTION_IMPL(timer, constructor)
 
 	SQObjectPtr pFunction;
 	pFunction = stack_get(pVM, 2);
-
-	CSquirrelArguments* pArguments = new CSquirrelArguments();
-	for(SQInteger i = 5; i <= sq_gettop(pVM); ++ i)
-	{
-		pArguments->pushFromStack(pVM, i);
-	}
+	CSquirrelArguments * pArguments = new CSquirrelArguments(pVM, 5);
 
 	CScriptTimer * pTimer = new CScriptTimer(g_pScriptingManager->Get(pVM), pFunction, interval, repeations, pArguments);
+
 	if(SQ_FAILED(sq_setinstance(pVM, pTimer)))
 	{
 		delete pTimer;
+		delete pArguments;
 		sq_pushbool(pVM, false);
 		return 1;
 	}

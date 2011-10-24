@@ -182,7 +182,6 @@ int sq_guiDrawRectangle(SQVM * pVM)
 
 	bool bRelative = (sbRelative != 0);
 
-	//Scripting::DrawRect(x, y, x1, y1, r, g, b, a);
 	if(bRelative)
 	{
 		x *= g_pGUI->GetDisplayHeight();
@@ -190,8 +189,8 @@ int sq_guiDrawRectangle(SQVM * pVM)
 		x1 *= g_pGUI->GetDisplayWidth();
 		y1 *= g_pGUI->GetDisplayHeight();
 	}
-	g_pGraphics->DrawRect(x, y, x1, y1, ( color >> 8 ) + ( ( color & 0xFF ) << 24 ));
 
+	g_pGraphics->DrawRect(x, y, x1, y1, ( color >> 8 ) + ( ( color & 0xFF ) << 24 ));
 	sq_pushbool(pVM, true);
 	return 1;
 }	
@@ -205,9 +204,9 @@ int sq_triggerServerEvent(SQVM * pVM)
 			return 1;
 	}
 
-	CBitStream  bsSend;
+	CBitStream bsSend;
 	arguments.serialize(&bsSend);
-	g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+	g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, PACKET_CHANNEL_SCRIPT);
 	return 1;
 }
 

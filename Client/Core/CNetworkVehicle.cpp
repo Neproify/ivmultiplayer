@@ -1065,3 +1065,19 @@ bool CNetworkVehicle::IsOnScreen()
 
 	return false;
 }
+
+void CNetworkVehicle::SetSteeringAngle(float fSteeringAngle)
+{
+	// Are we spawned?
+	if(IsSpawned())
+		m_pVehicle->SetSteeringAngle(fSteeringAngle);
+}
+
+float CNetworkVehicle::GetSteeringAngle()
+{
+	// Are we spawned?
+	if(IsSpawned())
+		m_pVehicle->GetSteeringAngle();
+
+	return 0.0f;
+}

@@ -9,13 +9,6 @@ local boldfont = GUIFont("tahoma-bold");
 local font = GUIFont("tahoma");
 local headerfont = GUIFont("bankgothic", 12);
 
-// jenksta: testing code
-function onMyServerEvent()
-{
-	addChatMessage("Hello World!");
-}
-addEvent("clientEvent", onMyServerEvent);
-
 //Draw the scoreboard
 function onFrameRender()
 {

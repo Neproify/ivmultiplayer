@@ -42,18 +42,10 @@
 #endif
 
 // Network module version
-#if COMPILE_MODE == COMPILE_MODE_CUSTOM
-#define NETWORK_MODULE_VERSION 0x00
-#else if COMPILE_MODE == COMPILE_MODE_RELEASE
-#define NETWORK_MODULE_VERSION 0x03
-#endif
+#define NETWORK_MODULE_VERSION 0x04
 
 // Network version
-#if COMPILE_MODE == COMPILE_MODE_CUSTOM
-#define NETWORK_VERSION 0x00
-#else if COMPILE_MODE == COMPILE_MODE_RELEASE
 #define NETWORK_VERSION 0x68
-#endif
 
 // Tick Rate
 #define TICK_RATE 100

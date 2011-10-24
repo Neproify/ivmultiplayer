@@ -202,6 +202,66 @@ bool CIVVehicle::GetSirenState()
 	return false;
 }
 
+void CIVVehicle::SetGasPedal(float fGasPedal)
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+		pVehicle->m_fGasPedal = fGasPedal;
+}
+
+float CIVVehicle::GetGasPedal()
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+		return pVehicle->m_fGasPedal;
+
+	return 0.0f;
+}
+
+void CIVVehicle::SetBrakePedal(float fBrakePedal)
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+		pVehicle->m_fBrakePedal = fBrakePedal;
+}
+
+float CIVVehicle::GetBrakePedal()
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+		return pVehicle->m_fBrakePedal;
+
+	return 0.0f;
+}
+
+void CIVVehicle::SetSteeringAngle(float fSteeringAngle)
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+		pVehicle->m_fSteering = fSteeringAngle;
+}
+
+float CIVVehicle::GetSteeringAngle()
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+		return pVehicle->m_fSteering;
+
+	return 0.0f;
+}
+
 void CIVVehicle::SetEngineHealth(float fEngineHealth)
 {
 	// Do we have a valid vehicle pointer?

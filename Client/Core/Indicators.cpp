@@ -81,9 +81,9 @@ void InstallIndicatorHooks()
 	//       Front Right Indicator is on -> from a distance, both appear to be off
 	//       Back indicators seem to work normally, when you're closer to the cars front indicators work fine
 
-	// Check if hazard lights should be drawn -> always
+	// Always draw vehicle hazzard lights
 	CPatcher::InstallNopPatch(COffsets::PATCH_CVehicle__HazzardLightsOn, 2);
 
-	// TODO: Hook CNetworkVehicle::DrawIndicator function instead of all individual calls to it
+	// Hook CVehicle::DrawIndicator to use our hook function
 	CPatcher::InstallJmpPatch(COffsets::FUNC_CVehicle__DrawIndicator, (DWORD)CVehicle__DrawIndicator_Hook, 5);
 }

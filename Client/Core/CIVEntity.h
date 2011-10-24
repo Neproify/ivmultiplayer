@@ -12,8 +12,6 @@
 #include <Math/CMath.h>
 #include "IVCommon.h"
 
-#define FUNC_CEntity__IsTouchingEntity_7 0xA47B30
-
 class IVEntityVFTable
 {
 public:
@@ -132,7 +130,7 @@ public:
 	WORD       GetModelIndex();
 	void       SetAlpha(BYTE byteAlpha);
 	BYTE       GetAlpha();
-	bool       IsTouchingEntity(IVEntity * pTouchingEntity);
+	bool       IsTouchingEntity(CIVEntity * pTouchingEntity);
 	void       AddToWorld();
 	void       RemoveFromWorld();
 };

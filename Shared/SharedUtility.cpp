@@ -207,7 +207,6 @@ namespace SharedUtility
 
 		// Free the allocated block of memory inside the target process
 		VirtualFreeEx(hProcess, pRemoteLibraryPath, sizeof(pRemoteLibraryPath), MEM_RELEASE);
-
 		return iReturn;
 	}
 
@@ -227,7 +226,6 @@ namespace SharedUtility
 
 		// Close the process handle
 		CloseHandle(hProcess);
-
 		return iReturn;
 	}
 

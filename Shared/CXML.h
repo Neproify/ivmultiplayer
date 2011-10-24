@@ -9,8 +9,8 @@
 //==============================================================================
 // TODO: Capitalize function names?
 
-#include "../Vendor/tinyxml/tinyxml.h"
-#include "../Vendor/tinyxml/ticpp.h"
+#include <tinyxml/tinyxml.h>
+#include <tinyxml/ticpp.h>
 #include "SharedUtility.h"
 #include "CString.h"
 

@@ -274,6 +274,26 @@ _MEMBER_FUNCTION_IMPL(GUIElement, setPosition)
 	return 1;
 }
 
+_MEMBER_FUNCTION_IMPL(GUIElement, setRotation)
+{
+	float x, y, z;
+	sq_getfloat(pVM, -1, &z);
+	sq_getfloat(pVM, -2, &y);
+	sq_getfloat(pVM, -3, &x);
+
+	CGUIFrameWindow * pWindow = sq_getinstance<CGUIFrameWindow *>(pVM);
+
+	if(!pWindow)
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	pWindow->setRotation(CEGUI::Vector3(x, y, z));
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
 _MEMBER_FUNCTION_IMPL(GUIElement, setAlpha)
 {
 	float alpha;
@@ -456,7 +476,7 @@ _MEMBER_FUNCTION_IMPL(GUIWindow, constructor)
 		return 1;
 	}
 
-	_SET_RELEASE_HOOK(GUIElement);
+	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 	pWindow->setVisible(true);
 	pWindow->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked, CEGUI::Event::Subscriber(&OnWindowClose));
@@ -476,7 +496,7 @@ _MEMBER_FUNCTION_IMPL(GUIText, constructor)
 		return 1;
 	}
 
-	_SET_RELEASE_HOOK(GUIElement);
+	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 	pWindow->setVisible(true);
 	pWindow->setProperty("FrameEnabled", "false");
@@ -520,7 +540,7 @@ _MEMBER_FUNCTION_IMPL(GUIButton, constructor)
 		return 1;
 	}
 
-	_SET_RELEASE_HOOK(GUIElement);
+	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 	pWindow->setVisible(true);
 	pWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&OnButtonClick));
@@ -539,7 +559,7 @@ _MEMBER_FUNCTION_IMPL(GUIEditBox, constructor)
 		return 1;
 	}
 
-	_SET_RELEASE_HOOK(GUIElement);
+	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 	pWindow->setVisible(true);
 	sq_pushbool(pVM, true);
@@ -556,7 +576,7 @@ _MEMBER_FUNCTION_IMPL(GUIMultiLineEditBox, constructor)
 		return 1;
 	}
 
-	_SET_RELEASE_HOOK(GUIElement);
+	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 	pWindow->setVisible(true);
 	sq_pushbool(pVM, true);
@@ -574,7 +594,7 @@ _MEMBER_FUNCTION_IMPL(GUICheckBox, constructor)
 		return 1;
 	}
 
-	_SET_RELEASE_HOOK(GUIElement);
+	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 	pWindow->setVisible(true);
 	sq_pushbool(pVM, true);
@@ -638,7 +658,7 @@ _MEMBER_FUNCTION_IMPL(GUIImage, constructor)
 			return 1;
 		}
 
-		_SET_RELEASE_HOOK(GUIElement);
+		//_SET_RELEASE_HOOK(GUIElement);
 		g_pClientScriptManager->GetGUIManager()->Add(pImage, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 		pImage->setVisible(true);
 		sq_pushbool(pVM, true);
@@ -651,24 +671,4 @@ _MEMBER_FUNCTION_IMPL(GUIImage, constructor)
 		sq_pushbool(pVM, false);
 		return 1;
 	}
-}
-
-_MEMBER_FUNCTION_IMPL(GUIImage, setRotation)
-{
-	float x, y, z;
-	sq_getfloat(pVM, -1, &z);
-	sq_getfloat(pVM, -2, &y);
-	sq_getfloat(pVM, -3, &x);
-
-	CGUIStaticImage * pImage = sq_getinstance<CGUIStaticImage *>(pVM);
-
-	if(!pImage)
-	{
-		sq_pushbool(pVM, false);
-		return 1;
-	}
-
-	pImage->setRotation(CEGUI::Vector3(x, y, z));
-	sq_pushbool(pVM, true);
-	return 1;
 }

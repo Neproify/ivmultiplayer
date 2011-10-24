@@ -109,6 +109,8 @@ void CIVPad::ToPadState(CPadState& padState, bool bCurrent)
 	SET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    padState.ucInVehicleMove[1]);
 	SET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       padState.ucInVehicleMove[2]);
 	SET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     padState.ucInVehicleMove[3]);
+	SET_ANALOG_KEY(INPUT_VEH_BRAKE,         padState.ucInVehicleTriggers[0]);
+	SET_ANALOG_KEY(INPUT_VEH_ACCELERATE,    padState.ucInVehicleTriggers[1]);
 
 	// Binary keys
 	SET_BINARY_KEY(INPUT_ENTER,             padState.keys.bEnterExitVehicle);
@@ -122,8 +124,6 @@ void CIVPad::ToPadState(CPadState& padState, bool bCurrent)
 	SET_BINARY_KEY(INPUT_MELEE_ATTACK2,     padState.keys.bMeleeAttack2);
 	SET_BINARY_KEY(INPUT_MELEE_KICK,        padState.keys.bMeleeKick);
 	SET_BINARY_KEY(INPUT_MELEE_BLOCK,       padState.keys.bMeleeBlock);
-	SET_BINARY_KEY(INPUT_VEH_ACCELERATE,    padState.keys.bAccelerate);
-	SET_BINARY_KEY(INPUT_VEH_BRAKE,         padState.keys.bBrake);
 	SET_BINARY_KEY(INPUT_VEH_HANDBRAKE,     padState.keys.bHandbrake);
 	SET_BINARY_KEY(INPUT_VEH_HANDBRAKE_ALT, padState.keys.bHandbrake2);
 	SET_BINARY_KEY(INPUT_VEH_HORN,          padState.keys.bHorn);
@@ -146,6 +146,8 @@ void CIVPad::FromPadState(CPadState padState, bool bCurrent)
 	GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    padState.ucInVehicleMove[1]);
 	GET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       padState.ucInVehicleMove[2]);
 	GET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     padState.ucInVehicleMove[3]);
+	GET_ANALOG_KEY(INPUT_VEH_BRAKE,         padState.ucInVehicleTriggers[0]);
+	GET_ANALOG_KEY(INPUT_VEH_ACCELERATE,    padState.ucInVehicleTriggers[1]);
 
 	// Binary keys
 	GET_BINARY_KEY(INPUT_ENTER,             padState.keys.bEnterExitVehicle);
@@ -159,8 +161,6 @@ void CIVPad::FromPadState(CPadState padState, bool bCurrent)
 	GET_BINARY_KEY(INPUT_MELEE_ATTACK2,     padState.keys.bMeleeAttack2);
 	GET_BINARY_KEY(INPUT_MELEE_KICK,        padState.keys.bMeleeKick);
 	GET_BINARY_KEY(INPUT_MELEE_BLOCK,       padState.keys.bMeleeBlock);
-	GET_BINARY_KEY(INPUT_VEH_ACCELERATE,    padState.keys.bAccelerate);
-	GET_BINARY_KEY(INPUT_VEH_BRAKE,         padState.keys.bBrake);
 	GET_BINARY_KEY(INPUT_VEH_HANDBRAKE,     padState.keys.bHandbrake);
 	GET_BINARY_KEY(INPUT_VEH_HANDBRAKE_ALT, padState.keys.bHandbrake2);
 	GET_BINARY_KEY(INPUT_VEH_HORN,          padState.keys.bHorn);

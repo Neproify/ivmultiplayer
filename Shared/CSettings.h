@@ -14,8 +14,8 @@
 #include <list>
 #include "Common.h"
 #include "CString.h"
-#include "../Vendor/tinyxml/tinyxml.h"
-#include "../Vendor/tinyxml/ticpp.h"
+#include <tinyxml/tinyxml.h>
+#include <tinyxml/ticpp.h>
 
 // Set macros
 #define CVAR_SET_BOOL CSettings::SetBool

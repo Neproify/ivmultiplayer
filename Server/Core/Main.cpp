@@ -293,37 +293,65 @@ void SendConsoleInput(String strInput)
 
 void InputThread(CThread * pCreator)
 {
-	static String strInputBuffer;
+	// Buffer MUST be 3 or more (input char, \n, \0)
+	char szInputBuffer[512];
+	String strInputString;
 
+	// Loop until server shutdown
 	while(pCreator->GetUserData<bool>())
 	{
-		char szInput[256];
-		fgets(szInput, sizeof(szInput), stdin);
-		size_t len = strlen(szInput);
+		// Wait for input from the console
+		// TODO: Make non-blocking
+		fgets(szInputBuffer, sizeof(szInputBuffer), stdin);
 
-		if(szInput[len - 1] == '\n')
+		// Do we have anything in the input?
+		if(szInputBuffer[0] != '\n')
 		{
-			if(szInput[len - 2] == '\r')
-				szInput[len - 2] = '\0';
-			else
-				szInput[len - 1] = '\0';
+			// Append the input to the input string
+			strInputString += szInputBuffer;
 
-			String strInput = strInputBuffer + szInput;
+			// Get the input string length
+			size_t sLength = strInputString.GetLength();
 
-			if(strInput.IsNotEmpty())
+			// Is this the last of the input?
+			if(strInputString[sLength - 1] == '\n')
 			{
-				strInputBuffer.Clear();
+				// Check for CRLF
+				if(strInputString[sLength - 2] == '\r')
+				{
+					// Replace '\r\n' with '\0'
+					strInputString.Truncate(sLength - 2);
+				}
+				else
+				{
+					// Replace '\n' with '\0'
+					strInputString.Truncate(sLength - 1);
+				}
+
+				// Add the input string to the console input queue
 				consoleInputQueueMutex.Lock();
-				consoleInputQueue.push(strInput);
+				consoleInputQueue.push(strInputString);
 				consoleInputQueueMutex.Unlock();
+
+				// Clear the input string
+				strInputString.Clear();
 			}
 		}
-		else
-			strInputBuffer += szInput;
 
+		// Wait
 		Sleep(10);
 	}
 }
+
+#if 0
+// test
+#include <Squirrel/squirrel.h>
+#include <Squirrel/sqstate.h>
+#include <Squirrel/sqvm.h>
+#include <Squirrel/sqtable.h>
+#include <Squirrel/sqstring.h>
+// test end
+#endif
 
 int main(int argc, char ** argv)
 {
@@ -524,6 +552,45 @@ int main(int argc, char ** argv)
 		g_pMasterList = new CMasterList(MASTERLIST_ADDRESS, MASTERLIST_VERSION, MASTERLIST_TIMEOUT, CVAR_GET_INTEGER("port"));
 
 	CLogFile::Printf("Server started.");
+
+#if 0
+	// test
+	// Open a temporary VM
+	SQVM * pVM = sq_open(1024);
+
+	// Create the exports table
+	SQTable * pTable = SQTable::Create(_ss(pVM), 0);
+
+	// Close the temporary VM
+	//sq_close(pVM);
+
+	// Create the exports table SQObject
+	SQObject value;
+	value._type = OT_TABLE;
+	value._unVal.pTable = pTable;
+
+	for(std::list<CSquirrel *>::iterator iter = g_pScriptingManager->GetScriptList()->begin(); iter != g_pScriptingManager->GetScriptList()->end(); iter++)
+	{
+		// Get the VM pointer for this script
+		SQVM * pVM = (*iter)->GetVM();
+
+		// Push the root table onto the stack
+		sq_pushroottable(pVM);
+
+		// Push the table name onto the stack
+		sq_pushstring(pVM, "exports",-1);
+
+		// Push the exports table onto the stack
+		sq_pushobject(pVM, value);
+
+		// Create the new root table slot
+		sq_newslot(pVM, -3, true);
+
+		// Pop the root table from the stack
+		sq_pop(pVM, 1);
+	}
+	// end test
+#endif
 
 	while(g_pNetworkManager->bRunning)
 	{

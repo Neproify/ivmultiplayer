@@ -1,7 +1,7 @@
 //============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
 // File: StdInc.h
-// Project: Client.Core.Launcher
+// Project: Client.Launcher
 // License: See LICENSE in root directory
 //
 //==============================================================================

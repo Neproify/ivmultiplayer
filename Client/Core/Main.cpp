@@ -242,9 +242,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 				CLogFile::Printf("Failed to initialize the network module!\n");
 				ExitProcess(0);
 			}
-
-			break;
 		}
+		break;
 	case DLL_PROCESS_DETACH:
 		{
 			CLogFile::Printf("Shutdown 1");
@@ -364,6 +363,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			CLogFile::Printf("Shutdown 29");
 
 			// Shutdown our game
+			CLogFile::Printf("Shutdown CGame");
 			CGame::Shutdown();
 			CLogFile::Printf("Shutdown 30");
 
@@ -373,8 +373,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 			// Close the log file
 			CLogFile::Close();
-			break;
 		}
+		break;
 	}
 
 	return TRUE;
@@ -834,7 +834,17 @@ void InternalResetGame()
 	g_pPlayerManager = new CPlayerManager();
 	CLogFile::Printf("Created player manager instance");
 
-	SAFE_DELETE(g_pNetworkManager);
+	// Do we have a network manager instance?
+	if(g_pNetworkManager)
+	{
+		// If we are connected disconnect
+		if(g_pNetworkManager->IsConnected())
+			g_pNetworkManager->Disconnect();
+
+		// Delete our network manager instance
+		SAFE_DELETE(g_pNetworkManager);
+	}
+
 	g_pNetworkManager = new CNetworkManager();
 	CLogFile::Printf("Created network manager instance");
 

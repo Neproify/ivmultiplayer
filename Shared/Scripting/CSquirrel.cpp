@@ -10,15 +10,15 @@
 
 #include <stdarg.h>
 #include "CScriptingManager.h"
-#include "../../Vendor/Squirrel/sqstdio.h"
-#include "../../Vendor/Squirrel/sqstdaux.h"
-#include "../../Vendor/Squirrel/sqstdblob.h"
-#include "../../Vendor/Squirrel/sqstdio.h"
-#include "../../Vendor/Squirrel/sqstdsystem.h"
-#include "../../Vendor/Squirrel/sqstdmath.h"
-#include "../../Vendor/Squirrel/sqstdstring.h"
-#include "../../Vendor/Squirrel/sqstate.h"
-#include "../../Vendor/Squirrel/sqvm.h"
+#include <Squirrel/sqstdio.h>
+#include <Squirrel/sqstdaux.h>
+#include <Squirrel/sqstdblob.h>
+#include <Squirrel/sqstdio.h>
+#include <Squirrel/sqstdsystem.h>
+#include <Squirrel/sqstdmath.h>
+#include <Squirrel/sqstdstring.h>
+#include <Squirrel/sqstate.h>
+#include <Squirrel/sqvm.h>
 #include "../SharedUtility.h"
 #include "../CEvents.h"
 #include "../CLogFile.h"
@@ -115,7 +115,7 @@ void CSquirrel::CompilerErrorFunction(SQVM * pVM, const char * szError, const ch
 		arguments.push(iLine);
 		arguments.push(iColumn);
 
-		if(g_pEvents->Call("scriptError", &arguments, pScript).GetInteger() == 1)
+		if(g_pEvents->Call("compilerError", &arguments, pScript).GetInteger() == 1)
 			CLogFile::Printf("Error: Failed to compile script %s on Line %d Column %d (%s).", pScript->GetName().Get(), iLine, iColumn, szError);
 	}
 }

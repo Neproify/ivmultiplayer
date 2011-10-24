@@ -12,7 +12,7 @@
 #pragma once
 
 #include "../CScriptingManager.h"
-#include "../../../Vendor/Squirrel/sqstdio.h"
+#include <Squirrel/sqstdio.h>
 #include "../../CLogFile.h"
 #include "../../Common.h"
 

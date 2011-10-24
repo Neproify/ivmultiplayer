@@ -8,9 +8,9 @@
 //==============================================================================
 
 #include "CSquirrelArguments.h"
-#include "../../Vendor/Squirrel/sqstate.h"
-#include "../../Vendor/Squirrel/sqvm.h"
-#include "../../Vendor/Squirrel/sqstring.h"
+#include <Squirrel/sqstate.h>
+#include <Squirrel/sqvm.h>
+#include <Squirrel/sqstring.h>
 
 CSquirrelArgument::CSquirrelArgument(CSquirrelArguments array, bool isArray)
 {
@@ -55,10 +55,10 @@ CSquirrelArgument::CSquirrelArgument(const CSquirrelArgument& p)
 
 CSquirrelArgument::~CSquirrelArgument()
 {
-	free();
+	reset();
 }
 
-void CSquirrelArgument::free()
+void CSquirrelArgument::reset()
 {
 	if(type == OT_STRING)
 		delete data.str;
@@ -91,7 +91,7 @@ bool CSquirrelArgument::push(SQVM* pVM)
 			{
 				sq_newarray(pVM, 0);
 
-				for(CSquirrelArguments::iterator iter = data.pArray->begin(); iter != data.pArray->end(); ++ iter )
+				for(CSquirrelArguments::iterator iter = data.pArray->begin(); iter != data.pArray->end(); iter++)
 				{
 					(*iter)->push(pVM);
 					sq_arrayappend(pVM, -2);
@@ -100,14 +100,13 @@ bool CSquirrelArgument::push(SQVM* pVM)
 			}
 		case OT_TABLE:
 			{
+				assert(data.pArray->size() % 2 == 0);
 				sq_newtable(pVM);
 
-				int i = 0;
-				assert( data.pArray->size() % 2 == 0 );
-				for(CSquirrelArguments::iterator iter = data.pArray->begin(); iter != data.pArray->end(); ++ iter, ++ i )
+				for(CSquirrelArguments::iterator iter = data.pArray->begin(); iter != data.pArray->end(); iter++)
 				{
 					(*iter)->push(pVM);
-					++ iter;
+					++iter;
 					(*iter)->push(pVM);
 					sq_createslot(pVM, -3);
 				}
@@ -469,9 +468,7 @@ void CSquirrelArgument::set(const CSquirrelArgument& p)
 CSquirrelArguments::CSquirrelArguments(SQVM * pVM, int idx)
 {
 	for(int i = idx; i <= sq_gettop(pVM); i++)
-	{
 		pushFromStack(pVM, i);
-	}
 }
 
 CSquirrelArguments::CSquirrelArguments(CBitStream * pBitStream)
@@ -487,8 +484,15 @@ CSquirrelArguments::CSquirrelArguments(const CSquirrelArguments& p)
 
 CSquirrelArguments::~CSquirrelArguments()
 {
-	for(iterator iter = begin(); iter != end(); ++iter)
+	reset();
+}
+
+void CSquirrelArguments::reset()
+{
+	for(iterator iter = begin(); iter != end(); iter++)
 		delete *iter;
+
+	clear();
 }
 
 void CSquirrelArguments::push_to_vm(SQVM* pVM)
@@ -530,6 +534,11 @@ void CSquirrelArguments::push(const char* c)
 void CSquirrelArguments::push(String str)
 {
 	push_back(new CSquirrelArgument(new String(str)));
+}
+
+void CSquirrelArguments::push(CSquirrelArguments array, bool isArray)
+{
+	push_back(new CSquirrelArgument(array, isArray));
 }
 
 void CSquirrelArguments::push(CSquirrelArguments* pArray, bool isArray)
