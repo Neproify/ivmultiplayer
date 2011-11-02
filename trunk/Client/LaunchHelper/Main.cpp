@@ -55,7 +55,7 @@ BOOL WINAPI CreateProcessW_Hook(LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
 										  "InstallFolder", NULL, szInstallDirectory, sizeof(szInstallDirectory)) || 
 	   !SharedUtility::Exists(szInstallDirectory))
 	{
-		if(!SharedUtility::ReadRegistryString(HKEY_CURRENT_USER, "Software\\NIV", "gtaivdir", NULL, 
+		if(!SharedUtility::ReadRegistryString(HKEY_CURRENT_USER, "Software\\IVMP", "gtaivdir", NULL, 
 											  szInstallDirectory, sizeof(szInstallDirectory)) || 
 		   !SharedUtility::Exists(szInstallDirectory))
 		{
@@ -97,13 +97,13 @@ BOOL WINAPI CreateProcessW_Hook(LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
 	// Make sure the GTAIV.exe path is valid
 	if(!SharedUtility::Exists(strApplicationPath.Get()))
 	{
-		ShowMessageBox("Failed to find GTAIV.exe. Cannot launch Networked: IV.");
+		ShowMessageBox("Failed to find GTAIV.exe. Cannot launch IV: Multiplayer.");
 		return FALSE;
 	}
 
 	// If we have a custom directory save it
 	if(bFoundCustomDirectory)
-		SharedUtility::WriteRegistryString(HKEY_CURRENT_USER, "Software\\NIV", "gtaivdir", szInstallDirectory, strlen(szInstallDirectory));
+		SharedUtility::WriteRegistryString(HKEY_CURRENT_USER, "Software\\IVMP", "gtaivdir", szInstallDirectory, strlen(szInstallDirectory));
 
 	// Convert the install directory to unicode
 	wchar_t wszInstallDirectory[MAX_PATH];
@@ -131,14 +131,14 @@ BOOL WINAPI CreateProcessW_Hook(LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
 		{
 			// Terminate the process
 			TerminateProcess(lpProcessInformation->hProcess, 0);
-			String strError("Unknown error. Cannot launch Networked: IV.");
+			String strError("Unknown error. Cannot launch IV: Multiplayer.");
 
 			if(iReturn == 1)
-				strError = "Failed to write library path into remote process. Cannot launch Networked: IV.";
+				strError = "Failed to write library path into remote process. Cannot launch IV: Multiplayer.";
 			else if(iReturn == 2)
-				strError = "Failed to create remote thread in remote process. Cannot launch Networked: IV.";
+				strError = "Failed to create remote thread in remote process. Cannot launch IV: Multiplayer";
 			else if(iReturn == 3)
-				strError = "Failed to open the remote process, Cannot launch Networked: IV.";
+				strError = "Failed to open the remote process, Cannot launch IV: Multiplayer.";
 
 			ShowMessageBox(strError.Get());
 			return FALSE;
