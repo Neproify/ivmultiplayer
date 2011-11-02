@@ -360,20 +360,28 @@ bool GetHostAndPort(String strHostAndPort, String& strHost, unsigned short& usPo
 
 	// Did we not find the split?
 	if(uiSplit == String::nPos)
-		return false;
+	{
+		// Set the host
+		strHost = strHostAndPort;
+		
+		// Set the default port (9999)
+		usPort = 9999;
+	}
+	else
+	{
+		// Get and set the host
+		strHost = strHostAndPort.SubStr(0, uiSplit);
 
-	// Get and set the host
-	strHost = strHostAndPort.SubStr(0, uiSplit);
+		// Get the port
+		String strPort = strHostAndPort.SubStr(uiSplit + 1);
 
-	// Get the port
-	String strPort = strHostAndPort.SubStr(uiSplit + 1);
+		// Ensure the port is valid
+		if(!strPort.IsNumeric())
+			return false;
 
-	// Ensure the port is valid
-	if(!strPort.IsNumeric())
-		return false;
-
-	// Set the port
-	usPort = strPort.ToInteger();
+		// Set the port
+		usPort = strPort.ToInteger();
+	}
 	return true;
 }
 
@@ -492,6 +500,12 @@ bool CMainMenu::OnSettingsWindowSaveButtonClick(const CEGUI::EventArgs &eventArg
 
 	// Are we connected to a server and have we changed our name?
 	bool bNameChanged = (CVAR_GET_STRING("nick").Compare(m_pSettingsWindowNickEditBox->getText().c_str()) != 0);
+
+	if(bNameChanged)
+	{
+		CVAR_SET_STRING("nick", m_pSettingsWindowNickEditBox->getText().c_str());
+		g_strNick.Set(m_pSettingsWindowNickEditBox->getText().c_str());
+	}
 
 	if(g_pNetworkManager && g_pNetworkManager->IsConnected() && bNameChanged)
 	{
