@@ -200,12 +200,18 @@ public:
 	// Ped
 	static unsigned int FUNC_CPed__SetDucking;
 	static unsigned int FUNC_CPed__IsDucking;
+	static unsigned int FUNC_CPed__DisableRagdoll;
 
 	// Tasks
 	static unsigned int FUNC_CPedTaskManager__SetTask;
 	static unsigned int FUNC_CPedTaskManager__SetTaskSecondary;
 	static unsigned int VAR_CTask__VFTable;
 	static unsigned int RETURN_CTask__Destructor;
+	static unsigned int FUNC_CTaskComplexNewGetInVehicle__Constructor;
+	static unsigned int FUNC_CTaskComplexNewExitVehicle__Constructor;
+	static unsigned int FUNC_CTaskComplexDie__Constructor;
+	static unsigned int FUNC_CTaskSimpleDead__Constructor;
+	static unsigned int FUNC_CTaskSimpleCarSetPedOut__Constructor;
 
 	// Weapons
 	static unsigned int FUNC_CPedWeapons__RemoveWeapon;

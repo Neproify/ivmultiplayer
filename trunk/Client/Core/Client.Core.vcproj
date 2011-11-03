@@ -318,10 +318,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\IVTasks.h"
-					>
-				</File>
-				<File
 					RelativePath=".\KeySync.h"
 					>
 				</File>
@@ -450,6 +446,10 @@
 					</File>
 					<File
 						RelativePath=".\IVCommon.h"
+						>
+					</File>
+					<File
+						RelativePath=".\IVTasks.h"
 						>
 					</File>
 				</Filter>
@@ -1107,10 +1107,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\IVTasks.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\KeySync.cpp"
 					>
 				</File>
@@ -1207,6 +1203,10 @@
 					</File>
 					<File
 						RelativePath=".\CIVWorld.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\IVTasks.cpp"
 						>
 					</File>
 				</Filter>

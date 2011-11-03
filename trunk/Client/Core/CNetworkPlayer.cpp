@@ -645,13 +645,22 @@ void CNetworkPlayer::InternalRemoveFromVehicle()
 	// Are we spawned and in a vehicle?
 	if(IsSpawned() && m_pVehicle)
 	{
-		// FIXUPDATE
-		// This is hacky
-		// Find a task to set a ped out of a vehicle (like sa)
-		// Warp ourselves out of the vehicle
-		CVector3 vecPos;
-		m_pVehicle->GetPosition(vecPos);
-		Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecPos.fX, vecPos.fY, (vecPos.fZ + 1.0f));
+		// Create the car set ped out task
+		CIVTaskSimpleCarSetPedOut * pTask = new CIVTaskSimpleCarSetPedOut(m_pVehicle->GetGameVehicle(), 0xF, 0, 1);
+
+		// Apply the task to the player ped
+		IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
+		IVTask * pGameTask = pTask->GetTask();
+		DWORD dwFunc = (CGame::GetBase() + 0xA9ED10);
+		_asm
+		{
+			push pPlayerPed
+			mov ecx, pGameTask
+			call dwFunc
+		}
+
+		// Destroy the task
+		pTask->Destroy();
 	}
 }
 
@@ -1389,9 +1398,6 @@ void CNetworkPlayer::SetCameraBehind()
 		g_pCamera->SetBehindPed(m_pPlayerPed);
 }
 
-#include "CChatWindow.h"
-extern CChatWindow * g_pChatWindow;
-
 void CNetworkPlayer::Pulse()
 {
 	// Are we spawned?
@@ -1405,8 +1411,6 @@ void CNetworkPlayer::Pulse()
 
 			// Update the current pad state
 			CGame::GetPad()->GetCurrentClientPadState(m_currentPadState);
-			g_pChatWindow->AddInfoMessage("Local player l/r/u/d is %d:%d:%d:%d", m_currentPadState.ucOnFootMove[0], 
-				m_currentPadState.ucOnFootMove[1], m_currentPadState.ucOnFootMove[2], m_currentPadState.ucOnFootMove[3]);
 		}
 
 		// If our health is locked set our health
@@ -2193,7 +2197,7 @@ void CNetworkPlayer::ResetVehicleEnterExit()
 void CNetworkPlayer::ToggleRagdoll(bool bToggle)
 {
 	if(IsSpawned())
-		Scripting::UnlockRagdoll(GetScriptingHandle(), bToggle);
+		m_pPlayerPed->SetRagdoll(bToggle);
 }
 
 bool CNetworkPlayer::IsOnScreen()

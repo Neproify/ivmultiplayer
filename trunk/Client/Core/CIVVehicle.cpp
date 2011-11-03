@@ -242,6 +242,26 @@ float CIVVehicle::GetBrakePedal()
 	return 0.0f;
 }
 
+void CIVVehicle::SetSteerBias(float fSteerBias)
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+		pVehicle->m_fSteerBias = fSteerBias;
+}
+
+float CIVVehicle::GetSteerBias()
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+		return pVehicle->m_fSteerBias;
+
+	return 0.0f;
+}
+
 void CIVVehicle::SetSteeringAngle(float fSteeringAngle)
 {
 	// Do we have a valid vehicle pointer?

@@ -188,3 +188,45 @@ bool CIVPed::IsDucking()
 
 	return false;
 }
+
+void CIVPed::SetRagdoll(bool bRagdoll)
+{
+	IVPed * pPed = GetPed();
+
+	if(pPed)
+	{
+		if(bRagdoll)
+		{
+			if(!pPed->m_dwRagdollStatus)
+				pPed->m_dwRagdollStatus = 2;
+		}
+		else
+		{
+			if(pPed->m_dwRagdollStatus > 2)
+			{
+				_asm
+				{
+					push 1
+					push 1
+					push 1
+					mov ecx, pPed
+					call COffsets::FUNC_CPed__DisableRagdoll
+				}
+			}
+
+			pPed->m_dwRagdollStatus = 0;
+		}
+
+		pPed->m_dwRagdollTime = CGame::GetTime();
+	}
+}
+
+bool CIVPed::IsRagdoll()
+{
+	IVPed * pPed = GetPed();
+
+	if(pPed)
+		return (pPed->m_dwRagdollStatus == 0);
+
+	return true;
+}

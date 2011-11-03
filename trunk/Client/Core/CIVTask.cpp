@@ -240,7 +240,13 @@ IVTask * CIVTask::GetTask()
 void CIVTask::Create()
 {
 	if(!m_pTask)
+	{
+		// Allocate the task
 		m_pTask = CGame::GetPools()->GetTaskPool()->Allocate();
+
+		// Add ourselves to the client task manager
+		g_pClientTaskManager->AddTask(this);
+	}
 }
 
 void CIVTask::Destroy()

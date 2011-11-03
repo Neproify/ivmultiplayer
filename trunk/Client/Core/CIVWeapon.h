@@ -16,10 +16,10 @@
 class IVWeapon
 {
 public:
-	eWeaponType           m_type;
-	FakeProtectedBuffer * m_pAmmo;
-	BYTE                  bytePad1;
-	PAD(IVWeapon, pad0, 3);
+	eWeaponType           m_type;   // 00-04
+	FakeProtectedBuffer * m_pAmmo;  // 04-08
+	BYTE                  bytePad1; // 08-09
+	PAD(IVWeapon, pad0, 3);         // 09-0C
 };
 
 class CIVPedWeapons;

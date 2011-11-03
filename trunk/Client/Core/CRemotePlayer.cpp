@@ -44,7 +44,6 @@ bool CRemotePlayer::Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontR
 			return false;
 	}
 
-	//CLogFile::Printf("CIVPlayerPed + 0x218 = %d", *(BYTE *)(m_pPlayer->GetPlayerPed() + 0x218));
 	Teleport(vecSpawnPos);
 	SetCurrentHeading(fSpawnHeading);
 	Init();
