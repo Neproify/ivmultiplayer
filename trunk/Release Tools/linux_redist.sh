@@ -1,30 +1,6 @@
-echo -n "Enter the package name and press [ENTER]: "
+echo "Enter the package name and press [ENTER]: " 
 
+read VER 
+export GZIPFILE=$VER.tar.gz 
 
-read VER
-export
-FILE=$VER.zip
-export
-TARFILE=$VER.tar
-
-zip
--9r $FILE ../Binary/ivmp-svr
-zip
--9r $FILE ../Binary/webserver -x *.svn*
-zip
--9r $FILE ../Binary/scripts -x *.svn*
-zip
--9r $FILE ../Binary/resources -x *.svn*
-zip
--9r $FILE ../Binary/modules -x *.svn*
-zip
--9r $FILE ../Binary/files -x *.svn*
-zip
--9r $FILE ../Binary/clientscripts -x *.svn*
-zip
--9rj $FILE ../Binary/settings.xml "LICENSE"
-
-unzip $FILE -d $VER
-tar cf $TARFILE $VER
-gzip $TARFILE
-rm -R $VER
+tar cfvz $GZIPFILE ../Binary/ivmp-svr ../Binary/Network.Core.so ../Binary/webserver ../Binary/scripts ../Binary/resources ../Binary/modules ../Binary/files ../Binary/clientscripts ../Binary/settings.xml LICENSE --exclude=.svn 
