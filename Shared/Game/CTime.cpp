@@ -66,9 +66,10 @@ void CTime::SetMinuteDuration(const unsigned int uiMinuteDuration)
 	// Make sure we're calculating future times from ours
 	unsigned char ucHour = 0, ucMinute = 0;
 	GetTime(&ucHour, &ucMinute);
-
-	m_uiMinuteDuration = uiMinuteDuration;
-
+	if(uiMinuteDuration > 0)
+	{
+		m_uiMinuteDuration = uiMinuteDuration;
+	}
 	SetTime(ucHour, ucMinute);
 }
 

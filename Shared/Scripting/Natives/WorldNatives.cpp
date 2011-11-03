@@ -10,6 +10,7 @@
 #include "WorldNatives.h"
 #include "../../Game/CTime.h"
 #include "../../Game/CTrafficLights.h"
+#include "../../CLogFile.h"
 
 extern CTime * g_pTime;
 extern CTrafficLights * g_pTrafficLights;
@@ -70,14 +71,18 @@ SQInteger CWorldNatives::SetMinuteDuration(SQVM * pVM)
 {
 	SQInteger iMinuteDuration;
 	sq_getinteger(pVM, 2, &iMinuteDuration);
-	if(iMinuteDuration >= 0)
+	if(iMinuteDuration > 0)
 	{
 		g_pTime->SetMinuteDuration(iMinuteDuration);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
-
-	sq_pushbool(pVM, false);
+	else if(iMinuteDuration < 1)
+	{
+		CLogFile::Printf("Failed to set MinuteDuration for %d ms(Minimum 1ms)",iMinuteDuration);
+		sq_pushbool(pVM, false);
+		return 1;
+	}
 	return 1;
 }
 
