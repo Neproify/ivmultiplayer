@@ -39,6 +39,9 @@ public:
 	bool         HasResourceLoaded(eResourceType resourceType, int iResourceIndex);
 	void         ReleaseResource(eResourceType resourceType, int iResourceIndex);
 	int          GetModelIndexFromHash(DWORD dwModelHash);
-	int          GetAnimIndexFromName(const char * szName);
 	void         LoadWorldAtPosition(CVector3 vecPosition);
+
+	// These are actually members of CAnimStore but I'm placing them here
+	int          GetAnimIndexFromName(const char * szName);
+	int          GetAnimIndexFromHash(unsigned int uiHash);
 };

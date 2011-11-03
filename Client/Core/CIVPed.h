@@ -70,6 +70,7 @@ enum eCharCreator
 	REPLAY_CHAR
 };
 
+#pragma pack(1)
 class IVPed : public IVPhysical
 {
 public:
@@ -87,34 +88,40 @@ public:
 	BYTE m_byteUnknown;                     // 26C-26D - Bits 4: in vehicle
 	PAD(IVPed, pad4, 0x43);                 // 26D-2B0
 	IVPedWeapons m_weapons;                 // 2B0-3CA
-	// 0x338 - BYTE m_byteShootRate;
-	// 0x389 - BYTE m_byteAccuracy;
-	// 0x3A8 - Target Entity?
-	// 0x580 - CPedAudio (audSpeechAudioEntity)
-	PAD(IVPed, pad5, 0x6A6);                // 3CA-A70
-	// 0x61C - DWORD m_dwVoiceHash;
-	// 0x7F1 - BYTE m_byteWeaponObjectVisible;
-	// 0x7FA - IVEntity * m_pTargetVehicle;
+	PAD(IVPed, pad5, 0x1B6);                // 3CA-580
+	void * m_pPedAudio;                     // 580-584 // (CPedAudio (audSpeechAudioEntity))
+	PAD(IVPed, pad6, 0x98);                 // 584-61C
+	DWORD m_dwVoiceHash;                    // 61C-620
+	PAD(IVPed, pad7, 0x1A8);                // 620-7C8
+	// 0x780 - BYTE m_byteIsDrunk; (Possibly m_byteVoiceIsDrunk)
+	DWORD m_dwRagdollStatus;                // 7C8-7CC
+	DWORD m_dwRagdollTime;                  // 7CC-7D0
+	PAD(IVPed, pad8, 0x21);                 // 7D0-7F1
+	BYTE m_byteWeaponObjectVisible;         // 7F1-7F2
+	PAD(IVPed, pad9, 0x8);                  // 7F2-7FA
+	IVEntity * m_pTargetVehicle;            // 7FA-7FE
+	PAD(IVPed, pad10, 0x272);               // 3CA-A70
 	BYTE m_byteCreatedBy;                   // A70-A71 - See eCharCreator
-	PAD(IVPed, pad6, 0xF);                  // A71-A80
+	PAD(IVPed, pad11, 0xF);                 // A71-A80
 	DWORD m_dwArrestState;                  // A80-A84
 	DWORD m_dwDeathState;                   // A84-A88
-	PAD(IVPed, pad7, 0x8);                  // A88-A90
+	PAD(IVPed, pad12, 0x8);                 // A88-A90
 	DWORD m_pPedMoveBlendOnFoot;            // A90-A94
 	float m_fMaxHealth;                     // A94-A98
-	PAD(IVPed, pad8, 0x18);                 // A98-AB0
+	PAD(IVPed, pad13, 0x18);                // A98-AB0
 	float m_fCurrentHeading;                // AB0-AB4
 	float m_fDesiredHeading;                // AB4-AB8
-	PAD(IVPed, pad9, 0x88);                 // AB8-B40
+	PAD(IVPed, pad14, 0x88);                // AB8-B40
 	IVVehicle * m_pCurrentVehicle;          // B40-B44
-	PAD(IVPed, pad10, 0x7C);                // B44-BC0
+	PAD(IVPed, pad15, 0x7C);                // B44-BC0
 	void * m_pPedIKManager;                 // BC0-BC4 // +0x210 = pPed (CIKManager)
-	PAD(IVPed, pad11, 0x17C);               // BC4-D40
-	BYTE m_byteRingState;                  // D40-D41
-	PAD(IVPed, pad12, 0x17);                // D41-D58
-	float m_fHeadingLimit[2];              // D58-D60
-	PAD(IVPed, pad13, 0x1A0);               // BC4-F00
+	PAD(IVPed, pad16, 0x17C);               // BC4-D40
+	BYTE m_byteRingState;                   // D40-D41
+	PAD(IVPed, pad17, 0x17);                // D41-D58
+	float m_fHeadingLimit[2];               // D58-D60
+	PAD(IVPed, pad18, 0x1A0);               // BC4-F00
 };
+#pragma pack()
 
 class CIVPed : public CIVPhysical
 {
@@ -145,4 +152,6 @@ public:
 	IVVehicle         * GetCurrentVehicle();
 	void                SetDucking(bool bDucking, int iUnknown = -1);
 	bool                IsDucking();
+	void                SetRagdoll(bool bRagdoll);
+	bool                IsRagdoll();
 };

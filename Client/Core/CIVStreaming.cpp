@@ -9,6 +9,7 @@
 
 #include "CIVStreaming.h"
 #include "COffsets.h"
+#include <SharedUtility.h>
 
 unsigned int CIVStreaming::GetResourceTypeIndex(eResourceType resourceType)
 {
@@ -96,18 +97,6 @@ int CIVStreaming::GetModelIndexFromHash(DWORD dwModelHash)
 	return iModelIndex;
 }
 
-int CIVStreaming::GetAnimIndexFromName(const char * szName)
-{
-	int iAnimIndex = -1;
-	_asm
-	{
-		push szName
-		call COffsets::FUNC_CAnimStore__GetIndexFromName
-		mov iAnimIndex, eax
-	}
-	return iAnimIndex;
-}
-
 void CIVStreaming::LoadWorldAtPosition(CVector3 vecPosition)
 {
 	BYTE * pByteUnknown = &(*(BYTE *)(CGame::GetBase() + 0x11DC444));
@@ -118,4 +107,22 @@ void CIVStreaming::LoadWorldAtPosition(CVector3 vecPosition)
 		mov ecx, pByteUnknown
 		call COffsets::FUNC_LoadWorldAtPosition
 	}
+}
+
+int CIVStreaming::GetAnimIndexFromName(const char * szName)
+{
+	return GetAnimIndexFromHash(SharedUtility::IVHash(szName));
+}
+
+int CIVStreaming::GetAnimIndexFromHash(unsigned int uiHash)
+{
+	int iAnimIndex = -1;
+	_asm
+	{
+		push uiHash
+			call COffsets::FUNC_CAnimStore__GetIndexFromName
+			mov iAnimIndex, eax
+			add esp, 4
+	}
+	return iAnimIndex;
 }

@@ -885,7 +885,6 @@ void InternalResetGame()
 	CGame::ToggleLazlowStation(true);
 	Scripting::SetScenarioPedDensityMultiplier(0, 0);
 	// SetCanBurstCarTyres(bool canburst);
-	// SetSirenWithNoDriver
 	Scripting::SetMaxWantedLevel(0);
 	Scripting::SetCreateRandomCops(false);
 	// Test if this is needed (Script is unloaded, so it shouldn't be)

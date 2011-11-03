@@ -119,6 +119,32 @@ DWORD CGame::GetTime()
 
 void CGame::Initialize()
 {
+	// Ensure all game structures are correctly aligned
+	assert(sizeof(IVCamData) == 0x74);
+	assert(sizeof(IVCam) == 0x140);
+	assert(sizeof(IVCheckpoint) == 0x30);
+	assert(sizeof(IVEntity) == 0x74);
+	assert(sizeof(IVDynamicEntity) == 0x10C);
+	//assert(sizeof(IVBaseModelInfo) == 0x0); // TODO
+	assert(sizeof(IVPadConfig) == 0x7B8);
+	assert(sizeof(IVPadDataHistoryItem) == 0x8);
+	assert(sizeof(IVPadDataHistory) == 0x200);
+	assert(sizeof(IVPadData) == 0x10);
+	assert(sizeof(IVPad) == 0x3A84);
+	//assert(sizeof(IVPedTaskManager) == 0x0); // TODO
+	assert(sizeof(IVWeapon) == 0xC);
+	assert(sizeof(IVPedWeapons) == 0x11A);
+	assert(sizeof(IVPhysical) == 0x210);
+	assert(sizeof(IVPed) == 0xF00);
+	assert(sizeof(IVPlayerInfo) == 0x5C0);
+	assert(sizeof(IVPlayerPed) == 0xF00);
+	assert(sizeof(IVPool) == 0x1C);
+	//assert(sizeof(IVTask) == 0x0); // TODO
+	assert(sizeof(IVVehicle) == 0x20D0);
+	assert(sizeof(IVWeaponInfo) == 0x110);
+	assert(sizeof(CSimpleCollection<void>) == 0x8);
+
+	// Get the process base address
 	m_uiBaseAddress = (unsigned int)GetModuleHandle(NULL);
 
 	if(m_uiBaseAddress == 0)

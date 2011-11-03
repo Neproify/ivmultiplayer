@@ -19,9 +19,13 @@ public:
 	PAD(IVPedWeapons, pad0, 0x3C);    // 000-03C
 	IVWeapon m_weapons[10];           // 03C-0B4
 	IVWeapon m_weapon;                // 0B4-0C0
-	PAD(IVPedWeapons, pad1, 0x58);    // 0C0-118
+	PAD(IVPedWeapons, pad1, 0x18);    // 0C0-0D8
+	BYTE m_byteShootRate;             // 0D8-0D9
+	BYTE m_byteAccuracy;              // 0D9-0DA
+	// 0xF8 - Target Entity?
+	PAD(IVPedWeapons, pad2, 0x3E);    // 0DA-118
 	BYTE     m_byteCurrentWeaponSlot; // 118-119 (See eWeaponSlot)
-	PAD(IVPedWeapons, pad2, 0x1);     // 119-11A
+	PAD(IVPedWeapons, pad3, 0x1);     // 119-11A
 };
 #pragma pack()
 
