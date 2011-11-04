@@ -39,6 +39,7 @@ private:
 	static SQInteger SetDirtLevel(SQVM * pVM);
 	static SQInteger GetDirtLevel(SQVM * pVM);
 	static SQInteger SetSirenState(SQVM * pVM);
+	static SQInteger GetSirenState(SQVM * pVM);
 	static SQInteger SoundHorn(SQVM * pVM);
 	static SQInteger SetLocked(SQVM * pVM);
 	static SQInteger GetLocked(SQVM * pVM);

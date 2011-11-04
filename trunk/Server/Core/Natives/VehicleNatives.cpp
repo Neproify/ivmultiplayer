@@ -29,6 +29,7 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehiclePosition", GetCoordinates, 1, "i");
 	pScriptingManager->RegisterFunction("setVehicleRotation", SetRotation, 4, "ifff");
 	pScriptingManager->RegisterFunction("setVehicleSirenState", SetSirenState, 2, "ib");
+	pScriptingManager->RegisterFunction("getVehicleSirenState", GetSirenState, 1, "i");
 	pScriptingManager->RegisterFunction("setVehicleDirtLevel", SetDirtLevel, 2, "if");
 	pScriptingManager->RegisterFunction("getVehicleDirtLevel", GetDirtLevel, 1, "i");
 	pScriptingManager->RegisterFunction("soundVehicleHorn", SoundHorn, 2, "ii");
@@ -246,6 +247,25 @@ SQInteger CVehicleNatives::SetSirenState(SQVM * pVM)
 	{
 		pVehicle->SetSirenState(sqbState != 0);
 		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getVehicleSirenState(vehicleid)
+SQInteger CVehicleNatives::GetSirenState(SQVM * pVM)
+{
+	EntityId vehicleId;
+
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+	if(pVehicle)
+	{
+		sq_pushbool(pVM, pVehicle->GetSirenState());
 		return 1;
 	}
 
