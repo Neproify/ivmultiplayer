@@ -121,9 +121,9 @@ SQInteger CWorldNatives::GetDayOfWeek(SQVM * pVM)
 SQInteger CWorldNatives::SetTrafficLightsState(SQVM * pVM)
 {
 	SQInteger iState;
+	sq_getinteger(pVM, 2, &iState);
 	if(iState > 0 && iState <= 3)
 	{
-		sq_getinteger(pVM, 2, &iState);
 		sq_pushbool(pVM, g_pTrafficLights->SetState((CTrafficLights::eTrafficLightState)iState));
 		return 1;
 	}
@@ -218,7 +218,7 @@ SQInteger CWorldNatives::GetTrafficLightsPhaseDuration(SQVM * pVM)
 }
 
 // resetTrafficLightsPhaseDuration()
-SQInteger CWorldNatvies::ResetTrafficLightsPhaseDuration(SQVM * pVM)
+SQInteger CWorldNatives::ResetTrafficLightsPhaseDuration(SQVM * pVM)
 {
 	g_pTrafficLights->ResetDefaultDurations();
 	sq_pushbool(pVM, true);
