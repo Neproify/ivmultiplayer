@@ -36,6 +36,7 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleAngularVelocity", GetAngularVelocity, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleLocked", GetLocked, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleDirtLevel", GetDirtLevel, 1, "i");
+	pScriptingManager->RegisterFunction("getVehicleSirenState", GetSirenState, 1, "i");
 	pScriptingManager->RegisterFunction("isVehicleOccupied", IsOccupied, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleOccupants", GetOccupants, 1, "i");
 }
@@ -246,6 +247,7 @@ SQInteger CVehicleNatives::GetLocked(SQVM * pVM)
 	return 1;
 }
 
+// getVehicleDirtLevel(vehicleid)
 SQInteger CVehicleNatives::GetDirtLevel(SQVM * pVM)
 {
 	EntityId vehicleId;
@@ -263,6 +265,26 @@ SQInteger CVehicleNatives::GetDirtLevel(SQVM * pVM)
 	return 1;
 }
 
+// getVehicleSirenState(vehicleid)
+SQInteger CVehicleNatives::GetSirenState(SQVM * pVM)
+{
+	EntityId vehicleId;
+
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+
+	if(pVehicle)
+	{
+		sq_pushbool(pVM, pVehicle->GetSirenState());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// isVehicleOccupied(vehicleid)
 SQInteger CVehicleNatives::IsOccupied(SQVM * pVM)
 {
 	EntityId vehicleId;
