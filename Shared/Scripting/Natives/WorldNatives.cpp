@@ -129,7 +129,7 @@ SQInteger CWorldNatives::SetTrafficLightsState(SQVM * pVM)
 	}
 	else
 	{
-		CLogFile::Printf("Failed to set TrafficLightsState to %d(Only available from 0 to 3)",iMinuteDuration);
+		CLogFile::Printf("Failed to set TrafficLightsState to %d(Only available from 0 to 3)",iState);
 		sq_pushbool(pVM,false);
 		return 1;
 	}
