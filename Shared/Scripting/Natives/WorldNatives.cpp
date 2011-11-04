@@ -29,6 +29,7 @@ void CWorldNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("areTrafficLightsLocked", AreTrafficLightsLocked, 0, NULL);
 	pScriptingManager->RegisterFunction("setTrafficLightsPhaseDuration", SetTrafficLightsPhaseDuration, 2, "ii");
 	pScriptingManager->RegisterFunction("getTrafficLightsPhaseDuration", GetTrafficLightsPhaseDuration, 0, NULL);
+	pScriptingManager->RegisterFunction("resetTrafficLightsPhaseDuration",ResetTrafficLightsPhaseDuration,0,NULL);
 }
 
 // setTime(hour, minute)
@@ -120,9 +121,18 @@ SQInteger CWorldNatives::GetDayOfWeek(SQVM * pVM)
 SQInteger CWorldNatives::SetTrafficLightsState(SQVM * pVM)
 {
 	SQInteger iState;
-	sq_getinteger(pVM, 2, &iState);
-	sq_pushbool(pVM, g_pTrafficLights->SetState((CTrafficLights::eTrafficLightState)iState));
-	return 1;
+	if(iState > 0 && iState <= 3)
+	{
+		sq_getinteger(pVM, 2, &iState);
+		sq_pushbool(pVM, g_pTrafficLights->SetState((CTrafficLights::eTrafficLightState)iState));
+		return 1;
+	}
+	else
+	{
+		CLogFile::Printf("Failed to set TrafficLightsState to %d(Only available from 0 to 3)",iMinuteDuration);
+		sq_pushbool(pVM,false);
+		return 1;
+	}
 }
 
 // getTrafficLightsState()
@@ -157,7 +167,7 @@ SQInteger CWorldNatives::SetTrafficLightsPhaseDuration(SQVM * pVM)
 	sq_getinteger(pVM, 2, &iPhase);
 	sq_getinteger(pVM, 3, &iDuration);
 
-	if(iDuration >= 0)
+	if(iDuration > 0)
 	{
 		switch(iPhase)
 		{
@@ -178,8 +188,12 @@ SQInteger CWorldNatives::SetTrafficLightsPhaseDuration(SQVM * pVM)
 		sq_pushbool(pVM, true);
 		return 1;
 	}
-
-	sq_pushbool(pVM, false);
+	else
+	{
+		CLogFile::Printf("Failed to set TrafficLightsPhaseDuration from the trafficlight %d to %d ms(Minimum duration: 1ms)",iPhase,iDuration);
+		sq_pushbool(pVM, false);
+		return 1;
+	}
 	return 1;
 }
 
@@ -200,5 +214,13 @@ SQInteger CWorldNatives::GetTrafficLightsPhaseDuration(SQVM * pVM)
 	sq_pushinteger(pVM, g_pTrafficLights->GetRedDuration());
 	sq_arrayappend(pVM, -2);
 
+	return 1;
+}
+
+// resetTrafficLightsPhaseDuration()
+SQInteger CWorldNatvies::ResetTrafficLightsPhaseDuration(SQVM * pVM)
+{
+	g_pTrafficLights->ResetDefaultDurations();
+	sq_pushbool(pVM, true);
 	return 1;
 }

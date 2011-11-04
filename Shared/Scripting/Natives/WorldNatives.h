@@ -26,6 +26,7 @@ private:
 	static SQInteger AreTrafficLightsLocked(SQVM * pVM);
 	static SQInteger SetTrafficLightsPhaseDuration(SQVM * pVM);
 	static SQInteger GetTrafficLightsPhaseDuration(SQVM * pVM);
+	static SQInteger ResetTrafficLightsPhaseDuration(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);
