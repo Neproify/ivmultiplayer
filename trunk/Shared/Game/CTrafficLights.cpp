@@ -168,56 +168,65 @@ void CTrafficLights::ResetDefaultDurations()
 
 void CTrafficLights::SetGreenDuration(unsigned int uiDuration)
 {
-	// save the old state
-	eTrafficLightState eState = GetState();
-	
-	// Update the durations
-	m_uiGreenDuration = uiDuration;
-	CalculateCycleTime();
+	if(uiDuration > 0)
+	{
+		// save the old state
+		eTrafficLightState eState = GetState();
+		
+		// Update the durations
+		m_uiGreenDuration = uiDuration;
+		CalculateCycleTime();
 
-	// Total duration is 0, thus we can't possibly work
-	if(m_uiTotalDuration == 0)
-		SetState(TRAFFIC_LIGHT_STATE_DISABLED_DISABLED);
+		// Total duration is 0, thus we can't possibly work
+		if(m_uiTotalDuration == 0)
+			SetState(TRAFFIC_LIGHT_STATE_DISABLED_DISABLED);
 
-	// relevant to the current light state, thus update it
-	else if(eState <= TRAFFIC_LIGHT_STATE_TO_GREEN_RED || eState == TRAFFIC_LIGHT_STATE_GREEN_GREEN)
-		SetState(eState);
+		// relevant to the current light state, thus update it
+		else if(eState <= TRAFFIC_LIGHT_STATE_TO_GREEN_RED || eState == TRAFFIC_LIGHT_STATE_GREEN_GREEN)
+			SetState(eState);
+	}
 }
 
 void CTrafficLights::SetYellowDuration(unsigned int uiDuration)
-{
-	// save the old state
-	eTrafficLightState eState = GetState();
+{	
+	if(uiDuration > 0)
+	{
+		// save the old state
+		eTrafficLightState eState = GetState();
 
-	// Update the durations
-	m_uiYellowDuration = uiDuration;
-	CalculateCycleTime();
+		// Update the durations
+		m_uiYellowDuration = uiDuration;
+		CalculateCycleTime();
 
-	// Total duration is 0, thus we can't possibly work
-	if(m_uiTotalDuration == 0)
-		SetState(TRAFFIC_LIGHT_STATE_DISABLED_DISABLED);
+		// Total duration is 0, thus we can't possibly work
+		if(m_uiTotalDuration == 0)
+			SetState(TRAFFIC_LIGHT_STATE_DISABLED_DISABLED);
 
-	// relevant to the current light state, thus update it
-	else if(eState < TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)
-		SetState(eState);
+		// relevant to the current light state, thus update it
+		else if(eState < TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)
+			SetState(eState);
+	}
 }
 
 void CTrafficLights::SetRedDuration(unsigned int uiDuration)
 {
+	if(uiDuration > 0)
+	{
 	// save the old state
-	eTrafficLightState eState = GetState();
+		eTrafficLightState eState = GetState();
 
-	// Update the durations
-	m_uiRedDuration = uiDuration;
-	CalculateCycleTime();
+		// Update the durations
+		m_uiRedDuration = uiDuration;
+		CalculateCycleTime();
 
-	// Total duration is 0, thus we can't possibly work
-	if(m_uiTotalDuration == 0)
-		SetState(TRAFFIC_LIGHT_STATE_DISABLED_DISABLED);
+		// Total duration is 0, thus we can't possibly work
+		if(m_uiTotalDuration == 0)
+			SetState(TRAFFIC_LIGHT_STATE_DISABLED_DISABLED);
 
-	// relevant to the current light state, thus update it
-	else if(eState <= TRAFFIC_LIGHT_STATE_TO_GREEN_RED)
-		SetState(eState);
+		// relevant to the current light state, thus update it
+		else if(eState <= TRAFFIC_LIGHT_STATE_TO_GREEN_RED)
+			SetState(eState);
+	}
 }
 
 unsigned int CTrafficLights::GetGreenDuration()
