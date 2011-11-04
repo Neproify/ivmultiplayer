@@ -60,7 +60,7 @@ addEvent("frameRender",
 		if(waitingTurn > 0 || doneTurn > 0)
 		{
 			local pad = getPlayerPadState(getLocalPlayer());
-			local leftright = pad.inVehicleMove[0];
+			local left = pad.inVehicleMove[0];
 			local right = pad.inVehicleMove[1];
 
 			if(waitingTurn > 0)
