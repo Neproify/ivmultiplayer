@@ -18,6 +18,7 @@ class CActorNatives
 private:
 	static SQInteger Create(SQVM * pVM);
 	static SQInteger Delete(SQVM * pVM);
+	static SQInteger IsValid(SQVM * pVM);
 	static SQInteger SetCoordinates(SQVM * pVM);
 	static SQInteger SetHeading(SQVM * pVM);
 	static SQInteger WalkToCoordinates(SQVM * pVM);

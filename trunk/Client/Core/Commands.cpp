@@ -14,6 +14,7 @@
 #include "CVehicleManager.h"
 #include "CModelManager.h"
 #include "SharedUtility.h"
+#include "CFPSCounter.h"
 
 extern CInputWindow * g_pInputWindow;
 extern CChatWindow * g_pChatWindow;
@@ -22,6 +23,7 @@ extern CNetworkManager * g_pNetworkManager;
 extern CPlayerManager * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
 extern CModelManager * g_pModelManager;
+extern CFPSCounter * g_pFPSCounter;
 
 void ChangeChatBackgroundColor(char * szParams)
 {
@@ -43,6 +45,16 @@ void QuickQuitCommand(char * szParams)
 		g_pNetworkManager->Disconnect();
 
 	TerminateProcess(GetCurrentProcess(), 0);
+}
+
+void SendPlayerPing(char * szParams)
+{
+	g_pChatWindow->AddInfoMessage("Your currently [FFFFFFAA]Ping: [F60000FF]%d",g_pLocalPlayer->GetPing());
+}
+
+void SendPlayerFPS(char * szParams)
+{
+	g_pChatWindow->AddInfoMessage("Your currently [FFFFFFAA]FPS: [F60000FF]%d",g_pFPSCounter->Get());
 }
 
 void SavePosCommand(char * szParams)
@@ -251,7 +263,9 @@ void RegisterCommands()
 	g_pInputWindow->RegisterCommand("qq", QuickQuitCommand);
 	g_pInputWindow->RegisterCommand("quickquit", QuickQuitCommand);
 	g_pInputWindow->RegisterCommand("savepos", SavePosCommand);
-#ifdef DEBUG_COMMANDS_ENABLED
+	g_pInputWindow->RegisterCommand("ping", SendPlayerPing);
+	g_pInputWindow->RegisterCommand("fps", SendPlayerFPS);
+	#ifdef DEBUG_COMMANDS_ENABLED
 	g_pInputWindow->RegisterCommand("ap", AddPlayerCommand);
 	g_pInputWindow->RegisterCommand("dp", DeletePlayerCommand);
 	/*g_pInputWindow->RegisterCommand("av", AddVehicleCommand);
@@ -264,5 +278,5 @@ void RegisterCommands()
 	/*g_pInputWindow->RegisterCommand("ape", AddPlayerEntity);
 	g_pInputWindow->RegisterCommand("rpe", RemovePlayerEntity);*/
 	g_pInputWindow->RegisterCommand("vtm", VehicleToMe);
-#endif
+	#endif
 }

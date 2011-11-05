@@ -169,24 +169,29 @@ SQInteger CWorldNatives::SetTrafficLightsPhaseDuration(SQVM * pVM)
 
 	if(iDuration > 0)
 	{
-		switch(iPhase)
+		if(iPhase > 0 && iPhase <= 3)
 		{
-			case 1:
-				g_pTrafficLights->SetGreenDuration(iDuration);
-				break;
-			case 2:
-				g_pTrafficLights->SetYellowDuration(iDuration);
-				break;
-			case 3:
-				g_pTrafficLights->SetRedDuration(iDuration);
-				break;
-			default:
-				sq_pushbool(pVM, false);
-				return 1;
+			switch(iPhase)
+			{
+				case 1:
+					g_pTrafficLights->SetGreenDuration(iDuration);
+					break;
+				case 2:
+					g_pTrafficLights->SetYellowDuration(iDuration);
+					break;
+				case 3:
+					g_pTrafficLights->SetRedDuration(iDuration);
+					break;
+			}
+			sq_pushbool(pVM, true);
+			return 1;
 		}
-
-		sq_pushbool(pVM, true);
-		return 1;
+		else
+		{
+			CLogFile::Printf("Failed to set TrafficLightsPhaseDuration from the trafficlight %d to %d ms(Trafficlights are only supported from 1 to 3)",iPhase,iDuration);
+			sq_pushbool(pVM, false);
+			return 1;
+		}
 	}
 	else
 	{
