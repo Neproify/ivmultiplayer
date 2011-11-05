@@ -24,6 +24,7 @@ void CActorNatives::Register(CScriptingManager * pScriptingManager)
 {
 	pScriptingManager->RegisterFunction("createActor", Create, 5, "iffff");
 	pScriptingManager->RegisterFunction("deleteActor", Delete, 1, "i");
+	pScriptingManager->RegisterFunction("isActorValid",IsValid,1,"i");
 	pScriptingManager->RegisterFunction("setActorCoordinates", SetCoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("setActorPosition", SetCoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("setActorHeading", SetHeading, 2, "if");
@@ -57,6 +58,25 @@ SQInteger CActorNatives::Delete(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// isActorValid(actorid)
+SQInteger CActorNatives::IsValid(SQVM * pVM)
+{
+	EntityId actorId;
+	sq_getentity(pVM, -1, &actorId);
+
+	if(g_pActorManager->DoesExist(actorId))
+	{
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	else
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
 	return 1;
 }
 
