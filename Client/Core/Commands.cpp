@@ -49,12 +49,12 @@ void QuickQuitCommand(char * szParams)
 
 void SendPlayerPing(char * szParams)
 {
-	g_pChatWindow->AddInfoMessage("Your currently [FFFFFFAA]Ping: [F60000FF]%d",g_pLocalPlayer->GetPing());
+	g_pChatWindow->AddInfoMessage("Your current [FFFFFFAA]Ping: [F60000FF]%d",g_pLocalPlayer->GetPing());
 }
 
 void SendPlayerFPS(char * szParams)
 {
-	g_pChatWindow->AddInfoMessage("Your currently [FFFFFFAA]FPS: [F60000FF]%d",g_pFPSCounter->Get());
+	g_pChatWindow->AddInfoMessage("Your current [FFFFFFAA]FPS: [F60000FF]%d",g_pFPSCounter->Get());
 }
 
 void SavePosCommand(char * szParams)
