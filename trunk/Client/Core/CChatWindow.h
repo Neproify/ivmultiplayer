@@ -38,6 +38,7 @@ class CChatWindow
 private:
 	CHAT_MESSAGE m_chatMessages[MAX_MESSAGE];
 	bool m_bEnabled;
+	bool m_bDrawEnabled;
 	int m_iCurrentPage;
 	int m_iMessageAmount;
 	unsigned long m_ulBackgroundColor;
@@ -55,6 +56,8 @@ public:
 	void AddMessage(DWORD dwColor, bool bAllowFormatting, const char * szMessage, ...);
 	bool IsEnabled();
 	void SetEnabled(bool bEnabled);
+	bool IsDrawEnabled();
+	void SetDrawEnabled(bool bDrawEnabled);
 	void PageUp();
 	void PageDown();
 	void InitFontAndBackground();
