@@ -230,6 +230,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		}
 	}
 
+
 	// Is this a F10 key up?
 	if(uMsg == WM_KEYUP && wParam == VK_F10)
 	{
@@ -244,6 +245,22 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		{
 			if(g_pChatWindow)
 				g_pChatWindow->AddInfoMessage("Failed to take screen shot.");
+		}
+	}
+
+	// Is this a F7 key up?
+	if(uMsg == WM_KEYUP && wParam == VK_F7)
+    {
+		if(g_pChatWindow)
+		{
+			if(g_pChatWindow->IsDrawEnabled())
+            {
+				g_pChatWindow->SetDrawEnabled(false);
+            }
+            else
+            {
+                g_pChatWindow->SetDrawEnabled(true);
+            }
 		}
 	}
 
