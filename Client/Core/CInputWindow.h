@@ -37,6 +37,7 @@ private:
 	char m_szHistory[MAX_RECALLS][MAX_INPUT_LENGTH];
 	bool m_bEnabled;
 	std::list<ClientCommand *> m_pCommands;
+	unsigned long m_ulChatLineBgColor;
 
 public:
 	CInputWindow();

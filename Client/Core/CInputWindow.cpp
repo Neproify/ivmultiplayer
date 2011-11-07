@@ -16,6 +16,8 @@
 #include "CDirectInput8Proxy.h"
 #include <Scripting\CScriptingManager.h>
 #include <CEvents.h>
+#include <CSettings.h>
+#include "CGraphics.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CChatWindow * g_pChatWindow;
@@ -23,6 +25,7 @@ extern CScriptingManager * g_pScriptingManager;
 extern CGUI * g_pGUI;
 extern CEvents * g_pEvents;
 extern bool m_bControlsDisabled;
+extern CGraphics * g_pGraphics;
 
 // test code
 //CEGUI::Editbox * pEditBox = NULL;
@@ -59,13 +62,24 @@ void CInputWindow::Draw()
 
 		if(pFont)
 		{
+			//Draw InputLine Background
+			unsigned short int usAlphaColor;
+			if(CVAR_GET_INTEGER("chatbga") == 0)
+				usAlphaColor = 0;
+			else if(CVAR_GET_INTEGER("chatbga") > 200)
+				usAlphaColor = 255;
+			else
+				usAlphaColor = CVAR_GET_INTEGER("chatbga") + 55;
+			m_ulChatLineBgColor = D3DCOLOR_ARGB(usAlphaColor,CVAR_GET_INTEGER("chatbgr"),
+												CVAR_GET_INTEGER("chatbgg"),CVAR_GET_INTEGER("chatbgb"));
+			g_pGraphics->DrawRect(5 , 35 + MAX_DISPLAYED_MESSAGES * 20 , 500 , 25 , m_ulChatLineBgColor);
+			//Draw Text on top of the background
 			size_t sLen = strlen(m_szInput);
-
 			char * szInput = (char *)malloc(sLen + 4);
 			sprintf(szInput, "> %s_", m_szInput);
 
-			g_pGUI->DrawText(szInput, CEGUI::Vector2(26.0f, ((20 * MAX_DISPLAYED_MESSAGES) + 31)), MESSAGE_BACKGROUND_COLOR, pFont, false);
-			g_pGUI->DrawText(szInput, CEGUI::Vector2(25.0f, ((20 * MAX_DISPLAYED_MESSAGES) + 30)), INPUT_COLOR, pFont, false);
+			g_pGUI->DrawText(szInput, CEGUI::Vector2(26.0f, ((20 * MAX_DISPLAYED_MESSAGES) + 38)), MESSAGE_BACKGROUND_COLOR, pFont, false);
+			g_pGUI->DrawText(szInput, CEGUI::Vector2(25.0f, ((20 * MAX_DISPLAYED_MESSAGES) + 37)), INPUT_COLOR, pFont, false);
 
 			free(szInput);
 		}
