@@ -48,6 +48,7 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_fDirtLevel = 1000.0f;
 	m_fPetrolTankHealth = 1000.0f;
 	m_ucVariation = 0;
+	m_bEngineStatus = false;
 }
 
 CNetworkVehicle::~CNetworkVehicle()
@@ -306,6 +307,9 @@ void CNetworkVehicle::StreamIn()
 
 		// Restore the variation
 		SetVariation(m_ucVariation);
+		
+		// Restore the engine state
+		SetEngineState(m_bEngineStatus);
 
 		// Reset interpolation
 		ResetInterpolation();
@@ -354,6 +358,9 @@ void CNetworkVehicle::StreamOut()
 
 	// Save the dirt level
 	m_fDirtLevel = GetDirtLevel();
+
+	// Save the engine state
+	m_bEngineStatus = GetEngineState();
 
 	// Destroy the vehicle
 	Destroy();
@@ -1080,4 +1087,20 @@ float CNetworkVehicle::GetSteeringAngle()
 		m_pVehicle->GetSteeringAngle();
 
 	return 0.0f;
+}
+
+void CNetworkVehicle::SetEngineState(bool bState)
+{
+	//Are we spawned?
+	if(IsSpawned())
+		m_pVehicle->SetEngineStatus(bState ? 1:0, bState ? 1:0);
+		m_bEngineStatus = bState;
+}
+
+bool CNetworkVehicle::GetEngineState()
+{
+	//Are we spawned?
+	if(IsSpawned())
+		return m_bEngineStatus;//m_pVehicle->GetEngineStatus();
+	return false;
 }

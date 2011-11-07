@@ -642,6 +642,7 @@ namespace Scripting
 	static void SoundCarHorn(unsigned int vehicle, unsigned int duration) { NativeInvoke::Invoke<unsigned int>(NATIVE_SOUND_CAR_HORN, vehicle, duration); }
 	static void WashVehicleTextures(unsigned int vehicle, unsigned int intensity) { NativeInvoke::Invoke<unsigned int>(NATIVE_WASH_VEHICLE_TEXTURES, vehicle, intensity); }
 	static void SetRoomForCarByKey(unsigned int vehicle, eInteriorRoomKey key) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_ROOM_FOR_CAR_BY_KEY, vehicle, key); }
+	static void SetCarEngineOn( unsigned int vehicle, bool toggle ) { NativeInvoke::Invoke< unsigned int >( NATIVE_SET_CAR_ENGINE_ON, vehicle, toggle ); }
 
 	// unsigned int
 	static void CreateMissionTrain(unsigned int unknown1, float x, float y, float z, bool unknown2, unsigned int *pTrain) { NativeInvoke::Invoke<unsigned int>(NATIVE_CREATE_MISSION_TRAIN, unknown1, x, y, z, unknown2, pTrain); }

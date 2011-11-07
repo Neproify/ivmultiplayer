@@ -51,6 +51,7 @@ void CVehicle::Reset()
 	m_bSirenState = false;
 	m_ucVariation = 0;
 	m_ucLocked = 0;
+	m_bEngineStatus = false;
 }
 
 void CVehicle::SpawnForPlayer(EntityId playerId)
@@ -104,6 +105,7 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	bsSend.Write(m_iHornDuration);
 	bsSend.Write(m_bSirenState);
 	bsSend.Write(m_ucLocked);
+	m_bEngineStatus ? bsSend.Write1() : bsSend.Write0();
 	
 	if(m_ucVariation != 0)
 	{
@@ -210,6 +212,7 @@ void CVehicle::StoreInVehicleSync(InVehicleSyncData * syncPacket)
 	memcpy(&m_vecMoveSpeed, &syncPacket->vecMoveSpeed, sizeof(CVector3));
 	m_fDirtLevel = syncPacket->fDirtLevel;
 	m_bSirenState = syncPacket->bSirenState;
+	m_bEngineStatus = syncPacket->bEngineStatus;
 }
 
 void CVehicle::StorePassengerSync(PassengerSyncData * syncPacket)
@@ -532,4 +535,20 @@ void CVehicle::SetVariation(unsigned char ucVariation)
 unsigned char CVehicle::GetVariation()
 {
 	return m_ucVariation;
+}
+
+void CVehicle::SetEngineStatus(bool bEngineStatus)
+{
+	m_bEngineStatus = bEngineStatus;
+
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	bsSend.Write(bEngineStatus);
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleEngineState, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+
+bool CVehicle::GetEngineStatus()
+{
+	return m_bEngineStatus;
 }

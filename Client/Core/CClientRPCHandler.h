@@ -72,6 +72,7 @@ private:
 	static void ScriptingSetHeading(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleDirtLevel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleSirenState(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetVehicleEngineState(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleRotation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
@@ -119,6 +120,7 @@ private:
 	static void ScriptingSetObjectRotation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPickupPosition(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPickupRotation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetPickupValue(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingResetPlayerCamera(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

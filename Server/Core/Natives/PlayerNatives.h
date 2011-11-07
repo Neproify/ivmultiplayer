@@ -70,6 +70,7 @@ private:
 	static SQInteger GetSerial(SQVM * pVM);
 	static SQInteger SetCameraBehind(SQVM * pVM);
 	static SQInteger SetDucking(SQVM * pVM);
+	static SQInteger IsDucking(SQVM * pVM);
 	static SQInteger SetInvincible(SQVM * pVM);
 	static SQInteger ToggleHUD(SQVM * pVM);
 	static SQInteger ToggleRadar(SQVM * pVM);
@@ -88,6 +89,7 @@ private:
 	static SQInteger Respawn(SQVM * pVM);
 	static SQInteger GiveHelmet(SQVM * pVM);
 	static SQInteger RemoveHelmet(SQVM * pVM);
+	static SQInteger ToggleHelmet(SQVM * pVM);
 	static SQInteger SetCameraPos(SQVM * pVM);
 	static SQInteger SetCameraLookAt(SQVM * pVM);
 	static SQInteger ResetCamera(SQVM * pVM);

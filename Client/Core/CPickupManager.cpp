@@ -69,3 +69,12 @@ void CPickup::SetRotation(CVector3 vecRotation)
 	if(IsStreamedIn())
 		g_pStreamer->ForceStreamOut(this);
 }
+
+void CPickup::SetValue(unsigned int uiValue)
+{
+	m_uiValue = uiValue;
+
+	// stream out (will be streamed in eventually)
+	if(IsStreamedIn())
+		g_pStreamer->ForceStreamOut(this);
+}

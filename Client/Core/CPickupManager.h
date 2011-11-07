@@ -33,6 +33,8 @@ public:
 	void StreamOut();
 	void SetPosition(CVector3 vecPosition);
 	void SetRotation(CVector3 vecRotation);
+	void SetValue(unsigned int uiValue);
+
 };
 
 class CPickupManager : public CNetworkEntityManager<CPickup, MAX_PICKUPS>

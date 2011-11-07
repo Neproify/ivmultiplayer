@@ -91,6 +91,22 @@ SQInteger sq_pickup_gettype(SQVM * pVM)
 	return 1;
 }
 
+// setPickupValue(pickupid, value)
+SQInteger sq_pickup_setvalue(SQVM * pVM)
+{
+	SQInteger pickupid;
+	sq_getinteger(pVM, 2, &pickupid);
+	if(g_pPickupManager->DoesExist(pickupid))
+	{
+		SQInteger pvalue;
+		sq_getinteger(pVM, 3, &pvalue);
+		sq_pushbool(pVM, g_pPickupManager->SetValue(pickupid, pvalue));
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
 // getPickupValue(pickupid)
 SQInteger sq_pickup_getvalue(SQVM * pVM)
 {

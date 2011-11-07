@@ -59,6 +59,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerPreviousPadState", GetPreviousPadState, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerPing", GetPing, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerColor", GetColor, 1, "i");
+	pScriptingManager->RegisterFunction("isPlayerDucking", IsDucking, 1, "i");
+	pScriptingManager->RegisterFunction("isPlayerJackingAVehicle", IsJackingAVehicle, 1, "i");
 }
 
 // isPlayerConnected(playerid)
@@ -645,6 +647,42 @@ SQInteger CPlayerNatives::GetColor(SQVM * pVM)
 	if(pPlayer)
 	{
 		sq_pushinteger(pVM, pPlayer->GetColor());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// isPlayerDucking(playerid)
+SQInteger CPlayerNatives::IsDucking(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->IsDucking());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// isPlayerJackingAVehicle(playerid)
+SQInteger CPlayerNatives::IsJackingAVehicle(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->IsJackingAVehicle());
 		return 1;
 	}
 

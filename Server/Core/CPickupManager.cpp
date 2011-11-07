@@ -143,6 +143,22 @@ unsigned char CPickupManager::GetType(EntityId pickupId)
 	return 0;
 }
 
+bool CPickupManager::SetValue(EntityId pickupId, unsigned int pValue)
+{
+	if(DoesExist(pickupId))
+	{
+		m_Pickups[pickupId].uiValue = pValue;
+
+		CBitStream bsSend;
+		bsSend.WriteCompressed(pickupId);
+		bsSend.WriteCompressed(pValue);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPickupValue, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+
+		return true;
+	}
+	return false;
+}
+
 unsigned int CPickupManager::GetValue(EntityId pickupId)
 {
 	if(DoesExist(pickupId))
