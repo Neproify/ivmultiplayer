@@ -17,6 +17,7 @@ SQUIRREL_FUNCTION(pickup_create);
 SQUIRREL_FUNCTION(pickup_delete);
 SQUIRREL_FUNCTION(pickup_getmodel);
 SQUIRREL_FUNCTION(pickup_gettype);
+SQUIRREL_FUNCTION(pickup_setvalue);
 SQUIRREL_FUNCTION(pickup_getvalue);
 SQUIRREL_FUNCTION(pickup_setcoordinates);
 SQUIRREL_FUNCTION(pickup_getcoordinates);

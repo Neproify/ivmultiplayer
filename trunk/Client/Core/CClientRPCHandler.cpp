@@ -260,6 +260,9 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	unsigned char ucLocked;
 	pBitStream->Read(ucLocked);
 
+	// Read the engine state
+	bool bEngineStatus = pBitStream->ReadBit();
+
 	// Read the variation
 	unsigned char ucVariation = 0;
 	if(pBitStream->ReadBit())
@@ -315,6 +318,9 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// set the variation
 	pVehicle->SetVariation(ucVariation);
+
+	// set the engine status
+	pVehicle->SetEngineState(bEngineStatus);
 
 	// Flag the vehicle as can be streamed in
 	pVehicle->SetCanBeStreamedIn(true);
@@ -1378,6 +1384,23 @@ void CClientRPCHandler::ScriptingSetVehicleSirenState(CBitStream * pBitStream, C
 		pVehicle->SetSirenState(bState);
 }
 
+void CClientRPCHandler::ScriptingSetVehicleEngineState(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	bool bState;
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(bState);
+
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+
+	if(pVehicle)
+		pVehicle->SetEngineState(bState);
+}
+
 void CClientRPCHandler::ScriptingSetVehicleCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -2159,6 +2182,28 @@ void CClientRPCHandler::ScriptingSetPickupRotation(CBitStream * pBitStream, CPla
 	}
 }
 
+void CClientRPCHandler::ScriptingSetPickupValue(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	// Read the pickup id
+	EntityId objectId;
+	pBitStream->ReadCompressed(objectId);
+
+	CPickup* pPickup = g_pPickupManager->Get(objectId);
+	if(pPickup)
+	{
+		// Read the value
+		unsigned int pValue;
+		pBitStream->ReadCompressed(pValue);
+
+		// Set the value
+		pPickup->SetValue(pValue);
+	}
+}
+
 void CClientRPCHandler::ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -2252,6 +2297,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingSetHeading, ScriptingSetHeading);
 	AddFunction(RPC_ScriptingSetVehicleDirtLevel, ScriptingSetVehicleDirtLevel);
 	AddFunction(RPC_ScriptingSetVehicleSirenState, ScriptingSetVehicleSirenState);
+	AddFunction(RPC_ScriptingSetVehicleEngineState, ScriptingSetVehicleEngineState);
 	AddFunction(RPC_ScriptingSetVehicleCoordinates, ScriptingSetVehicleCoordinates);
 	AddFunction(RPC_ScriptingSetVehicleRotation, ScriptingSetVehicleRotation);
 	AddFunction(RPC_ScriptingSetVehicleColor, ScriptingSetVehicleColor);

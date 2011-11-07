@@ -204,6 +204,9 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		// TODO: This should only be sent when it changes
 		pVehicle->SetDirtLevel(syncPacket->fDirtLevel);
 
+		// Set their vehicles engine status
+		pVehicle->SetEngineState(syncPacket->bEngineStatus);
+
 		// Lock our health
 		LockHealth(syncPacket->uPlayerHealthArmour >> 16);
 

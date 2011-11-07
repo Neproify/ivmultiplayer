@@ -29,6 +29,7 @@ private:
 	static SQInteger GetSirenState(SQVM * pVM);
 	static SQInteger IsOccupied(SQVM * pVM);
 	static SQInteger GetOccupants(SQVM * pVM);
+	static SQInteger GetEngineStatus(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

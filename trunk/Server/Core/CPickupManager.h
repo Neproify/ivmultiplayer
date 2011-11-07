@@ -39,6 +39,7 @@ public:
 
 	DWORD GetModel(EntityId objectId);
 	unsigned char GetType(EntityId pickupId);
+	bool SetValue(EntityId pickupId, unsigned int pValue);
 	unsigned int GetValue(EntityId pickupId);
 	bool SetPosition(EntityId pickupId, CVector3 vecPosition);
 	bool GetPosition(EntityId pickupId, CVector3* vecPosition);

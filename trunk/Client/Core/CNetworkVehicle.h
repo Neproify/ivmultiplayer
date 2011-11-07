@@ -55,6 +55,7 @@ private:
 	float            m_fDirtLevel;
 	float            m_fPetrolTankHealth;
 	unsigned char    m_ucVariation;
+	bool			 m_bEngineStatus;
 
 	//
 	bool             Create();
@@ -134,4 +135,6 @@ public:
 	bool             IsOnScreen();
 	void             SetSteeringAngle(float fSteeringAngle);
 	float            GetSteeringAngle();
+	void			 SetEngineState(bool bState);
+	bool			 GetEngineState();
 };

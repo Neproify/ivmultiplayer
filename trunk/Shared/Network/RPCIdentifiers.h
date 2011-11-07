@@ -85,6 +85,7 @@ enum eRPCIdentfiers
 	RPC_ScriptingToggleFrozen,
 	RPC_ScriptingSetVehicleHealth,
 	RPC_ScriptingSetVehicleSirenState,
+	RPC_ScriptingSetVehicleEngineState,
 	RPC_ScriptingSetPlayerArmour,
 	RPC_ScriptingSetPlayerMoveSpeed,
 	RPC_ScriptingSetVehicleMoveSpeed,
@@ -120,5 +121,6 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetObjectPosition,
 	RPC_ScriptingSetObjectRotation,
 	RPC_ScriptingSetPickupPosition,
-	RPC_ScriptingSetPickupRotation
+	RPC_ScriptingSetPickupRotation,
+	RPC_ScriptingSetPickupValue
 };

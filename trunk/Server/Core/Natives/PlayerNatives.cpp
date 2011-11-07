@@ -83,6 +83,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerSerial", GetSerial, 1, "i");
 	pScriptingManager->RegisterFunction("setCameraBehindPlayer", SetCameraBehind, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerDucking", SetDucking, 2, "ib");
+	pScriptingManager->RegisterFunction("isPlayerDucking", IsDucking, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerInvincible", SetInvincible, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerHud", ToggleHUD, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerRadar", ToggleRadar, 2, "ib");
@@ -96,6 +97,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerPing", GetPing, 1, "i");
 	pScriptingManager->RegisterFunction("givePlayerHelmet", GiveHelmet, 1, "i");
 	pScriptingManager->RegisterFunction("removePlayerHelmet", RemoveHelmet, 1, "i");
+	pScriptingManager->RegisterFunction("togglePlayerHelmet", ToggleHelmet, 2, "ib");
 	pScriptingManager->RegisterFunction("setPlayerClothes", SetClothes, 3, "iii");
 	pScriptingManager->RegisterFunction("getPlayerClothes", GetClothes, 1, "i");
 	pScriptingManager->RegisterFunction("resetPlayerClothes", ResetClothes, 1, "i");
@@ -1319,6 +1321,24 @@ SQInteger CPlayerNatives::SetDucking(SQVM * pVM)
 	return 1;
 }
 
+// isPlayerDucking(playerid)
+SQInteger CPlayerNatives::IsDucking(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->IsDucking());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
 // setPlayerInvincible(playerid, invincible)
 SQInteger CPlayerNatives::SetInvincible(SQVM * pVM)
 {
@@ -1868,6 +1888,30 @@ SQInteger CPlayerNatives::RemoveHelmet(SQVM * pVM)
 		return 1;
 	}
 	
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerHelmet(playerid, toggle)
+SQInteger CPlayerNatives::ToggleHelmet(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbToggle;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbToggle);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		if(sqbToggle)
+			pPlayer->GiveHelmet();
+		else
+			pPlayer->RemoveHelmet();
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }

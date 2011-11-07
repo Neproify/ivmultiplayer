@@ -58,6 +58,8 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("resetVehicleComponents", ResetComponents, 1, "i");
 	pScriptingManager->RegisterFunction("setVehicleVariation", SetVariation, 2, "ii");
 	pScriptingManager->RegisterFunction("getVehicleVariation", GetVariation, 1, "i");
+	pScriptingManager->RegisterFunction("setVehicleEngineState", SetEngineStatus, 2, "ib");
+	pScriptingManager->RegisterFunction("getVehicleEngineState", GetEngineStatus, 1, "i");
 }
 
 // createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4)
@@ -70,7 +72,7 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 	SQInteger color1, color2, color3 = 0, color4 = 0;
 	sq_getinteger(pVM, 2, &iModelId);
 
-	if(iModelId < 0 || iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111 || iModelId > 123)
+	if(iModelId < 0 || iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111 || iModelId == 112 || iModelId > 123)
 	{
 		#ifdef IVMP_DEBUG
 			CLogFile::Printf("Invalid vehicle model (%d)", iModelId);
@@ -245,7 +247,7 @@ SQInteger CVehicleNatives::SetSirenState(SQVM * pVM)
 
 	if(pVehicle)
 	{
-		pVehicle->SetSirenState(sqbState != 0);
+		pVehicle->SetSirenState(sqbState ? true : false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -848,6 +850,44 @@ SQInteger CVehicleNatives::GetVariation(SQVM * pVM)
 	if(pVehicle)
 	{
 		sq_pushinteger(pVM, pVehicle->GetVariation());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::SetEngineStatus(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM, -2, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+	if(pVehicle)
+	{
+		SQBool bEngineStatusx;
+		sq_getbool(pVM, -1, &bEngineStatusx);
+		pVehicle->SetEngineStatus(bEngineStatusx ? true : false);
+
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::GetEngineStatus(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM, 2, &vehicleId);
+	
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	
+	if(pVehicle)
+	{
+		sq_pushbool(pVM, pVehicle->GetEngineStatus());
 		return 1;
 	}
 

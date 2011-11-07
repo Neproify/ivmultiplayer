@@ -38,6 +38,7 @@ private:
 	bool          m_bIndicatorState[4];
 	bool          m_bComponents[9];
 	unsigned char m_ucVariation;
+	bool		  m_bEngineStatus;
 
 public:
 	CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4);
@@ -88,4 +89,6 @@ public:
 	void          ResetComponents(bool bNotify = true);
 	void          SetVariation(unsigned char ucVariation);
 	unsigned char GetVariation();
+	void          SetEngineStatus(bool bEngineStatus);
+	bool          GetEngineStatus();
 };

@@ -343,6 +343,9 @@ void CLocalPlayer::SendInVehicleSync()
 		// Get their current weapon and ammo
 		unsigned int uCurrentWeapon = GetCurrentWeapon();
 		syncPacket.uPlayerWeaponInfo = ((uCurrentWeapon << 20) | GetAmmo(uCurrentWeapon));
+
+		// Get their vehicles engine status (untested)
+		syncPacket.bEngineStatus = pVehicle->GetEngineState();
 		
 		// Write the in vehicle sync data to the bit stream
 		bsSend.Write((char *)&syncPacket, sizeof(InVehicleSyncData));

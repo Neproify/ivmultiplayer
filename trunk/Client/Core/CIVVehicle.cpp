@@ -9,6 +9,8 @@
 
 #include "CIVVehicle.h"
 #include "COffsets.h"
+#include "CPools.h"
+#include "Scripting.h"
 
 CIVVehicle::CIVVehicle() : CIVPhysical()
 {
@@ -369,21 +371,18 @@ void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
 
 	if(pVehicle)
 	{
-		if(bStatus)
+		if(bStatus)//has to be like that otherwise the engine stalls sometimes
 		{
 			DWORD dwFunc = COffsets::FUNC_CVehicle__SetEngineOn;
-			_asm
-			{
+            _asm
+            {
 				push bUnknown
-				mov ecx, pVehicle
-				call dwFunc
-			}
+                mov ecx, pVehicle
+                call dwFunc
+            }
 		}
-		else
-		{
-			*(BYTE *)(pVehicle + 0xF64) &= 0xE7;
-			*(BYTE *)(pVehicle + 0x1344) = 0;
-		}
+		else //found no other way to turn it off
+			Scripting::SetCarEngineOn(  CGame::GetPools()->GetVehiclePool()->HandleOf( pVehicle ), false);
 	}
 }
 
@@ -393,8 +392,8 @@ bool CIVVehicle::GetEngineStatus()
 	IVVehicle * pVehicle = GetVehicle();
 
 	if(pVehicle)
-		// TODO
-		return false;
+		// not working, need way to detect engine
+		return ( *(BYTE *)( pVehicle + 0x1344 ) == 1 );
 
 	return false;
 }

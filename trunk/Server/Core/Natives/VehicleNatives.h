@@ -50,6 +50,8 @@ private:
 	static SQInteger GetComponents(SQVM * pVM);
 	static SQInteger SetVariation(SQVM * pVM);
 	static SQInteger GetVariation(SQVM * pVM);
+	static SQInteger SetEngineStatus(SQVM * pVM);
+	static SQInteger GetEngineStatus(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);
