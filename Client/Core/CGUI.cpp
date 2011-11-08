@@ -14,8 +14,10 @@
 #include "CGame.h"
 #include "SharedUtility.h"
 #include "CGraphics.h"
+#include "CEvents.h"
 
-extern CChatWindow * g_pChatWindow;
+extern CEvents		*	g_pEvents;
+extern CChatWindow	*	g_pChatWindow;
 
 // TODO: Make CGUI message box members
 bool m_bMessageBoxHideCursor = false;
@@ -314,12 +316,30 @@ void CGUI::Render()
 									}
 								}
 							}
-
+							
+							CSquirrelArguments pArguments;
+							pArguments.push(m_rCursorPosition.left);
+							pArguments.push(m_rCursorPosition.top);
 							if(!bDoubleClick)
 							{
 								if(i < 3)
-									m_pSystem->injectMouseButtonDown((CEGUI::MouseButton)i);
+									m_pSystem->injectMouseButtonDown((CEGUI::MouseButton)i);																												
 							}
+
+							switch ( (CEGUI::MouseButton)i )
+							{
+							case CEGUI::MouseButton::LeftButton:
+								{
+									pArguments.push("left");
+								} break;
+							case CEGUI::MouseButton::RightButton:
+								{
+									pArguments.push("right");
+								} break;
+							}
+							pArguments.push(bDoubleClick == true ? true : false);	
+	
+							g_pEvents->Call("playerClick", &pArguments);	
 
 							dwLastClickTime[i] = SharedUtility::GetTime();
 							byteButtonClicked[i] = 1;
@@ -724,6 +744,11 @@ void CGUI::RemoveGUIWindow(CGUIMultiLineEditBox * pMultiLineEditBox)
 	RemoveGUIWindow((CEGUI::Window *)pMultiLineEditBox);
 }
 
+void CGUI::RemoveGUIWindow(CGUIProgressBar * pProgressBar)
+{
+	RemoveGUIWindow((CEGUI::Window *)pProgressBar);
+}
+
 void CGUI::RemoveGUIWindow(CGUIStaticImage * pStaticText)
 {
 	RemoveGUIWindow((CEGUI::Window *)pStaticText);
@@ -779,6 +804,12 @@ CGUIMultiLineEditBox * CGUI::CreateGUIMultiLineEditBox(CEGUI::String &sName, CEG
 	return (CGUIMultiLineEditBox *)CreateGUIWindow(STYLE_PREFIX "/MultiLineEditbox", sName, pParentWindow);
 }
 
+CGUIProgressBar * CGUI::CreateGUIProgressBar(CEGUI::String &sName, CEGUI::Window * pParentWindow)
+{
+	return (CGUIProgressBar *)CreateGUIWindow(STYLE_PREFIX "/ProgressBar", sName, pParentWindow);
+}
+
+
 CGUIEditBox * CGUI::CreateGUIEditBox(CEGUI::Window * pParentWindow)
 {
 	return (CGUIEditBox *)CreateGUIWindow(STYLE_PREFIX "/Editbox", GetUniqueName(), pParentWindow);
@@ -787,6 +818,11 @@ CGUIEditBox * CGUI::CreateGUIEditBox(CEGUI::Window * pParentWindow)
 CGUIMultiLineEditBox * CGUI::CreateGUIMultiLineEditBox(CEGUI::Window * pParentWindow)
 {
 	return (CGUIMultiLineEditBox *)CreateGUIWindow(STYLE_PREFIX "/MultiLineEditbox", GetUniqueName(), pParentWindow);
+}
+
+CGUIProgressBar * CGUI::CreateGUIProgressBar(CEGUI::Window * pParentWindow)
+{
+	return (CGUIProgressBar *)CreateGUIWindow(STYLE_PREFIX "/ProgressBar", GetUniqueName(), pParentWindow);
 }
 
 CGUIStaticImage * CGUI::CreateGUIStaticImage(CEGUI::String &sName, CEGUI::Window * pParentWindow)
@@ -1207,4 +1243,9 @@ CEGUI::Font * CGUI::GetFont(String strFont, unsigned int uiSize, bool bScaled)
 
 	// Font does not exist and font creation failed
 	return NULL;
+}
+
+void CGUI::GetCursorPosition ( Vector2 &vecCursor )
+{
+	vecCursor = Vector2(static_cast<float>(m_rCursorPosition.left), static_cast<float>(m_rCursorPosition.top));
 }

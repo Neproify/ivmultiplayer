@@ -3,6 +3,7 @@
 // File: CPlayer.cpp
 // Project: Server.Core
 // Author(s): jenksta
+//			  RootKiller
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -60,6 +61,7 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	memset(&m_aimSyncData, 0, sizeof(AimSyncData));
 	m_uiColor = playerColors[playerId];
 	memset(&m_ucClothes, 0, sizeof(m_ucClothes));
+	m_iWorldDimension = 0;
 }
 
 CPlayer::~CPlayer()
@@ -800,4 +802,21 @@ unsigned char CPlayer::GetClothes(unsigned char ucBodyPart)
 	if(ucBodyPart < 0 || ucBodyPart >= 11)
 		return 0;
 	return m_ucClothes[ucBodyPart];
+}
+
+//Dimensions
+bool CPlayer::SetWorldDimensions ( int iWorldDimension )
+{
+	m_iWorldDimension = iWorldDimension;
+
+	CBitStream bsSend;
+	bsSend.Write (m_playerId);
+	bsSend.Write (m_iWorldDimension);
+	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerWorldDimensions, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	return true;
+}
+
+int CPlayer::GetWorldDimensions ( )
+{
+	return m_iWorldDimension;
 }

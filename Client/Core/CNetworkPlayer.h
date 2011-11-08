@@ -61,7 +61,7 @@ private:
 	unsigned int      m_uiLockedHealth;
 	bool              m_bArmourLocked;
 	unsigned int      m_uiLockedArmour;
-
+	int				  m_iWorldDimension;
 public:
 	CNetworkPlayer(bool bIsLocalPlayer = false);
 	~CNetworkPlayer();
@@ -113,7 +113,7 @@ public:
 	void                     SetModel(DWORD dwModelHash);
 
 	void                     Teleport(const CVector3& vecCoordinates, bool bResetInterpolation = true);
-	void                     SetPosition(const CVector3& vecCoordinates, bool bResetInterpolation = true);
+	void                     SetPosition(const CVector3& vecCoordinates, bool bResetInterpolation);
 	void                     GetPosition(CVector3& vecCoordinates);
 	void                     SetCurrentHeading(float fHeading);
 	float                    GetCurrentHeading();
@@ -189,4 +189,6 @@ public:
 
 	void                     ToggleRagdoll(bool bToggle);
 	bool                     IsOnScreen();
+
+	void					 SetWorldDimensions ( int iWorldDimension );
 };

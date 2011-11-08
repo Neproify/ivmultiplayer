@@ -14,6 +14,7 @@
 #include "CVehicleManager.h"
 #include "COffsets.h"
 #include "CPools.h"
+#include "CCamera.h"
 
 IVPed      * g_pPed = NULL;
 IVVehicle  * g_pKeySyncIVVehicle = NULL;
@@ -22,8 +23,9 @@ IVPad        g_localPad;
 Matrix       g_matLocalCameraMatrix;
 bool         g_bInLocalContext = true;
 
-extern CLocalPlayer * g_pLocalPlayer;
-extern CVehicleManager * g_pVehicleManager;
+extern CLocalPlayer			* g_pLocalPlayer;
+extern CVehicleManager		* g_pVehicleManager;
+extern CCamera              * g_pCamera;
 
 #if 0
 CCam * GetGameCam()
@@ -207,7 +209,7 @@ void _declspec(naked) CPlayerPed__ProcessInput_Hook()
 	}
 }
 
-void _declspec(naked) CAutomobile_ProcessInput_Hook()
+void _declspec(naked) CAutmoobile_ProcessInput_Hook()
 {
 	_asm
 	{
@@ -363,9 +365,34 @@ void _declspec(naked) CPlane_ProcessInput_Hook()
 	}
 }
 
+void _declspec(naked) CAutomobile_ProcessInput_Hook()
+{
+	_asm
+	{
+		mov g_pKeySyncIVVehicle, ecx
+		pushad
+	}
+
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, false);
+
+	_asm
+	{
+		popad
+		call COffsets::FUNC_CAutomobile__ProcessInput
+		pushad
+	}
+
+	ContextSwitch(g_pKeySyncIVVehicle->m_pDriver, true);
+
+	_asm
+	{
+		popad
+		ret
+	}
+}
+
 // test
 DWORD dwFunc = 0;
-
 void _declspec(naked) CTaskSimpleAimGun__SetPedPosition_Hook()
 {
 	_asm
@@ -374,7 +401,7 @@ void _declspec(naked) CTaskSimpleAimGun__SetPedPosition_Hook()
 	}
 
 	dwFunc = (CGame::GetBase() + 0xCC8140);
-	g_pChatWindow->AddInfoMessage("InLocalContext: %d", g_bInLocalContext);
+
 	//SetGameCameraMatrix(&playerCamMatrixs[0]);
 
 	_asm

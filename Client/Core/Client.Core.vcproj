@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Client.Core"
 	ProjectGUID="{5DD209AC-1B5F-483A-BCA9-150CAD228C5A}"
 	RootNamespace="Client.Core"
@@ -63,10 +63,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ignore:4099"
-				AdditionalDependencies="winmm.lib d3dx9.lib ws2_32.lib comctl32.lib dinput8.lib dxguid.lib libexpat_d.lib pcre_d.lib SILLY_d.lib freetype_d.lib libjpeg_d.lib libpng_d.lib zlib_d.lib CEGUIBase_Static_d.lib CEGUIDirect3D9Renderer_Static_d.lib CEGUIExpatParser_Static_d.lib CEGUIFalagardWRBase_Static_d.lib CEGUISILLYImageCodec_Static_d.lib version.lib"
+				AdditionalDependencies="winmm.lib d3dx9.lib ws2_32.lib comctl32.lib dinput8.lib dxguid.lib libexpat_d.lib pcre_d.lib SILLY_d.lib freetype_d.lib libjpeg_d.lib libpng_d.lib zlib_d.lib CEGUIBase_Static_d.lib CEGUIDirect3D9Renderer_Static_d.lib CEGUIExpatParser_Static_d.lib CEGUIFalagardWRBase_Static_d.lib CEGUISILLYImageCodec_Static_d.lib version.lib bass.lib"
 				OutputFile="$(OutDir)\$(ProjectName).Debug.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\CEGUI\lib\;.\CEGUI\dependencies\lib\static;&quot;.\CEGUI\dependencies\expat-2.0.1\bin\Debug&quot;;.\CEGUI\dependencies\lpng142\projects\Debug;&quot;.\CEGUI\dependencies\zlib-1.2.5\projects\Debug&quot;;&quot;.\CEGUI\dependencies\jpeg-6b\projects\Debug&quot;;&quot;.\CEGUI\dependencies\SILLY-0.1.0\bin&quot;;.\DXSDK\Lib"
+				AdditionalLibraryDirectories=".\CEGUI\lib\;.\CEGUI\dependencies\lib\static;&quot;.\CEGUI\dependencies\expat-2.0.1\bin\Debug&quot;;..\..\Vendor\bass\;.\CEGUI\dependencies\lpng142\projects\Debug;&quot;.\CEGUI\dependencies\zlib-1.2.5\projects\Debug&quot;;&quot;.\CEGUI\dependencies\jpeg-6b\projects\Debug&quot;;&quot;.\CEGUI\dependencies\SILLY-0.1.0\bin&quot;;.\DXSDK\Lib"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=""
@@ -150,10 +150,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ignore:4099"
-				AdditionalDependencies="winmm.lib d3dx9.lib ws2_32.lib comctl32.lib dinput8.lib dxguid.lib libexpat.lib pcre.lib SILLY.lib freetype.lib libjpeg.lib libpng.lib zlib.lib CEGUIBase_Static.lib CEGUIDirect3D9Renderer_Static.lib CEGUIExpatParser_Static.lib CEGUIFalagardWRBase_Static.lib CEGUISILLYImageCodec_Static.lib version.lib"
+				AdditionalDependencies="winmm.lib d3dx9.lib ws2_32.lib comctl32.lib dinput8.lib dxguid.lib libexpat.lib pcre.lib SILLY.lib freetype.lib libjpeg.lib libpng.lib zlib.lib CEGUIBase_Static.lib CEGUIDirect3D9Renderer_Static.lib CEGUIExpatParser_Static.lib CEGUIFalagardWRBase_Static.lib CEGUISILLYImageCodec_Static.lib version.lib bass.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=".\CEGUI\lib\;.\CEGUI\dependencies\lib\static;&quot;.\CEGUI\dependencies\expat-2.0.1\bin\Release&quot;;.\CEGUI\dependencies\lpng142\projects\Release;&quot;.\CEGUI\dependencies\zlib-1.2.5\projects\Release&quot;;&quot;.\CEGUI\dependencies\jpeg-6b\projects\Release&quot;;&quot;.\CEGUI\dependencies\SILLY-0.1.0\bin&quot;;.\DXSDK\Lib"
+				AdditionalLibraryDirectories=".\CEGUI\lib\;.\CEGUI\dependencies\lib\static;&quot;.\CEGUI\dependencies\expat-2.0.1\bin\Release&quot;;.\CEGUI\dependencies\lpng142\projects\Release;&quot;.\CEGUI\dependencies\zlib-1.2.5\projects\Release&quot;;&quot;.\CEGUI\dependencies\jpeg-6b\projects\Release&quot;;&quot;.\CEGUI\dependencies\SILLY-0.1.0\bin&quot;;.\DXSDK\Lib;&quot;..\..\Vendor\bass\&quot;"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
@@ -626,6 +626,10 @@
 				Name="Scripting"
 				>
 				<File
+					RelativePath=".\CAudio.h"
+					>
+				</File>
+				<File
 					RelativePath=".\CClientScriptGUIManager.h"
 					>
 				</File>
@@ -656,6 +660,10 @@
 				<Filter
 					Name="Natives"
 					>
+					<File
+						RelativePath=".\Natives\AudioNatives.h"
+						>
+					</File>
 					<File
 						RelativePath=".\Natives\ClientNatives.h"
 						>
@@ -1335,6 +1343,10 @@
 				Name="Scripting"
 				>
 				<File
+					RelativePath=".\CAudio.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\CClientScriptGUIManager.cpp"
 					>
 				</File>
@@ -1449,6 +1461,10 @@
 				<Filter
 					Name="Natives"
 					>
+					<File
+						RelativePath=".\Natives\AudioNatives.cpp"
+						>
+					</File>
 					<File
 						RelativePath=".\Natives\ClientNatives.cpp"
 						>

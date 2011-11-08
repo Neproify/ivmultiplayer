@@ -12,6 +12,7 @@
 #include "CClientTaskManager.h"
 #include "CGame.h"
 #include "COffsets.h"
+#include <CLogFile.h>
 
 extern CClientTaskManager * g_pClientTaskManager;
 
@@ -28,6 +29,7 @@ void CIVPedTaskManager::SetTask(CIVTask * pTask, int iTaskPriority, bool bForceN
 	{
 		IVPedTaskManager * pPedTaskManager = m_pPedTaskManager;
 		IVTask * pGameTask = (pTask ? pTask->GetTask() : NULL);
+
 		_asm
 		{
 			push bForceNewTask
@@ -69,6 +71,7 @@ void CIVPedTaskManager::SetTaskSecondary(CIVTask * pTask, int iType)
 	{
 		IVPedTaskManager * pPedTaskManager = m_pPedTaskManager;
 		IVTask * pGameTask = (pTask ? pTask->GetTask() : NULL);
+		
 		_asm
 		{
 			push iType

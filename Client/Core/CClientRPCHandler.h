@@ -3,6 +3,7 @@
 // File: CClientRPCHandler.h
 // Project: Client.Core
 // Author(s): jenksta
+//			  RootKiller
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -124,6 +125,7 @@ private:
 	static void ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingResetPlayerCamera(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetPlayerWorldDimensions(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();
