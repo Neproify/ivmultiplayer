@@ -89,6 +89,7 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetPlayerArmour,
 	RPC_ScriptingSetPlayerMoveSpeed,
 	RPC_ScriptingSetVehicleMoveSpeed,
+	RPC_ScriptingSetVehicleTurnSpeed,
 	RPC_ScriptingRemoveWeapons,
 	RPC_ScriptingSetWantedLevel,
 	RPC_ScriptingWarpPlayerIntoVehicle,

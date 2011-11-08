@@ -87,6 +87,7 @@ private:
 	static void ScriptingSetPlayerArmour(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerMoveSpeed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleMoveSpeed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetVehicleTurnSpeed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingRemoveWeapons(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetWantedLevel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingWarpPlayerIntoVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

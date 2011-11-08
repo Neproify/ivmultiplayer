@@ -1582,6 +1582,22 @@ void CClientRPCHandler::ScriptingSetVehicleMoveSpeed(CBitStream * pBitStream, CP
 		pVehicle->SetMoveSpeed(vecMoveSpeed);
 }
 
+void CClientRPCHandler::ScriptingSetVehicleTurnSpeed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	CVector3 vecTurnSpeed;
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(vecTurnSpeed);
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+
+	if(pVehicle)
+		pVehicle->SetTurnSpeed(vecTurnSpeed);
+}
+
 void CClientRPCHandler::ScriptingRemoveWeapons(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pLocalPlayer->RemoveAllWeapons();
@@ -2311,6 +2327,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingSetPlayerArmour, ScriptingSetPlayerArmour);
 	AddFunction(RPC_ScriptingSetPlayerMoveSpeed, ScriptingSetPlayerMoveSpeed);
 	AddFunction(RPC_ScriptingSetVehicleMoveSpeed, ScriptingSetVehicleMoveSpeed);
+	AddFunction(RPC_ScriptingSetVehicleTurnSpeed, ScriptingSetVehicleTurnSpeed);
 	AddFunction(RPC_ScriptingRemoveWeapons, ScriptingRemoveWeapons);
 	AddFunction(RPC_ScriptingSetWantedLevel, ScriptingSetWantedLevel);
 	AddFunction(RPC_ScriptingWarpPlayerIntoVehicle, ScriptingWarpPlayerIntoVehicle);
@@ -2344,6 +2361,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingSetObjectRotation, ScriptingSetObjectRotation);
 	AddFunction(RPC_ScriptingSetPickupPosition, ScriptingSetPickupPosition);
 	AddFunction(RPC_ScriptingSetPickupRotation, ScriptingSetPickupRotation);
+	AddFunction(RPC_ScriptingSetPickupValue, ScriptingSetPickupValue);
 	AddFunction(RPC_ScriptingSetPlayerCameraPos, ScriptingSetPlayerCameraPos);
 	AddFunction(RPC_ScriptingSetPlayerCameraLookAt, ScriptingSetPlayerCameraLookAt);
 	AddFunction(RPC_ScriptingResetPlayerCamera, ScriptingResetPlayerCamera);
@@ -2392,8 +2410,8 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingTogglePayAndSpray);
 	RemoveFunction(RPC_ScriptingToggleAutoAim);
 	//RemoveFunction(RPC_SetPlayerDrunk);
-	RemoveFunction(RPC_ScriptingSetPlayerGravity);
 	RemoveFunction(RPC_ScriptingGivePlayerWeapon);
+	RemoveFunction(RPC_ScriptingSetPlayerGravity);
 	RemoveFunction(RPC_ScriptingSetSpawnLocation);
 	RemoveFunction(RPC_ScriptingSetVehicleIndicators);
 	RemoveFunction(RPC_ScriptingSoundVehicleHorn);
@@ -2403,6 +2421,8 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingToggleControls);
 	RemoveFunction(RPC_ScriptingSetHeading);
 	RemoveFunction(RPC_ScriptingSetVehicleDirtLevel);
+	RemoveFunction(RPC_ScriptingSetVehicleSirenState);
+	RemoveFunction(RPC_ScriptingSetVehicleEngineState);
 	RemoveFunction(RPC_ScriptingSetVehicleCoordinates);
 	RemoveFunction(RPC_ScriptingSetVehicleRotation);
 	RemoveFunction(RPC_ScriptingSetVehicleColor);
@@ -2416,11 +2436,14 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingSetPlayerArmour);
 	RemoveFunction(RPC_ScriptingSetPlayerMoveSpeed);
 	RemoveFunction(RPC_ScriptingSetVehicleMoveSpeed);
+	RemoveFunction(RPC_ScriptingSetVehicleTurnSpeed);
 	RemoveFunction(RPC_ScriptingRemoveWeapons);
 	RemoveFunction(RPC_ScriptingSetWantedLevel);
 	RemoveFunction(RPC_ScriptingWarpPlayerIntoVehicle);
 	RemoveFunction(RPC_ScriptingRemovePlayerFromVehicle);
 	RemoveFunction(RPC_ScriptingSetCameraBehindPlayer);
+	RemoveFunction(RPC_ScriptingSetPlayerDucking);
+	RemoveFunction(RPC_ScriptingSetPlayerInvincible);
 	RemoveFunction(RPC_ScriptingSetActorCoordinates);
 	RemoveFunction(RPC_ScriptingSetActorHeading);
 	RemoveFunction(RPC_ScriptingActorWalkToCoordinates);
@@ -2447,6 +2470,7 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingSetObjectRotation);
 	RemoveFunction(RPC_ScriptingSetPickupPosition);
 	RemoveFunction(RPC_ScriptingSetPickupRotation);
+	RemoveFunction(RPC_ScriptingSetPickupValue);
 	RemoveFunction(RPC_ScriptingSetPlayerCameraPos);
 	RemoveFunction(RPC_ScriptingSetPlayerCameraLookAt);
 	RemoveFunction(RPC_ScriptingResetPlayerCamera);

@@ -247,7 +247,7 @@ SQInteger CVehicleNatives::SetSirenState(SQVM * pVM)
 
 	if(pVehicle)
 	{
-		pVehicle->SetSirenState(sqbState ? true : false);
+		pVehicle->SetSirenState(sqbState != 0);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -868,7 +868,7 @@ SQInteger CVehicleNatives::SetEngineStatus(SQVM * pVM)
 	{
 		SQBool bEngineStatusx;
 		sq_getbool(pVM, -1, &bEngineStatusx);
-		pVehicle->SetEngineStatus(bEngineStatusx ? true : false);
+		pVehicle->SetEngineStatus(bEngineStatusx != 0);
 
 		sq_pushbool(pVM, true);
 		return 1;

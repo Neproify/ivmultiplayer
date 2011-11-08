@@ -56,25 +56,37 @@ void CPickup::SetPosition(CVector3 vecPosition)
 {
 	m_vecPosition = vecPosition;
 
-	// stream out (will be streamed in eventually)
+	// Are we streamed in?
 	if(IsStreamedIn())
-		g_pStreamer->ForceStreamOut(this);
+	{
+		// Stream ourselves out and back in
+		StreamOut();
+		StreamIn();
+	}
 }
 
 void CPickup::SetRotation(CVector3 vecRotation)
 {
 	m_vecRotation = vecRotation;
 
-	// stream out (will be streamed in eventually)
+	// Are we streamed in?
 	if(IsStreamedIn())
-		g_pStreamer->ForceStreamOut(this);
+	{
+		// Stream ourselves out and back in
+		StreamOut();
+		StreamIn();
+	}
 }
 
 void CPickup::SetValue(unsigned int uiValue)
 {
 	m_uiValue = uiValue;
 
-	// stream out (will be streamed in eventually)
+	// Are we streamed in?
 	if(IsStreamedIn())
-		g_pStreamer->ForceStreamOut(this);
+	{
+		// Stream ourselves out and back in
+		StreamOut();
+		StreamIn();
+	}
 }
