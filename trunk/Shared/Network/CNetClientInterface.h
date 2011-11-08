@@ -38,7 +38,7 @@ public:
 	virtual bool                     Startup() = 0;
 	virtual void                     Shutdown(int iBlockDuration) = 0;
 	virtual eConnectionAttemptResult Connect() = 0;
-	virtual void                     Disconnect() = 0;
+	virtual void                     Disconnect( ) = 0;
 	virtual void                     Process() = 0;
 	virtual void                     SetPassword(String strPassword) = 0;
 	virtual const char             * GetPassword() = 0;

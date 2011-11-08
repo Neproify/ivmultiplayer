@@ -21,6 +21,7 @@
 #include "Scripting/CScriptTimerManager.h"
 #include <Network/CNetworkModule.h>
 #include "CFileTransfer.h"
+#include "CAudio.h"
 
 extern String g_strNick;
 extern CLocalPlayer * g_pLocalPlayer;
@@ -150,6 +151,8 @@ void CNetworkManager::Process()
 	// Are we connected to a server?
 	if(m_pNetClient->IsConnected())
 	{
+		CAudioManager::Process ( );
+
 		// If our streamer exists, process it
 		if(g_pStreamer)
 			g_pStreamer->Pulse();
@@ -217,8 +220,11 @@ void CNetworkManager::Disconnect()
 	// Are we connected?
 	if(IsConnected())
 	{
+		// Delete and stop all Audio Client elements.
+		CAudioManager::RemoveAll ();
+
 		// Disconnect from the server
-		m_pNetClient->Disconnect();
+		m_pNetClient->Disconnect( );
 
 		// Flag ourselves as not joined a server or game
 		m_bJoinedServer = false;

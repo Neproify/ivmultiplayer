@@ -30,6 +30,7 @@
 #include "CClientTaskManager.h"
 #include "CCredits.h"
 #include "CContextDataManager.h"
+#include "CAudio.h"
 
 extern CChatWindow        * g_pChatWindow;
 extern CInputWindow       * g_pInputWindow;
@@ -57,11 +58,16 @@ void CGame::SetFocused(bool bFocused)
 	{
 		// Enable input
 		SetInputState(true);
+
+
+		CAudioManager::RestoreAllVolume ( );		
 	}
 	else // We do not have focus
 	{
 		// Disable input
 		SetInputState(false);
+
+		CAudioManager::SetAllVolume ( 0.0f );
 	}
 }
 

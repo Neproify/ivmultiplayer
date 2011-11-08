@@ -3,6 +3,7 @@
 // File: CPlayer.h
 // Project: Server.Core
 // Author(s): jenksta
+//			  RootKiller
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -41,6 +42,7 @@ private:
 	AimSyncData   m_aimSyncData;
 	unsigned int  m_uiColor;
 	unsigned char m_ucClothes[11];
+	int			  m_iWorldDimension;
 
 public:
 	CPlayer(EntityId playerId, String strName);
@@ -112,4 +114,8 @@ public:
 	void           ResetClothes();
 	void           SetClothes(unsigned char ucBodyPart, unsigned char ucClothes);
 	unsigned char  GetClothes(unsigned char ucBodyPart);
+
+	// Dimensions
+	bool SetWorldDimensions ( int iWorldDimension );
+	int GetWorldDimensions ( );
 };

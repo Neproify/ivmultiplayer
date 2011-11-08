@@ -41,7 +41,7 @@ CIVTaskComplexNewExitVehicle::CIVTaskComplexNewExitVehicle(CIVVehicle * pVehicle
 
 	// Call the task constructor
 	IVVehicle * pGameVehicle = pVehicle->GetVehicle();
-	IVTask * pTask = GetTask();
+	IVTask * pTask = ( GetTask() == NULL ? NULL : GetTask() );
 	_asm
 	{
 		push a5

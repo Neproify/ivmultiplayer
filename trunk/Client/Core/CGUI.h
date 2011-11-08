@@ -47,6 +47,7 @@ struct CGUIButton : CEGUI::Window {};
 struct CGUIFrameWindow : CEGUI::Window {};
 struct CGUIEditBox : CEGUI::Window {};
 struct CGUIMultiLineEditBox : CEGUI::Window {};
+struct CGUIProgressBar : CEGUI::Window {};
 struct CGUIStaticImage : CEGUI::Window {};
 struct CGUIStaticText : CEGUI::Window {};
 struct CGUICheckBox : CEGUI::Window {};
@@ -134,6 +135,7 @@ public:
 	void                       Render();
 	void                       DrawText(String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect = CEGUI::colour(0xFFFFFFFF), CEGUI::Font * pFont = NULL, bool bProcessFormatting = true, bool bAllowColorFormatting = true, CEGUI::Rect * rClipRect = NULL, float fSpaceExtra = 0.0f, float fXScale = 1.0f, float fYScale = 1.0f);
 	void                       DrawText(String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect rColorRect, String sFontName, bool bProcessFormatting = true, bool bAllowColorFormatting = true, CEGUI::Rect * rClipRect = NULL, float fSpaceExtra = 0.0f, float fXScale = 1.0f, float fYScale = 1.0f);
+	void					   GetCursorPosition ( Vector2 &vecCursor );
 
 	// Message box
 	bool                       OnMessageBoxClick(const CEGUI::EventArgs& eventArgs);
@@ -148,6 +150,7 @@ public:
 	void                       RemoveGUIWindow(CGUIFrameWindow * pFrameWindow);
 	void                       RemoveGUIWindow(CGUIEditBox * pEditBox);
 	void                       RemoveGUIWindow(CGUIMultiLineEditBox * pMultiLineEditBox);
+	void                       RemoveGUIWindow(CGUIProgressBar * pProgressBar);
 	void                       RemoveGUIWindow(CGUIStaticImage * pStaticText);
 	void                       RemoveGUIWindow(CGUIStaticText * pStaticText);
 	void                       RemoveGUIWindow(CGUICheckBox * pCheckBox);
@@ -161,6 +164,8 @@ public:
 	CGUIEditBox              * CreateGUIEditBox(CEGUI::Window * pParentWindow = NULL);
 	CGUIMultiLineEditBox	 * CreateGUIMultiLineEditBox(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
 	CGUIMultiLineEditBox     * CreateGUIMultiLineEditBox(CEGUI::Window * pParentWindow = NULL);
+	CGUIProgressBar			 * CreateGUIProgressBar(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
+	CGUIProgressBar		     * CreateGUIProgressBar(CEGUI::Window * pParentWindow = NULL);
 	CGUIStaticImage          * CreateGUIStaticImage(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
 	CGUIStaticImage          * CreateGUIStaticImage(CEGUI::Window * pParentWindow = NULL);
 	CGUIStaticText           * CreateGUIStaticText(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);

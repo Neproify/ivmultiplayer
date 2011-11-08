@@ -70,7 +70,9 @@ void CNetClient::Disconnect()
 		m_bConnected = false;
 		m_pRakPeer->CloseConnection(m_serverAddress, true);
 		Shutdown(0);
+
 		Startup();
+
 		m_serverAddress = RakNet::UNASSIGNED_SYSTEM_ADDRESS;
 		m_serverSocket = CPlayerSocket();
 	}

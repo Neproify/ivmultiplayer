@@ -10,6 +10,7 @@
 ;======================================================
 ; Configuration
 !define NAME 'IVMP'
+!define VERSION 'T4'
 
 ;======================================================
 ; Modern Interface Configuration
@@ -140,6 +141,10 @@ Section "Install" SecDummy
 	CreateDirectory "$INSTDIR\CEGUI\schemes"
 	CreateDirectory "$INSTDIR\CEGUI\xml_schemas"
 	
+	; Install bass library.
+	SetOutPath $GTAIVDirectory
+	File ..\..\Binary\bass.dll
+	
 	SetOutPath "$INSTDIR\CEGUI\fonts"
 	
 	File ..\..\Binary\CEGUI\fonts\bankgothic.ttf
@@ -209,6 +214,7 @@ Section "Uninstall"
 	Delete "$INSTDIR\Client.Launcher.exe"
 	Delete "$INSTDIR\Client.LaunchHelper.dll"
 	Delete "$INSTDIR\Client.Core.dll"
+	Delete "$INSTDIR\bass.dll"
 	Delete "$INSTDIR\Network.Core.dll"
 
 	; Remove Directories

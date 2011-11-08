@@ -147,7 +147,6 @@ BOOL WINAPI CreateProcessW_Hook(LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
 		// Resume the GTAIV.exe thread
 		ResumeThread(lpProcessInformation->hThread);
 	}
-
 	return bReturn;
 }
 

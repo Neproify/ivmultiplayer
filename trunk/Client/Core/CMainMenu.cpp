@@ -5,6 +5,7 @@
 // Author(s): jenksta
 //            Sebihunter
 //            Matthias
+//			  RootKiller
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -38,13 +39,49 @@ void ResetGame();
 
 bool CMainMenu::OnServerBrowserButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
 {
-	m_pServerBrowserButton->setAlpha(0.5);
+	//m_pServerBrowserButton->setAlpha(0.5);
+
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pServerBrowserButton  )
+		{
+			(*iter)->bAnimStep = true;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 200 )
+			{
+				(*iter)->iAnimStep = 200;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
 bool CMainMenu::OnServerBrowserButtonMouseLeave(const CEGUI::EventArgs &eventArgs)
 {
-	m_pServerBrowserButton->setAlpha(1);
+	//m_pServerBrowserButton->setAlpha(1);
+
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pServerBrowserButton )
+		{
+			(*iter)->bAnimStep = false;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 1000 )
+			{
+				(*iter)->iAnimStep = 1000;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
@@ -56,13 +93,49 @@ bool CMainMenu::OnServerBrowserButtonMouseClick(const CEGUI::EventArgs &eventArg
 
 bool CMainMenu::OnQuickConnectButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
 {
-	m_pQuickConnectButton->setAlpha(0.5f);
+	//m_pQuickConnectButton->setAlpha(0.5f);
+
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pQuickConnectButton  )
+		{
+			(*iter)->bAnimStep = true;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 200 )
+			{
+				(*iter)->iAnimStep = 200;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
 bool CMainMenu::OnQuickConnectButtonMouseLeave(const CEGUI::EventArgs &eventArgs)
 {
-	m_pQuickConnectButton->setAlpha(1);
+	//m_pQuickConnectButton->setAlpha(1);
+
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pQuickConnectButton )
+		{
+			(*iter)->bAnimStep = false;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 1000 )
+			{
+				(*iter)->iAnimStep = 1000;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
@@ -74,13 +147,49 @@ bool CMainMenu::OnQuickConnectButtonMouseClick(const CEGUI::EventArgs &eventArgs
 
 bool CMainMenu::OnSettingsButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
 {
-	m_pSettingsButton->setAlpha(0.5f);
+	//m_pSettingsButton->setAlpha(0.5f);
+
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pSettingsButton  )
+		{
+			(*iter)->bAnimStep = true;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 200 )
+			{
+				(*iter)->iAnimStep = 200;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
 bool CMainMenu::OnSettingsButtonMouseLeave(const CEGUI::EventArgs &eventArgs)
 {
-	m_pSettingsButton->setAlpha(1);
+	//m_pSettingsButton->setAlpha(1);
+
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pSettingsButton )
+		{
+			(*iter)->bAnimStep = false;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 1000 )
+			{
+				(*iter)->iAnimStep = 1000;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
@@ -92,25 +201,98 @@ bool CMainMenu::OnSettingsButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 
 bool CMainMenu::OnQuitButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
 {
-	m_pQuitButton->setAlpha(0.5f);
+	//m_pQuitButton->setAlpha(0.5f);
+
+	// Grab the button pointer.
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pQuitButton  )
+		{
+			(*iter)->bAnimStep = true;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 200 )
+			{
+				(*iter)->iAnimStep = 200;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
 bool CMainMenu::OnAboutButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
 {
-	m_pAboutButton->setAlpha(0.5f);
+	//m_pAboutButton->setAlpha(0.5f);
+
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pAboutButton  )
+		{
+			(*iter)->bAnimStep = true;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 200 )
+			{
+				(*iter)->iAnimStep = 200;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
 bool CMainMenu::OnQuitButtonMouseLeave(const CEGUI::EventArgs &eventArgs)
 {
-	m_pQuitButton->setAlpha(1);
+	//m_pQuitButton->setAlpha(1);
+
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pQuitButton )
+		{
+			(*iter)->bAnimStep = false;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 1000 )
+			{
+				(*iter)->iAnimStep = 1000;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
 bool CMainMenu::OnAboutButtonMouseLeave(const CEGUI::EventArgs &eventArgs)
 {
-	m_pAboutButton->setAlpha(1);
+	//m_pAboutButton->setAlpha(1);
+
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->pButton == m_pAboutButton )
+		{
+			(*iter)->bAnimStep = false;
+			(*iter)->bAnimState = true;
+			if ( (*iter)->iAnimStep != 1000 )
+			{
+				(*iter)->iAnimStep = 1000;
+			}
+		} else {
+			if ( (*iter)->bAnimState )
+			{
+				(*iter)->bAnimStep = false;
+			}
+		}
+	}
 	return true;
 }
 
@@ -122,7 +304,10 @@ bool CMainMenu::OnAboutButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 
 bool CMainMenu::OnQuitButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
-	ExitProcess(0);
+	//ExitProcess(0);
+
+	// RootKiller : This fix too long exit.
+	TerminateProcess ( GetCurrentProcess( ), 0 );
 	return true;
 }
 
@@ -548,16 +733,15 @@ CMainMenu::CMainMenu()
 	g_pGUI->GetDefaultWindow()->setAlpha(1.0f);
 
 	// Main Menu
-	float fX = 0.02f;
-	//float fY = 0.7f;
-	//float fY = 0.9f;
-	float fY = 0.5f;
+	float fX = 0.1f;
+	float fY = 0.6f;
 
 	// try to load all images
 	try
 	{
 		CEGUI::ImagesetManager::getSingleton().createFromImageFile("Background", "IVMPBackground.png");
-		CEGUI::ImagesetManager::getSingleton().createFromImageFile("Logo", "IVMPLogoHiRes.png");
+		CEGUI::ImagesetManager::getSingleton().createFromImageFile("Logo", "IVMPLogo.png");
+		CEGUI::ImagesetManager::getSingleton().createFromImageFile("Loading", "IVMPLoading.png");
 	}
 	catch(CEGUI::InvalidRequestException e)
 	{
@@ -572,6 +756,21 @@ CMainMenu::CMainMenu()
 		MessageBox(NULL, "IV:MP failed to load. Check CEGUI.log for details.", "IV:MP Error", MB_OK | MB_ICONERROR);
 		ExitProcess(0);
 	}
+
+	//IV:MP Loading
+	m_pLoading = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pLoading->setProperty("FrameEnabled", "false");
+	m_pLoading->setProperty("BackgroundEnabled", "false");
+	m_pLoading->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
+	m_pLoading->setProperty("Image", "set:Loading image:full_image");
+	m_pLoading->setVisible(true);
+
+	m_pLoadingLogo = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pLoadingLogo->setProperty("FrameEnabled", "false");
+	m_pLoadingLogo->setProperty("BackgroundEnabled", "false");
+	m_pLoadingLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
+	m_pLoadingLogo->setProperty("Image", "set:Logo image:full_image");
+	m_pLoadingLogo->setVisible(true);
 
 	//IV:MP Menu Background
 	m_pBackground = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
@@ -588,12 +787,9 @@ CMainMenu::CMainMenu()
 	m_pLogo->setProperty("FrameEnabled", "false");
 	m_pLogo->setProperty("BackgroundEnabled", "false");
 	m_pLogo->setProperty("Image", "set:Logo image:full_image");
-
-	// 0.88
-
-	// TODO: Ability to pass user data to an event subscriber
-
-	m_pServerBrowserButton = CreateButton("Server Browser", CEGUI::UVector2(CEGUI::UDim(/*0.074f*/0.148f, 0), CEGUI::UDim(0.015f, 0)),
+	m_pLogo->setAlpha(0.7f);
+	
+	m_pServerBrowserButton = CreateButton("Server Browser", CEGUI::UVector2(CEGUI::UDim( 0.148f, 0), CEGUI::UDim(0.038f, 0)),
 		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
 	m_pServerBrowserButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserButtonMouseEnter, this));
 	m_pServerBrowserButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserButtonMouseLeave, this));
@@ -603,9 +799,10 @@ CMainMenu::CMainMenu()
 	//fX += 0.2f;
 	//fX += 0.078f;
 	//fY += 0.06f;
-	fY += 0.03f;
+	//fX += 0.18f;
+	fY += 0.04f;
 
-	m_pQuickConnectButton = CreateButton("Quick Connect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.14f, 0), CEGUI::UDim(0.015f, 0)),
+	m_pQuickConnectButton = CreateButton("Quick Connect", CEGUI::UVector2(CEGUI::UDim( 0.148f, 0), CEGUI::UDim(0.038f, 0)),
 		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
 	m_pQuickConnectButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectButtonMouseEnter, this));
 	m_pQuickConnectButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectButtonMouseLeave, this));
@@ -615,9 +812,11 @@ CMainMenu::CMainMenu()
 	//fX += 0.2f;
 	//fX += 0.074f;
 	//fY += 0.06f;
-	fY += 0.03f;
+	//fX += 0.18f;
+	fY += 0.04f;
 
-	m_pSettingsButton = CreateButton("Settings", CEGUI::UVector2(CEGUI::UDim(/*0.042f*/0.084f, 0), CEGUI::UDim(0.015f, 0)),
+	// In this height is too big because 'g' character isn't showed all.
+	m_pSettingsButton = CreateButton("Settings", CEGUI::UVector2(CEGUI::UDim(0.148f, 0), CEGUI::UDim(0.038f, 0)),
 		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
 	m_pSettingsButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnSettingsButtonMouseEnter, this));
 	m_pSettingsButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnSettingsButtonMouseLeave, this));
@@ -627,9 +826,10 @@ CMainMenu::CMainMenu()
 	//fX += 0.2f;
 	//fX += 0.046f;
 	//fY += 0.06f;
-	fY += 0.03f;
+	//fX += 0.18f;
+	fY += 0.04f;
 
-	m_pAboutButton = CreateButton("About", CEGUI::UVector2(CEGUI::UDim(/*0.02f*/0.04f, 0), CEGUI::UDim(0.015f, 0)), // 0.02f
+	m_pAboutButton = CreateButton("About", CEGUI::UVector2(CEGUI::UDim( 0.148f, 0), CEGUI::UDim(0.038f, 0)),
 		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
 	m_pAboutButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnAboutButtonMouseEnter, this));
 	m_pAboutButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnAboutButtonMouseLeave, this));
@@ -639,9 +839,10 @@ CMainMenu::CMainMenu()
 	//fX += 0.2f;
 	//fX += 0.046f;
 	//fY += 0.06f;
-	fY += 0.03f;
+	//fX += 0.18f;
+	fY += 0.04f;
 
-	m_pQuitButton = CreateButton("Quit", CEGUI::UVector2(CEGUI::UDim(/*0.02f*/0.04f, 0), CEGUI::UDim(0.015f, 0)), // 0.02f
+	m_pQuitButton = CreateButton("Quit", CEGUI::UVector2(CEGUI::UDim(0.148f, 0), CEGUI::UDim(0.038f, 0)),
 		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
 	m_pQuitButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnQuitButtonMouseEnter, this));
 	m_pQuitButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnQuitButtonMouseLeave, this));
@@ -895,12 +1096,20 @@ void CMainMenu::OnResetDevice()
 
 	float height = 90;
 	float width = 390;
-	m_pLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth-width), CEGUI::UDim(0, fHeight-height)));
 	m_pLogo->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
+	m_pLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth-width), CEGUI::UDim(0, fHeight-height)));
 
-	m_serverBrowser.pWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-300), CEGUI::UDim(0, fHeight/2-225)));
+	m_serverBrowser.pWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-390), CEGUI::UDim(0, fHeight/2-292.5f)));
 	m_pQuickConnectWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-260), CEGUI::UDim(0, fHeight/2-195)));
 	m_pSettingsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-260), CEGUI::UDim(0, fHeight/2-190)));
+
+	m_pLoadingLogo->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
+	m_pLoadingLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-width/2), CEGUI::UDim(0, fHeight/2-height/2)));
+
+	height = 30;
+	width = 300;
+	m_pLoading->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
+	m_pLoading->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-150), CEGUI::UDim(0, fHeight/2-15+150)));
 }
 
 CGUIStaticText * CMainMenu::CreateButton(char * szText, CEGUI::UVector2 vecSize, CEGUI::UVector2 vecPosition)
@@ -911,8 +1120,18 @@ CGUIStaticText * CMainMenu::CreateButton(char * szText, CEGUI::UVector2 vecSize,
 	pButton->setPosition(vecPosition);
 	pButton->setProperty("FrameEnabled", "false");
 	pButton->setProperty("BackgroundEnabled", "false");
-	pButton->setFont(g_pGUI->GetFont("tahoma-bold", 10));
+	pButton->setFont(g_pGUI->GetFont("tahoma-bold", 14));
 	pButton->setProperty("TextColours", "tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF");
+	pButton->setAlpha(0.4f);
+
+	// Create button anim instance.
+	Buttons *pButtonv = new Buttons;
+	pButtonv->bAnimState = false;
+	pButtonv->bAnimStep = true;
+	pButtonv->iAnimStep = 0;
+	pButtonv->pButton = pButton;
+	m_Buttons.push_back(pButtonv);
+
 	return pButton;
 }
 
@@ -926,12 +1145,26 @@ void CMainMenu::SetVisible(bool bVisible)
 		SetServerBrowserWindowVisible(false);
 		SetQuickConnectWindowVisible(false);
 		SetSettingsWindowVisible(false);
+
+		/// RootKiller : Fix game input bug.
+		CGame::SetInputState ( true );
+
 	}
 	else
 	{
 		SetServerBrowserWindowVisible(m_bServerBrowserWindowOpen);
 		SetQuickConnectWindowVisible(m_bQuickConnectWindowOpen);
 		SetSettingsWindowVisible(m_bSettingsWindowOpen);
+
+		// RootKiller : Fix game input bug.
+		CGame::SetInputState ( false );
+
+		// RootKiller: Disable a loading.. label.
+		if ( m_pLoading->isVisible( ) )
+		{
+			m_pLoading->setVisible(false);
+			m_pLoadingLogo->setVisible(false);
+		}
 	}
 
 	m_pBackground->setVisible(bVisible);
@@ -960,6 +1193,8 @@ void CMainMenu::SetSettingsWindowVisible(bool bVisible)
 	m_bSettingsWindowVisible = bVisible;
 }
 
+int iLoadingAnimStep = 10;
+bool bLoadingAnim = false;
 void CMainMenu::Process()
 {
 	// Process the master list query
@@ -967,4 +1202,69 @@ void CMainMenu::Process()
 
 	// Process the server query
 	m_pServerQuery->Process();
+
+	// Animation for loading.
+	if ( m_pLoading->isVisible( ) )
+	{
+		// Calculate anim step.
+		if ( bLoadingAnim )
+		{
+			iLoadingAnimStep++;	
+			if ( iLoadingAnimStep >= 1000 )
+			{
+				bLoadingAnim = false;
+			}				
+		} else {
+			iLoadingAnimStep--;
+			if ( iLoadingAnimStep <= 0 )
+			{
+				bLoadingAnim = true;
+			}				
+		}
+
+		// Set new alpha.
+		m_pLoading->setAlpha(iLoadingAnimStep*0.001f);
+	}
+
+	//Buttons anim
+	for ( std::list<Buttons *>::iterator iter = m_Buttons.begin(); iter != m_Buttons.end(); iter ++ )
+	{
+		if ( (*iter)->bAnimState )
+		{			
+			if ( (*iter)->bAnimStep )
+			{
+				if ( !(*iter)->iAnimStep )
+				{
+					(*iter)->iAnimStep++;
+				} 
+				else if ( (*iter)->iAnimStep <= 1000 )
+				{
+					(*iter)->pButton->setAlpha((*iter)->iAnimStep*0.002f);
+					
+					if ( (*iter)->iAnimStep >= 1000 )
+					{
+						(*iter)->bAnimStep = false;
+						(*iter)->bAnimState = false;
+					} else
+						(*iter)->iAnimStep++;
+				}
+			} else {
+				if ( (*iter)->iAnimStep == 1000 )
+				{
+					(*iter)->iAnimStep--;
+				} 
+				else if ( (*iter)->iAnimStep >= 0 )
+				{
+					(*iter)->pButton->setAlpha((*iter)->iAnimStep*0.002f);
+
+					if ( (*iter)->iAnimStep <= 200 )
+					{
+						(*iter)->bAnimStep = true;
+						(*iter)->bAnimState = false;
+					} else
+						(*iter)->iAnimStep--;
+				}
+			}
+		}
+	}
 }
