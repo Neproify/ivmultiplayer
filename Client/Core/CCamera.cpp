@@ -145,6 +145,5 @@ void CCamera::SetLookAt(const CVector3& vecLookAt)
 
 void CCamera::GetLookAt(CVector3& vecLookAt)
 {
-	// TODO!
-	
+	// TODO
 }

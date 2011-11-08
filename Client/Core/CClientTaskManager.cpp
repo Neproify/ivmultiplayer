@@ -127,6 +127,9 @@ bool CClientTaskManager::HandleTaskDelete(IVTask * pGameTask)
 	{
 		// Remove the task
 		RemoveTask(pClientTask);
+
+		// Delete the client task
+		delete pClientTask;
 		return true;
 	}
 

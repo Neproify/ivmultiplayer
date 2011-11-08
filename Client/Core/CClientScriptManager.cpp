@@ -71,12 +71,6 @@ _BEGIN_CLASS(GUIMultiLineEditBox)
 _MEMBER_FUNCTION(GUIMultiLineEditBox, constructor, 0, NULL)
 _END_CLASS_BASE(GUIMultiLineEditBox, GUIElement)
 
-//GUIProgressBar
-_BEGIN_CLASS(GUIProgressBar)
-_MEMBER_FUNCTION(GUIProgressBar, constructor, 0, NULL)
-_MEMBER_FUNCTION(GUIProgressBar, setValue, 1, "f")
-_END_CLASS_BASE(GUIProgressBar, GUIElement)
-
 // GUICheckBox
 _BEGIN_CLASS(GUICheckBox)
 _MEMBER_FUNCTION(GUICheckBox, constructor, 0, NULL)
@@ -88,23 +82,6 @@ _END_CLASS_BASE(GUICheckBox, GUIElement)
 _BEGIN_CLASS(GUIImage)
 _MEMBER_FUNCTION(GUIImage, constructor, 1, "s")
 _END_CLASS_BASE(GUIImage, GUIElement)
-
-//Audio
-_BEGIN_CLASS(Audio)
-_MEMBER_FUNCTION(Audio, constructor, 1, "s")
-_MEMBER_FUNCTION(Audio, deleteSound, 0, NULL)
-_MEMBER_FUNCTION(Audio, play, 0, NULL)
-_MEMBER_FUNCTION(Audio, stop, 0, NULL)
-_MEMBER_FUNCTION(Audio, pause, 0, NULL)
-_MEMBER_FUNCTION(Audio, setRepeats, 1, "i")
-_MEMBER_FUNCTION(Audio, getRepeats, 0, NULL)
-_MEMBER_FUNCTION(Audio, isStarted, 0, NULL)
-_MEMBER_FUNCTION(Audio, setVolume, 1, "f")
-_MEMBER_FUNCTION(Audio, getVolume, 0, NULL)
-_MEMBER_FUNCTION(Audio, restoreVolume, 0, NULL)
-_MEMBER_FUNCTION(Audio, setPosition, 4, "ffff")
-_MEMBER_FUNCTION(Audio, clearPosition, 0, NULL)
-_END_CLASS(Audio)
 
 CClientScriptManager::CClientScriptManager()
 {
@@ -159,8 +136,6 @@ CClientScriptManager::CClientScriptManager()
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIMultiLineEditBox));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUICheckBox));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIImage));
-	m_pScripting->RegisterClass(&_CLASS_DECL(GUIProgressBar));
-	m_pScripting->RegisterClass(&_CLASS_DECL(Audio));
 }
 
 CClientScriptManager::~CClientScriptManager()

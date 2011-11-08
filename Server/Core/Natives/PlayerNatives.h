@@ -93,8 +93,6 @@ private:
 	static SQInteger SetCameraPos(SQVM * pVM);
 	static SQInteger SetCameraLookAt(SQVM * pVM);
 	static SQInteger ResetCamera(SQVM * pVM);
-	static SQInteger SetPlayerDimension(SQVM * pVM);
-	static SQInteger GetPlayerDimension(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

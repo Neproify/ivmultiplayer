@@ -30,7 +30,6 @@
 #include "CClientTaskManager.h"
 #include "CCredits.h"
 #include "CContextDataManager.h"
-#include "CAudio.h"
 
 extern CChatWindow        * g_pChatWindow;
 extern CInputWindow       * g_pInputWindow;
@@ -58,16 +57,11 @@ void CGame::SetFocused(bool bFocused)
 	{
 		// Enable input
 		SetInputState(true);
-
-
-		CAudioManager::RestoreAllVolume ( );		
 	}
 	else // We do not have focus
 	{
 		// Disable input
 		SetInputState(false);
-
-		CAudioManager::SetAllVolume ( 0.0f );
 	}
 }
 
@@ -896,7 +890,7 @@ void CGame::ConvertRotationMatrixToQuaternion(GameMatrix34 * matRotation, Quater
 
 bool CGame::SetScrollBarText(unsigned char ucScrollbar, const char* szText)
 {
-	if(ucScrollbar < 0 || ucScrollbar > 7)
+	if(ucScrollbar > 7)
 		return false;
 
 	if(strlen(szText) >= 1299)
@@ -958,9 +952,9 @@ void CGame::ResetScrollBars(unsigned char ucScrollbar)
 
 void CGame::GetScrollBarText(unsigned char ucScrollbar, char* szReturn)
 {
-	if(ucScrollbar < 0 || ucScrollbar > 7)
+	if(ucScrollbar > 7)
 	{
-		szReturn[0] = 0;
+		szReturn[0] = '\0';
 		return;
 	}
 

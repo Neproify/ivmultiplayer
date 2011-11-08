@@ -27,6 +27,3 @@
 
 // GUI functions
 #include "Natives/GUINatives.h"
-
-// Audio functions
-#include "Natives/AudioNatives.h"

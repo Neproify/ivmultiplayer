@@ -381,8 +381,13 @@ void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
                 call dwFunc
             }
 		}
-		else //found no other way to turn it off
-			Scripting::SetCarEngineOn(  CGame::GetPools()->GetVehiclePool()->HandleOf( pVehicle ), false);
+		else
+		{
+			pVehicle->m_byteFlags1 &= 0xE7;
+			*(BYTE *)(pVehicle + 0x1344) = 0;
+			// jenksta: this is incorrect, the native takes 3 parameters, not 2
+			//Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), false);
+		}
 	}
 }
 

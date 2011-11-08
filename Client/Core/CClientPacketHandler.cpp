@@ -22,7 +22,7 @@ void ResetGame();
 void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Connection failed! (Rejected)");
-	g_pNetworkManager->Disconnect( );
+	g_pNetworkManager->Disconnect();
 }
 
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -58,7 +58,7 @@ void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * p
 void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Disconnected from the server.");
-	g_pNetworkManager->Disconnect( );
+	g_pNetworkManager->Disconnect();
 }
 
 void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -71,13 +71,13 @@ void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket
 void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Connection failed! (Banned)");
-	g_pNetworkManager->Disconnect( );
+	g_pNetworkManager->Disconnect();
 }
 
 void CClientPacketHandler::PasswordInvalid(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Connection failed! (Invalid Password)");
-	g_pNetworkManager->Disconnect( );
+	g_pNetworkManager->Disconnect();
 }
 
 void CClientPacketHandler::Register()

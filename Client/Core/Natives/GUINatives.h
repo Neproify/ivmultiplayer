@@ -56,7 +56,3 @@ _MEMBER_FUNCTION_IMPL(GUICheckBox, isChecked);
 
 // GUIImage
 _MEMBER_FUNCTION_IMPL(GUIImage, constructor);
-
-// GUIProgressBar
-_MEMBER_FUNCTION_IMPL(GUIProgressBar, constructor);
-_MEMBER_FUNCTION_IMPL(GUIProgressBar, setValue);

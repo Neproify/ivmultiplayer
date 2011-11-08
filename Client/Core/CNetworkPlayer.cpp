@@ -20,10 +20,8 @@
 #include "CPools.h"
 #include "IVTasks.h"
 #include "CCamera.h"
-#include "CChatWindow.h"
 
 extern CNetworkManager * g_pNetworkManager;
-extern CChatWindow     * g_pChatWindow;
 extern CVehicleManager * g_pVehicleManager;
 extern CPlayerManager  * g_pPlayerManager;
 extern CLocalPlayer    * g_pLocalPlayer;
@@ -794,7 +792,7 @@ void CNetworkPlayer::SetPosition(const CVector3& vecCoordinates, bool bResetInte
 			// Remove the player ped from the world
 			m_pPlayerPed->RemoveFromWorld();
 
-			//Set the position in the matrix
+			// Set the position in the matrix
 			m_pPlayerPed->SetPosition(vecCoordinates);
 
 			// Are we not the local player?
@@ -1160,9 +1158,7 @@ void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 	Matrix matAim;
 
 	if(IsLocalPlayer())
-	{
 		GetGameCameraMatrix(&matAim);
-	}
 	else
 	{
 		if(m_pContextData)
@@ -1245,10 +1241,6 @@ void CNetworkPlayer::UpdateTargetPosition()
 		CVector3 vecCurrentPosition;
 		GetPosition(vecCurrentPosition);
 
-		// Define CVector3 for new speed.
-		CVector3 vecNewMoveSpeed;
-		GetMoveSpeed(vecNewMoveSpeed);
-
 		// Get the factor of time spent from the interpolation start
 		// to the current time.
 		float fAlpha = Math::Unlerp(m_interp.pos.ulStartTime, ulCurrentTime, m_interp.pos.ulFinishTime);
@@ -1280,9 +1272,6 @@ void CNetworkPlayer::UpdateTargetPosition()
 
 		// Set our new position
 		SetPosition(vecNewPosition, false);
-
-		// Set our new speed 
-		SetMoveSpeed ( vecNewMoveSpeed );
 	}
 }
 
@@ -2218,9 +2207,4 @@ bool CNetworkPlayer::IsOnScreen()
 		return /*Scripting::IsCharOnScreen(GetScriptingHandle())*/true;
 
 	return false;
-}
-
-void CNetworkPlayer::SetWorldDimensions ( int iWorldDimension )
-{ 
-	m_iWorldDimension = iWorldDimension; 
 }

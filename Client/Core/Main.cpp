@@ -500,6 +500,53 @@ void Direct3DRender()
 			CGame::SetTime(ucHour, ucMinute);
 			CGame::SetDayOfWeek(g_pTime->GetDayOfWeek());
 		}
+
+		if(GetAsyncKeyState(VK_F3) & 1)
+		{
+			g_pChatWindow->AddInfoMessage("Creating explosion near your position");
+			CVector3 vecPosition;
+			g_pLocalPlayer->GetPosition(vecPosition);
+			vecPosition.fX += 10.0f;
+			CGame::CreateExplosion(vecPosition, 0, 1.0f, true, false);
+			g_pChatWindow->AddInfoMessage("Created explosion near your position");
+		}
+
+		// CViewportManager + 0x00 = sysArray (CViewport *)
+		// CViewport + 0x53C = Viewport ID
+		// GET_VIEWPORT_POS_AND_SIZE(unsigned int uiViewportId, float * fPosX, float * fPosY, float * fSizeX, float * fSizeY)
+		// (pViewport + 0x10) is always used
+		// ((pViewport + 0x10) + 0x298) = float fPosX;
+		// (((pViewport + 0x10) + 0x298) + 0x4) = float fPosY;
+		// (((pViewport + 0x10) + 0x298) + 0x8) = float fSizeX;
+		// (((pViewport + 0x10) + 0x298) + 0xC) = float fSizeY;
+		// GET_VIEWPORT_POSITION_OF_COORD(float fCoordX, float fCoordY, float fCoordZ, unsigned int uiViewportId, float * fPosX, float * fPosY)
+		// Viewport 1 = CViewportPrimaryOrtho
+		// Viewport 2 = CViewportGame
+		// Viewport 3 = CViewportRadar
+		// Draw text for each vehicle
+		if(g_pVehicleManager)
+		{
+			CVector3 vecWorldPosition;
+			Vector2 vecScreenPosition;
+
+			for(EntityId i = 0; i < MAX_VEHICLES; i++)
+			{
+				if(g_pVehicleManager->Exists(i))
+				{
+					CNetworkVehicle * pVehicle = g_pVehicleManager->Get(i);
+
+					if(!pVehicle->IsStreamedIn())
+						continue;
+
+					if(!pVehicle->IsOnScreen())
+						continue;
+	
+					pVehicle->GetPosition(vecWorldPosition);
+					CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
+					g_pGUI->DrawText(String("Vehicle %d", i), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y));
+				}
+			}
+		}
 	}
 }
 
@@ -792,7 +839,7 @@ void InternalResetGame()
 	{
 		// If we are connected disconnect
 		if(g_pNetworkManager->IsConnected())
-			g_pNetworkManager->Disconnect( );
+			g_pNetworkManager->Disconnect();
 
 		// Delete our network manager instance
 		SAFE_DELETE(g_pNetworkManager);

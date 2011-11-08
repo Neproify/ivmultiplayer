@@ -122,6 +122,5 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetObjectRotation,
 	RPC_ScriptingSetPickupPosition,
 	RPC_ScriptingSetPickupRotation,
-	RPC_ScriptingSetPickupValue,
-	RPC_ScriptingSetPlayerWorldDimensions
+	RPC_ScriptingSetPickupValue
 };

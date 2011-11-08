@@ -23,19 +23,9 @@ public:
 	}
 };
 
-struct Buttons
-{
-	bool		bAnimState;
-	bool		bAnimStep;
-	int			iAnimStep;
-	CGUIStaticText * pButton;
-};
-
 class CMainMenu
 {
 private:
-	std::list < Buttons *> m_Buttons;
-
 	// 
 	static CMainMenu    * m_pSingleton;
 	bool                  m_bVisible;
@@ -51,8 +41,6 @@ private:
 	// Main Menu
 	CGUIStaticImage     * m_pLogo;
 	CGUIStaticImage     * m_pBackground;
-	CGUIStaticImage		* m_pLoading;
-	CGUIStaticImage		* m_pLoadingLogo;
 	CGUIStaticText      * m_pServerBrowserButton;
 	CGUIStaticText      * m_pQuickConnectButton;
 	CGUIStaticText      * m_pSettingsButton;

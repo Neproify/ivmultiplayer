@@ -3,7 +3,6 @@
 // File: CClientRPCHandler.cpp
 // Project: Client.Core
 // Author(s): jenksta
-//			  RootKiller
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -894,7 +893,7 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
 		g_pChatWindow->AddInfoMessage("Your game files are modified.");
 
 	// Disconnect from the server
-	g_pNetworkManager->Disconnect( );
+	g_pNetworkManager->Disconnect();
 }
 
 void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2243,19 +2242,6 @@ void CClientRPCHandler::ScriptingResetPlayerCamera(CBitStream * pBitStream, CPla
 	g_pCamera->Reset();
 }
 
-void CClientRPCHandler::ScriptingSetPlayerWorldDimensions(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
-{
-	EntityId playerId;
-	int iWorldDimension;
-	pBitStream->Read ( playerId );
-	pBitStream->Read ( iWorldDimension );
-
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-
-	if ( pPlayer )
-		pPlayer->SetWorldDimensions ( iWorldDimension );
-}
-
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -2361,7 +2347,6 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingSetPlayerCameraPos, ScriptingSetPlayerCameraPos);
 	AddFunction(RPC_ScriptingSetPlayerCameraLookAt, ScriptingSetPlayerCameraLookAt);
 	AddFunction(RPC_ScriptingResetPlayerCamera, ScriptingResetPlayerCamera);
-	AddFunction(RPC_ScriptingSetPlayerWorldDimensions, ScriptingSetPlayerWorldDimensions);
 }
 
 void CClientRPCHandler::Unregister()
@@ -2465,5 +2450,4 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingSetPlayerCameraPos);
 	RemoveFunction(RPC_ScriptingSetPlayerCameraLookAt);
 	RemoveFunction(RPC_ScriptingResetPlayerCamera);
-	RemoveFunction(RPC_ScriptingSetPlayerWorldDimensions);
 }
