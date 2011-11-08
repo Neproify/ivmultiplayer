@@ -88,24 +88,17 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 
 	bsSend.Write((char *)m_byteColors, sizeof(m_byteColors));
 	bsSend.Write(m_fDirtLevel);
+
 	for(int i = 0; i < 4; ++ i)
-	{
-		if(m_bIndicatorState[i])
-			bsSend.Write1();
-		else
-			bsSend.Write0();
-	}
+		bsSend.WriteBit(m_bIndicatorState[i]);
+
 	for(int i = 0; i < 9; ++ i)
-	{
-		if(m_bComponents[i])
-			bsSend.Write1();
-		else
-			bsSend.Write0();
-	}
+		bsSend.WriteBit(m_bComponents[i]);
+
 	bsSend.Write(m_iHornDuration);
 	bsSend.Write(m_bSirenState);
 	bsSend.Write(m_ucLocked);
-	m_bEngineStatus ? bsSend.Write1() : bsSend.Write0();
+	bsSend.WriteBit(m_bEngineStatus);
 	
 	if(m_ucVariation != 0)
 	{
@@ -236,6 +229,7 @@ int CVehicle::GetModel()
 void CVehicle::SetHealth(unsigned int uHealth)
 {
 	m_uiHealth = uHealth;
+
 	CBitStream bsSend;
 	bsSend.WriteCompressed(m_vehicleId);
 	bsSend.Write(uHealth);
@@ -250,6 +244,7 @@ unsigned int CVehicle::GetHealth()
 void CVehicle::SetPosition(CVector3 vecPosition)
 {
 	memcpy(&m_vecPosition, &vecPosition, sizeof(CVector3));
+
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(vecPosition);
@@ -264,6 +259,7 @@ void CVehicle::GetPosition(CVector3 * vecPosition)
 void CVehicle::SetRotation(CVector3 vecRotation)
 {
 	memcpy(&m_vecRotation, &vecRotation, sizeof(CVector3));
+
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(vecRotation);
@@ -278,13 +274,10 @@ void CVehicle::GetRotation(CVector3 * vecRotation)
 void CVehicle::SetDirtLevel(float fDirtLevel)
 {
 	m_fDirtLevel = fDirtLevel;
-	
+
 	CBitStream bsSend;
-
 	bsSend.Write(m_vehicleId);
-
 	bsSend.Write(fDirtLevel);
-
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDirtLevel, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
@@ -296,7 +289,11 @@ float CVehicle::GetDirtLevel()
 void CVehicle::SetTurnSpeed(CVector3 vecTurnSpeed)
 {
 	memcpy(&m_vecTurnSpeed, &vecTurnSpeed, sizeof(CVector3));
-	// TODO: RPC
+
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	bsSend.Write(vecTurnSpeed);
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleTurnSpeed, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
 void CVehicle::GetTurnSpeed(CVector3 * vecTurnSpeed)
@@ -307,6 +304,7 @@ void CVehicle::GetTurnSpeed(CVector3 * vecTurnSpeed)
 void CVehicle::SetMoveSpeed(CVector3 vecMoveSpeed)
 {
 	memcpy(&m_vecMoveSpeed, &vecMoveSpeed, sizeof(CVector3));
+
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(vecMoveSpeed);
@@ -324,6 +322,7 @@ void CVehicle::SetColors(BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE
 	m_byteColors[1] = byteColor2;
 	m_byteColors[2] = byteColor3;
 	m_byteColors[3] = byteColor4;
+
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	bsSend.Write((char *)m_byteColors, sizeof(m_byteColors));
@@ -341,6 +340,7 @@ void CVehicle::GetColors(BYTE &byteColor1, BYTE &byteColor2, BYTE &byteColor3, B
 void CVehicle::SoundHorn(unsigned int iDuration)
 {
 	m_iHornDuration = iDuration;
+
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(iDuration);
@@ -372,7 +372,6 @@ bool CVehicle::SetLocked(unsigned char ucLocked)
 		CBitStream bsSend;
 		bsSend.Write(m_vehicleId);
 		bsSend.Write(m_ucLocked);
-
 		g_pNetworkManager->RPC(RPC_ScriptingSetVehicleLocked, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 		return true;
 	}
@@ -395,16 +394,13 @@ void CVehicle::SetIndicatorState(bool bFrontLeft, bool bFrontRight, bool bBackLe
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	bsSend.Write((unsigned char)(bFrontLeft + 2*bFrontRight + 4*bBackLeft + 8*bBackRight));
-
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleIndicators, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
 bool CVehicle::GetIndicatorState(unsigned char ucSlot)
 {
 	if(ucSlot >= 0 && ucSlot <= 3)
-	{
 		return m_bIndicatorState[ucSlot];
-	}
 	
 	return false;
 }
@@ -419,13 +415,9 @@ void CVehicle::SetComponentState(unsigned char ucSlot, bool bOn)
 
 			CBitStream bsSend;
 			bsSend.Write(m_vehicleId);
+
 			for(int i = 0; i < 9; ++ i)
-			{
-				if(m_bComponents[i])
-					bsSend.Write1();
-				else
-					bsSend.Write0();
-			}
+				bsSend.WriteBit(m_bComponents[i]);
 
 			g_pNetworkManager->RPC(RPC_ScriptingSetVehicleComponents, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 		}
@@ -496,13 +488,9 @@ void CVehicle::ResetComponents(bool bNotify)
 	{
 		CBitStream bsSend;
 		bsSend.Write(m_vehicleId);
+
 		for(int i = 0; i < 9; ++ i)
-		{
-			if(m_bComponents[i])
-				bsSend.Write1();
-			else
-				bsSend.Write0();
-		}
+			bsSend.WriteBit(m_bComponents[i]);
 
 		g_pNetworkManager->RPC(RPC_ScriptingSetVehicleComponents, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	}
@@ -511,9 +499,7 @@ void CVehicle::ResetComponents(bool bNotify)
 bool CVehicle::GetComponentState(unsigned char ucSlot)
 {
 	if(ucSlot >= 0 && ucSlot <= 8)
-	{
 		return m_bComponents[ucSlot];
-	}
 
 	return false;
 }
@@ -527,7 +513,6 @@ void CVehicle::SetVariation(unsigned char ucVariation)
 		CBitStream bsSend;
 		bsSend.Write(m_vehicleId);
 		bsSend.Write(ucVariation);
-
 		g_pNetworkManager->RPC(RPC_ScriptingSetVehicleVariation, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	}
 }

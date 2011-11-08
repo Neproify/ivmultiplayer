@@ -21,6 +21,7 @@ void RegisterPickupNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("deletePickup", sq_pickup_delete, 1, "i");
 	pScriptingManager->RegisterFunction("getPickupModel", sq_pickup_getmodel, 1, "i");
 	pScriptingManager->RegisterFunction("getPickupType", sq_pickup_gettype, 1, "i");
+	pScriptingManager->RegisterFunction("setPickupValue", sq_pickup_setvalue, 2, "ii");
 	pScriptingManager->RegisterFunction("getPickupValue", sq_pickup_getvalue, 1, "i");
 	pScriptingManager->RegisterFunction("setPickupCoordinates", sq_pickup_setcoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("getPickupCoordinates", sq_pickup_getcoordinates, 1, "i");
