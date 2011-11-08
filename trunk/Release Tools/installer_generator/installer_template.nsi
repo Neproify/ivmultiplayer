@@ -214,7 +214,7 @@ Section "Uninstall"
 	Delete "$INSTDIR\Client.Launcher.exe"
 	Delete "$INSTDIR\Client.LaunchHelper.dll"
 	Delete "$INSTDIR\Client.Core.dll"
-	Delete "$INSTDIR\bass.dll"
+	Delete "$GTAIVDirectory\bass.dll"
 	Delete "$INSTDIR\Network.Core.dll"
 
 	; Remove Directories
