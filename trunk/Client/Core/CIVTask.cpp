@@ -354,9 +354,9 @@ void CIVTask::SetAsPedTask(CIVPed * pPed, int iTaskPriority, bool bForceNewTask)
 	if(m_pTask)
 	{
 		// Get the game task pointer
-		CIVTask * pGameTask = g_pClientTaskManager->GetClientTaskFromGameTask(m_pTask);
+		CIVTask * pClientTask = g_pClientTaskManager->GetClientTaskFromGameTask(m_pTask);
 
 		// Set the task as the ped task
-		pPed->GetPedTaskManager()->SetTask(pGameTask, iTaskPriority, bForceNewTask);
+		pPed->GetPedTaskManager()->SetTask(pClientTask, iTaskPriority, bForceNewTask);
 	}
 }

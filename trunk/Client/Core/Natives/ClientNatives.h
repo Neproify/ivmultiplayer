@@ -40,5 +40,3 @@ SQUIRREL_FUNCTION(getCurrentAreaName);
 SQUIRREL_FUNCTION(getCurrentStreetName);
 SQUIRREL_FUNCTION(getVehicleName);
 SQUIRREL_FUNCTION(getFPS);
-SQUIRREL_FUNCTION(convertWorldPositionToScreen);
-SQUIRREL_FUNCTION(getCursorPosition);

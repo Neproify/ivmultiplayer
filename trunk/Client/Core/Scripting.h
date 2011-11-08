@@ -193,9 +193,6 @@ namespace Scripting
 	static void SetPlayerMoodPissedOff(unsigned int playerIndex, unsigned int unknown150) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_PLAYER_MOOD_PISSED_OFF, playerIndex, unknown150); }
 	static void SetPlayerNeverGetsTired(unsigned int playerIndex, bool value) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_PLAYER_NEVER_GETS_TIRED, playerIndex, value); }
 	static void SetPlayerSettingsModelVariationsChoice(unsigned int playerIndex) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_PLAYERSETTINGS_MODEL_VARIATIONS_CHOICE, playerIndex); }
-
-	static void SetGoPlayerTo(unsigned int playerIndex, float x, float y, float z, unsigned int uiU1, unsigned int uiU2) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_GO_STRAIGHT_TO_COORD, playerIndex, x, y, z, uiU1, uiU2); }
-
 	static void SetPoliceIgnorePlayer(unsigned int playerIndex, bool value) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_POLICE_IGNORE_PLAYER, playerIndex, value); }
 	static void StoreScore(unsigned int playerIndex, unsigned int* value) { NativeInvoke::Invoke<unsigned int>(NATIVE_STORE_SCORE, playerIndex, value); }
 	static void StoreWantedLevel(unsigned int playerIndex, unsigned int* value) { NativeInvoke::Invoke<unsigned int>(NATIVE_STORE_WANTED_LEVEL, playerIndex, value); }

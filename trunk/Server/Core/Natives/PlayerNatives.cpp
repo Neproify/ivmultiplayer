@@ -5,7 +5,6 @@
 // Author(s): jenksta
 //            Einstein
 //            Sebihunter
-//			  RootKiller
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -1973,39 +1972,5 @@ SQInteger CPlayerNatives::ResetCamera(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
-	return 1;
-}
-
-// setPlayerDimension(playerid, dimension)
-SQInteger CPlayerNatives::SetPlayerDimension(SQVM * pVM)
-{
-	EntityId playerId;
-	SQInteger dimensionId;
-	sq_getentity(pVM, -1, &playerId);
-	sq_getinteger ( pVM, -2, &dimensionId );
-
-	if(g_pPlayerManager->DoesExist(playerId))
-	{
-		sq_pushbool ( pVM, g_pPlayerManager->GetAt ( playerId )->SetWorldDimensions( dimensionId  ) );
-		return 1;
-	}
-
-	sq_pushbool ( pVM, false );
-	return 1;
-}
-
-// getPlayerDimension(playerid)
-SQInteger CPlayerNatives::GetPlayerDimension( SQVM * pVM )
-{
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	if(g_pPlayerManager->DoesExist(playerId))
-	{
-		sq_pushinteger ( pVM, g_pPlayerManager->GetAt ( playerId )->GetWorldDimensions( ) );
-		return 1;
-	}
-
-	sq_pushbool ( pVM, false );
 	return 1;
 }

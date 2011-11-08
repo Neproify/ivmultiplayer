@@ -36,6 +36,14 @@ void QuitCommand(char * szParams)
 	if(g_pNetworkManager)
 		g_pNetworkManager->Disconnect();
 
+	ExitProcess(0);
+}
+
+void QuickQuitCommand(char * szParams)
+{
+	if(g_pNetworkManager)
+		g_pNetworkManager->Disconnect();
+
 	TerminateProcess(GetCurrentProcess(), 0);
 }
 
@@ -252,6 +260,8 @@ void RegisterCommands()
 {
 	g_pInputWindow->RegisterCommand("q", QuitCommand);
 	g_pInputWindow->RegisterCommand("quit", QuitCommand);
+	g_pInputWindow->RegisterCommand("qq", QuickQuitCommand);
+	g_pInputWindow->RegisterCommand("quickquit", QuickQuitCommand);
 	g_pInputWindow->RegisterCommand("savepos", SavePosCommand);
 	g_pInputWindow->RegisterCommand("ping", SendPlayerPing);
 	g_pInputWindow->RegisterCommand("fps", SendPlayerFPS);

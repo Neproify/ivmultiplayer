@@ -709,8 +709,7 @@
                     <Dim type="RightEdge" ><UnifiedDim scale="1.0" type="RightEdge" /></Dim>
                     <Dim type="BottomEdge" ><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
                 </Area>
-                <!--<Image imageset="WindowsLook" image="Background" />-->
-				<Image imageset="WindowsLook" image="TextSelectionBrush" />
+                <Image imageset="WindowsLook" image="Background" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -1512,9 +1511,8 @@
 						<UnifiedDim scale="1" type="BottomEdge" />
 					</Dim>
 				</Area>
-				<!--<ImageProperty name="SelectionBrush" />
-				<ColourProperty name="SelectionColour" />-->
-				<Image imageset="WindowsLook" image="TextSelectionBrush" />
+				<ImageProperty name="SelectionBrush" />
+				<ColourProperty name="SelectionColour" />
 				<VertFormat type="Stretched" />
 				<HorzFormat type="Stretched" />
 			</ImageryComponent>

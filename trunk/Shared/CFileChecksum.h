@@ -24,7 +24,7 @@ private:
 	unsigned short m_r;
 	unsigned short m_c1;
 	unsigned short m_c2;
-	unsigned long int m_uiChecksum;
+	unsigned int   m_uiChecksum;
 
 public:
 	CChecksum()
@@ -103,11 +103,11 @@ public:
 		if(!fFile)
 			return false;
 
-		// Read file data in 1024 byte blocks	(TRY FIX!)
-		unsigned char ucData[1024];
-
+		// Read file data in 32 byte blocks
 		unsigned int uiBytesRead = 0;
-		while((uiBytesRead = fread(ucData, 1, 1024, fFile)))
+		unsigned char ucData[32];
+
+		while((uiBytesRead = fread(ucData, 1, sizeof(ucData), fFile)) > 0)
 		{
 			// Add the read data to the checksum
 			Add(ucData, uiBytesRead);

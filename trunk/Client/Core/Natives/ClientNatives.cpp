@@ -54,55 +54,6 @@ void RegisterClientNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getFPS", sq_getFPS, 0, NULL);
 
 	pScriptingManager->RegisterFunction("triggerServerEvent", sq_triggerServerEvent, -1, NULL);
-
-	pScriptingManager->RegisterFunction("convertWorldPositionToScreen", sq_convertWorldPositionToScreen, 3, "fff" );
-
-	pScriptingManager->RegisterFunction("getCursorPosition", sq_getCursorPosition, -1, NULL);
-}
-
-//getCursorPosition ()
-int sq_getCursorPosition ( SQVM *pVM )
-{
-	Vector2 vecCursor;
-
-	g_pGUI->GetCursorPosition(vecCursor);
-
-	sq_newarray(pVM, 0);
-	sq_pushfloat(pVM, vecCursor.X);
-	sq_arrayappend(pVM, -2);
-	sq_pushfloat(pVM, vecCursor.Y);
-	sq_arrayappend(pVM, -2);
-	return 1;
-}
-
-// convertWorldPositionToScreen (float,float,float)
-int sq_convertWorldPositionToScreen ( SQVM *pVM )
-{
-	// New screen cordinates.
-	//float fX, fY;
-
-	// World coordinates.
-	float wfX, wfY, wfZ;
-
-	// Get params.
-	sq_getfloat ( pVM, -1, &wfX );
-	sq_getfloat ( pVM, -2, &wfY );
-	sq_getfloat ( pVM, -3, &wfZ );
-
-	// Calculate the coords.
-	//fX = (((wfX + 1 ) / 2) * (float)g_pGUI->GetDisplayWidth());
-	//fY = (((wfY + 1 ) / 2) * (float)g_pGUI->GetDisplayHeight());
-
-	Vector2 vecScreen;
-	CGame::GetScreenPositionFromWorldPosition ( CVector3 ( wfX, wfY, wfZ ), vecScreen );
-
-	// Push array with screen coords.
-	sq_newarray(pVM, 0);
-	sq_pushfloat(pVM, vecScreen.X);
-	sq_arrayappend(pVM, -2);
-	sq_pushfloat(pVM, vecScreen.Y);
-	sq_arrayappend(pVM, -2);
-	return 1;
 }
 
 // addChatMessage(string)

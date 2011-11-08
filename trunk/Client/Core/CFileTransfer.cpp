@@ -243,7 +243,7 @@ void CFileTransfer::Process()
 				}
 				else
 				{
-					g_pChatWindow->AddInfoMessage("Failed to download %s %s (Checksum mismatch [0x%x | 0x%x])", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get(), fileChecksum, m_pDownloadFile->fileChecksum);
+					g_pChatWindow->AddInfoMessage("Failed to download %s %s (Checksum mismatch)", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get());
 				}
 			}
 			else

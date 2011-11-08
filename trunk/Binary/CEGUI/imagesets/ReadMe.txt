@@ -1,1 +1,1 @@
-- Windows look imagery created by Paul "CrazyEddie" Turner. edited by RootKiller
+- Windows look imagery created by Paul "CrazyEddie" Turner.
