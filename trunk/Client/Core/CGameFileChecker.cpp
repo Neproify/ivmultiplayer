@@ -16,12 +16,11 @@ struct GameFile
 {
 	unsigned int uiChecksum;
 	String       strFileName;
-};
-
-GameFile gameFiles[] = 
+} gameFiles[] = 
 {
-	{ 0x509BEB, "common\\data\\handling.dat" },
-	{ 0x0F9105, "common\\data\\gta.dat" }
+	// TODO: Add more checks
+	{ 0x3F19C08A, "common\\data\\handling.dat" },
+	{ 0x6DA6A192, "common\\data\\gta.dat" }
 };
 
 bool CGameFileChecker::CheckFiles()
@@ -30,13 +29,12 @@ bool CGameFileChecker::CheckFiles()
 
 	for(int i = 0; i < ARRAY_LENGTH(gameFiles); i++)
 	{
-		// No need to check if file exists as gta will do that for us
+		// No need to check if the files exist as they should all be default game files
 		fileChecksum.Calculate(String("%s%s", SharedUtility::GetExePath(), gameFiles[i].strFileName.Get()));
 
 		if(fileChecksum.GetChecksum() != gameFiles[i].uiChecksum)
 		{
-			CLogFile::Printf("Checksum for file %s failed (Expected 0x%x, Got 0x%x)", gameFiles[i].strFileName.Get(), fileChecksum.GetChecksum(), gameFiles[i].uiChecksum);
-			MessageBox(NULL, String("GTA:IV file %s has been modified, please restore the original file if you want to play IV:MP", gameFiles[i].strFileName.Get()), "IV:MP", NULL);
+			CLogFile::Printf("Checksum for file %s failed (Expected 0x%x, Got 0x%x).", gameFiles[i].strFileName.Get(), fileChecksum.GetChecksum(), gameFiles[i].uiChecksum);
 			return false;
 		}
 	}
