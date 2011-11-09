@@ -127,13 +127,13 @@ public:
 	int           Compare(const char * szString) const;
 	int           Compare(const String strString) const;
 	int           StrCmp(const char * szString) const { return Compare(szString); }
-	int           StrCmp(const String strString) const { return Compare(strString); }
+	int           StrCmp(const String &strString) const { return Compare(strString); }
 
 	// Compare the string with sz/strString (case insensitive)
 	int           ICompare(const char * szString) const;
 	int           ICompare(const String strString) const;
 	int           StrICmp(const char * szString) const { return ICompare(szString); }
-	int           StrICmp(const String strString) const { return ICompare(strString); }
+	int           StrICmp(const String &strString) const { return ICompare(strString); }
 
 	// Return the value of the string as a boolean
 	bool          ToBoolean() const;

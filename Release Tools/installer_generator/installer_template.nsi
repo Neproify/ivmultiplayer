@@ -1,5 +1,5 @@
 ; DO NOT TRY TO COMPILE THIS FILE (installer_template.nsi).
-; ${VERSION} will be replaced by custom script, no macro needed
+; ${VERSION} will be replaced by custom script, no macro definition needed
 
 ;======================================================
 ; Includes
