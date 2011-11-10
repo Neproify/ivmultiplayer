@@ -45,7 +45,7 @@
 #define NETWORK_MODULE_VERSION 0x04
 
 // Network version
-#define NETWORK_VERSION 0x68
+#define NETWORK_VERSION 0x6A
 
 // Tick Rate
 #define TICK_RATE 100
