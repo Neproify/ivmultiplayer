@@ -119,21 +119,26 @@ unsigned long CWebServer::FileCopy(String strClientFile, bool bIsScript, CFileCh
 {
 	String strType = bIsScript ? "clientscripts" : "resources";
 	String strClientFilePath(SharedUtility::GetAbsolutePath("%s/%s", strType.Get(), strClientFile.Get()));
-	String strWebServerFolder(SharedUtility::GetAbsolutePath("webserver"));
-	String strClientWebServerFilePath("%s/%s/%s", strWebServerFolder.Get(), strType.Get(), strClientFile.Get());
 
-	// Create the web server folder if needed
-	if(!SharedUtility::Exists(strWebServerFolder.Get()))
-		SharedUtility::CreateDirectory(strWebServerFolder.Get());
+	// Do we not have an external Webserver configured?
+	if(CVAR_GET_STRING("httpserver").IsEmpty())
+	{
+		String strWebServerFolder(SharedUtility::GetAbsolutePath("webserver"));
+		String strClientWebServerFilePath("%s/%s/%s", strWebServerFolder.Get(), strType.Get(), strClientFile.Get());
 
-	// Create the web server type folder if needed
-	String strWebServerTypeFolder("%s/%s", strWebServerFolder.Get(), strType.Get());
+		// Create the web server folder if needed
+		if(!SharedUtility::Exists(strWebServerFolder.Get()))
+			SharedUtility::CreateDirectory(strWebServerFolder.Get());
 
-	if(!SharedUtility::Exists(strWebServerTypeFolder.Get()))
-		SharedUtility::CreateDirectory(strWebServerTypeFolder.Get());
+		// Create the web server type folder if needed
+		String strWebServerTypeFolder("%s/%s", strWebServerFolder.Get(), strType.Get());
 
-	if(!SharedUtility::CopyFile(strClientFilePath.Get(), strClientWebServerFilePath.Get()))
-		return false;
+		if(!SharedUtility::Exists(strWebServerTypeFolder.Get()))
+			SharedUtility::CreateDirectory(strWebServerTypeFolder.Get());
 
-	return fileChecksum.Calculate(strClientWebServerFilePath.Get());
+		if(!SharedUtility::CopyFile(strClientFilePath.Get(), strClientWebServerFilePath.Get()))
+			return false;
+	}
+
+	return fileChecksum.Calculate(strClientFilePath.Get());
 }
