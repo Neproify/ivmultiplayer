@@ -115,7 +115,7 @@ CWebServer::~CWebServer()
 	}
 }
 
-unsigned long CWebServer::FileCopy(String strClientFile, bool bIsScript, CFileChecksum &fileChecksum)
+bool CWebServer::FileCopy(String strClientFile, bool bIsScript, CFileChecksum &fileChecksum)
 {
 	String strType = bIsScript ? "clientscripts" : "resources";
 	String strClientFilePath(SharedUtility::GetAbsolutePath("%s/%s", strType.Get(), strClientFile.Get()));
