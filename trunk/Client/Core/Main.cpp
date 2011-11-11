@@ -511,6 +511,20 @@ void Direct3DRender()
 			g_pChatWindow->AddInfoMessage("Created explosion near your position");
 		}
 
+		if(GetAsyncKeyState(VK_F5) & 1)
+		{
+			CNetworkVehicle * pVehicle = g_pLocalPlayer->GetVehicle();
+
+			if(pVehicle)
+			{
+				g_pChatWindow->AddInfoMessage("Turning on current vehicle headlights");
+				IVVehicle * pGameVehicle = pVehicle->GetGameVehicle()->GetVehicle();
+				//*(BYTE *)(pVehicle->GetGameVehicle()->GetVehicle() + 0xF71) |= 1;
+				*((BYTE *)pGameVehicle + 3953) = *((BYTE *)pGameVehicle + 3953) & 0xFE | 2;
+				g_pChatWindow->AddInfoMessage("Turned on current vehicle headlights");
+			}
+		}
+
 		// CViewportManager + 0x00 = sysArray (CViewport *)
 		// CViewport + 0x53C = Viewport ID
 		// GET_VIEWPORT_POS_AND_SIZE(unsigned int uiViewportId, float * fPosX, float * fPosY, float * fSizeX, float * fSizeY)

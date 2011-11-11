@@ -326,18 +326,19 @@ const char * CIVTask::GetName()
 	return GetTaskName(GetType());
 }
 
-bool CIVTask::MakeAbortable(CIVPed * pPed, int iAbortPriority, void * pEvent)
+bool CIVTask::MakeAbortable(CIVPed * pPed, int iAbortPriority, CIVEvent * pEvent)
 {
 	bool bReturn = false;
 
 	if(m_pTask)
 	{
+		IVEvent * pGameEvent = pEvent->GetEvent();
 		IVPed * pGamePed = pPed->GetPed();
 		IVTask * pTask = m_pTask;
 		DWORD dwFunc = m_pTask->m_VFTable->MakeAbortable;
 		_asm
 		{
-			push pEvent
+			push pGameEvent
 			push iAbortPriority
 			push pGamePed
 			mov ecx, pTask

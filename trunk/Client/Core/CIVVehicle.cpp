@@ -115,11 +115,10 @@ void CIVVehicle::SetColors(unsigned char ucColor1, unsigned char ucColor2, unsig
 		pVehicle->m_byteColors[2] = ucColor3;
 		pVehicle->m_byteColors[3] = ucColor4;
 
-		DWORD dwFunc = COffsets::FUNC_CVehicle__RefreshColours;
 		_asm
 		{
 			mov ecx, pVehicle
-			call dwFunc
+			call COffsets::FUNC_CVehicle__RefreshColours
 		}
 	}
 }
@@ -496,4 +495,29 @@ int CIVVehicle::GetTextureVariation()
 	}
 
 	return 0;
+}
+
+void CIVVehicle::SetCanBeVisiblyDamaged(bool bState)
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+	{
+		if(bState)
+			SET_BIT(pVehicle->m_byteFlags9, 4);
+		else
+			UNSET_BIT(pVehicle->m_byteFlags9, 4);
+	}
+}
+
+bool CIVVehicle::CanBeVisiblyDamaged()
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+		return IS_BIT_SET(pVehicle->m_byteFlags9, 4);
+
+	return false;
 }

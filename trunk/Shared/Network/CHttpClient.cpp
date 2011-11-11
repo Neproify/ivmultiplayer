@@ -180,22 +180,24 @@ int CHttpClient::Read(char * szBuffer, int iLen)
 {
 	// HACK: Method for non blocking recv calls only
 	// Set the socket to non blocking
-	u_long sockopt = 1;
 #ifdef _LINUX
-        int flags = fcntl(m_iSocket, F_GETFL, 0);
+	int flags = fcntl(m_iSocket, F_GETFL, 0);
 	UNSET_BIT(flags, O_NONBLOCK);
-        fcntl(m_iSocket, F_SETFL, flags);
+	fcntl(m_iSocket, F_SETFL, flags);
 #else
-        ioctlsocket(m_iSocket, FIONBIO, &sockopt);
+	u_long sockopt = 1;
+	ioctlsocket(m_iSocket, FIONBIO, &sockopt);
 #endif
+
 	// Try to receive
 	int iBytesRead = recv(m_iSocket, szBuffer, iLen, 0);
+
 	// Set the socket to blocking
-	sockopt = 0;
 #ifdef _LINUX
-	flags = fcntl(m_iSocket, F_GETFL, 0); 
-	fcntl(m_iSocket, F_SETFL, flags | O_NONBLOCK);
+	SET_BIT(flags, O_NONBLOCK);
+	fcntl(m_iSocket, F_SETFL, flags);
 #else
+	sockopt = 0;
 	ioctlsocket(m_iSocket, FIONBIO, &sockopt);
 #endif
 	return iBytesRead;
@@ -234,8 +236,8 @@ bool CHttpClient::Get(String strPath)
 				  "Referer: %s\r\n" \
 				  "Connection: close\r\n" \
 				  "\r\n", 
-				  strPath.C_String(), m_strHost.C_String(), 
-				  m_strUserAgent.C_String(), m_strReferer.C_String());
+				  strPath.Get(), m_strHost.Get(), 
+				  m_strUserAgent.Get(), m_strReferer.Get());
 
 	// Send the GET command
 	if(!Write(strGet.C_String(), strGet.GetLength()))
@@ -275,9 +277,9 @@ bool CHttpClient::Post(bool bHasResponse, String strPath, String strData, String
 				  "Connection: close\r\n" \
 				  "\r\n" \
 				  "%s", 
-				  strPath.C_String(), m_strHost.C_String(), m_strUserAgent.C_String(), 
-				  m_strReferer.C_String(), strContentType.C_String(), strData.GetLength(), 
-				  strData.C_String());
+				  strPath.Get(), m_strHost.Get(), m_strUserAgent.Get(), 
+				  m_strReferer.Get(), strContentType.Get(), strData.GetLength(), 
+				  strData.Get());
 
 	// Send the POST command
 	if(!Write(strGet.C_String(), strGet.GetLength()))

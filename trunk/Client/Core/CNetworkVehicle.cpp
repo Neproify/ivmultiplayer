@@ -278,8 +278,10 @@ void CNetworkVehicle::StreamIn()
 		// Set the colors
 		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
 
+		// Disable visible damage
+		m_pVehicle->SetCanBeVisiblyDamaged(false);
+
 		// Disable some damage stuff
-		Scripting::SetCarCanBeVisiblyDamaged(GetScriptingHandle(), false);
 		Scripting::SetCarProofs(GetScriptingHandle(), true, true, true, true, true);
 
 		// Restore the health
@@ -675,12 +677,9 @@ float CNetworkVehicle::GetPetrolTankHealth()
 
 void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 {
-	// TODO: Store player id
-	SetPosition(emptyVehicleSync->vecPos);
-	//SetHeading(emptyVehicleSync->fHeading);
-	//SetQuaternion(&emptyVehicleSync->quatQuaternion);
-	SetTurnSpeed(emptyVehicleSync->vecTurnSpeed);
-	SetMoveSpeed(emptyVehicleSync->vecMoveSpeed);
+	SetTargetPosition(emptyVehicleSync->vecPosition, TICK_RATE);
+	SetTargetRotation(emptyVehicleSync->vecRotation, TICK_RATE);
+	SetHealth(emptyVehicleSync->fHealth);
 }
 
 BYTE CNetworkVehicle::GetMaxPassengers()

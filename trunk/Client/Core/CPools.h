@@ -17,10 +17,6 @@
 #include "CIVCam.h"
 #include "CIVCheckpoint.h"
 
-// Game pool addresses
-#define VAR_PlayerInfoArray 0x11A7008
-#define VAR_LocalPlayerId_7 0xF1CC68
-
 // Player info array size
 #define PLAYER_INFO_ARRAY_SIZE 32
 
@@ -38,11 +34,11 @@ class CPools
 private:
 	// Game pools
 	CIVPool<IVPed>     * m_pPedPool;
-	CIVPool<IVVehicle> * m_pVehiclePool;
+	CIVPool<IVVehicle> * m_pVehiclePool; // Size: 140
 	//#define VAR_BuildingPool_7 0x168FED0
 	//#define VAR_ObjectPool_7 0x1350CE0
-	CIVPool<IVTask>    * m_pTaskPool;
-	//#define VAR_EventPool_7 0x152F4B4
+	CIVPool<IVTask>    * m_pTaskPool; // Size: 1200
+	//#define VAR_EventPool_7 0x152F4B4 // Size: 300
 	CIVPool<IVCam>     * m_pCamPool;
 	//#define VAR_TaskInfoPool_7 0x1618040
 

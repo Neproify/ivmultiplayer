@@ -24,7 +24,6 @@ CChatWindow::CChatWindow()
 {
 	memset(&m_chatMessages, 0, sizeof(m_chatMessages));
 	m_bEnabled = true;
-	m_bDrawEnabled = true;
 	m_iCurrentPage = 1;
 	InitFontAndBackground();
 }
@@ -37,9 +36,9 @@ CChatWindow::~CChatWindow()
 void CChatWindow::Draw()
 {
 	// Are we enabled and do we have a valid GUI instance?
-	if(m_bEnabled && g_pGUI && m_bDrawEnabled)
+	if(m_bEnabled && g_pGUI)
 	{
-		// Draw the font background
+		// Draw the chat background
 		g_pGraphics->DrawRect(5, 5, 500, 30 + MAX_DISPLAYED_MESSAGES * 20, m_ulBackgroundColor);
 
 		// Do we have a valid font?
@@ -146,26 +145,6 @@ void CChatWindow::AddMessage(DWORD dwColor, bool bAllowFormatting, const char * 
 	m_chatMessages[0].fNameExtent = 0;
 	m_chatMessages[0].bAllowFormatting = bAllowFormatting;
 	m_iMessageAmount++;
-}
-
-bool CChatWindow::IsEnabled()
-{
-	return m_bEnabled;
-}
-
-void CChatWindow::SetEnabled(bool bEnabled)
-{
-	m_bEnabled = bEnabled;
-}
-
-bool CChatWindow::IsDrawEnabled()
-{
-	return m_bDrawEnabled;
-}
-
-void CChatWindow::SetDrawEnabled(bool bDrawEnabled)
-{
-	m_bDrawEnabled = bDrawEnabled;
 }
 
 void CChatWindow::PageUp()

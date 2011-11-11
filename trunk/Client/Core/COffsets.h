@@ -84,7 +84,6 @@ public:
 	static unsigned int VAR_ScrollBarText;
 	static unsigned int VAR_ScrollBarColor;
 	static unsigned int VAR_CameraManager;
-	static unsigned int VAR_LocalPlayerId;
 	static unsigned int VAR_LocalPlayerState;
 	static unsigned int FUNC_GetLocalPlayerSpawnPosition;
 	static unsigned int CALL_SpawnLocalPlayer;
@@ -164,6 +163,8 @@ public:
 	static unsigned int FUNC_CPool__AtHandle;
 	static unsigned int FUNC_CPool__HandleOf;
 	static unsigned int FUNC_CPlayer__GetPlayerByNumber;
+	static unsigned int VAR_PlayerInfoArray;
+	static unsigned int VAR_LocalPlayerId;
 
 	// Physical
 	static unsigned int FUNC_CPhysical__SetMoveSpeed;
