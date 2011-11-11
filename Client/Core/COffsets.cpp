@@ -65,7 +65,6 @@ unsigned int COffsets::VAR_CurrentWantedLevel = 0;
 unsigned int COffsets::VAR_ScrollBarText = 0;
 unsigned int COffsets::VAR_ScrollBarColor = 0;
 unsigned int COffsets::VAR_CameraManager = 0;
-unsigned int COffsets::VAR_LocalPlayerId = 0;
 unsigned int COffsets::VAR_LocalPlayerState = 0;
 unsigned int COffsets::FUNC_GetLocalPlayerSpawnPosition = 0;
 unsigned int COffsets::CALL_SpawnLocalPlayer = 0;
@@ -145,6 +144,8 @@ unsigned int COffsets::FUNC_CPool__Release = 0;
 unsigned int COffsets::FUNC_CPool__AtHandle = 0;
 unsigned int COffsets::FUNC_CPool__HandleOf = 0;
 unsigned int COffsets::FUNC_CPlayer__GetPlayerByNumber = 0;
+unsigned int COffsets::VAR_PlayerInfoArray = 0;
+unsigned int COffsets::VAR_LocalPlayerId = 0;
 
 // Physical
 unsigned int COffsets::FUNC_CPhysical__SetMoveSpeed = 0;
@@ -262,7 +263,6 @@ void COffsets::Init(unsigned int uiBase)
 			VAR_ScrollBarText                             = (uiBase + 0x15F2228);
 			VAR_ScrollBarColor                            = (uiBase +  0x972FFD);
 			VAR_CameraManager                             = (uiBase +  0xF21A6C);
-			VAR_LocalPlayerId                             = (uiBase +  0xF1CC68);
 			VAR_LocalPlayerState                          = (uiBase + 0x10F8068); // 0 = alive, 1 = dead(?), 2 = being arrested(?), 5 = respawning
 			FUNC_GetLocalPlayerSpawnPosition              = (uiBase +  0x7B84E2);
 			CALL_SpawnLocalPlayer                         = (uiBase +  0x7B8592);
@@ -342,6 +342,8 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CPool__AtHandle                          = (uiBase +  0x426700);
 			FUNC_CPool__HandleOf                          = (uiBase +  0x447230);
 			FUNC_CPlayer__GetPlayerByNumber               = (uiBase +  0x817F20);
+			VAR_PlayerInfoArray                           = (uiBase + 0x11A7008);
+			VAR_LocalPlayerId                             = (uiBase +  0xF1CC68);
 
 			// Physical
 			FUNC_CPhysical__SetMoveSpeed                  = (uiBase +  0xA47750);

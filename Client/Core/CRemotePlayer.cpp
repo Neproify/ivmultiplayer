@@ -255,8 +255,8 @@ void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * s
 		m_vehicleId = vehicleId;
 
 		// If they are not in the vehicle put them in it
-		if(GetVehicle() != pVehicle)
-			PutInVehicle(pVehicle, 0);
+		if(GetVehicle() != pVehicle || GetVehicleSeatId() != syncPacket->byteSeatId)
+			PutInVehicle(pVehicle, syncPacket->byteSeatId);
 
 		// Set their pad state
 		SetPadState(&syncPacket->padState);

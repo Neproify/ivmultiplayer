@@ -797,7 +797,8 @@ void CPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothes)
 
 unsigned char CPlayer::GetClothes(unsigned char ucBodyPart)
 {
-	if(ucBodyPart < 0 || ucBodyPart >= 11)
+	if(ucBodyPart >= 11)
 		return 0;
+
 	return m_ucClothes[ucBodyPart];
 }

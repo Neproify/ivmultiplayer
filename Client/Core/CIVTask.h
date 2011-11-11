@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CIVPed.h"
+#include "CIVEvent.h"
 
 // Move this stuff to IVTasks.h/cpp?
 // Task Types
@@ -239,8 +240,8 @@ public:
 	IVTaskVFTable * m_VFTable;
 	IVTask *        m_pParent;
 	IVTask *        m_pSubTask; // CTaskComplex?
+	PAD(IVTask, pad0, 0x104);
 	// 0xE = pPed?
-	// TODO: Find size
 };
 
 // From Multi Theft Auto
@@ -273,6 +274,6 @@ public:
 	bool         IsSimple();
 	int          GetType();
 	const char * GetName();
-	bool         MakeAbortable(CIVPed * pPed, int iAbortPriority, void * pEvent = NULL); // TODO: CIVEvent
+	bool         MakeAbortable(CIVPed * pPed, int iAbortPriority, CIVEvent * pEvent = NULL);
 	void         SetAsPedTask(CIVPed * pPed, int iTaskPriority, bool bForceNewTask = false);
 };

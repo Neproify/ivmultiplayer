@@ -105,7 +105,7 @@ void CPickupManager::HandleClientJoin(EntityId playerId)
 
 bool CPickupManager::DoesExist(EntityId pickupId)
 {
-	if(pickupId < 0 || pickupId >= MAX_PICKUPS)
+	if(pickupId >= MAX_PICKUPS)
 		return false;
 
 	return m_bActive[pickupId];

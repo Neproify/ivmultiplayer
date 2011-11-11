@@ -22,8 +22,8 @@ CPools::CPools()
 	memset(&m_checkpoints, 0, sizeof(m_checkpoints));
 
 	// Modify checkpoint rendering to use our custom array
-	*(DWORD*)(COffsets::VAR_RenderCheckpoints_FirstCP) = (DWORD)(m_checkpoints + 0x18);
-	*(DWORD*)(COffsets::VAR_RenderCheckpoints_LastCP) = (DWORD)(m_checkpoints + 0x18 + CHECKPOINT_ARRAY_SIZE * sizeof(IVCheckpoint));
+	*(DWORD *)(COffsets::VAR_RenderCheckpoints_FirstCP) = (DWORD)(m_checkpoints + 0x18);
+	*(DWORD *)(COffsets::VAR_RenderCheckpoints_LastCP) = (DWORD)(m_checkpoints + 0x18 + CHECKPOINT_ARRAY_SIZE * sizeof(IVCheckpoint));
 }
 
 CPools::~CPools()
@@ -51,7 +51,7 @@ IVPlayerInfo * CPools::GetPlayerInfoFromIndex(unsigned int uiIndex)
 		return NULL;
 
 	// Get the player info pointer array
-	IVPlayerInfo ** pPlayerInfos = (IVPlayerInfo **)(CGame::GetBase() + VAR_PlayerInfoArray);
+	IVPlayerInfo ** pPlayerInfos = (IVPlayerInfo **)COffsets::VAR_PlayerInfoArray;
 
 	// Return the player info pointer
 	return pPlayerInfos[uiIndex];
@@ -99,7 +99,7 @@ void CPools::SetPlayerInfoAtIndex(unsigned int uiIndex, IVPlayerInfo * pPlayerIn
 		return;
 
 	// Get the player info pointer array
-	IVPlayerInfo ** pPlayerInfos = (IVPlayerInfo **)(CGame::GetBase() + VAR_PlayerInfoArray);
+	IVPlayerInfo ** pPlayerInfos = (IVPlayerInfo **)COffsets::VAR_PlayerInfoArray;
 
 	// Set the player info pointer
 	pPlayerInfos[uiIndex] = pPlayerInfo;
@@ -121,12 +121,12 @@ unsigned int CPools::FindFreePlayerInfoIndex()
 
 unsigned int CPools::GetLocalPlayerIndex()
 {
-	return *(unsigned int *)(CGame::GetBase() + VAR_LocalPlayerId_7);
+	return *(unsigned int *)COffsets::VAR_LocalPlayerId;
 }
 
 void CPools::SetLocalPlayerIndex(unsigned int uiIndex)
 {
-	*(unsigned int *)(CGame::GetBase() + VAR_LocalPlayerId_7) = uiIndex;
+	*(unsigned int *)COffsets::VAR_LocalPlayerId = uiIndex;
 }
 
 IVCheckpoint * CPools::GetCheckpointFromIndex(unsigned int uiIndex)

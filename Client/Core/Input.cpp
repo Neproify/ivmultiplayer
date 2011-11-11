@@ -253,14 +253,10 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     {
 		if(g_pChatWindow)
 		{
-			if(g_pChatWindow->IsDrawEnabled())
-            {
-				g_pChatWindow->SetDrawEnabled(false);
-            }
+			if(g_pChatWindow->IsEnabled())
+				g_pChatWindow->SetEnabled(false);
             else
-            {
-                g_pChatWindow->SetDrawEnabled(true);
-            }
+                g_pChatWindow->SetEnabled(true);
 		}
 	}
 

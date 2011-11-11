@@ -377,6 +377,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\CIVEvent.h"
+						>
+					</File>
+					<File
 						RelativePath=".\CIVModelInfo.h"
 						>
 					</File>
@@ -1139,6 +1143,10 @@
 					</File>
 					<File
 						RelativePath=".\CIVEntity.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\CIVEvent.cpp"
 						>
 					</File>
 					<File

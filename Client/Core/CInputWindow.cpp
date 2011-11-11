@@ -92,12 +92,7 @@ bool CInputWindow::HandleInput(UINT uMsg, DWORD dwChar)
 	{
 		if(uMsg == WM_KEYUP)
 		{
-			if(dwChar == VK_F6)
-			{
-				Enable();
-				return true;
-			}
-			else if(dwChar == VK_RETURN)
+			if(dwChar == VK_RETURN)
 			{
 				ProcessInput();
 				return true;
@@ -142,14 +137,21 @@ bool CInputWindow::HandleInput(UINT uMsg, DWORD dwChar)
 	}
 	else 
 	{
-		if(uMsg == WM_CHAR)
+		if(uMsg == WM_KEYUP)
+		{
+			if(dwChar == VK_F6)
+			{
+				Enable();
+				return true;
+			}
+		}
+		else if(uMsg == WM_CHAR)
 		{
 			switch(dwChar)
 			{
 			case '`':
 			case 't':
 			case 'T':
-			case VK_F6:
 				Enable();
 				return true;
 			}

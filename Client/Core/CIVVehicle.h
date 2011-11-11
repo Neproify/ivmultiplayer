@@ -42,8 +42,9 @@ public:
 	PAD(IVVehicle, pad3, 0x3);    // 0F69-0F6C
 	BYTE m_byteFlags6;            // 0F6C-0F6D // 2 - Hazard Lights Flashing, 4 - Hazard Lights Constant, 16 - Interior Lights
 	BYTE m_byteFlags7;            // 0F6D-0F6E // 64 - Pretend Occupants
-	PAD(IVVehicle, pad4, 0x2);    // 0F6E-0F70
-	BYTE m_byteFlags8;            // 0F70-0F71 // 4 - Visibly Damaged
+	PAD(IVVehicle, pad4, 0x1);    // 0F6E-0F6F
+	BYTE m_byteFlags8;            // 0F6F-0F70 // 32 - Is Police Vehicle
+	BYTE m_byteFlags9;            // 0F70-0F71 // 4 - Can Be Visibly Damaged
 	PAD(IVVehicle, pad5, 0x3);    // 0F71-0F74
 	DWORD m_dwTimeOfCreation2;    // 0F74-0F78
 	PAD(IVVehicle, pad6, 0x20);   // 0F78-0F98
@@ -78,13 +79,14 @@ public:
 	DWORD m_dwTimeOfCreation;     // 12E4-12E8
 	PAD(IVVehicle, pad18, 0x38);  // 12E8-1320
 	DWORD m_dwDoorLockState;      // 1320-1324 // 0 - Unlocked, 1+ - Locked
+	PAD(IVVehicle, pad19, 0x18);  // 1324-133C
+	// 0x1330 - float m_fLightMultiplier;
+	DWORD m_dwHorn;               // 133C-1340
+	PAD(IVVehicle, pad20, 0xD90); // 1340-20D0
 	// 0x14C4 - BYTE m_byteUnknownFlags; // 8 - Not Damaged Upside Down, 64 - Firing Water Cannon
 	// 0x14E8 - float m_fWaterCannonOrientation;
 	// 0x14EC - float m_fWaterCannonElevation;
 	// 0x1510 - Vector3 m_vecWaterCannonDirection;
-	PAD(IVVehicle, pad19, 0x18);  // 1324-133C
-	DWORD m_dwHorn;               // 133C-1340
-	PAD(IVVehicle, pad20, 0xD90); // 1340-20D0
 	// 0x1354 - eVehicleType m_type;
 	// 1120-12DC Damage
 	// 1112 Lights On (word i *think*)
@@ -136,4 +138,6 @@ public:
 	BYTE        GetTextureVariationCount();
 	void        SetTextureVariation(int iVariation);
 	int         GetTextureVariation();
+	void        SetCanBeVisiblyDamaged(bool bState);
+	bool        CanBeVisiblyDamaged();
 };

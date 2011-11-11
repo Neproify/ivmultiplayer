@@ -221,11 +221,8 @@ struct EMPTYVEHICLESYNCPACKET
 {
 	EntityId playerId;
 	EntityId vehicleId;
-	CVector3 vecPos;
-	float fHeading;
-	//Quaternion quatQuaternion;
-	CVector3 vecTurnSpeed;
-	CVector3 vecMoveSpeed;
+	CVector3 vecPosition;
+	CVector3 vecRotation;
 	float fHealth;
 };
 
