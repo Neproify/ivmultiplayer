@@ -66,14 +66,7 @@ bool CClientFileManager::Restart(String strName)
 	if(!Exists(strName))
 		return false;
 
-	for(iterator iter = begin(); iter != end(); ++ iter)
-	{
-		if((*iter).first == strName)
-		{
-			erase(iter);
-			break;
-		}
-	}
+	Stop(strName);
 
 	CFileChecksum fileChecksum;
 

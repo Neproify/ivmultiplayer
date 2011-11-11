@@ -370,7 +370,7 @@ void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
 
 	if(pVehicle)
 	{
-		if(bStatus)//has to be like that otherwise the engine stalls sometimes
+		if(bStatus)
 		{
 			DWORD dwFunc = COffsets::FUNC_CVehicle__SetEngineOn;
             _asm
