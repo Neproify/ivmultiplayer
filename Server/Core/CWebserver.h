@@ -25,5 +25,5 @@ public:
 	CWebServer(unsigned short usHTTPPort);
 	~CWebServer();
 
-	unsigned long FileCopy(String strClientFile, bool bIsScript, CFileChecksum &fileChecksum);
+	bool FileCopy(String strClientFile, bool bIsScript, CFileChecksum &fileChecksum);
 };
