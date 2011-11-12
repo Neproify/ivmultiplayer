@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "Common.h"
+
 template<class Entity, EntityId max>
 class CNetworkEntityManager
 {

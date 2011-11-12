@@ -41,8 +41,10 @@ public:
 	void            GetTargetPosition(CVector3& vecTargetPosition);
 	void            SetRadius(float fRadius);
 	float           GetRadius();
+	void            Pulse();
+
+	// Streaming
 	void            GetStreamPosition(CVector3& vecCoordinates) { GetPosition(vecCoordinates); }
 	void            StreamIn();
 	void            StreamOut();
-	void            Pulse();
 };
