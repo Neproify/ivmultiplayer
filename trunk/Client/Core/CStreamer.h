@@ -61,7 +61,7 @@ public:
 	void              SetCanBeStreamedIn(bool bCanBeStreamedIn) { m_bCanBeStreamedIn = bCanBeStreamedIn; }
 	bool              CanBeStreamedIn() { return m_bCanBeStreamedIn; }
 
-	virtual void      GetStreamPosition(CVector3& vecCoordinates) { };
+	virtual void      GetStreamPosition(CVector3& vecPosition) { };
 	virtual void      UpdateInterior(unsigned int uiInterior) { };
 
 	virtual void      StreamIn() { };

@@ -67,22 +67,8 @@ bool CClientFileManager::Restart(String strName)
 		return false;
 
 	Stop(strName);
-
-	CFileChecksum fileChecksum;
-
-	if(!g_pWebserver->FileCopy(strName, bIsScriptManager, fileChecksum))
-	{
-		CLogFile::Printf("Failed to copy client file %s to web server!\n", strName.Get());
-		return false;
-	}
-
-	insert(std::pair<String, CFileChecksum>(strName, fileChecksum));
-	CBitStream bsSend;
-	bsSend.Write(bIsScriptManager);
-	bsSend.Write(strName);
-	bsSend.Write((char *)&fileChecksum, sizeof(CFileChecksum));
-	g_pNetworkManager->RPC(RPC_NewFile, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
-	return true;
+	
+	return Start(strName);
 }
 
 bool CClientFileManager::Exists(String strName)

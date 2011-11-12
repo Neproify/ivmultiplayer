@@ -278,10 +278,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\CCheckpoint.h"
-					>
-				</File>
-				<File
 					RelativePath=".\CClientTaskManager.h"
 					>
 				</File>
@@ -486,6 +482,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\CCheckpoint.h"
+					>
+				</File>
+				<File
 					RelativePath=".\CCheckpointManager.h"
 					>
 				</File>
@@ -526,7 +526,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\CObject.h"
+					>
+				</File>
+				<File
 					RelativePath=".\CObjectManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CPickup.h"
 					>
 				</File>
 				<File
@@ -1075,10 +1083,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\CCheckpoint.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\CClientTaskManager.cpp"
 					>
 				</File>
@@ -1247,6 +1251,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\CCheckpoint.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\CCheckpointManager.cpp"
 					>
 				</File>
@@ -1279,7 +1287,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\CObject.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\CObjectManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CPickup.cpp"
 					>
 				</File>
 				<File
