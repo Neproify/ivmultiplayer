@@ -941,23 +941,32 @@ void CMainMenu::SetVisible(bool bVisible)
 
 void CMainMenu::SetServerBrowserWindowVisible(bool bVisible)
 {
-	m_serverBrowser.pWindow->setVisible(bVisible);
-	m_serverBrowser.pWindow->activate();
-	m_bServerBrowserWindowVisible = bVisible;
+	if(bVisible != m_bServerBrowserWindowVisible)
+	{
+		m_serverBrowser.pWindow->setVisible(bVisible);
+		m_serverBrowser.pWindow->activate();
+		m_bServerBrowserWindowVisible = bVisible;
+	}
 }
 
 void CMainMenu::SetQuickConnectWindowVisible(bool bVisible)
 {
-	m_pQuickConnectWindow->setVisible(bVisible);
-	m_pQuickConnectWindow->activate();
-	m_bQuickConnectWindowVisible = bVisible;
+	if(bVisible != m_bQuickConnectWindowVisible)
+	{
+		m_pQuickConnectWindow->setVisible(bVisible);
+		m_pQuickConnectWindow->activate();
+		m_bQuickConnectWindowVisible = bVisible;
+	}
 }
 
 void CMainMenu::SetSettingsWindowVisible(bool bVisible)
 {
-	m_pSettingsWindow->setVisible(bVisible);
-	m_pSettingsWindow->activate();
-	m_bSettingsWindowVisible = bVisible;
+	if(bVisible != m_bSettingsWindowVisible)
+	{
+		m_pSettingsWindow->setVisible(bVisible);
+		m_pSettingsWindow->activate();
+		m_bSettingsWindowVisible = bVisible;
+	}
 }
 
 void CMainMenu::Process()
