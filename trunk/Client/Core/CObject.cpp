@@ -36,6 +36,7 @@ bool CObject::Create()
 		Scripting::CreateObjectNoOffset((Scripting::eModel)m_dwModelHash, m_vecPosition.fX, m_vecPosition.fY, m_vecPosition.fZ, &m_uiObjectHandle, true);
 		Scripting::FreezeObjectPosition(m_uiObjectHandle, true);
 		Scripting::AddObjectToInteriorRoomByKey(m_uiObjectHandle, (Scripting::eInteriorRoomKey)g_pLocalPlayer->GetInterior());
+		return true;
 	}
 
 	return false;
