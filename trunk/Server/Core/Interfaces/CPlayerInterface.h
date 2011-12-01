@@ -50,9 +50,9 @@ public:
 	virtual void           SetAmmo(unsigned int uAmmo) = 0;
 	virtual unsigned int   GetAmmo() = 0;
 	virtual String         GetSerial() = 0;
-	virtual void           SetPadState(CPadState * padState) = 0;
-	virtual void           GetPreviousPadState(CPadState * padState) = 0;
-	virtual void           GetPadState(CPadState * padState) = 0;
+	virtual void           SetControlState(CControlState * controlState) = 0;
+	virtual void           GetPreviousControlState(CControlState * controlState) = 0;
+	virtual void           GetControlState(CControlState * controlState) = 0;
 	virtual void           SetColor(unsigned int color) = 0;	
 	virtual unsigned int   GetColor() = 0;
 	virtual unsigned short GetPing() = 0;

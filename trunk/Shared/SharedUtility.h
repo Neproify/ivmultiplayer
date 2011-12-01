@@ -22,12 +22,6 @@ typedef unsigned long DWORD;
 #include "Common.h"
 #include <CString.h>
 
-#ifdef IVMP_DEBUG
-#define DEBUG_SUFFIX ".Debug"
-#else
-#define DEBUG_SUFFIX
-#endif
-
 namespace SharedUtility
 {
 // Strip a path from a string array and
@@ -123,8 +117,3 @@ String RemoveIllegalCharacters(String& strFileName);
 // Return a string with the amount of time passed from the specified time
 String GetTimePassedFromTime(unsigned long ulTick);
 }
-
-#ifndef WIN32
-// Returns the current tick count
-DWORD GetTickCount();
-#endif

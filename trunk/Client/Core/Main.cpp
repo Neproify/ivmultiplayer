@@ -380,6 +380,213 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
+// debug view
+#define DEBUG_TEXT_TOP (40.0f + (MAX_DISPLAYED_MESSAGES * 20))
+float g_fDebugTextTop = 0;
+
+void DrawDebugText(String strText)
+{
+	// Get the font
+	CEGUI::Font * pFont = NULL/*g_pGUI->GetFont("tahoma-bold", 10)*/;
+
+	// Draw the text
+	g_pGUI->DrawText(strText, CEGUI::Vector2(26.0f, g_fDebugTextTop), CEGUI::colour(0xFFFFFFFF), pFont);
+
+	// Increment the text top
+	g_fDebugTextTop += 14.0f;
+}
+
+void DebugDumpTask(String strName, CIVTask * pTask)
+{
+	if(!pTask)
+	{
+		//DrawDebugText(String("%s: None (9999)", strName.Get()));
+		return;
+	}
+
+	DrawDebugText(String("%s: %s (%d)", strName.Get(), pTask->GetName(), pTask->GetType()));
+	CIVTask * pSubTask = NULL;
+
+	while((pSubTask = pTask->GetSubTask()))
+	{
+		DrawDebugText(String("%s: %s (%d)", strName.Get(), pSubTask->GetName(), pSubTask->GetType()));
+		pTask = pSubTask;
+	}
+}
+
+bool bFireGunDisabled = false;
+
+void DebugDumpTasks(int iType)
+{
+	CIVPedTaskManager * pPedTaskManager = g_pLocalPlayer->GetGamePlayerPed()->GetPedTaskManager();
+
+	if(iType == 0)
+	{
+		DrawDebugText("Priority Tasks: ");
+		DrawDebugText("");
+		DebugDumpTask("PhysicalResponse", pPedTaskManager->GetTask(TASK_PRIORITY_PHYSICAL_RESPONSE));
+		DebugDumpTask("EventResponseTemp", pPedTaskManager->GetTask(TASK_PRIORITY_EVENT_RESPONSE_TEMP));
+		DebugDumpTask("EventResponseNonTemp", pPedTaskManager->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP));
+		DebugDumpTask("Primary", pPedTaskManager->GetTask(TASK_PRIORITY_PRIMARY));
+		DebugDumpTask("Default", pPedTaskManager->GetTask(TASK_PRIORITY_DEFAULT));
+		DrawDebugText("");
+	}
+	else if(iType == 1)
+	{
+		DrawDebugText("Secondary Tasks: ");
+		DrawDebugText("");
+		DebugDumpTask("Attack", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_ATTACK));
+		DebugDumpTask("Duck", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_DUCK));
+		DebugDumpTask("Say", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_SAY));
+		DebugDumpTask("FacialComplex", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_FACIAL_COMPLEX));
+		DebugDumpTask("PartialAnim", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_PARTIAL_ANIM));
+		DebugDumpTask("IK", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_IK));
+		DrawDebugText("");
+		
+	}
+	else if(iType == 2)
+	{
+		DrawDebugText("Unknown Tasks: ");
+		DrawDebugText("");
+
+		for(int i = 0; i < 3; i++)
+		{
+			CIVTask * pTask = g_pClientTaskManager->GetClientTaskFromGameTask(pPedTaskManager->GetPedTaskManager()->m_unknownTasks[i]);
+			DebugDumpTask(String("UnknownTask%d", i), pTask);
+		}
+
+		DrawDebugText("");
+	}
+}
+
+#include "CRemotePlayer.h"
+CRemotePlayer * pClonePlayer = NULL;
+
+void DrawDebugView()
+{
+	if(g_pGUI && g_pLocalPlayer && g_pCamera)
+	{
+		if(GetAsyncKeyState(VK_F8) && !pClonePlayer)
+		{
+			pClonePlayer = new CRemotePlayer();
+			pClonePlayer->Spawn(CVector3(), 0);
+		}
+
+		/*if(GetAsyncKeyState(VK_F7))
+		{
+			*(DWORD *)(CGame::GetBase() + 0xCCA0E0) = 0x900004C2;
+			g_pChatWindow->AddInfoMessage("Disabled CTaskSimpleFireGun::SetPedPosition");
+		}
+		else if(GetAsyncKeyState(VK_F8))
+		{
+		// this is where the target data is processed
+			*(DWORD *)(CGame::GetBase() + 0xCCAA30) = 0x900004C2;
+			g_pChatWindow->AddInfoMessage("Disabled CTaskSimpleFireGun::ProcessPed");
+		}*/
+
+		g_fDebugTextTop = DEBUG_TEXT_TOP;
+		DrawDebugText("Local Player Debug: ");
+		DrawDebugText("");
+		CVector3 vecPosition;
+		g_pLocalPlayer->GetPosition(vecPosition);
+		DrawDebugText(String("Position: %f, %f, %f Heading (C/D): %f, %f", vecPosition.fX, vecPosition.fY, vecPosition.fZ, g_pLocalPlayer->GetCurrentHeading(), g_pLocalPlayer->GetDesiredHeading()));
+		CVector3 vecMoveSpeed;
+		g_pLocalPlayer->GetMoveSpeed(vecMoveSpeed);
+		DrawDebugText(String("Move Speed: %f, %f, %f", vecMoveSpeed.fX, vecMoveSpeed.fY, vecMoveSpeed.fZ));
+		CIVCam * pGameCam = g_pCamera->GetGameCam();
+		CVector3 vecCamPosition;
+		pGameCam->GetPosition(vecCamPosition);
+		CVector3 vecCamForward;
+		vecCamForward = pGameCam->GetCam()->m_data1.m_matMatrix.vecForward;
+		CVector3 vecLookAt;
+		vecLookAt.fX = vecCamPosition.fX + /*floatmul(*/vecCamForward.fX/*, fScale)*/;
+		vecLookAt.fY = vecCamPosition.fY + /*floatmul(*/vecCamForward.fY/*, fScale)*/;
+		vecLookAt.fZ = vecCamPosition.fZ + /*floatmul(*/vecCamForward.fZ/*, fScale)*/;
+		DrawDebugText(String("Camera Position: %f, %f, %f Camera Look At: %f, %f, %f", vecCamPosition.fX, vecCamPosition.fY, vecCamPosition.fZ, vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ));
+		DrawDebugText(String("Health: %d Armour: %d Ducking: %d", g_pLocalPlayer->GetHealth(), g_pLocalPlayer->GetArmour(), g_pLocalPlayer->IsDucking()));
+		unsigned int uiWeaponId = g_pLocalPlayer->GetCurrentWeapon();
+		DrawDebugText(String("Weapon: %d Ammo: %d", uiWeaponId, g_pLocalPlayer->GetAmmo(uiWeaponId)));	
+		IVEntity * pDamageEntity = g_pLocalPlayer->GetGamePlayerPed()->GetPhysical()->m_pLastDamageEntity;
+		eWeaponType damageWeapon = g_pLocalPlayer->GetGamePlayerPed()->GetPhysical()->m_lastDamageWeapon;
+		DrawDebugText(String("Last Damage Entity: 0x%x Last Damage Weapon: %d", pDamageEntity, (unsigned int)damageWeapon));
+		DrawDebugText("");
+
+		DebugDumpTasks(0);
+		DebugDumpTasks(1);
+		DebugDumpTasks(2);
+
+		// get targetting pool (this is always 0)
+		/*struct IVTargetting { };
+		CIVPool<IVTargetting *> * pTargettingPool = new CIVPool<IVTargetting *>(*(IVPool **)COffsets::VAR_TargettingPool);
+		DrawDebugText(String("Targetting Pool Count: %d", pTargettingPool->GetUsed()));*/
+
+		/*if(bGotSimpleFireGun)
+		{
+			DrawDebugText("64 bytes from SimpleFireGun Task: ");
+			BYTE * pMemory = (BYTE *)pTask;
+			for(int i = 0; i < 4; i++)
+			{
+				DrawDebugText(String("%.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x", 
+					pMemory[(16*i)],pMemory[(16*i)+1],pMemory[(16*i)+2],pMemory[(16*i)+3],
+					pMemory[(16*i)+4],pMemory[(16*i)+5],pMemory[(16*i)+6],pMemory[(16*i)+7],
+					pMemory[(16*i)+8],pMemory[(16*i)+9],pMemory[(16*i)+10],pMemory[(16*i)+11],
+					pMemory[(16*i)+12],pMemory[(16*i)+13],pMemory[(16*i)+14],pMemory[(16*i)+15]));
+			}
+		}*/
+
+		// delete targetting pool
+		//delete pTargettingPool;
+
+		// Debug aim test
+		CControlState controlState;
+		g_pLocalPlayer->GetControlState(&controlState);
+
+		if(controlState.IsAiming() || controlState.IsFiring())
+		{
+			float fScale = 10.0f;
+			vecLookAt.fX = vecCamPosition.fX + (vecCamForward.fX * fScale);
+			vecLookAt.fY = vecCamPosition.fY + (vecCamForward.fY * fScale);
+			vecLookAt.fZ = vecCamPosition.fZ + (vecCamForward.fZ * fScale);
+			CNetworkVehicle * pVehicle = g_pVehicleManager->Get(0);
+
+			if(pVehicle)
+				pVehicle->SetPosition(vecLookAt);
+		}
+
+		if(pClonePlayer)
+		{
+			vecPosition.fX += 5.0f;
+			pClonePlayer->SetPosition(vecPosition);
+			pClonePlayer->SetCurrentHeading(g_pLocalPlayer->GetCurrentHeading());
+
+			if(pClonePlayer->GetCurrentWeapon() != uiWeaponId)
+				pClonePlayer->GiveWeapon(uiWeaponId, g_pLocalPlayer->GetAmmo(uiWeaponId));
+
+			pClonePlayer->SetDucking(g_pLocalPlayer->IsDucking());
+			pClonePlayer->SetControlState(&controlState);
+
+			{
+				float fScale = 10.0f;
+				CVector3 vecAim = (vecCamPosition + (vecCamForward * fScale));
+				vecAim.fX += 5.0f;
+
+				if(controlState.IsFiring())
+					Scripting::TaskShootAtCoord(pClonePlayer->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, 45000, 5);
+				else if(controlState.IsAiming())
+					Scripting::TaskAimGunAtCoord(pClonePlayer->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, 45000);
+				else
+				{
+					CIVTask * pTask = pClonePlayer->GetGamePlayerPed()->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
+
+					if(pTask && (pTask->GetType() == TASK_COMPLEX_GUN || pTask->GetType() == TASK_COMPLEX_AIM_AND_THROW_PROJECTILE))
+						pClonePlayer->GetGamePlayerPed()->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_PRIMARY);
+				}
+			}
+		}
+	}
+}
+// debug view end
+
 // Direct3DDevice9::EndScene
 void Direct3DRender()
 {
@@ -562,6 +769,10 @@ void Direct3DRender()
 			}
 		}
 	}
+
+#ifdef _DEBUG
+	DrawDebugView();
+#endif
 }
 
 // Direct3DDevice9::Reset
@@ -736,9 +947,9 @@ void GameScriptProcess()
 		vecPosition.fX += 5;
 		pPlayer->SetPosition(&vecPosition);
 		pPlayer->SetCurrentHeading(g_pLocalPlayer->GetCurrentHeading());
-		CPadState padState;
-		g_pLocalPlayer->GetPadState(&padState);
-		pPlayer->SetPadState(&padState);
+		CControlState controlState;
+		g_pLocalPlayer->GetControlState(&controlState);
+		pPlayer->SetControlState(&controlState);
 		AimSyncData aimSyncData;
 		g_pLocalPlayer->GetAimSyncData(&aimSyncData);
 		//pPlayer->SetAimSyncData(&aimSyncData);

@@ -438,10 +438,7 @@ void _declspec(naked) GetLocalPlayerPed_Hook()
 
 IVPlayerPed * GetPlayerPedFromPlayerInfo(IVPlayerInfo * pPlayerInfo)
 {
-	// Reset the player ped pointer
-	_pPlayerPed = NULL;
-
-	// Is the player info pointer and player info player ped pointer valid?
+	// Is the player info pointer valid?
 	if(pPlayerInfo)
 		_pPlayerPed = pPlayerInfo->m_pPlayerPed;
 	else
@@ -479,6 +476,9 @@ bool CGame::Patch()
 
 	if(COffsets::GetVersion() == GAME_VERSION_7)
 	{
+		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random amient animations)
+		*(DWORD *)(GetBase() + 0x9849F0) = 0x900004C2;
+
 		// Hook GetPlayerInfoFromIndex to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x817F20), (DWORD)GetPlayerInfoFromIndex_Hook);
 
@@ -492,8 +492,7 @@ bool CGame::Patch()
 		//CPatcher::InstallJmpPatch((GetBase() + 0x8788D0), (DWORD)GetPlayerPedFromPlayerInfo_Hook);
 
 		// Hook CTask::~CTask to use our own function
-#define FUNC_CTask__Destructor 0xA288D0
-		CPatcher::InstallJmpPatch((GetBase() + FUNC_CTask__Destructor), (DWORD)CTask__Destructor_Hook);
+		CPatcher::InstallJmpPatch((GetBase() + 0xA288D0), (DWORD)CTask__Destructor_Hook);
 
 		// Hook CEpisodes::IsEpisodeAvaliable to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x814810), (DWORD)CEpisodes__IsEpisodeAvaliable_Hook);

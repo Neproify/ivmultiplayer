@@ -43,7 +43,7 @@ class IVPedTaskManager
 public:
 	IVTask * m_primaryTasks[TASK_PRIORITY_MAX];    // 00-14
 	IVTask * m_secondaryTasks[TASK_SECONDARY_MAX]; // 14-2C
-	IVTask * m_unknownTasks[3];                    // 2C-38 (Natural Motion Perhaps?)
+	IVTask * m_unknownTasks[3];                    // 2C-38 (Seems like movement specific tasks)
 	// TODO: Find size
 };
 

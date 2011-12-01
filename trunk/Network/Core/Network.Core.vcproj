@@ -2135,7 +2135,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\Shared\Game\CPadState.cpp"
+					RelativePath="..\..\Shared\Game\CControlState.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -2814,6 +2814,10 @@
 				>
 				<File
 					RelativePath="..\..\Shared\Network\CBitStream.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Shared\Game\CControlState.h"
 					>
 				</File>
 				<File

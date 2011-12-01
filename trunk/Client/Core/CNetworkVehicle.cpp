@@ -128,7 +128,6 @@ bool CNetworkVehicle::Create()
 		// Add our model info reference
 		m_pModelInfo->AddReference(true);
 
-#if 0
 		// Get our model index
 		int iModelIndex = m_pModelInfo->GetIndex();
 
@@ -145,7 +144,7 @@ bool CNetworkVehicle::Create()
 		_asm
 		{
 			push 0 ; last param of CREATE_CAR (try 1 if vehicle physics seem strange)
-			push 1 // was 1 and above was 0
+			push 1
 			push pVecPosition
 			push iModelIndex
 			call dwFunc
@@ -161,19 +160,31 @@ bool CNetworkVehicle::Create()
 
 		CLogFile::Printf("CNetworkVehicle::Create 4 - 4");
 
+		dwFunc = (CGame::GetBase() + 0xC6CFC0);
+		_asm
+		{
+			push pVehicle
+			call dwFunc
+			add esp, 4
+		}
+
+		CLogFile::Printf("CNetworkVehicle::Create 5");
+
+		dwFunc = (CGame::GetBase() + 0xB77BB0);
+		_asm
+		{
+			push 0
+			push pVehicle
+			call dwFunc
+			add esp, 8
+		}
+
+		CLogFile::Printf("CNetworkVehicle::Create 6");
+
 		// Create the vehicle instance
 		m_pVehicle = new CIVVehicle(pVehicle);
-#endif
 
-		// Create the vehicle
-		// TODO: Don't use natives for this
-		unsigned int uiVehicleHandle;
-		Scripting::CreateCar(m_pModelInfo->GetHash(), m_vecPosition.fX, m_vecPosition.fY, m_vecPosition.fZ, &uiVehicleHandle, true); // last param something with physics (Process Physics?)
-		CLogFile::Printf("New vehicle handle is %d", uiVehicleHandle);
-
-		// Create the vehicle instance
-		m_pVehicle = new CIVVehicle(CGame::GetPools()->GetVehiclePool()->AtHandle(uiVehicleHandle));
-
+		// Invalid vehicle instance?
 		if(!m_pVehicle)
 			return false;
 
@@ -215,12 +226,6 @@ void CNetworkVehicle::Destroy()
 				m_pPassengers[i]->InternalRemoveFromVehicle();
 		}
 
-		// See below comment for more info
-		unsigned int uiVehicleHandle = GetScriptingHandle();
-		Scripting::DeleteCar(&uiVehicleHandle);
-		// Can't use below as we created it with the native so it also
-		// needs to be removed from mission cleanup list
-#if 0
 		// Get the vehicle pointer
 		IVVehicle * pVehicle = m_pVehicle->GetVehicle();
 
@@ -248,7 +253,6 @@ void CNetworkVehicle::Destroy()
 			mov ecx, pVehicle
 			call dwFunc
 		}
-#endif
 
 		// Remove our model info reference
 		m_pModelInfo->RemoveReference();
@@ -679,7 +683,7 @@ void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 {
 	SetTargetPosition(emptyVehicleSync->vecPosition, TICK_RATE);
 	SetTargetRotation(emptyVehicleSync->vecRotation, TICK_RATE);
-	SetHealth(emptyVehicleSync->fHealth);
+	SetHealth(emptyVehicleSync->uiHealth);
 }
 
 BYTE CNetworkVehicle::GetMaxPassengers()

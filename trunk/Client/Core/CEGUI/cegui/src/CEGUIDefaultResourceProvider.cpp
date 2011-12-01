@@ -65,7 +65,7 @@ namespace CEGUI
         std::streampos size = dataFile.tellg();
         dataFile.seekg (0, std::ios::beg);
 
-        unsigned char* buffer = new unsigned char [size];
+        unsigned char* buffer = new unsigned char [static_cast<unsigned int>(size)];
 
         try {
             dataFile.read(reinterpret_cast<char*>(buffer), size);
@@ -79,7 +79,7 @@ namespace CEGUI
         dataFile.close();
 
         output.setData(buffer);
-        output.setSize(size);
+        output.setSize(static_cast<size_t>(size));
     }
     
     void DefaultResourceProvider::unloadRawDataContainer(RawDataContainer& data)

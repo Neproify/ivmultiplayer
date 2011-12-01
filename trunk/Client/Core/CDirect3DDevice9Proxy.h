@@ -12,41 +12,41 @@
 #include "DXSDK/Include/d3d9.h"
 #include "DXSDK/Include/d3dx9.h"
 
-class Direct3DDevice9Proxy : public IDirect3DDevice9
+class CDirect3DDevice9Proxy : public IDirect3DDevice9
 {
 private:
 	IDirect3DDevice9 * m_pD3DDevice;	
 	IDirect3D9 * m_pD3D;
 
 public:
-	Direct3DDevice9Proxy(IDirect3D9 * d3d, IDirect3DDevice9 * device);
+	CDirect3DDevice9Proxy(IDirect3D9 * d3d, IDirect3DDevice9 * device);
 
 	/*** IUnknown methods ***/
 	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void ** ppvObj);
-	ULONG STDMETHODCALLTYPE AddRef();
-	ULONG STDMETHODCALLTYPE Release();
+	ULONG STDMETHODCALLTYPE   AddRef();
+	ULONG STDMETHODCALLTYPE   Release();
 
 	/*** IDirect3DDevice9 methods ***/
 	HRESULT STDMETHODCALLTYPE TestCooperativeLevel();
-	UINT STDMETHODCALLTYPE GetAvailableTextureMem();
+	UINT STDMETHODCALLTYPE    GetAvailableTextureMem();
 	HRESULT STDMETHODCALLTYPE EvictManagedResources();
 	HRESULT STDMETHODCALLTYPE GetDirect3D(IDirect3D9 ** ppD3D9);
 	HRESULT STDMETHODCALLTYPE GetDeviceCaps(D3DCAPS9 * pCaps);
 	HRESULT STDMETHODCALLTYPE GetDisplayMode(UINT iSwapChain, D3DDISPLAYMODE * pMode);
 	HRESULT STDMETHODCALLTYPE GetCreationParameters(D3DDEVICE_CREATION_PARAMETERS * pParameters);
 	HRESULT STDMETHODCALLTYPE SetCursorProperties(UINT XHotSpot, UINT YHotSpot, IDirect3DSurface9 * pCursorBitmap);
-	void STDMETHODCALLTYPE SetCursorPosition(int X, int Y, DWORD Flags);
-	BOOL STDMETHODCALLTYPE ShowCursor(BOOL bShow);
+	void STDMETHODCALLTYPE    SetCursorPosition(int X, int Y, DWORD Flags);
+	BOOL STDMETHODCALLTYPE    ShowCursor(BOOL bShow);
 	HRESULT STDMETHODCALLTYPE CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS * pPresentationParameters, IDirect3DSwapChain9 ** pSwapChain);
 	HRESULT STDMETHODCALLTYPE GetSwapChain(UINT iSwapChain, IDirect3DSwapChain9 ** pSwapChain);
-	UINT STDMETHODCALLTYPE GetNumberOfSwapChains();
+	UINT STDMETHODCALLTYPE    GetNumberOfSwapChains();
 	HRESULT STDMETHODCALLTYPE Reset(D3DPRESENT_PARAMETERS * pPresentationParameters);
 	HRESULT STDMETHODCALLTYPE Present(const RECT * pSourceRect, const RECT * pDestRect, HWND hDestWindowOverride, const RGNDATA * pDirtyRegion);
 	HRESULT STDMETHODCALLTYPE GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface9 ** ppBackBuffer);
 	HRESULT STDMETHODCALLTYPE GetRasterStatus(UINT iSwapChain, D3DRASTER_STATUS * pRasterStatus);
 	HRESULT STDMETHODCALLTYPE SetDialogBoxMode(BOOL bEnableDialogs);
-	void STDMETHODCALLTYPE SetGammaRamp(UINT iSwapChain, DWORD Flags, const D3DGAMMARAMP * pRamp);
-	void STDMETHODCALLTYPE GetGammaRamp(UINT iSwapChain, D3DGAMMARAMP * pRamp);
+	void STDMETHODCALLTYPE    SetGammaRamp(UINT iSwapChain, DWORD Flags, const D3DGAMMARAMP * pRamp);
+	void STDMETHODCALLTYPE    GetGammaRamp(UINT iSwapChain, D3DGAMMARAMP * pRamp);
 	HRESULT STDMETHODCALLTYPE CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DTexture9 ** ppTexture, HANDLE * pSharedHandle);
 	HRESULT STDMETHODCALLTYPE CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DVolumeTexture9 ** ppVolumeTexture, HANDLE * pSharedHandle);
 	HRESULT STDMETHODCALLTYPE CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DCubeTexture9 ** ppCubeTexture, HANDLE * pSharedHandle);
@@ -102,9 +102,9 @@ public:
 	HRESULT STDMETHODCALLTYPE SetScissorRect(const RECT * pRect);
 	HRESULT STDMETHODCALLTYPE GetScissorRect(RECT * pRect);
 	HRESULT STDMETHODCALLTYPE SetSoftwareVertexProcessing(BOOL bSoftware);
-	BOOL STDMETHODCALLTYPE GetSoftwareVertexProcessing();
+	BOOL STDMETHODCALLTYPE    GetSoftwareVertexProcessing();
 	HRESULT STDMETHODCALLTYPE SetNPatchMode(float nSegments);
-	float STDMETHODCALLTYPE GetNPatchMode();
+	float STDMETHODCALLTYPE   GetNPatchMode();
 	HRESULT STDMETHODCALLTYPE DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount);
 	HRESULT STDMETHODCALLTYPE DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
 	HRESULT STDMETHODCALLTYPE DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void * pVertexStreamZeroData, UINT VertexStreamZeroStride);

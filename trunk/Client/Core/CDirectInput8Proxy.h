@@ -21,8 +21,8 @@ public:
 
 	/*** IUnknown methods ***/
 	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, LPVOID * ppvObj);
-	ULONG STDMETHODCALLTYPE AddRef();
-	ULONG STDMETHODCALLTYPE Release();
+	ULONG STDMETHODCALLTYPE   AddRef();
+	ULONG STDMETHODCALLTYPE   Release();
 
 	/*** IDirectInput8A methods ***/
 	HRESULT STDMETHODCALLTYPE CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8A * lplpDirectInputDevice, LPUNKNOWN pUknOuter);

@@ -12,7 +12,6 @@
 #define DIRECTINPUT_VERSION 0x0800
 
 #include "DXSDK/Include/dinput.h"
-#include "CGame.h"
 
 enum eDIDeviceType
 {
@@ -34,8 +33,8 @@ public:
 
 	/*** IUnknown methods ***/
 	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, LPVOID * ppvObj);
-	ULONG STDMETHODCALLTYPE AddRef();
-	ULONG STDMETHODCALLTYPE Release();
+	ULONG STDMETHODCALLTYPE   AddRef();
+	ULONG STDMETHODCALLTYPE   Release();
 
 	/*** IDirectInputDevice8A methods ***/
 	HRESULT STDMETHODCALLTYPE GetCapabilities(LPDIDEVCAPS p0);

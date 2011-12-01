@@ -89,9 +89,12 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("togglePlayerRadar", ToggleRadar, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerNames", ToggleNames, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerAreaNames", ToggleAreaNames, 2, "ib");
-	pScriptingManager->RegisterFunction("getEmptyPlayerPadState", GetEmptyPadState, 0, NULL);
-	pScriptingManager->RegisterFunction("getPlayerPreviousPadState", GetPreviousPadState, 1, "i");
-	pScriptingManager->RegisterFunction("getPlayerPadState", GetPadState, 1, "i");
+	pScriptingManager->RegisterFunction("getEmptyPlayerPadState", GetEmptyControlState, 0, NULL);
+	pScriptingManager->RegisterFunction("getPlayerPreviousPadState", GetPreviousControlState, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerPadState", GetControlState, 1, "i");
+	pScriptingManager->RegisterFunction("getEmptyPlayerControlState", GetEmptyControlState, 0, NULL);
+	pScriptingManager->RegisterFunction("getPlayerPreviousControlState", GetPreviousControlState, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerControlState", GetControlState, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerColor", SetColor, 2, "ii");
 	pScriptingManager->RegisterFunction("getPlayerColor", GetColor, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerPing", GetPing, 1, "i");
@@ -1447,11 +1450,11 @@ SQInteger CPlayerNatives::ToggleAreaNames(SQVM * pVM)
 	return 1;
 }
 
-// getEmptyPlayerPadState()
-SQInteger CPlayerNatives::GetEmptyPadState(SQVM * pVM)
+// getEmptyPlayerControlState()
+SQInteger CPlayerNatives::GetEmptyControlState(SQVM * pVM)
 {
-	// Create a new pad state
-	CPadState padState;
+	// Create a new control state
+	CControlState controlState;
 
 	// Create the table and array
 	CSquirrelArguments table;
@@ -1462,7 +1465,7 @@ SQInteger CPlayerNatives::GetEmptyPadState(SQVM * pVM)
 	array.reset();
 
 	for(int i = 0; i < 4; i++)
-		array.push(padState.ucOnFootMove[i]);
+		array.push(controlState.ucOnFootMove[i]);
 
 	table.push(array, true);
 
@@ -1471,7 +1474,7 @@ SQInteger CPlayerNatives::GetEmptyPadState(SQVM * pVM)
 	array.reset();
 
 	for(int i = 0; i < 4; i++)
-		array.push(padState.ucInVehicleMove[i]);
+		array.push(controlState.ucInVehicleMove[i]);
 
 	table.push(array, true);
 
@@ -1480,53 +1483,53 @@ SQInteger CPlayerNatives::GetEmptyPadState(SQVM * pVM)
 	array.reset();
 
 	for(int i = 0; i < 2; i++)
-		array.push(padState.ucInVehicleTriggers[i]);
+		array.push(controlState.ucInVehicleTriggers[i]);
 
 	table.push(array, true);
 
 	// Create the on foot keys slots
 	table.push("enterExitVehicle");
-	table.push(padState.keys.bEnterExitVehicle);
+	table.push(controlState.keys.bEnterExitVehicle);
 	table.push("sprint");
-	table.push(padState.keys.bSprint);
+	table.push(controlState.keys.bSprint);
 	table.push("jump");
-	table.push(padState.keys.bJump);
+	table.push(controlState.keys.bJump);
 	table.push("attack");
-	table.push(padState.keys.bAttack);
+	table.push(controlState.keys.bAttack);
 	table.push("attack2");
-	table.push(padState.keys.bAttack2);
+	table.push(controlState.keys.bAttack2);
 	table.push("aim");
-	table.push(padState.keys.bAim);
+	table.push(controlState.keys.bAim);
 	table.push("freeAim");
-	table.push(padState.keys.bFreeAim);
+	table.push(controlState.keys.bFreeAim);
 	table.push("meleeAttack1");
-	table.push(padState.keys.bMeleeAttack1);
+	table.push(controlState.keys.bMeleeAttack1);
 	table.push("meleeAttack2");
-	table.push(padState.keys.bMeleeAttack2);
+	table.push(controlState.keys.bMeleeAttack2);
 	table.push("meleeKick");
-	table.push(padState.keys.bMeleeKick);
+	table.push(controlState.keys.bMeleeKick);
 	table.push("meleeBlock");
-	table.push(padState.keys.bMeleeBlock);
+	table.push(controlState.keys.bMeleeBlock);
 
 	// Create the in vehicle keys slots
 	table.push("handbrake");
-	table.push(padState.keys.bHandbrake);
+	table.push(controlState.keys.bHandbrake);
 	table.push("handbrake2");
-	table.push(padState.keys.bHandbrake2);
+	table.push(controlState.keys.bHandbrake2);
 	table.push("horn");
-	table.push(padState.keys.bHorn);
+	table.push(controlState.keys.bHorn);
 	table.push("driveBy");
-	table.push(padState.keys.bDriveBy);
+	table.push(controlState.keys.bDriveBy);
 	table.push("heliPrimaryFire");
-	table.push(padState.keys.bHeliPrimaryFire);
+	table.push(controlState.keys.bHeliPrimaryFire);
 
 	// Push the table to the VM
 	sq_pusharg(pVM, CSquirrelArgument(table, false));
 	return 1;
 }
 
-// getPlayerPreviousPadState(playerid)
-SQInteger CPlayerNatives::GetPreviousPadState(SQVM * pVM)
+// getPlayerPreviousControlState(playerid)
+SQInteger CPlayerNatives::GetPreviousControlState(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1535,9 +1538,9 @@ SQInteger CPlayerNatives::GetPreviousPadState(SQVM * pVM)
 
 	if(pPlayer)
 	{
-		// Get the player pad state
-		CPadState padState;
-		pPlayer->GetPreviousPadState(&padState);
+		// Get the player control state
+		CControlState controlState;
+		pPlayer->GetPreviousControlState(&controlState);
 
 		// Create the table and array
 		CSquirrelArguments table;
@@ -1548,7 +1551,7 @@ SQInteger CPlayerNatives::GetPreviousPadState(SQVM * pVM)
 		array.reset();
 
 		for(int i = 0; i < 4; i++)
-			array.push(padState.ucOnFootMove[i]);
+			array.push(controlState.ucOnFootMove[i]);
 
 		table.push(array, true);
 
@@ -1557,7 +1560,7 @@ SQInteger CPlayerNatives::GetPreviousPadState(SQVM * pVM)
 		array.reset();
 
 		for(int i = 0; i < 4; i++)
-			array.push(padState.ucInVehicleMove[i]);
+			array.push(controlState.ucInVehicleMove[i]);
 
 		table.push(array, true);
 
@@ -1566,45 +1569,45 @@ SQInteger CPlayerNatives::GetPreviousPadState(SQVM * pVM)
 		array.reset();
 
 		for(int i = 0; i < 2; i++)
-			array.push(padState.ucInVehicleTriggers[i]);
+			array.push(controlState.ucInVehicleTriggers[i]);
 
 		table.push(array, true);
 
 		// Create the on foot keys slots
 		table.push("enterExitVehicle");
-		table.push(padState.keys.bEnterExitVehicle);
+		table.push(controlState.keys.bEnterExitVehicle);
 		table.push("sprint");
-		table.push(padState.keys.bSprint);
+		table.push(controlState.keys.bSprint);
 		table.push("jump");
-		table.push(padState.keys.bJump);
+		table.push(controlState.keys.bJump);
 		table.push("attack");
-		table.push(padState.keys.bAttack);
+		table.push(controlState.keys.bAttack);
 		table.push("attack2");
-		table.push(padState.keys.bAttack2);
+		table.push(controlState.keys.bAttack2);
 		table.push("aim");
-		table.push(padState.keys.bAim);
+		table.push(controlState.keys.bAim);
 		table.push("freeAim");
-		table.push(padState.keys.bFreeAim);
+		table.push(controlState.keys.bFreeAim);
 		table.push("meleeAttack1");
-		table.push(padState.keys.bMeleeAttack1);
+		table.push(controlState.keys.bMeleeAttack1);
 		table.push("meleeAttack2");
-		table.push(padState.keys.bMeleeAttack2);
+		table.push(controlState.keys.bMeleeAttack2);
 		table.push("meleeKick");
-		table.push(padState.keys.bMeleeKick);
+		table.push(controlState.keys.bMeleeKick);
 		table.push("meleeBlock");
-		table.push(padState.keys.bMeleeBlock);
+		table.push(controlState.keys.bMeleeBlock);
 
 		// Create the in vehicle keys slots
 		table.push("handbrake");
-		table.push(padState.keys.bHandbrake);
+		table.push(controlState.keys.bHandbrake);
 		table.push("handbrake2");
-		table.push(padState.keys.bHandbrake2);
+		table.push(controlState.keys.bHandbrake2);
 		table.push("horn");
-		table.push(padState.keys.bHorn);
+		table.push(controlState.keys.bHorn);
 		table.push("driveBy");
-		table.push(padState.keys.bDriveBy);
+		table.push(controlState.keys.bDriveBy);
 		table.push("heliPrimaryFire");
-		table.push(padState.keys.bHeliPrimaryFire);
+		table.push(controlState.keys.bHeliPrimaryFire);
 
 		// Push the table to the VM
 		sq_pusharg(pVM, CSquirrelArgument(table, false));
@@ -1615,8 +1618,8 @@ SQInteger CPlayerNatives::GetPreviousPadState(SQVM * pVM)
 	return 1;
 }
 
-// getPlayerPadState(playerid)
-SQInteger CPlayerNatives::GetPadState(SQVM * pVM)
+// getPlayerControlState(playerid)
+SQInteger CPlayerNatives::GetControlState(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
@@ -1625,9 +1628,9 @@ SQInteger CPlayerNatives::GetPadState(SQVM * pVM)
 
 	if(pPlayer)
 	{
-		// Get the player pad state
-		CPadState padState;
-		pPlayer->GetPadState(&padState);
+		// Get the player control state
+		CControlState controlState;
+		pPlayer->GetControlState(&controlState);
 
 		// Create the table and array
 		CSquirrelArguments table;
@@ -1638,7 +1641,7 @@ SQInteger CPlayerNatives::GetPadState(SQVM * pVM)
 		array.reset();
 
 		for(int i = 0; i < 4; i++)
-			array.push(padState.ucOnFootMove[i]);
+			array.push(controlState.ucOnFootMove[i]);
 
 		table.push(array, true);
 
@@ -1647,7 +1650,7 @@ SQInteger CPlayerNatives::GetPadState(SQVM * pVM)
 		array.reset();
 
 		for(int i = 0; i < 4; i++)
-			array.push(padState.ucInVehicleMove[i]);
+			array.push(controlState.ucInVehicleMove[i]);
 
 		table.push(array, true);
 
@@ -1656,45 +1659,45 @@ SQInteger CPlayerNatives::GetPadState(SQVM * pVM)
 		array.reset();
 
 		for(int i = 0; i < 2; i++)
-			array.push(padState.ucInVehicleTriggers[i]);
+			array.push(controlState.ucInVehicleTriggers[i]);
 
 		table.push(array, true);
 
 		// Create the on foot keys slots
 		table.push("enterExitVehicle");
-		table.push(padState.keys.bEnterExitVehicle);
+		table.push(controlState.keys.bEnterExitVehicle);
 		table.push("sprint");
-		table.push(padState.keys.bSprint);
+		table.push(controlState.keys.bSprint);
 		table.push("jump");
-		table.push(padState.keys.bJump);
+		table.push(controlState.keys.bJump);
 		table.push("attack");
-		table.push(padState.keys.bAttack);
+		table.push(controlState.keys.bAttack);
 		table.push("attack2");
-		table.push(padState.keys.bAttack2);
+		table.push(controlState.keys.bAttack2);
 		table.push("aim");
-		table.push(padState.keys.bAim);
+		table.push(controlState.keys.bAim);
 		table.push("freeAim");
-		table.push(padState.keys.bFreeAim);
+		table.push(controlState.keys.bFreeAim);
 		table.push("meleeAttack1");
-		table.push(padState.keys.bMeleeAttack1);
+		table.push(controlState.keys.bMeleeAttack1);
 		table.push("meleeAttack2");
-		table.push(padState.keys.bMeleeAttack2);
+		table.push(controlState.keys.bMeleeAttack2);
 		table.push("meleeKick");
-		table.push(padState.keys.bMeleeKick);
+		table.push(controlState.keys.bMeleeKick);
 		table.push("meleeBlock");
-		table.push(padState.keys.bMeleeBlock);
+		table.push(controlState.keys.bMeleeBlock);
 
 		// Create the in vehicle keys slots
 		table.push("handbrake");
-		table.push(padState.keys.bHandbrake);
+		table.push(controlState.keys.bHandbrake);
 		table.push("handbrake2");
-		table.push(padState.keys.bHandbrake2);
+		table.push(controlState.keys.bHandbrake2);
 		table.push("horn");
-		table.push(padState.keys.bHorn);
+		table.push(controlState.keys.bHorn);
 		table.push("driveBy");
-		table.push(padState.keys.bDriveBy);
+		table.push(controlState.keys.bDriveBy);
 		table.push("heliPrimaryFire");
-		table.push(padState.keys.bHeliPrimaryFire);
+		table.push(controlState.keys.bHeliPrimaryFire);
 
 		// Push the table to the VM
 		sq_pusharg(pVM, CSquirrelArgument(table, false));

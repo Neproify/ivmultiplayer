@@ -757,7 +757,7 @@
 					Name="Shared"
 					>
 					<File
-						RelativePath="..\..\Shared\Game\CPadState.h"
+						RelativePath="..\..\Shared\Game\CControlState.h"
 						>
 					</File>
 					<File
@@ -1199,7 +1199,7 @@
 					Name="Shared"
 					>
 					<File
-						RelativePath="..\..\Shared\Game\CPadState.cpp"
+						RelativePath="..\..\Shared\Game\CControlState.cpp"
 						>
 					</File>
 					<File

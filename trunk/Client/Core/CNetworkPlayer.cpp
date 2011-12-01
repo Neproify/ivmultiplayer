@@ -42,8 +42,8 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	m_interp.pos.ulFinishTime = 0;
 	memset(&m_ucClothes, 0, sizeof(m_ucClothes));
 	m_bUseCustomClothesOnSpawn = false;
-	memset(&m_previousPadState, 0, sizeof(CPadState));
-	memset(&m_currentPadState, 0, sizeof(CPadState));
+	memset(&m_previousControlState, 0, sizeof(CControlState));
+	memset(&m_currentControlState, 0, sizeof(CControlState));
 	m_usPing = 0;
 	m_pVehicle = NULL;
 	m_byteVehicleSeatId = 0;
@@ -460,9 +460,9 @@ void CNetworkPlayer::Kill(bool bInstantly)
 		SetHealth(0);
 		SetArmour(0);
 
-		// Reset the pad state
-		CPadState padState;
-		SetPadState(&padState);
+		// Reset the control state
+		CControlState controlState;
+		SetControlState(&controlState);
 
 		// Reset vehicle entry/exit flags
 		ResetVehicleEnterExit();
@@ -476,7 +476,7 @@ bool CNetworkPlayer::IsDying()
 {
 	if(IsSpawned())
 	{
-		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
+		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 
 		if(pTask)
 		{
@@ -492,13 +492,15 @@ bool CNetworkPlayer::IsDead()
 {
 	if(IsSpawned())
 	{
-		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
+		// jenksta: HACK: code below never seems to trigger so use IsDying instead
+		return IsDying();
+		/*CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 
 		if(pTask)
 		{
 			if(pTask->GetType() == TASK_SIMPLE_DEAD)
 				return true;
-		}
+		}*/
 	}
 
 	return false;
@@ -744,7 +746,7 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 	}
 }
 
-void CNetworkPlayer::Teleport(const CVector3& vecCoordinates, bool bResetInterpolation)
+void CNetworkPlayer::Teleport(const CVector3& vecPosition, bool bResetInterpolation)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -754,7 +756,7 @@ void CNetworkPlayer::Teleport(const CVector3& vecCoordinates, bool bResetInterpo
 		{
 			// FIXUPDATE
 			// Reverse code from below native and use it here
-			Scripting::SetCharCoordinatesNoOffset(GetScriptingHandle(), vecCoordinates.fX, vecCoordinates.fY, vecCoordinates.fZ);
+			Scripting::SetCharCoordinatesNoOffset(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
 
 			/*
 			// This still causes players to be invisible occasionally
@@ -763,14 +765,14 @@ void CNetworkPlayer::Teleport(const CVector3& vecCoordinates, bool bResetInterpo
 			m_pPlayerPed->RemoveFromWorld();
 
 			// Set the position in the matrix
-			m_pPlayerPed->Teleport(vecCoordinates);
+			m_pPlayerPed->Teleport(vecPosition);
 
 			// Re add the ped to the world to apply the matrix change
 			m_pPlayerPed->AddToWorld();
 			*/
 		}
 		else
-			Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecCoordinates.fX, vecCoordinates.fY, vecCoordinates.fZ);
+			Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
 	}
 
 	// Reset interpolation if requested
@@ -778,7 +780,7 @@ void CNetworkPlayer::Teleport(const CVector3& vecCoordinates, bool bResetInterpo
 		RemoveTargetPosition();
 }
 
-void CNetworkPlayer::SetPosition(const CVector3& vecCoordinates, bool bResetInterpolation)
+void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpolation)
 {
 	// FIXUPDATE
 	// This doesn't work for long distances
@@ -793,7 +795,7 @@ void CNetworkPlayer::SetPosition(const CVector3& vecCoordinates, bool bResetInte
 			m_pPlayerPed->RemoveFromWorld();
 
 			// Set the position in the matrix
-			m_pPlayerPed->SetPosition(vecCoordinates);
+			m_pPlayerPed->SetPosition(vecPosition);
 
 			// Are we not the local player?
 			if(!IsLocalPlayer())
@@ -817,18 +819,18 @@ void CNetworkPlayer::SetPosition(const CVector3& vecCoordinates, bool bResetInte
 		RemoveTargetPosition();
 }
 
-void CNetworkPlayer::GetPosition(CVector3& vecCoordinates)
+void CNetworkPlayer::GetPosition(CVector3& vecPosition)
 {
 	if(IsSpawned())
 	{
 		// If we are in a vehicle use our vehicles position
 		if(m_pVehicle)
-			m_pVehicle->GetPosition(vecCoordinates);
+			m_pVehicle->GetPosition(vecPosition);
 		else
-			m_pPlayerPed->GetPosition(vecCoordinates);
+			m_pPlayerPed->GetPosition(vecPosition);
 	}
 	else
-		vecCoordinates = CVector3();
+		vecPosition = CVector3();
 }
 
 void CNetworkPlayer::SetCurrentHeading(float fHeading)
@@ -1087,14 +1089,8 @@ int CNetworkPlayer::GetMoney()
 	return 0;
 }
 
-void CNetworkPlayer::SetPadState(CPadState * padState)
+void CNetworkPlayer::SetControlState(CControlState * controlState)
 {
-	// Copy the current  pad state to the previous pad state
-	memcpy(&m_previousPadState, &m_currentPadState, sizeof(CPadState));
-
-	// Copy the pad state to the current pad state
-	memcpy(&m_currentPadState, padState, sizeof(CPadState));
-
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1112,28 +1108,30 @@ void CNetworkPlayer::SetPadState(CPadState * padState)
 			}
 		}
 
-		// Get the current pad state
-		CPadState currentPadState;
-		pPad->GetCurrentClientPadState(currentPadState);
+		// Set the last control state
+		pPad->SetLastClientControlState(m_currentControlState);
 
-		// Set the last pad state
-		pPad->SetLastClientPadState(currentPadState);
-
-		// Set the current pad state
-		pPad->SetCurrentClientPadState(*padState);
+		// Set the current control state
+		pPad->SetCurrentClientControlState(*controlState);
 	}
+
+	// Copy the current  control state to the previous control state
+	memcpy(&m_previousControlState, &m_currentControlState, sizeof(CControlState));
+
+	// Copy the control state to the current control state
+	memcpy(&m_currentControlState, controlState, sizeof(CControlState));
 }
 
-void CNetworkPlayer::GetPreviousPadState(CPadState * padState)
+void CNetworkPlayer::GetPreviousControlState(CControlState * controlState)
 {
-	// Copy the previous pad state to the pad state
-	memcpy(padState, &m_previousPadState, sizeof(CPadState));
+	// Copy the previous control state to the control state
+	memcpy(controlState, &m_previousControlState, sizeof(CControlState));
 }
 
-void CNetworkPlayer::GetPadState(CPadState * padState)
+void CNetworkPlayer::GetControlState(CControlState * controlState)
 {
-	// Copy the current pad state to the pad state
-	memcpy(padState, &m_currentPadState, sizeof(CPadState));
+	// Copy the current control state to the control state
+	memcpy(controlState, &m_currentControlState, sizeof(CControlState));
 }
 
 void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
@@ -1406,11 +1404,11 @@ void CNetworkPlayer::Pulse()
 		// Is this the local player?
 		if(IsLocalPlayer())
 		{
-			// Copy the current pad state to the previous pad state
-			memcpy(&m_previousPadState, &m_currentPadState, sizeof(CPadState));
+			// Copy the current control state to the previous control state
+			memcpy(&m_previousControlState, &m_currentControlState, sizeof(CControlState));
 
-			// Update the current pad state
-			CGame::GetPad()->GetCurrentClientPadState(m_currentPadState);
+			// Update the current control state
+			CGame::GetPad()->GetCurrentClientControlState(m_currentControlState);
 		}
 
 		// If our health is locked set our health
@@ -1882,7 +1880,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 	if(IsSpawned() && CGame::GetInputState() && !m_bControlsDisabled)
 	{
 		// Has the enter/exit vehicle key just been pressed?
-		if(m_currentPadState.IsUsingEnterExitVehicle() && !m_previousPadState.IsUsingEnterExitVehicle())
+		if(m_currentControlState.IsUsingEnterExitVehicle() && !m_previousControlState.IsUsingEnterExitVehicle())
 		{
 			if(!m_vehicleEnterExit.bRequesting && IsInVehicle() && !m_vehicleEnterExit.bExiting)
 			{
@@ -1921,13 +1919,13 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 			// Has the enter/exit vehicle key just been released?
 			bool bEnterExitVehicleKeyReleased = false;
 
-			if(m_previousPadState.IsUsingEnterExitVehicle() && !m_currentPadState.IsUsingEnterExitVehicle())
+			if(m_previousControlState.IsUsingEnterExitVehicle() && !m_currentControlState.IsUsingEnterExitVehicle())
 				bEnterExitVehicleKeyReleased = true;
 
 			// Has the horn key just been released?
 			bool bHornKeyReleased = false;
 
-			if(m_previousPadState.IsUsingHorn() && !m_currentPadState.IsUsingHorn())
+			if(m_previousControlState.IsUsingHorn() && !m_currentControlState.IsUsingHorn())
 				bHornKeyReleased = true;
 
 			// Has the enter/exit vehicle key or the horn key just been released?

@@ -23,7 +23,7 @@ private:
 	float         m_fSpawnAngle;
 	unsigned long m_ulLastPureSyncTime;
 	unsigned int  m_uiLastInterior;
-	CPadState     m_lastPadStateSent;
+	CControlState     m_lastControlStateSent;
 
 public:
 	CLocalPlayer();

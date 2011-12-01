@@ -135,7 +135,7 @@ void CBitStream::Write(const CVector3 &vecIn)
 	Write((char *)&vecIn, sizeof(CVector3));
 }
 
-void CBitStream::Write(const CPadState &in)
+void CBitStream::Write(const CControlState &in)
 {
 	in.Serialize(this);
 }
@@ -164,7 +164,7 @@ bool CBitStream::Read(CVector3 &vecOut)
 	return Read((char *)&vecOut, sizeof(CVector3));
 }
 
-bool CBitStream::Read(CPadState &out)
+bool CBitStream::Read(CControlState &out)
 {
 	return out.Deserialize(this);
 }

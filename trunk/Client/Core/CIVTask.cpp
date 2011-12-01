@@ -24,6 +24,7 @@ struct TaskName
 TaskName TaskNames[] = 
 {
 	{ TASK_TYPE_NONE, "None" },
+	{ TASK_SIMPLE_MOVE_PLAYER, "SimpleMovePlayer" },
 	{ TASK_COMPLEX_PLAYER_ON_FOOT, "ComplexPlayerOnFoot" },
 	{ TASK_COMPLEX_PLAYER_GUN, "ComplexPlayerGun" },
 	{ TASK_COMPLEX_PLAYER_PLACE_CAR_BOMB, "ComplexPlayerPlaceCarBomb" },
@@ -34,25 +35,37 @@ TaskName TaskNames[] =
 	{ TASK_COMPLEX_MEDIC_PASSENGER, "ComplexMedicPassenger" },
 	{ TASK_COMPLEX_MEDIC_WANDERING, "ComplexMedicWandering" },
 	{ TASK_COMPLEX_PLAYER_SETTINGS_TASK, "ComplexPlayerSettingsTask" },
+	{ TASK_SIMPLE_STAND_STILL, "SimpleStandStill" },
+	{ TASK_SIMPLE_GET_UP, "SimpleGetUp" },
 	{ TASK_COMPLEX_GET_UP_AND_STAND_STILL, "ComplexGetUpAndStandStill" },
+	{ TASK_SIMPLE_FALL, "SimpleFall" },
 	{ TASK_COMPLEX_FALL_AND_GET_UP, "ComplexFallAndGetUp" },
+	{ TASK_SIMPLE_JUMP_LAUNCH, "SimpleJumpLaunch" },
 	{ TASK_COMPLEX_JUMP, "ComplexJump" },
 	{ TASK_COMPLEX_DIE, "ComplexDie" },
 	{ TASK_COMPLEX_SIT_IDLE, "ComplexSitIdle" },
 	{ TASK_COMPLEX_SIT_DOWN_THEN_IDLE_THEN_STAND_UP, "ComplexSitDownThenIdleThenStandUp" },
 	{ TASK_COMPLEX_HIT_RESPONSE, "ComplexHitResponse" },
+	{ TASK_SIMPLE_JUMP_IN_AIR, "SimpleJumpInAir" },
+	{ TASK_SIMPLE_JUMP_LAND, "SimpleJumpLand" },
 	{ TASK_COMPLEX_SEQUENCE, "ComplexSequence" },
 	{ TASK_COMPLEX_ON_FIRE, "ComplexOnFire" },
+	{ TASK_SIMPLE_CLIMB, "SimpleClimb" },
 	{ TASK_COMPLEX_IN_WATER, "ComplexInWater" },
 	{ TASK_COMPLEX_INJURED_ON_GROUND, "ComplexInjuredOnGround" },
+	{ TASK_SIMPLE_DO_NOTHING, "SimpleDoNothing" },
+	{ TASK_SIMPLE_MOVE_DO_NOTHING, "SimpleMoveDoNothing" },
 	{ TASK_COMPLEX_CONTROL_MOVEMENT, "ComplexControlMovement" },
 	{ TASK_COMPLEX_MOVE_SEQUENCE, "ComplexMoveSequence" },
 	{ TASK_COMPLEX_CLIMB_LADDER, "ComplexClimbLadder" },
 	{ TASK_COMPLEX_CLIMB_LADDER_FULLY, "ComplexClimbLadderFully" },
 	{ TASK_COMPLEX_MOVE_AROUND_COVER_POINTS, "ComplexMoveAroundCoverPoints" },
+	{ TASK_SIMPLE_PLAY_RANDOM_AMBIENTS, "SimplePlayRandomAmbients" },
+	{ TASK_SIMPLE_MOVE_IN_AIR, "SimpleMoveInAir" },
 	{ TASK_COMPLEX_PICK_UP_OBJECT, "ComplexPickUpObject" },
 	{ TASK_COMPLEX_PICK_UP_AND_CARRY_OBJECT, "ComplexPickUpAndCarryObject" },
 	{ TASK_SIMPLE_OPEN_DOOR, "SimpleOpenDoor" },
+	{ TASK_SIMPLE_SWAP_WEAPON, "SimpleSwapWeapon" },
 	{ TASK_COMPLEX_SHOCKING_EVENT_WATCH, "ComplexShockingEventWatch" },
 	{ TASK_COMPLEX_SHOCKING_EVENT_FLEE, "ComplexShockingEventFlee" },
 	{ TASK_COMPLEX_SHOCKING_EVENT_GOTO, "ComplexShockingEventGoto" },
@@ -70,6 +83,8 @@ TaskName TaskNames[] =
 	{ TASK_COMPLEX_POLICE_SNIPER_SCENARIO, "ComplexPoliceSniperScenario" },
 	{ TASK_COMPLEX_MOBILE_MAKE_CALL, "ComplexMobileMakeCall" },
 	{ TASK_COMPLEX_MELEE, "ComplexMelee" },
+	{ TASK_SIMPLE_MOVE_MELEE_MOVEMENT, "SimpleMoveMeleeMovement" },
+	{ TASK_SIMPLE_MELEE_ACTION_RESULT, "SimpleMeleeActionResult" },
 	{ TASK_COMPLEX_MOVE_BETWEEN_POINTS_SCENARIO, "ComplexMoveBetweenPointsScenario" },
 	{ TASK_COMPLEX_CHAT_SCENARIO, "ComplexChatScenario" },
 	{ TASK_COMPLEX_GET_IN_CAR_SCENARIO, "ComplexGetInCarScenario" },
@@ -109,6 +124,7 @@ TaskName TaskNames[] =
 	{ TASK_COMPLEX_BE_ARRESTED_AND_DRIVEN_AWAY, "ComplexBeArrestedAndDrivenAway" },
 	{ TASK_COMPLEX_ARRESTED_AI_PED_AND_DRIVE_AWAY, "ComplexArrestedAIPedAndDriveAway" },
 	{ TASK_COMPLEX_GO_TO_CAR_DOOR_AND_STAND_STILL, "ComplexGoToCarDoorAndStandStill" },
+	{ TASK_SIMPLE_CAR_ALIGN, "SimpleCarAlign" },
 	{ TASK_SIMPLE_CAR_OPEN_DOOR_FROM_OUTSIDE, "SimpleCarOpenDoorFromOutside" },
 	{ TASK_SIMPLE_CAR_OPEN_LOCKED_DOOR_FROM_OUTSIDE, "SimpleCarOpenLockedDoorFromOutside" },
 	{ TASK_SIMPLE_CAR_CLOSE_DOOR_FROM_INSIDE, "SimpleCarCloseDoorFromInside" },
@@ -125,7 +141,9 @@ TaskName TaskNames[] =
 	{ TASK_SIMPLE_WAIT_UNTIL_PED_IS_OUT_OF_CAR, "SimpleWaitUntilPedIsOutOfCar" },
 	{ TASK_SIMPLE_CREATE_CAR_AND_GET_IN, "SimpleCreateCarAndGetIn" },
 	{ TASK_SIMPLE_START_CAR, "SimpleStartCar" },
+	{ TASK_SIMPLE_SHUNT, "SimpleShunt" },
 	{ TASK_SIMPLE_SMASH_CAR_WINDOW, "SimpleSmashCarWindow" },
+	{ TASK_SIMPLE_MOVE_GO_TO_POINT, "SimpleMoveGoToPoint" },
 	{ TASK_COMPLEX_GO_TO_POINT_SHOOTING, "ComplexGoToPointShooting" },
 	{ TASK_COMPLEX_MOVE_GO_TO_POINT_AND_STAND_STILL, "ComplexMoveGoToPointAndStandStill" },
 	{ TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL_TIMED, "ComplexGoToPointAndStandStillTimed" },
@@ -146,6 +164,7 @@ TaskName TaskNames[] =
 	{ TASK_COMPLEX_SEEK_ENTITY_AIMING, "ComplexSeekEntityAiming" },
 	{ TASK_COMPLEX_FOLLOW_PED_FOOTSTEPS, "ComplexFollowPedFootsteps" },
 	{ TASK_COMPLEX_MOVE_FOLLOW_NAV_MESH_ROUTE, "ComplexMoveFollowNavMeshRoute" },
+	{ TASK_SIMPLE_MOVE_GO_TO_POINT_ON_ROUTE, "SimpleMoveGoToPointOnRoute" },
 	{ TASK_COMPLEX_ESCAPE_BLAST, "ComplexEscapeBlast" },
 	{ TASK_COMPLEX_MOVE_GET_TO_POINT_CONTINUOUS, "ComplexMoveGetToPointContinuous" },
 	{ TASK_COMPLEX_COP, "ComplexCop" },
@@ -167,10 +186,15 @@ TaskName TaskNames[] =
 	{ TASK_COMPLEX_GET_OUT_OF_WATER, "ComplexGetOutOfWater" },
 	{ TASK_COMPLEX_DESTROY_CAR, "ComplexDestroyCar" },
 	{ TASK_COMPLEX_DESTROY_CAR_ARMED, "ComplexDestroyCarArmed" },
+	{ TASK_SIMPLE_THROW_PROJECTILE, "SimpleThrowProjectile" },
 	{ TASK_COMPLEX_SEEK_COVER, "ComplexSeekCover" },
 	{ TASK_COMPLEX_SEEK_COVER_SHOOTING, "ComplexSeekCoverShooting" },
 	{ TASK_COMPLEX_AIM_AND_THROW_PROJECTILE, "ComplexAimAndThrowProjectile" },
+	{ TASK_SIMPLE_PLAYER_AIM_PROJECTILE, "SimplePlayerAimProjectile" },
 	{ TASK_COMPLEX_GUN, "ComplexGun" },
+	{ TASK_SIMPLE_AIM_GUN, "SimpleAimGun" },
+	{ TASK_SIMPLE_FIRE_GUN, "SimpleFireGun" },
+	{ TASK_SIMPLE_RELOAD_GUN, "SimpleReloadGun" },
 	{ TASK_COMPLEX_SLIDE_INTO_COVER, "ComplexSlideIntoCover" },
 	{ TASK_COMPLEX_PLAYER_IN_COVER, "ComplexPlayerInCover" },
 	{ TASK_COMPLEX_GO_INTO_COVER, "ComplexGoIntoCover" },
@@ -178,8 +202,10 @@ TaskName TaskNames[] =
 	{ TASK_SIMPLE_NEW_GANG_DRIVE_BY, "SimpleNewGangDriveBy" },
 	{ TASK_COMPLEX_COMBAT_ADDITIONAL_TASK, "ComplexCombatAdditionalTask" },
 	{ TASK_COMPLEX_NEW_USE_COVER, "ComplexNewUseCover" },
+	{ TASK_COMPLEX_THROW_PROJECTILE, "ComplexThrowProjectile" },
 	{ TASK_COMPLEX_ARREST_PED, "ComplexArrestPed" },
 	{ TASK_COMPLEX_GANG_HASSLE_PED, "ComplexGangHasslePed" },
+	{ TASK_SIMPLE_MOVE_SWIM, "SimpleMoveSwim" },
 	{ TASK_COMPLEX_MOVE_ABOUT_INJURED, "ComplexMoveAboutInjured" },
 	{ TASK_COMPLEX_REVIVE, "ComplexRevive" },
 	{ TASK_COMPLEX_COMBAT, "ComplexCombat" },
@@ -198,18 +224,31 @@ TaskName TaskNames[] =
 	{ TASK_COMPLEX_STAND_GUARD, "ComplexStandGuard" },
 	{ TASK_COMPLEX_SEPERATE, "ComplexSeperate" },
 	{ TASK_COMPLEX_REACT, "ComplexReact" },
+	{ TASK_SIMPLE_NM_RELAX, "SimpleNMRelax" },
+	{ TASK_SIMPLE_NM_POSE, "SimpleNMPose" },
+	{ TASK_SIMPLE_NM_BRACE, "SimpleNMBrace" },
+	{ TASK_SIMPLE_NM_SHOT, "SimpleNMShot" },
+	{ TASK_SIMPLE_NM_HIGH_FALL, "SimpleNMHighFall" },
+	{ TASK_SIMPLE_NM_BALANCE, "SimpleNMBalance" },
+	{ TASK_SIMPLE_NM_EXPLOSION, "SimpleNMExplosion" },
+	{ TASK_SIMPLE_NM_ON_FIRE, "SimpleNMOnFire" },
+	{ TASK_SIMPLE_NM_SCRIPT_CONTROL, "SimpleNMScriptControl" },
+	{ TASK_SIMPLE_NM_JUMP_ROLL_FROM_ROAD_VEHICLE, "SimpleNMJumpRollFromRoadVehicle" },
+	{ TASK_SIMPLE_NM_SIT, "SimpleNMSit" },
+	{ TASK_SIMPLE_BLEND_FROM_NM, "SimpleBlendFromNM" },
 	{ TASK_COMPLEX_NM, "ComplexNM" }
 };
 
 const char * GetTaskName(int iTaskType)
 {
-	for(int i = 0; i < (sizeof(TaskNames) / sizeof(TaskName)); i++)
+	for(int i = 0; i < ARRAY_LENGTH(TaskNames); i++)
 	{
 		if(TaskNames[i].iTaskType == iTaskType)
 			return TaskNames[i].szTaskName;
 	}
 
-	return String("UnknownTask0x%x", iTaskType);
+	//return String("UnknownTask0x%x", iTaskType).Get();
+	return "Unknown Task";
 }
 
 CIVTask::CIVTask()
@@ -264,7 +303,23 @@ void CIVTask::Destroy()
 	}
 }
 
-IVTask * CIVTask::Clone()
+CIVTask * CIVTask::GetParent()
+{
+	if(m_pTask)
+		return g_pClientTaskManager->GetClientTaskFromGameTask(m_pTask->m_pParent);
+
+	return NULL;
+}
+
+CIVTask * CIVTask::GetSubTask()
+{
+	if(m_pTask)
+		return g_pClientTaskManager->GetClientTaskFromGameTask(m_pTask->m_pSubTask);
+
+	return NULL;
+}
+
+CIVTask * CIVTask::Clone()
 {
 	if(m_pTask)
 	{
@@ -277,7 +332,7 @@ IVTask * CIVTask::Clone()
 			call dwFunc
 			mov pCloneTask, eax
 		}
-		return pCloneTask;
+		return g_pClientTaskManager->GetClientTaskFromGameTask(pCloneTask);
 	}
 
 	return NULL;
@@ -321,8 +376,22 @@ int CIVTask::GetType()
 	return iType;
 }
 
+// test code
+#include <CLogFile.h>
+#include <map>
+std::map<int, bool> taskMap;
+// end test code
+
 const char * CIVTask::GetName()
 {
+	// test code
+	if(String(GetTaskName(GetType())) == "Unknown Task" && taskMap[GetType()] == false)
+	{
+		CLogFile::Printf("Got task with unknown name (VFTable: 0x%x, Type: %d (0x%x))", m_pTask->m_VFTable, GetType(), GetType());
+		taskMap[GetType()] = true;
+	}
+	// end test code
+
 	return GetTaskName(GetType());
 }
 

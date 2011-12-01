@@ -8,8 +8,9 @@
 //==============================================================================
 
 #include "CDirectInputHook.h"
-#include "Patcher/CPatcher.h"
+#include <Patcher/CPatcher.h>
 #include <CLogFile.h>
+#include "CGame.h"
 
 CDirectInputHook::DirectInput8Create_t CDirectInputHook::m_pDirectInput8Create;
 CDirectInputHook::XInputGetState_t     CDirectInputHook::m_pXInputGetState;

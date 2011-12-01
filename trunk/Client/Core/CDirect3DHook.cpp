@@ -17,7 +17,7 @@ bool CDirect3DHook::m_bHookInstalled = false;
 IDirect3D9 * WINAPI CDirect3DHook::Direct3DCreate9_Hook(UINT SDKVersion)
 {
 	IDirect3D9 * pD3D = m_pDirect3DCreate9(SDKVersion);
-	return pD3D ? new Direct3D9Proxy(pD3D) : NULL;
+	return pD3D ? new CDirect3D9Proxy(pD3D) : NULL;
 }
 
 void CDirect3DHook::Install()

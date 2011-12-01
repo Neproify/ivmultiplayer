@@ -82,7 +82,7 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true)
 	m_fSpawnAngle = 0;
 	m_ulLastPureSyncTime = 0;
 	m_uiLastInterior = 0;
-	memset(&m_lastPadStateSent, 0, sizeof(CPadState));
+	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
 
 	// Patch to override spawn position and let the game call HandleSpawn
 	CPatcher::InstallCallPatch(COffsets::FUNC_GetLocalPlayerSpawnPosition, (DWORD)GetLocalPlayerSpawnPosition, 5);
@@ -244,11 +244,11 @@ void CLocalPlayer::SendOnFootSync()
 	CBitStream bsSend;
 	OnFootSyncData syncPacket;
 
-	// Get our pad state
-	GetPadState(&syncPacket.padState);
+	// Get our control state
+	GetControlState(&syncPacket.controlState);
 
-	// Update the last sent pad state
-	memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
+	// Update the last sent control state
+	memcpy(&m_lastControlStateSent, &syncPacket.controlState, sizeof(CControlState));
 
 	// Get their position
 	GetPosition(syncPacket.vecPos);
@@ -274,7 +274,7 @@ void CLocalPlayer::SendOnFootSync()
 
 	// Check if they are aiming or firing
 	// NOTE: Do i need to sync aim for combat too?
-	if(syncPacket.padState.IsAiming() || syncPacket.padState.IsFiring())
+	if(syncPacket.controlState.IsAiming() || syncPacket.controlState.IsFiring())
 	{
 		// Write a 1 bit to say we have aim sync
 		bsSend.Write1();
@@ -307,11 +307,11 @@ void CLocalPlayer::SendInVehicleSync()
 		// Write the vehicle id
 		bsSend.WriteCompressed(pVehicle->GetVehicleId());
 
-		// Get our pad state
-		GetPadState(&syncPacket.padState);
+		// Get our control state
+		GetControlState(&syncPacket.controlState);
 
-		// Update the last sent pad state
-		memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
+		// Update the last sent control state
+		memcpy(&m_lastControlStateSent, &syncPacket.controlState, sizeof(CControlState));
 
 		// Get their vehicles position
 		pVehicle->GetPosition(syncPacket.vecPos);
@@ -353,7 +353,7 @@ void CLocalPlayer::SendInVehicleSync()
 		// Check if they are doing a drive by
 		// TODO: Also sync aim for turret rotation on firetrucks?
 		// (Or find turret rotation var in vehicle structure)
-		if(syncPacket.padState.IsDoingDriveBy())
+		if(syncPacket.controlState.IsDoingDriveBy())
 		{
 			// Write a 1 bit to say we have aim sync
 			bsSend.Write1();
@@ -388,11 +388,11 @@ void CLocalPlayer::SendPassengerSync()
 		// Write the vehicle id
 		bsSend.WriteCompressed(pVehicle->GetVehicleId());
 
-		// Get our pad state
-		GetPadState(&syncPacket.padState);
+		// Get our control state
+		GetControlState(&syncPacket.controlState);
 
-		// Update the last sent pad state
-		memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
+		// Update the last sent control state
+		memcpy(&m_lastControlStateSent, &syncPacket.controlState, sizeof(CControlState));
 
 		// Get their seat id
 		syncPacket.byteSeatId = GetVehicleSeatId();
@@ -411,7 +411,7 @@ void CLocalPlayer::SendPassengerSync()
 		// NOTE: I think certain vehicles (e.g. helicoptors) allow 3rd person
 		// shooting from them which involves the on foot aim/fire keys so add
 		// them to this check if needed
-		if(syncPacket.padState.IsDoingDriveBy())
+		if(syncPacket.controlState.IsDoingDriveBy())
 		{
 			// Write a 1 bit to say we have aim sync
 			bsSend.Write1();
@@ -438,11 +438,11 @@ void CLocalPlayer::SendSmallSync()
 	CBitStream bsSend;
 	SmallSyncData syncPacket;
 
-	// Get our pad state
-	GetPadState(&syncPacket.padState);
+	// Get our control state
+	GetControlState(&syncPacket.controlState);
 
-	// Update the last sent pad state
-	memcpy(&m_lastPadStateSent, &syncPacket.padState, sizeof(CPadState));
+	// Update the last sent control state
+	memcpy(&m_lastControlStateSent, &syncPacket.controlState, sizeof(CControlState));
 
 	// Get their ducking state
 	syncPacket.bDuckState = IsDucking();
@@ -455,7 +455,7 @@ void CLocalPlayer::SendSmallSync()
 	bsSend.Write((char *)&syncPacket, sizeof(SmallSyncData));
 
 	// Check if they are aiming or firing
-	if(syncPacket.padState.IsAiming() || syncPacket.padState.IsFiring())
+	if(syncPacket.controlState.IsAiming() || syncPacket.controlState.IsFiring())
 	{
 		// Write a 1 bit to say we have aim sync
 		bsSend.Write1();
@@ -497,12 +497,12 @@ bool CLocalPlayer::IsSmallSyncNeeded()
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		// Get the current pad state
-		CPadState padState;
-		GetPadState(&padState);
+		// Get the current control state
+		CControlState controlState;
+		GetControlState(&controlState);
 
-		// Is the current pad state different to the last sent pad state?
-		if(padState != m_lastPadStateSent)
+		// Is the current control state different to the last sent control state?
+		if(controlState != m_lastControlStateSent)
 			return true;
 	}
 

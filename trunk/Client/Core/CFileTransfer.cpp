@@ -13,9 +13,11 @@
 #include "SharedUtility.h"
 #include "CClientScriptManager.h"
 #include "CChatWindow.h"
+#include "CNetworkManager.h"
 
 extern CClientScriptManager * g_pClientScriptManager;
 extern CChatWindow          * g_pChatWindow;
+extern CNetworkManager      * g_pNetworkManager;
 
 CFileTransfer::CFileTransfer()
 {
@@ -26,7 +28,7 @@ CFileTransfer::CFileTransfer()
 	m_pDownloadFile = NULL;
 	m_fDownloadFile = NULL;
 }
-#include <CLogFile.h>
+
 bool CFileTransfer::ReceiveHandler(const char * szData, unsigned int uiDataSize, void * pUserData)
 {
 	// Get the CFileTransfer pointer
@@ -113,12 +115,9 @@ void CFileTransfer::AddFile(String strFileName, CFileChecksum fileChecksum, bool
 		CFileChecksum currentFileChecksum;
 		currentFileChecksum.Calculate(strFilePath);
 
-		// Does the file checksum match the server file checksum?
+		// Does the file checksum match the server file checksum (We don't need to download the file)?
 		if(currentFileChecksum == fileChecksum)
 		{
-			// We don't need to download the file
-			g_pChatWindow->AddInfoMessage("No need to download file %s (Checksums match)", strFileName.Get());
-
 			// Is the downloaded file a script?
 			if(!bIsResource)
 			{
@@ -186,11 +185,11 @@ void CFileTransfer::Process()
 				{
 					g_pChatWindow->AddInfoMessage("Failed to start download of %s %s", pServerFile->strType.Get(), pServerFile->strName.Get());
 
-					// Delete the server file
-					delete pServerFile;
+					// Reset all transfers
+					Reset();
 
-					// Remove the server file from the file list
-					m_fileList.remove(pServerFile);
+					// Disconnect from the server
+					g_pNetworkManager->Disconnect();
 				}
 			}
 		}
@@ -210,6 +209,7 @@ void CFileTransfer::Process()
 			{
 				// Close the file
 				fclose(m_fDownloadFile);
+				m_fDownloadFile = NULL;
 
 				// Get the folder name
 				String strFolderName;
@@ -229,8 +229,6 @@ void CFileTransfer::Process()
 				// Do the checksums match?
 				if(fileChecksum == m_pDownloadFile->fileChecksum)
 				{
-					g_pChatWindow->AddInfoMessage("Successfully downloaded %s %s", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get());
-
 					// Is the downloaded file a script?
 					if(m_pDownloadFile->strType == "script")
 					{
@@ -239,29 +237,41 @@ void CFileTransfer::Process()
 
 						// Load the script
 						g_pClientScriptManager->Load(m_pDownloadFile->strName);
+
+						// Delete the download file
+						delete m_pDownloadFile;
+
+						// Remove the download file from the file list
+						m_fileList.remove(m_pDownloadFile);
+
+						// Reset the download file
+						m_pDownloadFile = NULL;
+
+						// Flag ourselves as no longer downloading
+						m_bDownloadingFile = false;
 					}
 				}
 				else
 				{
 					g_pChatWindow->AddInfoMessage("Failed to download %s %s (Checksum mismatch)", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get());
+
+					// Reset all transfers
+					Reset();
+
+					// Disconnect from the server
+					g_pNetworkManager->Disconnect();
 				}
 			}
 			else
 			{
 				g_pChatWindow->AddInfoMessage("Failed to download %s %s (%s)", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get(), m_httpClient.GetLastErrorString().Get());
+
+				// Reset all transfers
+				Reset();
+
+				// Disconnect from the server
+				g_pNetworkManager->Disconnect();
 			}
-
-			// Delete the download file
-			delete m_pDownloadFile;
-
-			// Remove the download file from the file list
-			m_fileList.remove(m_pDownloadFile);
-
-			// Reset the download file
-			m_pDownloadFile = NULL;
-
-			// Flag ourselves as no longer downloading
-			m_bDownloadingFile = false;
 		}
 	}
 }
@@ -272,5 +282,17 @@ void CFileTransfer::Reset()
 	m_httpClient.Reset();
 
 	// Clear the file transfer list
+	for(std::list<ServerFile *>::iterator iter = m_fileList.begin(); iter != m_fileList.end(); iter++)
+		delete (*iter);
+
 	m_fileList.clear();
+
+	// Reset download vars
+	m_bDownloadingFile = false;
+	SAFE_DELETE(m_pDownloadFile);
+
+	if(m_fDownloadFile)
+		fclose(m_fDownloadFile);
+
+	m_fDownloadFile = NULL;
 }

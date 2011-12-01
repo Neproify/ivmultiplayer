@@ -17,7 +17,7 @@ class IVPadDataHistoryItem
 {
 public:
 	BYTE m_byteValue;                   // 0-1
-	PAD(IVPadDataHistoryItem, pad0, 3); // 1-3
+	PAD(IVPadDataHistoryItem, pad0, 3); // 1-4
 	DWORD m_dwLastUpdateTime;           // 4-8
 };
 
@@ -35,7 +35,7 @@ public:
 	// Get previous key (m_byteUnknown4 ^ m_byteUnknown7)
 	DWORD m_dwVFTable;             // 00-04
 	BYTE m_byteUnknown4;           // 04-05 (Control state value? (xor with byte 6/7))
-	BYTE m_byteContext;            // 05-06 (Used to avoid pad data being swapped more than once per pad prcoess)
+	BYTE m_byteContext;            // 05-06 (Used to avoid pad data being swapped more than once per pad process)
 	BYTE m_byteCurrentValue;       // 06-07
 	BYTE m_byteLastValue;          // 07-08
 	BYTE m_byteHistoryIndex;       // 08-09

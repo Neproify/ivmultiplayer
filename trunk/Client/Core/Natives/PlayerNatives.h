@@ -36,8 +36,8 @@ private:
 	static SQInteger GetWeapon(SQVM * pVM);
 	static SQInteger GetAmmo(SQVM * pVM);
 	static SQInteger GetInterior(SQVM * pVM);
-	static SQInteger GetPadState(SQVM * pVM);
-	static SQInteger GetPreviousPadState(SQVM * pVM);
+	static SQInteger GetControlState(SQVM * pVM);
+	static SQInteger GetPreviousControlState(SQVM * pVM);
 	static SQInteger GetPing(SQVM * pVM);
 	static SQInteger GetColor(SQVM * pVM);
 	static SQInteger IsDucking(SQVM * pVM);
