@@ -28,7 +28,7 @@ void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSo
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Connection established!");
-	g_pChatWindow->AddInfoMessage("Connected to %s. Please wait...", pSenderSocket->GetAddress(true).Get());
+	g_pChatWindow->AddInfoMessage("Please wait...");
 	CBitStream  bsSend;
 	bsSend.Write(NETWORK_VERSION);
 	bsSend.Write(g_strNick);

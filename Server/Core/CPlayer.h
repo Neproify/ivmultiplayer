@@ -23,8 +23,8 @@ private:
 	int           m_iModelId;
 	CVehicle    * m_pVehicle;
 	BYTE          m_byteVehicleSeatId;
-	CPadState     m_previousPadState;
-	CPadState     m_currentPadState;
+	CControlState     m_previousControlState;
+	CControlState     m_currentControlState;
 	CVector3      m_vecPosition;
 	float         m_fHeading;
 	CVector3      m_vecMoveSpeed;
@@ -103,9 +103,9 @@ public:
 	void           SetAmmo(unsigned int uAmmo);
 	unsigned int   GetAmmo();
 	String         GetSerial();
-	void           SetPadState(CPadState * padState);
-	void           GetPreviousPadState(CPadState * padState);
-	void           GetPadState(CPadState * padState);
+	void           SetControlState(CControlState * controlState);
+	void           GetPreviousControlState(CControlState * controlState);
+	void           GetControlState(CControlState * controlState);
 	void           SetColor(unsigned int color);	
 	unsigned int   GetColor();
 	unsigned short GetPing();

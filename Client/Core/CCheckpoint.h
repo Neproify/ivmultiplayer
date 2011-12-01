@@ -44,7 +44,7 @@ public:
 	void            Pulse();
 
 	// Streaming
-	void            GetStreamPosition(CVector3& vecCoordinates) { GetPosition(vecCoordinates); }
+	void            GetStreamPosition(CVector3& vecPosition) { GetPosition(vecPosition); }
 	void            StreamIn();
 	void            StreamOut();
 };

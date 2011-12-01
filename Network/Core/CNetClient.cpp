@@ -208,6 +208,7 @@ PacketId CNetClient::ProcessPacket(RakNet::SystemAddress systemAddress, PacketId
 			m_bConnected = true;
 			Send(&bitStreamSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, false);
 			m_bConnected = false;
+			return INVALID_PACKET_ID;
 		}
 		break;
 	case (ID_USER_PACKET_ENUM + 1): // Connection accepted

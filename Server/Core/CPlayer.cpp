@@ -47,8 +47,8 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_iModelId = 0;
 	m_pVehicle = NULL;
 	m_byteVehicleSeatId = -1;
-	memset(&m_previousPadState, 0, sizeof(CPadState));
-	memset(&m_currentPadState, 0, sizeof(CPadState));
+	memset(&m_previousControlState, 0, sizeof(CControlState));
+	memset(&m_currentControlState, 0, sizeof(CControlState));
 	m_fHeading = 0;
 	m_uHealth = 200;
 	m_uArmour = 0;
@@ -223,8 +223,8 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	// Invalidate the vehicle seat id
 	m_byteVehicleSeatId = -1;
 
-	// Set the pad state
-	SetPadState(&syncPacket->padState);
+	// Set the control state
+	SetControlState(&syncPacket->controlState);
 
 	// Set the position
 	memcpy(&m_vecPosition, &syncPacket->vecPos, sizeof(CVector3));
@@ -290,8 +290,8 @@ void CPlayer::StoreInVehicleSync(CVehicle * pVehicle, InVehicleSyncData * syncPa
 	// Store the vehicle seat id
 	m_byteVehicleSeatId = 0;
 
-	// Set the pad state
-	SetPadState(&syncPacket->padState);
+	// Set the control state
+	SetControlState(&syncPacket->controlState);
 
 	// Set the position to the vehicle position
 	memcpy(&m_vecPosition, &syncPacket->vecPos, sizeof(CVector3));
@@ -356,8 +356,8 @@ void CPlayer::StorePassengerSync(CVehicle * pVehicle, PassengerSyncData * syncPa
 	// Store the vehicle seat id
 	m_byteVehicleSeatId = syncPacket->byteSeatId;
 
-	// Set the pad state
-	SetPadState(&syncPacket->padState);
+	// Set the control state
+	SetControlState(&syncPacket->controlState);
 
 	// Set the health and armour
 	m_uHealth = (syncPacket->uPlayerHealthArmour >> 16);
@@ -414,8 +414,8 @@ void CPlayer::StorePassengerSync(CVehicle * pVehicle, PassengerSyncData * syncPa
 
 void CPlayer::StoreSmallSync(SmallSyncData * syncPacket, bool bHasAimSyncData, AimSyncData * aimSyncData)
 {
-	// Set the pad state
-	SetPadState(&syncPacket->padState);
+	// Set the control state
+	SetControlState(&syncPacket->controlState);
 
 	// Set the duck state
 	m_bDuckState = syncPacket->bDuckState;
@@ -695,30 +695,31 @@ String CPlayer::GetSerial()
 	return g_pNetworkManager->GetPlayerSerial(m_playerId);
 }
 
-void CPlayer::SetPadState(CPadState * padState)
+void CPlayer::SetControlState(CControlState * controlState)
 {
-	if(m_currentPadState != *padState)
+	if(m_currentControlState != *controlState)
 	{
-		memcpy(&m_previousPadState, &m_currentPadState, sizeof(CPadState));
-		memcpy(&m_currentPadState, padState, sizeof(CPadState));
+		memcpy(&m_previousControlState, &m_currentControlState, sizeof(CControlState));
+		memcpy(&m_currentControlState, controlState, sizeof(CControlState));
 
 		if(CVAR_GET_BOOL("frequentevents"))
 		{
 			CSquirrelArguments pArguments;
 			pArguments.push(m_playerId);
 			g_pEvents->Call("playerChangePadState", &pArguments);
+			g_pEvents->Call("playerChangeControlState", &pArguments);
 		}
 	}
 }
 
-void CPlayer::GetPreviousPadState(CPadState * padState)
+void CPlayer::GetPreviousControlState(CControlState * controlState)
 {
-	memcpy(padState, &m_previousPadState, sizeof(CPadState));
+	memcpy(controlState, &m_previousControlState, sizeof(CControlState));
 }
 
-void CPlayer::GetPadState(CPadState * padState)
+void CPlayer::GetControlState(CControlState * controlState)
 {
-	memcpy(padState, &m_currentPadState, sizeof(CPadState));
+	memcpy(controlState, &m_currentControlState, sizeof(CControlState));
 }
 
 void CPlayer::SetColor(unsigned int color)

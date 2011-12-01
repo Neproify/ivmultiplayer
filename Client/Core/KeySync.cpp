@@ -84,9 +84,6 @@ void GetGameCameraMatrix(Matrix * matMatrix)
 	}*/
 }
 
-#include "CChatWindow.h"
-extern CChatWindow * g_pChatWindow;
-
 void ContextSwitch(IVPed * pPed, bool bPost)
 {
 	// Do we have a valid ped pointer?
@@ -142,14 +139,10 @@ void ContextSwitch(IVPed * pPed, bool bPost)
 							if(pPadData->m_byteHistoryIndex >= MAX_HISTORY_ITEMS)
 								pPadData->m_byteHistoryIndex = 0;
 
-							pPadData->m_pHistory->m_historyItems[pPadData->m_byteHistoryIndex].m_byteValue = pContextInfo->GetPad()->GetPad()->m_padData[i].m_byteLastValue;
+							pPadData->m_pHistory->m_historyItems[pPadData->m_byteHistoryIndex].m_byteValue = pPadData->m_byteLastValue;
 							pPadData->m_pHistory->m_historyItems[pPadData->m_byteHistoryIndex].m_dwLastUpdateTime = CGame::GetTime();
 						}
 					}
-
-					CPadState padState;
-					pContextInfo->GetPad()->GetCurrentClientPadState(padState);
-					//g_pChatWindow->AddInfoMessage("L: %d R: %d U: %d D: %d", padState.ucOnFootMove[0], padState.ucOnFootMove[1], padState.ucOnFootMove[2], padState.ucOnFootMove[3]);
 
 					// Swap the local players pad with the remote players pad
 					memcpy(pPad->GetPad(), pContextInfo->GetPad()->GetPad(), sizeof(IVPad));
@@ -364,18 +357,111 @@ void _declspec(naked) CPlane_ProcessInput_Hook()
 }
 
 // test
-DWORD dwFunc = 0;
+#include "CChatWindow.h"
 
-void _declspec(naked) CTaskSimpleAimGun__SetPedPosition_Hook()
+extern CChatWindow * g_pChatWindow;
+
+DWORD dwFunc = 0;
+IVTask * __pTask = NULL;
+
+void _declspec(naked) CTaskSimpleAimGun__ProcessPed_Hook()
 {
 	_asm
 	{
+		mov __pTask, ecx
 		pushad
 	}
 
 	dwFunc = (CGame::GetBase() + 0xCC8140);
-	g_pChatWindow->AddInfoMessage("InLocalContext: %d", g_bInLocalContext);
+	//g_pChatWindow->AddInfoMessage("InLocalContext: %d", g_bInLocalContext);
 	//SetGameCameraMatrix(&playerCamMatrixs[0]);
+	g_pChatWindow->AddInfoMessage("Values are %f, %f, %f, %f", *(float *)(__pTask+0x20), *(float *)(__pTask+0x24), *(float *)(__pTask+0x28), *(float *)(__pTask+0x2C));
+
+	_asm
+	{
+		popad
+		jmp dwFunc
+	}
+}
+
+CVector3 * pPos;
+
+void _declspec(naked) CTaskSimpleFireGun__Constructor()
+{
+	_asm
+	{
+		push ebp
+		mov ebp, esp
+		mov eax, [ebp+0Ch]
+		mov pPos, eax
+		pop ebp
+		pushad
+	}
+
+	if(pPos)
+		g_pChatWindow->AddInfoMessage("CTaskSimpleFireGun__Constructor (Pos(0x%x): %f, %f, %f)", pPos->fX, pPos->fY, pPos->fZ);
+	else
+		g_pChatWindow->AddInfoMessage("CTaskSimpleFireGun__Constructor (No Pos)");
+
+	dwFunc = (CGame::GetBase() + 0xCC87F6);
+
+	_asm
+	{
+		popad
+		push    ebp
+		mov     ebp, esp
+		and     esp, 0FFFFFFF0h
+		jmp dwFunc
+
+	}
+}
+
+void _declspec(naked) CTaskComplexGun__Constructor()
+{
+	_asm
+	{
+		push ebp
+		mov ebp, esp
+		mov eax, [ebp+10h]
+		mov pPos, eax
+		pop ebp
+		pushad
+	}
+
+	if(pPos)
+		g_pChatWindow->AddInfoMessage("CTaskComplexGun__Constructor (Pos(0x%x): %f, %f, %f)", pPos, pPos->fX, pPos->fY, pPos->fZ);
+	else
+		g_pChatWindow->AddInfoMessage("CTaskComplexGun__Constructor (No Pos)");
+
+	dwFunc = (CGame::GetBase() + 0xA5FD86);
+
+	_asm
+	{
+		popad
+		push ebp
+		mov ebp, esp
+		and esp, 0FFFFFFF0h
+		jmp dwFunc
+	}
+}
+
+IVPed * __pPed = NULL;
+
+void _declspec(naked) CTaskComplexGun__ControlSubTask()
+{
+	_asm
+	{
+		mov __pTask, ecx
+		push ebp
+		mov ebp, esp
+		mov eax, [ebp+8]
+		mov __pPed, eax
+		pop ebp
+		pushad
+	}
+
+	dwFunc = (CGame::GetBase() + 0xA61440);
+	g_pChatWindow->AddInfoMessage("(Ped 0x%x) Values are %f, %f, %f, %f", __pPed, *(float *)(__pTask+0x20), *(float *)(__pTask+0x24), *(float *)(__pTask+0x28), *(float *)(__pTask+0x2C));
 
 	_asm
 	{
@@ -388,7 +474,10 @@ void _declspec(naked) CTaskSimpleAimGun__SetPedPosition_Hook()
 void InstallKeySyncHooks()
 {
 	// test
-	CPatcher::InstallMethodPatch((CGame::GetBase() + 0xDCD6C0), (DWORD)CTaskSimpleAimGun__SetPedPosition_Hook);
+	//CPatcher::InstallMethodPatch((CGame::GetBase() + 0xDCD6C0), (DWORD)CTaskSimpleAimGun__ProcessPed_Hook);
+	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCC87F0), (DWORD)CTaskSimpleFireGun__Constructor);
+	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xA5FD80), (DWORD)CTaskComplexGun__Constructor);
+	//CPatcher::InstallMethodPatch((CGame::GetBase() + 0xD8C4D4), (DWORD)CTaskComplexGun__ControlSubTask);
 	// end test
 
 	// CPlayerPed::ProcessInput

@@ -11,7 +11,7 @@
 
 #include "IVCommon.h"
 #include "CIVPadData.h"
-#include <Game/CPadState.h>
+#include <Game/CControlState.h>
 
 // Input values
 #define MIN_INPUT_VALUE 0
@@ -338,12 +338,12 @@ public:
 	void    SetPad(IVPad * pPad);
 	IVPad * GetPad();
 
-	void    ToPadState(CPadState& padState, bool bCurrent);
-	void    FromPadState(CPadState padState, bool bCurrent);
-	void    SetCurrentClientPadState(CPadState padState);
-	void    GetCurrentClientPadState(CPadState& padState);
-	void    SetLastClientPadState(CPadState padState);
-	void    GetLastClientPadState(CPadState& padState);
+	void    ToControlState(CControlState& controlState, bool bCurrent);
+	void    FromControlState(CControlState controlState, bool bCurrent);
+	void    SetCurrentClientControlState(CControlState controlState);
+	void    GetCurrentClientControlState(CControlState& controlState);
+	void    SetLastClientControlState(CControlState controlState);
+	void    GetLastClientControlState(CControlState& controlState);
 	void    SetIsUsingController(bool bIsUsingController);
 	bool    GetIsUsingController();
 	void    SetLastUpdateTime(DWORD dwLastUpdateTime);

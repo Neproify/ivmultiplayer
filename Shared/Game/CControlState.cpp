@@ -1,19 +1,19 @@
 //============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
-// File: CPadState.cpp
+// File: CControlState.cpp
 // Project: Shared
 // Author(s): jenksta
 // License: See LICENSE in root directory
 //
 //==============================================================================
 
-#include "CPadState.h"
+#include "CControlState.h"
 #include <string.h>
 #include <Network/CBitStream.h>
 
-CPadState::CPadState()
+CControlState::CControlState()
 {
-	memset(this, 0, sizeof(CPadState));
+	memset(this, 0, sizeof(CControlState));
 
 	for(int i = 0; i < 4; i++)
 		ucOnFootMove[i] = 128;
@@ -25,19 +25,19 @@ CPadState::CPadState()
 		ucInVehicleTriggers[i] = 128;
 }
 
-bool CPadState::operator== (const CPadState& o) const
+bool CControlState::operator== (const CControlState& o) const
 {
 	// todo: alternative
-	return ((!memcmp(this, &o, sizeof(CPadState))) != 0);
+	return ((!memcmp(this, &o, sizeof(CControlState))) != 0);
 }
 
-bool CPadState::operator!= (const CPadState& o) const
+bool CControlState::operator!= (const CControlState& o) const
 {
 	// todo: alternative
-	return (memcmp(this, &o, sizeof(CPadState)) != 0);
+	return (memcmp(this, &o, sizeof(CControlState)) != 0);
 }
 
-void CPadState::Serialize(CBitStream * pBitStream) const
+void CControlState::Serialize(CBitStream * pBitStream) const
 {
 	pBitStream->Write((char *)ucOnFootMove, sizeof(ucOnFootMove));
 	pBitStream->Write((char *)ucInVehicleMove, sizeof(ucInVehicleMove));
@@ -45,7 +45,7 @@ void CPadState::Serialize(CBitStream * pBitStream) const
 	pBitStream->WriteBits((unsigned char *)&keys, KEY_COUNT);
 }
 
-bool CPadState::Deserialize(CBitStream * pBitStream)
+bool CControlState::Deserialize(CBitStream * pBitStream)
 {
 	if(!pBitStream->Read((char *)ucOnFootMove, sizeof(ucOnFootMove)))
 		return false;

@@ -76,9 +76,9 @@ private:
 	static SQInteger ToggleRadar(SQVM * pVM);
 	static SQInteger ToggleNames(SQVM * pVM);
 	static SQInteger ToggleAreaNames(SQVM * pVM);
-	static SQInteger GetEmptyPadState(SQVM * pVM);
-	static SQInteger GetPreviousPadState(SQVM * pVM);
-	static SQInteger GetPadState(SQVM * pVM);
+	static SQInteger GetEmptyControlState(SQVM * pVM);
+	static SQInteger GetPreviousControlState(SQVM * pVM);
+	static SQInteger GetControlState(SQVM * pVM);
 	static SQInteger TriggerEvent(SQVM * pVM);
 	static SQInteger GetColor(SQVM * pVM);
 	static SQInteger SetColor(SQVM * pVM);

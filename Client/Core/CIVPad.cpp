@@ -10,14 +10,14 @@
 #include "CIVPad.h"
 #include "COffsets.h"
 
-// Helper macros for the ToPadState function
+// Helper macros for the ToControlState function
 #define SET_ANALOG_KEY(key, analog) \
 	analog = (bCurrent ? m_pPad->m_padData[key].m_byteCurrentValue : m_pPad->m_padData[key].m_byteLastValue)
 
 #define SET_BINARY_KEY(key, binary) \
 	binary = (bCurrent ? ((m_pPad->m_padData[key].m_byteCurrentValue == MAX_INPUT_VALUE) ? true : false) : ((m_pPad->m_padData[key].m_byteLastValue == MAX_INPUT_VALUE) ? true : false))
 
-// Helper macros for the FromPadState function
+// Helper macros for the FromControlState function
 #define GET_ANALOG_KEY(key, analog) \
 	if(bCurrent) { m_pPad->m_padData[key].m_byteCurrentValue = analog; } else { m_pPad->m_padData[key].m_byteLastValue = analog; }
 
@@ -48,9 +48,11 @@ CIVPad::CIVPad()
 		call COffsets::FUNC_CPad__Initialize
 	}
 
-	// HACK: To fix analog values not being initialized properly
+	// HACK: To fix values not being initialized properly
 	for(int i = 0; i < INPUT_COUNT; i++)
 	{
+		m_pPad->m_padData[i].m_byteUnknown4 = MAX_INPUT_VALUE;
+
 		if(IsAnalogInput((eInput)i))
 		{
 			m_pPad->m_padData[i].m_byteCurrentValue = DEFAULT_ANALOG_INPUT_VALUE;
@@ -94,102 +96,102 @@ IVPad * CIVPad::GetPad()
 	return m_pPad;
 }
 
-void CIVPad::ToPadState(CPadState& padState, bool bCurrent)
+void CIVPad::ToControlState(CControlState& controlState, bool bCurrent)
 {
 	// Do we not have a valid pad?
 	if(!m_pPad)
 		return;
 
 	// Analog keys
-	SET_ANALOG_KEY(INPUT_MOVE_LEFT,         padState.ucOnFootMove[0]);
-	SET_ANALOG_KEY(INPUT_MOVE_RIGHT,        padState.ucOnFootMove[1]);
-	SET_ANALOG_KEY(INPUT_MOVE_UP,           padState.ucOnFootMove[2]);
-	SET_ANALOG_KEY(INPUT_MOVE_DOWN,         padState.ucOnFootMove[3]);
-	SET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     padState.ucInVehicleMove[0]);
-	SET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    padState.ucInVehicleMove[1]);
-	SET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       padState.ucInVehicleMove[2]);
-	SET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     padState.ucInVehicleMove[3]);
-	SET_ANALOG_KEY(INPUT_VEH_BRAKE,         padState.ucInVehicleTriggers[0]);
-	SET_ANALOG_KEY(INPUT_VEH_ACCELERATE,    padState.ucInVehicleTriggers[1]);
+	SET_ANALOG_KEY(INPUT_MOVE_LEFT,         controlState.ucOnFootMove[0]);
+	SET_ANALOG_KEY(INPUT_MOVE_RIGHT,        controlState.ucOnFootMove[1]);
+	SET_ANALOG_KEY(INPUT_MOVE_UP,           controlState.ucOnFootMove[2]);
+	SET_ANALOG_KEY(INPUT_MOVE_DOWN,         controlState.ucOnFootMove[3]);
+	SET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     controlState.ucInVehicleMove[0]);
+	SET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    controlState.ucInVehicleMove[1]);
+	SET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       controlState.ucInVehicleMove[2]);
+	SET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     controlState.ucInVehicleMove[3]);
+	SET_ANALOG_KEY(INPUT_VEH_BRAKE,         controlState.ucInVehicleTriggers[0]);
+	SET_ANALOG_KEY(INPUT_VEH_ACCELERATE,    controlState.ucInVehicleTriggers[1]);
 
 	// Binary keys
-	SET_BINARY_KEY(INPUT_ENTER,             padState.keys.bEnterExitVehicle);
-	SET_BINARY_KEY(INPUT_SPRINT,            padState.keys.bSprint);
-	SET_BINARY_KEY(INPUT_JUMP,              padState.keys.bJump);
-	SET_BINARY_KEY(INPUT_ATTACK,            padState.keys.bAttack);
-	SET_BINARY_KEY(INPUT_ATTACK2,           padState.keys.bAttack2);
-	SET_BINARY_KEY(INPUT_AIM,               padState.keys.bAim);
-	SET_BINARY_KEY(INPUT_FREE_AIM,          padState.keys.bFreeAim);
-	SET_BINARY_KEY(INPUT_MELEE_ATTACK1,     padState.keys.bMeleeAttack1);
-	SET_BINARY_KEY(INPUT_MELEE_ATTACK2,     padState.keys.bMeleeAttack2);
-	SET_BINARY_KEY(INPUT_MELEE_KICK,        padState.keys.bMeleeKick);
-	SET_BINARY_KEY(INPUT_MELEE_BLOCK,       padState.keys.bMeleeBlock);
-	SET_BINARY_KEY(INPUT_VEH_HANDBRAKE,     padState.keys.bHandbrake);
-	SET_BINARY_KEY(INPUT_VEH_HANDBRAKE_ALT, padState.keys.bHandbrake2);
-	SET_BINARY_KEY(INPUT_VEH_HORN,          padState.keys.bHorn);
-	SET_BINARY_KEY(INPUT_VEH_ATTACK,        padState.keys.bDriveBy);
-	SET_BINARY_KEY(INPUT_VEH_ATTACK2,       padState.keys.bHeliPrimaryFire);
+	SET_BINARY_KEY(INPUT_ENTER,             controlState.keys.bEnterExitVehicle);
+	SET_BINARY_KEY(INPUT_SPRINT,            controlState.keys.bSprint);
+	SET_BINARY_KEY(INPUT_JUMP,              controlState.keys.bJump);
+	SET_BINARY_KEY(INPUT_ATTACK,            controlState.keys.bAttack);
+	SET_BINARY_KEY(INPUT_ATTACK2,           controlState.keys.bAttack2);
+	SET_BINARY_KEY(INPUT_AIM,               controlState.keys.bAim);
+	SET_BINARY_KEY(INPUT_FREE_AIM,          controlState.keys.bFreeAim);
+	SET_BINARY_KEY(INPUT_MELEE_ATTACK1,     controlState.keys.bMeleeAttack1);
+	SET_BINARY_KEY(INPUT_MELEE_ATTACK2,     controlState.keys.bMeleeAttack2);
+	SET_BINARY_KEY(INPUT_MELEE_KICK,        controlState.keys.bMeleeKick);
+	SET_BINARY_KEY(INPUT_MELEE_BLOCK,       controlState.keys.bMeleeBlock);
+	SET_BINARY_KEY(INPUT_VEH_HANDBRAKE,     controlState.keys.bHandbrake);
+	SET_BINARY_KEY(INPUT_VEH_HANDBRAKE_ALT, controlState.keys.bHandbrake2);
+	SET_BINARY_KEY(INPUT_VEH_HORN,          controlState.keys.bHorn);
+	SET_BINARY_KEY(INPUT_VEH_ATTACK,        controlState.keys.bDriveBy);
+	SET_BINARY_KEY(INPUT_VEH_ATTACK2,       controlState.keys.bHeliPrimaryFire);
 }
 
-void CIVPad::FromPadState(CPadState padState, bool bCurrent)
+void CIVPad::FromControlState(CControlState controlState, bool bCurrent)
 {
 	// Do we not have a valid pad?
 	if(!m_pPad)
 		return;
 
 	// Analog keys
-	GET_ANALOG_KEY(INPUT_MOVE_LEFT,         padState.ucOnFootMove[0]);
-	GET_ANALOG_KEY(INPUT_MOVE_RIGHT,        padState.ucOnFootMove[1]);
-	GET_ANALOG_KEY(INPUT_MOVE_UP,           padState.ucOnFootMove[2]);
-	GET_ANALOG_KEY(INPUT_MOVE_DOWN,         padState.ucOnFootMove[3]);
-	GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     padState.ucInVehicleMove[0]);
-	GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    padState.ucInVehicleMove[1]);
-	GET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       padState.ucInVehicleMove[2]);
-	GET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     padState.ucInVehicleMove[3]);
-	GET_ANALOG_KEY(INPUT_VEH_BRAKE,         padState.ucInVehicleTriggers[0]);
-	GET_ANALOG_KEY(INPUT_VEH_ACCELERATE,    padState.ucInVehicleTriggers[1]);
+	GET_ANALOG_KEY(INPUT_MOVE_LEFT,         controlState.ucOnFootMove[0]);
+	GET_ANALOG_KEY(INPUT_MOVE_RIGHT,        controlState.ucOnFootMove[1]);
+	GET_ANALOG_KEY(INPUT_MOVE_UP,           controlState.ucOnFootMove[2]);
+	GET_ANALOG_KEY(INPUT_MOVE_DOWN,         controlState.ucOnFootMove[3]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     controlState.ucInVehicleMove[0]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    controlState.ucInVehicleMove[1]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       controlState.ucInVehicleMove[2]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     controlState.ucInVehicleMove[3]);
+	GET_ANALOG_KEY(INPUT_VEH_BRAKE,         controlState.ucInVehicleTriggers[0]);
+	GET_ANALOG_KEY(INPUT_VEH_ACCELERATE,    controlState.ucInVehicleTriggers[1]);
 
 	// Binary keys
-	GET_BINARY_KEY(INPUT_ENTER,             padState.keys.bEnterExitVehicle);
-	GET_BINARY_KEY(INPUT_SPRINT,            padState.keys.bSprint);
-	GET_BINARY_KEY(INPUT_JUMP,              padState.keys.bJump);
-	GET_BINARY_KEY(INPUT_ATTACK,            padState.keys.bAttack);
-	GET_BINARY_KEY(INPUT_ATTACK2,           padState.keys.bAttack2);
-	GET_BINARY_KEY(INPUT_AIM,               padState.keys.bAim);
-	GET_BINARY_KEY(INPUT_FREE_AIM,          padState.keys.bFreeAim);
-	GET_BINARY_KEY(INPUT_MELEE_ATTACK1,     padState.keys.bMeleeAttack1);
-	GET_BINARY_KEY(INPUT_MELEE_ATTACK2,     padState.keys.bMeleeAttack2);
-	GET_BINARY_KEY(INPUT_MELEE_KICK,        padState.keys.bMeleeKick);
-	GET_BINARY_KEY(INPUT_MELEE_BLOCK,       padState.keys.bMeleeBlock);
-	GET_BINARY_KEY(INPUT_VEH_HANDBRAKE,     padState.keys.bHandbrake);
-	GET_BINARY_KEY(INPUT_VEH_HANDBRAKE_ALT, padState.keys.bHandbrake2);
-	GET_BINARY_KEY(INPUT_VEH_HORN,          padState.keys.bHorn);
-	GET_BINARY_KEY(INPUT_VEH_ATTACK,        padState.keys.bDriveBy);
-	GET_BINARY_KEY(INPUT_VEH_ATTACK2,       padState.keys.bHeliPrimaryFire);
+	GET_BINARY_KEY(INPUT_ENTER,             controlState.keys.bEnterExitVehicle);
+	GET_BINARY_KEY(INPUT_SPRINT,            controlState.keys.bSprint);
+	GET_BINARY_KEY(INPUT_JUMP,              controlState.keys.bJump);
+	GET_BINARY_KEY(INPUT_ATTACK,            controlState.keys.bAttack);
+	GET_BINARY_KEY(INPUT_ATTACK2,           controlState.keys.bAttack2);
+	GET_BINARY_KEY(INPUT_AIM,               controlState.keys.bAim);
+	GET_BINARY_KEY(INPUT_FREE_AIM,          controlState.keys.bFreeAim);
+	GET_BINARY_KEY(INPUT_MELEE_ATTACK1,     controlState.keys.bMeleeAttack1);
+	GET_BINARY_KEY(INPUT_MELEE_ATTACK2,     controlState.keys.bMeleeAttack2);
+	GET_BINARY_KEY(INPUT_MELEE_KICK,        controlState.keys.bMeleeKick);
+	GET_BINARY_KEY(INPUT_MELEE_BLOCK,       controlState.keys.bMeleeBlock);
+	GET_BINARY_KEY(INPUT_VEH_HANDBRAKE,     controlState.keys.bHandbrake);
+	GET_BINARY_KEY(INPUT_VEH_HANDBRAKE_ALT, controlState.keys.bHandbrake2);
+	GET_BINARY_KEY(INPUT_VEH_HORN,          controlState.keys.bHorn);
+	GET_BINARY_KEY(INPUT_VEH_ATTACK,        controlState.keys.bDriveBy);
+	GET_BINARY_KEY(INPUT_VEH_ATTACK2,       controlState.keys.bHeliPrimaryFire);
 }
 
-void CIVPad::SetCurrentClientPadState(CPadState padState)
+void CIVPad::SetCurrentClientControlState(CControlState controlState)
 {
 	if(m_pPad)
-		FromPadState(padState, true);
+		FromControlState(controlState, true);
 }
 
-void CIVPad::GetCurrentClientPadState(CPadState& padState)
+void CIVPad::GetCurrentClientControlState(CControlState& controlState)
 {
 	if(m_pPad)
-		ToPadState(padState, true);
+		ToControlState(controlState, true);
 }
 
-void CIVPad::SetLastClientPadState(CPadState padState)
+void CIVPad::SetLastClientControlState(CControlState controlState)
 {
 	if(m_pPad)
-		FromPadState(padState, false);
+		FromControlState(controlState, false);
 }
 
-void CIVPad::GetLastClientPadState(CPadState& padState)
+void CIVPad::GetLastClientControlState(CControlState& controlState)
 {
 	if(m_pPad)
-		ToPadState(padState, false);
+		ToControlState(controlState, false);
 }
 
 void CIVPad::SetIsUsingController(bool bIsUsingController)

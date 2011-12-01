@@ -18,7 +18,7 @@
 // TODO: Move this and sync structures to separate file
 // or do it like n:iv with Serialize and Deserialize functions
 #include "Math/CMath.h"
-#include "Game/CPadState.h"
+#include "Game/CControlState.h"
 
 // Linux stuff
 #ifdef _LINUX
@@ -42,10 +42,10 @@
 #endif
 
 // Network module version
-#define NETWORK_MODULE_VERSION 0x04
+#define NETWORK_MODULE_VERSION 0x05
 
 // Network version
-#define NETWORK_VERSION 0x6A
+#define NETWORK_VERSION 0x6B
 
 // Tick Rate
 #define TICK_RATE 100
@@ -148,6 +148,13 @@ enum eVehicleEntryExit
 #define IS_BIT_SET(a, b) ((a & b) != 0)
 #define UNSET_BIT(a, b) a &= ~(b)
 
+// Library debug suffix
+#ifdef IVMP_DEBUG
+#define DEBUG_SUFFIX ".Debug"
+#else
+#define DEBUG_SUFFIX
+#endif
+
 // Library extension
 #ifdef WIN32
 #define LIBRARY_EXTENSION ".dll"
@@ -177,7 +184,7 @@ enum eVehicleEntryExit
 
 struct OnFootSyncData
 {
-	CPadState padState;              // pad state
+	CControlState controlState;      // control state
 	CVector3 vecPos;                 // player position
 	float fHeading;                  // player heading
 	CVector3 vecMoveSpeed;           // player move speed
@@ -188,7 +195,7 @@ struct OnFootSyncData
 
 struct InVehicleSyncData
 {
-	CPadState padState;                    // pad state
+	CControlState controlState;            // control state
 	CVector3 vecPos;                       // vehicle position
 	CVector3 vecRotation;                  // vehicle rotation
 	unsigned int uiHealth : 16;            // vehicle health
@@ -204,7 +211,7 @@ struct InVehicleSyncData
 
 struct PassengerSyncData
 {
-	CPadState padState;                    // pad state
+	CControlState controlState;            // control state
 	unsigned char byteSeatId;              // vehicle seat id
 	unsigned int uPlayerHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uPlayerWeaponInfo;        // player weapon and ammo
@@ -212,9 +219,9 @@ struct PassengerSyncData
 
 struct SmallSyncData
 {
-	CPadState padState;       // pad state
-	bool bDuckState : 1;      // ducking
-	unsigned int uWeaponInfo; // weapon and ammo
+	CControlState controlState; // control state
+	bool bDuckState : 1;        // ducking
+	unsigned int uWeaponInfo;   // weapon and ammo
 };
 
 struct EMPTYVEHICLESYNCPACKET
@@ -223,7 +230,7 @@ struct EMPTYVEHICLESYNCPACKET
 	EntityId vehicleId;
 	CVector3 vecPosition;
 	CVector3 vecRotation;
-	float fHealth;
+	unsigned int uiHealth : 16;
 };
 
 struct AimSyncData

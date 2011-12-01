@@ -26,6 +26,4 @@ typedef unsigned char BYTE;
 
 #define stricmp strcasecmp
 #define Sleep(ms) usleep(ms * 1000)
-
-DWORD GetTickCount();
 #endif

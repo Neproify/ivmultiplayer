@@ -8,6 +8,7 @@
 //==============================================================================
 
 #include "CDirectInputDevice8Proxy.h"
+#include "CGame.h"
 
 int m_iStartLoadTicks = 0;
 char cOldReturn = 0;

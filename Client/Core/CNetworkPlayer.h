@@ -44,8 +44,8 @@ private:
 	}                 m_interp;
 	unsigned char     m_ucClothes[11];
 	bool              m_bUseCustomClothesOnSpawn;
-	CPadState         m_previousPadState;
-	CPadState         m_currentPadState;
+	CControlState         m_previousControlState;
+	CControlState         m_currentControlState;
 	unsigned short    m_usPing;
 	CNetworkVehicle * m_pVehicle;
 	BYTE              m_byteVehicleSeatId;
@@ -112,9 +112,9 @@ public:
 	//
 	void                     SetModel(DWORD dwModelHash);
 
-	void                     Teleport(const CVector3& vecCoordinates, bool bResetInterpolation = true);
-	void                     SetPosition(const CVector3& vecCoordinates, bool bResetInterpolation = true);
-	void                     GetPosition(CVector3& vecCoordinates);
+	void                     Teleport(const CVector3& vecPosition, bool bResetInterpolation = true);
+	void                     SetPosition(const CVector3& vecPosition, bool bResetInterpolation = true);
+	void                     GetPosition(CVector3& vecPosition);
 	void                     SetCurrentHeading(float fHeading);
 	float                    GetCurrentHeading();
 	void                     SetDesiredHeading(float fHeading);
@@ -142,9 +142,9 @@ public:
 	void                     SetMoney(int iAmount);
 	void                     ResetMoney();
 	int                      GetMoney();
-	void                     SetPadState(CPadState * padState);
-	void                     GetPreviousPadState(CPadState * padState);
-	void                     GetPadState(CPadState * padState);
+	void                     SetControlState(CControlState * controlState);
+	void                     GetPreviousControlState(CControlState * controlState);
+	void                     GetControlState(CControlState * controlState);
 	void                     SetAimSyncData(AimSyncData * aimSyncData);
 	void                     GetAimSyncData(AimSyncData * aimSyncData);
 	void                     AddToWorld();

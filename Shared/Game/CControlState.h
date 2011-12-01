@@ -1,6 +1,6 @@
 //============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
-// File: CPadState.h
+// File: CControlState.h
 // Project: Shared
 // Author(s): jenksta
 // License: See LICENSE in root directory
@@ -11,7 +11,7 @@
 
 class CBitStream;
 
-class CPadState
+class CControlState
 {
 public:
 	// On Foot Move
@@ -52,10 +52,10 @@ public:
 		bool bHeliPrimaryFire : 1;
 	} keys;
 
-	CPadState();
+	CControlState();
 
-	bool operator== (const CPadState& o) const;
-	bool operator!= (const CPadState& o) const;
+	bool operator== (const CControlState& o) const;
+	bool operator!= (const CControlState& o) const;
 
 	bool IsInCombat() const { return (keys.bMeleeAttack1 || keys.bMeleeAttack2 || keys.bMeleeKick || keys.bMeleeBlock); }
 	bool IsFiring() const { return (keys.bAttack); }

@@ -75,9 +75,9 @@ bool CMutex::TryLock(unsigned int uiTimeOutMilliseconds)
 	}
 	else
 	{
-		unsigned long dwEnd = (GetTickCount() + uiTimeOutMilliseconds);
+		unsigned long ulEndTime = (SharedUtility::GetTime() + uiTimeOutMilliseconds);
 
-		while(GetTickCount() < dwEnd)
+		while(SharedUtility::GetTime() < ulEndTime)
 		{
 #ifdef WIN32
 			if(TryEnterCriticalSection(&m_criticalSection))

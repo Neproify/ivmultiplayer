@@ -591,10 +591,3 @@ namespace SharedUtility
 		return String("%d day(s), %d hour(s), %d minute(s) and %d second(s)", iDays, iHours, iMinutes, iSeconds);
 	}
 };
-
-#ifndef WIN32
-DWORD GetTickCount()
-{
-	return SharedUtility::GetTime();
-}
-#endif

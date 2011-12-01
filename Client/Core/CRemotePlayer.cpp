@@ -97,8 +97,8 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	if(IsInVehicle())
 		RemoveFromVehicle();
 
-	// Set our pad state
-	SetPadState(&syncPacket->padState);
+	// Set our control state
+	SetControlState(&syncPacket->controlState);
 
 	// Set our position
 	SetTargetPosition(syncPacket->vecPos, TICK_RATE);
@@ -173,8 +173,8 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 			PutInVehicle(pVehicle, 0);
 		}
 
-		// Set their pad state
-		SetPadState(&syncPacket->padState);
+		// Set their control state
+		SetControlState(&syncPacket->controlState);
 
 		// Set their vehicles target position
 		pVehicle->SetTargetPosition(syncPacket->vecPos, TICK_RATE);
@@ -258,8 +258,8 @@ void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * s
 		if(GetVehicle() != pVehicle || GetVehicleSeatId() != syncPacket->byteSeatId)
 			PutInVehicle(pVehicle, syncPacket->byteSeatId);
 
-		// Set their pad state
-		SetPadState(&syncPacket->padState);
+		// Set their control state
+		SetControlState(&syncPacket->controlState);
 
 		// Lock our health
 		LockHealth(syncPacket->uPlayerHealthArmour >> 16);
@@ -291,8 +291,8 @@ void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * s
 
 void CRemotePlayer::StoreSmallSync(SmallSyncData * syncPacket)
 {
-	// Set their pad state
-	SetPadState(&syncPacket->padState);
+	// Set their control state
+	SetControlState(&syncPacket->controlState);
 
 	// Set their ducking state
 	SetDucking(syncPacket->bDuckState);

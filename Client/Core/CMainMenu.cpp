@@ -18,6 +18,7 @@
 #include <CLogFile.h>
 #include "CCredits.h"
 #include <map>
+#include "CGame.h"
 
 extern CGUI            * g_pGUI;
 extern CNetworkManager * g_pNetworkManager;

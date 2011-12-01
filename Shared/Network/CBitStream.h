@@ -12,7 +12,7 @@
 
 #include "../CString.h"
 #include "../Math/CMath.h"
-#include "../Game/CPadState.h"
+#include "../Game/CControlState.h"
 
 #ifdef _LINUX
 #include <string.h>
@@ -104,7 +104,7 @@ public:
 	void                     Write(const double &dIn) { WRITE_TEMPLATE(sizeof(double), dIn); }
 	void                     Write(const String &strIn);
 	void                     Write(const CVector3 &vecIn);
-	void                     Write(const CPadState &in);
+	void                     Write(const CControlState &in);
 
 	// Write any integral type compressed to the BitStream.
 	void                     WriteCompressed(const bool &bIn) { WRITE_COMPRESSED_TEMPLATE(sizeof(bool), bIn); }
@@ -133,7 +133,7 @@ public:
 	bool                     Read(double& dOut) { READ_TEMPLATE(sizeof(double), dOut); }
 	bool                     Read(String &strOut);
 	bool                     Read(CVector3 &vecOut);
-	bool                     Read(CPadState &out);
+	bool                     Read(CControlState &out);
 
 	// Read any compressed integral type from the BitStream.
 	bool                     ReadCompressed(bool &bOut) { READ_COMPRESSED_TEMPLATE(sizeof(bool), bOut); }

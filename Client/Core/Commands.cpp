@@ -47,12 +47,12 @@ void QuickQuitCommand(char * szParams)
 	TerminateProcess(GetCurrentProcess(), 0);
 }
 
-void SendPlayerPing(char * szParams)
+void GetPing(char * szParams)
 {
 	g_pChatWindow->AddInfoMessage("Your current [FFFFFFAA]Ping: [F60000FF]%d",g_pLocalPlayer->GetPing());
 }
 
-void SendPlayerFPS(char * szParams)
+void GetFPS(char * szParams)
 {
 	g_pChatWindow->AddInfoMessage("Your current [FFFFFFAA]FPS: [F60000FF]%d",g_pFPSCounter->Get());
 }
@@ -263,8 +263,8 @@ void RegisterCommands()
 	g_pInputWindow->RegisterCommand("qq", QuickQuitCommand);
 	g_pInputWindow->RegisterCommand("quickquit", QuickQuitCommand);
 	g_pInputWindow->RegisterCommand("savepos", SavePosCommand);
-	g_pInputWindow->RegisterCommand("ping", SendPlayerPing);
-	g_pInputWindow->RegisterCommand("fps", SendPlayerFPS);
+	g_pInputWindow->RegisterCommand("ping", GetPing);
+	g_pInputWindow->RegisterCommand("fps", GetFPS);
 	#ifdef DEBUG_COMMANDS_ENABLED
 	g_pInputWindow->RegisterCommand("ap", AddPlayerCommand);
 	g_pInputWindow->RegisterCommand("dp", DeletePlayerCommand);
