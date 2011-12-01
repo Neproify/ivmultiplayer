@@ -10,14 +10,19 @@
 #pragma once
 
 #include <CString.h>
+#include <Threading/CThread.h>
 
 class CScreenShot
 {
 private:
-	static unsigned long m_ulLastScreenShotTime;
+	static unsigned long   m_ulLastScreenShotTime;
+	static CThread         m_writeThread;
+	static unsigned char * m_ucData;
+	static unsigned int    m_uiScreenWidth;
+	static unsigned int    m_uiScreenHeight;
 
 	static String GetScreenShotPath();
-	static bool   WriteImageToFile(unsigned char * ucData, unsigned int uiScreenWidth, unsigned int uiScreenHeight);
+	static void   WriteImageToFile(CThread * pThread);
 
 public:
 	static bool   Take();

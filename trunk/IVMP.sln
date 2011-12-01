@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencie
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Network.Core", "Network\Core\Network.Core.vcxproj", "{AF4DE4BA-2C45-476F-BF44-BFE4C69B71FE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "expat_static", "Client\Core\CEGUI\dependencies\expat-2.0.1\expat_static.vcxproj", "{0757FC7D-A029-4C29-B806-9CC05DC384A1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "expat_static", "Vendor\expat-2.0.1\expat_static.vcxproj", "{0757FC7D-A029-4C29-B806-9CC05DC384A1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CEGUIBase", "Client\Core\CEGUI\projects\BaseSystem\CEGUIBase.vcxproj", "{E2161EDF-8018-7947-8675-A82F7551FF79}"
 EndProject
@@ -27,13 +27,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CEGUIFalagardWRBase", "Clie
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CEGUIExpatParser", "Client\Core\CEGUI\projects\XMLParserModules\expatParser\CEGUIExpatParser.vcxproj", "{4D2AFB70-0048-164B-909E-86AB43E40921}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg", "Client\Core\CEGUI\dependencies\jpeg-6b\projects\libjpeg.vcxproj", "{D0DA3016-67C0-4CD8-BAD1-2D122AC2D29D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg", "Vendor\jpeg-6b\projects\libjpeg.vcxproj", "{D0DA3016-67C0-4CD8-BAD1-2D122AC2D29D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "Client\Core\CEGUI\dependencies\lpng142\projects\libpng.vcxproj", "{21DB5D0C-2F40-4D79-BE75-021E3D35B2F9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "Vendor\lpng142\projects\libpng.vcxproj", "{21DB5D0C-2F40-4D79-BE75-021E3D35B2F9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "Client\Core\CEGUI\dependencies\zlib-1.2.5\projects\zlib.vcxproj", "{9006D124-5D00-4CB7-BAD9-F527B19502C9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "Vendor\zlib-1.2.5\projects\zlib.vcxproj", "{9006D124-5D00-4CB7-BAD9-F527B19502C9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SILLY", "Client\Core\CEGUI\dependencies\SILLY-0.1.0\SILLY.vcxproj", "{38F8D6D1-8D5D-4543-9C7E-23AE0DE3A1E0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SILLY", "Vendor\SILLY-0.1.0\SILLY.vcxproj", "{38F8D6D1-8D5D-4543-9C7E-23AE0DE3A1E0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client.Core", "Client\Core\Client.Core.vcxproj", "{5DD209AC-1B5F-483A-BCA9-150CAD228C5A}"
 EndProject
@@ -46,8 +46,15 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fat-io", "Vendor\fat-io\fat-io.vcxproj", "{1C43699F-36E8-412E-A5F4-D0D4E61AD969}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client.VFS", "Client\VFS\Client.VFS.vcxproj", "{C6C1E900-B84F-42E7-B228-71B5EB574E80}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9006D124-5D00-4CB7-BAD9-F527B19502C9} = {9006D124-5D00-4CB7-BAD9-F527B19502C9}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client.VFS.Utility", "Client\VFS\Util\VFSModule.Util.vcxproj", "{D1E9326A-0FCA-46B3-86D0-3D39C63340E1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9006D124-5D00-4CB7-BAD9-F527B19502C9} = {9006D124-5D00-4CB7-BAD9-F527B19502C9}
+		{1C43699F-36E8-412E-A5F4-D0D4E61AD969} = {1C43699F-36E8-412E-A5F4-D0D4E61AD969}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -185,6 +185,10 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		return 1;
 	}
 
+	CLogFile::Printf("uMsg=%d wParam=%d",uMsg,wParam);
+	if(uMsg == WM_KEYUP && wParam == VK_F7)
+		CLogFile::Printf("Pressed F10 1");
+
 	// If we are not focused discard the event
 	/*if(!bFocused)
 		return 1;*/
@@ -230,9 +234,8 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		}
 	}
 
-
 	// Is this a F10 key up?
-	if(uMsg == WM_KEYUP && wParam == VK_F10)
+	if(uMsg == WM_SYSKEYUP && wParam == VK_F10)
 	{
 		unsigned long ulStartTime = SharedUtility::GetTime();
 
