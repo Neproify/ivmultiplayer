@@ -63,7 +63,7 @@
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\$(TargetName).dll</OutputFile>
-      <AdditionalLibraryDirectories>.\CEGUI\dependencies\zlib-1.2.5\projects\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Vendor\zlib-1.2.5\projects\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -82,7 +82,7 @@
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\$(TargetName).dll</OutputFile>
-      <AdditionalLibraryDirectories>.\CEGUI\dependencies\zlib-1.2.5\projects\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Vendor\zlib-1.2.5\projects\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

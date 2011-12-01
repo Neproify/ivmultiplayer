@@ -9,7 +9,7 @@
 // Parts taken from code found on the Irrlicht forums
 
 #include "CScreenShot.h"
-#include "CEGUI/dependencies/lpng142/png.h"
+#include "../../Vendor/lpng142/png.h"
 #include "DXSDK/Include/d3d9.h"
 #include "SharedUtility.h"
 #include "CGUI.h"
@@ -22,6 +22,10 @@ extern IDirect3DDevice9 * g_pDevice;
 extern CGUI             * g_pGUI;
 
 unsigned long CScreenShot::m_ulLastScreenShotTime = 0;
+CThread CScreenShot::m_writeThread;
+unsigned char * CScreenShot::m_ucData = NULL;
+unsigned int CScreenShot::m_uiScreenWidth = 0;
+unsigned int CScreenShot::m_uiScreenHeight = 0;
 
 String CScreenShot::GetScreenShotPath()
 {
@@ -36,11 +40,10 @@ String CScreenShot::GetScreenShotPath()
 	SYSTEMTIME systemTime;
 	GetLocalTime(&systemTime);
 	strPath.AppendF("/ivmp-%04d.%02d.%02d-%02d.%02d.%02d.png", systemTime.wYear, systemTime.wMonth, systemTime.wDay, systemTime.wHour, systemTime.wMinute, systemTime.wSecond);
-
 	return strPath;
 }
 
-bool CScreenShot::WriteImageToFile(unsigned char * ucData, unsigned int uiScreenWidth, unsigned int uiScreenHeight)
+void CScreenShot::WriteImageToFile(CThread * pThread)
 {
 	// Get the screen shot path
 	String strPath = GetScreenShotPath();
@@ -50,14 +53,22 @@ bool CScreenShot::WriteImageToFile(unsigned char * ucData, unsigned int uiScreen
 
 	// Ensure the screen shot file is open
 	if(!fScreenshot)
-		return false;
+	{
+		// Delete the image data
+		delete [] m_ucData;
+		return/* false*/;
+	}
 
 	// Allocate the png write struct
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, /*(png_error_ptr)png_cpexcept_error*/NULL, NULL);
 
 	// Ensure the png write struct was allocated
 	if(!png_ptr)
-		return false;
+	{
+		// Delete the image data
+		delete [] m_ucData;
+		return/* false*/;
+	}
 
 	// Allocate the png info struct
 	png_infop info_ptr = png_create_info_struct(png_ptr);
@@ -67,36 +78,42 @@ bool CScreenShot::WriteImageToFile(unsigned char * ucData, unsigned int uiScreen
 	{
 		// Destroy the png write struct
 		png_destroy_write_struct(&png_ptr, NULL);
-		return false;
+
+		// Delete the image data
+		delete [] m_ucData;
+		return/* false*/;
 	}
 
 	// Set the png file pointer
 	png_init_io(png_ptr, fScreenshot);
 
 	// Set the png write struct info
-	png_set_IHDR(png_ptr, info_ptr, uiScreenWidth, uiScreenHeight, 8, 
+	png_set_IHDR(png_ptr, info_ptr, m_uiScreenWidth, m_uiScreenHeight, 8, 
 		PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, 
 		PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	// Get the line width
-	unsigned int uiLineWidth = (uiScreenWidth * SCREEN_SHOT_FORMAT_BYTES_PER_PIXEL);
+	unsigned int uiLineWidth = (m_uiScreenWidth * SCREEN_SHOT_FORMAT_BYTES_PER_PIXEL);
 
 	// Allocate the temporary image data
-	unsigned char * tmpImage = new unsigned char[uiScreenHeight * uiLineWidth];
+	unsigned char * tmpImage = new unsigned char[m_uiScreenHeight * uiLineWidth];
 
 	// Ensure the temporary image data was allocated
 	if(!tmpImage)
 	{
 		// Destroy the png write and info struct
 		png_destroy_write_struct(&png_ptr, &info_ptr);
-		return false;
+
+		// Delete the image data
+		delete [] m_ucData;
+		return/* false*/;
 	}
 
 	// Copy the image data into the temporary image data
-	memcpy(tmpImage, ucData, (uiScreenHeight * uiLineWidth));
+	memcpy(tmpImage, m_ucData, (m_uiScreenHeight * uiLineWidth));
 
 	// Allocate the row pointers array
-	unsigned char ** ucRowPointers = new png_bytep[uiScreenHeight];
+	unsigned char ** ucRowPointers = new png_bytep[m_uiScreenHeight];
 
 	// Ensure the row pointers array was allocated
 	if(!ucRowPointers)
@@ -106,11 +123,14 @@ bool CScreenShot::WriteImageToFile(unsigned char * ucData, unsigned int uiScreen
 
 		// Destroy the png write and info struct
 		png_destroy_write_struct(&png_ptr, &info_ptr);
-		return false;
+
+		// Delete the image data
+		delete [] m_ucData;
+		return/* false*/;
 	}
 
 	// Fill row pointers array
-	for(unsigned int i = 0; i < uiScreenHeight; ++i)
+	for(unsigned int i = 0; i < m_uiScreenHeight; ++i)
 		ucRowPointers[i] = (tmpImage + (uiLineWidth * i));
 
 	// Set the png rows
@@ -127,15 +147,16 @@ bool CScreenShot::WriteImageToFile(unsigned char * ucData, unsigned int uiScreen
 
 	// Destroy the png write and info struct
 	png_destroy_write_struct(&png_ptr, &info_ptr);
-	return true;
-}
 
-#include <CLogFile.h>
+	// Delete the image data
+	delete [] m_ucData;
+	/*return true;*/
+}
 
 bool CScreenShot::Take()
 {
 	// Only allow one screen shot per second to avoid abuse
-	if((SharedUtility::GetTime() - m_ulLastScreenShotTime) < 1000)
+	if((SharedUtility::GetTime() - m_ulLastScreenShotTime) < 1000 || m_writeThread.IsRunning())
 		return false;
 
 	// Get the screen display mode
@@ -239,13 +260,10 @@ bool CScreenShot::Take()
 	pSurface->Release();
 
 	// Write the image to a file
-	// TODO: If this is done in another thread total time will be
-	// drastically reduced by 85 percent
-	if(!WriteImageToFile(ucData, uiScreenWidth, uiScreenHeight))
-		return false;
-
-	// Delete the image data
-	delete [] ucData;
+	m_ucData = ucData;
+	m_uiScreenWidth = uiScreenWidth;
+	m_uiScreenHeight = uiScreenHeight;
+	m_writeThread.Start(WriteImageToFile);
 
 	// Set the last screen shot time
 	m_ulLastScreenShotTime = SharedUtility::GetTime();

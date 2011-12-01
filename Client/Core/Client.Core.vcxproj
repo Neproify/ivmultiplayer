@@ -54,7 +54,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;.\CEGUI\dependencies\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor;..\..\Vendor\Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor;..\..\Vendor\Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;CEGUI_STATIC;LOGGER;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -69,7 +69,7 @@
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat_d.lib;pcre_d.lib;SILLY_d.lib;freetype_d.lib;libjpeg_d.lib;libpng_d.lib;zlib_d.lib;CEGUIBase_d.lib;CEGUIDirect3D9Renderer_d.lib;CEGUIExpatParser_d.lib;CEGUIFalagardWRBase_d.lib;CEGUISILLYImageCodec_d.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)\$(TargetName).dll</OutputFile>
-      <AdditionalLibraryDirectories>.\CEGUI\lib\;.\CEGUI\dependencies\lib\static;.\CEGUI\dependencies\expat-2.0.1\bin\Debug;.\CEGUI\dependencies\lpng142\projects\Debug;.\CEGUI\dependencies\zlib-1.2.5\projects\Debug;.\CEGUI\dependencies\jpeg-6b\projects\Debug;.\CEGUI\dependencies\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\CEGUI\lib\;..\..\Vendor\lib\static;..\..\Vendor\expat-2.0.1\bin\Debug;..\..\Vendor\lpng142\projects\Debug;..\..\Vendor\zlib-1.2.5\projects\Debug;..\..\Vendor\jpeg-6b\projects\Debug;..\..\Vendor\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
@@ -88,7 +88,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;.\CEGUI\dependencies\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor;..\..\Vendor\Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor;..\..\Vendor\Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -105,7 +105,7 @@
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat.lib;pcre.lib;SILLY.lib;freetype.lib;libjpeg.lib;libpng.lib;zlib.lib;CEGUIBase.lib;CEGUIDirect3D9Renderer.lib;CEGUIExpatParser.lib;CEGUIFalagardWRBase.lib;CEGUISILLYImageCodec.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)\$(TargetName).dll</OutputFile>
-      <AdditionalLibraryDirectories>.\CEGUI\lib\;.\CEGUI\dependencies\lib\static;.\CEGUI\dependencies\expat-2.0.1\bin\Release;.\CEGUI\dependencies\lpng142\projects\Release;.\CEGUI\dependencies\zlib-1.2.5\projects\Release;.\CEGUI\dependencies\jpeg-6b\projects\Release;.\CEGUI\dependencies\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\CEGUI\lib\;..\..\Vendor\lib\static;..\..\Vendor\expat-2.0.1\bin\Release;..\..\Vendor\lpng142\projects\Release;..\..\Vendor\zlib-1.2.5\projects\Release;..\..\Vendor\jpeg-6b\projects\Release;..\..\Vendor\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -435,23 +435,23 @@
     <ClCompile Include="CDirectInputHook.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="CEGUI\dependencies\expat-2.0.1\expat_static.vcxproj">
+    <ProjectReference Include="..\..\Vendor\expat-2.0.1\expat_static.vcxproj">
       <Project>{0757fc7d-a029-4c29-b806-9cc05dc384a1}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="CEGUI\dependencies\jpeg-6b\projects\libjpeg.vcxproj">
+    <ProjectReference Include="..\..\Vendor\jpeg-6b\projects\libjpeg.vcxproj">
       <Project>{d0da3016-67c0-4cd8-bad1-2d122ac2d29d}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="CEGUI\dependencies\lpng142\projects\libpng.vcxproj">
+    <ProjectReference Include="..\..\Vendor\lpng142\projects\libpng.vcxproj">
       <Project>{21db5d0c-2f40-4d79-be75-021e3d35b2f9}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="CEGUI\dependencies\SILLY-0.1.0\SILLY.vcxproj">
+    <ProjectReference Include="..\..\Vendor\SILLY-0.1.0\SILLY.vcxproj">
       <Project>{38f8d6d1-8d5d-4543-9c7e-23ae0de3a1e0}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="CEGUI\dependencies\zlib-1.2.5\projects\zlib.vcxproj">
+    <ProjectReference Include="..\..\Vendor\zlib-1.2.5\projects\zlib.vcxproj">
       <Project>{9006d124-5d00-4cb7-bad9-f527b19502c9}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>

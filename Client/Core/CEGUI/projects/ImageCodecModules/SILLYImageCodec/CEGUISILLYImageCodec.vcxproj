@@ -51,7 +51,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../../cegui/include;../../../cegui/include/ImageCodecModules/SILLYImageCodec/;../../../dependencies/SILLY-0.1.0/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../cegui/include;../../../cegui/include/ImageCodecModules/SILLYImageCodec/;../../../../../../Vendor/SILLY-0.1.0/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;HAVE_CONFIG_H;CEGUISILLYIMAGECODEC_EXPORTS;_DEBUG;CEGUI_STATIC;TOLUA_STATIC;SILLY_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -74,7 +74,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>../../../cegui/include;../../../cegui/include/ImageCodecModules/SILLYImageCodec/;../../../dependencies/SILLY-0.1.0/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../cegui/include;../../../cegui/include/ImageCodecModules/SILLYImageCodec/;../../../../../../Vendor/SILLY-0.1.0/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;HAVE_CONFIG_H;CEGUISILLYIMAGECODEC_EXPORTS;CEGUI_STATIC;TOLUA_STATIC;SILLY_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
