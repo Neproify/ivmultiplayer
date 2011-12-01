@@ -1,0 +1,1122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{b6573731-a23e-41ed-8e5d-953b42e94dea}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\DirectX">
+      <UniqueIdentifier>{751f9007-97b6-41fd-ae4b-30916fb8f48b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DirectX\Direct3D">
+      <UniqueIdentifier>{8e8ddd36-e984-4b7d-8744-989f68fa67be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DirectX\Direct3DProxy">
+      <UniqueIdentifier>{8e5729e1-efb1-4391-8bba-db45189cc83b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DirectX\DirectInputProxy">
+      <UniqueIdentifier>{111be440-172a-4235-a892-03d3214b7a4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{02d86d89-86d2-4679-9858-d9d01f4e65c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\Scripting">
+      <UniqueIdentifier>{929a1725-3da7-40b6-ba85-801232ca31fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\IV">
+      <UniqueIdentifier>{c816f230-ae78-4ad1-9c40-39cc0b70c33e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\Shared">
+      <UniqueIdentifier>{81b54553-429a-4bc6-bbef-d11ac2c495e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network">
+      <UniqueIdentifier>{eca1d70d-46ac-46e1-9c8d-9f074c2a0294}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network\Shared">
+      <UniqueIdentifier>{87857c21-4aa5-4951-ba20-87edbc3e31b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network\Query">
+      <UniqueIdentifier>{d3282dd7-4959-43f0-8d1e-6fb0574c32a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scripting">
+      <UniqueIdentifier>{d4da5675-1cde-4daa-b200-76b46942cb74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scripting\Natives">
+      <UniqueIdentifier>{2fa7b421-142b-49fe-afa6-39705e285539}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scripting\Natives\Shared">
+      <UniqueIdentifier>{90bc1152-22d1-423d-a617-8a5367a892e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scripting\Squirrel">
+      <UniqueIdentifier>{01aacb4d-8ae4-4485-8bc5-3204cfb4af18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared">
+      <UniqueIdentifier>{f4883869-b1f4-45f6-9c2b-8740efa14c5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\Math">
+      <UniqueIdentifier>{054b1488-d847-4141-8232-07a36e635d48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\XML">
+      <UniqueIdentifier>{aa8dc551-a04b-43cc-a1ac-b88f3a7d0a2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\XML\TinyXML">
+      <UniqueIdentifier>{3be8b50e-04c8-47fe-974b-44ccedaa8d20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\SQLite">
+      <UniqueIdentifier>{4b259bb6-9034-44cd-81e2-7b1f65666afb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\SQLite\SQLite">
+      <UniqueIdentifier>{23e0f43d-7d4f-4367-b898-7b0605ad9df2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\Threading">
+      <UniqueIdentifier>{5e925771-95aa-4602-a687-186b815a3b9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\md5">
+      <UniqueIdentifier>{743daa69-9ac6-4fed-a7a8-dd1b16723bc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Hooks">
+      <UniqueIdentifier>{ed431a80-626d-48fd-a842-663293c7e137}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Hooks\XLiveHook">
+      <UniqueIdentifier>{c4da33ac-1037-4e96-aaee-62966909cd97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Hooks\CursorHook">
+      <UniqueIdentifier>{667c52fa-1c4c-468f-8052-dc07fd284431}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Hooks\Direct3DHook">
+      <UniqueIdentifier>{13b867f8-5652-42a3-919d-d5f05329c776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Hooks\DirectInputHook">
+      <UniqueIdentifier>{c7298f83-91b8-4ef3-8a52-5e42074141d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{6e3808ab-2db5-4199-9e33-2dac97d340ac}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\DirectX">
+      <UniqueIdentifier>{e6acd919-0c09-4d6c-9b49-da2bd41a1057}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectX\Direct3DProxy">
+      <UniqueIdentifier>{42d57e18-8493-4d36-88b8-8dfdc649d93e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectX\DirectInputProxy">
+      <UniqueIdentifier>{1e34e49d-580c-4615-a0c5-4bb39849113a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectX\Direct3D">
+      <UniqueIdentifier>{0016c9ef-c6f5-4def-b1df-e9d535fe2bfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{d3c50e6e-4afa-4ded-967b-e6bd7c410783}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Scripting">
+      <UniqueIdentifier>{c36392ea-6eac-437e-858e-1c9138579d74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\IV">
+      <UniqueIdentifier>{0aca9ebe-3d85-4542-9a31-411a8ddbc00c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Shared">
+      <UniqueIdentifier>{edba9ea9-49b0-4437-991a-08222ca1451e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{8ef9adde-76ab-4bec-9ff9-70640cfbdf7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\Shared">
+      <UniqueIdentifier>{d0fba0bb-3a4d-4c96-9bc7-a6d96a93795f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\Query">
+      <UniqueIdentifier>{76dae7e6-1bb3-4365-be19-2d69a36cc3aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scripting">
+      <UniqueIdentifier>{46972ef3-f1e8-43af-9866-20748a4d2f15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scripting\Squirrel">
+      <UniqueIdentifier>{7bebc166-1e43-4757-a860-636a6a5aa0f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scripting\Natives">
+      <UniqueIdentifier>{3b192708-9ad1-43b3-9df3-900005246a6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scripting\Natives\Shared">
+      <UniqueIdentifier>{a77d8735-e1dd-4b56-8f29-2545b04a99df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared">
+      <UniqueIdentifier>{e0aadff5-c6bf-4327-acd7-ad16dc0cbbbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\SQLite">
+      <UniqueIdentifier>{c485e056-b5ea-4797-a029-944674193ade}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\SQLite\SQLite">
+      <UniqueIdentifier>{f2de640e-19b3-45ef-84cb-95f511734c3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\XML">
+      <UniqueIdentifier>{f8da7356-f5f9-402c-ab65-344a0a4e0938}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\XML\TinyXML">
+      <UniqueIdentifier>{72593a71-07dd-43f6-aea8-b6fc64e0a176}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\Math">
+      <UniqueIdentifier>{fd91cdb7-a4c9-4e37-86f1-d5488ae55255}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\Threading">
+      <UniqueIdentifier>{486ec5f8-cf27-4b0a-a322-eb92209d92b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\md5">
+      <UniqueIdentifier>{d8224964-8bfa-4ea1-954b-e55c97a37b81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hooks">
+      <UniqueIdentifier>{956a8a80-826a-40a5-8868-8e9092b54f66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hooks\XLiveHook">
+      <UniqueIdentifier>{17d2e5d4-4768-4c5b-b1fe-74f2c3bf04da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hooks\CursorHook">
+      <UniqueIdentifier>{7a27dc74-c9d6-4737-82dc-393f0ad6e2ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hooks\Direct3DHook">
+      <UniqueIdentifier>{c1654c0e-6888-4e7c-a93a-a2bc8656a496}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hooks\DirectInputHook">
+      <UniqueIdentifier>{97ca2958-1a1b-4891-bfb2-486f400534a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{15f41bcb-5b0c-44d2-9ad8-276454e8a12f}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Commands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CChatWindow.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CCredits.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CFPSCounter.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CGraphics.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CGUI.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CInputWindow.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CMainMenu.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CNameTags.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CScreenShot.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CDirect3D9Proxy.h">
+      <Filter>Header Files\DirectX\Direct3DProxy</Filter>
+    </ClInclude>
+    <ClInclude Include="CDirect3DDevice9Proxy.h">
+      <Filter>Header Files\DirectX\Direct3DProxy</Filter>
+    </ClInclude>
+    <ClInclude Include="CDirectInput8Proxy.h">
+      <Filter>Header Files\DirectX\DirectInputProxy</Filter>
+    </ClInclude>
+    <ClInclude Include="CDirectInputDevice8Proxy.h">
+      <Filter>Header Files\DirectX\DirectInputProxy</Filter>
+    </ClInclude>
+    <ClInclude Include="CCamera.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CClientTaskManager.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CContextDataManager.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CCutsceneInteriors.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CGame.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CGameFileChecker.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CModelManager.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="COffsets.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CPools.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Indicators.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="KeySync.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TrafficLights.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeContext.h">
+      <Filter>Header Files\Game\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeInvoke.h">
+      <Filter>Header Files\Game\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="NativesList.h">
+      <Filter>Header Files\Game\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptHook.h">
+      <Filter>Header Files\Game\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripting.h">
+      <Filter>Header Files\Game\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptingDirty.h">
+      <Filter>Header Files\Game\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptingEnums.h">
+      <Filter>Header Files\Game\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVCam.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVCheckpoint.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVDynamicEntity.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVEntity.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVEvent.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVModelInfo.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVPad.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVPadData.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVPed.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVPedTaskManager.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVPedWeapons.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVPhysical.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVPlayerInfo.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVPlayerPed.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVPool.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVStreaming.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVTask.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVVehicle.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVWeapon.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVWeaponInfo.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVWeather.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CIVWorld.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IVCommon.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IVTasks.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Game\CControlState.h">
+      <Filter>Header Files\Game\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Game\CTime.h">
+      <Filter>Header Files\Game\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Game\CTrafficLights.h">
+      <Filter>Header Files\Game\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="CActorManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlipManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CCheckpoint.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CCheckpointManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CClientPacketHandler.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CClientRPCHandler.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CFileTransfer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CLocalPlayer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CNetworkEntity.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CNetworkEntityManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CNetworkManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CNetworkPlayer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CNetworkVehicle.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CObject.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CObjectManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CPickup.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CPickupManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayerManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CRemotePlayer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CStreamer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CVehicleManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CBitStream.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CHttpClient.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CNetClientInterface.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CNetServerInterface.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CNetStats.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CNetworkModule.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CPacket.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CPacketHandler.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CPlayerSocket.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CRPCHandler.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\PacketChannels.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\PacketIdentifiers.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\PacketPriorities.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\PacketReliabilities.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\RPCIdentifiers.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="CMasterListQuery.h">
+      <Filter>Header Files\Network\Query</Filter>
+    </ClInclude>
+    <ClInclude Include="CServerQuery.h">
+      <Filter>Header Files\Network\Query</Filter>
+    </ClInclude>
+    <ClInclude Include="CClientScriptGUIManager.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="CClientScriptManager.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CScriptingManager.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CScriptTimer.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CScriptTimerManager.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CSquirrel.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CSquirrelArguments.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\ClientNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\GUINatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\PlayerNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\VehicleNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\AreaNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\EventNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\HashNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Scripting\Natives\Natives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\SQLiteNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\TimerNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\WorldNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\XMLNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqarray.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqclass.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqclosure.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqcompiler.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqfuncproto.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqfuncstate.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqlexer.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqobject.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqopcodes.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqpcheader.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstate.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdaux.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdblob.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdblobimpl.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdio.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdmath.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdstream.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdstring.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdsystem.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstring.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqtable.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\squirrel.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\squserdata.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\squtils.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqvm.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\CEvents.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CExceptionHandler.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CFileChecksum.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CLibrary.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CLogFile.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Common.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Patcher\CPatcher.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CSettings.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CString.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\SharedUtility.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Math\CMath.h">
+      <Filter>Header Files\Shared\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Math\CVector3.h">
+      <Filter>Header Files\Shared\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CXML.h">
+      <Filter>Header Files\Shared\XML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\tinyxml\ticpp.h">
+      <Filter>Header Files\Shared\XML\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\tinyxml\ticpprc.h">
+      <Filter>Header Files\Shared\XML\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\tinyxml\tinystr.h">
+      <Filter>Header Files\Shared\XML\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\tinyxml\tinyxml.h">
+      <Filter>Header Files\Shared\XML\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CSQLite.h">
+      <Filter>Header Files\Shared\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\sqlite\sqlite3.h">
+      <Filter>Header Files\Shared\SQLite\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\sqlite\sqlite3ext.h">
+      <Filter>Header Files\Shared\SQLite\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Threading\CMutex.h">
+      <Filter>Header Files\Shared\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Threading\CThread.h">
+      <Filter>Header Files\Shared\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\md5\md5.h">
+      <Filter>Header Files\Shared\md5</Filter>
+    </ClInclude>
+    <ClInclude Include="CXLiveHook.h">
+      <Filter>Header Files\Hooks\XLiveHook</Filter>
+    </ClInclude>
+    <ClInclude Include="CCursorHook.h">
+      <Filter>Header Files\Hooks\CursorHook</Filter>
+    </ClInclude>
+    <ClInclude Include="CDirect3DHook.h">
+      <Filter>Header Files\Hooks\Direct3DHook</Filter>
+    </ClInclude>
+    <ClInclude Include="CDirectInputHook.h">
+      <Filter>Header Files\Hooks\DirectInputHook</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Commands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CDirect3D9Proxy.cpp">
+      <Filter>Source Files\DirectX\Direct3DProxy</Filter>
+    </ClCompile>
+    <ClCompile Include="CDirect3DDevice9Proxy.cpp">
+      <Filter>Source Files\DirectX\Direct3DProxy</Filter>
+    </ClCompile>
+    <ClCompile Include="CDirectInput8Proxy.cpp">
+      <Filter>Source Files\DirectX\DirectInputProxy</Filter>
+    </ClCompile>
+    <ClCompile Include="CDirectInputDevice8Proxy.cpp">
+      <Filter>Source Files\DirectX\DirectInputProxy</Filter>
+    </ClCompile>
+    <ClCompile Include="CChatWindow.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CCredits.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CFPSCounter.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CGraphics.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CGUI.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CInputWindow.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CMainMenu.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CNameTags.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CScreenShot.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CCamera.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CClientTaskManager.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CContextDataManager.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CGame.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CGameFileChecker.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CModelManager.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="COffsets.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CPools.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Indicators.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="KeySync.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TrafficLights.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptHook.cpp">
+      <Filter>Source Files\Game\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVCam.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVCheckpoint.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVDynamicEntity.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVEntity.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVEvent.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVModelInfo.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVPad.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVPadData.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVPed.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVPedTaskManager.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVPedWeapons.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVPhysical.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVPlayerInfo.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVPlayerPed.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVStreaming.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVTask.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVVehicle.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVWeapon.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVWeaponInfo.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVWeather.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVWorld.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IVTasks.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Game\CControlState.cpp">
+      <Filter>Source Files\Game\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Game\CTime.cpp">
+      <Filter>Source Files\Game\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Game\CTrafficLights.cpp">
+      <Filter>Source Files\Game\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="CActorManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CBlipManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CCheckpoint.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CCheckpointManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CClientPacketHandler.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CClientRPCHandler.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CFileTransfer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CLocalPlayer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CNetworkManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CNetworkPlayer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CNetworkVehicle.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CObject.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CObjectManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CPickup.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CPickupManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlayerManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CRemotePlayer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CStreamer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CVehicleManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CBitStream.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CHttpClient.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CNetworkModule.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CPacketHandler.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CRPCHandler.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="CMasterListQuery.cpp">
+      <Filter>Source Files\Network\Query</Filter>
+    </ClCompile>
+    <ClCompile Include="CServerQuery.cpp">
+      <Filter>Source Files\Network\Query</Filter>
+    </ClCompile>
+    <ClCompile Include="CClientScriptGUIManager.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="CClientScriptManager.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CScriptingManager.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CScriptTimer.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CScriptTimerManager.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CSquirrel.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CSquirrelArguments.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqapi.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqbaselib.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqclass.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqcompiler.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqdebug.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqfuncstate.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqlexer.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqmem.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqobject.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstate.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdaux.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdblob.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdio.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdmath.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdrex.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdstream.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdstring.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdsystem.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqtable.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqvm.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\ClientNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\GUINatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\PlayerNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\VehicleNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\AreaNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\EventNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\HashNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\SQLiteNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\TimerNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\WorldNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\XMLNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CExceptionHandler.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CLibrary.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CLogFile.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Patcher\CPatcher.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CSettings.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CString.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\VFS\CVFSModule.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\SharedUtility.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CSQLite.cpp">
+      <Filter>Source Files\Shared\SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\sqlite\sqlite3.c">
+      <Filter>Source Files\Shared\SQLite\SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CXML.cpp">
+      <Filter>Source Files\Shared\XML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\ticpp.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinystr.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxml.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlerror.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlparser.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Threading\CMutex.cpp">
+      <Filter>Source Files\Shared\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Threading\CThread.cpp">
+      <Filter>Source Files\Shared\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\md5\md5.cpp">
+      <Filter>Source Files\Shared\md5</Filter>
+    </ClCompile>
+    <ClCompile Include="CXLiveHook.cpp">
+      <Filter>Source Files\Hooks\XLiveHook</Filter>
+    </ClCompile>
+    <ClCompile Include="CCursorHook.cpp">
+      <Filter>Source Files\Hooks\CursorHook</Filter>
+    </ClCompile>
+    <ClCompile Include="CDirect3DHook.cpp">
+      <Filter>Source Files\Hooks\Direct3DHook</Filter>
+    </ClCompile>
+    <ClCompile Include="CDirectInputHook.cpp">
+      <Filter>Source Files\Hooks\DirectInputHook</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

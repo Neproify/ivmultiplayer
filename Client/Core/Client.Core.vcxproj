@@ -1,0 +1,482 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5DD209AC-1B5F-483A-BCA9-150CAD228C5A}</ProjectGuid>
+    <RootNamespace>Client.Core</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Binary\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)Binary\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName).Debug</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;.\CEGUI\dependencies\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor;..\..\Vendor\Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;CEGUI_STATIC;LOGGER;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4409;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat_d.lib;pcre_d.lib;SILLY_d.lib;freetype_d.lib;libjpeg_d.lib;libpng_d.lib;zlib_d.lib;CEGUIBase_d.lib;CEGUIDirect3D9Renderer_d.lib;CEGUIExpatParser_d.lib;CEGUIFalagardWRBase_d.lib;CEGUISILLYImageCodec_d.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)\$(TargetName).dll</OutputFile>
+      <AdditionalLibraryDirectories>.\CEGUI\lib\;.\CEGUI\dependencies\lib\static;.\CEGUI\dependencies\expat-2.0.1\bin\Debug;.\CEGUI\dependencies\lpng142\projects\Debug;.\CEGUI\dependencies\zlib-1.2.5\projects\Debug;.\CEGUI\dependencies\jpeg-6b\projects\Debug;.\CEGUI\dependencies\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;.\CEGUI\dependencies\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor;..\..\Vendor\Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4996;4409;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat.lib;pcre.lib;SILLY.lib;freetype.lib;libjpeg.lib;libpng.lib;zlib.lib;CEGUIBase.lib;CEGUIDirect3D9Renderer.lib;CEGUIExpatParser.lib;CEGUIFalagardWRBase.lib;CEGUISILLYImageCodec.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)\$(TargetName).dll</OutputFile>
+      <AdditionalLibraryDirectories>.\CEGUI\lib\;.\CEGUI\dependencies\lib\static;.\CEGUI\dependencies\expat-2.0.1\bin\Release;.\CEGUI\dependencies\lpng142\projects\Release;.\CEGUI\dependencies\zlib-1.2.5\projects\Release;.\CEGUI\dependencies\jpeg-6b\projects\Release;.\CEGUI\dependencies\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Commands.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="CChatWindow.h" />
+    <ClInclude Include="CCredits.h" />
+    <ClInclude Include="CFPSCounter.h" />
+    <ClInclude Include="CGraphics.h" />
+    <ClInclude Include="CGUI.h" />
+    <ClInclude Include="CInputWindow.h" />
+    <ClInclude Include="CMainMenu.h" />
+    <ClInclude Include="CNameTags.h" />
+    <ClInclude Include="CScreenShot.h" />
+    <ClInclude Include="CDirect3D9Proxy.h" />
+    <ClInclude Include="CDirect3DDevice9Proxy.h" />
+    <ClInclude Include="CDirectInput8Proxy.h" />
+    <ClInclude Include="CDirectInputDevice8Proxy.h" />
+    <ClInclude Include="CCamera.h" />
+    <ClInclude Include="CClientTaskManager.h" />
+    <ClInclude Include="CContextDataManager.h" />
+    <ClInclude Include="CCutsceneInteriors.h" />
+    <ClInclude Include="CGame.h" />
+    <ClInclude Include="CGameFileChecker.h" />
+    <ClInclude Include="CModelManager.h" />
+    <ClInclude Include="COffsets.h" />
+    <ClInclude Include="CPools.h" />
+    <ClInclude Include="Indicators.h" />
+    <ClInclude Include="KeySync.h" />
+    <ClInclude Include="TrafficLights.h" />
+    <ClInclude Include="NativeContext.h" />
+    <ClInclude Include="NativeInvoke.h" />
+    <ClInclude Include="NativesList.h" />
+    <ClInclude Include="ScriptHook.h" />
+    <ClInclude Include="Scripting.h" />
+    <ClInclude Include="ScriptingDirty.h" />
+    <ClInclude Include="ScriptingEnums.h" />
+    <ClInclude Include="CIVCam.h" />
+    <ClInclude Include="CIVCheckpoint.h" />
+    <ClInclude Include="CIVDynamicEntity.h" />
+    <ClInclude Include="CIVEntity.h" />
+    <ClInclude Include="CIVEvent.h" />
+    <ClInclude Include="CIVModelInfo.h" />
+    <ClInclude Include="CIVPad.h" />
+    <ClInclude Include="CIVPadData.h" />
+    <ClInclude Include="CIVPed.h" />
+    <ClInclude Include="CIVPedTaskManager.h" />
+    <ClInclude Include="CIVPedWeapons.h" />
+    <ClInclude Include="CIVPhysical.h" />
+    <ClInclude Include="CIVPlayerInfo.h" />
+    <ClInclude Include="CIVPlayerPed.h" />
+    <ClInclude Include="CIVPool.h" />
+    <ClInclude Include="CIVStreaming.h" />
+    <ClInclude Include="CIVTask.h" />
+    <ClInclude Include="CIVVehicle.h" />
+    <ClInclude Include="CIVWeapon.h" />
+    <ClInclude Include="CIVWeaponInfo.h" />
+    <ClInclude Include="CIVWeather.h" />
+    <ClInclude Include="CIVWorld.h" />
+    <ClInclude Include="IVCommon.h" />
+    <ClInclude Include="IVTasks.h" />
+    <ClInclude Include="..\..\Shared\Game\CControlState.h" />
+    <ClInclude Include="..\..\Shared\Game\CTime.h" />
+    <ClInclude Include="..\..\Shared\Game\CTrafficLights.h" />
+    <ClInclude Include="CActorManager.h" />
+    <ClInclude Include="CBlipManager.h" />
+    <ClInclude Include="CCheckpoint.h" />
+    <ClInclude Include="CCheckpointManager.h" />
+    <ClInclude Include="CClientPacketHandler.h" />
+    <ClInclude Include="CClientRPCHandler.h" />
+    <ClInclude Include="CFileTransfer.h" />
+    <ClInclude Include="CLocalPlayer.h" />
+    <ClInclude Include="CNetworkEntity.h" />
+    <ClInclude Include="CNetworkEntityManager.h" />
+    <ClInclude Include="CNetworkManager.h" />
+    <ClInclude Include="CNetworkPlayer.h" />
+    <ClInclude Include="CNetworkVehicle.h" />
+    <ClInclude Include="CObject.h" />
+    <ClInclude Include="CObjectManager.h" />
+    <ClInclude Include="CPickup.h" />
+    <ClInclude Include="CPickupManager.h" />
+    <ClInclude Include="CPlayerManager.h" />
+    <ClInclude Include="CRemotePlayer.h" />
+    <ClInclude Include="CStreamer.h" />
+    <ClInclude Include="CVehicleManager.h" />
+    <ClInclude Include="..\..\Shared\Network\CBitStream.h" />
+    <ClInclude Include="..\..\Shared\Network\CHttpClient.h" />
+    <ClInclude Include="..\..\Shared\Network\CNetClientInterface.h" />
+    <ClInclude Include="..\..\Shared\Network\CNetServerInterface.h" />
+    <ClInclude Include="..\..\Shared\Network\CNetStats.h" />
+    <ClInclude Include="..\..\Shared\Network\CNetworkModule.h" />
+    <ClInclude Include="..\..\Shared\Network\CPacket.h" />
+    <ClInclude Include="..\..\Shared\Network\CPacketHandler.h" />
+    <ClInclude Include="..\..\Shared\Network\CPlayerSocket.h" />
+    <ClInclude Include="..\..\Shared\Network\CRPCHandler.h" />
+    <ClInclude Include="..\..\Shared\Network\PacketChannels.h" />
+    <ClInclude Include="..\..\Shared\Network\PacketIdentifiers.h" />
+    <ClInclude Include="..\..\Shared\Network\PacketPriorities.h" />
+    <ClInclude Include="..\..\Shared\Network\PacketReliabilities.h" />
+    <ClInclude Include="..\..\Shared\Network\RPCIdentifiers.h" />
+    <ClInclude Include="CMasterListQuery.h" />
+    <ClInclude Include="CServerQuery.h" />
+    <ClInclude Include="CClientScriptGUIManager.h" />
+    <ClInclude Include="CClientScriptManager.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CScriptingManager.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CScriptTimer.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CScriptTimerManager.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CSquirrel.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CSquirrelArguments.h" />
+    <ClInclude Include="Natives\ClientNatives.h" />
+    <ClInclude Include="Natives\GUINatives.h" />
+    <ClInclude Include="Natives.h" />
+    <ClInclude Include="Natives\PlayerNatives.h" />
+    <ClInclude Include="Natives\VehicleNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\AreaNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\EventNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\HashNatives.h" />
+    <ClInclude Include="..\Shared\Scripting\Natives\Natives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\SQLiteNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\TimerNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\WorldNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\XMLNatives.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqarray.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqclass.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqclosure.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqcompiler.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqfuncproto.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqfuncstate.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqlexer.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqobject.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqopcodes.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqpcheader.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstate.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdaux.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdblob.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdblobimpl.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdio.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdmath.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdstream.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdstring.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdsystem.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstring.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqtable.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\squirrel.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\squserdata.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\squtils.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqvm.h" />
+    <ClInclude Include="..\Shared\CEvents.h" />
+    <ClInclude Include="..\..\Shared\CExceptionHandler.h" />
+    <ClInclude Include="..\..\Shared\CFileChecksum.h" />
+    <ClInclude Include="..\..\Shared\CLibrary.h" />
+    <ClInclude Include="..\..\Shared\CLogFile.h" />
+    <ClInclude Include="..\..\Shared\Common.h" />
+    <ClInclude Include="..\..\Shared\Patcher\CPatcher.h" />
+    <ClInclude Include="..\..\Shared\CSettings.h" />
+    <ClInclude Include="..\..\Shared\CString.h" />
+    <ClInclude Include="..\..\Shared\SharedUtility.h" />
+    <ClInclude Include="..\..\Shared\Math\CMath.h" />
+    <ClInclude Include="..\..\Shared\Math\CVector3.h" />
+    <ClInclude Include="..\..\Shared\CXML.h" />
+    <ClInclude Include="..\..\Vendor\tinyxml\ticpp.h" />
+    <ClInclude Include="..\..\Vendor\tinyxml\ticpprc.h" />
+    <ClInclude Include="..\..\Vendor\tinyxml\tinystr.h" />
+    <ClInclude Include="..\..\Vendor\tinyxml\tinyxml.h" />
+    <ClInclude Include="..\..\Shared\CSQLite.h" />
+    <ClInclude Include="..\..\Vendor\sqlite\sqlite3.h" />
+    <ClInclude Include="..\..\Vendor\sqlite\sqlite3ext.h" />
+    <ClInclude Include="..\..\Shared\Threading\CMutex.h" />
+    <ClInclude Include="..\..\Shared\Threading\CThread.h" />
+    <ClInclude Include="..\..\Vendor\md5\md5.h" />
+    <ClInclude Include="CXLiveHook.h" />
+    <ClInclude Include="CCursorHook.h" />
+    <ClInclude Include="CDirect3DHook.h" />
+    <ClInclude Include="CDirectInputHook.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="CDirect3D9Proxy.cpp" />
+    <ClCompile Include="CDirect3DDevice9Proxy.cpp" />
+    <ClCompile Include="CDirectInput8Proxy.cpp" />
+    <ClCompile Include="CDirectInputDevice8Proxy.cpp" />
+    <ClCompile Include="CChatWindow.cpp" />
+    <ClCompile Include="CCredits.cpp" />
+    <ClCompile Include="CFPSCounter.cpp" />
+    <ClCompile Include="CGraphics.cpp" />
+    <ClCompile Include="CGUI.cpp" />
+    <ClCompile Include="CInputWindow.cpp" />
+    <ClCompile Include="CMainMenu.cpp" />
+    <ClCompile Include="CNameTags.cpp" />
+    <ClCompile Include="CScreenShot.cpp" />
+    <ClCompile Include="CCamera.cpp" />
+    <ClCompile Include="CClientTaskManager.cpp" />
+    <ClCompile Include="CContextDataManager.cpp" />
+    <ClCompile Include="CGame.cpp" />
+    <ClCompile Include="CGameFileChecker.cpp" />
+    <ClCompile Include="CModelManager.cpp" />
+    <ClCompile Include="COffsets.cpp" />
+    <ClCompile Include="CPools.cpp" />
+    <ClCompile Include="Indicators.cpp" />
+    <ClCompile Include="KeySync.cpp" />
+    <ClCompile Include="TrafficLights.cpp" />
+    <ClCompile Include="ScriptHook.cpp" />
+    <ClCompile Include="CIVCam.cpp" />
+    <ClCompile Include="CIVCheckpoint.cpp" />
+    <ClCompile Include="CIVDynamicEntity.cpp" />
+    <ClCompile Include="CIVEntity.cpp" />
+    <ClCompile Include="CIVEvent.cpp" />
+    <ClCompile Include="CIVModelInfo.cpp" />
+    <ClCompile Include="CIVPad.cpp" />
+    <ClCompile Include="CIVPadData.cpp" />
+    <ClCompile Include="CIVPed.cpp" />
+    <ClCompile Include="CIVPedTaskManager.cpp" />
+    <ClCompile Include="CIVPedWeapons.cpp" />
+    <ClCompile Include="CIVPhysical.cpp" />
+    <ClCompile Include="CIVPlayerInfo.cpp" />
+    <ClCompile Include="CIVPlayerPed.cpp" />
+    <ClCompile Include="CIVStreaming.cpp" />
+    <ClCompile Include="CIVTask.cpp" />
+    <ClCompile Include="CIVVehicle.cpp" />
+    <ClCompile Include="CIVWeapon.cpp" />
+    <ClCompile Include="CIVWeaponInfo.cpp" />
+    <ClCompile Include="CIVWeather.cpp" />
+    <ClCompile Include="CIVWorld.cpp" />
+    <ClCompile Include="IVTasks.cpp" />
+    <ClCompile Include="..\..\Shared\Game\CControlState.cpp" />
+    <ClCompile Include="..\..\Shared\Game\CTime.cpp" />
+    <ClCompile Include="..\..\Shared\Game\CTrafficLights.cpp" />
+    <ClCompile Include="CActorManager.cpp" />
+    <ClCompile Include="CBlipManager.cpp" />
+    <ClCompile Include="CCheckpoint.cpp" />
+    <ClCompile Include="CCheckpointManager.cpp" />
+    <ClCompile Include="CClientPacketHandler.cpp" />
+    <ClCompile Include="CClientRPCHandler.cpp" />
+    <ClCompile Include="CFileTransfer.cpp" />
+    <ClCompile Include="CLocalPlayer.cpp" />
+    <ClCompile Include="CNetworkManager.cpp" />
+    <ClCompile Include="CNetworkPlayer.cpp" />
+    <ClCompile Include="CNetworkVehicle.cpp" />
+    <ClCompile Include="CObject.cpp" />
+    <ClCompile Include="CObjectManager.cpp" />
+    <ClCompile Include="CPickup.cpp" />
+    <ClCompile Include="CPickupManager.cpp" />
+    <ClCompile Include="CPlayerManager.cpp" />
+    <ClCompile Include="CRemotePlayer.cpp" />
+    <ClCompile Include="CStreamer.cpp" />
+    <ClCompile Include="CVehicleManager.cpp" />
+    <ClCompile Include="..\..\Shared\Network\CBitStream.cpp" />
+    <ClCompile Include="..\..\Shared\Network\CHttpClient.cpp" />
+    <ClCompile Include="..\..\Shared\Network\CNetworkModule.cpp" />
+    <ClCompile Include="..\..\Shared\Network\CPacketHandler.cpp" />
+    <ClCompile Include="..\..\Shared\Network\CRPCHandler.cpp" />
+    <ClCompile Include="CMasterListQuery.cpp" />
+    <ClCompile Include="CServerQuery.cpp" />
+    <ClCompile Include="CClientScriptGUIManager.cpp" />
+    <ClCompile Include="CClientScriptManager.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CScriptingManager.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CScriptTimer.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CScriptTimerManager.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CSquirrel.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CSquirrelArguments.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqapi.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqbaselib.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqclass.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqcompiler.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqdebug.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqfuncstate.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqlexer.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqmem.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqobject.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstate.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdaux.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdblob.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdio.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdmath.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdrex.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdstream.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdstring.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdsystem.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqtable.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqvm.cpp" />
+    <ClCompile Include="Natives\ClientNatives.cpp" />
+    <ClCompile Include="Natives\GUINatives.cpp" />
+    <ClCompile Include="Natives\PlayerNatives.cpp" />
+    <ClCompile Include="Natives\VehicleNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\AreaNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\EventNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\HashNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\SQLiteNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\TimerNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\WorldNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\XMLNatives.cpp" />
+    <ClCompile Include="..\..\Shared\CExceptionHandler.cpp" />
+    <ClCompile Include="..\..\Shared\CLibrary.cpp" />
+    <ClCompile Include="..\..\Shared\CLogFile.cpp" />
+    <ClCompile Include="..\..\Shared\Patcher\CPatcher.cpp" />
+    <ClCompile Include="..\..\Shared\CSettings.cpp" />
+    <ClCompile Include="..\..\Shared\CString.cpp" />
+    <ClCompile Include="..\..\Shared\VFS\CVFSModule.cpp" />
+    <ClCompile Include="..\..\Shared\SharedUtility.cpp" />
+    <ClCompile Include="..\..\Shared\CSQLite.cpp" />
+    <ClCompile Include="..\..\Vendor\sqlite\sqlite3.c" />
+    <ClCompile Include="..\..\Shared\CXML.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\ticpp.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinystr.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxml.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlparser.cpp" />
+    <ClCompile Include="..\..\Shared\Threading\CMutex.cpp" />
+    <ClCompile Include="..\..\Shared\Threading\CThread.cpp" />
+    <ClCompile Include="..\..\Vendor\md5\md5.cpp" />
+    <ClCompile Include="CXLiveHook.cpp" />
+    <ClCompile Include="CCursorHook.cpp" />
+    <ClCompile Include="CDirect3DHook.cpp" />
+    <ClCompile Include="CDirectInputHook.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="CEGUI\dependencies\expat-2.0.1\expat_static.vcxproj">
+      <Project>{0757fc7d-a029-4c29-b806-9cc05dc384a1}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="CEGUI\dependencies\jpeg-6b\projects\libjpeg.vcxproj">
+      <Project>{d0da3016-67c0-4cd8-bad1-2d122ac2d29d}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="CEGUI\dependencies\lpng142\projects\libpng.vcxproj">
+      <Project>{21db5d0c-2f40-4d79-be75-021e3d35b2f9}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="CEGUI\dependencies\SILLY-0.1.0\SILLY.vcxproj">
+      <Project>{38f8d6d1-8d5d-4543-9c7e-23ae0de3a1e0}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="CEGUI\dependencies\zlib-1.2.5\projects\zlib.vcxproj">
+      <Project>{9006d124-5d00-4cb7-bad9-f527b19502c9}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="CEGUI\projects\BaseSystem\CEGUIBase.vcxproj">
+      <Project>{e2161edf-8018-7947-8675-a82f7551ff79}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="CEGUI\projects\ImageCodecModules\SILLYImageCodec\CEGUISILLYImageCodec.vcxproj">
+      <Project>{c17b5817-420a-ca4b-a002-dda318ac0c15}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="CEGUI\projects\RendererModules\Direct3D9\CEGUIDirect3D9Renderer.vcxproj">
+      <Project>{4636d9c9-6c2c-454d-93e2-e67ac0c92946}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="CEGUI\projects\WindowRendererSets\Falagard\CEGUIFalagardWRBase.vcxproj">
+      <Project>{6ae6a6e4-b420-8a43-a9a0-85734c0a6823}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="CEGUI\projects\XMLParserModules\expatParser\CEGUIExpatParser.vcxproj">
+      <Project>{4d2afb70-0048-164b-909e-86ab43e40921}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

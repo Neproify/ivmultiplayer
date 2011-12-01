@@ -1,0 +1,789 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{78820cf1-09b3-45c3-8101-68cc17d45d74}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Modules">
+      <UniqueIdentifier>{0d644744-4ef6-42f0-a0bc-e54a2804fbac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network">
+      <UniqueIdentifier>{aaa61e16-6b53-4811-af90-7ec8964cc198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network\Interfaces">
+      <UniqueIdentifier>{cb6134e5-1d07-49a2-b84d-eb99a76746fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network\Shared">
+      <UniqueIdentifier>{7df07da3-1cfa-4c2e-9282-f2aa5fe31a65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network\Query">
+      <UniqueIdentifier>{26ed2d55-235f-4226-afb1-8f3483c528b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network\Webserver">
+      <UniqueIdentifier>{004a21e6-5aba-4966-80e3-ee201f59b13f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network\Webserver\Mongoose">
+      <UniqueIdentifier>{89cae5bf-795a-4101-80d2-26e4c009d16a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scripting">
+      <UniqueIdentifier>{16099f0e-6e41-40d4-bafa-b976616d2321}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scripting\Natives">
+      <UniqueIdentifier>{e0243471-89cd-4809-a937-c43038e05520}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scripting\Natives\Shared">
+      <UniqueIdentifier>{93d4c465-8993-4e4f-9db8-2a767b273857}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scripting\Squirrel">
+      <UniqueIdentifier>{2bae35c6-babe-4042-90ff-85eb88ddf366}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared">
+      <UniqueIdentifier>{23094aea-1b77-47ec-a874-4eba7f863842}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\Math">
+      <UniqueIdentifier>{4fca0395-4843-4220-9a7a-71a45d996fbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\SQLite">
+      <UniqueIdentifier>{8e524a4a-d773-4616-8923-6f955e0dcea6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\SQLite\SQLite">
+      <UniqueIdentifier>{fa663013-0dae-406e-a646-7e4639e60bd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\Threading">
+      <UniqueIdentifier>{ac4f5028-2bc0-41b4-93ff-99bb1a7238fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\XML">
+      <UniqueIdentifier>{03381142-4010-402a-b291-7ae4fce9958a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\XML\TinyXML">
+      <UniqueIdentifier>{fa13e9e8-e92d-4a27-b3eb-1073179af672}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared\md5">
+      <UniqueIdentifier>{5ef3b379-2023-46a0-8c9c-b0aceff1a2de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{49b43b46-5c45-4214-9de9-0c5f0d2af445}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\Shared">
+      <UniqueIdentifier>{1526cec1-407f-4568-ba4e-05930d25920a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{74dc2a19-4cf0-4026-b780-580f54a4f230}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{9cf76ad5-828b-4b15-a959-2c62914c1333}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Modules">
+      <UniqueIdentifier>{ba534fa4-465a-4d82-aa8f-9f862963b16b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{564f84c6-b0df-4977-b2d7-522a28f0a3d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\Webserver">
+      <UniqueIdentifier>{b377bd43-54e6-4b84-8191-278ddf42868a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\Webserver\Mongoose">
+      <UniqueIdentifier>{13beda86-a9b9-441b-bc15-2c8ebf90534d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\Interfaces">
+      <UniqueIdentifier>{e9107136-fc3b-4929-9408-819e40c77f28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\Shared">
+      <UniqueIdentifier>{dda45b8a-5d11-474b-b0ab-7931f232c847}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\Query">
+      <UniqueIdentifier>{d223f30e-47a9-481e-9f5d-a45187c6c940}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scripting">
+      <UniqueIdentifier>{4a7df03e-17ff-4b48-8052-76af1ba7512d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scripting\Squirrel">
+      <UniqueIdentifier>{9fa2ee93-fd82-49ce-85d8-1ca8479e3320}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scripting\Natives">
+      <UniqueIdentifier>{42ab3c4a-f3b0-4daf-affb-56c5bab1c1f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scripting\Natives\Shared">
+      <UniqueIdentifier>{fc747811-bb64-4715-b559-ba182fe2871a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared">
+      <UniqueIdentifier>{dc950591-b013-4d1c-8906-025cb68a1660}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\SQLite">
+      <UniqueIdentifier>{706b8f93-ea28-4b2f-9f2d-203c01898976}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\SQLite\SQLite">
+      <UniqueIdentifier>{34ee23c3-d6f3-43ea-a892-d623d1b2b1cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\XML">
+      <UniqueIdentifier>{a7a35d78-8d3f-4ab1-8d88-f26c34405bc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\XML\TinyXML">
+      <UniqueIdentifier>{6dd910de-10b3-4c5d-8811-31d5ad718e3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\Math">
+      <UniqueIdentifier>{86895439-fa67-43e0-9fe9-3656494965b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\Threading">
+      <UniqueIdentifier>{234e2335-7775-41c3-8625-9a69c388020c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\md5">
+      <UniqueIdentifier>{8c827108-5588-4f4f-9c61-bac8781acd3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{e1f313ea-7eaa-4100-a7a4-b5d0f9bbd35c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Shared">
+      <UniqueIdentifier>{360aa58d-9467-47c5-bf40-294616b5f9b5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CModule.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CModuleManager.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CActorManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlipManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CCheckpoint.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CCheckpointManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CNetworkManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CObjectManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CPickupManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayerManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CServerPacketHandler.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CServerRPCHandler.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CVehicle.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CVehicleManager.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CActorManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CBlipManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CCheckpointManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CEventsInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CModuleInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CModuleManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CNetworkManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CObjectManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CPickupManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CPlayerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CPlayerManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CScriptingManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CSquirrelInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CTimeInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CTrafficLightsInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CVehicleInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\CVehicleManagerInterface.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\InterfaceCommon.h">
+      <Filter>Header Files\Network\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CBitStream.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CHttpClient.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CNetClientInterface.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CNetServerInterface.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CNetStats.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CNetworkModule.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CPacket.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CPacketHandler.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CPlayerSocket.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\CRPCHandler.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\PacketChannels.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\PacketIdentifiers.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\PacketPriorities.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\PacketReliabilities.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Network\RPCIdentifiers.h">
+      <Filter>Header Files\Network\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="CMasterList.h">
+      <Filter>Header Files\Network\Query</Filter>
+    </ClInclude>
+    <ClInclude Include="CQuery.h">
+      <Filter>Header Files\Network\Query</Filter>
+    </ClInclude>
+    <ClInclude Include="CWebserver.h">
+      <Filter>Header Files\Network\Webserver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\mongoose\mongoose.h">
+      <Filter>Header Files\Network\Webserver\Mongoose</Filter>
+    </ClInclude>
+    <ClInclude Include="CClientFileManager.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CScriptingManager.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CScriptTimer.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CScriptTimerManager.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CSquirrel.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CSquirrelArguments.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\ActorNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\BlipNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\CheckpointNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\ObjectNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\PickupNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\PlayerNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\ScriptNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\ServerNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\VehicleNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\AreaNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\EventNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\HashNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\Natives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\SQLiteNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\TimerNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\WorldNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\XMLNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqarray.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqclass.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqclosure.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqcompiler.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqfuncproto.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqfuncstate.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqlexer.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqobject.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqopcodes.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqpcheader.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstate.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdaux.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdblob.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdblobimpl.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdio.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdmath.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdstream.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdstring.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdsystem.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstring.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqtable.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\squirrel.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\squserdata.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\squtils.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\Squirrel\sqvm.h">
+      <Filter>Header Files\Scripting\Squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CEvents.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CExceptionHandler.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CFileChecksum.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CLibrary.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CLogFile.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Common.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CSettings.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CString.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\SharedUtility.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Math\CMath.h">
+      <Filter>Header Files\Shared\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Math\CVector3.h">
+      <Filter>Header Files\Shared\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CSQLite.h">
+      <Filter>Header Files\Shared\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\sqlite\sqlite3.h">
+      <Filter>Header Files\Shared\SQLite\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\sqlite\sqlite3ext.h">
+      <Filter>Header Files\Shared\SQLite\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Threading\CMutex.h">
+      <Filter>Header Files\Shared\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Threading\CThread.h">
+      <Filter>Header Files\Shared\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="CXML.h">
+      <Filter>Header Files\Shared\XML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\tinyxml\ticpp.h">
+      <Filter>Header Files\Shared\XML\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\tinyxml\ticpprc.h">
+      <Filter>Header Files\Shared\XML\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\tinyxml\tinystr.h">
+      <Filter>Header Files\Shared\XML\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\tinyxml\tinyxml.h">
+      <Filter>Header Files\Shared\XML\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\md5\md5.h">
+      <Filter>Header Files\Shared\md5</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Game\CControlState.h">
+      <Filter>Header Files\Game\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Game\CTime.h">
+      <Filter>Header Files\Game\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Game\CTrafficLights.h">
+      <Filter>Header Files\Game\Shared</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CModule.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CModuleManager.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CActorManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CBlipManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CCheckpoint.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CCheckpointManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CNetworkManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CObjectManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CPickupManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlayer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlayerManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CServerPacketHandler.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CServerRPCHandler.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CVehicle.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CVehicleManager.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CWebserver.cpp">
+      <Filter>Source Files\Network\Webserver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\mongoose\mongoose.c">
+      <Filter>Source Files\Network\Webserver\Mongoose</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CBitStream.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CHttpClient.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CNetworkModule.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CPacketHandler.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Network\CRPCHandler.cpp">
+      <Filter>Source Files\Network\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="CMasterList.cpp">
+      <Filter>Source Files\Network\Query</Filter>
+    </ClCompile>
+    <ClCompile Include="CQuery.cpp">
+      <Filter>Source Files\Network\Query</Filter>
+    </ClCompile>
+    <ClCompile Include="CClientFileManager.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CScriptingManager.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CScriptTimer.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CScriptTimerManager.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CSquirrel.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CSquirrelArguments.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqapi.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqbaselib.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqclass.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqcompiler.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqdebug.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqfuncstate.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqlexer.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqmem.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqobject.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstate.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdaux.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdblob.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdio.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdmath.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdrex.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdstream.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdstring.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdsystem.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqtable.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\Squirrel\sqvm.cpp">
+      <Filter>Source Files\Scripting\Squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\ActorNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\BlipNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\CheckpointNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\ObjectNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\PickupNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\PlayerNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\ScriptNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\ServerNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\VehicleNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\AreaNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\EventNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\HashNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\SQLiteNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\TimerNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\WorldNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\XMLNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CExceptionHandler.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CLibrary.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CLogFile.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CSettings.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CString.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\SharedUtility.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CSQLite.cpp">
+      <Filter>Source Files\Shared\SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\sqlite\sqlite3.c">
+      <Filter>Source Files\Shared\SQLite\SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CXML.cpp">
+      <Filter>Source Files\Shared\XML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\ticpp.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinystr.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxml.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlerror.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlparser.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Threading\CMutex.cpp">
+      <Filter>Source Files\Shared\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Threading\CThread.cpp">
+      <Filter>Source Files\Shared\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\md5\md5.cpp">
+      <Filter>Source Files\Shared\md5</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Game\CControlState.cpp">
+      <Filter>Source Files\Game\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Game\CTime.cpp">
+      <Filter>Source Files\Game\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Game\CTrafficLights.cpp">
+      <Filter>Source Files\Game\Shared</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

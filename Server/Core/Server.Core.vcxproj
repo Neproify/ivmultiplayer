@@ -1,0 +1,322 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2174ABC9-4716-43A5-B415-AB8F421086AA}</ProjectGuid>
+    <RootNamespace>Server.Core</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Binary\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)Binary\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ivmp-svr.Debug</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ivmp-svr</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../Shared;../../Vendor;../../Vendor/Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SERVER;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)\$(TargetName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>../../Shared;../../Vendor;../../Vendor/Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SERVER;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)\$(TargetName).exe</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="CModule.h" />
+    <ClInclude Include="CModuleManager.h" />
+    <ClInclude Include="CActorManager.h" />
+    <ClInclude Include="CBlipManager.h" />
+    <ClInclude Include="CCheckpoint.h" />
+    <ClInclude Include="CCheckpointManager.h" />
+    <ClInclude Include="CNetworkManager.h" />
+    <ClInclude Include="CObjectManager.h" />
+    <ClInclude Include="CPickupManager.h" />
+    <ClInclude Include="CPlayer.h" />
+    <ClInclude Include="CPlayerManager.h" />
+    <ClInclude Include="CServerPacketHandler.h" />
+    <ClInclude Include="CServerRPCHandler.h" />
+    <ClInclude Include="CVehicle.h" />
+    <ClInclude Include="CVehicleManager.h" />
+    <ClInclude Include="Interfaces\CActorManagerInterface.h" />
+    <ClInclude Include="Interfaces\CBlipManagerInterface.h" />
+    <ClInclude Include="Interfaces\CCheckpointManagerInterface.h" />
+    <ClInclude Include="Interfaces\CEventsInterface.h" />
+    <ClInclude Include="Interfaces\CModuleInterface.h" />
+    <ClInclude Include="Interfaces\CModuleManagerInterface.h" />
+    <ClInclude Include="Interfaces\CNetworkManagerInterface.h" />
+    <ClInclude Include="Interfaces\CObjectManagerInterface.h" />
+    <ClInclude Include="Interfaces\CPickupManagerInterface.h" />
+    <ClInclude Include="Interfaces\CPlayerInterface.h" />
+    <ClInclude Include="Interfaces\CPlayerManagerInterface.h" />
+    <ClInclude Include="Interfaces\CScriptingManagerInterface.h" />
+    <ClInclude Include="Interfaces\CSquirrelInterface.h" />
+    <ClInclude Include="Interfaces\CTimeInterface.h" />
+    <ClInclude Include="Interfaces\CTrafficLightsInterface.h" />
+    <ClInclude Include="Interfaces\CVehicleInterface.h" />
+    <ClInclude Include="Interfaces\CVehicleManagerInterface.h" />
+    <ClInclude Include="Interfaces\InterfaceCommon.h" />
+    <ClInclude Include="..\..\Shared\Network\CBitStream.h" />
+    <ClInclude Include="..\..\Shared\Network\CHttpClient.h" />
+    <ClInclude Include="..\..\Shared\Network\CNetClientInterface.h" />
+    <ClInclude Include="..\..\Shared\Network\CNetServerInterface.h" />
+    <ClInclude Include="..\..\Shared\Network\CNetStats.h" />
+    <ClInclude Include="..\..\Shared\Network\CNetworkModule.h" />
+    <ClInclude Include="..\..\Shared\Network\CPacket.h" />
+    <ClInclude Include="..\..\Shared\Network\CPacketHandler.h" />
+    <ClInclude Include="..\..\Shared\Network\CPlayerSocket.h" />
+    <ClInclude Include="..\..\Shared\Network\CRPCHandler.h" />
+    <ClInclude Include="..\..\Shared\Network\PacketChannels.h" />
+    <ClInclude Include="..\..\Shared\Network\PacketIdentifiers.h" />
+    <ClInclude Include="..\..\Shared\Network\PacketPriorities.h" />
+    <ClInclude Include="..\..\Shared\Network\PacketReliabilities.h" />
+    <ClInclude Include="..\..\Shared\Network\RPCIdentifiers.h" />
+    <ClInclude Include="CMasterList.h" />
+    <ClInclude Include="CQuery.h" />
+    <ClInclude Include="CWebserver.h" />
+    <ClInclude Include="..\..\Vendor\mongoose\mongoose.h" />
+    <ClInclude Include="CClientFileManager.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CScriptingManager.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CScriptTimer.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CScriptTimerManager.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CSquirrel.h" />
+    <ClInclude Include="..\..\Shared\Scripting\CSquirrelArguments.h" />
+    <ClInclude Include="Natives\ActorNatives.h" />
+    <ClInclude Include="Natives\BlipNatives.h" />
+    <ClInclude Include="Natives\CheckpointNatives.h" />
+    <ClInclude Include="Natives.h" />
+    <ClInclude Include="Natives\ObjectNatives.h" />
+    <ClInclude Include="Natives\PickupNatives.h" />
+    <ClInclude Include="Natives\PlayerNatives.h" />
+    <ClInclude Include="Natives\ScriptNatives.h" />
+    <ClInclude Include="Natives\ServerNatives.h" />
+    <ClInclude Include="Natives\VehicleNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\AreaNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\EventNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\HashNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\Natives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\SQLiteNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\TimerNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\WorldNatives.h" />
+    <ClInclude Include="..\..\Shared\Scripting\Natives\XMLNatives.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqarray.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqclass.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqclosure.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqcompiler.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqfuncproto.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqfuncstate.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqlexer.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqobject.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqopcodes.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqpcheader.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstate.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdaux.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdblob.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdblobimpl.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdio.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdmath.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdstream.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdstring.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstdsystem.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqstring.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqtable.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\squirrel.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\squserdata.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\squtils.h" />
+    <ClInclude Include="..\..\Vendor\Squirrel\sqvm.h" />
+    <ClInclude Include="..\..\Shared\CEvents.h" />
+    <ClInclude Include="..\..\Shared\CExceptionHandler.h" />
+    <ClInclude Include="..\..\Shared\CFileChecksum.h" />
+    <ClInclude Include="..\..\Shared\CLibrary.h" />
+    <ClInclude Include="..\..\Shared\CLogFile.h" />
+    <ClInclude Include="..\..\Shared\Common.h" />
+    <ClInclude Include="..\..\Shared\CSettings.h" />
+    <ClInclude Include="..\..\Shared\CString.h" />
+    <ClInclude Include="..\..\Shared\SharedUtility.h" />
+    <ClInclude Include="..\..\Shared\Math\CMath.h" />
+    <ClInclude Include="..\..\Shared\Math\CVector3.h" />
+    <ClInclude Include="..\..\Shared\CSQLite.h" />
+    <ClInclude Include="..\..\Vendor\sqlite\sqlite3.h" />
+    <ClInclude Include="..\..\Vendor\sqlite\sqlite3ext.h" />
+    <ClInclude Include="..\..\Shared\Threading\CMutex.h" />
+    <ClInclude Include="..\..\Shared\Threading\CThread.h" />
+    <ClInclude Include="CXML.h" />
+    <ClInclude Include="..\..\Vendor\tinyxml\ticpp.h" />
+    <ClInclude Include="..\..\Vendor\tinyxml\ticpprc.h" />
+    <ClInclude Include="..\..\Vendor\tinyxml\tinystr.h" />
+    <ClInclude Include="..\..\Vendor\tinyxml\tinyxml.h" />
+    <ClInclude Include="..\..\Vendor\md5\md5.h" />
+    <ClInclude Include="..\..\Shared\Game\CControlState.h" />
+    <ClInclude Include="..\..\Shared\Game\CTime.h" />
+    <ClInclude Include="..\..\Shared\Game\CTrafficLights.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="CModule.cpp" />
+    <ClCompile Include="CModuleManager.cpp" />
+    <ClCompile Include="CActorManager.cpp" />
+    <ClCompile Include="CBlipManager.cpp" />
+    <ClCompile Include="CCheckpoint.cpp" />
+    <ClCompile Include="CCheckpointManager.cpp" />
+    <ClCompile Include="CNetworkManager.cpp" />
+    <ClCompile Include="CObjectManager.cpp" />
+    <ClCompile Include="CPickupManager.cpp" />
+    <ClCompile Include="CPlayer.cpp" />
+    <ClCompile Include="CPlayerManager.cpp" />
+    <ClCompile Include="CServerPacketHandler.cpp" />
+    <ClCompile Include="CServerRPCHandler.cpp" />
+    <ClCompile Include="CVehicle.cpp" />
+    <ClCompile Include="CVehicleManager.cpp" />
+    <ClCompile Include="CWebserver.cpp" />
+    <ClCompile Include="..\..\Vendor\mongoose\mongoose.c" />
+    <ClCompile Include="..\..\Shared\Network\CBitStream.cpp" />
+    <ClCompile Include="..\..\Shared\Network\CHttpClient.cpp" />
+    <ClCompile Include="..\..\Shared\Network\CNetworkModule.cpp" />
+    <ClCompile Include="..\..\Shared\Network\CPacketHandler.cpp" />
+    <ClCompile Include="..\..\Shared\Network\CRPCHandler.cpp" />
+    <ClCompile Include="CMasterList.cpp" />
+    <ClCompile Include="CQuery.cpp" />
+    <ClCompile Include="CClientFileManager.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CScriptingManager.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CScriptTimer.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CScriptTimerManager.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CSquirrel.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CSquirrelArguments.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqapi.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqbaselib.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqclass.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqcompiler.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqdebug.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqfuncstate.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqlexer.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqmem.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqobject.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstate.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdaux.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdblob.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdio.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdmath.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdrex.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdstream.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdstring.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqstdsystem.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqtable.cpp" />
+    <ClCompile Include="..\..\Vendor\Squirrel\sqvm.cpp" />
+    <ClCompile Include="Natives\ActorNatives.cpp" />
+    <ClCompile Include="Natives\BlipNatives.cpp" />
+    <ClCompile Include="Natives\CheckpointNatives.cpp" />
+    <ClCompile Include="Natives\ObjectNatives.cpp" />
+    <ClCompile Include="Natives\PickupNatives.cpp" />
+    <ClCompile Include="Natives\PlayerNatives.cpp" />
+    <ClCompile Include="Natives\ScriptNatives.cpp" />
+    <ClCompile Include="Natives\ServerNatives.cpp" />
+    <ClCompile Include="Natives\VehicleNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\AreaNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\EventNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\HashNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\SQLiteNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\TimerNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\WorldNatives.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\Natives\XMLNatives.cpp" />
+    <ClCompile Include="..\..\Shared\CExceptionHandler.cpp" />
+    <ClCompile Include="..\..\Shared\CLibrary.cpp" />
+    <ClCompile Include="..\..\Shared\CLogFile.cpp" />
+    <ClCompile Include="..\..\Shared\CSettings.cpp" />
+    <ClCompile Include="..\..\Shared\CString.cpp" />
+    <ClCompile Include="..\..\Shared\SharedUtility.cpp" />
+    <ClCompile Include="..\..\Shared\CSQLite.cpp" />
+    <ClCompile Include="..\..\Vendor\sqlite\sqlite3.c" />
+    <ClCompile Include="..\..\Shared\CXML.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\ticpp.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinystr.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxml.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlparser.cpp" />
+    <ClCompile Include="..\..\Shared\Threading\CMutex.cpp" />
+    <ClCompile Include="..\..\Shared\Threading\CThread.cpp" />
+    <ClCompile Include="..\..\Vendor\md5\md5.cpp" />
+    <ClCompile Include="..\..\Shared\Game\CControlState.cpp" />
+    <ClCompile Include="..\..\Shared\Game\CTime.cpp" />
+    <ClCompile Include="..\..\Shared\Game\CTrafficLights.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
