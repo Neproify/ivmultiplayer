@@ -1076,15 +1076,7 @@ void InternalResetGame()
 	g_pNetworkManager->Startup(g_strHost, g_usPort, g_strPassword);
 	CLogFile::Printf("Started network manager instance");
 
-	if(g_pClientScriptManager)
-	{
-		// Delete all gui elements
-		g_pClientScriptManager->GetGUIManager()->DeleteAll();
-
-		// Delete client script manager
-		SAFE_DELETE(g_pClientScriptManager);
-	}
-
+	SAFE_DELETE(g_pClientScriptManager);
 	g_pClientScriptManager = new CClientScriptManager();
 	CLogFile::Printf("Created client script manager instance");
 
@@ -1125,7 +1117,6 @@ void InternalResetGame()
 	g_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
 	g_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT));
 	CLogFile::Printf("Reset camera instance");
-	
 
 	g_pNetworkManager->Connect();
 	CLogFile::Print("Sent network connection request");

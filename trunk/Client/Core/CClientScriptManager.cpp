@@ -140,20 +140,9 @@ CClientScriptManager::CClientScriptManager()
 
 CClientScriptManager::~CClientScriptManager()
 {
-	if(g_pScriptTimerManager)
-	{
-		delete g_pScriptTimerManager;
-		g_pScriptTimerManager = NULL;
-	}
-
-	if(m_pGUIManager)
-		delete m_pGUIManager;
-
-	if(m_pScripting)
-	{
-		delete m_pScripting;
-		g_pScriptingManager = NULL;
-	}
+	SAFE_DELETE(g_pScriptTimerManager);
+	SAFE_DELETE(m_pGUIManager);
+	SAFE_DELETE(m_pScripting);
 
 	for(std::list<ClientScript *>::iterator iter = m_clientScripts.begin(); iter != m_clientScripts.end(); iter++)
 		delete (*iter);
