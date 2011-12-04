@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-c -w -D_SERVER -D_LINUX -I../../Shared -I. -I../../Shared/Network
 
 SOURCES=$(wildcard *.cpp)
-SOURCES+=../../Shared/SharedUtility.cpp ../../Shared/CString.cpp ../../Shared/Network/CBitStream.cpp ../../Shared/Game/CPadState.cpp ../../Shared/Linux.cpp
+SOURCES+=../../Shared/SharedUtility.cpp ../../Shared/CString.cpp ../../Shared/Network/CBitStream.cpp ../../Shared/Game/CControlState.cpp ../../Shared/Linux.cpp
 SOURCES+=$(wildcard RakNet/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=../../Binary/Network.Core.so
