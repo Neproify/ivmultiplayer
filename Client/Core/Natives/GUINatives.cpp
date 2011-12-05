@@ -672,3 +672,38 @@ _MEMBER_FUNCTION_IMPL(GUIImage, constructor)
 		return 1;
 	}
 }
+// GUIProgressBar
+_MEMBER_FUNCTION_IMPL(GUIProgressBar, constructor)
+{
+	CEGUI::Window * pWindow = g_pGUI->CreateGUIProgressBar();
+	if(!pWindow || SQ_FAILED(sq_setinstance(pVM, pWindow)))
+	{
+		CLogFile::Printf("Can't create GUIProgressBar.");
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
+ 	pWindow->setVisible(true);
+ 	pWindow->setProperty("CurrentProgress", "0.0");
+ 	sq_pushbool(pVM, true);
+	return 1;
+}
+_MEMBER_FUNCTION_IMPL(GUIProgressBar, setValue)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	float fCurrentValue = 0.0f;
+	sq_getfloat(pVM, 2, &fCurrentValue);
+
+ 	if ( fCurrentValue > 100.0f || fCurrentValue < 0.0f )
+	{
+ 		CLogFile::Printf("Invalid first argument value. (Argument accept values from 0.0 to 100.0 [float], your value %f)", fCurrentValue);
+ 		sq_pushbool(pVM, false);
+ 	}
+
+ 	char szNewProgress[4];
+	sprintf(szNewProgress, "%f", fCurrentValue*0.01);
+	pWindow->setProperty("CurrentProgress", szNewProgress);
+
+	sq_pushbool(pVM, true);
+	return 1;
+}

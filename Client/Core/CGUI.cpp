@@ -739,6 +739,11 @@ void CGUI::RemoveGUIWindow(CGUICheckBox * pCheckBox)
 	RemoveGUIWindow((CEGUI::Window *)pCheckBox);
 }
 
+void CGUI::RemoveGUIWindow(CGUIProgressBar * pProgressBar)
+{
+	RemoveGUIWindow((CEGUI::Window *)pProgressBar);
+}
+
 CGUITitleBar * CGUI::CreateGUITitleBar(CEGUI::String &sName, CEGUI::Window * pParentWindow)
 {
 	return (CGUITitleBar *)CreateGUIWindow(STYLE_PREFIX "/Titlebar", sName, pParentWindow);
@@ -849,6 +854,15 @@ CGUITabContentPane * CGUI::CreateGUITabContentPane(CEGUI::Window * pParentWindow
 	return (CGUITabContentPane *)CreateGUIWindow(STYLE_PREFIX "/TabContentPane", GetUniqueName(), pParentWindow);
 }
 
+CGUIProgressBar * CGUI::CreateGUIProgressBar(CEGUI::String &sName, CEGUI::Window * pParentWindow)
+{
+	return (CGUIProgressBar *)CreateGUIWindow(STYLE_PREFIX "/ProgressBar", sName, pParentWindow);
+}
+
+CGUIProgressBar * CGUI::CreateGUIProgressBar(CEGUI::Window * pParentWindow)
+{
+	return (CGUIProgressBar *)CreateGUIWindow(STYLE_PREFIX "/ProgressBar", GetUniqueName(), pParentWindow);
+}
 
 void CGUI::SetCursorVisible(bool bVisible)
 {

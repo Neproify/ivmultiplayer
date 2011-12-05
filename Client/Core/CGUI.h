@@ -53,6 +53,7 @@ struct CGUICheckBox : CEGUI::Window {};
 struct CGUIMultiColumnList : CEGUI::Window {};
 struct CGUITabControl : CEGUI::Window {};
 struct CGUITabContentPane : CEGUI::Window {};
+struct CGUIProgressBar : CEGUI::Window {};
 
 struct Vector2
 {
@@ -151,6 +152,7 @@ public:
 	void                       RemoveGUIWindow(CGUIStaticImage * pStaticText);
 	void                       RemoveGUIWindow(CGUIStaticText * pStaticText);
 	void                       RemoveGUIWindow(CGUICheckBox * pCheckBox);
+	void                       RemoveGUIWindow(CGUIProgressBar * pProgressBar);
 	CGUITitleBar             * CreateGUITitleBar(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
 	CGUITitleBar             * CreateGUITitleBar(CEGUI::Window * pParentWindow = NULL);
 	CGUIButton               * CreateGUIButton(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
@@ -173,6 +175,8 @@ public:
 	CGUITabControl           * CreateGUITabControl(CEGUI::Window * pParentWindow = NULL);
 	CGUITabContentPane       * CreateGUITabContentPane(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
 	CGUITabContentPane       * CreateGUITabContentPane(CEGUI::Window * pParentWindow = NULL);
+	CGUIProgressBar			 * CreateGUIProgressBar(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
+	CGUIProgressBar		     * CreateGUIProgressBar(CEGUI::Window * pParentWindow = NULL);
 	void                       SetCursorVisible(bool bVisible);
 	bool                       IsCursorVisible(bool bVisible);
 	void                       OnLostDevice();
