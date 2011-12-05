@@ -71,6 +71,12 @@ _BEGIN_CLASS(GUIMultiLineEditBox)
 _MEMBER_FUNCTION(GUIMultiLineEditBox, constructor, 0, NULL)
 _END_CLASS_BASE(GUIMultiLineEditBox, GUIElement)
 
+//GUIProgressBar
+_BEGIN_CLASS(GUIProgressBar)
+_MEMBER_FUNCTION(GUIProgressBar, constructor, 0, NULL)
+_MEMBER_FUNCTION(GUIProgressBar, setValue, 1, "f")
+_END_CLASS_BASE(GUIProgressBar, GUIElement)
+
 // GUICheckBox
 _BEGIN_CLASS(GUICheckBox)
 _MEMBER_FUNCTION(GUICheckBox, constructor, 0, NULL)
@@ -136,6 +142,7 @@ CClientScriptManager::CClientScriptManager()
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIMultiLineEditBox));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUICheckBox));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIImage));
+	m_pScripting->RegisterClass(&_CLASS_DECL(GUIProgressBar));
 }
 
 CClientScriptManager::~CClientScriptManager()
