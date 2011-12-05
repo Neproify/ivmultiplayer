@@ -369,6 +369,19 @@ bool CHttpClient::ParseHeaders(String& strBuffer, int& iBufferSize)
 		// Get the header name
 		String strName = strBuffer.SubStr(0, uiNameSplit);
 
+		// If this is an accept-ranges header get the value from the next header
+		// jenksta: not sure if this is right, but this is how it works with 'accept-ranges: bytes'
+		// in mongoose
+		if(!strName.ICompare("accept-ranges"))
+		{
+			// Find the value end
+			uiValueSplit = strBuffer.Find("\r\n", (uiValueSplit + 2));
+
+			// Did we not find a value end?
+			if(uiValueSplit == String::nPos)
+				return false;
+		}
+
 		// Get the header value
 		String strValue = strBuffer.SubStr((uiNameSplit + 2), (uiValueSplit - (uiNameSplit + 2)));
 
@@ -385,14 +398,6 @@ bool CHttpClient::ParseHeaders(String& strBuffer, int& iBufferSize)
 			// Set the content length
 			uiContentLength = strValue.ToInteger();
 		}
-	}
-
-	// HACK: Trim the buffer to the content length
-	// jenksta: This can be caused by things such as accept-ranges headers
-	if(iBufferSize > (int)uiContentLength)
-	{
-		strBuffer.Erase(0, (iBufferSize - uiContentLength));
-		iBufferSize -= (iBufferSize - uiContentLength);
 	}
 
 	// Did we not get any headers?
