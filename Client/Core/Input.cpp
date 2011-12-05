@@ -71,18 +71,32 @@ String GetKeyNameByCode(DWORD dwCode)
 			strCode = "enter"; break;
 		case VK_CONTROL:
 			strCode = "ctrl"; break;
+		//case VK_CONTROL: // fix
+		//	strCode = "lcontrol"; break;
+		//case VK_CONTROL: // fix
+		//	strCode = "rcontrol"; break;
 		case VK_SHIFT:
 			strCode = "shift"; break;
+		//case VK_SHIFT:
+		//	strCode = "lshift"; break;
+		//case VK_SHIFT: // fix
+		//	strCode = "rshift"; break;
 		case VK_MENU:
 			strCode = "alt"; break;
+		//case VK_MENU: // fix
+		//	strCode = "lalt"; break;
+		//case VK_MENU: // fix
+		//	strCode = "ralt"; break;
+		case VK_MULTIPLY:
+			strCode = "num_mul"; break;
 		case VK_ADD:
 			strCode = "num_add"; break;
 		case VK_SUBTRACT:
 			strCode = "num_sub"; break;
+		case VK_DECIMAL:
+			strCode = "num_dec"; break;
 		case VK_DIVIDE:
 			strCode = "num_div"; break;
-		case VK_MULTIPLY:
-			strCode = "num_mul"; break;
 		case VK_SPACE:
 			strCode = "space"; break;
 		case VK_LEFT:
@@ -109,6 +123,10 @@ String GetKeyNameByCode(DWORD dwCode)
 			strCode = "backspace"; break;
 		case 0x01:
 			strCode = "esc"; break;
+		case VK_CAPITAL:
+			strCode = "capslock"; break;
+		case VK_PAUSE:
+			strCode = "pause"; break;
 		// German "umlaute"
 		case 0xC4:
 			strCode = "ä"; break;
@@ -122,7 +140,6 @@ String GetKeyNameByCode(DWORD dwCode)
 			strCode = "ü"; break;
 		case 0xFC:
 			strCode = "ü"; break;
-
 		}
 	}
 
@@ -197,17 +214,13 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		// Is this a F10 key up?
 		if(uMsg == WM_SYSKEYUP && wParam == VK_F10)
 		{
-			unsigned long ulStartTime = SharedUtility::GetTime();
-
+			// Take a screen shot
 			if(CScreenShot::Take())
-			{
-				if(g_pChatWindow)
-					g_pChatWindow->AddInfoMessage("Screen shot taken (%d milliseconds)", (SharedUtility::GetTime() - ulStartTime));
-			}
+				g_pChatWindow->AddInfoMessage("Screen shot captured.");
 			else
 			{
-				if(g_pChatWindow)
-					g_pChatWindow->AddInfoMessage("Failed to take screen shot.");
+				g_pChatWindow->AddInfoMessage("Screen shot capture failed (%s).", CScreenShot::GetError().Get());
+				CScreenShot::Reset();
 			}
 		}
 
