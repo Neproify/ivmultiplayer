@@ -12,27 +12,34 @@
 #include "../../Vendor/lpng142/png.h"
 #include "DXSDK/Include/d3d9.h"
 #include "SharedUtility.h"
-#include "CGUI.h"
 #include "CGame.h"
+#include "CGUI.h"
 
 #define SCREEN_SHOT_FORMAT D3DFMT_A8R8G8B8
 #define SCREEN_SHOT_FORMAT_BYTES_PER_PIXEL (32 / 8)
 
+unsigned long           CScreenShot::m_ulLastScreenShotTime = 0;
+CThread                 CScreenShot::m_writeThread;
+unsigned char         * CScreenShot::m_ucData = NULL;
+unsigned int            CScreenShot::m_uiScreenWidth = 0;
+unsigned int            CScreenShot::m_uiScreenHeight = 0;
+CMutex                  CScreenShot::m_threadDataMutex;
+CScreenShot::ThreadData CScreenShot::m_threadData;
+
 extern IDirect3DDevice9 * g_pDevice;
 extern CGUI             * g_pGUI;
 
-unsigned long CScreenShot::m_ulLastScreenShotTime = 0;
-CThread CScreenShot::m_writeThread;
-unsigned char * CScreenShot::m_ucData = NULL;
-unsigned int CScreenShot::m_uiScreenWidth = 0;
-unsigned int CScreenShot::m_uiScreenHeight = 0;
+CScreenShot::CScreenShot()
+{
+	Reset();
+}
 
 String CScreenShot::GetScreenShotPath()
 {
 	// Get the screen shot directory
 	String strPath(SharedUtility::GetAbsolutePath("screenshots"));
 
-	// Ensure the screenshot directory exists
+	// Ensure the screen shot directory exists
 	if(!SharedUtility::Exists(strPath))
 		SharedUtility::CreateDirectory(strPath);
 
@@ -45,6 +52,10 @@ String CScreenShot::GetScreenShotPath()
 
 void CScreenShot::WriteImageToFile(CThread * pThread)
 {
+	// Lock the thread data mutex now
+	m_threadDataMutex.Lock();
+	m_threadData.bWriting = true;
+
 	// Get the screen shot path
 	String strPath = GetScreenShotPath();
 
@@ -56,7 +67,14 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 	{
 		// Delete the image data
 		delete [] m_ucData;
-		return/* false*/;
+
+		// Flag the write as not succeeded
+		m_threadData.bSucceeded = false;
+		m_threadData.strError = "Failed to open screen shot file";
+
+		// Unlock the thread data mutex
+		m_threadDataMutex.Unlock();
+		return;
 	}
 
 	// Allocate the png write struct
@@ -67,7 +85,17 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 	{
 		// Delete the image data
 		delete [] m_ucData;
-		return/* false*/;
+
+		// Close the screen shot file
+		fclose(fScreenshot);
+
+		// Flag the write as not succeeded
+		m_threadData.bSucceeded = false;
+		m_threadData.strError = "Failed to allocate memory";
+
+		// Unlock the thread data mutex
+		m_threadDataMutex.Unlock();
+		return;
 	}
 
 	// Allocate the png info struct
@@ -81,7 +109,17 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 
 		// Delete the image data
 		delete [] m_ucData;
-		return/* false*/;
+
+		// Close the screen shot file
+		fclose(fScreenshot);
+
+		// Flag the write as not succeeded
+		m_threadData.bSucceeded = false;
+		m_threadData.strError = "Failed to allocate memory";
+
+		// Unlock the thread data mutex
+		m_threadDataMutex.Unlock();
+		return;
 	}
 
 	// Set the png file pointer
@@ -106,7 +144,17 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 
 		// Delete the image data
 		delete [] m_ucData;
-		return/* false*/;
+
+		// Close the screen shot file
+		fclose(fScreenshot);
+
+		// Flag the write as not succeeded
+		m_threadData.bSucceeded = false;
+		m_threadData.strError = "Failed to allocate memory";
+
+		// Unlock the thread data mutex
+		m_threadDataMutex.Unlock();
+		return;
 	}
 
 	// Copy the image data into the temporary image data
@@ -126,7 +174,17 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 
 		// Delete the image data
 		delete [] m_ucData;
-		return/* false*/;
+
+		// Close the screen shot file
+		fclose(fScreenshot);
+
+		// Flag the write as not succeeded
+		m_threadData.bSucceeded = false;
+		m_threadData.strError = "Failed to allocate memory";
+
+		// Unlock the thread data mutex
+		m_threadDataMutex.Unlock();
+		return;
 	}
 
 	// Fill row pointers array
@@ -150,14 +208,36 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 
 	// Delete the image data
 	delete [] m_ucData;
+
+	// Close the screen shot file
+	fclose(fScreenshot);
+
+	// Flag the write as succeeded
+	m_threadData.bSucceeded = true;
+	m_threadData.strWriteName = strPath;
+
+	// Unlock the thread data mutex
+	m_threadDataMutex.Unlock();
 	/*return true;*/
 }
 
 bool CScreenShot::Take()
 {
-	// Only allow one screen shot per second to avoid abuse
-	if((SharedUtility::GetTime() - m_ulLastScreenShotTime) < 1000 || m_writeThread.IsRunning())
+	// Ensure we are not already taking a screen shot
+	if(m_writeThread.IsRunning())
+	{
+		// Flag the write as not succeeded
+		m_threadData.strError = "Screen shot already being taken";
 		return false;
+	}
+
+	// Only allow one screen shot per second to avoid abuse
+	if((SharedUtility::GetTime() - m_ulLastScreenShotTime) < 1000)
+	{
+		// Flag the write as not succeeded
+		m_threadData.strError = "You must wait 1 second between screen shots";
+		return false;
+	}
 
 	// Get the screen display mode
 	D3DDISPLAYMODE displayMode;
@@ -167,13 +247,20 @@ bool CScreenShot::Take()
 	IDirect3DSurface9 * pSurface;
 
 	if(FAILED(g_pDevice->CreateOffscreenPlainSurface(displayMode.Width, displayMode.Height, SCREEN_SHOT_FORMAT, D3DPOOL_SCRATCH, &pSurface, NULL)))
+	{
+		// Flag the write as not succeeded
+		m_threadData.strError = "Failed to create surface";
 		return false;
+	}
 
 	// Read the front buffer into the image surface
 	if(FAILED(g_pDevice->GetFrontBufferData(0, pSurface)))
 	{
 		// Release the surface
 		pSurface->Release();
+
+		// Flag the write as not succeeded
+		m_threadData.strError = "Failed to get front buffer";
 		return false;
 	}
 
@@ -201,6 +288,9 @@ bool CScreenShot::Take()
 	{
 		// Release the surface
 		pSurface->Release();
+
+		// Flag the write as not succeeded
+		m_threadData.strError = "Failed to lock surface";
 		return false;
 	}
 
@@ -218,6 +308,9 @@ bool CScreenShot::Take()
 
 		// Release the surface
 		pSurface->Release();
+
+		// Flag the write as not succeeded
+		m_threadData.strError = "Failed to allocate memory";
 		return false;
 	}
 
@@ -268,4 +361,63 @@ bool CScreenShot::Take()
 	// Set the last screen shot time
 	m_ulLastScreenShotTime = SharedUtility::GetTime();
 	return true;
+}
+
+bool CScreenShot::IsDone()
+{
+	// Lock the thread data mutex
+	m_threadDataMutex.Lock();
+	bool bWriting = m_threadData.bWriting;
+
+	// Unlock the thread data mutex
+	m_threadDataMutex.Unlock();
+
+	return (bWriting && !m_writeThread.IsRunning());
+}
+
+bool CScreenShot::HasSucceeded()
+{
+	// Lock the thread data mutex
+	m_threadDataMutex.Lock();
+	bool bSucceeded = m_threadData.bSucceeded;
+
+	// Unlock the thread data mutex
+	m_threadDataMutex.Unlock();
+	return bSucceeded;
+}
+
+String CScreenShot::GetWriteName()
+{
+	// Lock the thread data mutex
+	m_threadDataMutex.Lock();
+	String strWriteName = m_threadData.strWriteName;
+
+	// Unlock the thread data mutex
+	m_threadDataMutex.Unlock();
+	return strWriteName;
+}
+
+String CScreenShot::GetError()
+{
+	// Lock the thread data mutex
+	m_threadDataMutex.Lock();
+	String strError = m_threadData.strError;
+
+	// Unlock the thread data mutex
+	m_threadDataMutex.Unlock();
+	return strError;
+}
+
+void CScreenShot::Reset()
+{
+	// Lock the thread data mutex
+	m_threadDataMutex.Lock();
+
+	// Reset the thread data
+	m_threadData.bWriting = false;
+	m_threadData.bSucceeded = false;
+	m_threadData.strError = "";
+
+	// Unlock the thread data mutex
+	m_threadDataMutex.Unlock();
 }

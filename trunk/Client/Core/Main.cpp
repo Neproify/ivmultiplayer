@@ -53,6 +53,7 @@
 #include "CPools.h"
 #include "CIVWeather.h"
 #include <CExceptionHandler.h>
+#include "CScreenShot.h"
 
 IDirect3DDevice9     * g_pDevice = NULL;
 CChatWindow          * g_pChatWindow = NULL;
@@ -652,6 +653,17 @@ void Direct3DRender()
 	// If our scripting manager exists, call the frame event
 	if(g_pEvents && !g_pMainMenu->IsVisible())
 		g_pEvents->Call("frameRender");
+
+	// Check if our screen shot write failed
+	if(CScreenShot::IsDone())
+	{
+		if(CScreenShot::HasSucceeded())
+			g_pChatWindow->AddInfoMessage("Screen shot written (%s).", CScreenShot::GetWriteName().Get());
+		else
+			g_pChatWindow->AddInfoMessage("Screen shot write failed (%s).", CScreenShot::GetError().Get());
+
+		CScreenShot::Reset();
+	}
 
 	// Are we in game?
 	if(CGame::GetState() == GAME_STATE_INGAME)
