@@ -123,6 +123,14 @@ bool CMainMenu::OnAboutButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 
 bool CMainMenu::OnQuitButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
+	// If we are connected to a server, disconnect
+	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
+		g_pNetworkManager->Disconnect();
+	
+	// Delete the network manager interface
+	SAFE_DELETE(g_pNetworkManager);
+
+	// Exit
 	ExitProcess(0);
 	return true;
 }

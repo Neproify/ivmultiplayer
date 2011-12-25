@@ -69,7 +69,7 @@ void CNetClient::Disconnect()
 	{
 		m_bConnected = false;
 		m_pRakPeer->CloseConnection(m_serverAddress, true);
-		Shutdown(0);
+		Shutdown(500);
 		Startup();
 		m_serverAddress = RakNet::UNASSIGNED_SYSTEM_ADDRESS;
 		m_serverSocket = CPlayerSocket();
@@ -166,9 +166,18 @@ PacketId CNetClient::ProcessPacket(RakNet::SystemAddress systemAddress, PacketId
 	if(!m_bConnected)
 	{
 		// Is this not a pre-connect packet?
-		if(packetId != ID_CONNECTION_REQUEST_ACCEPTED && packetId != ID_USER_PACKET_ENUM 
-			&& packetId != (ID_USER_PACKET_ENUM + 1) && packetId != PACKET_CONNECTION_REJECTED)
+		switch(packetId)
 		{
+		case ID_USER_PACKET_ENUM:
+		case (ID_USER_PACKET_ENUM + 1):
+		case PACKET_CONNECTION_REJECTED:
+		case PACKET_CONNECTION_FAILED:
+		case ID_ALREADY_CONNECTED:
+		case ID_NO_FREE_INCOMING_CONNECTIONS:
+		case ID_CONNECTION_BANNED:
+		case ID_INVALID_PASSWORD:
+			break;
+		default:
 			// Don't process the packet
 			return INVALID_PACKET_ID;
 		}
