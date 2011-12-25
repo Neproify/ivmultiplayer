@@ -33,9 +33,14 @@ void ChangeChatBackgroundColor(char * szParams)
 
 void QuitCommand(char * szParams)
 {
-	if(g_pNetworkManager)
+	// If we are connected to a server, disconnect
+	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 		g_pNetworkManager->Disconnect();
+	
+	// Delete the network manager interface
+	SAFE_DELETE(g_pNetworkManager);
 
+	// Exit
 	ExitProcess(0);
 }
 
