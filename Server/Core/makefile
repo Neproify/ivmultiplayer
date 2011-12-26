@@ -10,6 +10,8 @@ SOURCES+=$(wildcard ../../Vendor/md5/*.cpp) ../../Shared/CSettings.cpp ../../Sha
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=../../Binary/ivmp-svr
 
+all: $(SOURCES) $(EXECUTABLE)
+
 $(EXECUTABLE): $(OBJECTS) 
 	gcc $(CFLAGS) ../../Vendor/mongoose/mongoose.c -o mongoose.o
 	g++ $(OBJECTS) mongoose.o -lpthread -ldl ../../Vendor/sqlite/libsqlite.a ../../Vendor/Squirrel/libsquirrel.a ../../Vendor/tinyxml/libtinyxml.a -o $@ 
