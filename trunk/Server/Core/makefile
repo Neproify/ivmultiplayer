@@ -8,8 +8,7 @@ SOURCES+=../../Shared/Scripting/CScriptTimer.cpp ../../Shared/Scripting/CScriptT
 SOURCES+=$(wildcard ../../Shared/Network/*.cpp) ../../Shared/CLibrary.cpp ../../Shared/CString.cpp ../../Shared/Threading/CThread.cpp ../../Shared/Threading/CMutex.cpp ../../Shared/CLogFile.cpp ../../Shared/Game/CControlState.cpp
 SOURCES+=$(wildcard ../../Vendor/md5/*.cpp) ../../Shared/CSettings.cpp ../../Shared/CExceptionHandler.cpp ../../Shared/Linux.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
-
-all: $(SOURCES) $(EXECUTABLE)
+EXECUTABLE=../../Binary/ivmp-svr
 
 $(EXECUTABLE): $(OBJECTS) 
 	gcc $(CFLAGS) ../../Vendor/mongoose/mongoose.c -o mongoose.o
