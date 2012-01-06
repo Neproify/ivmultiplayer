@@ -21,7 +21,7 @@
 #include <winsock.h>
 #endif
 #include <SharedUtility.h>
-
+#include "CLogFile.h"
 // OS Independent Defines
 #define MAX_BUFFER 8192
 #define DEFAULT_PORT 80
@@ -403,7 +403,7 @@ bool CHttpClient::ParseHeaders(String& strBuffer, int& iBufferSize)
 	// Did we not get any headers?
 	if(m_headerMap.empty())
 		return false;
-
+		
 	// Success
 	return true;
 }
@@ -441,16 +441,19 @@ void CHttpClient::Process()
 				// Try to read from the socket
 				int iBytesRecieved = Read(szBuffer, sizeof(szBuffer));
 
+				int iSkipBytes = 0;
+
 				// Did we get anything?
 				if(iBytesRecieved > 0)
 				{
 					// Create a string from the received data
 					String strBuffer;
 					strBuffer.Set(szBuffer, iBytesRecieved);
-
+					
 					// Are the headers empty?
 					if(m_headerMap.empty())
 					{
+						iSkipBytes = iBytesRecieved;
 						// Parse the headers
 						if(!ParseHeaders(strBuffer, iBytesRecieved))
 						{
@@ -467,6 +470,7 @@ void CHttpClient::Process()
 							Disconnect();
 							return;
 						}
+						iSkipBytes -= iBytesRecieved;
 
 						// Do we not have any data?
 						if(iBytesRecieved == 0)
@@ -477,11 +481,11 @@ void CHttpClient::Process()
 					bool bAppendData = true;
 
 					if(m_pfnReceiveHandler)
-						bAppendData = m_pfnReceiveHandler(strBuffer.Get(), iBytesRecieved, m_pReceiveHandlerUserData);
+						bAppendData = m_pfnReceiveHandler(szBuffer + iSkipBytes, iBytesRecieved, m_pReceiveHandlerUserData);
 
 					// Append the buffer to the data if needed
 					if(bAppendData)
-						m_strData.Append(strBuffer, iBytesRecieved);
+						m_strData.Append(szBuffer + iSkipBytes, iBytesRecieved);
 				}
 				else if(iBytesRecieved == 0)
 				{

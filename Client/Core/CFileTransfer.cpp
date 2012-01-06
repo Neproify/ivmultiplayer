@@ -14,6 +14,7 @@
 #include "CClientScriptManager.h"
 #include "CChatWindow.h"
 #include "CNetworkManager.h"
+#include "CLogFile.h"
 
 extern CClientScriptManager * g_pClientScriptManager;
 extern CChatWindow          * g_pChatWindow;
@@ -35,7 +36,8 @@ bool CFileTransfer::ReceiveHandler(const char * szData, unsigned int uiDataSize,
 	CFileTransfer * pFileTransfer = (CFileTransfer *)pUserData;
 
 	// Write the data to the download file
-	fwrite(szData, 1, uiDataSize, pFileTransfer->m_fDownloadFile);
+	if(pFileTransfer->m_fDownloadFile)
+		fwrite(szData, 1, uiDataSize, pFileTransfer->m_fDownloadFile);
 
 	// Discard the data
 	return false;
@@ -170,7 +172,7 @@ void CFileTransfer::Process()
 			fileChecksum.Calculate(strFilePath.Get());
 
 			// Does the checksum differ from the server file checksum?
-			if(fileChecksum != pServerFile->fileChecksum)
+			if((!SharedUtility::Exists(strFilePath)) || (fileChecksum != pServerFile->fileChecksum))
 			{
 				// Start the download of the new file
 				if(StartDownload(pServerFile->strName, pServerFile->strType))
@@ -208,7 +210,8 @@ void CFileTransfer::Process()
 			if(m_httpClient.GotData())
 			{
 				// Close the file
-				fclose(m_fDownloadFile);
+				if(m_fDownloadFile)
+					fclose(m_fDownloadFile);
 				m_fDownloadFile = NULL;
 
 				// Get the folder name
@@ -237,19 +240,25 @@ void CFileTransfer::Process()
 
 						// Load the script
 						g_pClientScriptManager->Load(m_pDownloadFile->strName);
-
-						// Delete the download file
-						delete m_pDownloadFile;
-
-						// Remove the download file from the file list
-						m_fileList.remove(m_pDownloadFile);
-
-						// Reset the download file
-						m_pDownloadFile = NULL;
-
-						// Flag ourselves as no longer downloading
-						m_bDownloadingFile = false;
 					}
+					g_pChatWindow->AddInfoMessage("File %s sucessfully downloaded.", m_pDownloadFile->strName.C_String());
+
+					
+					// Remove the download file from the file list
+					m_fileList.remove(m_pDownloadFile);
+
+					// Delete the download file
+					delete m_pDownloadFile;
+
+					// Reset the download file
+					m_pDownloadFile = NULL;
+
+					// Flag ourselves as no longer downloading
+					m_bDownloadingFile = false;
+
+					// Reset out http client
+					m_httpClient.Reset();
+					
 				}
 				else
 				{
@@ -289,7 +298,8 @@ void CFileTransfer::Reset()
 
 	// Reset download vars
 	m_bDownloadingFile = false;
-	SAFE_DELETE(m_pDownloadFile);
+
+	m_pDownloadFile = NULL;
 
 	if(m_fDownloadFile)
 		fclose(m_fDownloadFile);
