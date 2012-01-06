@@ -22,8 +22,8 @@ CPools::CPools()
 	memset(&m_checkpoints, 0, sizeof(m_checkpoints));
 
 	// Modify checkpoint rendering to use our custom array
-	*(DWORD *)(COffsets::VAR_RenderCheckpoints_FirstCP) = (DWORD)(m_checkpoints + 0x18);
-	*(DWORD *)(COffsets::VAR_RenderCheckpoints_LastCP) = (DWORD)(m_checkpoints + 0x18 + CHECKPOINT_ARRAY_SIZE * sizeof(IVCheckpoint));
+	*(DWORD *)(COffsets::VAR_RenderCheckpoints_FirstCP) = (DWORD)m_checkpoints + 0x18;
+	*(DWORD *)(COffsets::VAR_RenderCheckpoints_LastCP) = (DWORD)m_checkpoints + 0x18 + CHECKPOINT_ARRAY_SIZE * sizeof(IVCheckpoint);
 }
 
 CPools::~CPools()
