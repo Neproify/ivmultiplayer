@@ -309,7 +309,26 @@ bool CHttpClient::Post(bool bHasResponse, String strPath, String strData, String
 
 bool CHttpClient::ParseHeaders(String& strBuffer, int& iBufferSize)
 {
-	// Ignore all initial whitespace
+	// Find the header size, testing code, but should work
+	int iHeaderSize = 0;
+	for(int i = 0; i < iBufferSize; i++)
+	{
+		if(strBuffer.GetChar(i) == '\r' && strBuffer.GetChar(i+1) == '\n' &&
+			strBuffer.GetChar(i+2) == '\r' && strBuffer.GetChar(i+3) == '\n')
+		{
+			iHeaderSize = i + 4;
+			break;
+		}
+	}
+
+	iBufferSize -= iHeaderSize;
+	strBuffer.Erase(0, iHeaderSize);
+	m_headerMap["HeaderSize"] = iHeaderSize;
+
+
+	// ADAMIX: commented out this code because doesn't work properly. Are we really need to parse headers?
+
+	/*// Ignore all initial whitespace
 	unsigned int uiWhiteSpace = 0;
 
 	for(unsigned int i = 0; i < (unsigned int)iBufferSize; i++)
@@ -403,7 +422,7 @@ bool CHttpClient::ParseHeaders(String& strBuffer, int& iBufferSize)
 	// Did we not get any headers?
 	if(m_headerMap.empty())
 		return false;
-		
+	*/
 	// Success
 	return true;
 }
@@ -454,6 +473,7 @@ void CHttpClient::Process()
 					if(m_headerMap.empty())
 					{
 						iSkipBytes = iBytesRecieved;
+
 						// Parse the headers
 						if(!ParseHeaders(strBuffer, iBytesRecieved))
 						{
@@ -470,6 +490,7 @@ void CHttpClient::Process()
 							Disconnect();
 							return;
 						}
+
 						iSkipBytes -= iBytesRecieved;
 
 						// Do we not have any data?

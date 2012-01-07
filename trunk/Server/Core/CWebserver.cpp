@@ -89,7 +89,7 @@ CWebServer::CWebServer(unsigned short usHTTPPort)
 		strcpy(options[2], "document_root");
 		strcpy(options[3], SharedUtility::GetAbsolutePath("webserver").Get());
 		strcpy(options[4], "num_threads");
-		strcpy(options[5], "5");
+		strcpy(options[5], "50");
 		options[6] = NULL;
 
 		// Start the mongoose context
