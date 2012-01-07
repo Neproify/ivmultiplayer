@@ -241,6 +241,8 @@ void CFileTransfer::Process()
 						// Load the script
 						g_pClientScriptManager->Load(m_pDownloadFile->strName);
 					}
+
+					// Notice user that file is sucessfully downloaded
 					g_pChatWindow->AddInfoMessage("File %s sucessfully downloaded.", m_pDownloadFile->strName.C_String());
 
 					
