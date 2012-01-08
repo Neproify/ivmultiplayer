@@ -85,6 +85,7 @@ CCredits             * g_pCredits = NULL;
 CNameTags            * g_pNameTags = NULL;
 CClientTaskManager   * g_pClientTaskManager = NULL;
 
+bool		   g_bGameLoaded = false;
 bool           g_bWindowedMode = false;
 bool           g_bFPSToggle = false;
 unsigned short g_usPort;
@@ -1132,6 +1133,10 @@ void InternalResetGame()
 
 	g_pNetworkManager->Connect();
 	CLogFile::Print("Sent network connection request");
+
+	// Mark the game as loaded.
+	if(!g_bGameLoaded)
+		g_bGameLoaded = true;
 
 	CLogFile::Printf("Sucessfully (re)initialized game for multiplayer activities");
 }

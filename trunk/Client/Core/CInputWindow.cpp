@@ -112,14 +112,6 @@ bool CInputWindow::HandleInput(UINT uMsg, DWORD dwChar)
 				RecallDown();
 				return true;
 			}
-		}
-		else if(uMsg == WM_CHAR)
-		{
-			if(dwChar == VK_BACK)
-			{
-				Backspace();
-				return true;
-			}
 			else if(dwChar == VK_LEFT)
 			{
 				CursorLeft();
@@ -128,6 +120,14 @@ bool CInputWindow::HandleInput(UINT uMsg, DWORD dwChar)
 			else if(dwChar == VK_RIGHT)
 			{
 				CursorRight();
+				return true;
+			}
+		}
+		else if(uMsg == WM_CHAR)
+		{
+			if(dwChar == VK_BACK)
+			{
+				Backspace();
 				return true;
 			}
 
@@ -262,6 +262,9 @@ void CInputWindow::Backspace()
 	if(sLen == 0)
 		return;
 
+	if(m_szInput[sLen - 1] == '%')
+		m_szInput[sLen - 2] = '\0';
+
 	m_szInput[sLen - 1] = '\0';
 }
 
@@ -274,7 +277,14 @@ void CInputWindow::AddChar(unsigned char ucChar)
 
 	if(sLen < (MAX_INPUT_LENGTH - 2))
 	{
-		m_szInput[sLen] = ucChar;
+		if(ucChar == '%')
+		{
+			m_szInput[sLen] = ucChar;
+			sLen = strlen(m_szInput);
+			m_szInput[sLen] = ucChar;
+		}
+		else
+			m_szInput[sLen] = ucChar;
 		m_szInput[sLen + 1] = '\0';
 	}
 }

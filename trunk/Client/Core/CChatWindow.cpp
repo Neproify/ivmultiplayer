@@ -14,6 +14,7 @@
 #include <CLogFile.h>
 #include "CGraphics.h"
 #include <CSettings.h>
+#include <string.h>
 
 extern CGUI * g_pGUI;
 extern CGraphics * g_pGraphics;
@@ -90,6 +91,43 @@ void CChatWindow::AddChatMessage(EntityId playerId, const char * szMessage)
 	// Ensure we have a valid message string
 	if(!szMessage)
 		return;
+	
+	// Check for % character and write %%
+	char * pcChar = (char*)memchr(szMessage,'%',strlen(szMessage));
+	char szMessageToSet[129];
+
+	if(pcChar != NULL)
+	{
+		char szMessageA[129];
+		int offset1 = 0;
+		int offset2 = 0;
+		strcpy(szMessageA,szMessage);
+		
+		while(true)
+		{
+			if(szMessageA[offset1] == '%')
+			{
+				szMessageToSet[offset2] = '%';
+				szMessageToSet[offset2+1] = '%';
+				offset2 += 2;
+				offset1++;
+				continue;
+			}
+			else if(szMessageA[offset1] == '\0' || offset1 == 128 || offset2 == 128)
+			{
+				szMessageToSet[offset2] = '\0';
+				break;
+			}
+			else
+			{
+				szMessageToSet[offset2] = szMessageA[offset1];
+				offset1++;
+				offset2++;
+			}
+		}
+	}
+	else
+		strcpy(szMessageToSet,szMessage);
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
@@ -99,7 +137,7 @@ void CChatWindow::AddChatMessage(EntityId playerId, const char * szMessage)
 	String strName = pPlayer->GetName();
 	unsigned int uiColor = pPlayer->GetColor();
 	MoveUp();
-	strcpy_s(m_chatMessages[0].szMessage, MAX_MESSAGE_LENGTH, szMessage);
+	strcpy_s(m_chatMessages[0].szMessage, MAX_MESSAGE_LENGTH, szMessageToSet);
 	sprintf(m_chatMessages[0].szName, "%s: ", strName.Get());
 	m_chatMessages[0].messageColor = MESSAGE_CHAT_COLOR;
 	m_chatMessages[0].nameColor = CEGUI::colour(0xFF000000 | (uiColor >> 8));

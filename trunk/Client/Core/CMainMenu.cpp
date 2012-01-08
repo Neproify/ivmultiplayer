@@ -30,6 +30,7 @@ extern String            g_strHost;
 extern String            g_strNick;
 extern String            g_strPassword;
 extern CCredits        * g_pCredits;
+extern bool				 g_bGameLoaded;
 
 CMainMenu                         * CMainMenu::m_pSingleton = NULL;
 std::map<String, unsigned long>     serverPingStartMap;
@@ -186,6 +187,18 @@ void CMainMenu::OnConnect(String strHost, unsigned short usPort, String strPassw
 		// Disable the menu
 		CGame::SetState(GAME_STATE_INGAME);
 	}
+	else if(g_pNetworkManager && !g_pNetworkManager->IsConnected() && g_bGameLoaded == true)
+	{
+		// Just connect to the server
+		SAFE_DELETE(g_pNetworkManager);
+		g_pNetworkManager = new CNetworkManager;
+
+		g_pNetworkManager->Startup(g_strHost,g_usPort,g_strPassword);
+		g_pNetworkManager->Connect();
+
+		// Disable the menu
+		CGame::SetState(GAME_STATE_INGAME);
+	}
 	else
 	{
 		// Disable the menu and load the game
@@ -336,7 +349,7 @@ void CMainMenu::OnMasterListQuery(int iType)
 	// Query the master list
 	if(m_pMasterListQuery->Query(iType))
 	{
-		String strError("Failed to contact the master list (%s).\nPlease check your internet connection.", CMainMenu::GetSingleton()->m_pMasterListQuery->GetHttpClient()->GetLastErrorString());
+		String strError("Failed to contact the master list (%s).\nPlease check your internet connection.", CMainMenu::GetSingleton()->m_pMasterListQuery->GetHttpClient()->GetLastErrorString().Get());
 		g_pGUI->ShowMessageBox(strError.Get(), "Error");
 	}
 }
@@ -597,6 +610,7 @@ CMainMenu::CMainMenu()
 	m_pLogo->setProperty("FrameEnabled", "false");
 	m_pLogo->setProperty("BackgroundEnabled", "false");
 	m_pLogo->setProperty("Image", "set:Logo image:full_image");
+	m_pLogo->setProperty("Disabled", "true");
 
 	// 0.88
 
