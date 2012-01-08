@@ -85,7 +85,7 @@ BOOL WINAPI CreateProcessW_Hook(LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
 
 			if(!bFoundCustomDirectory)
 			{
-				ShowMessageBox("Failed to retrieve GTA IV install directory from registry. Cannot launch Networked: IV.");
+				ShowMessageBox("Failed to retrieve GTA IV install directory from registry. Cannot launch IV: Multiplayer.");
 				return FALSE;
 			}
 		}
