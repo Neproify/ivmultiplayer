@@ -10,6 +10,7 @@
 #include "CVehicle.h"
 #include "CNetworkManager.h"
 #include "CPlayerManager.h"
+#include <CLogFile.h>
 
 extern CNetworkManager * g_pNetworkManager;
 extern CPlayerManager * g_pPlayerManager;
@@ -365,7 +366,7 @@ bool CVehicle::GetSirenState()
 
 bool CVehicle::SetLocked(unsigned char ucLocked)
 {
-	if(ucLocked <= 2)
+	if(ucLocked >= 0 && ucLocked < 3)
 	{
 		m_ucLocked = ucLocked;
 
@@ -374,6 +375,11 @@ bool CVehicle::SetLocked(unsigned char ucLocked)
 		bsSend.Write(m_ucLocked);
 		g_pNetworkManager->RPC(RPC_ScriptingSetVehicleLocked, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 		return true;
+	}
+	else
+	{
+		CLogFile::Printf("Unkown vehicle doorlock state %d (only supported from 0 to 2)!",ucLocked);
+		return false;
 	}
 
 	return false;

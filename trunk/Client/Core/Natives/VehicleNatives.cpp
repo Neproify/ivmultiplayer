@@ -39,7 +39,9 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleSirenState", GetSirenState, 1, "i");
 	pScriptingManager->RegisterFunction("isVehicleOccupied", IsOccupied, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleOccupants", GetOccupants, 1, "i");
-	pScriptingManager->RegisterFunction("getVehicleEngineState", GetEngineStatus, 1, "i");
+	
+	//NOTE: Must be synchronized at server- & clientside
+	//pScriptingManager->RegisterFunction("getVehicleEngineState", GetEngineStatus, 1, "i");
 }
 
 // getVehicleCoordinates(vehicleid)

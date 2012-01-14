@@ -60,6 +60,7 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	Scripting::SetCharDefaultComponentVariation(m_Actors[actorId].uiActorIndex);
 	Scripting::AddArmourToChar(m_Actors[actorId].uiActorIndex, 200);
 	Scripting::SetCharHeading(m_Actors[actorId].uiActorIndex, fHeading);
+	Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,true);
 	m_bActive[actorId] = true;
 }
 

@@ -398,7 +398,7 @@ public:
 		// Does the script not exist?
 		if(!SharedUtility::Exists(strPath.Get()))
 		{
-			CLogFile::Printf("NOT EXIST");
+			CLogFile::Printf("DoFile can't find the script(Path: '%s')!",strPath);
 			return false;
 		}
 
@@ -414,7 +414,7 @@ public:
 		// Compile and load the script
 		if(SQ_FAILED(sqstd_dofile(m_pVM, strPath.Get(), SQFalse, SQTrue)))
 		{
-			CLogFile::Printf("FAILED");
+			CLogFile::Printf("DoFile can't compile and load the script(Path: '%s')!",strPath);
 			return false;
 		}
 

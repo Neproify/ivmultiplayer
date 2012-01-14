@@ -721,7 +721,7 @@ void Direct3DRender()
 			CGame::SetDayOfWeek(g_pTime->GetDayOfWeek());
 		}
 
-		if(GetAsyncKeyState(VK_F3) & 1)
+		/*if(GetAsyncKeyState(VK_F3) & 1)
 		{
 			g_pChatWindow->AddInfoMessage("Creating explosion near your position");
 			CVector3 vecPosition;
@@ -743,7 +743,7 @@ void Direct3DRender()
 				*((BYTE *)pGameVehicle + 3953) = *((BYTE *)pGameVehicle + 3953) & 0xFE | 2;
 				g_pChatWindow->AddInfoMessage("Turned on current vehicle headlights");
 			}
-		}
+		}*/
 
 		// CViewportManager + 0x00 = sysArray (CViewport *)
 		// CViewport + 0x53C = Viewport ID
