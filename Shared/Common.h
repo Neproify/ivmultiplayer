@@ -204,7 +204,7 @@ struct InVehicleSyncData
 	CVector3 vecMoveSpeed;                 // vehicle move speed
 	float fDirtLevel;                      // vehicle dirt level
 	bool bSirenState : 1;                  // siren state
-	bool bEngineStatus : 1;
+	bool bEngineStatus : 1;				   // vehicle engine status
 	unsigned int uPlayerHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uPlayerWeaponInfo;        // player weapon and ammo
 };

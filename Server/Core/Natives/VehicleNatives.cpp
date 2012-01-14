@@ -58,8 +58,10 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("resetVehicleComponents", ResetComponents, 1, "i");
 	pScriptingManager->RegisterFunction("setVehicleVariation", SetVariation, 2, "ii");
 	pScriptingManager->RegisterFunction("getVehicleVariation", GetVariation, 1, "i");
-	pScriptingManager->RegisterFunction("setVehicleEngineState", SetEngineStatus, 2, "ib");
-	pScriptingManager->RegisterFunction("getVehicleEngineState", GetEngineStatus, 1, "i");
+
+	//NOTE: Still doesn't work, must be synchronized
+	//pScriptingManager->RegisterFunction("setVehicleEngineState", SetEngineStatus, 2, "ib");
+	//pScriptingManager->RegisterFunction("getVehicleEngineState", GetEngineStatus, 1, "i");
 }
 
 // createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4)
@@ -72,7 +74,7 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 	SQInteger color1, color2, color3 = 0, color4 = 0;
 	sq_getinteger(pVM, 2, &iModelId);
 
-	if(iModelId < 0 || iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111 || iModelId == 112 || iModelId > 123)
+	if(iModelId < 0 || iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111 || iModelId > 123)
 	{
 		#ifdef IVMP_DEBUG
 			CLogFile::Printf("Invalid vehicle model (%d)", iModelId);

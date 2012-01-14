@@ -707,10 +707,13 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	EntityId playerId;
 	unsigned short usPing;
+	bool m_bHelmet;
 	OnFootSyncData syncPacket;
 	AimSyncData aimSyncPacket;
 	pBitStream->ReadCompressed(playerId);
 	pBitStream->ReadCompressed(usPing);
+	pBitStream->ReadCompressed(m_bHelmet);
+
 	pBitStream->Read((char *)&syncPacket, sizeof(OnFootSyncData));
 
 	bool bHasAimSyncData = pBitStream->ReadBit();
@@ -726,6 +729,10 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 
 		if(pRemotePlayer)
 		{
+			// Set the Helmet
+			bool helmet = m_bHelmet;
+			pPlayer->SetHelmet(helmet);
+
 			pRemotePlayer->StoreOnFootSync(&syncPacket);
 
 			if(bHasAimSyncData)
@@ -743,11 +750,13 @@ void CClientRPCHandler::InVehicleSync(CBitStream * pBitStream, CPlayerSocket * p
 	EntityId playerId;
 	EntityId vehicleId;
 	unsigned short usPing;
+	bool m_bHelmet;
 	InVehicleSyncData syncPacket;
 	AimSyncData aimSyncPacket;
 	pBitStream->ReadCompressed(playerId);
 	pBitStream->ReadCompressed(vehicleId);
 	pBitStream->ReadCompressed(usPing);
+	pBitStream->ReadCompressed(m_bHelmet);
 	pBitStream->Read((char *)&syncPacket, sizeof(InVehicleSyncData));
 
 	bool bHasAimSyncData = pBitStream->ReadBit();
@@ -763,6 +772,9 @@ void CClientRPCHandler::InVehicleSync(CBitStream * pBitStream, CPlayerSocket * p
 
 		if(pRemotePlayer)
 		{
+			// Set the Helmet
+			bool helmet = m_bHelmet;
+			pPlayer->SetHelmet(helmet);
 			pRemotePlayer->StoreInVehicleSync(vehicleId, &syncPacket);
 
 			if(bHasAimSyncData)
@@ -780,11 +792,13 @@ void CClientRPCHandler::PassengerSync(CBitStream * pBitStream, CPlayerSocket * p
 	EntityId playerId;
 	EntityId vehicleId;
 	unsigned short usPing;
+	bool m_bHelmet;
 	PassengerSyncData syncPacket;
 	AimSyncData aimSyncPacket;
 	pBitStream->ReadCompressed(playerId);
 	pBitStream->ReadCompressed(vehicleId);
 	pBitStream->ReadCompressed(usPing);
+	pBitStream->ReadCompressed(m_bHelmet);
 	pBitStream->Read((char *)&syncPacket, sizeof(PassengerSyncData));
 	bool bHasAimSyncData = pBitStream->ReadBit();
 
@@ -799,6 +813,9 @@ void CClientRPCHandler::PassengerSync(CBitStream * pBitStream, CPlayerSocket * p
 
 		if(pRemotePlayer)
 		{
+			// Set the Helmet
+			bool helmet = m_bHelmet;
+			pPlayer->SetHelmet(helmet);
 			pRemotePlayer->StorePassengerSync(vehicleId, &syncPacket);
 
 			if(bHasAimSyncData)
@@ -1845,6 +1862,7 @@ void CClientRPCHandler::ScriptingToggleHUD(CBitStream * pBitStream, CPlayerSocke
 
 	// Set the hud visibility
 	CGame::SetHudVisible(bToggle);
+	Scripting::DisplayHUD(bToggle);
 }
 
 void CClientRPCHandler::ScriptingToggleRadar(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1859,6 +1877,7 @@ void CClientRPCHandler::ScriptingToggleRadar(CBitStream * pBitStream, CPlayerSoc
 
 	// Set the radar visibility
 	CGame::SetRadarVisible(bToggle);
+	Scripting::DisplayRadar(bToggle);
 }
 
 void CClientRPCHandler::ScriptingToggleNames(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1887,6 +1906,7 @@ void CClientRPCHandler::ScriptingToggleAreaNames(CBitStream * pBitStream, CPlaye
 
 	// Set the area names state
 	CGame::SetAreaNamesEnabled(bToggle);
+	Scripting::DisplayAreaName(bToggle);
 }
 
 void CClientRPCHandler::ScriptingEventCall(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1998,7 +2018,7 @@ void CClientRPCHandler::ScriptingGiveHelmet(CBitStream * pBitStream, CPlayerSock
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
 	if(pPlayer)
-			pPlayer->GiveHelmet();
+		pPlayer->GiveHelmet();
 }
 
 void CClientRPCHandler::ScriptingRemoveHelmet(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2015,7 +2035,7 @@ void CClientRPCHandler::ScriptingRemoveHelmet(CBitStream * pBitStream, CPlayerSo
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
 	if(pPlayer)
-			pPlayer->RemoveHelmet();
+		pPlayer->RemoveHelmet();
 }
 
 void CClientRPCHandler::ScriptingSetTrafficLightState(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

@@ -260,6 +260,7 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	CBitStream bsSend;
 	bsSend.WriteCompressed(m_playerId);
 	bsSend.WriteCompressed(GetPing());
+	bsSend.WriteCompressed(m_bHelmet);
 	bsSend.Write((char *)syncPacket, sizeof(OnFootSyncData));
 
 	// Do we have aim sync data?
@@ -326,6 +327,7 @@ void CPlayer::StoreInVehicleSync(CVehicle * pVehicle, InVehicleSyncData * syncPa
 	bsSend.WriteCompressed(m_playerId);
 	bsSend.WriteCompressed(pVehicle->GetVehicleId());
 	bsSend.WriteCompressed(GetPing());
+	bsSend.WriteCompressed(m_bHelmet);
 	bsSend.Write((char *)syncPacket, sizeof(InVehicleSyncData));
 
 	// Do we have aim sync data?
@@ -394,6 +396,7 @@ void CPlayer::StorePassengerSync(CVehicle * pVehicle, PassengerSyncData * syncPa
 	bsSend.WriteCompressed(m_playerId);
 	bsSend.WriteCompressed(pVehicle->GetVehicleId());
 	bsSend.WriteCompressed(GetPing());
+	bsSend.WriteCompressed(m_bHelmet);
 	bsSend.Write((char *)syncPacket, sizeof(PassengerSyncData));
 
 	// Do we have aim sync data?
@@ -464,7 +467,7 @@ bool CPlayer::SetName(String strName)
 
 	if(strName == m_strName || g_pPlayerManager->IsNameInUse(strName))
 		return false;
-
+	
 	m_strName = strName;
 	CBitStream bsSend;
 	bsSend.Write(m_playerId);
@@ -739,13 +742,10 @@ void CPlayer::GiveHelmet()
 {
 	if(IsSpawned())
 	{
-		if(!m_bHelmet)
-		{
-			CBitStream bsSend;
-			bsSend.Write(m_playerId);
-			g_pNetworkManager->RPC(RPC_ScriptingGiveHelmet, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
-			m_bHelmet = true;
-		}
+		CBitStream bsSend;
+		bsSend.Write(m_playerId);
+		g_pNetworkManager->RPC(RPC_ScriptingGiveHelmet, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		m_bHelmet = true;
 	}
 }
 
@@ -753,13 +753,10 @@ void CPlayer::RemoveHelmet()
 {
 	if(IsSpawned())
 	{
-		if(m_bHelmet)
-		{
-			CBitStream bsSend;
-			bsSend.Write(m_playerId);
-			g_pNetworkManager->RPC(RPC_ScriptingRemoveHelmet, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
-			m_bHelmet = false;
-		}
+		CBitStream bsSend;
+		bsSend.Write(m_playerId);
+		g_pNetworkManager->RPC(RPC_ScriptingRemoveHelmet, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		m_bHelmet = false;
 	}
 }
 

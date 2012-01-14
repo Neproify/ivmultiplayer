@@ -20,6 +20,7 @@ private:
 	eStateType m_stateType;
 	bool m_bPassenger;
 	BYTE m_byteSeatId;
+	bool m_helmet;
 
 public:
 	CRemotePlayer();
@@ -38,5 +39,6 @@ public:
 
 	void         SetColor(unsigned int color);
 	void         SetStateType(eStateType stateType) { m_stateType = stateType; };
+	void		 SetHelmetState(bool on) { m_helmet = on; };
 	eStateType   GetStateType() { return m_stateType; };
 };

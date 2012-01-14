@@ -102,6 +102,7 @@ static SQInteger _sqstd_aux_printerror(HSQUIRRELVM v)
 		const SQChar *sErr = 0;
 		if(sq_gettop(v)>=1) {
 			if(SQ_SUCCEEDED(sq_getstring(v,2,&sErr)))	{
+				//TODO: Print the line and column http://bugs.iv-multiplayer.com/view.php?id=581
 				pf(v,_SC("\nAN ERROR HAS OCCURED [%s]\n"),sErr);
 			}
 			else{

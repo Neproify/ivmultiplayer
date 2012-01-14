@@ -125,6 +125,7 @@ public:
 	void                     GetTurnSpeed(CVector3& vecTurnSpeed);
 	void					 GiveHelmet();
 	void					 RemoveHelmet();
+	void					 SetHelmet(bool helmet);
 	void                     SetHealth(unsigned int uiHealth);
 	void                     LockHealth(unsigned int uiHealth);
 	unsigned int             GetHealth();

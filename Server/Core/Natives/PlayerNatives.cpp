@@ -16,11 +16,13 @@
 #include "../CPlayerManager.h"
 #include "../CNetworkManager.h"
 #include <Game/CTime.h>
+#include "CEvents.h"
 
 extern CPlayerManager * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
 extern CNetworkManager * g_pNetworkManager;
 extern CTime * g_pTime;
+extern CEvents * g_pEvents;
 
 // Player functions
 
@@ -150,6 +152,19 @@ SQInteger CPlayerNatives::SetName(SQVM * pVM)
 
 	if(pPlayer)
 	{
+		String Checkstring = szName;
+		CSquirrelArguments nameCheckArguments;
+		nameCheckArguments.push(playerId);
+		nameCheckArguments.push(Checkstring);
+
+		if(g_pEvents->Call("playerNameCheck", &nameCheckArguments).GetInteger() != 1)
+		{
+			CLogFile::Printf("Can't change the name from player %d (Invalid Characters)",playerId);
+
+			sq_pushbool(pVM, false);
+			return 0;
+		} 
+
 		sq_pushbool(pVM, pPlayer->SetName(szName));
 		return 1;
 	}
@@ -1862,7 +1877,7 @@ SQInteger CPlayerNatives::Respawn(SQVM * pVM)
 SQInteger CPlayerNatives::GiveHelmet(SQVM * pVM)
 {
 	EntityId playerId;
-	sq_getentity(pVM, 2, &playerId);
+	sq_getentity(pVM, -1, &playerId);
 
 	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
@@ -1880,7 +1895,7 @@ SQInteger CPlayerNatives::GiveHelmet(SQVM * pVM)
 SQInteger CPlayerNatives::RemoveHelmet(SQVM * pVM)
 {
 	EntityId playerId;
-	sq_getentity(pVM, 2, &playerId);
+	sq_getentity(pVM, -1, &playerId);
 
 	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 

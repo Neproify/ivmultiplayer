@@ -1194,7 +1194,6 @@ void CNetworkPlayer::GiveHelmet()
 	if(IsSpawned())
 	{
 		Scripting::GivePedHelmet(GetScriptingHandle());
-
 		m_bHelmet = true;
 	}
 }
@@ -1203,8 +1202,7 @@ void CNetworkPlayer::RemoveHelmet()
 {
 	if(IsSpawned())
 	{
-		Scripting::RemovePedHelmet(GetScriptingHandle(), true);
-
+		Scripting::RemovePedHelmet(GetScriptingHandle(),true);
 		m_bHelmet = false;
 	}
 }
@@ -2205,4 +2203,14 @@ bool CNetworkPlayer::IsOnScreen()
 		return /*Scripting::IsCharOnScreen(GetScriptingHandle())*/true;
 
 	return false;
+}
+
+void CNetworkPlayer::SetHelmet(bool helmet)
+{
+	if(helmet)
+		Scripting::GivePedHelmet(GetScriptingHandle());
+	if(!helmet)
+		Scripting::RemovePedHelmet(GetScriptingHandle(),true);
+
+	m_bHelmet = helmet;
 }
