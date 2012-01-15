@@ -204,7 +204,8 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 					if(CGame::GetState() == GAME_STATE_IVMP_PAUSE_MENU)
 					{
 						CGame::SetState(GAME_STATE_INGAME);
-						CGame::SetInputState(true);
+						bool state = g_pLocalPlayer->GetControl();
+						CGame::SetInputState(state);
 						return 1;
 					}
 				}

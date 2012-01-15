@@ -77,7 +77,11 @@ SQInteger CPlayerNatives::IsConnected(SQVM * pVM)
 // getLocalPlayer()
 SQInteger CPlayerNatives::GetLocal(SQVM * pVM)
 {
-	sq_pushentity(pVM, g_pLocalPlayer->GetPlayerId());
+	if(g_pLocalPlayer->IsNetworkPlayer())
+		sq_pushentity(pVM, g_pLocalPlayer->GetPlayerId());
+	else
+		sq_pushinteger(pVM,-1);
+	
 	return 1;
 }
 

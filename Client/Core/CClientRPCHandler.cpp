@@ -139,8 +139,8 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	g_pTime->SetTime(ucHour, ucMinute);
 	g_pNetworkManager->SetJoinedServer(true);
 
-	g_pChatWindow->AddInfoMessage("Successfully joined %s.", sHostName.C_String());
 	CGame::SetInputState(true);
+	g_pChatWindow->AddInfoMessage("Successfully joined %s.", sHostName.C_String());
 }
 
 void CClientRPCHandler::NewPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1264,8 +1264,12 @@ void CClientRPCHandler::ScriptingToggleControls(CBitStream * pBitStream, CPlayer
 
 	bool bToggle;
 	pBitStream->Read(bToggle);
+
+	g_pLocalPlayer->SetControl(bToggle);
+
 	CGame::SetInputState(bToggle);
 	m_bControlsDisabled = !bToggle;
+
 }
 
 void CClientRPCHandler::ScriptingSetHeading(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

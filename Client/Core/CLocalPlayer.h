@@ -21,6 +21,7 @@ private:
 	bool          m_bIsDead;
 	CVector3      m_vecSpawnPosition;
 	float         m_fSpawnAngle;
+	bool		  m_bToggleControl;
 	unsigned long m_ulLastPureSyncTime;
 	unsigned int  m_uiLastInterior;
 	CControlState     m_lastControlStateSent;
@@ -44,4 +45,6 @@ public:
 	unsigned short GetPing();
 	void           GetSpawnPosition(CVector3 * vecPosition) { memcpy(vecPosition, &m_vecSpawnPosition, sizeof(CVector3)); }
 	float          GetSpawnRotation() { return m_fSpawnAngle; }
+	void		   SetControl(bool control);
+	bool		   GetControl();
 };
