@@ -34,7 +34,7 @@ CIVTaskComplexNewGetInVehicle::CIVTaskComplexNewGetInVehicle(CIVVehicle * pVehic
 	}
 }
 
-CIVTaskComplexNewExitVehicle::CIVTaskComplexNewExitVehicle(CIVVehicle * pVehicle, int a3, int a4, int a5) : CIVTask()
+CIVTaskComplexNewExitVehicle::CIVTaskComplexNewExitVehicle(CIVVehicle * pVehicle, int iExitMode, int a4, int a5) : CIVTask()
 {
 	// Create the task
 	Create();
@@ -46,7 +46,7 @@ CIVTaskComplexNewExitVehicle::CIVTaskComplexNewExitVehicle(CIVVehicle * pVehicle
 	{
 		push a5
 		push a4
-		push a3
+		push iExitMode
 		push pGameVehicle
 		mov ecx, pTask
 		call COffsets::FUNC_CTaskComplexNewExitVehicle__Constructor

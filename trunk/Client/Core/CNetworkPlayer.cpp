@@ -20,6 +20,7 @@
 #include "CPools.h"
 #include "IVTasks.h"
 #include "CCamera.h"
+#include "CModelManager.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CVehicleManager * g_pVehicleManager;
@@ -27,6 +28,7 @@ extern CPlayerManager  * g_pPlayerManager;
 extern CLocalPlayer    * g_pLocalPlayer;
 extern CCamera         * g_pCamera;
 extern CStreamer       * g_pStreamer;
+extern CModelManager   * g_pModelManager;
 extern bool              m_bControlsDisabled;
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
@@ -1742,8 +1744,38 @@ void CNetworkPlayer::ExitVehicle()
 		// Are we in a vehicle?
 		if(m_pVehicle)
 		{
-			// Create the exit vehicle task
-			CIVTaskComplexNewExitVehicle * pTask = new CIVTaskComplexNewExitVehicle(m_pVehicle->GetGameVehicle(), 0xF, 0, 0);
+			/* iExitMode values - 0xF - Get out animation (used when exiting a non-moving vehicle)
+			                    - 0x9C4 - Get out animation (used when smb jacks your vehicle).
+			                    - 0x40B - Dive out animation (used in trucks).
+			                    - 0x100E - Dive out animation (used in the other vehicles). */
+
+			// Simulate the way GTA IV handles vehicle exits.
+			CVector3 vecMoveSpeed;
+			int modelId;
+			int iExitMode = 0xF; 
+
+			m_pVehicle->GetMoveSpeed(vecMoveSpeed);
+			modelId = g_pModelManager->ModelHashToVehicleId(m_pVehicle->GetModelInfo()->GetHash());
+
+			if(vecMoveSpeed.fX < -10 || vecMoveSpeed.fX > 10 || vecMoveSpeed.fY < -10 || vecMoveSpeed.fY > 10)
+			{
+				switch(modelId)
+				{
+					case 2: case 4: case 5: case 7: case 8: case 10: case 11: case 31: case 32: case 49: case 50: case 51:
+					case 52: case 53: case 55: case 56: case 60: case 66: case 73: case 85: case 86: case 94: case 104:
+						iExitMode = 0x40B;
+					break;
+
+					default:
+					{
+						if(modelId != 12 && modelId < 166)
+							iExitMode = 0x100E;
+					}
+				}
+			}
+
+			// Create the vehicle exit task.
+			CIVTaskComplexNewExitVehicle * pTask = new CIVTaskComplexNewExitVehicle(m_pVehicle->GetGameVehicle(), iExitMode, 0, 0);
 
 			// Did the task create successfully?
 			if(pTask)
