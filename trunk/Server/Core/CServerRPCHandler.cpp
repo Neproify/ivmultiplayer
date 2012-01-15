@@ -225,21 +225,23 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 				bsSend.Write0();
 		}
 
+		CLogFile::Printf("[Connect] Player '%s' [ID: %d, Serial: %s] connected.", strName.Get(), playerId, pSenderSocket->GetSerial().Get());
+
+		// Send the joined game RPC
+		g_pNetworkManager->RPC(RPC_JoinedGame, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
 		// Inform the resource file manager of the client join
 		g_pClientResourceFileManager->HandleClientJoin(playerId);
 
 		// Inform the script file manager of the client join
 		g_pClientScriptFileManager->HandleClientJoin(playerId);
 
-		// Send the joined game RPC
-		g_pNetworkManager->RPC(RPC_JoinedGame, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-
 		// Call the playerConnect scripting function
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
 		g_pEvents->Call("playerConnect", &pArguments);
 
-		CLogFile::Printf("[Connect] Player '%s' [ID: %d, Serial: %s] connected.", strName.Get(), playerId, pSenderSocket->GetSerial().Get());
+		CLogFile::Printf("[Connect] Player '%s' successfully connected", strName.Get());
 	}
 }
 

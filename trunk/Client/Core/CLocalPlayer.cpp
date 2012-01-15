@@ -78,6 +78,7 @@ void __declspec(naked) HandleLocalPlayerSpawn()
 CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true)
 {
 	m_bIsDead = false;
+	m_bToggleControl = true;
 	memset(&m_vecSpawnPosition, 0, sizeof(CVector3));
 	m_fSpawnAngle = 0;
 	m_ulLastPureSyncTime = 0;
@@ -512,4 +513,14 @@ bool CLocalPlayer::IsSmallSyncNeeded()
 unsigned short CLocalPlayer::GetPing()
 {
 	return (unsigned short)g_pNetworkManager->GetNetClient()->GetLastPing();
+}
+
+void CLocalPlayer::SetControl(bool control)
+{
+	m_bToggleControl = control;
+}
+
+bool CLocalPlayer::GetControl()
+{
+	return m_bToggleControl;
 }
