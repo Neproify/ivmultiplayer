@@ -16,6 +16,12 @@
 
 class CNetworkVehicle;
 
+enum eExitVehicleMode
+{
+	EXIT_VEHICLE_NORMAL,
+	EXIT_VEHICLE_JACKED
+};
+
 class CNetworkPlayer
 {
 private:
@@ -178,7 +184,7 @@ public:
 	//
 	bool                     GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehicle, BYTE &byteSeatId);
 	void                     EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId);
-	void                     ExitVehicle();
+	void                     ExitVehicle(eExitVehicleMode exitmode);
 	void                     PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId);
 	void                     RemoveFromVehicle();
 	void                     CheckVehicleEntryExitKey();
