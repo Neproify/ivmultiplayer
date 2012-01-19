@@ -19,8 +19,8 @@ CVehicle::CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, 
 {
 	m_vehicleId = vehicleId;
 	m_iModelId = iModelId;
-	memcpy(&m_vecSpawnPosition, &vecSpawnPosition, sizeof(CVector3));
-	memcpy(&m_vecSpawnRotation, &vecSpawnRotation, sizeof(CVector3));
+	m_vecSpawnPosition = vecSpawnPosition;
+	m_vecSpawnRotation = vecSpawnRotation;
 	m_byteSpawnColors[0] = byteColor1;
 	m_byteSpawnColors[1] = byteColor2;
 	m_byteSpawnColors[2] = byteColor3;
@@ -39,8 +39,8 @@ void CVehicle::Reset()
 	m_pDriver = NULL;
 	memset(m_pPassengers, 0, sizeof(m_pPassengers));
 	m_uiHealth = 1000;
-	memcpy(&m_vecPosition, &m_vecSpawnPosition, sizeof(CVector3));
-	memcpy(&m_vecRotation, &m_vecSpawnRotation, sizeof(CVector3));
+	m_vecPosition = m_vecSpawnPosition;
+	m_vecRotation = m_vecSpawnRotation;
 	memset(&m_vecTurnSpeed, 0, sizeof(CVector3));
 	memset(&m_vecMoveSpeed, 0, sizeof(CVector3));
 	memcpy(m_byteColors, m_byteSpawnColors, sizeof(m_byteColors));
@@ -244,7 +244,7 @@ unsigned int CVehicle::GetHealth()
 
 void CVehicle::SetPosition(CVector3 vecPosition)
 {
-	memcpy(&m_vecPosition, &vecPosition, sizeof(CVector3));
+	m_vecPosition = vecPosition;
 
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
@@ -254,12 +254,12 @@ void CVehicle::SetPosition(CVector3 vecPosition)
 
 void CVehicle::GetPosition(CVector3 * vecPosition)
 {
-	memcpy(vecPosition, &m_vecPosition, sizeof(CVector3));
+	vecPosition = &m_vecPosition;
 }
 
 void CVehicle::SetRotation(CVector3 vecRotation)
 {
-	memcpy(&m_vecRotation, &vecRotation, sizeof(CVector3));
+	m_vecRotation = vecRotation;
 
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
@@ -269,7 +269,7 @@ void CVehicle::SetRotation(CVector3 vecRotation)
 
 void CVehicle::GetRotation(CVector3 * vecRotation)
 {
-	memcpy(vecRotation, &m_vecRotation, sizeof(CVector3));
+	vecRotation = &m_vecRotation;
 }
 
 void CVehicle::SetDirtLevel(float fDirtLevel)
@@ -289,7 +289,7 @@ float CVehicle::GetDirtLevel()
 
 void CVehicle::SetTurnSpeed(CVector3 vecTurnSpeed)
 {
-	memcpy(&m_vecTurnSpeed, &vecTurnSpeed, sizeof(CVector3));
+	m_vecTurnSpeed = vecTurnSpeed;
 
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
@@ -299,12 +299,12 @@ void CVehicle::SetTurnSpeed(CVector3 vecTurnSpeed)
 
 void CVehicle::GetTurnSpeed(CVector3 * vecTurnSpeed)
 {
-	memcpy(vecTurnSpeed, &m_vecTurnSpeed, sizeof(CVector3));
+	vecTurnSpeed = &m_vecTurnSpeed;
 }
 
 void CVehicle::SetMoveSpeed(CVector3 vecMoveSpeed)
 {
-	memcpy(&m_vecMoveSpeed, &vecMoveSpeed, sizeof(CVector3));
+	m_vecMoveSpeed = vecMoveSpeed;
 
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
@@ -314,7 +314,7 @@ void CVehicle::SetMoveSpeed(CVector3 vecMoveSpeed)
 
 void CVehicle::GetMoveSpeed(CVector3 * vecMoveSpeed)
 {
-	memcpy(vecMoveSpeed, &m_vecMoveSpeed, sizeof(CVector3));
+	vecMoveSpeed = &m_vecMoveSpeed;
 }
 
 void CVehicle::SetColors(BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4)

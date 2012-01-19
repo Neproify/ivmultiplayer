@@ -1736,7 +1736,7 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 	}
 }
 
-void CNetworkPlayer::ExitVehicle()
+void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -1757,22 +1757,29 @@ void CNetworkPlayer::ExitVehicle()
 			m_pVehicle->GetMoveSpeed(vecMoveSpeed);
 			modelId = g_pModelManager->ModelHashToVehicleId(m_pVehicle->GetModelInfo()->GetHash());
 
-			if(vecMoveSpeed.fX < -10 || vecMoveSpeed.fX > 10 || vecMoveSpeed.fY < -10 || vecMoveSpeed.fY > 10)
+			if(exitmode == EXIT_VEHICLE_NORMAL)
 			{
-				switch(modelId)
+				if(vecMoveSpeed.fX < -10 || vecMoveSpeed.fX > 10 || vecMoveSpeed.fY < -10 || vecMoveSpeed.fY > 10)
 				{
-					case 2: case 4: case 5: case 7: case 8: case 10: case 11: case 31: case 32: case 49: case 50: case 51:
-					case 52: case 53: case 55: case 56: case 60: case 66: case 73: case 85: case 86: case 94: case 104:
-						iExitMode = 0x40B;
-					break;
-
-					default:
+					switch(modelId)
 					{
-						if(modelId != 12 && modelId < 166)
-							iExitMode = 0x100E;
+						case 2: case 4: case 5: case 7: case 8: case 10: case 11:
+						case 31: case 32: case 49: case 50: case 51: case 52:
+						case 53: case 55: case 56: case 60: case 66: case 73:
+						 case 85: case 86: case 94: case 104:
+							iExitMode = 0x40B;
+						break;
+
+						default:
+						{
+							if(modelId != 12 && modelId < 166)
+								iExitMode = 0x100E;
+						}
 					}
 				}
 			}
+			else
+				iExitMode = 0x9C4;
 
 			// Create the vehicle exit task.
 			CIVTaskComplexNewExitVehicle * pTask = new CIVTaskComplexNewExitVehicle(m_pVehicle->GetGameVehicle(), iExitMode, 0, 0);
@@ -1935,7 +1942,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 					else
 					{
 						// Exit the vehicle
-						ExitVehicle();
+						ExitVehicle(EXIT_VEHICLE_NORMAL);
 					}
 				}
 				else

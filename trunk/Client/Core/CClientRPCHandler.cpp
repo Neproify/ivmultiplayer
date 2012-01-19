@@ -1015,7 +1015,7 @@ void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 			CLogFile::Printf("VehicleExit(%d, %d)", playerId, vehicleId);
 
 			// Exit the vehicle
-			pPlayer->ExitVehicle();
+			pPlayer->ExitVehicle(EXIT_VEHICLE_NORMAL);
 		}
 	}
 }
@@ -1660,7 +1660,7 @@ void CClientRPCHandler::ScriptingRemovePlayerFromVehicle(CBitStream * pBitStream
 	bool bGraceful = pBitStream->ReadBit();
 
 	if(bGraceful)
-		g_pLocalPlayer->ExitVehicle();
+		g_pLocalPlayer->ExitVehicle(EXIT_VEHICLE_NORMAL);
 	else
 		g_pLocalPlayer->RemoveFromVehicle();
 }

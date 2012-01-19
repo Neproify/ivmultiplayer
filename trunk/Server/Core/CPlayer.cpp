@@ -227,13 +227,13 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	SetControlState(&syncPacket->controlState);
 
 	// Set the position
-	memcpy(&m_vecPosition, &syncPacket->vecPos, sizeof(CVector3));
+	m_vecPosition = syncPacket->vecPos;
 
 	// Set the heading
 	m_fHeading = syncPacket->fHeading;
 
 	// Set the move speed
-	memcpy(&m_vecMoveSpeed, &syncPacket->vecMoveSpeed, sizeof(CVector3));
+	m_vecMoveSpeed = syncPacket->vecMoveSpeed;
 
 	// Set the duck state
 	m_bDuckState = syncPacket->bDuckState;
@@ -295,14 +295,14 @@ void CPlayer::StoreInVehicleSync(CVehicle * pVehicle, InVehicleSyncData * syncPa
 	SetControlState(&syncPacket->controlState);
 
 	// Set the position to the vehicle position
-	memcpy(&m_vecPosition, &syncPacket->vecPos, sizeof(CVector3));
+	m_vecPosition = syncPacket->vecPos;
 
 	// Set the rotation to the vehicle rotation
 	// TODO: Player has full rotation vector too
 	m_fHeading = syncPacket->vecRotation.fZ;
 
 	// Set the move speed to the vehicle move speed
-	memcpy(&m_vecMoveSpeed, &syncPacket->vecMoveSpeed, sizeof(CVector3));
+	m_vecMoveSpeed = syncPacket->vecMoveSpeed;
 
 	// Set the health and armour
 	m_uHealth = (syncPacket->uPlayerHealthArmour >> 16);
@@ -520,7 +520,7 @@ int CPlayer::GetModel()
 
 void CPlayer::SetCameraPos(CVector3 vecPosition)
 {
-	memcpy(&m_vecPosition, &vecPosition, sizeof(CVector3));
+	m_vecPosition = vecPosition;
 	CBitStream bsSend;
 	bsSend.Write(vecPosition);
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraPos, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
@@ -528,7 +528,7 @@ void CPlayer::SetCameraPos(CVector3 vecPosition)
 
 void CPlayer::SetCameraLookAt(CVector3 vecPosition)
 {
-	memcpy(&m_vecPosition, &vecPosition, sizeof(CVector3));
+	m_vecPosition = vecPosition;
 	CBitStream bsSend;
 	bsSend.Write(vecPosition);
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraLookAt, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
@@ -536,7 +536,7 @@ void CPlayer::SetCameraLookAt(CVector3 vecPosition)
 
 void CPlayer::SetPosition(CVector3 vecPosition)
 {
-	memcpy(&m_vecPosition, &vecPosition, sizeof(CVector3));
+	m_vecPosition = vecPosition;
 	CBitStream bsSend;
 	bsSend.Write(vecPosition);
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCoordinates, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
@@ -544,7 +544,7 @@ void CPlayer::SetPosition(CVector3 vecPosition)
 
 void CPlayer::GetPosition(CVector3 * vecPosition)
 {
-	memcpy(vecPosition, &m_vecPosition, sizeof(CVector3));
+	vecPosition = &m_vecPosition;
 }
 
 void CPlayer::SetCurrentHeading(float fHeading)
@@ -562,7 +562,7 @@ float CPlayer::GetCurrentHeading()
 
 void CPlayer::SetMoveSpeed(CVector3 vecMoveSpeed)
 {
-	memcpy(&m_vecMoveSpeed, &vecMoveSpeed, sizeof(CVector3));
+	m_vecMoveSpeed = vecMoveSpeed;
 	CBitStream bsSend;
 	bsSend.Write(vecMoveSpeed);
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerMoveSpeed, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
@@ -570,7 +570,7 @@ void CPlayer::SetMoveSpeed(CVector3 vecMoveSpeed)
 
 void CPlayer::GetMoveSpeed(CVector3 * vecMoveSpeed)
 {
-	memcpy(vecMoveSpeed, &m_vecMoveSpeed, sizeof(CVector3));
+	vecMoveSpeed = &m_vecMoveSpeed;
 }
 
 void CPlayer::SetDucking(bool bDuckState)
@@ -614,11 +614,11 @@ void CPlayer::SetSpawnLocation(CVector3 vecPosition, float fHeading)
 {
 	if(!m_bSpawned)
 	{
-		memcpy(&m_vecPosition, &vecPosition, sizeof(CVector3));
+		m_vecPosition = vecPosition;
 		m_fHeading = fHeading;
 	}
 
-	memcpy(&m_vecSpawnPosition, &vecPosition, sizeof(CVector3));
+	m_vecSpawnPosition = vecPosition;
 	m_fSpawnHeading = fHeading;
 
 	CBitStream bsSend;
@@ -629,7 +629,7 @@ void CPlayer::SetSpawnLocation(CVector3 vecPosition, float fHeading)
 
 void CPlayer::GetSpawnLocation(CVector3 * vecPosition, float * fHeading)
 {
-	memcpy(vecPosition, &m_vecSpawnPosition, sizeof(CVector3));
+	vecPosition = &m_vecSpawnPosition;
 	*fHeading = m_fSpawnHeading;
 }
 
@@ -702,8 +702,8 @@ void CPlayer::SetControlState(CControlState * controlState)
 {
 	if(m_currentControlState != *controlState)
 	{
-		memcpy(&m_previousControlState, &m_currentControlState, sizeof(CControlState));
-		memcpy(&m_currentControlState, controlState, sizeof(CControlState));
+		m_previousControlState = m_currentControlState;
+		m_currentControlState = *controlState;
 
 		if(CVAR_GET_BOOL("frequentevents"))
 		{
@@ -717,12 +717,12 @@ void CPlayer::SetControlState(CControlState * controlState)
 
 void CPlayer::GetPreviousControlState(CControlState * controlState)
 {
-	memcpy(controlState, &m_previousControlState, sizeof(CControlState));
+	controlState = &m_previousControlState;
 }
 
 void CPlayer::GetControlState(CControlState * controlState)
 {
-	memcpy(controlState, &m_currentControlState, sizeof(CControlState));
+	controlState = &m_currentControlState;
 }
 
 void CPlayer::SetColor(unsigned int color)
