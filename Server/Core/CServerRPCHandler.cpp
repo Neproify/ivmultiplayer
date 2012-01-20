@@ -225,7 +225,7 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 				bsSend.Write0();
 		}
 
-		CLogFile::Printf("[Connect] Player '%s' [ID: %d, Serial: %s] connected.", strName.Get(), playerId, pSenderSocket->GetSerial().Get());
+		CLogFile::Printf("[Connect] Player '%s'[IP: %s] connecting to the server", strName.Get(), pSenderSocket->GetAddress(true).Get());
 
 		// Send the joined game RPC
 		g_pNetworkManager->RPC(RPC_JoinedGame, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
@@ -241,7 +241,7 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 		pArguments.push(playerId);
 		g_pEvents->Call("playerConnect", &pArguments);
 
-		CLogFile::Printf("[Connect] Player '%s' successfully connected", strName.Get());
+		CLogFile::Printf("[Connect] Player '%s'[ID: %d, Serial: %s] successfully connected", strName.Get(),playerId, pSenderSocket->GetSerial().Get());
 	}
 }
 

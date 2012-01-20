@@ -50,6 +50,9 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 		pModelInfo->AddReference(true);
 	}
 
+	// Set the spawn location
+	memcpy(&m_Actors[actorId].vecPosition,&vecPosition,sizeof(vecPosition));
+
 	// Set the model info
 	m_Actors[actorId].pModelInfo = pModelInfo;
 
@@ -60,8 +63,22 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	Scripting::SetCharDefaultComponentVariation(m_Actors[actorId].uiActorIndex);
 	Scripting::AddArmourToChar(m_Actors[actorId].uiActorIndex, 200);
 	Scripting::SetCharHeading(m_Actors[actorId].uiActorIndex, fHeading);
-	Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,true);
 	m_bActive[actorId] = true;
+
+	// Check position for freeze char
+	bool m_bSpawned = false;
+	CVector3 spawnControl;
+
+	while(!m_bSpawned)
+	{
+		Scripting::GetCharCoordinates(m_Actors[actorId].uiActorIndex,&spawnControl.fX,&spawnControl.fY,&spawnControl.fZ);
+		if((m_Actors[actorId].vecPosition.fZ - spawnControl.fZ) < 0.1f)
+		{
+			Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,true);
+			m_bSpawned = true;
+		}
+	}
+
 }
 
 bool CActorManager::Delete(EntityId actorId)
