@@ -160,7 +160,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		// is driving it eject the local player
 		if(m_stateType != STATE_TYPE_INVEHICLE && pVehicle->GetDriver() == g_pLocalPlayer)
 		{
-			g_pLocalPlayer->ExitVehicle(EXIT_VEHICLE_JACKED);
+			g_pLocalPlayer->RemoveFromVehicle();
 			g_pChatWindow->AddInfoMessage("Car Jacked");
 		}
 

@@ -10,7 +10,7 @@
 #pragma once
 
 // From Multi Theft Auto
-// Priority Task Types
+// Priority task types
 enum eTaskPriority
 {
 	TASK_PRIORITY_PHYSICAL_RESPONSE,
@@ -22,7 +22,7 @@ enum eTaskPriority
 };
 
 // From Multi Theft Auto
-// Secondary Task Types
+// Secondary task types
 enum eTaskSecondary
 {
 	TASK_SECONDARY_ATTACK,              // want duck to be after attack
@@ -34,6 +34,15 @@ enum eTaskSecondary
 	TASK_SECONDARY_MAX
 };
 
+// Movement task types
+enum eTaskMovement
+{
+	TASK_MOVEMENT_UNKNOWN0, // seems to never be used
+	TASK_MOVEMENT_UNKNOWN1,
+	TASK_MOVEMENT_UNKNOWN2,
+	TASK_MOVEMENT_MAX
+};
+
 class IVTask;
 class CIVTask;
 class CIVPed;
@@ -43,7 +52,7 @@ class IVPedTaskManager
 public:
 	IVTask * m_primaryTasks[TASK_PRIORITY_MAX];    // 00-14
 	IVTask * m_secondaryTasks[TASK_SECONDARY_MAX]; // 14-2C
-	IVTask * m_unknownTasks[3];                    // 2C-38 (Seems like movement specific tasks)
+	IVTask * m_movementTasks[TASK_MOVEMENT_MAX];   // 2C-38
 	// TODO: Find size
 };
 
@@ -62,17 +71,19 @@ public:
 	CIVPed           * GetPed() { return m_pPed; }
 
 	// Primary tasks
-	void               SetTask(CIVTask * pTask, int iTaskPriority, bool bForceNewTask = false);
-	void               RemoveTask(int iTaskPriority);
-	CIVTask          * GetTask(int iTaskPriority);
+	void               SetTask(CIVTask * pTask, int iType, bool bForceNewTask = false);
+	void               RemoveTask(int iType);
+	CIVTask          * GetTask(int iType);
 
 	// Secondary tasks
 	void               SetTaskSecondary(CIVTask * pTask, int iType);
 	void               RemoveTaskSecondary(int iType);
 	CIVTask          * GetTaskSecondary(int iType);
 
-	// Unknown tasks
-	// TODO
+	// Movement tasks
+	void               SetTaskMovement(CIVTask * pTask, int iType);
+	void               RemoveTaskMovment(int iType);
+	CIVTask          * GetTaskMovement(int iType);
 
 	void               ClearTasks(int iAbortPriority);
 };

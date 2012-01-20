@@ -204,8 +204,9 @@ public:
 	static unsigned int FUNC_CPed__DisableRagdoll;
 
 	// Tasks
-	static unsigned int FUNC_CPedTaskManager__SetTask;
+	static unsigned int FUNC_CPedTaskManager__SetTaskPriority;
 	static unsigned int FUNC_CPedTaskManager__SetTaskSecondary;
+	static unsigned int FUNC_CPedTaskManager__SetTaskMovement;
 	static unsigned int VAR_CTask__VFTable;
 	static unsigned int RETURN_CTask__Destructor;
 	static unsigned int FUNC_CTaskComplexNewGetInVehicle__Constructor;

@@ -46,6 +46,7 @@ enum ePedType
 class IVPlayerInfo;
 class IVVehicle;
 
+// TODO: CIVPedIntelligence
 class IVPedIntelligence
 {
 public:
@@ -88,6 +89,7 @@ public:
 	BYTE m_byteUnknown;                     // 26C-26D - Bits 4: in vehicle
 	PAD(IVPed, pad4, 0x43);                 // 26D-2B0
 	IVPedWeapons m_weapons;                 // 2B0-3CA
+	// 0x3A8 - IVEntity * pTargetEntity;
 	PAD(IVPed, pad5, 0x1B6);                // 3CA-580
 	void * m_pPedAudio;                     // 580-584 // (CPedAudio (audSpeechAudioEntity))
 	PAD(IVPed, pad6, 0x98);                 // 584-61C

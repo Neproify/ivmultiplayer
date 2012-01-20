@@ -11,6 +11,7 @@
 
 #include "Scripting.h"
 #include "CLocalPlayer.h"
+#include "CGame.h"
 
 extern CLocalPlayer * g_pLocalPlayer;
 
@@ -58,10 +59,11 @@ public:
 			case 0xde8c4cb4: // Faustin's house (4)
 			case 0xa1270ec4: // Phil Bell's office
 			case 0x9199dedc: // Prison
-				Scripting::InitCutscene("kyefag");
+				CGame::InitCutscene("kyefag");
 				break;
 			default:
-				Scripting::ClearNamedCutscene("kyefag");
+				CGame::StopCutscene("kyefag");
+				break;
 		}
 	}
 };

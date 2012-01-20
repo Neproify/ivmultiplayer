@@ -1133,7 +1133,29 @@ void CGame::Free(void * pMemory)
 
 void CGame::ToggleLazlowStation(bool bToggle)
 {
-	if(!bToggle) bToggle = true; // cause we all love lazlow :D
 	*(BYTE *)(GetBase() + 0xF38728) = (bToggle == false);
 	*(BYTE *)(GetBase() + 0x166805C) = (bToggle == true);
+}
+
+void CGame::InitCutscene(char * szCutsceneName, bool bUnknown1, bool bUnknown2)
+{
+	DWORD dwFunc = (CGame::GetBase() + 0x866980);
+	_asm
+	{
+		push bUnknown2
+		push bUnknown1
+		push szCutsceneName
+		call dwFunc
+		add esp, 0Ch
+	}
+}
+
+void CGame::StopCutscene(char * szCutsceneName)
+{
+	DWORD dwFunc = (CGame::GetBase() + 0x865E10);
+	_asm
+	{
+		push szCutsceneName
+		call dwFunc
+	}
 }
