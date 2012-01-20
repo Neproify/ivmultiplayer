@@ -242,7 +242,7 @@ unsigned int CVehicle::GetHealth()
 	return m_uiHealth;
 }
 
-void CVehicle::SetPosition(CVector3 vecPosition)
+void CVehicle::SetPosition(const CVector3& vecPosition)
 {
 	m_vecPosition = vecPosition;
 
@@ -252,12 +252,12 @@ void CVehicle::SetPosition(CVector3 vecPosition)
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleCoordinates, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
-void CVehicle::GetPosition(CVector3 * vecPosition)
+void CVehicle::GetPosition(CVector3& vecPosition)
 {
-	*vecPosition = m_vecPosition;
+	vecPosition = m_vecPosition;
 }
 
-void CVehicle::SetRotation(CVector3 vecRotation)
+void CVehicle::SetRotation(const CVector3& vecRotation)
 {
 	m_vecRotation = vecRotation;
 
@@ -267,9 +267,9 @@ void CVehicle::SetRotation(CVector3 vecRotation)
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleRotation, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
-void CVehicle::GetRotation(CVector3 * vecRotation)
+void CVehicle::GetRotation(CVector3& vecRotation)
 {
-	*vecRotation = m_vecRotation;
+	vecRotation = m_vecRotation;
 }
 
 void CVehicle::SetDirtLevel(float fDirtLevel)
@@ -287,7 +287,7 @@ float CVehicle::GetDirtLevel()
 	return m_fDirtLevel;
 }
 
-void CVehicle::SetTurnSpeed(CVector3 vecTurnSpeed)
+void CVehicle::SetTurnSpeed(const CVector3& vecTurnSpeed)
 {
 	m_vecTurnSpeed = vecTurnSpeed;
 
@@ -297,12 +297,12 @@ void CVehicle::SetTurnSpeed(CVector3 vecTurnSpeed)
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleTurnSpeed, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
-void CVehicle::GetTurnSpeed(CVector3 * vecTurnSpeed)
+void CVehicle::GetTurnSpeed(CVector3& vecTurnSpeed)
 {
-	*vecTurnSpeed = m_vecTurnSpeed;
+	vecTurnSpeed = m_vecTurnSpeed;
 }
 
-void CVehicle::SetMoveSpeed(CVector3 vecMoveSpeed)
+void CVehicle::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
 	m_vecMoveSpeed = vecMoveSpeed;
 
@@ -312,9 +312,9 @@ void CVehicle::SetMoveSpeed(CVector3 vecMoveSpeed)
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleMoveSpeed, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
-void CVehicle::GetMoveSpeed(CVector3 * vecMoveSpeed)
+void CVehicle::GetMoveSpeed(CVector3& vecMoveSpeed)
 {
-	*vecMoveSpeed = m_vecMoveSpeed;
+	vecMoveSpeed = m_vecMoveSpeed;
 }
 
 void CVehicle::SetColors(BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4)
@@ -330,7 +330,7 @@ void CVehicle::SetColors(BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleColor, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
-void CVehicle::GetColors(BYTE &byteColor1, BYTE &byteColor2, BYTE &byteColor3, BYTE &byteColor4)
+void CVehicle::GetColors(BYTE& byteColor1, BYTE& byteColor2, BYTE& byteColor3, BYTE& byteColor4)
 {
 	byteColor1 = m_byteColors[0];
 	byteColor2 = m_byteColors[1];
