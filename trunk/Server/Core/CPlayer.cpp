@@ -370,16 +370,16 @@ void CPlayer::StorePassengerSync(CVehicle * pVehicle, PassengerSyncData * syncPa
 	m_uAmmo = ((syncPacket->uPlayerWeaponInfo << 12) >> 12);
 
 	// Set the position to the vehicle position
-	pVehicle->GetPosition(&m_vecPosition);
+	pVehicle->GetPosition(m_vecPosition);
 
 	// Set the rotation to the vehicle rotation
 	// TODO: Player has full rotation vector too
 	CVector3 vecRotation;
-	pVehicle->GetRotation(&vecRotation);
+	pVehicle->GetRotation(vecRotation);
 	m_fHeading = vecRotation.fZ;
 
 	// Set the move speed to the vehicle move speed
-	pVehicle->GetMoveSpeed(&m_vecMoveSpeed);
+	pVehicle->GetMoveSpeed(m_vecMoveSpeed);
 
 	// Do we have aim sync data?
 	if(bHasAimSyncData)
@@ -518,7 +518,7 @@ int CPlayer::GetModel()
 	return m_iModelId;
 }
 
-void CPlayer::SetCameraPos(CVector3 vecPosition)
+void CPlayer::SetCameraPos(const CVector3& vecPosition)
 {
 	m_vecPosition = vecPosition;
 	CBitStream bsSend;
@@ -526,7 +526,7 @@ void CPlayer::SetCameraPos(CVector3 vecPosition)
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraPos, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
 }
 
-void CPlayer::SetCameraLookAt(CVector3 vecPosition)
+void CPlayer::SetCameraLookAt(const CVector3& vecPosition)
 {
 	m_vecPosition = vecPosition;
 	CBitStream bsSend;
@@ -534,7 +534,7 @@ void CPlayer::SetCameraLookAt(CVector3 vecPosition)
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraLookAt, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
 }
 
-void CPlayer::SetPosition(CVector3 vecPosition)
+void CPlayer::SetPosition(const CVector3& vecPosition)
 {
 	m_vecPosition = vecPosition;
 	CBitStream bsSend;
@@ -542,9 +542,9 @@ void CPlayer::SetPosition(CVector3 vecPosition)
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCoordinates, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
 }
 
-void CPlayer::GetPosition(CVector3 * vecPosition)
+void CPlayer::GetPosition(CVector3& vecPosition)
 {
-	*vecPosition = m_vecPosition;
+	vecPosition = m_vecPosition;
 }
 
 void CPlayer::SetCurrentHeading(float fHeading)
@@ -560,7 +560,7 @@ float CPlayer::GetCurrentHeading()
 	return m_fHeading;
 }
 
-void CPlayer::SetMoveSpeed(CVector3 vecMoveSpeed)
+void CPlayer::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
 	m_vecMoveSpeed = vecMoveSpeed;
 	CBitStream bsSend;
@@ -568,9 +568,9 @@ void CPlayer::SetMoveSpeed(CVector3 vecMoveSpeed)
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerMoveSpeed, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
 }
 
-void CPlayer::GetMoveSpeed(CVector3 * vecMoveSpeed)
+void CPlayer::GetMoveSpeed(CVector3& vecMoveSpeed)
 {
-	*vecMoveSpeed = m_vecMoveSpeed;
+	vecMoveSpeed = m_vecMoveSpeed;
 }
 
 void CPlayer::SetDucking(bool bDuckState)
@@ -610,7 +610,7 @@ unsigned int CPlayer::GetArmour()
 	return m_uArmour;
 }
 
-void CPlayer::SetSpawnLocation(CVector3 vecPosition, float fHeading)
+void CPlayer::SetSpawnLocation(const CVector3& vecPosition, float fHeading)
 {
 	if(!m_bSpawned)
 	{
@@ -627,9 +627,9 @@ void CPlayer::SetSpawnLocation(CVector3 vecPosition, float fHeading)
 	g_pNetworkManager->RPC(RPC_ScriptingSetSpawnLocation, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
 }
 
-void CPlayer::GetSpawnLocation(CVector3 * vecPosition, float * fHeading)
+void CPlayer::GetSpawnLocation(CVector3& vecPosition, float * fHeading)
 {
-	*vecPosition = m_vecSpawnPosition;
+	vecPosition = m_vecSpawnPosition;
 	*fHeading = m_fSpawnHeading;
 }
 
