@@ -544,7 +544,7 @@ void CPlayer::SetPosition(CVector3 vecPosition)
 
 void CPlayer::GetPosition(CVector3 * vecPosition)
 {
-	vecPosition = &m_vecPosition;
+	*vecPosition = m_vecPosition;
 }
 
 void CPlayer::SetCurrentHeading(float fHeading)
@@ -570,7 +570,7 @@ void CPlayer::SetMoveSpeed(CVector3 vecMoveSpeed)
 
 void CPlayer::GetMoveSpeed(CVector3 * vecMoveSpeed)
 {
-	vecMoveSpeed = &m_vecMoveSpeed;
+	*vecMoveSpeed = m_vecMoveSpeed;
 }
 
 void CPlayer::SetDucking(bool bDuckState)
@@ -629,7 +629,7 @@ void CPlayer::SetSpawnLocation(CVector3 vecPosition, float fHeading)
 
 void CPlayer::GetSpawnLocation(CVector3 * vecPosition, float * fHeading)
 {
-	vecPosition = &m_vecSpawnPosition;
+	*vecPosition = m_vecSpawnPosition;
 	*fHeading = m_fSpawnHeading;
 }
 
@@ -717,12 +717,12 @@ void CPlayer::SetControlState(CControlState * controlState)
 
 void CPlayer::GetPreviousControlState(CControlState * controlState)
 {
-	controlState = &m_previousControlState;
+	*controlState = m_previousControlState;
 }
 
 void CPlayer::GetControlState(CControlState * controlState)
 {
-	controlState = &m_currentControlState;
+	*controlState = m_currentControlState;
 }
 
 void CPlayer::SetColor(unsigned int color)

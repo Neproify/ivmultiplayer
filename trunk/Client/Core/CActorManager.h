@@ -17,6 +17,7 @@ struct _Actor
 {
 	unsigned int   uiActorIndex;
 	CIVModelInfo * pModelInfo;
+	CVector3	   vecPosition;
 };
 
 class CActorManager

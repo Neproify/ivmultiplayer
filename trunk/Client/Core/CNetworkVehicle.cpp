@@ -143,7 +143,7 @@ bool CNetworkVehicle::Create()
 		IVVehicle * pVehicle = NULL;
 		_asm
 		{
-			push 0 ; last param of CREATE_CAR (try 1 if vehicle physics seem strange)
+			push 1
 			push 1
 			push pVecPosition
 			push iModelIndex

@@ -254,7 +254,7 @@ void CVehicle::SetPosition(CVector3 vecPosition)
 
 void CVehicle::GetPosition(CVector3 * vecPosition)
 {
-	vecPosition = &m_vecPosition;
+	*vecPosition = m_vecPosition;
 }
 
 void CVehicle::SetRotation(CVector3 vecRotation)
@@ -269,7 +269,7 @@ void CVehicle::SetRotation(CVector3 vecRotation)
 
 void CVehicle::GetRotation(CVector3 * vecRotation)
 {
-	vecRotation = &m_vecRotation;
+	*vecRotation = m_vecRotation;
 }
 
 void CVehicle::SetDirtLevel(float fDirtLevel)
@@ -299,7 +299,7 @@ void CVehicle::SetTurnSpeed(CVector3 vecTurnSpeed)
 
 void CVehicle::GetTurnSpeed(CVector3 * vecTurnSpeed)
 {
-	vecTurnSpeed = &m_vecTurnSpeed;
+	*vecTurnSpeed = m_vecTurnSpeed;
 }
 
 void CVehicle::SetMoveSpeed(CVector3 vecMoveSpeed)
@@ -314,7 +314,7 @@ void CVehicle::SetMoveSpeed(CVector3 vecMoveSpeed)
 
 void CVehicle::GetMoveSpeed(CVector3 * vecMoveSpeed)
 {
-	vecMoveSpeed = &m_vecMoveSpeed;
+	*vecMoveSpeed = m_vecMoveSpeed;
 }
 
 void CVehicle::SetColors(BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4)
