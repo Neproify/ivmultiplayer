@@ -108,4 +108,6 @@ public:
 	static void          * Alloc(DWORD dwSize);
 	static void            Free(void * pMemory);
 	static void            ToggleLazlowStation(bool bToggle);
+	static void            InitCutscene(char * szCutsceneName, bool bUnknown1 = false, bool bUnknown2 = false);
+	static void            StopCutscene(char * szCutsceneName);
 };

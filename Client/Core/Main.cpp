@@ -448,15 +448,11 @@ void DebugDumpTasks(int iType)
 	}
 	else if(iType == 2)
 	{
-		DrawDebugText("Unknown Tasks: ");
+		DrawDebugText("Movement Tasks: ");
 		DrawDebugText("");
-
-		for(int i = 0; i < 3; i++)
-		{
-			CIVTask * pTask = g_pClientTaskManager->GetClientTaskFromGameTask(pPedTaskManager->GetPedTaskManager()->m_unknownTasks[i]);
-			DebugDumpTask(String("UnknownTask%d", i), pTask);
-		}
-
+		DebugDumpTask("MovementTask0", pPedTaskManager->GetTaskMovement(TASK_MOVEMENT_UNKNOWN0));
+		DebugDumpTask("MovementTask1", pPedTaskManager->GetTaskMovement(TASK_MOVEMENT_UNKNOWN1));
+		DebugDumpTask("MovementTask2", pPedTaskManager->GetTaskMovement(TASK_MOVEMENT_UNKNOWN2));
 		DrawDebugText("");
 	}
 }
@@ -489,12 +485,18 @@ void DrawDebugView()
 		g_fDebugTextTop = DEBUG_TEXT_TOP;
 		DrawDebugText("Local Player Debug: ");
 		DrawDebugText("");
+
+		// Position data
 		CVector3 vecPosition;
 		g_pLocalPlayer->GetPosition(vecPosition);
 		DrawDebugText(String("Position: %f, %f, %f Heading (C/D): %f, %f", vecPosition.fX, vecPosition.fY, vecPosition.fZ, g_pLocalPlayer->GetCurrentHeading(), g_pLocalPlayer->GetDesiredHeading()));
+
+		// Speed data
 		CVector3 vecMoveSpeed;
 		g_pLocalPlayer->GetMoveSpeed(vecMoveSpeed);
 		DrawDebugText(String("Move Speed: %f, %f, %f", vecMoveSpeed.fX, vecMoveSpeed.fY, vecMoveSpeed.fZ));
+
+		// Camera data
 		CIVCam * pGameCam = g_pCamera->GetGameCam();
 		CVector3 vecCamPosition;
 		pGameCam->GetPosition(vecCamPosition);
@@ -505,16 +507,28 @@ void DrawDebugView()
 		vecLookAt.fY = vecCamPosition.fY + /*floatmul(*/vecCamForward.fY/*, fScale)*/;
 		vecLookAt.fZ = vecCamPosition.fZ + /*floatmul(*/vecCamForward.fZ/*, fScale)*/;
 		DrawDebugText(String("Camera Position: %f, %f, %f Camera Look At: %f, %f, %f", vecCamPosition.fX, vecCamPosition.fY, vecCamPosition.fZ, vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ));
+
+		// Health, armour and ducking data
 		DrawDebugText(String("Health: %d Armour: %d Ducking: %d", g_pLocalPlayer->GetHealth(), g_pLocalPlayer->GetArmour(), g_pLocalPlayer->IsDucking()));
+
+		// Weapon data
 		unsigned int uiWeaponId = g_pLocalPlayer->GetCurrentWeapon();
 		DrawDebugText(String("Weapon: %d Ammo: %d", uiWeaponId, g_pLocalPlayer->GetAmmo(uiWeaponId)));	
+
+		// Damage data
 		IVEntity * pDamageEntity = g_pLocalPlayer->GetGamePlayerPed()->GetPhysical()->m_pLastDamageEntity;
 		eWeaponType damageWeapon = g_pLocalPlayer->GetGamePlayerPed()->GetPhysical()->m_lastDamageWeapon;
 		DrawDebugText(String("Last Damage Entity: 0x%x Last Damage Weapon: %d", pDamageEntity, (unsigned int)damageWeapon));
+
 		DrawDebugText("");
 
+		// Priority task data
 		DebugDumpTasks(0);
+
+		// Secondary task data
 		DebugDumpTasks(1);
+
+		// Movement task data
 		DebugDumpTasks(2);
 
 		// get targetting pool (this is always 0)

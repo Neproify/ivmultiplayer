@@ -185,8 +185,9 @@ unsigned int COffsets::FUNC_CPed__IsDucking = 0;
 unsigned int COffsets::FUNC_CPed__DisableRagdoll = 0;
 
 // Tasks
-unsigned int COffsets::FUNC_CPedTaskManager__SetTask = 0;
+unsigned int COffsets::FUNC_CPedTaskManager__SetTaskPriority = 0;
 unsigned int COffsets::FUNC_CPedTaskManager__SetTaskSecondary = 0;
+unsigned int COffsets::FUNC_CPedTaskManager__SetTaskMovement = 0;
 unsigned int COffsets::VAR_CTask__VFTable = 0;
 unsigned int COffsets::RETURN_CTask__Destructor = 0;
 unsigned int COffsets::FUNC_CTaskComplexNewGetInVehicle__Constructor = 0;
@@ -383,8 +384,9 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CPed__DisableRagdoll                     = (uiBase +  0x8A6910);
 
 			// Tasks
-			FUNC_CPedTaskManager__SetTask                 = (uiBase +  0x9E58B0);
+			FUNC_CPedTaskManager__SetTaskPriority         = (uiBase +  0x9E58B0);
 			FUNC_CPedTaskManager__SetTaskSecondary        = (uiBase +  0x9E5AC0);
+			FUNC_CPedTaskManager__SetTaskMovement         = (uiBase +  0x9E5E20);
 			VAR_CTask__VFTable                            = (uiBase +  0xD87224);
 			RETURN_CTask__Destructor                      = (uiBase +  0xA288DA);
 			FUNC_CTaskComplexNewGetInVehicle__Constructor = (uiBase +  0xA2BCF0);
