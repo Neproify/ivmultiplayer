@@ -345,7 +345,7 @@ SQInteger CPlayerNatives::GetCoordinates(SQVM * pVM)
 	if(pPlayer)
 	{
 		CVector3 vecPosition;
-		pPlayer->GetPosition(&vecPosition);
+		pPlayer->GetPosition(vecPosition);
 		CSquirrelArguments args;
 		args.push(vecPosition.fX);
 		args.push(vecPosition.fY);
@@ -1165,7 +1165,7 @@ SQInteger CPlayerNatives::GetVelocity(SQVM * pVM)
 	if(pPlayer)
 	{
 		CVector3 vecMoveSpeed;
-		pPlayer->GetMoveSpeed(&vecMoveSpeed);
+		pPlayer->GetMoveSpeed(vecMoveSpeed);
 		CSquirrelArguments args;
 		args.push(vecMoveSpeed.fX);
 		args.push(vecMoveSpeed.fY);
