@@ -153,7 +153,7 @@ SQInteger CVehicleNatives::GetCoordinates(SQVM * pVM)
 		if(pVehicle)
 		{
 			CVector3 vecPosition;
-			pVehicle->GetPosition(&vecPosition);
+			pVehicle->GetPosition(vecPosition);
 			CSquirrelArguments args;
 			args.push(vecPosition.fX);
 			args.push(vecPosition.fY);
@@ -312,7 +312,7 @@ SQInteger CVehicleNatives::GetRotation(SQVM * pVM)
 		if(pVehicle)
 		{
 			CVector3 vecRotation;
-			pVehicle->GetRotation(&vecRotation);
+			pVehicle->GetRotation(vecRotation);
 			CSquirrelArguments args;
 			args.push(vecRotation.fX);
 			args.push(vecRotation.fY);
@@ -528,7 +528,7 @@ SQInteger CVehicleNatives::GetVelocity(SQVM * pVM)
 		if(pVehicle)
 		{
 			CVector3 vecMoveSpeed;
-			pVehicle->GetMoveSpeed(&vecMoveSpeed);
+			pVehicle->GetMoveSpeed(vecMoveSpeed);
 			CSquirrelArguments args;
 			args.push(vecMoveSpeed.fX);
 			args.push(vecMoveSpeed.fY);
@@ -579,7 +579,7 @@ SQInteger CVehicleNatives::GetAngularVelocity(SQVM * pVM)
 		if(pVehicle)
 		{
 			CVector3 vecTurnSpeed;
-			pVehicle->GetTurnSpeed(&vecTurnSpeed);
+			pVehicle->GetTurnSpeed(vecTurnSpeed);
 			CSquirrelArguments args;
 			args.push(vecTurnSpeed.fX);
 			args.push(vecTurnSpeed.fY);
