@@ -977,7 +977,12 @@ void CMainMenu::SetQuickConnectWindowVisible(bool bVisible)
 	if(bVisible != m_bQuickConnectWindowVisible)
 	{
 		m_pQuickConnectWindow->setVisible(bVisible);
-		m_pQuickConnectWindow->activate();
+		if(bVisible)
+			m_pQuickConnectWindow->activate();
+
+		if(!bVisible)
+			m_pQuickConnectWindow->deactivate();
+
 		m_bQuickConnectWindowVisible = bVisible;
 	}
 }

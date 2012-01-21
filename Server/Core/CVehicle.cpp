@@ -543,3 +543,14 @@ bool CVehicle::GetEngineStatus()
 {
 	return m_bEngineStatus;
 }
+
+void CVehicle::SetHazardLights(bool hState)
+{
+	m_bHazardLights = hState;
+}
+
+bool CVehicle::GetHazardLights()
+{
+	return m_bHazardLights;
+}
+

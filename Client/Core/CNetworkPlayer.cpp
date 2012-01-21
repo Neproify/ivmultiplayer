@@ -52,6 +52,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	ResetVehicleEnterExit();
 	m_bHealthLocked = false;
 	m_bArmourLocked = false;
+	m_bHelmet = false;
 
 	if(IsLocalPlayer())
 	{
@@ -220,6 +221,11 @@ bool CNetworkPlayer::Create()
 	// Add to world
 	m_pPlayerPed->AddToWorld();
 	CLogFile::Printf("Create 14");
+
+	// Delete player helemt
+	m_bHelmet = false;
+	SetHelmet(m_bHelmet);
+
 	// End new creation code
 
 #if 0

@@ -39,6 +39,7 @@ private:
 	bool          m_bComponents[9];
 	unsigned char m_ucVariation;
 	bool		  m_bEngineStatus;
+	bool		  m_bHazardLights;
 
 public:
 	CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4);
@@ -91,4 +92,6 @@ public:
 	unsigned char GetVariation();
 	void          SetEngineStatus(bool bEngineStatus);
 	bool          GetEngineStatus();
+	void		  SetHazardLights(bool hState);
+	bool		  GetHazardLights();
 };

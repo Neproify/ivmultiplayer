@@ -72,9 +72,10 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	while(!m_bSpawned)
 	{
 		Scripting::GetCharCoordinates(m_Actors[actorId].uiActorIndex,&spawnControl.fX,&spawnControl.fY,&spawnControl.fZ);
-		if((m_Actors[actorId].vecPosition.fZ - spawnControl.fZ) < 0.1f)
+		if((m_Actors[actorId].vecPosition.fZ - spawnControl.fZ) < 0.05f)
 		{
 			Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,true);
+			Scripting::SetCharCoordinates(m_Actors[actorId].uiActorIndex,vecPosition.fX,vecPosition.fY,(vecPosition.fZ - 1.0f));
 			m_bSpawned = true;
 		}
 	}

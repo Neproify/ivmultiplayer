@@ -56,6 +56,7 @@ private:
 	float            m_fPetrolTankHealth;
 	unsigned char    m_ucVariation;
 	bool			 m_bEngineStatus;
+	bool			 m_bHazardLights;
 
 	//
 	bool             Create();
@@ -137,4 +138,6 @@ public:
 	float            GetSteeringAngle();
 	void			 SetEngineState(bool bState);
 	bool			 GetEngineState();
+	void             SetHazardLightsState(bool bState);
+    bool             GetHazardLightsState();
 };
