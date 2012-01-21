@@ -734,7 +734,24 @@ void Direct3DRender()
 			CGame::SetTime(ucHour, ucMinute);
 			CGame::SetDayOfWeek(g_pTime->GetDayOfWeek());
 		}
+		if(GetAsyncKeyState(0x48)) // h
+        {
+            // Is F5 held down and do we have a network manager?
+            if(g_pNetworkManager)
+            {
+                CNetworkVehicle * pVehicle = g_pLocalPlayer->GetVehicle();
+                if(pVehicle)
+                {
+                    bool bState = pVehicle->GetHazardLightsState();                   
+                    pVehicle->SetHazardLightsState(!bState);
 
+                    CBitStream bsSend;
+                    bsSend.Write(pVehicle->GetVehicleId());
+                    bsSend.Write(!bState);
+                    g_pNetworkManager->RPC(RPC_ScriptingSetHazardLights, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
+                }
+            }
+        }
 		/*if(GetAsyncKeyState(VK_F3) & 1)
 		{
 			g_pChatWindow->AddInfoMessage("Creating explosion near your position");

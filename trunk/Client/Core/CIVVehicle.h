@@ -140,4 +140,6 @@ public:
 	int         GetTextureVariation();
 	void        SetCanBeVisiblyDamaged(bool bState);
 	bool        CanBeVisiblyDamaged();
+	void		SetHazardLights(bool bState);
+	bool		GetHazardLights(BYTE * getHazard);
 };

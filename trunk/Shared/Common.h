@@ -205,6 +205,7 @@ struct InVehicleSyncData
 	float fDirtLevel;                      // vehicle dirt level
 	bool bSirenState : 1;                  // siren state
 	bool bEngineStatus : 1;				   // vehicle engine status
+	bool hHazardLights : 1;				   // hazardlights status
 	unsigned int uPlayerHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uPlayerWeaponInfo;        // player weapon and ammo
 };
@@ -231,6 +232,7 @@ struct EMPTYVEHICLESYNCPACKET
 	CVector3 vecPosition;
 	CVector3 vecRotation;
 	unsigned int uiHealth : 16;
+	bool hHazardLights : 1;
 };
 
 struct AimSyncData

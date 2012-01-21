@@ -60,6 +60,7 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	memset(&m_aimSyncData, 0, sizeof(AimSyncData));
 	m_uiColor = playerColors[playerId];
 	memset(&m_ucClothes, 0, sizeof(m_ucClothes));
+	m_bHelmet = false;
 }
 
 CPlayer::~CPlayer()
@@ -326,6 +327,7 @@ void CPlayer::StoreInVehicleSync(CVehicle * pVehicle, InVehicleSyncData * syncPa
 	CBitStream bsSend;
 	bsSend.WriteCompressed(m_playerId);
 	bsSend.WriteCompressed(pVehicle->GetVehicleId());
+	bsSend.WriteCompressed(pVehicle->GetHazardLights());
 	bsSend.WriteCompressed(GetPing());
 	bsSend.WriteCompressed(m_bHelmet);
 	bsSend.Write((char *)syncPacket, sizeof(InVehicleSyncData));

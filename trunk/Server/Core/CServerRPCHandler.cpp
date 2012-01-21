@@ -24,6 +24,7 @@
 #include "CModuleManager.h"
 #include "CEvents.h"
 #include "CNetworkManager.h"
+#include "CVehicle.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CScriptingManager * g_pScriptingManager;
@@ -40,6 +41,7 @@ extern CTime * g_pTime;
 extern CTrafficLights * g_pTrafficLights;
 extern CModuleManager * g_pModuleManager;
 extern CEvents * g_pEvents;
+extern CVehicle * g_pVehicle;
 
 void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -891,6 +893,25 @@ void CServerRPCHandler::EventCall(CBitStream * pBitStream, CPlayerSocket * pSend
 	delete pArgs;
 }
 
+void CServerRPCHandler::ScriptingSetHazardLights(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	//	Read the vehicleid & hazardlightsstate
+	EntityId pVehicle;
+	pBitStream->ReadCompressed(pVehicle);
+
+	bool bState;
+	pBitStream->Read(bState);
+	
+	CVehicle * pNewVehicle = g_pVehicleManager->GetAt(pVehicle);
+
+	if(pNewVehicle)
+		pNewVehicle->SetHazardLights(bState);
+}
+
 void CServerRPCHandler::Register()
 {
 	AddFunction(RPC_PlayerJoin, PlayerJoin);
@@ -909,6 +930,7 @@ void CServerRPCHandler::Register()
 	AddFunction(RPC_CheckpointEntered, CheckpointEntered);
 	AddFunction(RPC_CheckpointLeft, CheckpointLeft);
 	AddFunction(RPC_ScriptingEventCall, EventCall);
+	AddFunction(RPC_ScriptingSetHazardLights,ScriptingSetHazardLights);
 }
 
 void CServerRPCHandler::Unregister()
@@ -929,4 +951,5 @@ void CServerRPCHandler::Unregister()
 	RemoveFunction(RPC_CheckpointEntered);
 	RemoveFunction(RPC_CheckpointLeft);
 	RemoveFunction(RPC_ScriptingEventCall);
+	RemoveFunction(RPC_ScriptingSetHazardLights);
 }

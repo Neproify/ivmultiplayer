@@ -30,6 +30,7 @@ private:
 	static void CheckpointEntered(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void CheckpointLeft(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void EventCall(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetHazardLights(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();

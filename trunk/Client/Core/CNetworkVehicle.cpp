@@ -18,11 +18,11 @@
 #include <SharedUtility.h>
 #include "CPools.h"
 
+
 extern CChatWindow * g_pChatWindow;
 extern CPlayerManager * g_pPlayerManager;
 extern CModelManager * g_pModelManager;
 extern CLocalPlayer * g_pLocalPlayer;
-
 CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	: CStreamableEntity(STREAM_ENTITY_VEHICLE, 200.0f)
 {
@@ -49,6 +49,7 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_fPetrolTankHealth = 1000.0f;
 	m_ucVariation = 0;
 	m_bEngineStatus = false;
+	m_bHazardLights = false;
 }
 
 CNetworkVehicle::~CNetworkVehicle()
@@ -203,6 +204,10 @@ bool CNetworkVehicle::Create()
 
 		// Set the initial rotation
 		SetRotation(m_vecRotation);
+
+		// Set the hazard lights
+		SetHazardLightsState(m_bHazardLights);
+
 		return true;
 	}
 
@@ -316,6 +321,9 @@ void CNetworkVehicle::StreamIn()
 		
 		// Restore the engine state
 		SetEngineState(m_bEngineStatus);
+
+		//Restore hazzard lights
+		SetHazardLightsState(m_bHazardLights);
 
 		// Reset interpolation
 		ResetInterpolation();
@@ -684,6 +692,7 @@ void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 	SetTargetPosition(emptyVehicleSync->vecPosition, TICK_RATE);
 	SetTargetRotation(emptyVehicleSync->vecRotation, TICK_RATE);
 	SetHealth(emptyVehicleSync->uiHealth);
+	SetHazardLightsState(emptyVehicleSync->hHazardLights);
 }
 
 BYTE CNetworkVehicle::GetMaxPassengers()
@@ -1106,4 +1115,19 @@ bool CNetworkVehicle::GetEngineState()
 	if(IsSpawned())
 		return m_bEngineStatus;//m_pVehicle->GetEngineStatus();
 	return false;
+}
+void CNetworkVehicle::SetHazardLightsState(bool bState)
+{
+        //Is vehicle spawned?
+        if(IsSpawned())
+        {                
+             m_bHazardLights = bState;
+             m_pVehicle->SetHazardLights(bState);                   
+        }
+}
+bool CNetworkVehicle::GetHazardLightsState()
+{
+        if(IsSpawned())
+                return m_bHazardLights;
+        return false;
 }
