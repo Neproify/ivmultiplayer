@@ -16,6 +16,9 @@
 // Shared
 #include <Scripting/Natives/Natives.h>
 
+// System functions
+#include "Natives/SystemNatives.h"
+
 // Server and Timer functions
 #include "Natives/ServerNatives.h"
 

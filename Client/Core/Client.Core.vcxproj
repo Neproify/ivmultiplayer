@@ -120,6 +120,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CDebugView.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="CChatWindow.h" />
@@ -293,6 +294,7 @@
     <ClInclude Include="CDirectInputHook.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CDebugView.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />

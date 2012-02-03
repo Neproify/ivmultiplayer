@@ -696,6 +696,9 @@
     <ClInclude Include="CDirectInputHook.h">
       <Filter>Header Files\Hooks\DirectInputHook</Filter>
     </ClInclude>
+    <ClInclude Include="CDebugView.h">
+      <Filter>Header Files\DirectX\Direct3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">
@@ -1117,6 +1120,9 @@
     </ClCompile>
     <ClCompile Include="CDirectInputHook.cpp">
       <Filter>Source Files\Hooks\DirectInputHook</Filter>
+    </ClCompile>
+    <ClCompile Include="CDebugView.cpp">
+      <Filter>Source Files\DirectX\Direct3D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

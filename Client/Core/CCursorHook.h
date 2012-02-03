@@ -7,9 +7,10 @@
 //
 //==============================================================================
 
-#ifdef _DEBUG
 #pragma once
 
+#include <Common.h>
+#ifdef IVMP_DEBUG
 #include <winsock2.h>
 #include <windows.h>
 

@@ -148,9 +148,6 @@ bool CSquirrel::Load(String strName, String strPath)
 	sq_pushroottable(m_pVM);
 
 #ifdef _SERVER
-	// Register the system library
-	sqstd_register_systemlib(m_pVM);
-
 	// Register the input/output library
 	sqstd_register_iolib(m_pVM);
 #endif

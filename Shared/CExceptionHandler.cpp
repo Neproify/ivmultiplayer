@@ -221,8 +221,11 @@ void CExceptionHandler::ExceptionHandler(int iSignal)
 	WriteExceptionReport(ExceptionInfo);
 #endif
 	// Exit the current process
+#ifndef WIN32
 	exit(0);
-#ifdef WIN32
+#else
+	ExitProcess(0);
+
 	return EXCEPTION_EXECUTE_HANDLER;	
 #endif
 }

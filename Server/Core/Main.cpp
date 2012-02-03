@@ -45,32 +45,34 @@
 #define HEIPHEN_GEN(string, stringname) \
 	{ \
 		stringname[0] = '\0'; \
+		\
 		for(int i = 0; i < sizeof(string) + 1; i++) \
 			strcat(stringname, "-"); \
 	}
 
-CNetworkManager * g_pNetworkManager = NULL;
-CPlayerManager * g_pPlayerManager = NULL;
-CVehicleManager * g_pVehicleManager = NULL;
-CObjectManager * g_pObjectManager = NULL;
-CBlipManager * g_pBlipManager = NULL;
-CActorManager * g_pActorManager = NULL;
-CPickupManager * g_pPickupManager = NULL;
+CNetworkManager    * g_pNetworkManager = NULL;
+CPlayerManager     * g_pPlayerManager = NULL;
+CVehicleManager    * g_pVehicleManager = NULL;
+CObjectManager     * g_pObjectManager = NULL;
+CBlipManager       * g_pBlipManager = NULL;
+CActorManager      * g_pActorManager = NULL;
+CPickupManager     * g_pPickupManager = NULL;
 CCheckpointManager * g_pCheckpointManager = NULL;
-CScriptingManager * g_pScriptingManager = NULL;
+CScriptingManager  * g_pScriptingManager = NULL;
 CClientFileManager * g_pClientScriptFileManager = NULL;
 CClientFileManager * g_pClientResourceFileManager = NULL;
-CModuleManager * g_pModuleManager = NULL;
-CMasterList * g_pMasterList = NULL;
-CWebServer * g_pWebserver = NULL;
-CTime * g_pTime = NULL;
-CTrafficLights * g_pTrafficLights = NULL;
-CEvents * g_pEvents = NULL;
+CModuleManager     * g_pModuleManager = NULL;
+CMasterList        * g_pMasterList = NULL;
+CWebServer         * g_pWebserver = NULL;
+CTime              * g_pTime = NULL;
+CTrafficLights     * g_pTrafficLights = NULL;
+CEvents            * g_pEvents = NULL;
+unsigned long        g_ulStartTick = 0;
+CMutex               consoleInputQueueMutex;
+std::queue<String>   consoleInputQueue;
+CQuery             * g_pQuery = NULL;
+
 extern CScriptTimerManager * g_pScriptTimerManager;
-unsigned long g_ulStartTick = 0;
-CMutex consoleInputQueueMutex;
-std::queue<String> consoleInputQueue;
-CQuery * g_pQuery = NULL;
 
 void SendConsoleInput(String strInput)
 {
@@ -440,6 +442,9 @@ int main(int argc, char ** argv)
 
 		CLogFile::Print("");
 	}
+
+	// Register the system natives
+	CSystemNatives::Register(g_pScriptingManager);
 
 	// Register the server natives
 	CServerNatives::Register(g_pScriptingManager);

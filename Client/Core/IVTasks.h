@@ -21,7 +21,7 @@ public:
 class CIVTaskComplexNewExitVehicle : public CIVTask
 {
 public:
-	CIVTaskComplexNewExitVehicle(CIVVehicle * pVehicle, int a3, int a4, int a5);
+	CIVTaskComplexNewExitVehicle(CIVVehicle * pVehicle, int iExitMode, int a4, int a5);
 };
 
 class CIVTaskComplexDie : public CIVTask
