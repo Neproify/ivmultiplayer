@@ -25,12 +25,6 @@ extern CVehicleManager * g_pVehicleManager;
 extern CModelManager * g_pModelManager;
 extern CFPSCounter * g_pFPSCounter;
 
-void ChangeChatBackgroundColor(char * szParams)
-{
-	int a,r,g,b;
-	sscanf(szParams, "%d %d %d %d", &r, &g, &b, &a);
-}
-
 void QuitCommand(char * szParams)
 {
 	// If we are connected to a server, disconnect

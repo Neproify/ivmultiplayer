@@ -78,7 +78,6 @@ public:
 	// Vehicle
 	static unsigned int FUNC_CVehicle__SetEngineOn;
 	static unsigned int FUNC_CVehicle__RefreshColours;
-	static unsigned int FUNC_CVehicle__SetHazzardLights;
 
 	// Misc
 	static unsigned int VAR_CurrentWantedLevel;

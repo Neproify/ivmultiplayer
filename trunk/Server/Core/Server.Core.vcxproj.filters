@@ -522,6 +522,9 @@
     <ClInclude Include="..\..\Shared\Game\CTrafficLights.h">
       <Filter>Header Files\Game\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Natives\SystemNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -784,6 +787,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Shared\Game\CTrafficLights.cpp">
       <Filter>Source Files\Game\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\SystemNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

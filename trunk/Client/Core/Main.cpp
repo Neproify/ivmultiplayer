@@ -38,6 +38,7 @@
 #include "CClientScriptManager.h"
 #include "CMainMenu.h"
 #include "CFPSCounter.h"
+#include "CDebugView.h"
 #include "SharedUtility.h"
 #include "CFileTransfer.h"
 #include "CGraphics.h"
@@ -75,6 +76,7 @@ CScriptingManager    * g_pScriptingManager = NULL;
 CClientScriptManager * g_pClientScriptManager = NULL;
 CMainMenu            * g_pMainMenu = NULL;
 CFPSCounter          * g_pFPSCounter = NULL;
+CDebugView           * g_pDebugView = NULL;
 CGUIStaticText       * g_pVersionIdentifier = NULL;
 CFileTransfer        * g_pFileTransfer = NULL;
 CStreamer            * g_pStreamer = NULL;
@@ -177,6 +179,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 								{
 									char szFullPath[MAX_PATH];
 									sprintf_s(szFullPath, MAX_PATH, "%s%s\\wininet.dll", szWinSxsPath, lpFindFileData.cFileName);
+
 									if(LoadLibrary(szFullPath))
 									{
 										CLogFile::Printf("Using %s to address IE9 issue", szFullPath);
@@ -310,6 +313,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			SAFE_DELETE(g_pChatWindow);
 			CLogFile::Printf("Shutdown 16");
 
+			// Delete our debug view
+			SAFE_DELETE(g_pDebugView);
+
 			// Delete our fps counter
 			SAFE_DELETE(g_pFPSCounter);
 			CLogFile::Printf("Shutdown 17");
@@ -382,81 +388,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
-// debug view
-#define DEBUG_TEXT_TOP (40.0f + (MAX_DISPLAYED_MESSAGES * 20))
-float g_fDebugTextTop = 0;
-
-void DrawDebugText(String strText)
-{
-	// Get the font
-	CEGUI::Font * pFont = NULL/*g_pGUI->GetFont("tahoma-bold", 10)*/;
-
-	// Draw the text
-	g_pGUI->DrawText(strText, CEGUI::Vector2(26.0f, g_fDebugTextTop), CEGUI::colour(0xFFFFFFFF), pFont);
-
-	// Increment the text top
-	g_fDebugTextTop += 14.0f;
-}
-
-void DebugDumpTask(String strName, CIVTask * pTask)
-{
-	if(!pTask)
-	{
-		//DrawDebugText(String("%s: None (9999)", strName.Get()));
-		return;
-	}
-
-	DrawDebugText(String("%s: %s (%d)", strName.Get(), pTask->GetName(), pTask->GetType()));
-	CIVTask * pSubTask = NULL;
-
-	while((pSubTask = pTask->GetSubTask()))
-	{
-		DrawDebugText(String("%s: %s (%d)", strName.Get(), pSubTask->GetName(), pSubTask->GetType()));
-		pTask = pSubTask;
-	}
-}
-
-bool bFireGunDisabled = false;
-
-void DebugDumpTasks(int iType)
-{
-	CIVPedTaskManager * pPedTaskManager = g_pLocalPlayer->GetGamePlayerPed()->GetPedTaskManager();
-
-	if(iType == 0)
-	{
-		DrawDebugText("Priority Tasks: ");
-		DrawDebugText("");
-		DebugDumpTask("PhysicalResponse", pPedTaskManager->GetTask(TASK_PRIORITY_PHYSICAL_RESPONSE));
-		DebugDumpTask("EventResponseTemp", pPedTaskManager->GetTask(TASK_PRIORITY_EVENT_RESPONSE_TEMP));
-		DebugDumpTask("EventResponseNonTemp", pPedTaskManager->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP));
-		DebugDumpTask("Primary", pPedTaskManager->GetTask(TASK_PRIORITY_PRIMARY));
-		DebugDumpTask("Default", pPedTaskManager->GetTask(TASK_PRIORITY_DEFAULT));
-		DrawDebugText("");
-	}
-	else if(iType == 1)
-	{
-		DrawDebugText("Secondary Tasks: ");
-		DrawDebugText("");
-		DebugDumpTask("Attack", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_ATTACK));
-		DebugDumpTask("Duck", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_DUCK));
-		DebugDumpTask("Say", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_SAY));
-		DebugDumpTask("FacialComplex", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_FACIAL_COMPLEX));
-		DebugDumpTask("PartialAnim", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_PARTIAL_ANIM));
-		DebugDumpTask("IK", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_IK));
-		DrawDebugText("");
-		
-	}
-	else if(iType == 2)
-	{
-		DrawDebugText("Movement Tasks: ");
-		DrawDebugText("");
-		DebugDumpTask("MovementTask0", pPedTaskManager->GetTaskMovement(TASK_MOVEMENT_UNKNOWN0));
-		DebugDumpTask("MovementTask1", pPedTaskManager->GetTaskMovement(TASK_MOVEMENT_UNKNOWN1));
-		DebugDumpTask("MovementTask2", pPedTaskManager->GetTaskMovement(TASK_MOVEMENT_UNKNOWN2));
-		DrawDebugText("");
-	}
-}
-
+#if 0
 #include "CRemotePlayer.h"
 CRemotePlayer * pClonePlayer = NULL;
 
@@ -483,53 +415,7 @@ void DrawDebugView()
 		}*/
 
 		g_fDebugTextTop = DEBUG_TEXT_TOP;
-		DrawDebugText("Local Player Debug: ");
-		DrawDebugText("");
-
-		// Position data
-		CVector3 vecPosition;
-		g_pLocalPlayer->GetPosition(vecPosition);
-		DrawDebugText(String("Position: %f, %f, %f Heading (C/D): %f, %f", vecPosition.fX, vecPosition.fY, vecPosition.fZ, g_pLocalPlayer->GetCurrentHeading(), g_pLocalPlayer->GetDesiredHeading()));
-
-		// Speed data
-		CVector3 vecMoveSpeed;
-		g_pLocalPlayer->GetMoveSpeed(vecMoveSpeed);
-		DrawDebugText(String("Move Speed: %f, %f, %f", vecMoveSpeed.fX, vecMoveSpeed.fY, vecMoveSpeed.fZ));
-
-		// Camera data
-		CIVCam * pGameCam = g_pCamera->GetGameCam();
-		CVector3 vecCamPosition;
-		pGameCam->GetPosition(vecCamPosition);
-		CVector3 vecCamForward;
-		vecCamForward = pGameCam->GetCam()->m_data1.m_matMatrix.vecForward;
-		CVector3 vecLookAt;
-		vecLookAt.fX = vecCamPosition.fX + /*floatmul(*/vecCamForward.fX/*, fScale)*/;
-		vecLookAt.fY = vecCamPosition.fY + /*floatmul(*/vecCamForward.fY/*, fScale)*/;
-		vecLookAt.fZ = vecCamPosition.fZ + /*floatmul(*/vecCamForward.fZ/*, fScale)*/;
-		DrawDebugText(String("Camera Position: %f, %f, %f Camera Look At: %f, %f, %f", vecCamPosition.fX, vecCamPosition.fY, vecCamPosition.fZ, vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ));
-
-		// Health, armour and ducking data
-		DrawDebugText(String("Health: %d Armour: %d Ducking: %d", g_pLocalPlayer->GetHealth(), g_pLocalPlayer->GetArmour(), g_pLocalPlayer->IsDucking()));
-
-		// Weapon data
-		unsigned int uiWeaponId = g_pLocalPlayer->GetCurrentWeapon();
-		DrawDebugText(String("Weapon: %d Ammo: %d", uiWeaponId, g_pLocalPlayer->GetAmmo(uiWeaponId)));	
-
-		// Damage data
-		IVEntity * pDamageEntity = g_pLocalPlayer->GetGamePlayerPed()->GetPhysical()->m_pLastDamageEntity;
-		eWeaponType damageWeapon = g_pLocalPlayer->GetGamePlayerPed()->GetPhysical()->m_lastDamageWeapon;
-		DrawDebugText(String("Last Damage Entity: 0x%x Last Damage Weapon: %d", pDamageEntity, (unsigned int)damageWeapon));
-
-		DrawDebugText("");
-
-		// Priority task data
-		DebugDumpTasks(0);
-
-		// Secondary task data
-		DebugDumpTasks(1);
-
-		// Movement task data
-		DebugDumpTasks(2);
+		
 
 		// get targetting pool (this is always 0)
 		/*struct IVTargetting { };
@@ -601,7 +487,7 @@ void DrawDebugView()
 		}
 	}
 }
-// debug view end
+#endif
 
 // Direct3DDevice9::EndScene
 void Direct3DRender()
@@ -734,24 +620,7 @@ void Direct3DRender()
 			CGame::SetTime(ucHour, ucMinute);
 			CGame::SetDayOfWeek(g_pTime->GetDayOfWeek());
 		}
-		if(GetAsyncKeyState(0x48)) // h
-        {
-            // Is F5 held down and do we have a network manager?
-            if(g_pNetworkManager)
-            {
-                CNetworkVehicle * pVehicle = g_pLocalPlayer->GetVehicle();
-                if(pVehicle)
-                {
-                    bool bState = pVehicle->GetHazardLightsState();                   
-                    pVehicle->SetHazardLightsState(!bState);
 
-                    CBitStream bsSend;
-                    bsSend.Write(pVehicle->GetVehicleId());
-                    bsSend.Write(!bState);
-                    g_pNetworkManager->RPC(RPC_ScriptingSetHazardLights, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
-                }
-            }
-        }
 		/*if(GetAsyncKeyState(VK_F3) & 1)
 		{
 			g_pChatWindow->AddInfoMessage("Creating explosion near your position");
@@ -812,11 +681,12 @@ void Direct3DRender()
 				}
 			}
 		}
-	}
 
-#ifdef _DEBUG
-	DrawDebugView();
+#ifdef IVMP_DEBUG
+		// If our debug view exists draw it
+		g_pDebugView->Draw();
 #endif
+	}
 }
 
 // Direct3DDevice9::Reset
@@ -881,32 +751,36 @@ void Direct3DReset()
 	else
 		g_pGraphics->OnResetDevice();
 
-	// If our main menu class does not exist create it
+	// If our main menu instance does not exist create it
 	if(!g_pMainMenu)
 		g_pMainMenu = new CMainMenu();
 	else
 		g_pMainMenu->OnResetDevice();
 
-	// If our credits class does not exist create it
+	// If our credits instance does not exist create it
 	if(!g_pCredits)
 		g_pCredits = new CCredits(g_pGUI);
 
-	// If our fps counter class does not exist create it
+	// If our fps counter instance does not exist create it
 	if(!g_pFPSCounter)
 		g_pFPSCounter = new CFPSCounter();
 
-	// If our fps counter class does not exist create it
+	// If our debug view instance does not exist create it
+	if(!g_pDebugView)
+		g_pDebugView = new CDebugView();
+
+	// If our fps counter instance does not exist create it
 	if(!g_pChatWindow)
 		g_pChatWindow = new CChatWindow();
 
-	// If our input window class does not exist create it
+	// If our input window instance does not exist create it
 	if(!g_pInputWindow)
 	{
 		g_pInputWindow = new CInputWindow();
 		RegisterCommands();
 	}
 
-	// If our name tags class does not exist create it
+	// If our name tags instance does not exist create it
 	if(!g_pNameTags)
 		g_pNameTags = new CNameTags();
 }

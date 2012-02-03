@@ -45,7 +45,7 @@
 #define NETWORK_MODULE_VERSION 0x05
 
 // Network version
-#define NETWORK_VERSION 0x6B
+#define NETWORK_VERSION 0x6C
 
 // Tick Rate
 #define TICK_RATE 100
@@ -149,7 +149,8 @@ enum eVehicleEntryExit
 #define UNSET_BIT(a, b) a &= ~(b)
 
 // Library debug suffix
-#ifdef IVMP_DEBUG
+//#ifdef IVMP_DEBUG
+#ifdef _DEBUG
 #define DEBUG_SUFFIX ".Debug"
 #else
 #define DEBUG_SUFFIX
@@ -232,7 +233,6 @@ struct EMPTYVEHICLESYNCPACKET
 	CVector3 vecPosition;
 	CVector3 vecRotation;
 	unsigned int uiHealth : 16;
-	bool hHazardLights : 1;
 };
 
 struct AimSyncData

@@ -21,6 +21,7 @@ unsigned int g_uiLocalPlayerIndex = 0;
 IVPad        g_localPad;
 Matrix       g_matLocalCameraMatrix;
 bool         g_bInLocalContext = true;
+bool         g_bInContextSwitch = false;
 
 extern CLocalPlayer * g_pLocalPlayer;
 extern CVehicleManager * g_pVehicleManager;
@@ -89,6 +90,9 @@ void ContextSwitch(IVPed * pPed, bool bPost)
 	// Do we have a valid ped pointer?
 	if(pPed)
 	{
+		// Flag ourselves as in/out of a context switch
+		g_bInContextSwitch = !bPost;
+
 		// Is this not the local player ped?
 		if((IVPlayerPed *)pPed != CGame::GetPools()->GetPlayerInfoFromIndex(0)->m_pPlayerPed)
 		{
@@ -469,11 +473,33 @@ void _declspec(naked) CTaskComplexGun__ControlSubTask()
 		jmp dwFunc
 	}
 }
+
+void _declspec(naked) CTaskComplexPlayerOnFoot__ControlSubTask()
+{
+	_asm
+	{
+		pushad
+	}
+
+	_asm int 3
+	//g_pChatWindow->AddInfoMessage("InContextSwithc=%d", g_bInContextSwitch);
+	dwFunc = (CGame::GetBase() + 0x9B5CB6);
+
+	_asm
+	{
+		popad
+		push ebp
+		mov ebp, esp
+		and esp, 0FFFFFFF0h
+		jmp dwFunc
+	}
+}
 // end test
 
 void InstallKeySyncHooks()
 {
 	// test
+	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0x9B5CB0), (DWORD)CTaskComplexPlayerOnFoot__ControlSubTask);
 	//CPatcher::InstallMethodPatch((CGame::GetBase() + 0xDCD6C0), (DWORD)CTaskSimpleAimGun__ProcessPed_Hook);
 	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCC87F0), (DWORD)CTaskSimpleFireGun__Constructor);
 	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xA5FD80), (DWORD)CTaskComplexGun__Constructor);

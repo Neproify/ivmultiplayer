@@ -207,9 +207,6 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		// Set their vehicles engine status
 		pVehicle->SetEngineState(syncPacket->bEngineStatus);
 
-		// Set teir vehicle hazard lights
-		pVehicle->SetHazardLightsState(syncPacket->hHazardLights);
-
 		// Lock our health
 		LockHealth(syncPacket->uPlayerHealthArmour >> 16);
 

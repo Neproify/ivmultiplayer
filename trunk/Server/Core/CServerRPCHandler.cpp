@@ -227,8 +227,6 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 				bsSend.Write0();
 		}
 
-		CLogFile::Printf("[Connect] Player '%s'[IP: %s] connecting to the server", strName.Get(), pSenderSocket->GetAddress(true).Get());
-
 		// Send the joined game RPC
 		g_pNetworkManager->RPC(RPC_JoinedGame, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 
@@ -243,7 +241,7 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 		pArguments.push(playerId);
 		g_pEvents->Call("playerConnect", &pArguments);
 
-		CLogFile::Printf("[Connect] Player '%s'[ID: %d, Serial: %s] successfully connected", strName.Get(),playerId, pSenderSocket->GetSerial().Get());
+		CLogFile::Printf("[Join] %s (%d) has successfully joined the server.", strName.Get(), playerId);
 	}
 }
 
@@ -323,7 +321,7 @@ void CServerRPCHandler::Spawn(CBitStream * pBitStream, CPlayerSocket * pSenderSo
 
 		pPlayer->SetModel(iSkinId);
 		pPlayer->SpawnForWorld();
-		CLogFile::Printf("[Spawn] %s spawned", pPlayer->GetName().C_String());
+		CLogFile::Printf("[Spawn] %s spawned.", pPlayer->GetName().C_String());
 
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
@@ -356,7 +354,7 @@ void CServerRPCHandler::Death(CBitStream * pBitStream, CPlayerSocket * pSenderSo
 			CPlayer * pKiller = g_pPlayerManager->GetAt(killerPlayerId);
 
 			if(pKiller)
-				CLogFile::Printf("[Death] %s was killed by %s", pPlayer->GetName().C_String(), pKiller->GetName().C_String());
+				CLogFile::Printf("[Death] %s was killed by %s.", pPlayer->GetName().C_String(), pKiller->GetName().C_String());
 			else
 				killerPlayerId = INVALID_ENTITY_ID;
 		}
@@ -366,13 +364,13 @@ void CServerRPCHandler::Death(CBitStream * pBitStream, CPlayerSocket * pSenderSo
 			CVehicle * pKillerVehicle = g_pVehicleManager->GetAt(killerVehicleId);
 
 			if(pKillerVehicle)
-				CLogFile::Printf("[Death] %s was killed by vehicle %d", pPlayer->GetName().C_String(), killerVehicleId);
+				CLogFile::Printf("[Death] %s was killed by vehicle %d.", pPlayer->GetName().C_String(), killerVehicleId);
 			else
 				killerVehicleId = INVALID_ENTITY_ID;
 		}
 
 		if(killerPlayerId == INVALID_ENTITY_ID && killerVehicleId == INVALID_ENTITY_ID)
-			CLogFile::Printf("[Death] %s died", pPlayer->GetName().C_String());
+			CLogFile::Printf("[Death] %s died.", pPlayer->GetName().C_String());
 
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);

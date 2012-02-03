@@ -59,7 +59,6 @@ unsigned int COffsets::FUNC_CQuaternion__ConvertFromMatrix = 0;
 // Vehicle
 unsigned int COffsets::FUNC_CVehicle__SetEngineOn = 0;
 unsigned int COffsets::FUNC_CVehicle__RefreshColours = 0;
-unsigned int COffsets::FUNC_CVehicle__SetHazzardLights = 0;
 
 // Misc
 unsigned int COffsets::VAR_CurrentWantedLevel = 0;
@@ -259,7 +258,6 @@ void COffsets::Init(unsigned int uiBase)
 			// Vehicle
 			FUNC_CVehicle__SetEngineOn                    = (uiBase + 0x9D3600);
 			FUNC_CVehicle__RefreshColours                 = (uiBase + 0x9C52E0);
-			FUNC_CVehicle__SetHazzardLights				  = (uiBase + 0xB7D9C0);
 
 			// Misc
 			VAR_CurrentWantedLevel                        = (uiBase + 0x118F0DC); // Poor Naming (Could be some member of CWanted)

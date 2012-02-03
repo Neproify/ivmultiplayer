@@ -1692,35 +1692,33 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 
 		CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 3", pVehicle, byteSeatId);
 
-		/*BYTE byteDoorId = GetDoorFromSeat(byteSeatId);
-		int iUnknown2 = 0;
-
-		//if(byteSeatId != 0)
-		//	iUnknown2 = 0x200000;
-
-		// Create the enter vehicle task
-		CIVTaskComplexNewGetInVehicle * pTask = new CIVTaskComplexNewGetInVehicle(m_pVehicle->GetGameVehicle(), byteDoorId, 27, iUnknown2, 0.0f);
-
-		// Did the task create successfully?
-		if(pTask)
-		{
-			// Set it as the ped task
-			pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
-		}*/
-
 		// Is the vehicle streamed in?
 		if(pVehicle->IsStreamedIn())
 		{
-			// Are we entering as the driver?
+			// Create the enter vehicle task
+			int iUnknown = -4;
+
 			if(byteSeatId == 0)
+				iUnknown = -7;
+			else if(byteSeatId == 1)
+				iUnknown = 2;
+			else if(byteSeatId == 2)
+				iUnknown = 1;
+			else if(byteSeatId == 3)
+				iUnknown = 3;
+
+			unsigned int uiUnknown = 0;
+
+			if(byteSeatId > 0)
+				uiUnknown = 0x200000;
+
+			CIVTaskComplexNewGetInVehicle * pTask = new CIVTaskComplexNewGetInVehicle(pVehicle->GetGameVehicle(), iUnknown, 27, uiUnknown, -2.0f);
+
+			// Did the task create successfully?
+			if(pTask)
 			{
-				// Start the enter car as driver task
-				Scripting::TaskEnterCarAsDriver(GetScriptingHandle(), pVehicle->GetScriptingHandle(), -2);
-			}
-			else
-			{
-				// Start the enter car as passenger task
-				Scripting::TaskEnterCarAsPassenger(GetScriptingHandle(), pVehicle->GetScriptingHandle(), -2, (byteSeatId - 1));
+				// Set it as the ped task
+				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
 			}
 
 			CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 4", pVehicle, byteSeatId);
@@ -1736,8 +1734,8 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			ResetInterpolation();
 
 			// see ProcessVehicleEntryExit
-			if(IsLocalPlayer())
-				iProcessFrames = 1;
+			//if(IsLocalPlayer())
+				//iProcessFrames = 1;
 		}
 	}
 }
@@ -1852,27 +1850,6 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			RemoveFromVehicle();
 			CLogFile::Printf("CNetworkPlayer::PutInVehicle - 10");
 		}
-
-		/*
-		v3 = CPool__AtHandle(g_pPedPool, a1);
-		v2 = CPool__AtHandle(g_pVehiclePool, a2);
-		if ( *(_DWORD *)(v3 + 0x24) & 0x8000000 )
-		{
-		CWorld__RemoveEntity(v3, 0);
-		sub_9E6830(v3, v2, 0);
-		CWorld__AddEntity(v3, 0);
-		}
-		result = *(_DWORD *)(v3 + 0x6C);
-		if ( !result || !*(_BYTE *)(result + 0xE) )
-		{
-		ShutdownPedIntelligence(*(void **)(v3 + 0x224), 0);
-		v5 = GetDoorFromSeat(-1);
-		CTaskSimpleCarSetPedInVehicle__CTaskSimpleCarSetPedInVehicle(&v6, v2, v5, 0, 0);
-		sub_AA07C0(v3);
-		result = CTaskSimpleCarSetPedInVehicle___CTaskSimpleCarSetPedInVehicle(&v6);
-		}
-		return result;
-		*/
 
 		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 11");
 
@@ -2040,7 +2017,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 {
 	// this hack is needed to make vehicle entry work for network vehicles
 	// (due to the fact when you call task natives the task doesn't apply till 
-	// next frame) once we apply vehicle entry/exit tasks properly, this can 
+	// next frame) once we apply vehicle entry tasks properly, this can 
 	// be removed
 	// note: not safe for more than one player at a time
 	if(IsLocalPlayer())

@@ -71,7 +71,7 @@ void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 		m_bActive[playerId] = true;
 		m_pPlayers[playerId]->AddForWorld();
 		m_pPlayers[playerId]->SetState(STATE_TYPE_CONNECT);
-		CLogFile::Printf("[Join] %s (%d)", sPlayerName.C_String(), playerId);
+		CLogFile::Printf("[Connect] %s (%d) has connected to the server.", sPlayerName.Get(), playerId);
 	}
 }
 
@@ -93,7 +93,16 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 
 	m_pPlayers[playerId]->SetState(STATE_TYPE_DISCONNECT);
 	m_pPlayers[playerId]->DeleteForWorld();
-	CLogFile::Printf("[Leave] %s (%d) %d", m_pPlayers[playerId]->GetName().C_String(), playerId, byteReason);
+
+	String strReason = "None";
+
+	if(byteReason == 0)
+		strReason = "Disconnected";
+	else if(byteReason == 1)
+		strReason = "Lost Connection";
+
+	CLogFile::Printf("[Part] %s (%d) left the server (%s).", m_pPlayers[playerId]->GetName().Get(), playerId, strReason.Get());
+
 	delete m_pPlayers[playerId];
 	m_pPlayers[playerId] = NULL;
 	m_bActive[playerId] = false;

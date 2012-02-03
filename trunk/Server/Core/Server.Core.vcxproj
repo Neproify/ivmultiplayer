@@ -167,6 +167,7 @@
     <ClInclude Include="Natives\PlayerNatives.h" />
     <ClInclude Include="Natives\ScriptNatives.h" />
     <ClInclude Include="Natives\ServerNatives.h" />
+    <ClInclude Include="Natives\SystemNatives.h" />
     <ClInclude Include="Natives\VehicleNatives.h" />
     <ClInclude Include="..\..\Shared\Scripting\Natives\AreaNatives.h" />
     <ClInclude Include="..\..\Shared\Scripting\Natives\EventNatives.h" />
@@ -287,6 +288,7 @@
     <ClCompile Include="Natives\PlayerNatives.cpp" />
     <ClCompile Include="Natives\ScriptNatives.cpp" />
     <ClCompile Include="Natives\ServerNatives.cpp" />
+    <ClCompile Include="Natives\SystemNatives.cpp" />
     <ClCompile Include="Natives\VehicleNatives.cpp" />
     <ClCompile Include="..\..\Shared\Scripting\Natives\AreaNatives.cpp" />
     <ClCompile Include="..\..\Shared\Scripting\Natives\EventNatives.cpp" />
