@@ -58,6 +58,9 @@ bool CClientTaskManager::RemoveTask(CIVTask * pClientTask)
 		{
 			// Delete the client task pair
 			delete (*iter);
+
+			// Remove it from the list
+			m_taskList.remove(*iter);
 			return true;
 		}
 	}
