@@ -97,7 +97,7 @@ SQInteger CSystemNatives::MkDir(SQVM * pVM)
 	String strPath(s);
 	SharedUtility::RemoveIllegalCharacters(strPath);
 
-	if(rmdir(SharedUtility::GetAbsolutePath("files/%s", strPath.Get())) == -1)
+	if(mkdir(SharedUtility::GetAbsolutePath("files/%s", strPath.Get())) == -1)
 		return sq_throwerror(pVM, "mkdir() failed");
 
 	sq_pushbool(pVM, true);
@@ -111,7 +111,7 @@ SQInteger CSystemNatives::RmDir(SQVM * pVM)
 	String strPath(s);
 	SharedUtility::RemoveIllegalCharacters(strPath);
 
-	if(mkdir(SharedUtility::GetAbsolutePath("files/%s", strPath.Get())) == -1)
+	if(rmdir(SharedUtility::GetAbsolutePath("files/%s", strPath.Get())) == -1)
 		return sq_throwerror(pVM, "rmdir() failed");
 
 	sq_pushbool(pVM, true);
