@@ -1635,40 +1635,11 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 	return false;
 }
 
-// From 0x9C6DB0
-// Looks like vehicles never have more than 4 doors?
-BYTE GetDoorFromSeat(BYTE byteSeatId)
-{
-	BYTE byteDoorId;
-
-	switch(byteSeatId)
-	{
-	case 0:
-		byteDoorId = 2;
-		break;
-	case 1:
-		byteDoorId = 1;
-		break;
-	case 2:
-		byteDoorId = 3;
-		break;
-	default:
-		byteDoorId = 0;
-		break;
-	}
-
-	return byteDoorId;
-}
-
-int iProcessFrames = 0;
-
 void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d)", pVehicle, byteSeatId);
-
 		// Is the vehicle invalid?
 		if(!pVehicle)
 			return;
@@ -1684,13 +1655,9 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			}
 		}
 
-		CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 2", pVehicle, byteSeatId);
-
 		// Are we already in a vehicle?
 		if(IsInVehicle())
 			return;
-
-		CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 3", pVehicle, byteSeatId);
 
 		// Is the vehicle streamed in?
 		if(pVehicle->IsStreamedIn())
@@ -1721,21 +1688,13 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
 			}
 
-			CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 4", pVehicle, byteSeatId);
-
 			// Mark ourselves as entering a vehicle and store our vehicle and seat
 			m_vehicleEnterExit.bEntering = true;
 			m_vehicleEnterExit.pVehicle = pVehicle;
 			m_vehicleEnterExit.byteSeatId = byteSeatId;
 
-			CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 5", pVehicle, byteSeatId);
-
 			// Reset interpolation
 			ResetInterpolation();
-
-			// see ProcessVehicleEntryExit
-			//if(IsLocalPlayer())
-				//iProcessFrames = 1;
 		}
 	}
 }
@@ -1815,15 +1774,12 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 
 void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
-	CLogFile::Printf("CNetworkPlayer::PutInVehicle - 1");
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 2");
 		// Is the vehicle invalid?
 		if(!pVehicle)
 			return;
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 3");
 
 		// Is the vehicle not spawned?
 		if(!pVehicle->IsStreamedIn())
@@ -1831,40 +1787,29 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			// Are we the local player?
 			if(IsLocalPlayer())
 			{
-				CLogFile::Printf("CNetworkPlayer::PutInVehicle - 4");
 				// Force the vehicle to stream in
 				g_pStreamer->ForceStreamIn(pVehicle);
-				CLogFile::Printf("CNetworkPlayer::PutInVehicle - 5");
 			}
 			else
 				return;
 		}
 
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 8");
-
 		// Are we already in a vehicle?
 		if(IsInVehicle())
 		{
-			CLogFile::Printf("CNetworkPlayer::PutInVehicle - 9");
 			// Remove ourselves from our current vehicle
 			RemoveFromVehicle();
-			CLogFile::Printf("CNetworkPlayer::PutInVehicle - 10");
 		}
-
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 11");
 
 		// Internally put ourselves into the vehicle
 		if(pVehicle->IsStreamedIn())
 			InternalPutInVehicle(pVehicle, byteSeatId);
-
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 12");
 
 		// Reset vehicle entry/exit
 		ResetVehicleEnterExit();
 		m_pVehicle = pVehicle;
 		m_byteVehicleSeatId = byteSeatId;
 		pVehicle->SetOccupant(byteSeatId, this);
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 13");
 	}
 }
 
@@ -2015,24 +1960,6 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 
 void CNetworkPlayer::ProcessVehicleEntryExit()
 {
-	// this hack is needed to make vehicle entry work for network vehicles
-	// (due to the fact when you call task natives the task doesn't apply till 
-	// next frame) once we apply vehicle entry tasks properly, this can 
-	// be removed
-	// note: not safe for more than one player at a time
-	if(IsLocalPlayer())
-	{
-		if(iProcessFrames > 0)
-		{
-			iProcessFrames++;
-
-			if(iProcessFrames == 4)
-				iProcessFrames = 0;
-			else
-				return;
-		}
-	}
-
 	// Are we spawned?
 	if(IsSpawned())
 	{
