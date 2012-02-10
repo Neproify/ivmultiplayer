@@ -94,24 +94,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ShowMessageBox("Failed to find " CLIENT_LAUNCH_HELPER_NAME DEBUG_SUFFIX LIBRARY_EXTENSION". Cannot launch IV: Multiplayer.");
 		return 1;
 	}
+	
+	// Check if GTAIV is already running
+	if(SharedUtility::IsProcessRunning("GTAIV.exe"))
+	{
+		if(ShowMessageBox("GTAIV is already running and needs to be terminated before IV: Multiplayer can be started. Do you want to do that now?", MB_ICONQUESTION | MB_YESNO ) == IDYES)
+		{
+			if(!SharedUtility::_TerminateProcess("GTAIV.exe"))
+			{
+				ShowMessageBox("GTAIV.exe could not be terminated. Cannot launch IV: Multiplayer.");
+				return 1;
+			}
+		}
+		else
+		{
+			ShowMessageBox("GTAIV.exe is already running. Cannot launch IV: Multiplayer.");
+			return 1;
+		}
+	}
 
 	// Check if LaunchGTAIV.exe is already running
 	if(SharedUtility::IsProcessRunning("LaunchGTAIV.exe"))
 	{
 		ShowMessageBox("LaunchGTAIV.exe is already running. Cannot launch IV: Multiplayer.");
-		return 1;
-	}
-	
-	// Check if GTAIV is already running
-	SetLastError(0);
-	HANDLE hMutex = CreateMutex(NULL, NULL, "GTANY-088FA840-B10D-11D3-BC36-006067709674");
-
-	if(hMutex != NULL)
-		CloseHandle(hMutex);
-
-	if(GetLastError() != 0)
-	{
-		ShowMessageBox("GTA:IV is already running. Cannot launch IV: Multiplayer.");
 		return 1;
 	}
 

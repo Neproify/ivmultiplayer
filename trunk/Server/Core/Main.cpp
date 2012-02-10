@@ -411,7 +411,14 @@ int main(int argc, char ** argv)
 	}
 
 	g_pNetworkManager = new CNetworkManager();
-	g_pNetworkManager->Startup(CVAR_GET_INTEGER("port"), CVAR_GET_INTEGER("maxplayers"), CVAR_GET_STRING("password"), CVAR_GET_STRING("hostaddress"));
+
+	// Startup the network manager, if it fails exit
+	if(!g_pNetworkManager->Startup(CVAR_GET_INTEGER("port"), CVAR_GET_INTEGER("maxplayers"), CVAR_GET_STRING("password"), CVAR_GET_STRING("hostaddress")))
+	{
+		CLogFile::Print("Failed to startup the network manager!\n");
+		return 1;
+	}
+
 	g_pPlayerManager = new CPlayerManager();
 	g_pVehicleManager = new CVehicleManager();
 	g_pObjectManager = new CObjectManager();

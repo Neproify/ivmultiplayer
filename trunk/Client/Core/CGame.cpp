@@ -1157,5 +1157,6 @@ void CGame::StopCutscene(char * szCutsceneName)
 	{
 		push szCutsceneName
 		call dwFunc
+		add esp, 4
 	}
 }

@@ -102,8 +102,22 @@ CIVTask * CClientTaskManager::GetClientTaskFromGameTask(IVTask * pGameTask, bool
 	// Create the client task if requested
 	if(bCreateIfNotExist)
 	{
+		// Create a temporary instance
+		CIVTask * pTempClientTask = new CIVTask(pGameTask);
+
+		// Is this task a simple task?
+		bool bIsSimple = pTempClientTask->IsSimple();
+
+		// Delete the temporary instance
+		delete pTempClientTask;
+
 		// Create the client task instance
-		CIVTask * pClientTask = new CIVTask(pGameTask);
+		CIVTask * pClientTask = NULL;
+
+		if(bIsSimple)
+			pClientTask = new CIVTaskSimple((IVTaskSimple *)pGameTask);
+		else
+			pClientTask = new CIVTaskComplex((IVTaskComplex *)pGameTask);
 
 		// Add the task
 		AddTask(pClientTask);

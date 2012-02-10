@@ -271,6 +271,31 @@ namespace SharedUtility
 		return GetProcessIdFromProcessName(szProcessName, NULL);
 	}
 
+	bool _TerminateProcess(char * szProcessName)
+	{
+		// Check if the process is running
+		DWORD dwProcessId = 0;
+
+		if(GetProcessIdFromProcessName(szProcessName, &dwProcessId))
+		{
+			// Attempt to open a handle to the process
+			HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
+
+			// Did the process handle open successfully?
+			if(hProcess)
+			{
+				// Attempt to terminate the process
+				if(TerminateProcess(hProcess, 0))
+				{
+					// Process terminated
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	bool ReadRegistryString(HKEY hKeyLocation, const char * szSubKey, const char * szKey, const char * szDefault, char * szData, DWORD dwSize)
 	{
 		HKEY hKey = NULL;

@@ -57,6 +57,9 @@ bool GetProcessIdFromProcessName(char * szProcessName, DWORD * dwProcessId);
 // Return weather the specified process is running
 bool IsProcessRunning(char * szProcessName);
 
+// Terminate the specified process
+bool _TerminateProcess(char * szProcessName);
+
 // Read a string from the registry
 bool ReadRegistryString(HKEY hKeyLocation, const char * szSubKey, const char * szKey, const char * szDefault, char * szData, DWORD dwSize);
 

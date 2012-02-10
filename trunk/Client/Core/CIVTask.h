@@ -84,6 +84,7 @@
 #define TASK_COMPLEX_GET_IN_CAR_SCENARIO 361
 #define TASK_COMPLEX_EVASIVE_STEP 502
 #define TASK_COMPLEX_MOVE_STEP_AWAY_FROM_COLLISION_OBJECTS 516
+#define TASK_COMPLEX_WALK_ROUND_ENTITY 517
 #define TASK_COMPLEX_LEAVE_CAR_AND_WANDER 572
 #define TASK_COMPLEX_INVESTIGATE_DEAD_PED 600
 #define TASK_COMPLEX_REACT_TO_GUN_AIMED_AT 601
@@ -256,7 +257,7 @@ public:
 	DWORD m40;
 };
 
-class IVTaskSimpleVFTable
+class IVTaskSimpleVFTable : public IVTaskVFTable
 {
 public:
 	DWORD ProcessPed;
@@ -264,7 +265,7 @@ public:
 	DWORD m4C;
 };
 
-class IVTaskComplexVFTable
+class IVTaskComplexVFTable : public IVTaskVFTable
 {
 public:
 	DWORD SetSubTask;
@@ -279,9 +280,21 @@ class IVTask
 public:
 	IVTaskVFTable * m_VFTable;
 	IVTask *        m_pParent;
-	IVTask *        m_pSubTask; // CTaskComplex?
-	PAD(IVTask, pad0, 0x104);
-	// 0xE = pPed?
+	//PAD(IVTask, pad0, 0x104); // incorrect (probably the biggest task size possible?)
+	// 0xE = pPed? // incorrect
+};
+
+// IV's CTaskSimple
+class IVTaskSimple : public IVTask
+{
+public:
+};
+
+// IV's CTaskComplex
+class IVTaskComplex : public IVTask
+{
+public:
+	IVTask * m_pSubTask;
 };
 
 // From Multi Theft Auto
@@ -311,11 +324,32 @@ public:
 	void         Create();
 	void         Destroy();
 	CIVTask *    GetParent();
-	CIVTask *    GetSubTask();
 	CIVTask *    Clone();
 	bool         IsSimple();
 	int          GetType();
 	const char * GetName();
 	bool         MakeAbortable(CIVPed * pPed, int iAbortPriority, CIVEvent * pEvent = NULL);
 	void         SetAsPedTask(CIVPed * pPed, int iTaskPriority, bool bForceNewTask = false);
+};
+
+class CIVTaskSimple : public CIVTask
+{
+public:
+	CIVTaskSimple() : CIVTask() {}
+	CIVTaskSimple(IVTaskSimple * pTask) : CIVTask(pTask) {}
+
+	bool ProcessPed(CIVPed * pPed);
+};
+
+class CIVTaskComplex : public CIVTask
+{
+public:
+	CIVTaskComplex() : CIVTask() {}
+	CIVTaskComplex(IVTaskComplex * pTask) : CIVTask(pTask) {}
+
+	CIVTask * GetSubTask();
+	void      SetSubTask(CIVTask * pSubTask);
+	CIVTask * CreateNextSubTask(CIVPed * pPed);
+	CIVTask * CreateFirstSubTask(CIVPed * pPed);
+	CIVTask * ControlSubTask(CIVPed * pPed);
 };

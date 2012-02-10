@@ -123,6 +123,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 			}
 		}
 	}
+
 	g_pTrafficLights->SetState((CTrafficLights::eTrafficLightState)ucTrafficLightState);
 	g_pTrafficLights->SetTimeThisCycle(uiTrafficLightTimePassed);
 
