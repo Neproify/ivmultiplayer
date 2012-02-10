@@ -658,19 +658,15 @@ void CNetworkPlayer::InternalRemoveFromVehicle()
 		// Create the car set ped out task
 		CIVTaskSimpleCarSetPedOut * pTask = new CIVTaskSimpleCarSetPedOut(m_pVehicle->GetGameVehicle(), 0xF, 0, 1);
 
-		// Apply the task to the player ped
-		IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
-		IVTask * pGameTask = pTask->GetTask();
-		DWORD dwFunc = (CGame::GetBase() + 0xA9ED10);
-		_asm
+		// Did the task create successfully?
+		if(pTask)
 		{
-			push pPlayerPed
-			mov ecx, pGameTask
-			call dwFunc
-		}
+			// Process the ped
+			pTask->ProcessPed(m_pPlayerPed);
 
-		// Destroy the task
-		pTask->Destroy();
+			// Destroy the task
+			pTask->Destroy();
+		}
 	}
 }
 

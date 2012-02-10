@@ -48,12 +48,11 @@ void CDebugView::DumpTask(String strName, CIVTask * pTask)
 	}
 
 	DrawText(String("%s: %s (%d)", strName.Get(), pTask->GetName(), pTask->GetType()));
-	CIVTask * pSubTask = NULL;
 
-	while((pSubTask = pTask->GetSubTask()))
+	if(!pTask->IsSimple())
 	{
-		DrawText(String("%s: %s (%d)", strName.Get(), pSubTask->GetName(), pSubTask->GetType()));
-		pTask = pSubTask;
+		CIVTask * pSubTask = ((CIVTaskComplex *)pTask)->GetSubTask();
+		DumpTask(strName, pSubTask);
 	}
 }
 
@@ -63,23 +62,23 @@ void CDebugView::DumpTasks(CIVPedTaskManager * pPedTaskManager, int iType)
 	{
 		DrawText("Priority Tasks: ");
 		DrawText("");
-		DumpTask("PhysicalResponse", pPedTaskManager->GetTask(TASK_PRIORITY_PHYSICAL_RESPONSE));
-		DumpTask("EventResponseTemp", pPedTaskManager->GetTask(TASK_PRIORITY_EVENT_RESPONSE_TEMP));
+		DumpTask("PhysicalResponse",     pPedTaskManager->GetTask(TASK_PRIORITY_PHYSICAL_RESPONSE));
+		DumpTask("EventResponseTemp",    pPedTaskManager->GetTask(TASK_PRIORITY_EVENT_RESPONSE_TEMP));
 		DumpTask("EventResponseNonTemp", pPedTaskManager->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP));
-		DumpTask("Primary", pPedTaskManager->GetTask(TASK_PRIORITY_PRIMARY));
-		DumpTask("Default", pPedTaskManager->GetTask(TASK_PRIORITY_DEFAULT));
+		DumpTask("Primary",              pPedTaskManager->GetTask(TASK_PRIORITY_PRIMARY));
+		DumpTask("Default",              pPedTaskManager->GetTask(TASK_PRIORITY_DEFAULT));
 		DrawText("");
 	}
 	else if(iType == 1)
 	{
 		DrawText("Secondary Tasks: ");
 		DrawText("");
-		DumpTask("Attack", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_ATTACK));
-		DumpTask("Duck", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_DUCK));
-		DumpTask("Say", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_SAY));
+		DumpTask("Attack",        pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_ATTACK));
+		DumpTask("Duck",          pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_DUCK));
+		DumpTask("Say",           pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_SAY));
 		DumpTask("FacialComplex", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_FACIAL_COMPLEX));
-		DumpTask("PartialAnim", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_PARTIAL_ANIM));
-		DumpTask("IK", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_IK));
+		DumpTask("PartialAnim",   pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_PARTIAL_ANIM));
+		DumpTask("IK",            pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_IK));
 		DrawText("");
 
 	}
@@ -120,9 +119,9 @@ void CDebugView::DumpPlayer(CNetworkPlayer * pPlayer)
 	CVector3 vecCamForward;
 	vecCamForward = pGameCam->GetCam()->m_data1.m_matMatrix.vecForward;
 	CVector3 vecLookAt;
-	vecLookAt.fX = vecCamPosition.fX + /*floatmul(*/vecCamForward.fX/*, fScale)*/;
-	vecLookAt.fY = vecCamPosition.fY + /*floatmul(*/vecCamForward.fY/*, fScale)*/;
-	vecLookAt.fZ = vecCamPosition.fZ + /*floatmul(*/vecCamForward.fZ/*, fScale)*/;
+	vecLookAt.fX = vecCamPosition.fX + /*(*/vecCamForward.fX/* * fScale)*/;
+	vecLookAt.fY = vecCamPosition.fY + /*(*/vecCamForward.fY/* * fScale)*/;
+	vecLookAt.fZ = vecCamPosition.fZ + /*(*/vecCamForward.fZ/* * fScale)*/;
 	DrawText(String("Camera Position: %f, %f, %f Camera Look At: %f, %f, %f", vecCamPosition.fX, vecCamPosition.fY, vecCamPosition.fZ, vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ));
 #endif
 

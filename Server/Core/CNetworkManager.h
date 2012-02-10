@@ -31,7 +31,7 @@ public:
 	~CNetworkManager();
 
 	CNetServerInterface * GetNetServer() { return m_pNetServer; }
-	void                  Startup(int iPort, int iMaxPlayers, String strPassword, String strHostAddress);
+	bool                  Startup(int iPort, int iMaxPlayers, String strPassword, String strHostAddress);
 	static void           PacketHandler(CPacket * pPacket);
 	void                  Process();
 	void                  RPC(RPCIdentifier rpcId, CBitStream * pBitStream, ePacketPriority priority, ePacketReliability reliability, EntityId playerId, bool bBroadcast, char cOrderingChannel = PACKET_CHANNEL_DEFAULT);

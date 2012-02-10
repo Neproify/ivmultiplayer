@@ -64,10 +64,11 @@ CNetworkManager::~CNetworkManager()
 	CNetworkModule::DestroyNetServerInterface(m_pNetServer);
 }
 
-void CNetworkManager::Startup(int iPort, int iMaxPlayers, String strPassword, String strHostAddress)
+bool CNetworkManager::Startup(int iPort, int iMaxPlayers, String strPassword, String strHostAddress)
 {
 	// Start up the net server
-	m_pNetServer->Startup(iPort, iMaxPlayers, strHostAddress.Get());
+	if(!m_pNetServer->Startup(iPort, iMaxPlayers, strHostAddress.Get()))
+		return false;
 
 	// Set the net server password
 	m_pNetServer->SetPassword(strPassword);
@@ -77,6 +78,7 @@ void CNetworkManager::Startup(int iPort, int iMaxPlayers, String strPassword, St
 
 	// Register the rpcs
 	m_pServerRPCHandler->Register();
+	return true;
 }
 
 void CNetworkManager::PacketHandler(CPacket * pPacket)
