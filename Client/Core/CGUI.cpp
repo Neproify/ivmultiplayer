@@ -3,7 +3,6 @@
 // File: CGUI.cpp
 // Project: Client.Core
 // Author(s): jenksta
-//            adamix
 // License: See LICENSE in root directory
 //
 //==============================================================================

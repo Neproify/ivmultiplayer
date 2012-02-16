@@ -326,7 +326,7 @@ bool CHttpClient::ParseHeaders(String& strBuffer, int& iBufferSize)
 	m_headerMap["HeaderSize"] = iHeaderSize;
 
 
-	// ADAMIX: commented out this code because doesn't work properly. Are we really need to parse headers?
+	// ADAMIX/JENKSTA: commented out this code because doesn't work properly. Are we really need to parse headers?
 
 	/*// Ignore all initial whitespace
 	unsigned int uiWhiteSpace = 0;

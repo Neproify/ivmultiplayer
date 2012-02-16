@@ -2,8 +2,7 @@
 //
 // File: CGraphics.cpp
 // Project: Client.Core
-// Author(s): adamix
-//            jenskta
+// Author(s): jenksta
 // License: See LICENSE in root directory
 //
 //==============================================================================
