@@ -2,7 +2,7 @@
 //
 // File: CVFS.cpp
 // Project: Client.VFS
-// Author(s): adamix
+// Author(s): jenksta
 // License: See LICENSE in root directory
 //
 //============================================================================== 

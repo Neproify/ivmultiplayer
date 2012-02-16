@@ -2,7 +2,7 @@
 //
 // File: CVFSModule.cpp
 // Project: Shared
-// Author(s): adamix
+// Author(s): jenksta
 // License: See LICENSE in root directory
 //
 //============================================================================== 

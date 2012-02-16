@@ -2,7 +2,7 @@
 //
 // File: Main.cpp
 // Project: Client.VFS.Utility
-// Author(s): adamix
+// Author(s): jenksta
 // License: See LICENSE in root directory
 //
 //============================================================================== 

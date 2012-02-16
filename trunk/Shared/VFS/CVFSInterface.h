@@ -2,7 +2,7 @@
 //
 // File: CVFSInterface.h
 // Project: Shared
-// Author(s): adamix
+// Author(s): jenksta
 // License: See LICENSE in root directory
 //
 //============================================================================== 
