@@ -251,133 +251,100 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 		{
-			CLogFile::Printf("Shutdown 1");
-
 			// Delete our file transfer
 			SAFE_DELETE(g_pFileTransfer);
-			CLogFile::Printf("Shutdown 2");
 
 			// Delete our camera
 			SAFE_DELETE(g_pCamera);
-			CLogFile::Printf("Shutdown 3");
 
 			// Delete our model manager
 			SAFE_DELETE(g_pModelManager);
-			CLogFile::Printf("Shutdown 4");
 
 			// Delete our pickup manager
 			SAFE_DELETE(g_pPickupManager);
-			CLogFile::Printf("Shutdown 5");
 
 			// Delete our checkpoint manager
 			SAFE_DELETE(g_pCheckpointManager);
-			CLogFile::Printf("Shutdown 6");
 
 			// Delete our object manager
 			SAFE_DELETE(g_pObjectManager);
-			CLogFile::Printf("Shutdown 7");
 
 			// Delete our blip manager
 			SAFE_DELETE(g_pBlipManager);
-			CLogFile::Printf("Shutdown 8");
 
 			// Delete our actor manager
 			SAFE_DELETE(g_pActorManager);
-			CLogFile::Printf("Shutdown 9");
 
 			// Delete our vehicle manager
 			SAFE_DELETE(g_pVehicleManager);
-			CLogFile::Printf("Shutdown 10");
 
 			// Delete our local player
 			SAFE_DELETE(g_pLocalPlayer);
-			CLogFile::Printf("Shutdown 11");
 
 			// Delete our player manager
 			SAFE_DELETE(g_pPlayerManager);
-			CLogFile::Printf("Shutdown 12");
 
 			// Delete our network manager
 			SAFE_DELETE(g_pNetworkManager);
-			CLogFile::Printf("Shutdown 13");
 
 			// Delete our name tags
 			SAFE_DELETE(g_pNameTags);
-			CLogFile::Printf("Shutdown 14");
 
 			// Delete our input window
 			SAFE_DELETE(g_pInputWindow);
-			CLogFile::Printf("Shutdown 15");
 
 			// Delete our chat window
 			SAFE_DELETE(g_pChatWindow);
-			CLogFile::Printf("Shutdown 16");
 
 			// Delete our debug view
 			SAFE_DELETE(g_pDebugView);
 
 			// Delete our fps counter
 			SAFE_DELETE(g_pFPSCounter);
-			CLogFile::Printf("Shutdown 17");
 
 			// Delete our credits
 			SAFE_DELETE(g_pCredits);
-			CLogFile::Printf("Shutdown 18");
 
 			// Delete our main menu
 			SAFE_DELETE(g_pMainMenu);
-			CLogFile::Printf("Shutdown 19");
 
 			// Delete our gui
 			SAFE_DELETE(g_pGUI);
-			CLogFile::Printf("Shutdown 20");
 
 			// Delete our streamer class
 			SAFE_DELETE(g_pStreamer);
-			CLogFile::Printf("Shutdown 21");
 
 			// Delete our time class
 			SAFE_DELETE(g_pTime);
-			CLogFile::Printf("Shutdown 22");
 
 			// Delete our traffic lights
 			SAFE_DELETE(g_pTrafficLights);
-			CLogFile::Printf("Shutdown 23");
 
 			// Delete our client task manager
 			SAFE_DELETE(g_pClientTaskManager);
-			CLogFile::Printf("Shutdown 24");
 
 			// Delete our events manager
 			SAFE_DELETE(g_pEvents);
-			CLogFile::Printf("Shutdown 25");
 
 			// Uninstall the Cursor hook
 #ifdef IVMP_DEBUG
 			CCursorHook::Uninstall();
 #endif
-			CLogFile::Printf("Shutdown 26");
 
 			// Uninstall the DirectInput hook
 			CDirectInputHook::Uninstall();
-			CLogFile::Printf("Shutdown 27");
 
 			// Uninstall the Direct3D hook
 			CDirect3DHook::Uninstall();
-			CLogFile::Printf("Shutdown 28");
 
 			// Uninstall the XLive hook
 			// TODO
-			CLogFile::Printf("Shutdown 29");
 
 			// Shutdown our game
-			CLogFile::Printf("Shutdown CGame");
 			CGame::Shutdown();
-			CLogFile::Printf("Shutdown 30");
 
 			// Close the settings file
 			CSettings::Close();
-			CLogFile::Printf("Shutdown 31");
 
 			// Close the log file
 			CLogFile::Close();
@@ -388,11 +355,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
-#if 0
 #include "CRemotePlayer.h"
 CRemotePlayer * pClonePlayer = NULL;
 
-void DrawDebugView()
+void DoClonePlayer()
 {
 	if(g_pGUI && g_pLocalPlayer && g_pCamera)
 	{
@@ -402,92 +368,41 @@ void DrawDebugView()
 			pClonePlayer->Spawn(CVector3(), 0);
 		}
 
-		/*if(GetAsyncKeyState(VK_F7))
-		{
-			*(DWORD *)(CGame::GetBase() + 0xCCA0E0) = 0x900004C2;
-			g_pChatWindow->AddInfoMessage("Disabled CTaskSimpleFireGun::SetPedPosition");
-		}
-		else if(GetAsyncKeyState(VK_F8))
-		{
-		// this is where the target data is processed
-			*(DWORD *)(CGame::GetBase() + 0xCCAA30) = 0x900004C2;
-			g_pChatWindow->AddInfoMessage("Disabled CTaskSimpleFireGun::ProcessPed");
-		}*/
-
-		g_fDebugTextTop = DEBUG_TEXT_TOP;
-		
-
-		// get targetting pool (this is always 0)
-		/*struct IVTargetting { };
-		CIVPool<IVTargetting *> * pTargettingPool = new CIVPool<IVTargetting *>(*(IVPool **)COffsets::VAR_TargettingPool);
-		DrawDebugText(String("Targetting Pool Count: %d", pTargettingPool->GetUsed()));*/
-
-		/*if(bGotSimpleFireGun)
-		{
-			DrawDebugText("64 bytes from SimpleFireGun Task: ");
-			BYTE * pMemory = (BYTE *)pTask;
-			for(int i = 0; i < 4; i++)
-			{
-				DrawDebugText(String("%.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x", 
-					pMemory[(16*i)],pMemory[(16*i)+1],pMemory[(16*i)+2],pMemory[(16*i)+3],
-					pMemory[(16*i)+4],pMemory[(16*i)+5],pMemory[(16*i)+6],pMemory[(16*i)+7],
-					pMemory[(16*i)+8],pMemory[(16*i)+9],pMemory[(16*i)+10],pMemory[(16*i)+11],
-					pMemory[(16*i)+12],pMemory[(16*i)+13],pMemory[(16*i)+14],pMemory[(16*i)+15]));
-			}
-		}*/
-
-		// delete targetting pool
-		//delete pTargettingPool;
-
-		// Debug aim test
-		CControlState controlState;
-		g_pLocalPlayer->GetControlState(&controlState);
-
-		if(controlState.IsAiming() || controlState.IsFiring())
-		{
-			float fScale = 10.0f;
-			vecLookAt.fX = vecCamPosition.fX + (vecCamForward.fX * fScale);
-			vecLookAt.fY = vecCamPosition.fY + (vecCamForward.fY * fScale);
-			vecLookAt.fZ = vecCamPosition.fZ + (vecCamForward.fZ * fScale);
-			CNetworkVehicle * pVehicle = g_pVehicleManager->Get(0);
-
-			if(pVehicle)
-				pVehicle->SetPosition(vecLookAt);
-		}
-
 		if(pClonePlayer)
 		{
+			CVector3 vecPosition;
+			g_pLocalPlayer->GetPosition(vecPosition);
 			vecPosition.fX += 5.0f;
 			pClonePlayer->SetPosition(vecPosition);
 			pClonePlayer->SetCurrentHeading(g_pLocalPlayer->GetCurrentHeading());
+			unsigned int uiWeaponId = g_pLocalPlayer->GetCurrentWeapon();
 
 			if(pClonePlayer->GetCurrentWeapon() != uiWeaponId)
 				pClonePlayer->GiveWeapon(uiWeaponId, g_pLocalPlayer->GetAmmo(uiWeaponId));
 
 			pClonePlayer->SetDucking(g_pLocalPlayer->IsDucking());
+			CControlState controlState;
+			g_pLocalPlayer->GetControlState(&controlState);
 			pClonePlayer->SetControlState(&controlState);
 
+			if(controlState.IsAiming() || controlState.IsFiring() || controlState.IsDoingDriveBy())
 			{
-				float fScale = 10.0f;
-				CVector3 vecAim = (vecCamPosition + (vecCamForward * fScale));
-				vecAim.fX += 5.0f;
-
-				if(controlState.IsFiring())
-					Scripting::TaskShootAtCoord(pClonePlayer->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, 45000, 5);
-				else if(controlState.IsAiming())
-					Scripting::TaskAimGunAtCoord(pClonePlayer->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, 45000);
-				else
-				{
-					CIVTask * pTask = pClonePlayer->GetGamePlayerPed()->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
-
-					if(pTask && (pTask->GetType() == TASK_COMPLEX_GUN || pTask->GetType() == TASK_COMPLEX_AIM_AND_THROW_PROJECTILE))
-						pClonePlayer->GetGamePlayerPed()->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_PRIMARY);
-				}
+				CVector3 vecAimTarget;
+				g_pLocalPlayer->GetAimTarget(vecAimTarget);
+				vecAimTarget.fX += 5.0f;
+				pClonePlayer->SetAimTarget(vecAimTarget);
+				CVector3 vecShotSource;
+				g_pLocalPlayer->GetShotSource(vecShotSource);
+				vecShotSource.fX += 5.0f;
+				pClonePlayer->SetShotSource(vecShotSource);
+				CVector3 vecShotTarget;
+				g_pLocalPlayer->GetShotTarget(vecShotTarget);
+				vecShotTarget.fX += 5.0f;
+				pClonePlayer->SetShotTarget(vecShotTarget);
 			}
 		}
 	}
 }
-#endif
 
 // Direct3DDevice9::EndScene
 void Direct3DRender()
@@ -584,7 +499,7 @@ void Direct3DRender()
 
 			// Append loaded and unloaded model counts to the stats
 			// jenksta: too performance heavy to be done every frame
-			//strStats.AppendF("Models (Loaded/Unload): %d/%d\n", CGame::GetLoadedModelCount(), CGame::GetUnloadedModelCount());
+			//strStats.AppendF("Models (Loaded/Unloaded): %d/%d\n", CGame::GetLoadedModelCount(), CGame::GetUnloadedModelCount());
 
 			// Append streamed in/out entity counts and streamed in limits to the stats
 			strStats.AppendF("Vehicles (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_VEHICLE), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_VEHICLE));
@@ -685,6 +600,7 @@ void Direct3DRender()
 #ifdef IVMP_DEBUG
 		// If our debug view exists draw it
 		g_pDebugView->Draw();
+		DoClonePlayer();
 #endif
 	}
 }

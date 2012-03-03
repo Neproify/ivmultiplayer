@@ -91,19 +91,39 @@ CIVTaskSimpleDead::CIVTaskSimpleDead(DWORD dwDeathTime, char a3, char a4) : CIVT
 	}
 }
 
-CIVTaskSimpleCarSetPedOut::CIVTaskSimpleCarSetPedOut(CIVVehicle * pVehicle, int a3, char a4, char a5) : CIVTaskSimple()
+CIVTaskSimpleCarSetPedInVehicle::CIVTaskSimpleCarSetPedInVehicle(CIVVehicle * pVehicle, int a3, char a4, char a5) : CIVTaskSimple()
 {
 	// Create the task
 	Create();
 
 	// Call the task constructor
+	IVVehicle * pGameVehicle = pVehicle->GetVehicle();
 	IVTask * pTask = GetTask();
 	_asm
 	{
 		push a5
 		push a4
 		push a3
-		push pVehicle
+		push pGameVehicle
+		mov ecx, pTask
+		call COffsets::FUNC_CTaskSimpleCarSetPedInVehicle__Constructor
+	}
+}
+
+CIVTaskSimpleCarSetPedOut::CIVTaskSimpleCarSetPedOut(CIVVehicle * pVehicle, int a3, char a4, char a5) : CIVTaskSimple()
+{
+	// Create the task
+	Create();
+
+	// Call the task constructor
+	IVVehicle * pGameVehicle = pVehicle->GetVehicle();
+	IVTask * pTask = GetTask();
+	_asm
+	{
+		push a5
+		push a4
+		push a3
+		push pGameVehicle
 		mov ecx, pTask
 		call COffsets::FUNC_CTaskSimpleCarSetPedOut__Constructor
 	}

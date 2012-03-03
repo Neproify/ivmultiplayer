@@ -1,0 +1,170 @@
+//============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
+//
+// File: AimSync.cpp
+// Project: Client.Core
+// Author(s): jenksta
+// License: See LICENSE in root directory
+//
+//==============================================================================
+
+#include "AimSync.h"
+#include "COffsets.h"
+#include <Patcher/CPatcher.h>
+#include "CIVPed.h"
+#include "CIVPlayerPed.h"
+#include "CContextDataManager.h"
+#include <CLogFile.h>
+
+DWORD      dwFunc = NULL;
+IVPed    * g_pIKPed = NULL;
+CVector3 * g_vecWeaponAimTarget = NULL;
+IVPed    * g_pWeaponPed = NULL;
+CVector3 * g_vecWeaponShotSource = NULL;
+CVector3 * g_vecWeaponShotTarget = NULL;
+
+#include "CChatWindow.h"
+extern CChatWindow * g_pChatWindow;
+
+void StoreAimTarget(IVPed * pPed, CVector3 * vecWeaponTarget)
+{
+	// Do we have a valid ped pointer and target pointer?
+	if(pPed && vecWeaponTarget)
+	{
+		// Get the remote players context data
+		CContextData * pContextData = CContextDataManager::GetContextData((IVPlayerPed *)pPed);
+
+		// Do we have a valid context data?
+		if(pContextData)
+		{
+			// Is this the local player?
+			if(pContextData->GetPlayerInfo()->GetPlayerNumber() == 0)
+			{
+				pContextData->SetWeaponAimTarget(*vecWeaponTarget);
+				g_pChatWindow->AddInfoMessage("StoreAimTargetLocal(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
+			}
+			else
+			{
+				pContextData->GetWeaponAimTarget(*vecWeaponTarget);
+				g_pChatWindow->AddInfoMessage("StoreAimTarget(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
+			}
+		}
+		else
+			CLogFile::Printf("StoreAimTarget Warning: Invalid Player Ped");
+	}
+}
+
+void StoreShotSourceTarget(IVPed * pPed, CVector3 * pWeaponSource, CVector3 * pWeaponTarget)
+{
+	// Do we have a valid ped pointer, source pointer and target pointer?
+	if(pPed && pWeaponSource && pWeaponTarget)
+	{
+		// Get the remote players context data
+		CContextData * pContextData = CContextDataManager::GetContextData((IVPlayerPed *)pPed);
+
+		// Do we have a valid context data?
+		if(pContextData)
+		{
+			// Is this the local player?
+			if(pContextData->GetPlayerInfo()->GetPlayerNumber() == 0)
+			{
+				pContextData->SetWeaponShotSource(*pWeaponSource);
+				pContextData->SetWeaponShotTarget(*pWeaponTarget);
+			}
+			else
+			{
+				pContextData->GetWeaponShotSource(*pWeaponSource);
+				pContextData->GetWeaponShotTarget(*pWeaponTarget);
+			}
+		}
+		else
+			CLogFile::Printf("StoreShotSourceTarget Warning: Invalid Player Ped");
+	}
+}
+
+void _declspec(naked) CIKManager__AimWeapon()
+{
+	_asm
+	{
+		push ebp
+		mov ebp, esp
+		mov eax, [ecx+40h] // CIKManager + 0x40 = CPed * pPed
+		mov g_pIKPed, eax
+		mov eax, [ebp+8]
+		mov g_vecWeaponAimTarget, eax
+		pop ebp
+		pushad
+	}
+
+	StoreAimTarget(g_pIKPed, g_vecWeaponAimTarget);
+	dwFunc = (CGame::GetBase() + 0x950D66);
+
+	_asm
+	{
+		popad
+		push ebp
+		mov ebp, esp
+		and esp, 0FFFFFFF0h
+		jmp dwFunc
+	}
+}
+
+void _declspec(naked) CWeapon__Fire_Hook()
+{
+	_asm
+	{
+		push ebp
+		mov ebp, esp
+		mov eax, [ebp+8h]
+		mov g_pWeaponPed, eax
+		// [ebp+0Ch] = pSourceMatrix (Matrix34 *)
+		mov eax, [ebp+10h]
+		mov g_vecWeaponShotSource, eax
+		mov eax, [ebp+14h]
+		mov g_vecWeaponShotTarget, eax
+		pop ebp
+		pushad
+	}
+
+	StoreShotSourceTarget(g_pWeaponPed, g_vecWeaponShotSource, g_vecWeaponShotTarget);
+	dwFunc = (CGame::GetBase() + 0x97D7C6);
+
+	_asm
+	{
+		popad
+		push ebp
+		mov ebp, esp
+		and esp, 0FFFFFFF0h
+		jmp dwFunc
+	}
+}
+
+void InstallAimSyncHooks()
+{
+	// For some reason when the aim/fire tasks are triggered
+	// for remote players instead of the local player the 
+	// CIKManager::AimWeapon function isn't called, tried 
+	// disabling player ped checks below but still doesn't call
+	// Disable local player checks for weapon aiming
+	//*(BYTE *)(CGame::GetBase() + 0xCC797F) = 0x90;//
+	//*(BYTE *)(CGame::GetBase() + 0xCC7980) = 0xE9;//
+	/*CPatcher::InstallNopPatch((CGame::GetBase() + 0x89C7A0), 21);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA61763), 13);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA60F7A), 13);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA60BF9), 13);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCC7978), 26);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCC9D94), 26);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0x8969E9), 9);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA94E39), 7);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA94E67), 13);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xBD71B0), 7);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xBD71BB), 11);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCC8191), 18);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCC7978), 26);
+	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCCAA84), 16);*/
+
+	// Hook for the CIKManager::AimWeapon function
+	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x950D60), (DWORD)CIKManager__AimWeapon);
+
+	// Hook for the CWeapon::Fire function
+	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x97D7C0), (DWORD)CWeapon__Fire_Hook);
+}

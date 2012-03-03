@@ -62,6 +62,12 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 		// Get the local player info pointer
 		m_pPlayerInfo = new CIVPlayerInfo(CGame::GetPools()->GetPlayerInfoFromIndex(0));
 
+		// Create a new context data instance with the local player info
+		m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
+
+		// Set the context data player ped pointer
+		m_pContextData->SetPlayerPed(m_pPlayerPed);
+
 		// Add our model info reference
 		m_pModelInfo->AddReference(false);
 
@@ -83,12 +89,8 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 
 CNetworkPlayer::~CNetworkPlayer()
 {
-	// Are we not the local player?
-	if(!IsLocalPlayer())
-	{
-		// Destroy the player ped
-		Destroy();
-	}
+	// Destroy ourselves
+	Destroy();
 }
 
 bool CNetworkPlayer::Create()
@@ -303,84 +305,84 @@ void CNetworkPlayer::Init()
 
 void CNetworkPlayer::Destroy()
 {
-	// Are we the local player?
-	if(IsLocalPlayer())
-		return;
-
-	// Are we spawned and not the local player?
-	if(IsSpawned())
+	// Are we not the local player?
+	if(!IsLocalPlayer())
 	{
-		// Remove from world
-		/*CGame::RemoveEntityFromWorld(m_pPlayerPed->GetEntity());
-
-		// Call destructor
-		DWORD dwFunc = m_pPlayerPed->GetEntity()->m_VFTable->ScalarDeletingDestructor;
-		IVPed * pPlayerPed = m_pPlayerPed->GetPed();
-		_asm
+		// Are we spawned?
+		if(IsSpawned())
 		{
-			push 1
-			mov ecx, pPlayerPed
-			call dwFunc
+			// Remove from world
+			/*CGame::RemoveEntityFromWorld(m_pPlayerPed->GetEntity());
+
+			// Call destructor
+			DWORD dwFunc = m_pPlayerPed->GetEntity()->m_VFTable->ScalarDeletingDestructor;
+			IVPed * pPlayerPed = m_pPlayerPed->GetPed();
+			_asm
+			{
+				push 1
+				mov ecx, pPlayerPed
+				call dwFunc
+			}
+
+			// Remove our model info reference
+			m_pModelInfo->RemoveReference();
+
+			// Delete our player ped instance
+			SAFE_DELETE(m_pPlayerPed);
+
+			// Delete our player info instance
+			SAFE_DELETE(m_pPlayerInfo);
+
+			// Do we have a valid player number?
+			if(m_byteGamePlayerNumber != INVALID_PLAYER_PED)
+			{
+				// Reset game player info pointer
+				CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
+
+				// Invalidate the player number
+				m_byteGamePlayerNumber = INVALID_PLAYER_PED;
+			}*/
+			CLogFile::Printf("Destroy 1");
+			// Get the player ped pointer
+			IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
+			CLogFile::Printf("Destroy 2");
+
+			IVPedIntelligence * pPedIntelligence = pPlayerPed->m_pPedIntelligence;
+	#define FUNC_ShutdownPedIntelligence 0x9C4DF0
+			DWORD dwFunc = (CGame::GetBase() + FUNC_ShutdownPedIntelligence);
+			_asm
+			{
+				push 0
+				mov ecx, pPedIntelligence
+				call dwFunc
+			}
+			CLogFile::Printf("Destroy 3");
+
+			*(DWORD *)(pPlayerPed + 0x260) &= 0xFFFFFFFE;
+			CLogFile::Printf("Destroy 4");
+
+			// Remove the player ped from the world
+			m_pPlayerPed->RemoveFromWorld();
+			CLogFile::Printf("Destroy 5");
+
+			// Delete the player ped
+			// We use the CPed destructor and not the CPlayerPed destructor because the CPlayerPed destructor
+			// messes with our player info (which we handle manually)
+			//dwFunc = m_pPlayerPed->GetPlayerPed()->m_VFTable->ScalarDeletingDestructor;
+	#define FUNC_CPed__ScalarDeletingDestructor 0x8ACAC0
+			dwFunc = (CGame::GetBase() + FUNC_CPed__ScalarDeletingDestructor);
+			_asm
+			{
+				push 1
+				mov ecx, pPlayerPed
+				call dwFunc
+			}
+			CLogFile::Printf("Destroy 6");
+
+			// Remove our model info reference
+			m_pModelInfo->RemoveReference();
+			CLogFile::Printf("Destroy 7");
 		}
-
-		// Remove our model info reference
-		m_pModelInfo->RemoveReference();
-
-		// Delete our player ped instance
-		SAFE_DELETE(m_pPlayerPed);
-
-		// Delete our player info instance
-		SAFE_DELETE(m_pPlayerInfo);
-
-		// Do we have a valid player number?
-		if(m_byteGamePlayerNumber != INVALID_PLAYER_PED)
-		{
-			// Reset game player info pointer
-			CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
-
-			// Invalidate the player number
-			m_byteGamePlayerNumber = INVALID_PLAYER_PED;
-		}*/
-		CLogFile::Printf("Destroy 1");
-		// Get the player ped pointer
-		IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
-		CLogFile::Printf("Destroy 2");
-
-		IVPedIntelligence * pPedIntelligence = pPlayerPed->m_pPedIntelligence;
-#define FUNC_ShutdownPedIntelligence 0x9C4DF0
-		DWORD dwFunc = (CGame::GetBase() + FUNC_ShutdownPedIntelligence);
-		_asm
-		{
-			push 0
-			mov ecx, pPedIntelligence
-			call dwFunc
-		}
-		CLogFile::Printf("Destroy 3");
-
-		*(DWORD *)(pPlayerPed + 0x260) &= 0xFFFFFFFE;
-		CLogFile::Printf("Destroy 4");
-
-		// Remove the player ped from the world
-		m_pPlayerPed->RemoveFromWorld();
-		CLogFile::Printf("Destroy 5");
-
-		// Delete the player ped
-		// We use the CPed destructor and not the CPlayerPed destructor because the CPlayerPed destructor
-		// messes with our player info (which we handle manually)
-		//dwFunc = m_pPlayerPed->GetPlayerPed()->m_VFTable->ScalarDeletingDestructor;
-#define FUNC_CPed__ScalarDeletingDestructor 0x8ACAC0
-		dwFunc = (CGame::GetBase() + FUNC_CPed__ScalarDeletingDestructor);
-		_asm
-		{
-			push 1
-			mov ecx, pPlayerPed
-			call dwFunc
-		}
-		CLogFile::Printf("Destroy 6");
-
-		// Remove our model info reference
-		m_pModelInfo->RemoveReference();
-		CLogFile::Printf("Destroy 7");
 	}
 
 	CLogFile::Printf("Destroy 8");
@@ -407,8 +409,8 @@ void CNetworkPlayer::Destroy()
 	SAFE_DELETE(m_pPlayerInfo);
 	CLogFile::Printf("Destroy 14");
 
-	// Do we have a valid player number?
-	if(m_byteGamePlayerNumber != INVALID_PLAYER_PED)
+	// Are we not the local player ped and do we have a valid player number?
+	if(!IsLocalPlayer() && m_byteGamePlayerNumber != INVALID_PLAYER_PED)
 	{
 		CLogFile::Printf("Destroy 15");
 		// Reset game player info pointer
@@ -638,14 +640,29 @@ void CNetworkPlayer::InternalPutInVehicle(CNetworkVehicle * pVehicle, BYTE byteS
 	// Are we spawned and not in a vehicle?
 	if(IsSpawned() && !InternalIsInVehicle())
 	{
-		// Is the seat the driver seat?
+		// Get the door
+		int iDoor = -2;
+
 		if(byteSeatId == 0)
-			Scripting::WarpCharIntoCar(GetScriptingHandle(), pVehicle->GetScriptingHandle());
-		else
+			iDoor = 0;
+		else if(byteSeatId == 1)
+			iDoor = 2;
+		else if(byteSeatId == 2)
+			iDoor = 1;
+		else if(byteSeatId == 3)
+			iDoor = 3;
+
+		// Create the car set ped in vehicle task
+		CIVTaskSimpleCarSetPedInVehicle * pTask = new CIVTaskSimpleCarSetPedInVehicle(pVehicle->GetGameVehicle(), iDoor, 0, 0);
+
+		// Did the task create successfully?
+		if(pTask)
 		{
-			// Is the passenger seat valid?
-			if(byteSeatId <= pVehicle->GetMaxPassengers())
-				Scripting::WarpCharIntoCarAsPassenger(GetScriptingHandle(), pVehicle->GetScriptingHandle(), (byteSeatId - 1));
+			// Process the ped
+			pTask->ProcessPed(m_pPlayerPed);
+
+			// Destroy the task
+			pTask->Destroy();
 		}
 	}
 }
@@ -1138,41 +1155,115 @@ void CNetworkPlayer::GetControlState(CControlState * controlState)
 	memcpy(controlState, &m_currentControlState, sizeof(CControlState));
 }
 
+void CNetworkPlayer::SetAimTarget(const CVector3& vecAimTarget)
+{
+	// Are we spawned?
+	if(IsSpawned())
+	{
+		// Do we have a valid context data pointer?
+		if(m_pContextData)
+			m_pContextData->SetWeaponAimTarget(vecAimTarget);
+	}
+
+	m_vecAimTarget = vecAimTarget;
+}
+
+void CNetworkPlayer::GetAimTarget(CVector3& vecAimTarget)
+{
+	// Are we spawned?
+	if(IsSpawned())
+	{
+		// Do we have a valid context data pointer?
+		if(m_pContextData)
+		{
+			m_pContextData->GetWeaponAimTarget(vecAimTarget);
+			return;
+		}
+	}
+
+	vecAimTarget = m_vecAimTarget;
+}
+
+void CNetworkPlayer::SetShotSource(const CVector3& vecShotSource)
+{
+	// Are we spawned?
+	if(IsSpawned())
+	{
+		// Do we have a valid context data pointer?
+		if(m_pContextData)
+			m_pContextData->SetWeaponShotSource(vecShotSource);
+	}
+
+	m_vecShotSource = vecShotSource;
+}
+
+void CNetworkPlayer::GetShotSource(CVector3& vecShotSource)
+{
+	// Are we spawned?
+	if(IsSpawned())
+	{
+		// Do we have a valid context data pointer?
+		if(m_pContextData)
+		{
+			m_pContextData->GetWeaponShotSource(vecShotSource);
+			return;
+		}
+	}
+
+	vecShotSource = m_vecShotSource;
+}
+
+void CNetworkPlayer::SetShotTarget(const CVector3& vecShotTarget)
+{
+	// Are we spawned?
+	if(IsSpawned())
+	{
+		// Do we have a valid context data pointer?
+		if(m_pContextData)
+			m_pContextData->SetWeaponShotTarget(vecShotTarget);
+	}
+
+	m_vecShotTarget = vecShotTarget;
+}
+
+void CNetworkPlayer::GetShotTarget(CVector3& vecShotTarget)
+{
+	// Are we spawned?
+	if(IsSpawned())
+	{
+		// Do we have a valid context data pointer?
+		if(m_pContextData)
+		{
+			m_pContextData->GetWeaponShotTarget(vecShotTarget);
+			return;
+		}
+	}
+
+	vecShotTarget = m_vecShotTarget;
+}
+
 void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 {
-	Matrix matAim;
-	memcpy(&matAim.vecRight, &aimSyncData->vecRight, sizeof(CVector3));
-	memcpy(&matAim.vecForward, &aimSyncData->vecForward, sizeof(CVector3));
-	memcpy(&matAim.vecUp, &aimSyncData->vecUp, sizeof(CVector3));
-	memcpy(&matAim.vecPosition, &aimSyncData->vecPosition, sizeof(CVector3));
+	// Set the aim target
+	SetAimTarget(aimSyncData->vecAimTarget);
 
-	if(IsLocalPlayer())
-		SetGameCameraMatrix(&matAim);
-	else
-	{
-		if(m_pContextData)
-			memcpy(m_pContextData->GetCameraMatrix(), &matAim, sizeof(Matrix));
-	}
+	// Set the shot source
+	SetShotSource(aimSyncData->vecShotSource);
+
+	// Set the shot target
+	SetShotTarget(aimSyncData->vecShotTarget);
 }
 
 void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 {
-	Matrix matAim;
+	// Get the aim target
+	GetAimTarget(aimSyncData->vecAimTarget);
 
-	if(IsLocalPlayer())
-		GetGameCameraMatrix(&matAim);
-	else
-	{
-		if(m_pContextData)
-			memcpy(&matAim, m_pContextData->GetCameraMatrix(), sizeof(Matrix));
-		else
-			matAim.Identity();
-	}
+	// Get the aim source
+	GetShotSource(aimSyncData->vecShotSource);
 
-	memcpy(&aimSyncData->vecRight, &matAim.vecRight, sizeof(CVector3));
-	memcpy(&aimSyncData->vecForward, &matAim.vecForward, sizeof(CVector3));
-	memcpy(&aimSyncData->vecUp, &matAim.vecUp, sizeof(CVector3));
-	memcpy(&aimSyncData->vecPosition, &matAim.vecPosition, sizeof(CVector3));
+	// Get the aim target
+	GetShotTarget(aimSyncData->vecShotTarget);
 }
 
 void CNetworkPlayer::AddToWorld()

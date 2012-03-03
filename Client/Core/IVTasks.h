@@ -36,6 +36,12 @@ public:
 	CIVTaskSimpleDead(DWORD dwDeathTime, char a3, char a4);
 };
 
+class CIVTaskSimpleCarSetPedInVehicle : public CIVTaskSimple
+{
+public:
+	CIVTaskSimpleCarSetPedInVehicle(CIVVehicle * pVehicle, int a3, char a4, char a5);
+};
+
 class CIVTaskSimpleCarSetPedOut : public CIVTaskSimple
 {
 public:

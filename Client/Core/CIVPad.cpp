@@ -48,16 +48,18 @@ CIVPad::CIVPad()
 		call COffsets::FUNC_CPad__Initialize
 	}
 
-	// HACK: To fix values not being initialized properly
+	// HACK: To fix values not being initialized properly by the game
 	for(int i = 0; i < INPUT_COUNT; i++)
 	{
-		m_pPad->m_padData[i].m_byteUnknown4 = MAX_INPUT_VALUE;
+		// Not sure what this is for, but if we don't do it up and left movement keys don't work
+		if(i == INPUT_MOVE_LEFT || i == INPUT_MOVE_UP || i == INPUT_VEH_MOVE_LEFT || i == INPUT_VEH_MOVE_RIGHT)
+			m_pPad->m_padData[i].m_byteUnknown4 = MAX_INPUT_VALUE;
 
+		// This defaults all analog input values to 128 (middle) instead of 0
 		if(IsAnalogInput((eInput)i))
 		{
 			m_pPad->m_padData[i].m_byteCurrentValue = DEFAULT_ANALOG_INPUT_VALUE;
 			m_pPad->m_padData[i].m_byteLastValue = DEFAULT_ANALOG_INPUT_VALUE;
-			//CLogFile::Printf("Analog input %d values are %d and %d", i, m_pPad->m_padData[i].m_byteCurrentValue, m_pPad->m_padData[i].m_byteLastValue);
 		}
 	}
 }

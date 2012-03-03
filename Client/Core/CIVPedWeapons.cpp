@@ -18,9 +18,9 @@ CIVPedWeapons::CIVPedWeapons(IVPedWeapons * pPedWeapons, CIVPed * pPed)
 	m_pPed = pPed;
 
 	for(int i = 0; i < WEAPON_SLOT_MAX; i++)
-		m_pWeapons[i] = new CIVWeapon(&m_pPedWeapons->m_weapons[i], this);
+		m_pWeapons[i] = new CIVPedWeaponSlot(&m_pPedWeapons->m_weapons[i], this);
 
-	m_pWeapon = new CIVWeapon(&m_pPedWeapons->m_weapon, this);
+	m_pWeapon = new CIVPedWeaponSlot(&m_pPedWeapons->m_weapon, this);
 }
 
 CIVPedWeapons::~CIVPedWeapons()
@@ -86,7 +86,7 @@ void CIVPedWeapons::SetCurrentWeapon(eWeaponType weapon, bool bUnknown)
 	}
 }
 
-CIVWeapon * CIVPedWeapons::GetCurrentWeapon()
+CIVPedWeaponSlot * CIVPedWeapons::GetCurrentWeapon()
 {
 	if(m_pPedWeapons)
 		return m_pWeapons[m_pPedWeapons->m_byteCurrentWeaponSlot];

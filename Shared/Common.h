@@ -237,10 +237,9 @@ struct EMPTYVEHICLESYNCPACKET
 
 struct AimSyncData
 {
-	CVector3 vecRight;
-	CVector3 vecForward;
-	CVector3 vecUp;
-	CVector3 vecPosition;
+	CVector3 vecAimTarget;
+	CVector3 vecShotSource;
+	CVector3 vecShotTarget;
 };
 
 // Refuse Reasons

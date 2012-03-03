@@ -22,6 +22,7 @@
 #include "CChatWindow.h"
 #include "CInputWindow.h"
 #include "KeySync.h"
+#include "AimSync.h"
 #include "Indicators.h"
 #include "TrafficLights.h"
 #include "ScriptHook.h"
@@ -132,7 +133,7 @@ void CGame::Initialize()
 	assert(sizeof(IVPadData) == 0x10);
 	assert(sizeof(IVPad) == 0x3A84);
 	//assert(sizeof(IVPedTaskManager) == 0x0); // TODO
-	assert(sizeof(IVWeapon) == 0xC);
+	assert(sizeof(IVPedWeaponSlot) == 0xC);
 	assert(sizeof(IVPedWeapons) == 0x11A);
 	assert(sizeof(IVPhysical) == 0x210);
 	assert(sizeof(IVPed) == 0xF00);
@@ -166,8 +167,10 @@ void CGame::Initialize()
 	if(Patch())
 	{
 		CLogFile::Printf("Applied patches");
+
 		InstallKeySyncHooks();
-		CLogFile::Printf("Applied key sync hooks");
+		InstallAimSyncHooks();
+		CLogFile::Printf("Applied key sync and aim sync hooks");
 
 		InstallIndicatorHooks();
 		InstallTrafficLightHooks();
@@ -477,6 +480,7 @@ bool CGame::Patch()
 	if(COffsets::GetVersion() == GAME_VERSION_7)
 	{
 		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random amient animations)
+		// NOTE: This also disables ambient head movements and maybe some other stuff we actually want
 		*(DWORD *)(GetBase() + 0x9849F0) = 0x900004C2;
 
 		// Hook GetPlayerInfoFromIndex to use our own function

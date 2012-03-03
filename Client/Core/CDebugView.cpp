@@ -49,11 +49,11 @@ void CDebugView::DumpTask(String strName, CIVTask * pTask)
 
 	DrawText(String("%s: %s (%d)", strName.Get(), pTask->GetName(), pTask->GetType()));
 
-	if(!pTask->IsSimple())
+	/*if(!pTask->IsSimple())
 	{
 		CIVTask * pSubTask = ((CIVTaskComplex *)pTask)->GetSubTask();
 		DumpTask(strName, pSubTask);
-	}
+	}*/
 }
 
 void CDebugView::DumpTasks(CIVPedTaskManager * pPedTaskManager, int iType)

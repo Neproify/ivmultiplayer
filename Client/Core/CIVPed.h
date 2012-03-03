@@ -52,6 +52,12 @@ class IVPedIntelligence
 public:
 	PAD(IVPedIntelligence, pad0, 0x44);
 	IVPedTaskManager * m_pPedTaskManager;
+	// 0x84 = CEventGroup m_eventGroup; (size is 0x48 or 0x4C) (4C probs extra CEventGlobalGroup member)
+	// 0xF0 = BYTE m_byteEventId;
+	// 0xF1 = BYTE m_byteEventPriority;
+	// 0xF4 = CVehicleScanner m_vehicleScanner;
+	// 0x150 = CPedScanner m_pedScanner;
+	// 0x1AC = CObjectScanner m_objectScanner;
 	// TODO: Find size
 };
 
@@ -116,7 +122,7 @@ public:
 	PAD(IVPed, pad14, 0x88);                // AB8-B40
 	IVVehicle * m_pCurrentVehicle;          // B40-B44
 	PAD(IVPed, pad15, 0x7C);                // B44-BC0
-	void * m_pPedIKManager;                 // BC0-BC4 // +0x210 = pPed (CIKManager)
+	void * m_pPedIKManager;                 // BC0-BC4 // +0x40 = pPed (CIKManager)
 	PAD(IVPed, pad16, 0x17C);               // BC4-D40
 	BYTE m_byteRingState;                   // D40-D41
 	PAD(IVPed, pad17, 0x17);                // D41-D58
