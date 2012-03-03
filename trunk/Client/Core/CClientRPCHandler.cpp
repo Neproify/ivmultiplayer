@@ -737,7 +737,7 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 			pRemotePlayer->StoreOnFootSync(&syncPacket);
 
 			if(bHasAimSyncData)
-				pRemotePlayer->StoreAimSync(&aimSyncPacket);
+				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 		}
 	}
 }
@@ -779,7 +779,7 @@ void CClientRPCHandler::InVehicleSync(CBitStream * pBitStream, CPlayerSocket * p
 			pRemotePlayer->StoreInVehicleSync(vehicleId, &syncPacket);
 
 			if(bHasAimSyncData)
-				pRemotePlayer->StoreAimSync(&aimSyncPacket);
+				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 		}
 	}
 }
@@ -820,7 +820,7 @@ void CClientRPCHandler::PassengerSync(CBitStream * pBitStream, CPlayerSocket * p
 			pRemotePlayer->StorePassengerSync(vehicleId, &syncPacket);
 
 			if(bHasAimSyncData)
-				pRemotePlayer->StoreAimSync(&aimSyncPacket);
+				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 		}
 	}
 }
@@ -850,7 +850,7 @@ void CClientRPCHandler::SmallSync(CBitStream * pBitStream, CPlayerSocket * pSend
 			pRemotePlayer->StoreSmallSync(&syncPacket);
 
 			if(bHasAimSyncData)
-				pRemotePlayer->StoreAimSync(&aimSyncPacket);
+				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 		}
 	}
 }

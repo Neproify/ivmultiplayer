@@ -50,8 +50,11 @@ private:
 	}                 m_interp;
 	unsigned char     m_ucClothes[11];
 	bool              m_bUseCustomClothesOnSpawn;
-	CControlState         m_previousControlState;
-	CControlState         m_currentControlState;
+	CControlState     m_previousControlState;
+	CControlState     m_currentControlState;
+	CVector3          m_vecAimTarget;
+	CVector3          m_vecShotSource;
+	CVector3          m_vecShotTarget;
 	unsigned short    m_usPing;
 	CNetworkVehicle * m_pVehicle;
 	BYTE              m_byteVehicleSeatId;
@@ -152,6 +155,12 @@ public:
 	void                     SetControlState(CControlState * controlState);
 	void                     GetPreviousControlState(CControlState * controlState);
 	void                     GetControlState(CControlState * controlState);
+	void                     SetAimTarget(const CVector3& vecAimTarget);
+	void                     GetAimTarget(CVector3& vecAimTarget);
+	void                     SetShotSource(const CVector3& vecShotSource);
+	void                     GetShotSource(CVector3& vecShotSource);
+	void                     SetShotTarget(const CVector3& vecShotTarget);
+	void                     GetShotTarget(CVector3& vecShotTarget);
 	void                     SetAimSyncData(AimSyncData * aimSyncData);
 	void                     GetAimSyncData(AimSyncData * aimSyncData);
 	void                     AddToWorld();

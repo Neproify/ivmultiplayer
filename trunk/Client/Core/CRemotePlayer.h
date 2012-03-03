@@ -32,7 +32,6 @@ public:
 	void         Init();
 
 	void         StoreOnFootSync(OnFootSyncData * syncPacket);
-	void         StoreAimSync(AimSyncData * syncPacket);
 	void         StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * syncPacket);
 	void         StorePassengerSync(EntityId vehicleId, PassengerSyncData * syncPacket);
 	void         StoreSmallSync(SmallSyncData * syncPacket);

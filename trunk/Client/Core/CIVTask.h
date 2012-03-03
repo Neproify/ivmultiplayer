@@ -234,44 +234,43 @@
 #define TASK_SIMPLE_BLEND_FROM_NM 2117
 #define TASK_COMPLEX_NM 2118
 
-// IV's CTask m_VFTable
 class IVTaskVFTable
 {
 public:
-	DWORD ScalarDeletingDestructor;
-	DWORD Clone;
-	DWORD IsSimple;
-	DWORD GetType;
-	DWORD m10; // void StopTimer(CEvent * pEvent)?
-	DWORD MakeAbortable; // 14-18
-	DWORD m18;
-	DWORD m1C;
-	DWORD m20;
-	DWORD m24;
-	DWORD m28;
-	DWORD m2C;
-	DWORD m30;
-	DWORD m34;
-	DWORD m38;
-	DWORD m3C;
-	DWORD m40;
+	DWORD ScalarDeletingDestructor; // +0x00
+	DWORD Clone;                    // +0x04
+	DWORD IsSimple;                 // +0x08
+	DWORD GetType;                  // +0x0C
+	DWORD m10;                      // +0x10 // void StopTimer(CEvent * pEvent)?
+	DWORD MakeAbortable;            // +0x14
+	DWORD m18;                      // +0x18
+	DWORD m1C;                      // +0x1C
+	DWORD m20;                      // +0x20
+	DWORD m24;                      // +0x24
+	DWORD m28;                      // +0x28
+	DWORD m2C;                      // +0x2C
+	DWORD m30;                      // +0x30
+	DWORD m34;                      // +0x34
+	DWORD m38;                      // +0x38
+	DWORD m3C;                      // +0x3C
+	DWORD m40;                      // +0x40
 };
 
 class IVTaskSimpleVFTable : public IVTaskVFTable
 {
 public:
-	DWORD ProcessPed;
-	DWORD m48;
-	DWORD m4C;
+	DWORD ProcessPed; // +0x44
+	DWORD m48;        // +0x48
+	DWORD m4C;        // +0x4C (SetPedPosition (SA)?)
 };
 
 class IVTaskComplexVFTable : public IVTaskVFTable
 {
 public:
-	DWORD SetSubTask;
-	DWORD CreateNextSubTask;
-	DWORD CreateFirstSubTask;
-	DWORD ControlSubTask;
+	DWORD SetSubTask;         // +0x44
+	DWORD CreateNextSubTask;  // +0x48
+	DWORD CreateFirstSubTask; // +0x4C
+	DWORD ControlSubTask;     // +0x50
 };
 
 // IV's CTask

@@ -120,6 +120,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AimSync.h" />
     <ClInclude Include="CDebugView.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="Input.h" />
@@ -173,7 +174,7 @@
     <ClInclude Include="CIVStreaming.h" />
     <ClInclude Include="CIVTask.h" />
     <ClInclude Include="CIVVehicle.h" />
-    <ClInclude Include="CIVWeapon.h" />
+    <ClInclude Include="CIVPedWeaponSlot.h" />
     <ClInclude Include="CIVWeaponInfo.h" />
     <ClInclude Include="CIVWeather.h" />
     <ClInclude Include="CIVWorld.h" />
@@ -294,6 +295,7 @@
     <ClInclude Include="CDirectInputHook.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AimSync.cpp" />
     <ClCompile Include="CDebugView.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -340,7 +342,7 @@
     <ClCompile Include="CIVStreaming.cpp" />
     <ClCompile Include="CIVTask.cpp" />
     <ClCompile Include="CIVVehicle.cpp" />
-    <ClCompile Include="CIVWeapon.cpp" />
+    <ClCompile Include="CIVPedWeaponSlot.cpp" />
     <ClCompile Include="CIVWeaponInfo.cpp" />
     <ClCompile Include="CIVWeather.cpp" />
     <ClCompile Include="CIVWorld.cpp" />

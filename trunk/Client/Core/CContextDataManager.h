@@ -21,15 +21,24 @@ private:
 	CIVPlayerInfo * m_pPlayerInfo;
 	CIVPlayerPed  * m_pPlayerPed;
 	CIVPad        * m_pPad;
-	Matrix          m_matCameraMatrix;
+	CVector3        m_vecWeaponAimTarget;
+	CVector3        m_vecWeaponShotSource;
+	CVector3        m_vecWeaponShotTarget;
 
 public:
-	CContextData(CIVPlayerInfo * pPlayerInfo)
+	CContextData()
 	{
-		m_pPlayerInfo = pPlayerInfo;
+		m_pPlayerInfo = NULL;
 		m_pPlayerPed = NULL;
 		m_pPad = new CIVPad();
-		m_matCameraMatrix.Identity();
+	}
+
+	CContextData(CIVPlayerInfo * pPlayerInfo)
+	{
+		m_pPlayerInfo = NULL;
+		m_pPlayerPed = NULL;
+		m_pPad = new CIVPad();
+		m_pPlayerInfo = pPlayerInfo;
 	}
 
 	~CContextData()
@@ -37,12 +46,17 @@ public:
 		delete m_pPad;
 	}
 
-	void              SetPlayerInfo(CIVPlayerInfo * pPlayerInfo) { m_pPlayerInfo = pPlayerInfo; }
-	CIVPlayerInfo   * GetPlayerInfo() { return m_pPlayerInfo; }
-	void              SetPlayerPed(CIVPlayerPed * pPlayerPed) { m_pPlayerPed = pPlayerPed; }
-	CIVPlayerPed    * GetPlayerPed() { return m_pPlayerPed; }
-	CIVPad          * GetPad() { return m_pPad; }
-	Matrix          * GetCameraMatrix() { return &m_matCameraMatrix; }
+	void            SetPlayerInfo(CIVPlayerInfo * pPlayerInfo) { m_pPlayerInfo = pPlayerInfo; }
+	CIVPlayerInfo * GetPlayerInfo() { return m_pPlayerInfo; }
+	void            SetPlayerPed(CIVPlayerPed * pPlayerPed) { m_pPlayerPed = pPlayerPed; }
+	CIVPlayerPed  * GetPlayerPed() { return m_pPlayerPed; }
+	CIVPad        * GetPad() { return m_pPad; }
+	void            SetWeaponAimTarget(const CVector3& vecWeaponAimTarget) { m_vecWeaponAimTarget = vecWeaponAimTarget; }
+	void            GetWeaponAimTarget(CVector3& vecWeaponAimTarget) { vecWeaponAimTarget = m_vecWeaponAimTarget; }
+	void            SetWeaponShotSource(const CVector3& vecWeaponShotSource) { m_vecWeaponShotSource = vecWeaponShotSource; }
+	void            GetWeaponShotSource(CVector3& vecWeaponShotSource) { vecWeaponShotSource = m_vecWeaponShotSource; }
+	void            SetWeaponShotTarget(const CVector3& vecWeaponShotTarget) { m_vecWeaponShotTarget = vecWeaponShotTarget; }
+	void            GetWeaponShotTarget(CVector3& vecWeaponShotTarget) { vecWeaponShotTarget = m_vecWeaponShotTarget; }
 };
 
 class CContextDataManager

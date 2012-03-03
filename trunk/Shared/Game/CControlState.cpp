@@ -13,8 +13,6 @@
 
 CControlState::CControlState()
 {
-	memset(this, 0, sizeof(CControlState));
-
 	for(int i = 0; i < 4; i++)
 		ucOnFootMove[i] = 128;
 
@@ -23,6 +21,8 @@ CControlState::CControlState()
 
 	for(int i = 0; i < 2; i++)
 		ucInVehicleTriggers[i] = 128;
+
+	memset(&keys, 0, sizeof(keys));
 }
 
 bool CControlState::operator== (const CControlState& o) const

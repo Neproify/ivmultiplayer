@@ -213,6 +213,7 @@ public:
 	static unsigned int FUNC_CTaskComplexNewExitVehicle__Constructor;
 	static unsigned int FUNC_CTaskComplexDie__Constructor;
 	static unsigned int FUNC_CTaskSimpleDead__Constructor;
+	static unsigned int FUNC_CTaskSimpleCarSetPedInVehicle__Constructor;
 	static unsigned int FUNC_CTaskSimpleCarSetPedOut__Constructor;
 
 	// Weapons

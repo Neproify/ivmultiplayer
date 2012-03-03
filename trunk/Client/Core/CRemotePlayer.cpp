@@ -139,12 +139,6 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	m_stateType = STATE_TYPE_ONFOOT;
 }
 
-void CRemotePlayer::StoreAimSync(AimSyncData * syncPacket)
-{
-	// Set their aim sync data
-	SetAimSyncData(syncPacket);
-}
-
 void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * syncPacket)
 {
 	// Get the vehicle
