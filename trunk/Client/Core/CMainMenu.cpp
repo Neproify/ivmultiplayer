@@ -74,6 +74,58 @@ bool CMainMenu::OnQuickConnectButtonMouseClick(const CEGUI::EventArgs &eventArgs
 	return true;
 }
 
+bool CMainMenu::OnDisconnectButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
+{
+	if(IsDisconnectButtonVisible())
+	{
+		m_pDisconnectButton->setAlpha(0.5f);
+	}
+	else
+	{
+		m_pDisconnectButton->setAlpha(0);
+	}
+	return true;
+}
+
+bool CMainMenu::OnDisconnectButtonMouseLeave(const CEGUI::EventArgs &eventArgs)
+{
+	if(IsDisconnectButtonVisible())
+	{
+		m_pDisconnectButton->setAlpha(1);
+	}
+	else
+	{
+		m_pDisconnectButton->setAlpha(0);
+	}
+	return true;
+}
+
+void CMainMenu::SetDisconnectButtonVisible(bool bDisconnectButtonVisible)
+{
+	if(!bDisconnectButtonVisible)
+	{
+		m_pDisconnectButton->setAlpha(0);
+	}
+	else
+	{
+		m_pDisconnectButton->setAlpha(1);
+	}
+
+	m_bDisconnectButtonVisible = bDisconnectButtonVisible;
+}
+
+bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
+{
+	if(IsDisconnectButtonVisible())
+	{
+		g_pGUI->ShowMessageBox("Are you sure that you want to leave the server?", "Warning", GUI_MESSAGEBOXTYPE_YESNO, OnDisconnectMessageBoxResponse);
+	}
+	else
+	{
+	}
+	return true;
+}
+
 bool CMainMenu::OnSettingsButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
 {
 	m_pSettingsButton->setAlpha(0.5f);
@@ -134,6 +186,18 @@ bool CMainMenu::OnQuitButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 	// Exit
 	ExitProcess(0);
 	return true;
+}
+
+void CMainMenu::OnDisconnectMessageBoxResponse(eGUIMessageBoxResponse type)
+{
+	if(type == GUI_MESSAGEBOX_YES)
+	{
+		g_pNetworkManager->Disconnect();
+		CGame::SetState(GAME_STATE_MAIN_MENU);
+	}
+	else if(type == GUI_MESSAGEBOX_NO)
+	{
+	}
 }
 
 // Server connect handler
@@ -553,6 +617,7 @@ CMainMenu::CMainMenu()
 	m_bServerBrowserWindowOpen = false;
 	m_bQuickConnectWindowOpen = false;
 	m_bSettingsWindowOpen = false;
+	m_bDisconnectButtonVisible = false;
 
 	// Create the master list query instance
 	m_pMasterListQuery = new CMasterListQuery(MASTERLIST_ADDRESS, MASTERLIST_VERSION);
@@ -615,6 +680,21 @@ CMainMenu::CMainMenu()
 	// 0.88
 
 	// TODO: Ability to pass user data to an event subscriber
+
+	fY -= 0.09f;
+
+	m_pDisconnectButton = CreateButton("Disconnect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.14f, 0), CEGUI::UDim(0.015f, 0)),
+		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
+	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseEnter, this));
+	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseLeave, this));
+	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseClick, this));
+	m_pBackground->addChildWindow( m_pDisconnectButton );
+	SetDisconnectButtonVisible(false);
+
+	//fX += 0.2f;
+	//fX += 0.078f;
+	//fY += 0.06f;
+	fY += 0.09f;
 
 	m_pServerBrowserButton = CreateButton("Server Browser", CEGUI::UVector2(CEGUI::UDim(/*0.074f*/0.148f, 0), CEGUI::UDim(0.015f, 0)),
 		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));

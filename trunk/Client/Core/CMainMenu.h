@@ -29,6 +29,7 @@ private:
 	// 
 	static CMainMenu    * m_pSingleton;
 	bool                  m_bVisible;
+	bool                  m_bDisconnectButtonVisible;
 	bool                  m_bQuickConnectWindowVisible;
 	bool                  m_bSettingsWindowVisible;
 	bool                  m_bServerBrowserWindowVisible;
@@ -41,6 +42,7 @@ private:
 	// Main Menu
 	CGUIStaticImage     * m_pLogo;
 	CGUIStaticImage     * m_pBackground;
+	CGUIStaticText      * m_pDisconnectButton;
 	CGUIStaticText      * m_pServerBrowserButton;
 	CGUIStaticText      * m_pQuickConnectButton;
 	CGUIStaticText      * m_pSettingsButton;
@@ -96,6 +98,9 @@ private:
 	bool             OnQuickConnectButtonMouseEnter(const CEGUI::EventArgs &eventArgs);
 	bool             OnQuickConnectButtonMouseLeave(const CEGUI::EventArgs &eventArgs);
 	bool             OnQuickConnectButtonMouseClick(const CEGUI::EventArgs &eventArgs);
+	bool             OnDisconnectButtonMouseEnter(const CEGUI::EventArgs &eventArgs);
+	bool             OnDisconnectButtonMouseLeave(const CEGUI::EventArgs &eventArgs);
+	bool             OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs);
 	bool             OnSettingsButtonMouseEnter(const CEGUI::EventArgs &eventArgs);
 	bool             OnSettingsButtonMouseLeave(const CEGUI::EventArgs &eventArgs);
 	bool             OnSettingsButtonMouseClick(const CEGUI::EventArgs &eventArgs);
@@ -105,6 +110,8 @@ private:
 	bool             OnAboutButtonMouseEnter(const CEGUI::EventArgs &eventArgs);
 	bool             OnAboutButtonMouseLeave(const CEGUI::EventArgs &eventArgs);
 	bool             OnAboutButtonMouseClick(const CEGUI::EventArgs &eventArgs);
+
+	static void      OnDisconnectMessageBoxResponse(eGUIMessageBoxResponse type);
 
 	// Server connect handler
 	static void      OnConnectMessageBoxResponse(eGUIMessageBoxResponse type);
@@ -140,7 +147,9 @@ public:
 
 	static CMainMenu * GetSingleton() { return m_pSingleton; }
 	bool             IsVisible() { return m_bVisible; }
+	bool             IsDisconnectButtonVisible() { return m_bDisconnectButtonVisible; }
 	void             SetVisible(bool bVisible);
+	void             SetDisconnectButtonVisible(bool bDisconnectButtonVisible);
 	void             SetServerBrowserWindowVisible(bool bVisible);
 	bool             IsServerBrowserWindowVisible() { return m_bServerBrowserWindowVisible; }
 	void             SetQuickConnectWindowVisible(bool bVisible);
