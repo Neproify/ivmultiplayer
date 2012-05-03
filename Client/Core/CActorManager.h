@@ -35,4 +35,5 @@ public:
 	void SetPosition(EntityId actorId, CVector3 vecPosition);
 	void SetHeading(EntityId actorId, float fHeading);
 	bool DoesExist(EntityId actorId) { return m_bActive[actorId]; };
+	unsigned int GetScriptingHandle(EntityId actorId);
 };
