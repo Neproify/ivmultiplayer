@@ -428,7 +428,16 @@ void Direct3DRender()
 	if(g_pMainMenu && CGame::GetState() == GAME_STATE_MAIN_MENU || CGame::GetState() == GAME_STATE_IVMP_PAUSE_MENU)
 	{
 		if(!g_pMainMenu->IsVisible())
-			g_pMainMenu->SetVisible(true);
+			if(g_pNetworkManager && g_pNetworkManager->IsConnected())
+			{
+				g_pMainMenu->SetDisconnectButtonVisible(true);
+				g_pMainMenu->SetVisible(true);
+			}
+			else
+			{
+				g_pMainMenu->SetDisconnectButtonVisible(false);
+				g_pMainMenu->SetVisible(true);
+			}
 	}
 	else
 	{
