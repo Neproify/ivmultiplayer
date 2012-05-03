@@ -1728,7 +1728,11 @@ void CClientRPCHandler::ScriptingActorWalkToCoordinates(CBitStream * pBitStream,
 	pBitStream->Read(iType);
 
 	// Apply the walk task to the actor
-	Scripting::TaskGoStraightToCoord(actorId, x, y, z, 2, 45000);
+	if(g_pActorManager->DoesExist(actorId))
+	{
+		unsigned int ped = g_pActorManager->GetScriptingHandle(actorId);
+		Scripting::TaskGoStraightToCoord(ped, x, y, z, 2, 45000);
+	}
 }
 
 void CClientRPCHandler::ScriptingSetBlipColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

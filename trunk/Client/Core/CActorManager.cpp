@@ -114,3 +114,11 @@ void CActorManager::SetHeading(EntityId actorId, float fHeading)
 	if(m_bActive[actorId])
 		Scripting::SetCharHeading(m_Actors[actorId].uiActorIndex, fHeading);
 }
+
+unsigned int CActorManager::GetScriptingHandle(EntityId actorId)
+{
+	if(m_bActive[actorId])
+		return m_Actors[actorId].uiActorIndex;
+
+	return -1;
+}
