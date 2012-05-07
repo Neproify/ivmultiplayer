@@ -5,7 +5,21 @@
 #include "SDK/SDK.h"
 #include "Functions.h"
 
+// Name of our module
 const char * m_szModuleName = "Test Module";
+
+/*
+	Example Event to show when a player connects
+*/
+void playerConnect(SquirrelArgumentsInterface* pArguments, SquirrelArgumentInterface* pReturn, void* pChunk)
+{
+	if(pArguments->GetSize() >= 1 && pArguments->Get(0)->GetType() == OT_INTEGER)
+	{
+		int playerId = pArguments->Get(0)->GetInteger();
+
+		printf("Player [%d] %s connected :)", playerId, GetPlayerManager()->GetAt(playerId)->GetName());
+	}
+}
 
 /*
 	This function is called when the module was loaded,
@@ -19,19 +33,22 @@ EXPORT bool InitModule(char * szModuleName)
 {
 	strcpy(szModuleName, "Test Module");
 
-	LogPrintf("[%s] Our module got loaded!", m_szModuleName);
+	printf("[%s] Our module got loaded!", m_szModuleName);
+	GetEventManager()->AddModuleEvent("playerConnect", playerConnect);
 	return true;
 }
 
 /*
 	This function is called when a script is loaded.
 */
+
+
 EXPORT void ScriptLoad(HSQUIRRELVM pVM)
 {
 	// Register your scripting functions here
 	RegisterFunction(pVM, "helloWorld", sq_helloworld);
 
-	LogPrintf("[%s] A script got loaded!", m_szModuleName);
+	printf("[%s] A script got loaded!", m_szModuleName);
 }
 
 /*
@@ -39,7 +56,7 @@ EXPORT void ScriptLoad(HSQUIRRELVM pVM)
 */
 EXPORT void ScriptUnload(HSQUIRRELVM pVM)
 {
-	LogPrintf("[%s] A script got unloaded!", m_szModuleName);
+	printf("[%s] A script got unloaded!", m_szModuleName);
 }
 
 /*
