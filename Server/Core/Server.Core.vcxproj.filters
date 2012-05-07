@@ -139,6 +139,12 @@
     <Filter Include="Source Files\Game\Shared">
       <UniqueIdentifier>{360aa58d-9467-47c5-bf40-294616b5f9b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Modules\Natives">
+      <UniqueIdentifier>{ce4e0d39-d355-478a-9770-292d0be350cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules\Natives">
+      <UniqueIdentifier>{7fab8c15-a532-460a-ac32-5cd1796ccf41}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h">
@@ -525,6 +531,36 @@
     <ClInclude Include="Natives\SystemNatives.h">
       <Filter>Header Files\Scripting\Natives</Filter>
     </ClInclude>
+    <ClInclude Include="ModuleNatives\VehicleNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\ServerNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\ScriptNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\PlayerNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\PickupNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\ObjectNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\CheckpointNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\BlipNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\ActorNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\ModuleNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -790,6 +826,33 @@
     </ClCompile>
     <ClCompile Include="Natives\SystemNatives.cpp">
       <Filter>Source Files\Scripting\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\ActorModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\BlipModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\CheckpointModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\ObjectModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\PickupModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\PlayerModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\ScriptModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\ServerModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\VehicleModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

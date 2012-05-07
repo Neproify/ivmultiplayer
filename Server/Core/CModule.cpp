@@ -25,6 +25,7 @@
 #include <Game/CTrafficLights.h>
 #include "CEvents.h"
 #include <CLogFile.h>
+#include "ModuleNatives/ModuleNatives.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CPlayerManager * g_pPlayerManager;
@@ -39,6 +40,17 @@ extern CModuleManager * g_pModuleManager;
 extern CTime * g_pTime;
 extern CEvents * g_pEvents;
 extern CTrafficLights * g_pTrafficLights;
+
+extern Modules::CActorModuleNatives * g_pActorModuleNatives;
+extern Modules::CBlipModuleNatives * g_pBlipModuleNatives;
+extern Modules::CCheckpointModuleNatives * g_pCheckpointModuleNatives;
+extern Modules::CObjectModuleNatives * g_pObjectModuleNatives;
+extern Modules::CPickupModuleNatives * g_pPickupModuleNatives;
+extern Modules::CPlayerModuleNatives * g_pPlayerModuleNatives;
+extern Modules::CServerModuleNatives * g_pServerModuleNatives;
+extern Modules::CVehicleModuleNatives * g_pVehicleModuleNatives;
+
+
 
 CModule::CModule(const char * szName)
 {
