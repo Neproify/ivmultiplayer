@@ -14,6 +14,7 @@
 #include <Common.h>
 #include <String.h>
 #include <Math/CMath.h>
+#include <Game/CControlState.h>
 
 // Natives
 

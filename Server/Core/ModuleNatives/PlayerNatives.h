@@ -90,5 +90,9 @@ namespace Modules
 		bool SetCameraPos(EntityId playerId, CVector3 vecPos);
 		bool SetCameraLookAt(EntityId playerId, CVector3 vecPos);
 		bool ResetCamera(EntityId playerId);
+		CControlState GetEmptyControlState();
+		CControlState GetPreviousControlState(EntityId playerId);
+		CControlState GetControlState(EntityId playerId);
+		bool TriggerEvent(EntityId playerid, const char * szEventName, const char * szFormat, ...);
 	};
 }
