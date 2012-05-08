@@ -84,6 +84,9 @@ Modules::CPlayerModuleNatives * g_pPlayerModuleNatives;
 Modules::CServerModuleNatives * g_pServerModuleNatives;
 Modules::CVehicleModuleNatives * g_pVehicleModuleNatives;
 Modules::CScriptModuleNatives * g_pScriptModuleNatives;
+Modules::CAreaModuleNatives * g_pAreaModuleNatives;
+Modules::CHashModuleNatives * g_pHashModuleNatives;
+Modules::CWorldModuleNatives * g_pWorldModuleNatives;
 
 void SendConsoleInput(String strInput)
 {
@@ -452,6 +455,9 @@ int main(int argc, char ** argv)
 	g_pServerModuleNatives = new Modules::CServerModuleNatives;
 	g_pVehicleModuleNatives = new Modules::CVehicleModuleNatives;
 	g_pScriptModuleNatives = new Modules::CScriptModuleNatives;
+	g_pAreaModuleNatives = new Modules::CAreaModuleNatives;
+	g_pHashModuleNatives = new Modules::CHashModuleNatives;
+	g_pWorldModuleNatives = new Modules::CWorldModuleNatives;
 
 	std::list<String> modules = CVAR_GET_LIST("module");
 	if(modules.size() > 0)

@@ -48,3 +48,11 @@
 // Script functions
 #include "ScriptNatives.h"
 
+// Area functions
+#include "AreaNatives.h"
+
+// Hash functions
+#include "HashNatives.h"
+
+// World functions
+#include "WorldNatives.h"

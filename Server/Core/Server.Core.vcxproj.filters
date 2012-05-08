@@ -594,6 +594,24 @@
     <ClInclude Include="ModuleNatives\Interface\IVehicleNatives.h">
       <Filter>Header Files\Modules\Natives\Interface</Filter>
     </ClInclude>
+    <ClInclude Include="ModuleNatives\AreaNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\HashNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\WorldNatives.h">
+      <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IAreaNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IHashNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IWorldNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -885,6 +903,15 @@
       <Filter>Source Files\Modules\Natives</Filter>
     </ClCompile>
     <ClCompile Include="ModuleNatives\VehicleModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\AreaModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\HashModuleNatives.cpp">
+      <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleNatives\WorldModuleNatives.cpp">
       <Filter>Source Files\Modules\Natives</Filter>
     </ClCompile>
   </ItemGroup>
