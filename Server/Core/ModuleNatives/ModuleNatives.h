@@ -12,7 +12,7 @@
 #pragma once
 
 #include <Common.h>
-#include <String.h>
+#include <CString.h>
 #include <CLogFile.h>
 #include "../Main.h"
 
