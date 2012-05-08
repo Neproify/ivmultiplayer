@@ -239,4 +239,7 @@ public:
 
 	// Return the data pointer
 	char *        GetData() const;
+
+	// Copies data to new buffer and returns pointer to it
+	char *        CopyData() const;
 };
