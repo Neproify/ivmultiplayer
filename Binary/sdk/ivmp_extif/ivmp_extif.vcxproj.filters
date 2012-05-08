@@ -84,6 +84,9 @@
     <ClInclude Include="..\..\..\Shared\Network\CBitStream.h">
       <Filter>Shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Shared\CString.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SDK">

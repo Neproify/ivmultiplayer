@@ -118,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Shared\Common.h" />
+    <ClInclude Include="..\..\..\Shared\CString.h" />
     <ClInclude Include="..\..\..\Shared\Game\CControlState.h" />
     <ClInclude Include="..\..\..\Shared\Network\CBitStream.h" />
     <ClInclude Include="SDK\SDK.h" />

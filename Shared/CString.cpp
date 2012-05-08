@@ -678,3 +678,10 @@ char * String::GetData() const
 	// TODO: Better way?
 	return (char *)m_strString.data();
 }
+
+char * String::CopyData() const
+{
+	char * c = new char[m_strString.length()];
+	strcpy(c, m_strString.c_str());
+	return c;
+}
