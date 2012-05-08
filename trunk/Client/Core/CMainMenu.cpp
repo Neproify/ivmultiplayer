@@ -76,52 +76,29 @@ bool CMainMenu::OnQuickConnectButtonMouseClick(const CEGUI::EventArgs &eventArgs
 
 bool CMainMenu::OnDisconnectButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
 {
-	if(IsDisconnectButtonVisible())
-	{
-		m_pDisconnectButton->setAlpha(0.5f);
-	}
-	else
-	{
-		m_pDisconnectButton->setAlpha(0);
-	}
+	m_pDisconnectButton->setAlpha(0.5f);
 	return true;
 }
 
 bool CMainMenu::OnDisconnectButtonMouseLeave(const CEGUI::EventArgs &eventArgs)
 {
-	if(IsDisconnectButtonVisible())
-	{
-		m_pDisconnectButton->setAlpha(1);
-	}
-	else
-	{
-		m_pDisconnectButton->setAlpha(0);
-	}
+	m_pDisconnectButton->setAlpha(1);
 	return true;
 }
 
 void CMainMenu::SetDisconnectButtonVisible(bool bDisconnectButtonVisible)
 {
-	if(!bDisconnectButtonVisible)
-	{
-		m_pDisconnectButton->setAlpha(0);
-	}
-	else
-	{
-		m_pDisconnectButton->setAlpha(1);
-	}
-
+	m_pDisconnectButton->setVisible(bDisconnectButtonVisible);
 	m_bDisconnectButtonVisible = bDisconnectButtonVisible;
 }
 
 bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
-	if(IsDisconnectButtonVisible())
+	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 	{
-		g_pGUI->ShowMessageBox("Are you sure that you want to leave the server?", "Warning", GUI_MESSAGEBOXTYPE_YESNO, OnDisconnectMessageBoxResponse);
-	}
-	else
-	{
+		g_pNetworkManager->Disconnect();
+		CGame::SetState(GAME_STATE_MAIN_MENU);
+		SetDisconnectButtonVisible(false);
 	}
 	return true;
 }
@@ -186,18 +163,6 @@ bool CMainMenu::OnQuitButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 	// Exit
 	ExitProcess(0);
 	return true;
-}
-
-void CMainMenu::OnDisconnectMessageBoxResponse(eGUIMessageBoxResponse type)
-{
-	if(type == GUI_MESSAGEBOX_YES)
-	{
-		g_pNetworkManager->Disconnect();
-		CGame::SetState(GAME_STATE_MAIN_MENU);
-	}
-	else if(type == GUI_MESSAGEBOX_NO)
-	{
-	}
 }
 
 // Server connect handler
@@ -1040,6 +1005,15 @@ void CMainMenu::SetVisible(bool bVisible)
 	m_pBackground->setVisible(bVisible);
 	m_bVisible = bVisible;
 	g_pGUI->SetCursorVisible(bVisible);
+
+	if(g_pNetworkManager && g_pNetworkManager->IsConnected() && bVisible)
+	{
+		m_pDisconnectButton->setVisible(true);
+	}
+	else
+	{
+		m_pDisconnectButton->setVisible(false);
+	}
 }
 
 void CMainMenu::SetServerBrowserWindowVisible(bool bVisible)
