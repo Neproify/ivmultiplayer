@@ -934,7 +934,6 @@ namespace Modules
 		CBitStream bsSend;
 		bsSend.Write(String(szEventName));
 
-		void * args[64];
 		int argcount = 0;
 		const char* p = szFormat;
 		if(p)

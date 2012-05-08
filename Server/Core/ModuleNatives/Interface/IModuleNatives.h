@@ -15,6 +15,7 @@
 #include <String.h>
 #include <Math/CMath.h>
 #include <Game/CControlState.h>
+#include <list>
 
 // Natives
 

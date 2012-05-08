@@ -83,6 +83,7 @@ Modules::CPickupModuleNatives * g_pPickupModuleNatives;
 Modules::CPlayerModuleNatives * g_pPlayerModuleNatives;
 Modules::CServerModuleNatives * g_pServerModuleNatives;
 Modules::CVehicleModuleNatives * g_pVehicleModuleNatives;
+Modules::CScriptModuleNatives * g_pScriptModuleNatives;
 
 void SendConsoleInput(String strInput)
 {
@@ -442,7 +443,7 @@ int main(int argc, char ** argv)
 	g_pTime = new CTime();
 	g_pTrafficLights = new CTrafficLights();
 
-	g_pPickupModuleNatives = new Modules::CPickupModuleNatives();
+	g_pPickupModuleNatives = new Modules::CPickupModuleNatives;
 	g_pActorModuleNatives = new Modules::CActorModuleNatives;
 	g_pBlipModuleNatives = new Modules::CBlipModuleNatives;
 	g_pCheckpointModuleNatives = new Modules::CCheckpointModuleNatives;
@@ -450,6 +451,7 @@ int main(int argc, char ** argv)
 	g_pPlayerModuleNatives = new Modules::CPlayerModuleNatives;
 	g_pServerModuleNatives = new Modules::CServerModuleNatives;
 	g_pVehicleModuleNatives = new Modules::CVehicleModuleNatives;
+	g_pScriptModuleNatives = new Modules::CScriptModuleNatives;
 
 	std::list<String> modules = CVAR_GET_LIST("module");
 	if(modules.size() > 0)

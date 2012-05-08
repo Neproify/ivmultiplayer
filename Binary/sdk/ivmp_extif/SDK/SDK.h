@@ -60,6 +60,7 @@ struct NewInterfaceContainer_t
 	ICPlayerModuleNatives* g_pPlayerNatives;
 	ICServerModuleNatives* g_pServerNatives;
 	ICVehicleModuleNatives* g_pVehicleNatives;
+	ICScriptModuleNatives* g_pScriptNatives;
 };
 
 extern InterfaceContainer_t InterfaceContainer;
@@ -163,5 +164,9 @@ namespace IVMP
 	inline ICVehicleModuleNatives * Vehicles()
 	{
 		return NewInterfaceContainer.g_pVehicleNatives;
+	}
+	inline ICScriptModuleNatives * Scripts()
+	{
+		return NewInterfaceContainer.g_pScriptNatives;
 	}
 }
