@@ -17,6 +17,7 @@
 #include "../CNetworkManager.h"
 #include <Game/CTime.h>
 #include "CEvents.h"
+#include <stdarg.h>
 
 extern CPlayerManager * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
@@ -885,91 +886,18 @@ namespace Modules
 		return false;
 	}
 
-	/*
+	
 	// getEmptyPlayerControlState()
-	SQInteger CPlayerModuleNatives::GetEmptyControlState(SQVM * pVM)
+	CControlState CPlayerModuleNatives::GetEmptyControlState()
 	{
 		// Create a new control state
 		CControlState controlState;
-
-		// Create the table and array
-		CSquirrelArguments table;
-		CSquirrelArguments array;
-
-		// Create the 'onFootMove' array
-		table.push("onFootMove");
-		array.reset();
-
-		for(int i = 0; i < 4; i++)
-			array.push(controlState.ucOnFootMove[i]);
-
-		table.push(array, true);
-
-		// Create the 'inVehicleMove' array
-		table.push("inVehicleMove");
-		array.reset();
-
-		for(int i = 0; i < 4; i++)
-			array.push(controlState.ucInVehicleMove[i]);
-
-		table.push(array, true);
-
-		// Create the 'inVehicleTriggers' array
-		table.push("inVehicleTriggers");
-		array.reset();
-
-		for(int i = 0; i < 2; i++)
-			array.push(controlState.ucInVehicleTriggers[i]);
-
-		table.push(array, true);
-
-		// Create the on foot keys slots
-		table.push("enterExitVehicle");
-		table.push(controlState.keys.bEnterExitVehicle);
-		table.push("sprint");
-		table.push(controlState.keys.bSprint);
-		table.push("jump");
-		table.push(controlState.keys.bJump);
-		table.push("attack");
-		table.push(controlState.keys.bAttack);
-		table.push("attack2");
-		table.push(controlState.keys.bAttack2);
-		table.push("aim");
-		table.push(controlState.keys.bAim);
-		table.push("freeAim");
-		table.push(controlState.keys.bFreeAim);
-		table.push("meleeAttack1");
-		table.push(controlState.keys.bMeleeAttack1);
-		table.push("meleeAttack2");
-		table.push(controlState.keys.bMeleeAttack2);
-		table.push("meleeKick");
-		table.push(controlState.keys.bMeleeKick);
-		table.push("meleeBlock");
-		table.push(controlState.keys.bMeleeBlock);
-
-		// Create the in vehicle keys slots
-		table.push("handbrake");
-		table.push(controlState.keys.bHandbrake);
-		table.push("handbrake2");
-		table.push(controlState.keys.bHandbrake2);
-		table.push("horn");
-		table.push(controlState.keys.bHorn);
-		table.push("driveBy");
-		table.push(controlState.keys.bDriveBy);
-		table.push("heliPrimaryFire");
-		table.push(controlState.keys.bHeliPrimaryFire);
-
-		// Push the table to the VM
-		sq_pusharg(pVM, CSquirrelArgument(table, false));
-		return 1;
+		return controlState;
 	}
 
 	// getPlayerPreviousControlState(playerid)
-	SQInteger CPlayerModuleNatives::GetPreviousControlState(SQVM * pVM)
+	CControlState CPlayerModuleNatives::GetPreviousControlState(EntityId playerId)
 	{
-		EntityId playerId;
-		sq_getentity(pVM, -1, &playerId);
-
 		CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
 		if(pPlayer)
@@ -977,89 +905,15 @@ namespace Modules
 			// Get the player control state
 			CControlState controlState;
 			pPlayer->GetPreviousControlState(&controlState);
-
-			// Create the table and array
-			CSquirrelArguments table;
-			CSquirrelArguments array;
-
-			// Create the 'onFootMove' array
-			table.push("onFootMove");
-			array.reset();
-
-			for(int i = 0; i < 4; i++)
-				array.push(controlState.ucOnFootMove[i]);
-
-			table.push(array, true);
-
-			// Create the 'inVehicleMove' array
-			table.push("inVehicleMove");
-			array.reset();
-
-			for(int i = 0; i < 4; i++)
-				array.push(controlState.ucInVehicleMove[i]);
-
-			table.push(array, true);
-
-			// Create the 'inVehicleTriggers' array
-			table.push("inVehicleTriggers");
-			array.reset();
-
-			for(int i = 0; i < 2; i++)
-				array.push(controlState.ucInVehicleTriggers[i]);
-
-			table.push(array, true);
-
-			// Create the on foot keys slots
-			table.push("enterExitVehicle");
-			table.push(controlState.keys.bEnterExitVehicle);
-			table.push("sprint");
-			table.push(controlState.keys.bSprint);
-			table.push("jump");
-			table.push(controlState.keys.bJump);
-			table.push("attack");
-			table.push(controlState.keys.bAttack);
-			table.push("attack2");
-			table.push(controlState.keys.bAttack2);
-			table.push("aim");
-			table.push(controlState.keys.bAim);
-			table.push("freeAim");
-			table.push(controlState.keys.bFreeAim);
-			table.push("meleeAttack1");
-			table.push(controlState.keys.bMeleeAttack1);
-			table.push("meleeAttack2");
-			table.push(controlState.keys.bMeleeAttack2);
-			table.push("meleeKick");
-			table.push(controlState.keys.bMeleeKick);
-			table.push("meleeBlock");
-			table.push(controlState.keys.bMeleeBlock);
-
-			// Create the in vehicle keys slots
-			table.push("handbrake");
-			table.push(controlState.keys.bHandbrake);
-			table.push("handbrake2");
-			table.push(controlState.keys.bHandbrake2);
-			table.push("horn");
-			table.push(controlState.keys.bHorn);
-			table.push("driveBy");
-			table.push(controlState.keys.bDriveBy);
-			table.push("heliPrimaryFire");
-			table.push(controlState.keys.bHeliPrimaryFire);
-
-			// Push the table to the VM
-			sq_pusharg(pVM, CSquirrelArgument(table, false));
-			return 1;
+			return controlState;
 		}
 
-		sq_pushbool(pVM, false);
-		return 1;
+		return CControlState();
 	}
 
 	// getPlayerControlState(playerid)
-	SQInteger CPlayerModuleNatives::GetControlState(SQVM * pVM)
+	CControlState CPlayerModuleNatives::GetControlState(EntityId playerId)
 	{
-		EntityId playerId;
-		sq_getentity(pVM, -1, &playerId);
-
 		CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
 		if(pPlayer)
@@ -1067,104 +921,62 @@ namespace Modules
 			// Get the player control state
 			CControlState controlState;
 			pPlayer->GetControlState(&controlState);
-
-			// Create the table and array
-			CSquirrelArguments table;
-			CSquirrelArguments array;
-
-			// Create the 'onFootMove' array
-			table.push("onFootMove");
-			array.reset();
-
-			for(int i = 0; i < 4; i++)
-				array.push(controlState.ucOnFootMove[i]);
-
-			table.push(array, true);
-
-			// Create the 'inVehicleMove' array
-			table.push("inVehicleMove");
-			array.reset();
-
-			for(int i = 0; i < 4; i++)
-				array.push(controlState.ucInVehicleMove[i]);
-
-			table.push(array, true);
-
-			// Create the 'inVehicleTriggers' array
-			table.push("inVehicleTriggers");
-			array.reset();
-
-			for(int i = 0; i < 2; i++)
-				array.push(controlState.ucInVehicleTriggers[i]);
-
-			table.push(array, true);
-
-			// Create the on foot keys slots
-			table.push("enterExitVehicle");
-			table.push(controlState.keys.bEnterExitVehicle);
-			table.push("sprint");
-			table.push(controlState.keys.bSprint);
-			table.push("jump");
-			table.push(controlState.keys.bJump);
-			table.push("attack");
-			table.push(controlState.keys.bAttack);
-			table.push("attack2");
-			table.push(controlState.keys.bAttack2);
-			table.push("aim");
-			table.push(controlState.keys.bAim);
-			table.push("freeAim");
-			table.push(controlState.keys.bFreeAim);
-			table.push("meleeAttack1");
-			table.push(controlState.keys.bMeleeAttack1);
-			table.push("meleeAttack2");
-			table.push(controlState.keys.bMeleeAttack2);
-			table.push("meleeKick");
-			table.push(controlState.keys.bMeleeKick);
-			table.push("meleeBlock");
-			table.push(controlState.keys.bMeleeBlock);
-
-			// Create the in vehicle keys slots
-			table.push("handbrake");
-			table.push(controlState.keys.bHandbrake);
-			table.push("handbrake2");
-			table.push(controlState.keys.bHandbrake2);
-			table.push("horn");
-			table.push(controlState.keys.bHorn);
-			table.push("driveBy");
-			table.push(controlState.keys.bDriveBy);
-			table.push("heliPrimaryFire");
-			table.push(controlState.keys.bHeliPrimaryFire);
-
-			// Push the table to the VM
-			sq_pusharg(pVM, CSquirrelArgument(table, false));
-			return 1;
+			return controlState;
 		}
 
-		sq_pushbool(pVM, false);
-		return 1;
+		return CControlState();
 	}
-	*/
+	
 
-	// ADAMIX: fix this later
-/*
 	// triggerClientEvent(playerid, eventname, ...)
-	SQInteger CPlayerModuleNatives::TriggerEvent(SQVM * pVM)
+	bool CPlayerModuleNatives::TriggerEvent(EntityId playerid, const char * szEventName, const char * szFormat, ...)
 	{
-		CHECK_PARAMS_MIN("triggerClientEvent", 2);
-		CHECK_TYPE("triggerClientEvent", 1, 2, OT_INTEGER);
-		CHECK_TYPE("triggerClientEvent", 2, 3, OT_STRING);
-
-		SQInteger playerid;
-		sq_getinteger(pVM, 2, &playerid);
-		CSquirrelArguments arguments(pVM, 3);
-
 		CBitStream bsSend;
-		arguments.serialize(&bsSend);
+		bsSend.Write(String(szEventName));
+
+		void * args[64];
+		int argcount = 0;
+		const char* p = szFormat;
+		if(p)
+		{
+			va_list ap;
+			va_start(ap, szFormat);
+			while(*p)
+			{
+				switch(*p)
+				{
+					case 'b':
+					{
+						bsSend.Write((bool)va_arg(ap, bool));
+					}
+					break;
+					case 'i':
+					{
+						bsSend.Write((int)va_arg(ap, int));
+						break;
+					}
+					case 'f':
+					{
+						bsSend.Write((float)va_arg(ap, double));
+						break;
+					}
+					break;
+					case 's':
+					{
+						char* sz = va_arg(ap, char*);
+						bsSend.Write(String(sz));
+						break;
+					}
+				}
+				argcount++;
+				++p;
+			}
+			va_end(ap);
+		}
 		g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerid, false, PACKET_CHANNEL_SCRIPT);
-		sq_pushbool(pVM, true);
-		return 1;
+		return true;
 	}
-	*/
+	
 	// setPlayerColor(playerid, rgba)
 	bool CPlayerModuleNatives::SetColor(EntityId playerId, int color)
 	{

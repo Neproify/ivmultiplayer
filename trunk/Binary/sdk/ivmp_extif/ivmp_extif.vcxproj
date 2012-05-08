@@ -53,7 +53,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;IVMP_HELLOWORLD_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;IVMP_HELLOWORLD_EXPORTS;_MODULE_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -73,7 +73,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;IVMP_HELLOWORLD_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;IVMP_HELLOWORLD_EXPORTS;_CRT_SECURE_NO_WARNINGS;_MODULE_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
@@ -92,6 +92,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Shared\CString.cpp" />
+    <ClCompile Include="..\..\..\Shared\Game\CControlState.cpp" />
+    <ClCompile Include="..\..\..\Shared\Network\CBitStream.cpp" />
     <ClCompile Include="..\..\..\Vendor\Squirrel\sqapi.cpp" />
     <ClCompile Include="..\..\..\Vendor\Squirrel\sqbaselib.cpp" />
     <ClCompile Include="..\..\..\Vendor\Squirrel\sqclass.cpp" />
@@ -116,6 +118,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Shared\Common.h" />
+    <ClInclude Include="..\..\..\Shared\Game\CControlState.h" />
+    <ClInclude Include="..\..\..\Shared\Network\CBitStream.h" />
     <ClInclude Include="SDK\SDK.h" />
     <ClInclude Include="Functions.h" />
   </ItemGroup>
