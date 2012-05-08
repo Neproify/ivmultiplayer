@@ -61,6 +61,9 @@ struct NewInterfaceContainer_t
 	ICServerModuleNatives* g_pServerNatives;
 	ICVehicleModuleNatives* g_pVehicleNatives;
 	ICScriptModuleNatives* g_pScriptNatives;
+	ICAreaModuleNatives* g_pAreaNatives;
+	ICHashModuleNatives* g_pHashNatives;
+	ICWorldModuleNatives* g_pWorldNatives;
 };
 
 extern InterfaceContainer_t InterfaceContainer;
@@ -168,5 +171,17 @@ namespace IVMP
 	inline ICScriptModuleNatives * Scripts()
 	{
 		return NewInterfaceContainer.g_pScriptNatives;
+	}
+	inline ICAreaModuleNatives * Area()
+	{
+		return NewInterfaceContainer.g_pAreaNatives;
+	}
+	inline ICHashModuleNatives * Hash()
+	{
+		return NewInterfaceContainer.g_pHashNatives;
+	}
+	inline ICWorldModuleNatives * World()
+	{
+		return NewInterfaceContainer.g_pWorldNatives;
 	}
 }

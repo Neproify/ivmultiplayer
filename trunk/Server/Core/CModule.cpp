@@ -50,8 +50,9 @@ extern Modules::CPlayerModuleNatives * g_pPlayerModuleNatives;
 extern Modules::CServerModuleNatives * g_pServerModuleNatives;
 extern Modules::CVehicleModuleNatives * g_pVehicleModuleNatives;
 extern Modules::CScriptModuleNatives * g_pScriptModuleNatives;
-
-
+extern Modules::CAreaModuleNatives * g_pAreaModuleNatives;
+extern Modules::CHashModuleNatives * g_pHashModuleNatives;
+extern Modules::CWorldModuleNatives * g_pWorldModuleNatives;
 
 CModule::CModule(const char * szName)
 {
@@ -121,6 +122,9 @@ CModule::CModule(const char * szName)
 	NewInterfaceContainer[6] = (void*)g_pServerModuleNatives;
 	NewInterfaceContainer[7] = (void*)g_pVehicleModuleNatives;
 	NewInterfaceContainer[8] = (void*)g_pScriptModuleNatives;
+	NewInterfaceContainer[9] = (void*)g_pAreaModuleNatives;
+	NewInterfaceContainer[10] = (void*)g_pHashModuleNatives;
+	NewInterfaceContainer[11] = (void*)g_pWorldModuleNatives;
 
 	// Send it
 	if(m_ModuleFunctions.pfnSetupInterfaces)
