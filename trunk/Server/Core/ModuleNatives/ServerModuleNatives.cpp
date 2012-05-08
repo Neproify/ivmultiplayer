@@ -67,7 +67,7 @@ namespace Modules
 		QueryRule * pRule = g_pQuery->GetRule(rule);
 
 		if(pRule)
-			return pRule->strValue.GetData();
+			return pRule->strValue.CopyData();
 		else
 			return NULL;
 	}
