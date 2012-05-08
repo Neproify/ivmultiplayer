@@ -17,7 +17,7 @@ void playerConnect(SquirrelArgumentsInterface* pArguments, SquirrelArgumentInter
 	{
 		int playerId = pArguments->Get(0)->GetInteger();
 
-		printf("Player [%d] %s connected :)", playerId, GetPlayerManager()->GetAt(playerId)->GetName());
+		printf("Player [%d] %s connected :)\n", playerId, GetPlayerManager()->GetAt(playerId)->GetName());
 	}
 }
 
@@ -33,7 +33,7 @@ EXPORT bool InitModule(char * szModuleName)
 {
 	strcpy(szModuleName, "Test Module");
 
-	printf("[%s] Our module got loaded!", m_szModuleName);
+	printf("[%s] Our module got loaded!\n", m_szModuleName);
 	GetEventManager()->AddModuleEvent("playerConnect", playerConnect);
 	return true;
 }
@@ -48,7 +48,9 @@ EXPORT void ScriptLoad(HSQUIRRELVM pVM)
 	// Register your scripting functions here
 	RegisterFunction(pVM, "helloWorld", sq_helloworld);
 
-	printf("[%s] A script got loaded!", m_szModuleName);
+	IVMP::Vehicles()->Create(65, CVector3(-343.447662f, 1176.119263f, 14.146016f), CVector3(0.0f, 0.0f, 268.219513f), 0, 0, 0, 0);
+
+	printf("[%s] A script got loaded!\n", m_szModuleName);
 }
 
 /*
@@ -56,7 +58,7 @@ EXPORT void ScriptLoad(HSQUIRRELVM pVM)
 */
 EXPORT void ScriptUnload(HSQUIRRELVM pVM)
 {
-	printf("[%s] A script got unloaded!", m_szModuleName);
+	printf("[%s] A script got unloaded!\n", m_szModuleName);
 }
 
 /*
