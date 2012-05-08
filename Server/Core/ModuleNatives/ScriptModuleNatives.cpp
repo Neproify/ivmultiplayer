@@ -57,7 +57,7 @@ namespace Modules
 	const char * CScriptModuleNatives::GetScriptName(void * pVM)
 	{
 		String strScriptName = g_pScriptingManager->Get((SQVM*)pVM)->GetName();
-		return strScriptName;
+		return strScriptName.CopyData();
 	}
 
 	// loadScript(script)

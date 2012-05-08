@@ -43,7 +43,7 @@ namespace Modules
 
 		if(pPlayer)
 		{
-			return pPlayer->GetName().GetData();
+			return pPlayer->GetName().CopyData();
 		}
 
 		return NULL;
@@ -524,7 +524,7 @@ namespace Modules
 
 		if(pPlayer)
 		{
-			return pPlayer->GetIp().GetData();
+			return pPlayer->GetIp().CopyData();
 		}
 
 		return NULL;
@@ -769,7 +769,7 @@ namespace Modules
 			return NULL;
 		}
 
-		return pPlayer->GetSerial().GetData();
+		return pPlayer->GetSerial().CopyData();
 	}
 
 	// setCameraBehindPlayer(playerid)
