@@ -12,7 +12,7 @@
 #pragma once
 
 #include <Common.h>
-#include <String.h>
+#include <CString.h>
 #include <Math/CMath.h>
 #include <Game/CControlState.h>
 #include <list>

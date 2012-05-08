@@ -946,7 +946,7 @@ namespace Modules
 				{
 					case 'b':
 					{
-						bsSend.Write((bool)va_arg(ap, bool));
+						bsSend.Write((bool)va_arg(ap, int));
 					}
 					break;
 					case 'i':

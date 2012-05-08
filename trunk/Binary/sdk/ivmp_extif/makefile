@@ -1,7 +1,7 @@
 CC=g++
-CFLAGS=-c -Wall -D_LINUX -w -ISDK/ -I.
+CFLAGS=-c -Wall -D_LINUX -w -ISDK/ -I. -I../../../Shared -I../../../Server/Core -I../../../Vendor -I../../../Vendor/Squirrel
 SOURCES=$(wildcard *.cpp)
-SOURCES+=$(wildcard SDK/*.cpp)
+SOURCES+=$(wildcard SDK/*.cpp) $(wildcard ../../../Vendor/Squirrel/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=ivmp_helloworld.so
 
