@@ -15,7 +15,7 @@
 
 namespace Modules
 {
-	class CBlipModuleNatives
+	class CBlipModuleNatives : public ICBlipModuleNatives
 	{
 	public:
 		EntityId Create(int iSprite, CVector3 vecPosition);

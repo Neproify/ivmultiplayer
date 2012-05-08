@@ -12,7 +12,7 @@
 #include "ModuleNatives.h"
 namespace Modules
 {
-	class CCheckpointModuleNatives
+	class CCheckpointModuleNatives : public ICCheckpointModuleNatives
 	{
 	public:
 		EntityId Create(int iType, CVector3 vecPosition, CVector3 vecTargetPosition, float fRadius);

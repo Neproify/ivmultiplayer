@@ -14,7 +14,7 @@
 
 namespace Modules
 {
-	class CServerModuleNatives
+	class CServerModuleNatives : public ICServerModuleNatives
 	{
 	public:
 		void Log(const char * text);

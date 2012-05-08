@@ -138,9 +138,11 @@ static void * FunctionContainer[] =
 };
 
 static void * InterfacesContainer[32];
+static void * NewInterfaceContainer[32];
 
 typedef void (* SetupFunctions_t)(void *pContainer);
 typedef void (* SetupInterfaces_t)(void *pContainer);
+typedef void (* SetupNewInterfaces_t)(void *pContainer);
 typedef bool (* InitModule_t)(char *);
 typedef void (* ScriptLoad_t)(HSQUIRRELVM);
 typedef void (* ScriptUnload_t)(HSQUIRRELVM);
@@ -150,6 +152,7 @@ struct ModuleFunctions
 {
 	SetupFunctions_t pfnSetupFunctions;
 	SetupInterfaces_t pfnSetupInterfaces;
+	SetupNewInterfaces_t pfnSetupNewInterfaces;
 	InitModule_t pfnInitModule;
 	ScriptLoad_t pfnScriptLoad;
 	ScriptUnload_t pfnScriptUnload;

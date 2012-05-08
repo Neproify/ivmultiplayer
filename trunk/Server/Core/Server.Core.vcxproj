@@ -161,6 +161,16 @@
     <ClInclude Include="ModuleNatives\ActorNatives.h" />
     <ClInclude Include="ModuleNatives\BlipNatives.h" />
     <ClInclude Include="ModuleNatives\CheckpointNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\IActorNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\IBlipNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\ICheckpointNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\IModuleNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\IObjectNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\IPickupNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\IPlayerNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\IScriptNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\IServerNatives.h" />
+    <ClInclude Include="ModuleNatives\Interface\IVehicleNatives.h" />
     <ClInclude Include="ModuleNatives\ModuleNatives.h" />
     <ClInclude Include="ModuleNatives\ObjectNatives.h" />
     <ClInclude Include="ModuleNatives\PickupNatives.h" />
