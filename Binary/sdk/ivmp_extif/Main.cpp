@@ -17,7 +17,7 @@ void playerConnect(SquirrelArgumentsInterface* pArguments, SquirrelArgumentInter
 	{
 		int playerId = pArguments->Get(0)->GetInteger();
 
-		printf("Player [%d] %s connected :)\n", playerId, GetPlayerManager()->GetAt(playerId)->GetName());
+		printf("Player [%d] %s connected :)\n", playerId, IVMP::Players()->GetName(playerId));
 	}
 }
 

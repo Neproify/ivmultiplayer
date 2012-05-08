@@ -21,7 +21,6 @@
 #include "Scripting/CScriptTimerManager.h"
 #include <Network/CNetworkModule.h>
 #include "CFileTransfer.h"
-#include "CMainMenu.h"
 
 extern String g_strNick;
 extern CLocalPlayer * g_pLocalPlayer;
@@ -36,7 +35,6 @@ extern CStreamer * g_pStreamer;
 extern CScriptTimerManager * g_pScriptTimerManager;
 extern CNetworkManager * g_pNetworkManager;
 extern CFileTransfer * g_pFileTransfer;
-extern CMainMenu         * g_pMainMenu;
 
 CNetworkManager::CNetworkManager()
 {
@@ -225,8 +223,6 @@ void CNetworkManager::Disconnect()
 		// Flag ourselves as not joined a server or game
 		m_bJoinedServer = false;
 		m_bJoinedGame = false;
-
-		g_pMainMenu->SetDisconnectButtonVisible(false);
 	}
 }
 

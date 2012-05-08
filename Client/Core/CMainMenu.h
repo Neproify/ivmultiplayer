@@ -111,8 +111,6 @@ private:
 	bool             OnAboutButtonMouseLeave(const CEGUI::EventArgs &eventArgs);
 	bool             OnAboutButtonMouseClick(const CEGUI::EventArgs &eventArgs);
 
-	static void      OnDisconnectMessageBoxResponse(eGUIMessageBoxResponse type);
-
 	// Server connect handler
 	static void      OnConnectMessageBoxResponse(eGUIMessageBoxResponse type);
 	void             OnConnect(String strHost, unsigned short usPort, String strPassword, bool bIgnoreDefaultName = false);
