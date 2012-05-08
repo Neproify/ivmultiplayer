@@ -13,6 +13,7 @@
 #include <Squirrel/sqvm.h>
 
 InterfaceContainer_t InterfaceContainer;
+NewInterfaceContainer_t NewInterfaceContainer;
 
 EXPORT void SetupFunctions(void * pContainer)
 {
@@ -24,6 +25,11 @@ EXPORT void SetupInterfaces(InterfaceContainer_t * pContainer)
 	InterfaceContainer = *pContainer;
 }
 
+EXPORT void SetupNewInterfaces(NewInterfaceContainer_t * pContainer)
+{
+	NewInterfaceContainer = *pContainer;
+}
+
 void RegisterFunction(HSQUIRRELVM pVM, const char * szName, SQFUNCTION pfnFunction)
 {
 	sq_pushroottable(pVM);
@@ -31,9 +37,4 @@ void RegisterFunction(HSQUIRRELVM pVM, const char * szName, SQFUNCTION pfnFuncti
 	sq_newclosure(pVM, pfnFunction, 0);
 	sq_createslot(pVM, -3);
 	sq_pop(pVM, 1);
-}
-
-void CallFuction()
-{
-
 }

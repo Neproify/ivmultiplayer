@@ -14,7 +14,7 @@
 
 namespace Modules
 {
-	class CPlayerModuleNatives
+	class CPlayerModuleNatives : public ICPlayerModuleNatives
 	{
 	public:
 		bool IsConnected(EntityId playerId);

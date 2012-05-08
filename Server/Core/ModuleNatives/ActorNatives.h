@@ -15,7 +15,7 @@
 
 namespace Modules
 {
-	class CActorModuleNatives
+	class CActorModuleNatives : public ICActorModuleNatives
 	{
 	public:
 		EntityId Create(int iModelId, CVector3 vecPosition, float fHeading);

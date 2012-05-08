@@ -14,7 +14,7 @@
 
 namespace Modules
 {
-	class CObjectModuleNatives
+	class CObjectModuleNatives : public ICObjectModuleNatives
 	{
 	public:
 		EntityId Create(int modelhash, CVector3 vecPosition, CVector3 vecRotation);

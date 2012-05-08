@@ -7,6 +7,9 @@
 #include <string.h>
 #include <Squirrel/squirrel.h>
 #include "Interfaces/InterfaceCommon.h"
+#include "ModuleNatives/Interface/IModuleNatives.h"
+
+using namespace Modules;
 
 #ifndef _LINUX
 #define EXPORT extern "C" __declspec(dllexport)
@@ -47,8 +50,20 @@ struct InterfaceContainer_t
 	CEventsInterface* g_pEvents;
 	SquirrelArgumentManager* pSquirrelArgumentManager;
 };
+struct NewInterfaceContainer_t
+{
+	ICActorModuleNatives* g_pActorNatives;
+	ICBlipModuleNatives* g_pBlipNatives;
+	ICCheckpointModuleNatives* g_pCheckpointNatives;
+	ICObjectModuleNatives* g_pObjectNatives;
+	ICPickupModuleNatives* g_pPickupNatives;
+	ICPlayerModuleNatives* g_pPlayerNatives;
+	ICServerModuleNatives* g_pServerNatives;
+	ICVehicleModuleNatives* g_pVehicleNatives;
+};
 
 extern InterfaceContainer_t InterfaceContainer;
+extern NewInterfaceContainer_t NewInterfaceContainer;
 
 inline CNetworkManagerInterface * GetNetworkManager()
 {
@@ -115,3 +130,38 @@ inline SquirrelArgumentManager * GetSquirrelArgumentManager()
 	return InterfaceContainer.pSquirrelArgumentManager;
 }
 
+namespace IVMP
+{
+	inline ICActorModuleNatives * Actors()
+	{
+		return NewInterfaceContainer.g_pActorNatives;
+	}
+	inline ICBlipModuleNatives * Blips()
+	{
+		return NewInterfaceContainer.g_pBlipNatives;
+	}
+	inline ICCheckpointModuleNatives * Checkpoints()
+	{
+		return NewInterfaceContainer.g_pCheckpointNatives;
+	}
+	inline ICObjectModuleNatives * Objects()
+	{
+		return NewInterfaceContainer.g_pObjectNatives;
+	}
+	inline ICPickupModuleNatives * Pickups()
+	{
+		return NewInterfaceContainer.g_pPickupNatives;
+	}
+	inline ICPlayerModuleNatives * Players()
+	{
+		return NewInterfaceContainer.g_pPlayerNatives;
+	}
+	inline ICServerModuleNatives * Server()
+	{
+		return NewInterfaceContainer.g_pServerNatives;
+	}
+	inline ICVehicleModuleNatives * Vehicles()
+	{
+		return NewInterfaceContainer.g_pVehicleNatives;
+	}
+}

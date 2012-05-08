@@ -75,6 +75,7 @@ CModule::CModule(const char * szName)
 
 	m_ModuleFunctions.pfnSetupFunctions = (SetupFunctions_t)m_pLibrary->GetProcedureAddress("SetupFunctions");
 	m_ModuleFunctions.pfnSetupInterfaces = (SetupInterfaces_t)m_pLibrary->GetProcedureAddress("SetupInterfaces");
+	m_ModuleFunctions.pfnSetupNewInterfaces = (SetupNewInterfaces_t)m_pLibrary->GetProcedureAddress("SetupNewInterfaces");
 	m_ModuleFunctions.pfnInitModule = (InitModule_t)m_pLibrary->GetProcedureAddress("InitModule");
 	m_ModuleFunctions.pfnScriptLoad = (ScriptLoad_t)m_pLibrary->GetProcedureAddress("ScriptLoad");
 	m_ModuleFunctions.pfnScriptUnload = (ScriptUnload_t)m_pLibrary->GetProcedureAddress("ScriptUnload");
@@ -109,9 +110,22 @@ CModule::CModule(const char * szName)
 	InterfacesContainer[15] = (void*)g_pEvents;
 	InterfacesContainer[16] = new CSquirrelArgumentManager();
 
+	// Setup new interfaces
+	NewInterfaceContainer[0] = (void*)g_pActorModuleNatives;
+	NewInterfaceContainer[1] = (void*)g_pBlipModuleNatives;
+	NewInterfaceContainer[2] = (void*)g_pCheckpointModuleNatives;
+	NewInterfaceContainer[3] = (void*)g_pObjectModuleNatives;
+	NewInterfaceContainer[4] = (void*)g_pPickupModuleNatives;
+	NewInterfaceContainer[5] = (void*)g_pPlayerModuleNatives;
+	NewInterfaceContainer[6] = (void*)g_pServerModuleNatives;
+	NewInterfaceContainer[7] = (void*)g_pVehicleModuleNatives;
+
 	// Send it
 	if(m_ModuleFunctions.pfnSetupInterfaces)
 		m_ModuleFunctions.pfnSetupInterfaces(InterfacesContainer);
+
+	if(m_ModuleFunctions.pfnSetupNewInterfaces)
+		m_ModuleFunctions.pfnSetupNewInterfaces(NewInterfaceContainer);
 
 	char szModuleName[64];
 	strcpy(szModuleName, szName);

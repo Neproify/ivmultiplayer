@@ -13,7 +13,7 @@
 
 namespace Modules
 {
-	class CPickupModuleNatives
+	class CPickupModuleNatives : public ICPickupModuleNatives
 	{
 	public:
 		EntityId Create(int modelhash, unsigned char type, unsigned int value, CVector3 vecPosition, CVector3 vecRotation);

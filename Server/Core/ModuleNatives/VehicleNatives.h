@@ -14,7 +14,7 @@
 
 namespace Modules
 {
-	class CVehicleModuleNatives
+	class CVehicleModuleNatives : public ICVehicleModuleNatives
 	{
 	public:
 		int Create(int iModelId, CVector3 vecPosition, CVector3 vecRotation, int color1, int color2, int color3, int color4);

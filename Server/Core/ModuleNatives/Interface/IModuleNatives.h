@@ -13,38 +13,33 @@
 
 #include <Common.h>
 #include <String.h>
-#include <CLogFile.h>
-#include "../Main.h"
+#include <Math/CMath.h>
 
 // Natives
 
-// Interfaces
-#include "Interface/IModuleNatives.h"
-
 // Server and Timer functions
-#include "ServerNatives.h"
+#include "IServerNatives.h"
 
 // Player functions
-#include "PlayerNatives.h"
+#include "IPlayerNatives.h"
 
 // Vehicle functions
-#include "VehicleNatives.h"
+#include "IVehicleNatives.h"
 
 // Object functions
-#include "ObjectNatives.h"
+#include "IObjectNatives.h"
 
 // Blip functions
-#include "BlipNatives.h"
+#include "IBlipNatives.h"
 
 // Actor functions
-#include "ActorNatives.h"
+#include "IActorNatives.h"
 
 // Checkpoint functions
-#include "CheckpointNatives.h"
+#include "ICheckpointNatives.h"
 
 // Pickup functions
-#include "PickupNatives.h"
+#include "IPickupNatives.h"
 
 // Script functions
-#include "ScriptNatives.h"
-
+#include "IScriptNatives.h"

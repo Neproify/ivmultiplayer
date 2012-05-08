@@ -145,6 +145,9 @@
     <Filter Include="Header Files\Modules\Natives">
       <UniqueIdentifier>{7fab8c15-a532-460a-ac32-5cd1796ccf41}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modules\Natives\Interface">
+      <UniqueIdentifier>{aa8231b7-64a3-43ce-b46d-f5b2a520c877}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h">
@@ -560,6 +563,36 @@
     </ClInclude>
     <ClInclude Include="ModuleNatives\ModuleNatives.h">
       <Filter>Header Files\Modules\Natives</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IActorNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IBlipNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\ICheckpointNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IModuleNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IObjectNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IPickupNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IPlayerNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IScriptNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IServerNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleNatives\Interface\IVehicleNatives.h">
+      <Filter>Header Files\Modules\Natives\Interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
