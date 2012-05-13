@@ -1245,7 +1245,9 @@ void CClientRPCHandler::ScriptingSetModel(CBitStream * pBitStream, CPlayerSocket
 			byteVehicleSeatId = pPlayer->GetVehicleSeatId();
 		}
 
+		int Health = pPlayer->GetHealth();
 		pPlayer->SetModel(dwModelHash);
+		pPlayer->SetHealth(Health);
 
 		if(pPlayer->IsLocalPlayer())
 		{
