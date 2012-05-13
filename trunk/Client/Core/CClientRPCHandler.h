@@ -45,7 +45,6 @@ private:
 	static void ConnectionRefused(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void HeadMovement(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-	static void Spawn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void NameChange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void NewFile(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void DeleteFile(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

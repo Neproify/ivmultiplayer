@@ -31,7 +31,6 @@ enum eRPCIdentfiers
 	RPC_InVehicleSync,
 	RPC_NewVehicle,
 	RPC_DeleteVehicle,
-	RPC_Spawn,
 	RPC_PassengerSync,
 	RPC_SmallSync,
 	RPC_EmptyVehicleSync,

@@ -736,9 +736,15 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			// TODO: Use StreamIn/Out for this for remote players, and for local players use this and restore all info like in StreamIn/Out
 			// or perhaps make StreamIn/Out only get/set info and not create/destroy player if its the local player that way we can use it
 			// for local and remote players
+			unsigned int uiHealth = GetHealth();
+			unsigned int uiArmour = GetArmour();
+			float fHeading = GetCurrentHeading();
 			unsigned int uiInterior = GetInterior();
 			Scripting::ChangePlayerModel(m_byteGamePlayerNumber, (Scripting::eModel)dwModelHash);
 			m_pPlayerPed->SetPed(m_pPlayerInfo->GetPlayerPed());
+			SetHealth(uiHealth);
+			SetArmour(uiArmour);
+			SetCurrentHeading(fHeading);
 			SetInterior(uiInterior);
 		}
 		// End hacky code that needs to be changed
