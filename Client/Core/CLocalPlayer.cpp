@@ -130,7 +130,7 @@ void CLocalPlayer::HandleSpawn()
 	// Send the spawn notification to the server
 	CBitStream bsSend;
 	bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
-	g_pNetworkManager->RPC(RPC_Spawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
+	g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 
 	// Flag us as alive
 	m_bIsDead = false;

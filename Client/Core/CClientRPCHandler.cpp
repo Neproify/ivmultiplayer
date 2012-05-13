@@ -593,59 +593,73 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 		return;
 	CLogFile::Printf("PlayerSpawn - 2");
 
+	// Have we joined the game?
+	if(!g_pNetworkManager->HasJoinedGame())
+		return;
+
 	EntityId playerId;
-	int iModelId;
-	CVector3 vecSpawnPos;
-	float fHeading;
-	EntityId vehicleId;
-	bool bHelmet;
 	pBitStream->ReadCompressed(playerId);
-	pBitStream->Read(iModelId);
-	pBitStream->Read(bHelmet);
-	pBitStream->Read(vecSpawnPos);
-	pBitStream->Read(fHeading);
-
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	CLogFile::Printf("PlayerSpawn - 4");
 
-	if(pPlayer && !pPlayer->IsLocalPlayer())
+	// Is the player valid?
+	if(pPlayer)
 	{
-		CLogFile::Printf("PlayerSpawn - 5");
-		/*if(pPlayer->GetAt()->IsSpawned())
-			pPlayer->GetAt()->Destroy();*/
-		CLogFile::Printf("PlayerSpawn - 6");
-
-		g_pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
-
-		if(bHelmet)
-			pPlayer->GiveHelmet();
-
-		CLogFile::Printf("PlayerSpawn - 7");
-		pBitStream->Read(vehicleId);
-		CLogFile::Printf("PlayerSpawn - 8");
-
-		CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
-
-		if(pVehicle)
+		// Is it the local player?
+		if(pPlayer->IsLocalPlayer())
 		{
-			BYTE byteVehicleSeatId;
-			pBitStream->Read(byteVehicleSeatId);
-			pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
+			// Respawn the local player
+			g_pLocalPlayer->Respawn();
 		}
-
-		// Custom clothing
-		if(pBitStream->ReadBit())
+		else
 		{
-			unsigned char ucClothes = 0;
+			int iModelId;
+			CVector3 vecSpawnPos;
+			float fHeading;
+			EntityId vehicleId;
+			bool bHelmet;
+			pBitStream->Read(iModelId);
+			pBitStream->Read(bHelmet);
+			pBitStream->Read(vecSpawnPos);
+			pBitStream->Read(fHeading);
+	
+			CLogFile::Printf("PlayerSpawn - 4");
 
-			for(unsigned char uc = 0; uc < 11; ++ uc)
+			/*if(pPlayer->GetAt()->IsSpawned())
+				pPlayer->GetAt()->Destroy();*/
+			CLogFile::Printf("PlayerSpawn - 6");
+
+			g_pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
+
+			if(bHelmet)
+				pPlayer->GiveHelmet();
+
+			CLogFile::Printf("PlayerSpawn - 7");
+			pBitStream->Read(vehicleId);
+			CLogFile::Printf("PlayerSpawn - 8");
+
+			CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+
+			if(pVehicle)
 			{
-				pBitStream->Read(ucClothes);
-				g_pPlayerManager->GetAt(playerId)->SetClothes(uc, ucClothes);
+				BYTE byteVehicleSeatId;
+				pBitStream->Read(byteVehicleSeatId);
+				pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
 			}
-		}
 
-		CLogFile::Printf("PlayerSpawn - 9");
+			// Custom clothing
+			if(pBitStream->ReadBit())
+			{
+				unsigned char ucClothes = 0;
+
+				for(unsigned char uc = 0; uc < 11; ++ uc)
+				{
+					pBitStream->Read(ucClothes);
+					g_pPlayerManager->GetAt(playerId)->SetClothes(uc, ucClothes);
+				}
+			}
+
+			CLogFile::Printf("PlayerSpawn - 9");
+		}
 	}
 }
 
@@ -1038,17 +1052,6 @@ void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 		TaskLookAtCoord(g_pPlayerManager->GetPedHandle(playerId), vecAim.X, vecAim.Y, vecAim.Z, -2, 0);*/
 }
 
-// TODO: Merge with PlayerSpawn rpc
-void CClientRPCHandler::Spawn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
-{
-	// Have we joined the game?
-	if(g_pNetworkManager->HasJoinedGame())
-	{
-		// Respawn the local player
-		g_pLocalPlayer->Respawn();
-	}
-}
-
 void CClientRPCHandler::NameChange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -1245,9 +1248,7 @@ void CClientRPCHandler::ScriptingSetModel(CBitStream * pBitStream, CPlayerSocket
 			byteVehicleSeatId = pPlayer->GetVehicleSeatId();
 		}
 
-		int Health = pPlayer->GetHealth();
 		pPlayer->SetModel(dwModelHash);
-		pPlayer->SetHealth(Health);
 
 		if(pPlayer->IsLocalPlayer())
 		{
@@ -2317,7 +2318,6 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ConnectionRefused, ConnectionRefused);
 	AddFunction(RPC_VehicleEnterExit, VehicleEnterExit);
 	AddFunction(RPC_HeadMovement, HeadMovement);
-	AddFunction(RPC_Spawn, Spawn);
 	AddFunction(RPC_NameChange, NameChange);
 	AddFunction(RPC_NewFile, NewFile);
 	AddFunction(RPC_DeleteFile, DeleteFile);
@@ -2426,7 +2426,6 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ConnectionRefused);
 	RemoveFunction(RPC_VehicleEnterExit);
 	RemoveFunction(RPC_HeadMovement);
-	RemoveFunction(RPC_Spawn);
 	RemoveFunction(RPC_NameChange);
 	RemoveFunction(RPC_NewFile);
 	RemoveFunction(RPC_DeleteFile);

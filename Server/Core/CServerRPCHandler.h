@@ -17,7 +17,7 @@ private:
 	static void PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void Command(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-	static void Spawn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void Death(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void InVehicleSync(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

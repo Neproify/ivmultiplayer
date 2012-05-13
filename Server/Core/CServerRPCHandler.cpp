@@ -303,7 +303,7 @@ void CServerRPCHandler::Command(CBitStream * pBitStream, CPlayerSocket * pSender
 	}
 }
 
-void CServerRPCHandler::Spawn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+void CServerRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
@@ -915,7 +915,7 @@ void CServerRPCHandler::Register()
 	AddFunction(RPC_PlayerJoin, PlayerJoin);
 	AddFunction(RPC_Chat, Chat);
 	AddFunction(RPC_Command, Command);
-	AddFunction(RPC_Spawn, Spawn);
+	AddFunction(RPC_PlayerSpawn, PlayerSpawn);
 	AddFunction(RPC_Death, Death);
 	AddFunction(RPC_OnFootSync, OnFootSync);
 	AddFunction(RPC_InVehicleSync, InVehicleSync);
@@ -936,7 +936,7 @@ void CServerRPCHandler::Unregister()
 	RemoveFunction(RPC_PlayerJoin);
 	RemoveFunction(RPC_Chat);
 	RemoveFunction(RPC_Command);
-	RemoveFunction(RPC_Spawn);
+	RemoveFunction(RPC_PlayerSpawn);
 	RemoveFunction(RPC_Death);
 	RemoveFunction(RPC_OnFootSync);
 	RemoveFunction(RPC_InVehicleSync);

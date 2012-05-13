@@ -946,7 +946,7 @@ namespace Modules
 				{
 					case 'b':
 					{
-						bsSend.Write((bool)va_arg(ap, int));
+						bsSend.Write(va_arg(ap, int) != 0);
 					}
 					break;
 					case 'i':
@@ -1063,7 +1063,9 @@ namespace Modules
 
 		if(pPlayer)
 		{
-			g_pNetworkManager->RPC(RPC_Spawn, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, pPlayer->GetPlayerId(), false);
+			CBitStream bitStream;
+			bitStream.Write(playerId);
+			g_pNetworkManager->RPC(RPC_PlayerSpawn, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, pPlayer->GetPlayerId(), false);
 			return true;
 		}
 
