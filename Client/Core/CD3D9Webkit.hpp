@@ -23,6 +23,84 @@
 #include <CLibrary.h>
 #include <SharedUtility.h>
 
+class CD3D9WebView
+{
+public:
+	CD3D9WebView(LPDIRECT3DDEVICE9 device, int width, int height, EA::WebKit::View * view)
+	{
+		this->device = device;
+		this->view = view;
+		this->width = width;
+		this->height = height;
+		posX = 0;
+		posY = 0;
+		D3DXCreateSprite(device, &sprite);
+		D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
+		m_bBeforeGUI = false;
+	}
+	void SetSize(int width, int height)
+	{
+		this->width = width;
+		this->height = height;
+		texture->Release();
+		D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
+		this->view->SetSize(width, height);
+	}
+	void SetPosition(int x, int y)
+	{
+		posX = x;
+		posY = y;
+	}
+	void SetData(void * buffer)
+	{
+		RECT rect = {0, 0, width, height};
+
+		D3DLOCKED_RECT lockedRect;
+		texture->LockRect(0, &lockedRect, NULL, 0);
+		void* destBuffer = lockedRect.pBits;
+		memcpy(destBuffer, this->view->GetSurface()->GetData(), width*height*4);
+		texture->UnlockRect(0);
+	}
+	void Render()
+	{
+		RECT rect = {0, 0, width, height};
+
+		sprite->Begin(D3DXSPRITE_ALPHABLEND);
+		sprite->Draw(texture, &rect, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3(posX, posY, 0.0f), 0xFFFFFFFF);
+		sprite->End();
+	}
+	void Release()
+	{
+		texture->Release();
+		sprite->Release();
+	}
+	EA::WebKit::View * GetView()
+	{
+		return view;
+	}
+	void SetRenderBeforeGUI(bool b)
+	{
+		m_bBeforeGUI = b;
+	}
+	bool GetRenderBeforeGUI()
+	{
+		return m_bBeforeGUI;
+	}
+private:
+	LPDIRECT3DDEVICE9 device;
+	ID3DXSprite * sprite;
+	IDirect3DTexture9 * texture;
+
+	EA::WebKit::View * view;
+
+	int width;
+	int height;
+	int posX;
+	int posY;
+
+	bool m_bBeforeGUI;
+};
+
 
 class CD3D9WebKit
 {
@@ -71,7 +149,7 @@ public:
 	}
 	~CD3D9WebKit()
 	{
-		for(std::list<EA::WebKit::View*>::iterator it = views.begin(); it != views.end(); it++)
+		for(std::list<CD3D9WebView*>::iterator it = views.begin(); it != views.end(); it++)
 		{
 			DestroyView((*it));
 		}
@@ -83,11 +161,29 @@ public:
 		if(font_style)
 			font_style->Destroy();
 	}
+	void RenderAll(bool bBeforeGUI = false, bool bSetData = true, bool bTick = true)
+	{
+		for(std::list<CD3D9WebView*>::iterator it = views.begin(); it != views.end(); it++)
+		{
+			if(bBeforeGUI == (*it)->GetRenderBeforeGUI())
+			{
+				if(bTick)
+				{
+					(*it)->GetView()->Tick();
+				}
+				if(bSetData)
+				{
+					(*it)->SetData((*it)->GetView()->GetSurface()->GetData());
+				}
+				(*it)->Render();
+			}
+		}
+	}
 	EA::WebKit::IEAWebkit * GetWebKit()
 	{
 		return webkit;
 	}
-	EA::WebKit::View * CreateView(int width, int height, const char * url)
+	CD3D9WebView * CreateView(int width, int height, const char * url, LPDIRECT3DDEVICE9 device)
 	{
 		EA::WebKit::View * view = webkit->CreateView();
 		EA::WebKit::ViewParameters params = view->GetParameters();
@@ -98,16 +194,18 @@ public:
 
 		view->SetURI(url);
 
-		views.push_back(view);
+		CD3D9WebView * webView = new CD3D9WebView(device, width, height, view);
 
-		return view;
+		views.push_back(webView);
+
+		return webView;
 	}
-	void DestroyView(EA::WebKit::View * view)
+	void DestroyView(CD3D9WebView * webView)
 	{
-		view->CancelLoad();
-		view->ShutdownView();
-		webkit->DestroyView(view);
-		views.remove(view);
+		webView->GetView()->CancelLoad();
+		webView->GetView()->ShutdownView();
+		webkit->DestroyView(webView->GetView());
+		views.remove(webView);
 	}
 private:
 	EA::WebKit::IEAWebkit * webkit;
@@ -118,72 +216,5 @@ private:
 
 	CLibrary * m_pLibrary;
 	
-	std::list<EA::WebKit::View*> views;
-};
-
-class CD3D9WebView
-{
-public:
-	CD3D9WebView(LPDIRECT3DDEVICE9 device, int width, int height, EA::WebKit::View * view)
-	{
-		this->device = device;
-		this->view = view;
-		this->width = width;
-		this->height = height;
-		posX = 0;
-		posY = 0;
-		D3DXCreateSprite(device, &sprite);
-		D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
-	}
-	void SetSize(int width, int height)
-	{
-		this->width = width;
-		this->height = height;
-		texture->Release();
-		D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
-		this->view->SetSize(width, height);
-	}
-	void SetPosition(int x, int y)
-	{
-		posX = x;
-		posY = y;
-	}
-	void SetData(void * buffer)
-	{
-		RECT rect = {0, 0, width, height};
-
-		D3DLOCKED_RECT lockedRect;
-		texture->LockRect(0, &lockedRect, NULL, 0);
-		void* destBuffer = lockedRect.pBits;
-		memcpy(destBuffer, this->view->GetSurface()->GetData(), width*height*4);
-		texture->UnlockRect(0);
-	}
-	void Render()
-	{
-		RECT rect = {0, 0, width, height};
-
-		sprite->Begin(D3DXSPRITE_ALPHABLEND);
-		sprite->Draw(texture, &rect, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3(posX, posY, 0.0f), 0xFFFFFFFF);
-		sprite->End();
-	}
-	void Release()
-	{
-		texture->Release();
-		sprite->Release();
-	}
-	EA::WebKit::View * GetView()
-	{
-		return view;
-	}
-private:
-	LPDIRECT3DDEVICE9 device;
-	ID3DXSprite * sprite;
-	IDirect3DTexture9 * texture;
-
-	EA::WebKit::View * view;
-
-	int width;
-	int height;
-	int posX;
-	int posY;
+	std::list<CD3D9WebView*> views;
 };

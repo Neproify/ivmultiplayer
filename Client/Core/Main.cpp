@@ -470,11 +470,9 @@ void Direct3DRender()
 		g_pGUI->Render();
 
 #ifdef IVMP_WEBKIT
-	if(g_pWebView)
+	if(g_pWebkit)
 	{
-		bool b = g_pWebView->GetView()->Tick();
-		g_pWebView->SetData(g_pWebView->GetView()->GetSurface()->GetData());
-		g_pWebView->Render();
+		g_pWebkit->RenderAll();
 	}
 #endif
 	// If our main menu exists process it
@@ -649,8 +647,9 @@ void Direct3DReset()
 		g_pGUI = new CGUI(g_pDevice);
 #ifdef IVMP_WEBKIT
 		g_pWebkit = new CD3D9WebKit();
-		g_pWebView = new CD3D9WebView(g_pDevice, 640, 480, g_pWebkit->CreateView(640, 480, "http://iv-m.com"));
+		g_pWebView = g_pWebkit->CreateView(640, 480, "http://iv-m.com", g_pDevice);
 		g_pWebView->SetPosition(600, 100);
+		g_pWebkit->CreateView(640, 480, "http://google.com", g_pDevice)->SetPosition(400, 150);
 #endif
 		if(g_pGUI->Initialize())
 		{
