@@ -9,6 +9,9 @@
 //
 //==============================================================================
 
+#ifdef IVMP_WEBKIT
+#include "CD3D9Webkit.hpp"
+#endif
 #include <winsock2.h>
 #include <windows.h>
 #include <d3d9.h>
@@ -86,6 +89,11 @@ CTrafficLights       * g_pTrafficLights = NULL;
 CCredits             * g_pCredits = NULL;
 CNameTags            * g_pNameTags = NULL;
 CClientTaskManager   * g_pClientTaskManager = NULL;
+
+#ifdef IVMP_WEBKIT
+CD3D9WebKit * g_pWebkit;
+CD3D9WebView * g_pWebView;
+#endif
 
 bool		   g_bGameLoaded = false;
 bool           g_bWindowedMode = false;
@@ -461,6 +469,14 @@ void Direct3DRender()
 	if(g_pGUI)
 		g_pGUI->Render();
 
+#ifdef IVMP_WEBKIT
+	if(g_pWebView)
+	{
+		bool b = g_pWebView->GetView()->Tick();
+		g_pWebView->SetData(g_pWebView->GetView()->GetSurface()->GetData());
+		g_pWebView->Render();
+	}
+#endif
 	// If our main menu exists process it
 	if(g_pMainMenu)
 		g_pMainMenu->Process();
@@ -631,7 +647,11 @@ void Direct3DReset()
 	if(!g_pGUI)
 	{
 		g_pGUI = new CGUI(g_pDevice);
-
+#ifdef IVMP_WEBKIT
+		g_pWebkit = new CD3D9WebKit();
+		g_pWebView = new CD3D9WebView(g_pDevice, 640, 480, g_pWebkit->CreateView(640, 480, "http://iv-m.com"));
+		g_pWebView->SetPosition(600, 100);
+#endif
 		if(g_pGUI->Initialize())
 		{
 			// Version identifier text
