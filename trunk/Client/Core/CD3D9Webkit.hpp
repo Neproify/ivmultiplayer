@@ -27,6 +27,34 @@
 #include "CMainMenu.h"
 #include <CLogFile.h>
 
+DWORD DIKToScanCode(WORD DIK)
+{
+	switch(DIK)
+	{
+	case DIK_A: return 0x41;               // Control + A (Select All)
+	case DIK_C: return 0x43;               // Control + C (Copy)
+	case DIK_X: return 0x58;               // Control + X (Cut)
+	case DIK_V: return 0x56;               // Control + V (Paste)
+	case DIK_TAB: return VK_TAB;           // Tab
+	case DIK_HOME: return VK_HOME;         // Home
+	case DIK_END: return VK_END;           // End
+	case DIK_INSERT: return VK_INSERT;     // Insert
+	case DIK_DELETE: return VK_DELETE;     // Delete
+	case DIK_UP: return VK_UP;             // Arrow Up
+	case DIK_DOWN: return VK_DOWN;         // Arrow Down
+	case DIK_LEFT: return VK_LEFT;         // Arrow Left
+	case DIK_RIGHT: return VK_RIGHT;       // Arrow Right
+	case DIK_LSHIFT: return VK_LSHIFT;     // Left Shift
+	case DIK_RSHIFT: return VK_RSHIFT;     // Right Shift
+	case DIK_BACK: return VK_BACK;         // Backspace
+	case DIK_RETURN: return VK_RETURN;     // Enter
+	case DIK_LCONTROL: return VK_LCONTROL; // Left Control
+	case DIK_RCONTROL: return VK_RCONTROL; // Right Control
+	}
+
+	return 0;
+}
+
 extern CGUI                 * g_pGUI;
 extern CMainMenu            * g_pMainMenu;
 
@@ -53,15 +81,13 @@ public:
 		this->view = view;
 		this->width = width;
 		this->height = height;
-		posX = 0;
-		posY = 0;
 		device = g_pGUI->GetDirect3DDevice();
 		D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
 		m_bBeforeGUI = false;
 
 		name = g_pGUI->GetUniqueName();
 
-		//view->GetSurface()->SetPixelFormat(EA::Raster::kPixelFormatTypeRGBA);
+		view->GetSurface()->SetPixelFormat(EA::Raster::kPixelFormatTypeARGB);
 
 		CEGUI::Texture & ceguiTexture = g_pGUI->GetRenderer()->createTexture(texture);
 		CEGUI::ImagesetManager::getSingleton().create(name.Get(), ceguiTexture);
@@ -86,7 +112,6 @@ public:
 		image->subscribeEvent(CEGUI::PushButton::EventKeyUp, CEGUI::Event::Subscriber(&OnKeyUp));
 		image->subscribeEvent(CEGUI::PushButton::EventKeyDown, CEGUI::Event::Subscriber(&OnKeyDown));
 
-
 		image->setAlwaysOnTop(true);
 		
 	}
@@ -98,30 +123,18 @@ public:
 		D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
 		this->view->SetSize(width, height);
 	}
-	void SetPosition(int x, int y)
+	void SetPosition(CEGUI::UVector2 & vec)
 	{
-		posX = x;
-		posY = y;
-
-		image->setPosition(CEGUI::UVector2(CEGUI::UDim(0, y), CEGUI::UDim(0, y)));
+		image->setPosition(vec);
 	}
 	void SetData(void * buffer)
 	{
-		RECT rect = {0, 0, width, height};
-
 		D3DLOCKED_RECT lockedRect;
 		texture->LockRect(0, &lockedRect, NULL, 0);
-		void* destBuffer = lockedRect.pBits;
-		//view->GetSurface()->SetPixelFormat(EA::Raster::kPixelFormatTypeRGBA);
-		memcpy(destBuffer, this->view->GetSurface()->GetData(), width*height*4);
-		
-		unsigned int* data = (unsigned int*)destBuffer;
-		for ( int idx = 0; idx < width*height; ++idx ) { 
-			data[idx] = (data[idx] << 8) | (data[idx] >> 24);
-		}
+		unsigned int * buf = (unsigned int*)buffer;
+		unsigned int * destBuffer = (unsigned int*)lockedRect.pBits;
+		memcpy(lockedRect.pBits, buffer, width*height*4);
 		texture->UnlockRect(0);
-		CEGUI::ImagesetManager::getSingleton().get(name.Get()).getTexture()->loadFromMemory(buffer, CEGUI::Size(width, height), CEGUI::Texture::PF_RGBA);
-		//imageset.setTexture(&ceguiTexture);
 	}
 	void Render()
 	{
@@ -157,8 +170,6 @@ private:
 
 	int width;
 	int height;
-	int posX;
-	int posY;
 
 	bool m_bBeforeGUI;
 };
@@ -194,15 +205,14 @@ public:
 
 		font_style = font_server->CreateTextStyle();
 		font_style->SetSize(12.0f);
-		font_style->SetSmooth(EA::WebKit::Smooth::kSmoothEnabled);
 
 		EA::WebKit::Parameters& param = webkit->GetParameters();
-		param.mpLocale = "zh-cn";
+		param.mpLocale = "en-us";
 		param.mEnableSmoothText = false;
-		//param.mPluginsEnabled = true;
-		//param.mJavaScriptEnabled = true;
+		param.mPluginsEnabled = true;
+		param.mJavaScriptEnabled = true;
 
-		sprintf_s(param.mSystemFontDescription.mFamilies, sizeof(param.mSystemFontDescription.mFamilies) / sizeof(param.mSystemFontDescription.mFamilies[0]),\
+		/*sprintf_s(param.mSystemFontDescription.mFamilies, sizeof(param.mSystemFontDescription.mFamilies) / sizeof(param.mSystemFontDescription.mFamilies[0]),\
 				"Arial,Microsoft Yahei,Courier,sans-serif");
 		sprintf_s(param.mFontFamilyStandard, sizeof(param.mFontFamilyStandard) / sizeof(param.mFontFamilyStandard[0]), "Courier");
 		sprintf_s(param.mFontFamilySerif, sizeof(param.mFontFamilySerif) / sizeof(param.mFontFamilySerif[0]), "Courier");
@@ -210,7 +220,7 @@ public:
 		sprintf_s(param.mFontFamilyMonospace, sizeof(param.mFontFamilyMonospace) / sizeof(param.mFontFamilyMonospace[0]), "Courier");
 		sprintf_s(param.mFontFamilyCursive, sizeof(param.mFontFamilyCursive) / sizeof(param.mFontFamilyCursive[0]), "Courier");
 		sprintf_s(param.mFontFamilyFantasy, sizeof(param.mFontFamilyFantasy) / sizeof(param.mFontFamilyFantasy[0]), "Courier");
-
+		*/
 		webkit->SetParameters(param);
 
 		raster = webkit->GetEARasterInstance();
@@ -345,7 +355,6 @@ bool OnMouseUp(const CEGUI::EventArgs &eventArgs)
 	if(!mouseEventArgs.window->isActive())
 		return false;
 	CEGUI::Vector2 localMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
-	CLogFile::Printf("Mouse click: %f %f", localMousePos.d_x, localMousePos.d_y);
 	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
 	EA::WebKit::MouseButtonEvent buttonEvent = {0};
 	buttonEvent.mX = localMousePos.d_x;
@@ -362,7 +371,6 @@ bool OnMouseDown(const CEGUI::EventArgs &eventArgs)
 	if(!mouseEventArgs.window->isActive())
 		return false;
 	CEGUI::Vector2 localMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
-	CLogFile::Printf("Mouse click: %f %f", localMousePos.d_x, localMousePos.d_y);
 	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
 	EA::WebKit::MouseButtonEvent buttonEvent = {0};
 	buttonEvent.mX = localMousePos.d_x;
@@ -385,6 +393,7 @@ bool OnMouseWheel(const CEGUI::EventArgs &eventArgs)
 	wheelEvent.mX = localMousePos.d_x;
 	wheelEvent.mY = localMousePos.d_y;
 	wheelEvent.mZDelta = mouseEventArgs.wheelChange;
+	wheelEvent.mLineDelta = 3;
 	view->GetView()->OnMouseWheelEvent(wheelEvent);
 	return true;
 }
@@ -396,7 +405,7 @@ bool OnKeyUp(const CEGUI::EventArgs &eventArgs)
 		return false;
 	CD3D9WebView * view = g_pWebkit->GetView(keyEventArgs.window);
 	EA::WebKit::KeyboardEvent e = {0};
-	e.mId = keyEventArgs.scancode;
+	e.mId = DIKToScanCode(keyEventArgs.scancode);
 	e.mbChar = false;
 	e.mbDepressed = false;
 	view->GetView()->OnKeyboardEvent(e);
@@ -409,7 +418,7 @@ bool OnKeyDown(const CEGUI::EventArgs &eventArgs)
 		return false;
 	CD3D9WebView * view = g_pWebkit->GetView(keyEventArgs.window);
 	EA::WebKit::KeyboardEvent e = {0};
-	e.mId = keyEventArgs.scancode;
+	e.mId = DIKToScanCode(keyEventArgs.scancode);
 	e.mbChar = false;
 	e.mbDepressed = true;
 	view->GetView()->OnKeyboardEvent(e);
