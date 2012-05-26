@@ -58,8 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef EAWEBKIT_VERSION
-    #define EAWEBKIT_VERSION   "1.21.00"
-    #define EAWEBKIT_VERSION_N 12100
+    #define EAWEBKIT_VERSION   "1.26.00"
+    #define EAWEBKIT_VERSION_N 12600
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -68,14 +68,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 /////////////////////////////////////////////////////////////////////////////
 #if defined (EA_PLATFORM_PS3)
-    const char gEAWebKitBuildVersion[]="EAWebKit: 1.21.00 PS3_SDK: 330.001 VS: 2008 ID: 0001"; 
+    const char gEAWebKitBuildVersion[]="EAWebKit: 1.26.00 ID: 0001"; 
 #elif defined (EA_PLATFORM_XENON)
-    const char gEAWebKitBuildVersion[]="EAWebKit: 1.21.00 XENON_SDK: 2.0.11164.3-proxy VS: 2008 ID: 0001"; 
+    const char gEAWebKitBuildVersion[]="EAWebKit: 1.26.00 ID: 0001"; 
 #else // EA_PLATFORM_WINDOWS
     #if (_MSC_VER < 1500) // this is Visual C++ 2005 or lower since 2008 is 1500
-         const char gEAWebKitBuildVersion[]="EAWebKit: 1.21.00 VS: 2005_SP1 ID: 0001"; 
+         const char gEAWebKitBuildVersion[]="EAWebKit: 1.26.00 VS: 2005 ID: 0001"; 
     #else
-         const char gEAWebKitBuildVersion[]="EAWebKit: 1.21.00 VS: 2008_SP1 ID: 0001"; 
+         const char gEAWebKitBuildVersion[]="EAWebKit: 1.26.00 VS: 2008 ID: 0001"; 
     #endif
 #endif
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef EAWEBKIT_DEBUG
     #if defined(EA_DEBUG) || defined(_DEBUG)
-        #define EAWEBKIT_DEBUG 0
+        #define EAWEBKIT_DEBUG 1
     #else
         #define EAWEBKIT_DEBUG 0
     #endif
@@ -171,37 +171,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         #define WTF_USE_LIBXML2 1
     #endif
 #endif
-
-
-///////////////////////////////////////////////////////////////////////////////
-// WTF_USE_DIRTYSDK / WTF_USE_UTFINTERNET / WTF_USE_CURL
-//
-// This sets the HTTP transport package that's used.
-// Normally in our nant build we have this defined in the EAWebKit.build file,
-// and that setting will take precedence.
-// These packages aren't mutually exclusive, but if you have one of them 
-// working for HTTP then you probably don't need another to do HTTP. 
-// However, if one does HTTP (e.g. DirtySDK) but doesn't do FTP, then it 
-// could be useful to enable multiple transport packages.
-//
-// Example usage in WebKit code:
-//     #if USE(DIRTYSDK)    // WebKit defines the 'USE' macro, and we take advantage of it.
-//         blah
-//     #endif
-//
-#ifndef WTF_USE_CURL
-    #define WTF_USE_CURL 0
-#endif
-
-#ifndef WTF_USE_DIRTYSDK
-    #define WTF_USE_DIRTYSDK 1
-#endif
-
-#ifndef WTF_USE_UTFINTERNET
-    #define WTF_USE_UTFINTERNET 0
-#endif
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // EAWEBKIT_API
@@ -365,30 +334,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef EAWEBKIT_USE_EAIO
     #define EAWEBKIT_USE_EAIO 0
 #endif
-
-
-///////////////////////////////////////////////////////////////////////////////
-// EAWEBKIT_USE_DIRTYSDK
-//
-#ifndef EAWEBKIT_USE_CURL
-    #define EAWEBKIT_USE_CURL 0
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-// EAWEBKIT_USE_DIRTYSDK
-//
-#ifndef EAWEBKIT_USE_DIRTYSDK
-    #define EAWEBKIT_USE_DIRTYSDK 1
-#endif
-
-
-///////////////////////////////////////////////////////////////////////////////
-// EAWEBKIT_USE_UTFSOCKETS
-//
-#ifndef EAWEBKIT_USE_UTFSOCKETS
-    #define EAWEBKIT_USE_UTFSOCKETS 0
-#endif
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // EAWEBKIT_USE_RLE_COMPRESSION

@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 ///////////////////////////////////////////////////////////////////////
-// Assertion failures and logs
+// Assertion failures
 ///////////////////////////////////////////////////////////////////////
 
 // These functions will call ViewNotification::AssertionFailure and ViewNotification::DebugLog and 

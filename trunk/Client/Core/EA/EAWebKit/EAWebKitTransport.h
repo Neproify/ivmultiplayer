@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2008-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -28,7 +28,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /////////////////////////////////////////////////////////////////////////////
 // EAWebKitTransport.h
-// Created by Paul Pedriana - 2008
+// Created by Paul Pedriana 
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef EAWEBKIT_EAWEBKITTRANSPORT_H
@@ -99,7 +99,7 @@ namespace EA
             EASTLHeaderMapWrapper           mHeaderMapIn;               // Incoming headers
             //EASTLFixedString8Wrapper        mCookieFilePath;            // File path to use to store cookies in a persistent way.
             int32_t							mResultCode;                // Conventional HTTP result code.
-            int64_t							mPostSize;                  // If mMethod is PUT or POST, this is the size of the body data (e.g. form data size in the case of POST). -1 if not used.
+            //int64_t							mPostSize;                  // If mMethod is PUT or POST, this is the size of the body data (e.g. form data size in the case of POST). -1 if not used.
             HttpRequestType					mHttpRequestType;			// HEAD, GET etc. represented as an enum
             char16_t						mAuthorizationType[16];     // Typically one of "Basic" "Digest" or "NTLM".
             EASTLFixedString16Wrapper       mAuthorizationRealm;        // This is a string defined by the server.

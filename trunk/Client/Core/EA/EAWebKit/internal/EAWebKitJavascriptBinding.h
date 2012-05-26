@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2008-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -196,8 +196,8 @@ namespace EA
 					break;
 				case JavascriptValueType_String:
                     {
-                        wchar_t* pVal = (wchar_t*) GetFixedString(value.GetStringValue())->c_str();
-                        translated.balString(pVal);
+                        const FixedString16_128* fixedString = GetFixedString(value.GetStringValue());
+                        translated.d->balString(UString(fixedString->data(), fixedString->size()));
                     }
                     break;
                 case JavascriptValueType_Array:
@@ -230,7 +230,7 @@ namespace EA
                           BalValue elementBalVal(&elementBalValPrivate);
                           Translate(iEntry->second, elementBalVal, exec);
 
-                          const UString name(iEntry->first.c_str(), iEntry->first.length() + 1); // +1 to grab the null character as well.
+                          const UString name(iEntry->first.data(), iEntry->first.length());
                           Identifier ident(exec, name);
                           jsObject->put(exec, ident, elementBalVal.d->getValue());
                           elementBalVal.d = NULL; // prevent free
@@ -265,8 +265,7 @@ namespace EA
 				case KJS::StringType:
                     {
                         mString = value->toString();
-					    GetFixedString(translated.GetStringValue())->assign(mString.charactersWithNullTermination());
-                        translated.SetStringType();
+                        translated.SetStringValue(mString.characters(), mString.length());
                     }
 					break;
                 case KJS::ObjectType:
@@ -274,7 +273,7 @@ namespace EA
                         JSObject* pJSObject = value->d->getValue()->toObject(exec);
                         if (pJSObject->isObject(&JSArray::info))
                         {
-                            translated.SetArrayType();
+                            translated.SetArrayValue(NULL, 0);
 
                             // Special treatment for arrays. We return an actual array instead of hash map
                             JSArray* pJSArray = static_cast<JSArray*>(pJSObject);
@@ -295,7 +294,7 @@ namespace EA
                         }
                         else
                         {
-                            translated.SetObjectType();
+                            translated.SetNewObjectValue();
 
                             PropertyNameArray propertyNames(exec);
                             pJSObject->getPropertyNames(exec, propertyNames);
@@ -310,7 +309,7 @@ namespace EA
                                 BalValuePrivate priv = BalValuePrivate(exec, val);
                                 BalValue balVal(&priv);
                                 
-                                const char16_t* name = iProp->ustring().data();
+                                HashMapJavaScriptValue::key_type name(iProp->ustring().data(), iProp->ustring().size());
                                 JavascriptValue &translated = (*pJavascriptValues)[name];
                                 Translate(&balVal, translated, exec);
                                 balVal.d = NULL; // Prevent free.

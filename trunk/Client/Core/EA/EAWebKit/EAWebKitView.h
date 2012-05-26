@@ -393,7 +393,7 @@ namespace EA
 			// Accessors for setting the emulation mode on PC
 			virtual bool IsEmulatingConsoleOnPC() const;
 			virtual void SetEmulatingConsoleOnPC(bool emulatingConsoleOnPC);
-
+			
 			
 			
 			
@@ -420,9 +420,12 @@ namespace EA
 			virtual void Scroll(bool xAxisScroll, bool yAxisScroll, int xScrollLines, int xScrollDelta,	int yScrollLines, int yScrollDelta); 
 			virtual void GetScrollOffset(int& x, int& y);//10/11/2010 - Note by Arpit Baldeva - This should be private.
 
-					
-
 			
+            //
+            // APIs related to debugging.
+            //
+            virtual void SetLogFiltering(DebugLogType channel, bool state);
+			virtual bool IsFiltered(DebugLogType channel);
 
 			
 			//
@@ -551,8 +554,6 @@ namespace EA
 			OverlaySurfaceArrayContainer*	    mOverlaySurfaceArrayContainer;
 			LinkHookManager						mLinkHookManager;
 			TextInputStateInfo					mTextInputStateInfo;   // For tracking if text edit mode is on or off
-			KJS::Debugger*						mDebugger;
-
 			NodeListContainer*					mNodeListContainer;
 
 			WebCore::Frame*						mBestNodeFrame;//Frame where the last best node was found.
@@ -582,6 +583,8 @@ namespace EA
 			JumpNavigationParams				mJumpNavigationParams;
             bool                                mOwnsViewSurface;     // Set if the surface is created by EAWebkit.
 			bool								mEmulatingConsoleOnPC;
+
+            unsigned mLogFilter;
         };
 
 

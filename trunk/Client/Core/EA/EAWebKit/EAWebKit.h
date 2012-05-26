@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2008-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -296,9 +296,9 @@ namespace EA
 			int                 mHistoryItemLimit;          // Defaults to 100. Number of pages to keep in page history.
 			int                 mHistoryAgeLimit;           // Defaults to 7. Number of days to keep page history.
 			bool                mbEnableFileTransport;      // Defaults to true. This enables use of the file:// scheme to read file system files. Note that the user can install a file system to interpret the meaning of such file paths.
-			bool                mbEnableDirtySDKTransport;  // Defaults to true. This enables DirtySDK HTTP transport. Has no effect unless DirtySDK is compiled and linked into the application. See USE(DIRTY_SDK)
-			bool                mbEnableCurlTransport;      // Defaults to true. This enables Curl HTTP and FTP transport. Has no effect unless Curl is compiled and linked into the application. See USE(CURL)
-			bool                mbEnableUTFTransport;       // Defaults to true. This enables UTFInternet HTTP and FTP transport. Has no effect unless UTFInternet is compiled and linked into the application. See USE(UTFINTERNET)
+			bool                mbEnableDirtySDKTransport;  // Deprecated 04/04/11 - Does not hold much meaning anymore(Dll builds + DirtySDK being only Tx handler). Defaults to true. This enables DirtySDK HTTP transport. Has no effect unless DirtySDK is compiled and linked into the application. See USE(DIRTY_SDK)
+			bool                mbEnableCurlTransport;      // Deprecated 04/04/11 - Does not hold much meaning anymore(Dll builds + Curl not supported).This enables Curl HTTP and FTP transport. Has no effect unless Curl is compiled and linked into the application. See USE(CURL)
+			bool                mbEnableUTFTransport;       // Deprecated 04/04/11 - Does not hold much meaning anymore(Dll builds + UTFInternet not supported).Defaults to true. This enables UTFInternet HTTP and FTP transport. Has no effect unless UTFInternet is compiled and linked into the application. See USE(UTFINTERNET)
 			bool                mbEnableImageCompression;   // Defaults to false. If enabled, this allows the cached ARGB image to be compressed using RLE or YCOCG_DXT5 compression.  
 
 			//Note by Arpit Baldeva: mJavaScriptStackSize defaults to 128 KB. The core Webkit trunk allocates 2MB by default (well, they don't allocate but assume that the platform has on-demand commit capability) at the time of writing. This is not suitable for consoles with limited amount of memory and without on-demand commit capability.
@@ -312,21 +312,20 @@ namespace EA
 			FireTimerRate       mFireTimerRate;						// Defaults to 60Hz. Unclear if some Javascript could be unstable if fired too frequently (>60Hz). 		
 			bool                mbEnableDefaultToolTip;             // Defaults to false. If active, allows the default tooltip to display
 			bool				mbEnableCrossDomainScripting;		// Defaults to false. This is a workaround until we merge back from the trunk. This should be used in conjunction with the domain filtering system to avoid any security holes. 
-			Parameters();
+            Parameters();
 		};
 
 
+		// DebugDrawParams
+		// This is for debuging the draw.  
+		struct EAWEBKIT_API DebugDrawParameters
+		{
+			bool        mDrawDirtyRect;         // Draws the outline of the current dirty rect area being drawn.
+            bool        mForceDirtyRectToFullView; // Forces the dirty rect to the full surface size
 
+            DebugDrawParameters() : mDrawDirtyRect(false), mForceDirtyRectToFullView(false) {}
+        };
 
-
-
-
-
-
-		
-		
-		
-		
 		
 		// Add more structs/enums above this.
 
@@ -462,15 +461,18 @@ namespace EA
             virtual size_t                                                  GetJavascriptValueCount(const EASTLJavascriptValueHashMapWrapper& wrapper) = 0;
 			
             // APIs related to mostly debugging
-			virtual void		SetDebugFileDumpStatus(const bool) = 0;
-			virtual void		RemoveCookies() = 0;
+            virtual void		SetDebugFileDumpStatus(const bool) = 0;
+            virtual void		SetDebugDrawParameters(const DebugDrawParameters& params) = 0;		
+            virtual void        GetDebugDrawParameters(DebugDrawParameters& params) = 0;		
+            virtual void		RemoveCookies() = 0;
 			virtual const char* GetVersion() = 0; // Get the EAWebKit version as a string.
             virtual void        RegisterJavascriptDebugListener(EAWebKitJavascriptDebugListener* listener) = 0;
             virtual void        UnregisterJavascriptDebugListener(EAWebKitJavascriptDebugListener *listener) = 0;
 
 			// Misc. APIs
 			virtual void                    SetEARasterInstance(EA::Raster::IEARaster* pRasterInstance) =0;
-            virtual EA::Raster::IEARaster*	GetEARasterInstance() = 0;
+            virtual EA::Raster::IEARaster*	GetEARasterInstance() = 0;          // Returns the rasterizer that has been set by SetEARasterInstance (or the software rasterizer if none has been set.)
+            virtual EA::Raster::IEARaster*  GetSoftwareRasterInstance() = 0;    // Returns the software rasterizer.
 			virtual WebKitStatus			GetWebKitStatus() = 0;	
 
 			
@@ -531,13 +533,6 @@ namespace EA
 
 				virtual void ReattachCookies(TransportInfo* pTInfo) = 0;
 				virtual void CookiesReceived(TransportInfo* pTInfo) = 0;
-
-
-				virtual EA::WebKit::IGlyphCache*	CreateGlyphCacheWrapperInterface(void* pGlyphCache) = 0;
-				virtual void						DestroyGlyphCacheWrapperInterface(EA::WebKit::IGlyphCache* pGlyphCacheInterface) = 0;
-				virtual EA::WebKit::IFontServer*	CreateFontServerWrapperInterface(void* pFontServer) = 0;
-				virtual void						DestroyFontServerWrapperInterface(EA::WebKit::IFontServer* pFontServerInterface) =0;
-
 
 				virtual View* GetView(::WebView* pWebView) = 0;             
 				virtual View* GetView(::WebFrame* pWebFrame) = 0;           
@@ -650,6 +645,8 @@ namespace EA
 
 			// APIs related to mostly debugging
 			virtual void		SetDebugFileDumpStatus(const bool);
+            virtual void		SetDebugDrawParameters(const DebugDrawParameters& params);		
+            virtual void        GetDebugDrawParameters(DebugDrawParameters& params);		
 			virtual void		RemoveCookies();
 			virtual const char* GetVersion(); // Get the EAWebKit version as a string.
             virtual void        RegisterJavascriptDebugListener(EAWebKitJavascriptDebugListener* listener);
@@ -657,8 +654,9 @@ namespace EA
 
 			// Misc. APIs
             virtual void    SetEARasterInstance(EA::Raster::IEARaster* pRasterInstance);
-			virtual EA::Raster::IEARaster*	GetEARasterInstance();
-			virtual WebKitStatus			GetWebKitStatus();	
+			virtual EA::Raster::IEARaster*	GetEARasterInstance();          // Returns the rasterizer that has been set by SetEARasterInstance (or the software rasterizer if none has been set.)
+            virtual EA::Raster::IEARaster*  GetSoftwareRasterInstance();    // Returns the software rasterizer instance.
+            virtual WebKitStatus			GetWebKitStatus();	
 
 
 
@@ -716,13 +714,6 @@ namespace EA
 
 				virtual void ReattachCookies(TransportInfo* pTInfo);
 				virtual void CookiesReceived(TransportInfo* pTInfo);
-
-
-				virtual EA::WebKit::IGlyphCache*	CreateGlyphCacheWrapperInterface(void* pGlyphCache);
-				virtual void						DestroyGlyphCacheWrapperInterface(EA::WebKit::IGlyphCache* pGlyphCacheInterface);
-				virtual EA::WebKit::IFontServer*	CreateFontServerWrapperInterface(void* pFontServer);
-				virtual void						DestroyFontServerWrapperInterface(EA::WebKit::IFontServer* pFontServerInterface);
-
 
 				virtual View* GetView(::WebView* pWebView);             
 				virtual View* GetView(::WebFrame* pWebFrame);           
@@ -813,7 +804,12 @@ namespace EA
 		// For example PC is C:\Temp\EAWebKitDebug
 		// Inactive in release builds. In debug builds, default is off.
 		EAWEBKIT_API void			SetDebugFileDumpStatus(const bool enabled);
-		EAWEBKIT_API void			RemoveCookies();
+		
+        // Debug draw settings
+        EAWEBKIT_API  void		    SetDebugDrawParameters(const DebugDrawParameters& params);		
+        EAWEBKIT_API  void          GetDebugDrawParameters(DebugDrawParameters& params);		
+
+        EAWEBKIT_API void			RemoveCookies();
 		EAWEBKIT_API const char*	GetVersion();
 		
 		//Note by Arpit Baldeva: We can have a CreateEARasterInstance() similar to CreateEAWebKitInstance() exported in dll or have following function accessed through 
@@ -821,6 +817,7 @@ namespace EA
 		//would be to keep the export definition files short. So for now, we'll access the EARasterInstance API through EAWebKit instance.
 		EAWEBKIT_API void                   SetEARasterInstance(EA::Raster::IEARaster* pRasterInstance);
         EAWEBKIT_API EA::Raster::IEARaster* GetEARasterInstance();
+        EAWEBKIT_API EA::Raster::IEARaster* GetSoftwareRasterInstance();
 		EAWEBKIT_API WebKitStatus			GetWebKitStatus();
 
 		
@@ -845,31 +842,9 @@ namespace EA
 		//Update the cookie manager with the received cookies
 		EAWEBKIT_API void CookiesReceived(TransportInfo* pTInfo);
 		// Returns the WebKit time as floating point seconds since 1970.
-		EAWEBKIT_API EA::WebKit::IGlyphCache*	CreateGlyphCacheWrapperInterface(void* pGlyphCache);
-		EAWEBKIT_API void						DestroyGlyphCacheWrapperInterface(EA::WebKit::IGlyphCache* pGlyphCacheInterface);
-		EAWEBKIT_API EA::WebKit::IFontServer*	CreateFontServerWrapperInterface(void* pFontServer);
-		EAWEBKIT_API void						DestroyFontServerWrapperInterface(EA::WebKit::IFontServer* pFontServerInterface);
 
-
-
-
-
-
-
-
-
-		extern "C" void WTFLogEvent(const char* format, ...);
-
-#if EAWEBKIT_TRACE_ENABLED
-#define EAW_TRACE_MSG(msg)              WTFLogEvent("%s", msg)
-#define EAW_TRACE_FORMATTED(fmt, ...)   WTFLogEvent(fmt, __VA_ARGS__)
-#else
-#define EAW_TRACE_MSG(msg)              ((void)0)
-#define EAW_TRACE_FORMATTED(fmt, ...)   ((void)0)
-#endif
-
-
-
+        EAWEBKIT_API EAWebKitJavascriptDebugListener *GetDebugListener(void);
+        EAWEBKIT_API void SetDebugListener(EAWebKitJavascriptDebugListener *listener);
 	}
 }
 #endif // Header include guard

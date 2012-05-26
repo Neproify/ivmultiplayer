@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2008-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -220,12 +220,14 @@ namespace EA
 		// Type flags for the log info so it can be filtered if needed
 		enum DebugLogType
 		{
-			kDebugLogGeneral,
+			kDebugLogGlobal,
 			kDebugLogJavascript,
 			kDebugLogAssertion,
 			kDebugLogNetwork,
 			kDebugLogGraphics,
-			kDebugLogMemory
+			kDebugLogMemory,
+            kDebugLogWebCore,
+            kDebugLogCount,
 		};
 
 		struct DebugLogInfo
@@ -259,6 +261,7 @@ namespace EA
 			kLETContentLengthReceived,  // The page content length is now available.
 			kLETLoadCompleted,          // The page load completed successfully.
 			kLETLoadFailed,             // The page load failed.
+            kLETOnLoadEventsHandled,    // Called after any onload event has been dispactd (only for main frame).     
 			kLETWillClose,              // The page is about to close.
 			kLETLoadStarted,            // 
 			kLETTitleReceived,          // The title of the page is now available.
@@ -451,7 +454,7 @@ namespace EA
         EAWEBKIT_API void DestroyJavaScriptValueArray(EA::WebKit::JavascriptValue* pValues);  
 
 
-		// Used to notify the application of any error in the Network layer(DirtySDK). Note that this has nothing to do with HTTP return codes
+		// Used to notify the application of any error in the Network/Transport layer. Note that this has nothing to do with HTTP return codes
 		// and their interpretation. For example, HTTP 404 does not mean a network layer error. An example of network layer error is a possible 
 		// timeout(May be the internet is not connected or may be the server itself is down).
 		enum NetworkErrorType
@@ -616,6 +619,17 @@ namespace EA
 		// Note by Arpit Baldeva: Use this function to notify an event change associated with jobs. Each job has a ViewProcessInfo attached with it.
 		void NOTIFY_PROCESS_STATUS(ViewProcessInfo& process,  VProcessStatus processStatus);
 
+		// CreateViewInfo structure is used for creating a new view (something equivalent of a new "tab" in the browser) in response to a javascript window.open or
+		// a user click on a link <a> href="newpage.htm" target="_blank"</a>. 
+		
+		// An application can handle it in two ways. 
+		// 1. Preferred way - The application should simply create a new view (mpCreatedView) and return true. The management of this View and its relation with old View is EAWebKit's responsibility.
+		// This is how "core WebKit" wants it. However, the display of this View is application's responsibility.
+		// Note that you should NOT set the URL on the newly created View. EAWebKit will manage that.
+		
+		// 2. Less preferred but a workaround way - The application may not be in a position to handle multiple view display. In that case, the application may want to do something with 
+		// the URL (For example, open it in an external browser). Obviously, in such scenario EAWebKit will not be able to maintain any relationship between Views.
+		
 		struct CreateViewInfo
 		{
 			View*		mpView;			// The associated View.
@@ -630,11 +644,16 @@ namespace EA
 			bool		mScrollBars;
 			
 			bool		mFromJavaScript; // If true, the notification is sent as a result of window.open(...). If false, the notification is coming from <a target="_blank"/>. It can be used, for example, to decide the window creation parameters.
+			
+			// Please read the comments above. The application needs to use this information only in case if it does not want to display multiple views and instead implement a workaround.
+			const char16_t* mpURLToOpen;      
+			
 			CreateViewInfo()
 				: mpView(NULL), mpCreatedView(NULL)
 				, mLeft(0), mTop(0), mWidth(EA::WebKit::kViewWidthDefault), mHeight(EA::WebKit::kViewHeightDefault)
 				, mResizable(true), mScrollBars(true)
 				, mFromJavaScript(false)
+				, mpURLToOpen(0)
 			{
 
 			}

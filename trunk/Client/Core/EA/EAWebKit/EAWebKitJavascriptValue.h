@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2008-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -29,9 +29,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///////////////////////////////////////////////////////////////////////////////
 // EAWebKitJavascriptValue.h
 //
-// Created by Chris Stott
+// Created by Chris Stott, David Siems
 ///////////////////////////////////////////////////////////////////////////////
-
 
 #ifndef EAWEBKIT_EAWEBKITJAVASCRIPTVALUE_H
 #define EAWEBKIT_EAWEBKITJAVASCRIPTVALUE_H
@@ -43,178 +42,209 @@ namespace EA
     namespace WebKit
     {
 		//////////////////////////////////////////////////////////////////////////
-		//
+		// Types - Order is important here, NonPOD types should be grouped and
+        // should come after POD types.
 		enum JavascriptValueType
 		{
-			JavascriptValueType_Undefined,
+            // POD Types
+            JavascriptValueType_Undefined,
 			JavascriptValueType_Number,
+            JavascriptValueType_Boolean,
+
+            // Non-POD Types
 			JavascriptValueType_String,
-			JavascriptValueType_Boolean,
             JavascriptValueType_Array,
             JavascriptValueType_Object,
 		};
 
-		//////////////////////////////////////////////////////////////////////////
-		// This is incredibly simple & stupid. Expect very few of these
-		// objects to be created
-		// 
-		// Also, don't hold onto these - extract what you want immediately.
-		class JavascriptValue
-		{
+        //////////////////////////////////////////////////////////////////////////
+        //
+		class JavascriptValue {
 		public:
-			//////////////////////////////////////////////////////////////////////////
-			// Constructors
-			explicit	JavascriptValue()
-			:	mType(JavascriptValueType_Undefined)
-			{
-				
-			}
+            //////////////////////////////////////////////////////////////////////////
+            // Constructing - May only happen within the DLL
+            JavascriptValue(void);
 
-
-			explicit	JavascriptValue(double value)
-			:	mType(JavascriptValueType_Number)
-			,	mNumberValue(value)
-			{
-				// empty
-			}
-
-// CSidhall 3/24/10 - Removed now for would only work now for internal EAWebKit calls because of the added fixed string = operator
-/*
-			explicit	JavascriptValue(const EASTLFixedString16Wrapper& value)
-			:	mType(JavascriptValueType_String)
-			{
-				mStringValue =value;
-			}	
-*/
-			explicit	JavascriptValue(bool value)
-			:	mType(JavascriptValueType_Boolean)
-			,	mBooleanValue(value)
-			{
-				// empty
-			}	
-
-			//////////////////////////////////////////////////////////////////////////
-			// Type
-			JavascriptValueType GetType() const
-			{
-				return mType;
-			}
-
+            //////////////////////////////////////////////////////////////////////////
+            // Copying - Care must be taken for Non-POD types because they are
+            // reference counted. You shouldn't copy these values from outside
+            // the DLL.
+            JavascriptValue(const JavascriptValue &v);
+            JavascriptValue &operator=(const JavascriptValue &v);
+            virtual ~JavascriptValue(void);
 
 			//////////////////////////////////////////////////////////////////////////
 			// Setters
-			void SetUndefined()
-			{
-				mType = JavascriptValueType_Undefined;
+			void SetUndefined(void) { 
+                Release();
+                mType = JavascriptValueType_Undefined;
+                mNumberValue = 0.0;
 			}
 
-			void SetNumberValue(double value)
-			{
+			void SetNumberValue(double value) {
+                Release();
 				mType = JavascriptValueType_Number;
 				mNumberValue = value;
 			}
 
-            // Note for setting a string: For setting the string value, this needs now 2 steps (in no particular order):
-            // 1) The fixed mStringValue needs to be set with SetCharacters() after getting it with GetStringValue() 
-            // 2) The String type needs to be set with SetStringType 
-            void SetStringType()
-			{
-				mType = JavascriptValueType_String;
+            void SetBooleanValue(bool value) {
+                Release();
+                mType = JavascriptValueType_Boolean;
+                mBooleanValue = value;
             }
 
-			void SetBooleanValue(bool value)
-			{
-				mType = JavascriptValueType_Boolean;
-				mBooleanValue = value;
-			}
-
-            // Similar to string. First use SetJavaScriptValues() after getting it with GetArrayValue(),
-            // then call SetArrayType()
-            void SetArrayType()
-            {
-                mType = JavascriptValueType_Array;
+            // It's okay to pass NULL here.
+            void SetStringValue(const char16_t *chars) {
+                SetStringInternal(chars);
             }
 
-            void SetObjectType()
-            {
-                mType = JavascriptValueType_Object;
+            void SetStringValue(const char16_t *chars, int count) {
+                SetStringInternal(chars, count);
+            }
+
+            // It's okay to pass NULL here.
+            void SetArrayValue(JavascriptValue *pValues, int size) {
+                SetArrayInternal(pValues, size);
+            }
+
+            void SetNewObjectValue(void) {
+                SetNewObjectInternal();
             }
 
 			//////////////////////////////////////////////////////////////////////////
 			// Getters
-			double GetNumberValue() const
-			{
-				return mNumberValue;
+            JavascriptValueType GetType(void) const { 
+                return mType;
+            }
+
+			double GetNumberValue(void) const {
+            #if defined(EA_DEBUG)
+                AssertType(JavascriptValueType_Number);
+            #endif
+                return mNumberValue;
 			}
 
-            // Note: To convert the fixed string, you will need to use the GetCharacters() API 
-			EASTLFixedString16Wrapper& GetStringValue()
-			{
-				return mStringValue;
+            bool GetBooleanValue(void) const {
+            #if defined(EA_DEBUG)
+                AssertType(JavascriptValueType_Boolean);
+            #endif
+                return mBooleanValue;
+            }
+
+            // To extract the string you will need to use the EAWebkit::GetCharacters() API.
+			EASTLFixedString16Wrapper& GetStringValue(void) {
+            #if defined(EA_DEBUG)
+                AssertType(JavascriptValueType_String);
+            #endif
+                return mNonPODValue.mValue->mStringValue;
 			}
 
-            const EASTLFixedString16Wrapper& GetStringValue() const
-            {
-                return mStringValue;
+            const EASTLFixedString16Wrapper& GetStringValue(void) const {
+            #if defined(EA_DEBUG)
+                AssertType(JavascriptValueType_String);
+            #endif
+                return mNonPODValue.mValue->mStringValue;
             }
 
-			bool GetBooleanValue() const
-			{
-				return mBooleanValue;
-			}
-
-            EASTLVectorJavaScriptValueWrapper& GetArrayValue()
-            {
-                return mArrayValue;
+            // To extract the array you will need to use the EAWebkit::() API
+            EASTLVectorJavaScriptValueWrapper& GetArrayValue(void) {
+            #if defined(EA_DEBUG)
+                AssertType(JavascriptValueType_Array);
+            #endif
+                return mNonPODValue.mValue->mArrayValue;
             }
 
-            const EASTLVectorJavaScriptValueWrapper& GetArrayValue() const
-            {
-                return mArrayValue;
+            const EASTLVectorJavaScriptValueWrapper& GetArrayValue(void) const {
+            #if defined(EA_DEBUG)
+                AssertType(JavascriptValueType_Array);
+            #endif
+                return mNonPODValue.mValue->mArrayValue;
             }
 
-            EASTLJavascriptValueHashMapWrapper& GetHashMapValue()
-            {
-                return mHashMapValue;
+            // To extract the hashmap you will need to use the EAWebkit::Get() API
+            EASTLJavascriptValueHashMapWrapper& GetHashMapValue(void) {
+            #if defined(EA_DEBUG)
+                AssertType(JavascriptValueType_Object);
+            #endif
+                return mNonPODValue.mValue->mHashMapValue;
             }
 
-            const EASTLJavascriptValueHashMapWrapper& GetHashMapValue() const
-            {
-                return GetHashMapValue();
+            const EASTLJavascriptValueHashMapWrapper& GetHashMapValue(void) const {
+            #if defined(EA_DEBUG)
+                AssertType(JavascriptValueType_Object);
+            #endif
+                return mNonPODValue.mValue->mHashMapValue;
             }
 
-            
+            //////////////////////////////////////////////////////////////////////////
+            // Helpers
+            virtual const char16_t *GetStringCharacters(void);
+            virtual void GetArrayValues(JavascriptValue **ppValuesOut, int *pSizeOut);
+            virtual JavascriptValue *GetHashMapValue(const char16_t *key, bool createIfMissing = false);
+
+            //////////////////////////////////////////////////////////////////////////
+            // Deprecated
+            void SetStringType(void) {
+                if (mType != JavascriptValueType_String) {
+                    SetStringValue(NULL);
+                }
+            }
+
+            void SetArrayType(void) {
+                if (mType != JavascriptValueType_Array) {
+                    SetArrayValue(NULL, 0);
+                }
+            }
+
+            void SetObjectType(void) {
+                if (mType != JavascriptValueType_Object) {
+                    SetNewObjectValue();
+                }
+            }
+            //
+            //////////////////////////////////////////////////////////////////////////
 
 		private:
-			JavascriptValueType		mType;
-			union 
-			{
-				double					mNumberValue;
-				bool					mBooleanValue;
+            // These methods must be virtual so they can be called from outside the DLL.
+            virtual void ShallowCopy(const JavascriptValue &v);
+            virtual void Release(void);
+
+            virtual void SetStringInternal(const char16_t *chars);
+            virtual void SetStringInternal(const char16_t *chars, int count);
+            virtual void SetArrayInternal(JavascriptValue *pValues, int size);
+            virtual void SetNewObjectInternal(void);
+
+        #if defined(EA_DEBUG)
+            virtual void AssertType(JavascriptValueType type) const;
+        #endif
+            
+            // Only used internally.
+            void EnsureNonPODStorage(void);
+            void FreeNonPODStorage(void);
+            bool IsNonPOD(void);
+            void ReleaseNonPODStorage(void);
+
+            struct NonPODValue {
+                EASTLFixedString16Wrapper mStringValue;
+                EASTLVectorJavaScriptValueWrapper mArrayValue;
+                EASTLJavascriptValueHashMapWrapper mHashMapValue;
+            };
+            
+            struct NonPODValueRef {
+                NonPODValue *mValue;
+                bool mShouldDelete;
             };
 
-			// TODO: dsiems: Investigate if there's another way to fix this problem, having the fixed string
-			// here bloats every instance of this class by ~217 bytes.  
-			// Ideally this class would stay in the 8-24 byte range.
-            EASTLFixedString16Wrapper mStringValue;  // CSidhall 3/24/10 - changed from a pointer to fixed 
-                                                     // string wrapper to fix problem with multiple strings 
-                                                     // set in a same callback and getting stomped.
-            EASTLVectorJavaScriptValueWrapper mArrayValue;
-            EASTLJavascriptValueHashMapWrapper mHashMapValue;
+            // Care should be taken to keep this class as small as possible.
+            JavascriptValueType	mType;          
+            union
+            {
+                double mNumberValue;
+                bool mBooleanValue;
+                NonPODValueRef mNonPODValue;
+            };
 		};
     } // namespace WebKit
-
 } // namespace EA
 
-
 #endif // EAWEBKIT_EAWEBKITJAVASCRIPTVALUE_H
-
-
-
-
-
-
-
-
-
-

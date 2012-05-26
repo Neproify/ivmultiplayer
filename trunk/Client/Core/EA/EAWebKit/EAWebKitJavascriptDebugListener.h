@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace EA { namespace WebKit {
 class EAWebKitJavascriptDebugListener;
+class EAWebkitJavascriptCallFrame;
+class EAWebkitJavascriptCallFrameWrapper;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // EAWebKitJavascriptDebugListener Setup Instructions
@@ -49,7 +51,6 @@ class EAWebKitJavascriptDebugListener;
 // To stop notification call EAWebKit::UnregisterJavascriptDebugListener.
 //
 // Notes:
-// * Registration cannot be performed until a view has been initialized.
 // * sourceID's are not mapped 1:1 to files.  A file can have multiple sourceID's starting
 // at different lines within the file.
 
@@ -77,8 +78,58 @@ public:
     virtual int GetCurrentLine(void);
     virtual const char *GetCurrentFile(void);
 
+    virtual bool GetCallFrame(EAWebkitJavascriptCallFrameWrapper *wrapperOut);
+    virtual void CleanupCallFrame(EAWebkitJavascriptCallFrameWrapper *wrapper);
+    virtual const char16_t *FunctionName(EAWebkitJavascriptCallFrame *frame);
+    virtual EASTLVectorJavaScriptValueWrapper *ScopeChain(EAWebkitJavascriptCallFrame *frame);
+    virtual bool Caller(EAWebkitJavascriptCallFrame *frame, EAWebkitJavascriptCallFrameWrapper *wrapperOut);
+
+    virtual void AddPage(void *page);
+
 private:
     class EAWebKitJavascriptDebugger *mDebugger;
+};
+
+// EAWebkitJavascriptCallFrameWrapper
+// Use this class to get access about the call stack / scope chain.
+class EAWEBKIT_API EAWebkitJavascriptCallFrameWrapper {
+public:
+    EAWebkitJavascriptCallFrameWrapper(void) : mFrame(NULL), mDebugWrapper(NULL) {}
+    virtual ~EAWebkitJavascriptCallFrameWrapper(void) {}
+
+    virtual const char16_t *FunctionName(void) {
+        if (mDebugWrapper) {
+            return mDebugWrapper->FunctionName(mFrame);
+        }
+
+        return 0x0;
+    }
+    
+    // Scope chain is actually a linked list, but it gets snapshotted into an array.
+    // Entry 0 is the current scope, entry N is the bottom of the stack.
+    virtual EASTLVectorJavaScriptValueWrapper *ScopeChain(void) {
+        if (mDebugWrapper) {
+            return mDebugWrapper->ScopeChain(mFrame);
+        }
+
+        return NULL;
+    }
+
+    // Gets the call frame of the function that called this one.
+    // You should call EAWebKitJavascriptDebugListener::DestroyCallFrame when you're
+    // finished with this to avoid leaking memory.
+    virtual bool Caller(EAWebkitJavascriptCallFrameWrapper *wrapperOut) {
+        if (mDebugWrapper) {
+            return mDebugWrapper->Caller(mFrame, wrapperOut);
+        }
+
+        return false;
+    }
+    
+private:
+    friend class EAWebKitJavascriptDebuggerWrapper;
+    EAWebkitJavascriptCallFrame *mFrame;
+    EAWebKitJavascriptDebuggerWrapper *mDebugWrapper;
 };
 
 // EAWebKitJavascriptDebugListener
@@ -93,8 +144,11 @@ public:
     // Called when a script is loaded with a syntax error.
     virtual void OnParseFailure(const char *filename, int line, const char *message) {}
     
-    // Called when an exception is encountered during script execution.
+    // Called immediately when an exception is thrown during script execution.
     virtual void OnException(int sourceId, int line) {}
+
+    // Called when an exception is thrown but will not be caught, this is called before the stack is unwound.
+    virtual void OnUnhandledException(int sourceId, int line) {}
 
     // Called each time a new statement is executed.
     virtual void OnStatement(int sourceId, int line) {}
@@ -151,12 +205,29 @@ public:
         return NULL;
     }
 
+    // You should call EAWebKitJavascriptDebugListener::CleanupCallFrame when you're
+    // finished with this to avoid leaking memory.
+    bool GetCallFrame(EAWebkitJavascriptCallFrameWrapper *wrapperOut) {
+        if (mDebuggerWrapper) {
+            return mDebuggerWrapper->GetCallFrame(wrapperOut);
+        }
+
+        return false;
+    }
+
+    void CleanupCallFrame(EAWebkitJavascriptCallFrameWrapper *wrapper) {
+        if (mDebuggerWrapper) {
+            mDebuggerWrapper->CleanupCallFrame(wrapper);
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////
     // Internal Functions
     void SetDebugWrapper(EAWebKitJavascriptDebuggerWrapper *wrapper);
     EAWebKitJavascriptDebuggerWrapper *GetDebugWrapper(void);
     void Attach(void);
     void Detach(void);
+    void AddPage(void *page);
 
 private:
     EAWebKitJavascriptDebuggerWrapper *mDebuggerWrapper;

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2009-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -27,19 +27,47 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 ///////////////////////////////////////////////////////////////////////////////
-// dllinfo.h
+// EAWebKitLog.h
 //
-// Copyright (c) 2007, Electronic Arts. All Rights Reserved.
-// By Paul Pedriana
+// By David Siems
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef PPMALLOC_INTERNAL_DLLINFO_H
-#define PPMALLOC_INTERNAL_DLLINFO_H
+#ifndef EAWEBKIT_EAWEBKITLOG_H
+#define EAWEBKIT_EAWEBKITLOG_H
 
 
-#include <PPMalloc/internal/config.h>
+///////////////////////////////////////////////////////////////////////
+// This file isolates the EAWebkit log functionality from the EAWebkit.h. The reason for it is to avoid the dependency of core Webkit code on
+// EAWebkit.h. The EAWebkit log functionality is something that should be internal to the library and not exposed to the main app code.
+///////////////////////////////////////////////////////////////////////
 
-
+#include <EAWebKit/EAWebKitConfig.h>
+#if EAWEBKIT_THROW_BUILD_ERROR
+#error This file should be included only in a dll build
 #endif
 
+///////////////////////////////////////////////////////////////////////
+// Logging Helpers
+///////////////////////////////////////////////////////////////////////
+
+// This function will call ViewNotification::DebugLog.
+extern "C" void EAWebkitLog(int channel, const char *format, ...);
+
+#define EAW_MULTILINE_MACRO_BEGIN do {
+#define EAW_MULTILINE_MACRO_END } while (0)
+
+#if EAWEBKIT_TRACE_ENABLED
+#define EAW_TRACE(channel, message, ...) EAW_MULTILINE_MACRO_BEGIN \
+    EAWebkitLog((int)channel, message, ##__VA_ARGS__);  \
+EAW_MULTILINE_MACRO_END
+#else
+#define EAW_TRACE(channel, message, ...) EAW_MULTILINE_MACRO_BEGIN \
+    (void)(sizeof(channel));    \
+    (void)(sizeof(message));    \
+EAW_MULTILINE_MACRO_END
+#endif
+
+#define EAW_TRACE_UNFILTERED(message, ...) EAW_TRACE(0, message, ##__VA_ARGS__)
+
+#endif

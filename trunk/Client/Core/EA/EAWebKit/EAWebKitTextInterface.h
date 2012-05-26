@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2009-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2009-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -275,7 +275,7 @@ namespace EA
             Effect  type;
             int   x;            // Multi use. Can bue used as an x offset param
             int   y;            // Multi use.  Can be used for a y offset param
-            int   blur;         // Passed but not used
+            int   blur;         // 0-20 mostly, beyond that just seems to give little result. 
             Color c;            // Effect color
             Color cBase;        // Pen color
             
@@ -367,8 +367,9 @@ namespace EA
 			virtual uint32_t AddDirectory(const char16_t* pFaceDirectory, const char16_t* pFilter = NULL) = 0;
 			virtual bool AddSubstitution(const char16_t* pFamily, const char16_t* pFamilySubstitution) = 0;
             virtual uint32_t AddFace(IO::IStream* pStream, FontType fontType) = 0;
+            virtual bool AddFont(IFont* pFont) = 0;
+            virtual uint32_t AddFace(void* buffer, uint32_t bufferSize) = 0;
 
-            
             // We also use the font server pointer as a way to access other Text functions.
             // Heare are various font related interfaces
             virtual int32_t GetCombiningClass(Char c) = 0;
@@ -418,7 +419,7 @@ namespace EA
 
             virtual bool IsCharSupported(Char c, Script script = kScriptUnknown) = 0;
 
-            virtual float GetSize() const = 0;
+            virtual float GetSize() const = 0;  // This is the font size and not the buffer size
 
             virtual bool GetKerning(GlyphId g1, GlyphId g2, Kerning& kerning, int direction, bool bHorizontalLayout = true) = 0;
 
@@ -431,6 +432,11 @@ namespace EA
 
             // Extracted part of the BCFontEA.cpp draw 
             virtual bool DrawGlyphBitmap(IGlyphCache* pGlyphCache, GlyphId g, IGlyphTextureInfo& glyphTextureInfo) = 0;
+
+             // For custom fonts    
+            virtual bool SetTransform(float fSize) =0;
+            virtual bool SetEffect(const TextEffectData& effect, EA::WebKit::IFontServer* const pFontServer) = 0; 
+            virtual void SetSmoothing(EA::WebKit::Smooth type) =0;   
 
         }; // Font
 
