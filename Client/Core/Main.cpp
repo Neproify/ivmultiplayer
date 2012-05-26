@@ -645,12 +645,7 @@ void Direct3DReset()
 	if(!g_pGUI)
 	{
 		g_pGUI = new CGUI(g_pDevice);
-#ifdef IVMP_WEBKIT
-		g_pWebkit = new CD3D9WebKit();
-		g_pWebView = g_pWebkit->CreateView(640, 480, "http://iv-m.com", g_pDevice);
-		g_pWebView->SetPosition(600, 100);
-		g_pWebkit->CreateView(640, 480, "http://google.com", g_pDevice)->SetPosition(400, 150);
-#endif
+
 		if(g_pGUI->Initialize())
 		{
 			// Version identifier text
@@ -669,6 +664,13 @@ void Direct3DReset()
 			g_pVersionIdentifier->setProperty("TextColours", "tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF");
 			g_pVersionIdentifier->setAlpha(0.6f);
 			g_pVersionIdentifier->setVisible(true);
+
+#ifdef IVMP_WEBKIT
+			g_pWebkit = new CD3D9WebKit();
+			g_pWebView = g_pWebkit->CreateView(640, 480, "http://iv-m.com", g_pDevice);
+			g_pWebView->SetPosition(600, 100);
+#endif
+
 
 			// TODO: Make the default stuff (Chat window, main menu, e.t.c) a xml layout so it
 			// can be edited by users

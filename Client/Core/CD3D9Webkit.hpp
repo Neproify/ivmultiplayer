@@ -23,10 +23,17 @@
 #include <CLibrary.h>
 #include <SharedUtility.h>
 
+#include "CGUI.h"
+#include "CMainMenu.h"
+#include <CLogFile.h>
+
+extern CGUI                 * g_pGUI;
+extern CMainMenu            * g_pMainMenu;
+
 class CD3D9WebView
 {
 public:
-	CD3D9WebView(LPDIRECT3DDEVICE9 device, int width, int height, EA::WebKit::View * view)
+	CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	{
 		this->device = device;
 		this->view = view;
@@ -34,9 +41,26 @@ public:
 		this->height = height;
 		posX = 0;
 		posY = 0;
-		D3DXCreateSprite(device, &sprite);
+		device = g_pGUI->GetDirect3DDevice();
 		D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
 		m_bBeforeGUI = false;
+
+		name = g_pGUI->GetUniqueName();
+
+		view->GetSurface()->SetPixelFormat(EA::Raster::kPixelFormatTypeARGB);
+
+		CEGUI::Texture & ceguiTexture = g_pGUI->GetRenderer()->createTexture(texture);
+		CEGUI::ImagesetManager::getSingleton().create(name.Get(), ceguiTexture);
+		CEGUI::ImagesetManager::getSingleton().get(name.Get()).defineImage("full_image", CEGUI::Rect(0, 0, width, height), CEGUI::Point(0, 0));
+
+		image = g_pGUI->CreateGUIStaticImage(CEGUI::String(name.Get()));
+
+		image->setProperty("FrameEnabled", "false");
+		image->setProperty("BackgroundEnabled", "false");
+		image->setProperty("Image", String("set:%s image:full_image", name.Get()).Get());
+		image->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
+		image->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 100), CEGUI::UDim(0, 100)));
+		image->setVisible(true);
 	}
 	void SetSize(int width, int height)
 	{
@@ -50,6 +74,8 @@ public:
 	{
 		posX = x;
 		posY = y;
+
+		image->setPosition(CEGUI::UVector2(CEGUI::UDim(0, y), CEGUI::UDim(0, y)));
 	}
 	void SetData(void * buffer)
 	{
@@ -60,36 +86,30 @@ public:
 		void* destBuffer = lockedRect.pBits;
 		memcpy(destBuffer, this->view->GetSurface()->GetData(), width*height*4);
 		texture->UnlockRect(0);
+		CEGUI::ImagesetManager::getSingleton().get(name.Get()).getTexture()->loadFromMemory(buffer, CEGUI::Size(width, height), CEGUI::Texture::PF_RGBA);
+		//imageset.setTexture(&ceguiTexture);
 	}
 	void Render()
 	{
-		RECT rect = {0, 0, width, height};
-
-		sprite->Begin(D3DXSPRITE_ALPHABLEND);
-		sprite->Draw(texture, &rect, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3(posX, posY, 0.0f), 0xFFFFFFFF);
-		sprite->End();
+		
 	}
 	void Release()
 	{
 		texture->Release();
-		sprite->Release();
 	}
 	EA::WebKit::View * GetView()
 	{
 		return view;
 	}
-	void SetRenderBeforeGUI(bool b)
+	IDirect3DTexture9 * GetTexture()
 	{
-		m_bBeforeGUI = b;
-	}
-	bool GetRenderBeforeGUI()
-	{
-		return m_bBeforeGUI;
+		return texture;
 	}
 private:
 	LPDIRECT3DDEVICE9 device;
-	ID3DXSprite * sprite;
 	IDirect3DTexture9 * texture;
+	CGUIStaticImage * image;
+	String name;
 
 	EA::WebKit::View * view;
 
@@ -161,20 +181,20 @@ public:
 		if(font_style)
 			font_style->Destroy();
 	}
-	void RenderAll(bool bBeforeGUI = false, bool bSetData = true, bool bTick = true)
+	void RenderAll(bool bSetData = true, bool bTick = true, bool bRender = true)
 	{
 		for(std::list<CD3D9WebView*>::iterator it = views.begin(); it != views.end(); it++)
 		{
-			if(bBeforeGUI == (*it)->GetRenderBeforeGUI())
+			if(bTick)
 			{
-				if(bTick)
-				{
-					(*it)->GetView()->Tick();
-				}
-				if(bSetData)
-				{
-					(*it)->SetData((*it)->GetView()->GetSurface()->GetData());
-				}
+				(*it)->GetView()->Tick();
+			}
+			if(bSetData)
+			{
+				(*it)->SetData((*it)->GetView()->GetSurface()->GetData());
+			}
+			if(bRender)
+			{
 				(*it)->Render();
 			}
 		}
@@ -194,7 +214,7 @@ public:
 
 		view->SetURI(url);
 
-		CD3D9WebView * webView = new CD3D9WebView(device, width, height, view);
+		CD3D9WebView * webView = new CD3D9WebView(width, height, view);
 
 		views.push_back(webView);
 
