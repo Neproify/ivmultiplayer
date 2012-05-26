@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2009-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2009-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -50,9 +50,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define EA_ALIGN EA_PREFIX_ALIGN
 #endif
 
-//Update: 12/22/2010 - On PS3, the actual stl object is newed in the wrapper classes instead of placement new in an aligned buffer. This is
-// because we have two different compilers on PS3. It is possible that using a different compiler/different compiler pre-processors on application
-// side can cause the alignment to go wonky. So for now, we revert to our old style on PS3.
+//Update: 12/22/2010 - On PlayStation 3, the actual stl object is newed in the wrapper classes instead of placement new in an aligned buffer. This is
+// because we have two different compilers on PlayStation 3. It is possible that using a different compiler/different compiler pre-processors on application
+// side can cause the alignment to go wonky. So for now, we revert to our old style on PlayStation 3.
 
 namespace EA
 {
@@ -98,6 +98,8 @@ namespace EA
 #endif
 		};
 		
+		
+
 		//This wraps typedef eastl::fixed_multimap<FixedString16_64, FixedString16_64, 8, true, fstr_iless, EASTLAllocator> HeaderMap;
 		class EASTLHeaderMapWrapper
 		{
@@ -105,10 +107,46 @@ namespace EA
 			EASTLHeaderMapWrapper();
 			EASTLHeaderMapWrapper(const EASTLHeaderMapWrapper& rhs);
 			EASTLHeaderMapWrapper& operator = (const EASTLHeaderMapWrapper& rhs);
-			~EASTLHeaderMapWrapper();
+			virtual ~EASTLHeaderMapWrapper(); // Only reason to make it virtual is to stop the compiler from complaining. This class is not intended to be a base class.
 			void* GetImpl() const;
+
+			//
+			// Iterator support
+			//
+			class EASTLHeaderMapWrapperIterator
+			{
+				friend class EASTLHeaderMapWrapper;
+			public:
+				virtual const char16_t* GetKey();
+				virtual const char16_t* GetValue();
+
+			private:
+				EASTLHeaderMapWrapperIterator();
+				EASTLHeaderMapWrapperIterator(const EASTLHeaderMapWrapperIterator& rhs); //Simply declared, No copy supported
+				EASTLHeaderMapWrapperIterator& operator =(const EASTLHeaderMapWrapperIterator& rhs);//Simply declared, No assignment supported
+
+				virtual ~EASTLHeaderMapWrapperIterator();
+				void* mIterator;
+			};
+			
+			virtual EASTLHeaderMapWrapperIterator* First();
+			virtual EASTLHeaderMapWrapperIterator* GetNext();
+			// Example Usage 
+// 			EA::WebKit::EASTLHeaderMapWrapper::EASTLHeaderMapWrapperIterator* iter = pTInfo->mHeaderMapOut.First();
+// 			while(iter)
+// 			{
+// 				const char16_t* key = iter->GetKey();
+// 				const char16_t* value = iter->GetValue();
+// 				(void) key;
+// 				(void) value;
+// 				iter = pTInfo->mHeaderMapOut.GetNext();
+// 			}
+			
+
+
 		private:
 			void* mHeaderMap;
+			EASTLHeaderMapWrapperIterator* mHeaderMapWrapperIterator;
 		};
 
         class EASTLVectorJavaScriptValueWrapper

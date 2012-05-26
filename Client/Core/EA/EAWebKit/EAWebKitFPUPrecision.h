@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2010-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -69,7 +69,7 @@ namespace EA
 	}
 }
 
-//We use SET_AUTOFPUPRECISION macro so that we don't pay for object creation and destruction on PS3 and Xbox 360.
+//We use SET_AUTOFPUPRECISION macro so that we don't pay for object creation and destruction on platforms that don't require it.
 #if defined(EA_PLATFORM_WINDOWS)
 #define SET_AUTOFPUPRECISION(fpuPrecision) EA::WebKit::AutoFPUPrecision autoFpuPrecision(fpuPrecision)
 #else

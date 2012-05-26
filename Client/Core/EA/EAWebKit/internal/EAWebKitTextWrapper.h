@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2009-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2009-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <EAWebKit/EAWebKitTextInterface.h>
 
 // EA Text dependencies
+#include <EAText/EAText.h>
 #include <EAText/EATextFontServer.h>   
 #include <EAText/EATextFont.h>   
 #include <EAText/EATextOutlineFont.h>
@@ -81,6 +82,12 @@ namespace EA
 
             bool DrawGlyphBitmap(EA::WebKit::IGlyphCache* pGlyphCache, EA::WebKit::GlyphId g, EA::WebKit::IGlyphTextureInfo& glyphTextureInfo);
 
+            
+            // For custom fonts
+            bool SetTransform(float fSize);
+            bool SetEffect(const EA::WebKit::TextEffectData& effect, EA::WebKit::IFontServer* const pFontServer);
+            void SetSmoothing(EA::WebKit::Smooth type);   
+
             // Wrapper utilities
             void DestroyWrapper();
             void SetFontPointer(void* pFont);  // Basically the EA::Text::Font when using EAText
@@ -122,10 +129,12 @@ namespace EA
 
             uint32_t EnumerateFonts(EA::WebKit::IFontDescription* pFontDescriptionArray, uint32_t nCount);
 			uint32_t AddDirectory(const char16_t* pFaceDirectory, const char16_t* pFilter = NULL);
-			virtual bool AddSubstitution(const char16_t* pFamily, const char16_t* pFamilySubstitution);
-            virtual uint32_t AddFace(IO::IStream* pStream, EA::WebKit::FontType fontType);
-
-
+			bool AddSubstitution(const char16_t* pFamily, const char16_t* pFamilySubstitution);
+            uint32_t AddFace(IO::IStream* pStream, EA::WebKit::FontType fontType);
+            uint32_t AddFace(void* buffer, uint32_t bufferSize);
+            bool AddFont(EA::WebKit::IFont* pFont);
+           
+            EA::Text::FontServer* GetFontServerPointer() const { return mpFontServer; } 
 
             // Font Style interface wrapper
             EA::WebKit::IFontStyle* CreateTextStyle();

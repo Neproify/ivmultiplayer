@@ -30,6 +30,20 @@
 extern CGUI                 * g_pGUI;
 extern CMainMenu            * g_pMainMenu;
 
+bool OnMouseMove(const CEGUI::EventArgs &eventArgs);
+bool OnMouseWheel(const CEGUI::EventArgs &eventArgs);
+bool OnMouseUp(const CEGUI::EventArgs &eventArgs);
+bool OnMouseDown(const CEGUI::EventArgs &eventArgs);
+bool OnKeyUp(const CEGUI::EventArgs &eventArgs);
+bool OnKeyDown(const CEGUI::EventArgs &eventArgs);
+bool OnCharKey(const CEGUI::EventArgs &eventArgs);
+
+class CD3D9WebkitNotifications : public EA::WebKit::ViewNotification
+{
+public:
+
+};
+
 class CD3D9WebView
 {
 public:
@@ -47,7 +61,7 @@ public:
 
 		name = g_pGUI->GetUniqueName();
 
-		view->GetSurface()->SetPixelFormat(EA::Raster::kPixelFormatTypeARGB);
+		//view->GetSurface()->SetPixelFormat(EA::Raster::kPixelFormatTypeRGBA);
 
 		CEGUI::Texture & ceguiTexture = g_pGUI->GetRenderer()->createTexture(texture);
 		CEGUI::ImagesetManager::getSingleton().create(name.Get(), ceguiTexture);
@@ -61,6 +75,20 @@ public:
 		image->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
 		image->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 100), CEGUI::UDim(0, 100)));
 		image->setVisible(true);
+
+		g_pGUI->SetCursorVisible(true);
+
+		image->subscribeEvent(CEGUI::PushButton::EventMouseMove, CEGUI::Event::Subscriber(&OnMouseMove));
+		image->subscribeEvent(CEGUI::PushButton::EventMouseButtonDown, CEGUI::Event::Subscriber(&OnMouseDown));
+		image->subscribeEvent(CEGUI::PushButton::EventMouseWheel, CEGUI::Event::Subscriber(&OnMouseWheel));
+		image->subscribeEvent(CEGUI::PushButton::EventMouseButtonUp, CEGUI::Event::Subscriber(&OnMouseUp));
+		image->subscribeEvent(CEGUI::PushButton::EventCharacterKey, CEGUI::Event::Subscriber(&OnCharKey));
+		image->subscribeEvent(CEGUI::PushButton::EventKeyUp, CEGUI::Event::Subscriber(&OnKeyUp));
+		image->subscribeEvent(CEGUI::PushButton::EventKeyDown, CEGUI::Event::Subscriber(&OnKeyDown));
+
+
+		image->setAlwaysOnTop(true);
+		
 	}
 	void SetSize(int width, int height)
 	{
@@ -84,7 +112,13 @@ public:
 		D3DLOCKED_RECT lockedRect;
 		texture->LockRect(0, &lockedRect, NULL, 0);
 		void* destBuffer = lockedRect.pBits;
+		//view->GetSurface()->SetPixelFormat(EA::Raster::kPixelFormatTypeRGBA);
 		memcpy(destBuffer, this->view->GetSurface()->GetData(), width*height*4);
+		
+		unsigned int* data = (unsigned int*)destBuffer;
+		for ( int idx = 0; idx < width*height; ++idx ) { 
+			data[idx] = (data[idx] << 8) | (data[idx] >> 24);
+		}
 		texture->UnlockRect(0);
 		CEGUI::ImagesetManager::getSingleton().get(name.Get()).getTexture()->loadFromMemory(buffer, CEGUI::Size(width, height), CEGUI::Texture::PF_RGBA);
 		//imageset.setTexture(&ceguiTexture);
@@ -104,6 +138,14 @@ public:
 	IDirect3DTexture9 * GetTexture()
 	{
 		return texture;
+	}
+	CEGUI::Window * GetWindow()
+	{
+		return image;
+	}
+	String GetName()
+	{
+		return name;
 	}
 private:
 	LPDIRECT3DDEVICE9 device;
@@ -140,18 +182,25 @@ public:
 
 		webkit = create_webkit_instance();
 		webkit->Init(NULL);
-		glyph_cache = webkit->CreateGlyphCacheWrapperInterface(NULL);
-		font_server = webkit->CreateFontServerWrapperInterface(NULL);
+		glyph_cache = webkit->GetGlyphCache();
+		font_server = webkit->GetFontServer();
 		
-		uint32_t nCount = font_server->AddDirectory(NULL, L"cour.ttf");
+		wchar_t szWindowsDir[MAX_PATH] = {0};
+		GetWindowsDirectoryW(szWindowsDir, MAX_PATH);
+		wchar_t szFontDir[MAX_PATH] = {0};
+		swprintf_s(szFontDir, MAX_PATH - 1, L"%s\\Fonts", szWindowsDir);
+		font_server->AddDirectory(szFontDir);
+
 
 		font_style = font_server->CreateTextStyle();
 		font_style->SetSize(12.0f);
 		font_style->SetSmooth(EA::WebKit::Smooth::kSmoothEnabled);
 
 		EA::WebKit::Parameters& param = webkit->GetParameters();
-		param.mpLocale = "ru_RU";
+		param.mpLocale = "zh-cn";
 		param.mEnableSmoothText = false;
+		//param.mPluginsEnabled = true;
+		//param.mJavaScriptEnabled = true;
 
 		sprintf_s(param.mSystemFontDescription.mFamilies, sizeof(param.mSystemFontDescription.mFamilies) / sizeof(param.mSystemFontDescription.mFamilies[0]),\
 				"Arial,Microsoft Yahei,Courier,sans-serif");
@@ -166,6 +215,7 @@ public:
 
 		raster = webkit->GetEARasterInstance();
 
+		tickCount = GetTickCount();
 	}
 	~CD3D9WebKit()
 	{
@@ -173,8 +223,8 @@ public:
 		{
 			DestroyView((*it));
 		}
-		webkit->DestroyFontServerWrapperInterface(font_server);
-		webkit->DestroyGlyphCacheWrapperInterface(glyph_cache);
+//		webkit->DestroyFontServerWrapperInterface(font_server);
+//		webkit->DestroyGlyphCacheWrapperInterface(glyph_cache);
 		webkit->Shutdown();
 		webkit->Destroy();
 
@@ -185,11 +235,13 @@ public:
 	{
 		for(std::list<CD3D9WebView*>::iterator it = views.begin(); it != views.end(); it++)
 		{
-			if(bTick)
+			bool b = false;
+			if(bTick && ((GetTickCount() - tickCount) > 75))
 			{
-				(*it)->GetView()->Tick();
+				tickCount = GetTickCount();
+				b = (*it)->GetView()->Tick();
 			}
-			if(bSetData)
+			if(bSetData && b)
 			{
 				(*it)->SetData((*it)->GetView()->GetSurface()->GetData());
 			}
@@ -202,6 +254,33 @@ public:
 	EA::WebKit::IEAWebkit * GetWebKit()
 	{
 		return webkit;
+	}
+	CD3D9WebView * GetView(CEGUI::Window * window)
+	{
+		std::list<CD3D9WebView*>::const_iterator it;
+		for(it = views.begin(); it != views.end(); it++)
+		{
+			if((*it)->GetWindow() == window)
+				return (*it);
+		}
+	}
+	CD3D9WebView * GetView(EA::WebKit::View * view)
+	{
+		std::list<CD3D9WebView*>::const_iterator it;
+		for(it = views.begin(); it != views.end(); it++)
+		{
+			if((*it)->GetView() == view)
+				return (*it);
+		}
+	}
+	CD3D9WebView * GetView(String name)
+	{
+		std::list<CD3D9WebView*>::const_iterator it;
+		for(it = views.begin(); it != views.end(); it++)
+		{
+			if((*it)->GetName() == name)
+				return (*it);
+		}
 	}
 	CD3D9WebView * CreateView(int width, int height, const char * url, LPDIRECT3DDEVICE9 device)
 	{
@@ -235,6 +314,118 @@ private:
 	EA::Raster::IEARaster * raster;
 
 	CLibrary * m_pLibrary;
+
+	unsigned long tickCount;
 	
 	std::list<CD3D9WebView*> views;
 };
+
+extern CD3D9WebKit * g_pWebkit;
+
+bool OnMouseMove(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::MouseEventArgs mouseEventArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
+	if(!mouseEventArgs.window->isActive())
+		return false;
+	CEGUI::Vector2 localMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
+	CEGUI::Vector2 deltaMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
+	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
+	EA::WebKit::MouseMoveEvent moveEvent = {0};
+	moveEvent.mX = localMousePos.d_x;
+	moveEvent.mY = localMousePos.d_y;
+	moveEvent.mDX = deltaMousePos.d_x;
+	moveEvent.mDY = deltaMousePos.d_y;
+	view->GetView()->OnMouseMoveEvent(moveEvent);
+	return true;
+}
+
+bool OnMouseUp(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::MouseEventArgs mouseEventArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
+	if(!mouseEventArgs.window->isActive())
+		return false;
+	CEGUI::Vector2 localMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
+	CLogFile::Printf("Mouse click: %f %f", localMousePos.d_x, localMousePos.d_y);
+	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
+	EA::WebKit::MouseButtonEvent buttonEvent = {0};
+	buttonEvent.mX = localMousePos.d_x;
+	buttonEvent.mY = localMousePos.d_y;
+	buttonEvent.mbDepressed = false;
+	buttonEvent.mId = EA::WebKit::kMouseLeft;
+	view->GetView()->OnMouseButtonEvent(buttonEvent);
+	return true;
+}
+
+bool OnMouseDown(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::MouseEventArgs mouseEventArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
+	if(!mouseEventArgs.window->isActive())
+		return false;
+	CEGUI::Vector2 localMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
+	CLogFile::Printf("Mouse click: %f %f", localMousePos.d_x, localMousePos.d_y);
+	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
+	EA::WebKit::MouseButtonEvent buttonEvent = {0};
+	buttonEvent.mX = localMousePos.d_x;
+	buttonEvent.mY = localMousePos.d_y;
+	buttonEvent.mbDepressed = true;
+	buttonEvent.mId = EA::WebKit::kMouseLeft;
+	view->GetView()->OnMouseButtonEvent(buttonEvent);
+	return true;
+}
+
+bool OnMouseWheel(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::MouseEventArgs mouseEventArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
+	if(!mouseEventArgs.window->isActive())
+		return false;
+	CEGUI::Vector2 localMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
+	CEGUI::Vector2 deltaMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
+	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
+	EA::WebKit::MouseWheelEvent wheelEvent = {0};
+	wheelEvent.mX = localMousePos.d_x;
+	wheelEvent.mY = localMousePos.d_y;
+	wheelEvent.mZDelta = mouseEventArgs.wheelChange;
+	view->GetView()->OnMouseWheelEvent(wheelEvent);
+	return true;
+}
+
+bool OnKeyUp(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::KeyEventArgs keyEventArgs = static_cast<const CEGUI::KeyEventArgs&>(eventArgs);
+	if(!keyEventArgs.window->isActive())
+		return false;
+	CD3D9WebView * view = g_pWebkit->GetView(keyEventArgs.window);
+	EA::WebKit::KeyboardEvent e = {0};
+	e.mId = keyEventArgs.scancode;
+	e.mbChar = false;
+	e.mbDepressed = false;
+	view->GetView()->OnKeyboardEvent(e);
+	return true;
+}
+bool OnKeyDown(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::KeyEventArgs keyEventArgs = static_cast<const CEGUI::KeyEventArgs&>(eventArgs);
+	if(!keyEventArgs.window->isActive())
+		return false;
+	CD3D9WebView * view = g_pWebkit->GetView(keyEventArgs.window);
+	EA::WebKit::KeyboardEvent e = {0};
+	e.mId = keyEventArgs.scancode;
+	e.mbChar = false;
+	e.mbDepressed = true;
+	view->GetView()->OnKeyboardEvent(e);
+	return true;
+}
+bool OnCharKey(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::KeyEventArgs keyEventArgs = static_cast<const CEGUI::KeyEventArgs&>(eventArgs);
+	if(!keyEventArgs.window->isActive())
+		return false;
+	CD3D9WebView * view = g_pWebkit->GetView(keyEventArgs.window);
+	EA::WebKit::KeyboardEvent e = {0};
+	e.mId = keyEventArgs.codepoint;
+	e.mbChar = true;
+	e.mbDepressed = false;
+	view->GetView()->OnKeyboardEvent(e);
+	return true;
+}
+

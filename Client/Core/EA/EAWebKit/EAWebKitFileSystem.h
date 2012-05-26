@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008-2010 Electronic Arts, Inc.  All rights reserved.
+Copyright (C) 2008-2011 Electronic Arts, Inc.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -52,7 +52,12 @@ namespace EA
 
 
         // File system paths are UTF8-encoded.
-        // File system paths are expected to hold at least 260 chars.
+        // For simplicity, we define the max. path length as 260 across all platforms. If needed, this can change in the future per platform.
+		// From Windows documentation,
+		// For example, the maximum path on drive D is "D:\some 256-character path string<NUL>" where "<NUL>" represents the invisible terminating 
+		// null character for the current system codepage. 
+		const size_t kMaxPathLength = 260;
+
         // Files open for writing are expected to be created if needed, truncated, and positioned at zero.
         //
         // Example usage:
@@ -146,9 +151,11 @@ namespace EA
                 bool       DeleteDirectory(const char* path);
                 bool       GetFileSize(const char* path, int64_t& size);
                 bool       GetFileModificationTime(const char* path, time_t& result);
-                bool       MakeDirectory(const char* path);
+                bool       MakeDirectory(const char* path); // This version in default file system is smart enough to create multiple directory levels if required.
                 bool       GetDataDirectory(char* path);
 				bool	   GetBaseDirectory(char8_t* path, size_t pathBufferCapacity); 
+			private:
+				bool		MakeDirectoryInternal(const char* path);
             };
         #endif
 
