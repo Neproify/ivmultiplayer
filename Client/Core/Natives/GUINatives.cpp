@@ -923,3 +923,20 @@ _MEMBER_FUNCTION_IMPL(GUIWebView, registerJavaScriptMethod)
 	sq_pushbool(pVM, true);
 	return 1;
 }
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, draw)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	int x, y;
+	sq_getinteger(pVM, -1, &x);
+	sq_getinteger(pVM, -2, &y);
+
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		pView->Draw(x, y);
+	}
+
+	sq_pushbool(pVM, true);
+	return 1;
+}
