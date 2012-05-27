@@ -71,3 +71,4 @@ _MEMBER_FUNCTION_IMPL(GUIWebView, setElementText);
 _MEMBER_FUNCTION_IMPL(GUIWebView, getLoadInfo);
 _MEMBER_FUNCTION_IMPL(GUIWebView, clickElement);
 _MEMBER_FUNCTION_IMPL(GUIWebView, setSize);
+_MEMBER_FUNCTION_IMPL(GUIWebView, registerJavaScriptMethod);

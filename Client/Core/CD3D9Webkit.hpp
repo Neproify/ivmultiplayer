@@ -28,7 +28,11 @@
 
 class CD3D9WebkitNotification : public EA::WebKit::ViewNotification
 {
-
+public:
+	virtual bool ViewUpdate      		(EA::WebKit::ViewUpdateInfo&);
+	virtual bool LoadUpdate      		(EA::WebKit::LoadInfo&);
+	virtual bool TextInputState  		(EA::WebKit::TextInputStateInfo&);
+	virtual bool JavascriptMethodInvoked(EA::WebKit::JavascriptMethodInvokedInfo&);
 };
 
 class CD3D9WebView

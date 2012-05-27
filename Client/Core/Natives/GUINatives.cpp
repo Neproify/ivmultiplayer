@@ -906,3 +906,20 @@ _MEMBER_FUNCTION_IMPL(GUIWebView, setSize)
 	sq_pushbool(pVM, true);
 	return 1;
 }
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, registerJavaScriptMethod)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	const char * szMethod;
+	sq_getstring(pVM, -1, &szMethod);
+
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		pView->GetView()->RegisterJavascriptMethod(szMethod);
+		pView->GetView()->RebindJavascript();
+	}
+
+	sq_pushbool(pVM, true);
+	return 1;
+}
