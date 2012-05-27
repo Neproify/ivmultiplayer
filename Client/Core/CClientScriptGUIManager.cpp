@@ -101,8 +101,9 @@ void CClientScriptGUIManager::Show()
 	{
 		// Restore element visible state
 		for(std::list<GUIElement *>::iterator iter = m_elements.begin(); iter != m_elements.end(); iter++)
+		{
 			(*iter)->pWindow->setVisible((*iter)->bState);
-
+		}
 		// Flag ourselves as not hidden
 		m_bHidden = false;
 	}
@@ -113,10 +114,15 @@ void CClientScriptGUIManager::Hide()
 	// Are we not already hidden?
 	if(!m_bHidden)
 	{
-		// Store element visible state and set to invisible
+		// Firstly save visible state
 		for(std::list<GUIElement *>::iterator iter = m_elements.begin(); iter != m_elements.end(); iter++)
 		{
 			(*iter)->bState = (*iter)->pWindow->isVisible();
+		}
+
+		// After, set all elements invisible
+		for(std::list<GUIElement *>::iterator iter = m_elements.begin(); iter != m_elements.end(); iter++)
+		{
 			(*iter)->pWindow->setVisible(false);
 		}
 
