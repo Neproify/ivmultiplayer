@@ -60,3 +60,9 @@ _MEMBER_FUNCTION_IMPL(GUIImage, constructor);
 // GUIProgressBar
 _MEMBER_FUNCTION_IMPL(GUIProgressBar, constructor);
 _MEMBER_FUNCTION_IMPL(GUIProgressBar, setValue);
+
+// GUIWebView
+_MEMBER_FUNCTION_IMPL(GUIWebView, constructor);
+_MEMBER_FUNCTION_IMPL(GUIWebView, setURI);
+_MEMBER_FUNCTION_IMPL(GUIWebView, evaluateJavaScript);
+_MEMBER_FUNCTION_IMPL(GUIWebView, sendSignal);

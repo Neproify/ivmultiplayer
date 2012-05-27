@@ -89,6 +89,14 @@ _BEGIN_CLASS(GUIImage)
 _MEMBER_FUNCTION(GUIImage, constructor, 1, "s")
 _END_CLASS_BASE(GUIImage, GUIElement)
 
+// GUIWebView
+_BEGIN_CLASS(GUIWebView)
+_MEMBER_FUNCTION(GUIWebView, constructor, 3, "iis")
+_MEMBER_FUNCTION(GUIWebView, setURI, 1, "s")
+_MEMBER_FUNCTION(GUIWebView, evaluateJavaScript, 1, "s")
+_MEMBER_FUNCTION(GUIWebView, sendSignal, 1, "s")
+_END_CLASS_BASE(GUIWebView, GUIElement)
+
 CClientScriptManager::CClientScriptManager()
 {
 	m_pScripting = new CScriptingManager();
@@ -143,6 +151,9 @@ CClientScriptManager::CClientScriptManager()
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUICheckBox));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIImage));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIProgressBar));
+#ifdef IVMP_WEBKIT
+	m_pScripting->RegisterClass(&_CLASS_DECL(GUIWebView));
+#endif
 }
 
 CClientScriptManager::~CClientScriptManager()

@@ -187,8 +187,6 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	image->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 100), CEGUI::UDim(0, 100)));
 	image->setVisible(true);
 
-	g_pGUI->SetCursorVisible(true);
-
 	image->subscribeEvent(CEGUI::PushButton::EventMouseMove, CEGUI::Event::Subscriber(&OnMouseMove));
 	image->subscribeEvent(CEGUI::PushButton::EventMouseButtonDown, CEGUI::Event::Subscriber(&OnMouseDown));
 	image->subscribeEvent(CEGUI::PushButton::EventMouseWheel, CEGUI::Event::Subscriber(&OnMouseWheel));
@@ -197,7 +195,7 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	image->subscribeEvent(CEGUI::PushButton::EventKeyUp, CEGUI::Event::Subscriber(&OnKeyUp));
 	image->subscribeEvent(CEGUI::PushButton::EventKeyDown, CEGUI::Event::Subscriber(&OnKeyDown));
 
-	image->setAlwaysOnTop(true);
+	//image->setAlwaysOnTop(true);
 		
 }
 void CD3D9WebView::SetSize(int width, int height)
@@ -277,7 +275,7 @@ CD3D9WebKit::CD3D9WebKit()
 	EA::WebKit::Parameters& param = webkit->GetParameters();
 	param.mpLocale = "en-us";
 	param.mEnableSmoothText = false;
-	param.mPluginsEnabled = true;
+	param.mPluginsEnabled = false;
 	param.mJavaScriptEnabled = true;
 
 		/*sprintf_s(param.mSystemFontDescription.mFamilies, sizeof(param.mSystemFontDescription.mFamilies) / sizeof(param.mSystemFontDescription.mFamilies[0]),\
@@ -346,6 +344,7 @@ CD3D9WebView * CD3D9WebKit::GetView(CEGUI::Window * window)
 		if((*it)->GetWindow() == window)
 			return (*it);
 	}
+	return NULL;
 }
 CD3D9WebView * CD3D9WebKit::GetView(EA::WebKit::View * view)
 {
@@ -355,6 +354,7 @@ CD3D9WebView * CD3D9WebKit::GetView(EA::WebKit::View * view)
 		if((*it)->GetView() == view)
 			return (*it);
 	}
+	return NULL;
 }
 CD3D9WebView * CD3D9WebKit::GetView(String name)
 {
@@ -364,6 +364,7 @@ CD3D9WebView * CD3D9WebKit::GetView(String name)
 		if((*it)->GetName() == name)
 			return (*it);
 	}
+	return NULL;
 }
 CD3D9WebView * CD3D9WebKit::CreateView(int width, int height, const char * url, LPDIRECT3DDEVICE9 device)
 {
