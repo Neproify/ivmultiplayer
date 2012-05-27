@@ -171,20 +171,21 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	device = g_pGUI->GetDirect3DDevice();
 	D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
 
+	texturenum = 0;
+
 	name = g_pGUI->GetUniqueName();
 
 	view->GetSurface()->SetPixelFormat(EA::Raster::kPixelFormatTypeARGB);
 
 	CEGUI::Texture & ceguiTexture = g_pGUI->GetRenderer()->createTexture(texture);
-	CEGUI::ImagesetManager::getSingleton().create(name.Get(), ceguiTexture);
-	CEGUI::ImagesetManager::getSingleton().get(name.Get()).defineImage("full_image", CEGUI::Rect(0, 0, width, height), CEGUI::Point(0, 0));
+	CEGUI::ImagesetManager::getSingleton().create(String("%s_%d", name.Get(), texturenum).Get(), ceguiTexture);
+	CEGUI::ImagesetManager::getSingleton().get(String("%s_%d", name.Get(), texturenum).Get()).defineImage("full_image", CEGUI::Rect(0, 0, width, height), CEGUI::Point(0, 0));
 
 	image = g_pGUI->CreateGUIStaticImage(CEGUI::String(name.Get()));
 	image->setProperty("FrameEnabled", "false");
 	image->setProperty("BackgroundEnabled", "false");
-	image->setProperty("Image", String("set:%s image:full_image", name.Get()).Get());
+	image->setProperty("Image", String("set:%s image:full_image", String("%s_%d", name.Get(), texturenum).Get()).Get());
 	image->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
-	image->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 100), CEGUI::UDim(0, 100)));
 	image->setVisible(true);
 
 	image->subscribeEvent(CEGUI::PushButton::EventMouseMove, CEGUI::Event::Subscriber(&OnMouseMove));
@@ -197,13 +198,24 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 
 	//image->setAlwaysOnTop(true);
 }
+void CD3D9WebView::RecreateTexture()
+{
+	texturenum++;
+	texture->Release();
+	D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
+	CEGUI::Texture & ceguiTexture = g_pGUI->GetRenderer()->createTexture(texture);
+	CEGUI::ImagesetManager::getSingleton().create(String("%s_%d", name.Get(), texturenum).Get(), ceguiTexture);
+	CEGUI::ImagesetManager::getSingleton().get(String("%s_%d", name.Get(), texturenum).Get()).defineImage("full_image", CEGUI::Rect(0, 0, width, height), CEGUI::Point(0, 0));
+	image->setProperty("Image", String("set:%s image:full_image", String("%s_%d", name.Get(), texturenum).Get()).Get());
+	CEGUI::ImagesetManager::getSingleton().destroy(String("%s_%d", name.Get(), texturenum - 1).Get());
+}
 void CD3D9WebView::SetSize(int width, int height)
 {
 	this->width = width;
 	this->height = height;
-	texture->Release();
-	D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
+	RecreateTexture();
 	this->view->SetSize(width, height);
+	image->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
 }
 void CD3D9WebView::SetPosition(CEGUI::UVector2 & vec)
 {
@@ -217,6 +229,8 @@ void CD3D9WebView::SetData(void * buffer)
 	unsigned int * destBuffer = (unsigned int*)lockedRect.pBits;
 	memcpy(lockedRect.pBits, buffer, width*height*4);
 	texture->UnlockRect(0);
+	
+	image->invalidate();
 }
 void CD3D9WebView::Render()
 {
@@ -277,15 +291,6 @@ CD3D9WebKit::CD3D9WebKit()
 	param.mPluginsEnabled = false;
 	param.mJavaScriptEnabled = true;
 
-		/*sprintf_s(param.mSystemFontDescription.mFamilies, sizeof(param.mSystemFontDescription.mFamilies) / sizeof(param.mSystemFontDescription.mFamilies[0]),\
-				"Arial,Microsoft Yahei,Courier,sans-serif");
-		sprintf_s(param.mFontFamilyStandard, sizeof(param.mFontFamilyStandard) / sizeof(param.mFontFamilyStandard[0]), "Courier");
-		sprintf_s(param.mFontFamilySerif, sizeof(param.mFontFamilySerif) / sizeof(param.mFontFamilySerif[0]), "Courier");
-		sprintf_s(param.mFontFamilySansSerif, sizeof(param.mFontFamilySansSerif) / sizeof(param.mFontFamilySansSerif[0]), "Courier");
-		sprintf_s(param.mFontFamilyMonospace, sizeof(param.mFontFamilyMonospace) / sizeof(param.mFontFamilyMonospace[0]), "Courier");
-		sprintf_s(param.mFontFamilyCursive, sizeof(param.mFontFamilyCursive) / sizeof(param.mFontFamilyCursive[0]), "Courier");
-		sprintf_s(param.mFontFamilyFantasy, sizeof(param.mFontFamilyFantasy) / sizeof(param.mFontFamilyFantasy[0]), "Courier");
-		*/
 	webkit->SetParameters(param);
 
 	raster = webkit->GetEARasterInstance();
@@ -301,8 +306,6 @@ CD3D9WebKit::CD3D9WebKit()
 	{
 		DestroyView((*it));
 	}
-//		webkit->DestroyFontServerWrapperInterface(font_server);
-//		webkit->DestroyGlyphCacheWrapperInterface(glyph_cache);
 	webkit->Shutdown();
 	webkit->Destroy();
 

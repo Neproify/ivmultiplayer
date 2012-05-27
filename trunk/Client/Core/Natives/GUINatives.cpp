@@ -889,3 +889,20 @@ _MEMBER_FUNCTION_IMPL(GUIWebView, clickElement)
 	sq_pushbool(pVM, true);
 	return 1;
 }
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, setSize)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	int width, height;
+	sq_getinteger(pVM, -1, &width);
+	sq_getinteger(pVM, -2, &height);
+
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		pView->SetSize(width, height);
+	}
+
+	sq_pushbool(pVM, true);
+	return 1;
+}

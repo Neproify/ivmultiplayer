@@ -35,6 +35,7 @@ class CD3D9WebView
 {
 public:
 	CD3D9WebView(int width, int height, EA::WebKit::View * view);
+	void RecreateTexture();
 	void SetSize(int width, int height);
 	void SetPosition(CEGUI::UVector2 & vec);
 	void SetData(void * buffer);
@@ -54,6 +55,9 @@ private:
 
 	int width;
 	int height;
+	CEGUI::UVector2 pos;
+
+	int texturenum;
 };
 
 
