@@ -38,6 +38,7 @@ extern CD3D9WebKit * g_pWebkit;
 bool OnButtonClick(const CEGUI::EventArgs &eventArgs)
 {
 	CEGUI::Window * pWindow = static_cast<const CEGUI::WindowEventArgs&>(eventArgs).window;
+	const CEGUI::MouseEventArgs mouseEventArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
 	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
 	CEGUI::String buttonName = pWindow->getName();
 	CSquirrelArguments pArguments;
@@ -810,5 +811,81 @@ _MEMBER_FUNCTION_IMPL(GUIWebView, sendSignal)
 	}
 
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, setHTML)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	const char * szHTML;
+	sq_getstring(pVM, -1, &szHTML);
+
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		pView->GetView()->SetHTML(szHTML, strlen(szHTML));
+	}
+
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, setElementText)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	const char * text;
+	const char * id;
+	sq_getstring(pVM, -1, &id);
+	sq_getstring(pVM, -2, &text);
+
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		pView->GetView()->SetElementTextById(id, text);
+	}
+
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, getLoadInfo)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		CSquirrelArguments table;
+		table.push("completed");
+		table.push(pView->GetView()->GetLoadInfo().mbCompleted);
+		table.push("content-length");
+		table.push((int)pView->GetView()->GetLoadInfo().mContentLength);
+		table.push("last-changed-time");
+		table.push((int)pView->GetView()->GetLoadInfo().mLastChangedTime);
+		table.push("title");
+		table.push(0); // ADAMIX: todo
+		table.push("status-code");
+		table.push(pView->GetView()->GetLoadInfo().mStatusCode);
+		table.push("uri");
+		table.push(0); // ADAMIX: todo
+		sq_pusharg(pVM, CSquirrelArgument(table, false));
+	}
+
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, clickElement)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	const char * szElementOrId;
+	sq_getstring(pVM, -1, &szElementOrId);
+
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		pView->GetView()->ClickElementsByIdOrClass(szElementOrId);
+	}
+
+	sq_pushbool(pVM, true);
 	return 1;
 }

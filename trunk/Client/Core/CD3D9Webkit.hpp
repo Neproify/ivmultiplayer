@@ -26,6 +26,10 @@
 #include "CMainMenu.h"
 #include <CLogFile.h>
 
+class CD3D9WebkitNotification : public EA::WebKit::ViewNotification
+{
+
+};
 
 class CD3D9WebView
 {
@@ -77,4 +81,6 @@ private:
 	unsigned long tickCount;
 	
 	std::list<CD3D9WebView*> views;
+
+	CD3D9WebkitNotification * m_pNotification;
 };

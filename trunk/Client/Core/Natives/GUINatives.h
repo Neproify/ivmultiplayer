@@ -66,3 +66,7 @@ _MEMBER_FUNCTION_IMPL(GUIWebView, constructor);
 _MEMBER_FUNCTION_IMPL(GUIWebView, setURI);
 _MEMBER_FUNCTION_IMPL(GUIWebView, evaluateJavaScript);
 _MEMBER_FUNCTION_IMPL(GUIWebView, sendSignal);
+_MEMBER_FUNCTION_IMPL(GUIWebView, setHTML);
+_MEMBER_FUNCTION_IMPL(GUIWebView, setElementText);
+_MEMBER_FUNCTION_IMPL(GUIWebView, getLoadInfo);
+_MEMBER_FUNCTION_IMPL(GUIWebView, clickElement);

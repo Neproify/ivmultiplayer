@@ -121,6 +121,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AimSync.h" />
+    <ClInclude Include="CD3D9Webkit.hpp" />
     <ClInclude Include="CDebugView.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="Input.h" />
