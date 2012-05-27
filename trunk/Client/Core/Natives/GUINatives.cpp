@@ -7,6 +7,7 @@
 //
 //==============================================================================
 
+#include "../CD3D9Webkit.hpp"
 #include "../Natives.h"
 #include <Scripting/CScriptingManager.h>
 #include <Squirrel/sqstate.h>
@@ -32,6 +33,7 @@ extern CGraphics * g_pGraphics;
 extern CScriptingManager * g_pScriptingManager;
 extern CClientScriptManager * g_pClientScriptManager;
 extern CEvents * g_pEvents;
+extern CD3D9WebKit * g_pWebkit;
 
 bool OnButtonClick(const CEGUI::EventArgs &eventArgs)
 {
@@ -705,5 +707,108 @@ _MEMBER_FUNCTION_IMPL(GUIProgressBar, setValue)
 	pWindow->setProperty("CurrentProgress", szNewProgress);
 
 	sq_pushbool(pVM, true);
+	return 1;
+}
+
+// GUIWebView
+_MEMBER_FUNCTION_IMPL(GUIWebView, constructor)
+{
+	SQInteger width, height;
+	const char * szUrl;
+	sq_getinteger(pVM, -3, &width);
+	sq_getinteger(pVM, -2, &height);
+	sq_getstring(pVM, -1, &szUrl);
+	CD3D9WebView * pView = g_pWebkit->CreateView(width, height, szUrl, g_pGUI->GetDirect3DDevice());
+
+	if(!pView || SQ_FAILED(sq_setinstance(pVM, pView->GetWindow())))
+	{
+		CLogFile::Printf("Can't create GUIWebView.");
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	g_pClientScriptManager->GetGUIManager()->Add(pView->GetWindow(), g_pClientScriptManager->GetScriptingManager()->Get(pVM));
+	pView->GetWindow()->setVisible(true);
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, setURI)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	const char * szURL;
+	sq_getstring(pVM, -1, &szURL);
+
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		pView->GetView()->CancelLoad();
+		pView->GetView()->SetURI(szURL);
+	}
+
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, evaluateJavaScript)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	const char * script;
+	sq_getstring(pVM, -1, &script);
+
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		EA::WebKit::JavascriptValue * pValue = g_pWebkit->GetWebKit()->CreateJavaScriptValue();
+		pView->GetView()->EvaluateJavaScript(script, strlen(script), pValue);
+		switch(pValue->GetType())
+		{
+		case EA::WebKit::JavascriptValueType_Boolean:
+			sq_pushbool(pVM, pValue->GetBooleanValue());
+			break;
+		case EA::WebKit::JavascriptValueType_Number:
+			sq_pushfloat(pVM, (float)pValue->GetNumberValue());
+			break;
+		//case EA::WebKit::JavascriptValueType_String:
+		//	sq_pushstring(pVM, pValue->GetStringCharacters());
+		default:
+			sq_pushbool(pVM, false);
+		}
+	}
+
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIWebView, sendSignal)
+{
+ 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
+	const char * szSignal;
+	sq_getstring(pVM, -1, &szSignal);
+
+	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+	if(pView)
+	{
+		if(strcmp(szSignal, "back") == 0)
+		{
+			pView->GetView()->GoBack();
+		}
+		else if(strcmp(szSignal, "forward") == 0)
+		{
+			pView->GetView()->GoForward();
+		}
+		else if(strcmp(szSignal, "cancel") == 0)
+		{
+			pView->GetView()->CancelLoad();
+		}
+		else if(strcmp(szSignal, "refresh") == 0)
+		{
+			pView->GetView()->Refresh();
+		}
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }

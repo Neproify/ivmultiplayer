@@ -667,8 +667,6 @@ void Direct3DReset()
 
 #ifdef IVMP_WEBKIT
 			g_pWebkit = new CD3D9WebKit();
-			g_pWebView = g_pWebkit->CreateView(640, 480, "http://google.com", g_pDevice);
-			g_pWebView->SetPosition(CEGUI::UVector2(CEGUI::UDim(0.3f, 0.0f), CEGUI::UDim(0.1f, 0.0f)));
 #endif
 
 
