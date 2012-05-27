@@ -43,8 +43,7 @@ public:
 	void SetSize(int width, int height);
 	void SetPosition(CEGUI::UVector2 & vec);
 	void SetData(void * buffer);
-	void Render();
-	void Release();
+	void Draw(int x, int y);
 	EA::WebKit::View * GetView();
 	IDirect3DTexture9 * GetTexture();
 	CEGUI::Window * GetWindow();
@@ -52,6 +51,7 @@ public:
 private:
 	LPDIRECT3DDEVICE9 device;
 	IDirect3DTexture9 * texture;
+	ID3DXSprite * sprite;
 	CGUIStaticImage * image;
 	String name;
 
@@ -70,7 +70,7 @@ class CD3D9WebKit
 public:
 	CD3D9WebKit();
 	~CD3D9WebKit();
-	void RenderAll(bool bSetData = true, bool bTick = true, bool bRender = true);
+	void RenderAll(bool bSetData = true, bool bTick = true);
 	EA::WebKit::IEAWebkit * GetWebKit();
 	CD3D9WebView * GetView(CEGUI::Window * window);
 	CD3D9WebView * GetView(EA::WebKit::View * view);

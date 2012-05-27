@@ -252,6 +252,7 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	this->height = height;
 	device = g_pGUI->GetDirect3DDevice();
 	D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
+	D3DXCreateSprite(device, &sprite);
 
 	texturenum = 0;
 
@@ -316,13 +317,13 @@ void CD3D9WebView::SetData(void * buffer)
 	
 	image->invalidate();
 }
-void CD3D9WebView::Render()
+void CD3D9WebView::Draw(int x, int y)
 {
-	
-}
-void CD3D9WebView::Release()
-{
-	texture->Release();
+	RECT rect = {0, 0, width, height};
+
+	sprite->Begin(D3DXSPRITE_ALPHABLEND);
+	sprite->Draw(texture, &rect, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3(x, y, 0.0f), 0xFFFFFFFF);
+	sprite->End();
 }
 EA::WebKit::View * CD3D9WebView::GetView()
 {
@@ -384,7 +385,7 @@ CD3D9WebKit::CD3D9WebKit()
 	m_pNotification = new CD3D9WebkitNotification();
 	webkit->SetViewNotification(m_pNotification);
 }
-	CD3D9WebKit::~CD3D9WebKit()
+CD3D9WebKit::~CD3D9WebKit()
 {
 	for(std::list<CD3D9WebView*>::iterator it = views.begin(); it != views.end(); it++)
 	{
@@ -396,7 +397,7 @@ CD3D9WebKit::CD3D9WebKit()
 	if(font_style)
 		font_style->Destroy();
 }
-void CD3D9WebKit::RenderAll(bool bSetData, bool bTick, bool bRender)
+void CD3D9WebKit::RenderAll(bool bSetData, bool bTick)
 {
 	for(std::list<CD3D9WebView*>::iterator it = views.begin(); it != views.end(); it++)
 	{
@@ -414,10 +415,6 @@ void CD3D9WebKit::RenderAll(bool bSetData, bool bTick, bool bRender)
 		if(bSetData && b)
 		{
 			(*it)->SetData((*it)->GetView()->GetSurface()->GetData());
-		}
-		if(bRender)
-		{
-			(*it)->Render();
 		}
 	}
 }
