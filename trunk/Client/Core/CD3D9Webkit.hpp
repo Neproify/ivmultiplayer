@@ -43,7 +43,7 @@ public:
 	void SetSize(int width, int height);
 	void SetPosition(CEGUI::UVector2 & vec);
 	void SetData(void * buffer);
-	void Draw(int x, int y);
+	void Draw(int x, int y, int width, int height);
 	EA::WebKit::View * GetView();
 	IDirect3DTexture9 * GetTexture();
 	CEGUI::Window * GetWindow();
@@ -75,7 +75,7 @@ public:
 	CD3D9WebView * GetView(CEGUI::Window * window);
 	CD3D9WebView * GetView(EA::WebKit::View * view);
 	CD3D9WebView * GetView(String name);
-	CD3D9WebView * CreateView(int width, int height, const char * url, LPDIRECT3DDEVICE9 device);
+	CD3D9WebView * CreateView(int width, int height, LPDIRECT3DDEVICE9 device);
 	void DestroyView(CD3D9WebView * webView);
 private:
 	EA::WebKit::IEAWebkit * webkit;

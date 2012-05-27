@@ -254,6 +254,8 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
 	D3DXCreateSprite(device, &sprite);
 
+	view->SetUserData(this);
+
 	texturenum = 0;
 
 	name = g_pGUI->GetUniqueName();
@@ -278,8 +280,6 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	image->subscribeEvent(CEGUI::PushButton::EventCharacterKey, CEGUI::Event::Subscriber(&OnCharKey));
 	image->subscribeEvent(CEGUI::PushButton::EventKeyUp, CEGUI::Event::Subscriber(&OnKeyUp));
 	image->subscribeEvent(CEGUI::PushButton::EventKeyDown, CEGUI::Event::Subscriber(&OnKeyDown));
-
-	view->SetUserData(this);
 
 	//image->setAlwaysOnTop(true);
 }
@@ -317,9 +317,9 @@ void CD3D9WebView::SetData(void * buffer)
 	
 	image->invalidate();
 }
-void CD3D9WebView::Draw(int x, int y)
+void CD3D9WebView::Draw(int x, int y, int w, int h)
 {
-	RECT rect = {0, 0, width, height};
+	RECT rect = {0, 0, w, h};
 
 	sprite->Begin(D3DXSPRITE_ALPHABLEND);
 	sprite->Draw(texture, &rect, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3(x, y, 0.0f), 0xFFFFFFFF);
@@ -387,10 +387,10 @@ CD3D9WebKit::CD3D9WebKit()
 }
 CD3D9WebKit::~CD3D9WebKit()
 {
-	for(std::list<CD3D9WebView*>::iterator it = views.begin(); it != views.end(); it++)
+	/*for(std::list<CD3D9WebView*>::iterator it = views.begin(); it != views.end(); ++it)
 	{
 		DestroyView((*it));
-	}
+	}*/
 	webkit->Shutdown();
 	webkit->Destroy();
 
@@ -452,7 +452,7 @@ CD3D9WebView * CD3D9WebKit::GetView(String name)
 	}
 	return NULL;
 }
-CD3D9WebView * CD3D9WebKit::CreateView(int width, int height, const char * url, LPDIRECT3DDEVICE9 device)
+CD3D9WebView * CD3D9WebKit::CreateView(int width, int height, LPDIRECT3DDEVICE9 device)
 {
 	EA::WebKit::View * view = webkit->CreateView();
 	EA::WebKit::ViewParameters params = view->GetParameters();
@@ -461,7 +461,6 @@ CD3D9WebView * CD3D9WebKit::CreateView(int width, int height, const char * url, 
 	view->InitView(params);
 	view->SetSize(width, height);
 
-	view->SetURI(url);
 	view->CreateJavascriptBindings("IVMP");
 
 	CD3D9WebView * webView = new CD3D9WebView(width, height, view);
@@ -475,5 +474,4 @@ void CD3D9WebKit::DestroyView(CD3D9WebView * webView)
 	webView->GetView()->CancelLoad();
 	webView->GetView()->ShutdownView();
 	webkit->DestroyView(webView->GetView());
-	views.remove(webView);
 }

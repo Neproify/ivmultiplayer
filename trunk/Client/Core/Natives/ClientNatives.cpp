@@ -54,6 +54,8 @@ void RegisterClientNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getFPS", sq_getFPS, 0, NULL);
 
 	pScriptingManager->RegisterFunction("triggerServerEvent", sq_triggerServerEvent, -1, NULL);
+
+	pScriptingManager->RegisterFunction("getScreenPositionFromWorldPosition", sq_getScreenPositionFromWorldPosition, 3, "fff");
 }
 
 // addChatMessage(string)
@@ -382,5 +384,20 @@ int sq_getVehicleName(SQVM * pVM)
 int sq_getFPS(SQVM * pVM)
 {
 	sq_pushinteger(pVM, g_pFPSCounter->Get());
+	return 1;
+}
+
+int sq_getScreenPositionFromWorldPosition(SQVM * pVM)
+{
+	CVector3 vecWorldPos;
+	Vector2 vecScreenPos;
+	sq_getvector3(pVM, -1, &vecWorldPos);
+	CGame::GetScreenPositionFromWorldPosition(vecWorldPos, vecScreenPos);
+	sq_newarray(pVM, 0);
+	sq_pushfloat(pVM, vecScreenPos.X);
+	sq_arrayappend(pVM, -2);
+	sq_pushfloat(pVM, vecScreenPos.Y);
+	sq_arrayappend(pVM, -2);
+
 	return 1;
 }
