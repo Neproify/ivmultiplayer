@@ -296,6 +296,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AimSync.cpp" />
+    <ClCompile Include="CD3D9Webkit.cpp" />
     <ClCompile Include="CDebugView.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Input.cpp" />

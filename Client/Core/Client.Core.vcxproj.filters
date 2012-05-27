@@ -1124,5 +1124,8 @@
     <ClCompile Include="CIVPedWeaponSlot.cpp">
       <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
+    <ClCompile Include="CD3D9Webkit.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
