@@ -196,7 +196,6 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	image->subscribeEvent(CEGUI::PushButton::EventKeyDown, CEGUI::Event::Subscriber(&OnKeyDown));
 
 	//image->setAlwaysOnTop(true);
-		
 }
 void CD3D9WebView::SetSize(int width, int height)
 {
@@ -292,6 +291,9 @@ CD3D9WebKit::CD3D9WebKit()
 	raster = webkit->GetEARasterInstance();
 
 	tickCount = GetTickCount();
+
+	m_pNotification = new CD3D9WebkitNotification();
+	webkit->SetViewNotification(m_pNotification);
 }
 	CD3D9WebKit::~CD3D9WebKit()
 {

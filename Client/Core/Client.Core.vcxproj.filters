@@ -696,6 +696,9 @@
     <ClInclude Include="CIVPedWeaponSlot.h">
       <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
+    <ClInclude Include="CD3D9Webkit.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">
