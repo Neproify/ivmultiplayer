@@ -719,7 +719,8 @@ _MEMBER_FUNCTION_IMPL(GUIWebView, constructor)
 	sq_getinteger(pVM, -3, &width);
 	sq_getinteger(pVM, -2, &height);
 	sq_getstring(pVM, -1, &szUrl);
-	CD3D9WebView * pView = g_pWebkit->CreateView(width, height, szUrl, g_pGUI->GetDirect3DDevice());
+	CD3D9WebView * pView = g_pWebkit->CreateView(width, height, g_pGUI->GetDirect3DDevice());
+	pView->GetView()->SetURI(szUrl);
 
 	if(!pView || SQ_FAILED(sq_setinstance(pVM, pView->GetWindow())))
 	{
@@ -927,14 +928,16 @@ _MEMBER_FUNCTION_IMPL(GUIWebView, registerJavaScriptMethod)
 _MEMBER_FUNCTION_IMPL(GUIWebView, draw)
 {
  	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	int x, y;
+	int x, y, width, height;
 	sq_getinteger(pVM, -1, &x);
 	sq_getinteger(pVM, -2, &y);
+	sq_getinteger(pVM, -3, &width);
+	sq_getinteger(pVM, -4, &height);
 
 	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
 	if(pView)
 	{
-		pView->Draw(x, y);
+		pView->Draw(x, y, width, height);
 	}
 
 	sq_pushbool(pVM, true);

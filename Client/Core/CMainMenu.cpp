@@ -9,6 +9,7 @@
 //
 //==============================================================================
 
+#include "CD3D9Webkit.hpp"
 #include "CMainMenu.h"
 #include "CNetworkManager.h"
 #include <CSettings.h>
@@ -31,6 +32,7 @@ extern String            g_strNick;
 extern String            g_strPassword;
 extern CCredits        * g_pCredits;
 extern bool				 g_bGameLoaded;
+extern CD3D9WebKit     * g_pWebkit;
 
 CMainMenu                         * CMainMenu::m_pSingleton = NULL;
 std::map<String, unsigned long>     serverPingStartMap;
@@ -159,6 +161,9 @@ bool CMainMenu::OnQuitButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 	
 	// Delete the network manager interface
 	SAFE_DELETE(g_pNetworkManager);
+
+	// Delete the webkit interface
+	SAFE_DELETE(g_pWebkit);
 
 	// Exit
 	ExitProcess(0);
