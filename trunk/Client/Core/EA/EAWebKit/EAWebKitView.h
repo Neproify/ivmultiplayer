@@ -530,6 +530,8 @@ namespace EA
 				// hierarchy.
 				virtual WebCore::Page* GetPage() const;
 
+				virtual void * GetUserData() { return mpUserData; }
+				virtual void SetUserData(void * data) { mpUserData = data; }
 				
 			
 			//
@@ -585,6 +587,8 @@ namespace EA
 			bool								mEmulatingConsoleOnPC;
 
             unsigned mLogFilter;
+
+			void *								mpUserData;
         };
 
 

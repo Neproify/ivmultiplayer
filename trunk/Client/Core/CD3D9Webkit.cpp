@@ -2,6 +2,9 @@
 #include "CD3D9Webkit.hpp"
 #include <list>
 #include <queue>
+#include <CEvents.h>
+
+extern CEvents * g_pEvents;
 
 DWORD DIKToScanCode(WORD DIK)
 {
@@ -29,6 +32,15 @@ DWORD DIKToScanCode(WORD DIK)
 	}
 
 	return 0;
+}
+
+const char * ConvertUnicodeToANSI(const char16_t * uniString)
+{
+	int len = wcslen(uniString);
+	char * out = new char[len+1];
+	SharedUtility::UnicodeToAnsi(uniString, len, out, len);
+	out[len] = 0;
+	return out;
 }
 
 extern CGUI                 * g_pGUI;
@@ -162,6 +174,76 @@ bool OnCharKey(const CEGUI::EventArgs &eventArgs)
 	return true;
 }
 
+bool CD3D9WebkitNotification::ViewUpdate(EA::WebKit::ViewUpdateInfo& info)
+{
+	return true;
+}
+bool CD3D9WebkitNotification::LoadUpdate(EA::WebKit::LoadInfo& info)
+{
+	const char * szURI = ConvertUnicodeToANSI(g_pWebkit->GetWebKit()->GetCharacters(info.mURI));
+	const char * szTitle = ConvertUnicodeToANSI(g_pWebkit->GetWebKit()->GetCharacters(info.mPageTitle));
+	CSquirrelArguments table;
+	CD3D9WebView * pView = (CD3D9WebView*)info.mpView->GetUserData();
+	CLogFile::Printf("View: 0x%x", pView);
+	table.push(pView->GetName().Get());
+	table.push(info.mbCompleted);
+	table.push((int)info.mContentLength);
+	table.push((int)info.mLastChangedTime);
+	table.push(szTitle);
+	table.push(info.mStatusCode);
+	table.push(szURI);
+	g_pEvents->Call("webkitLoadUpdate", &table);
+	delete szURI;
+	delete szTitle;
+	return true;
+}
+
+bool CD3D9WebkitNotification::TextInputState(EA::WebKit::TextInputStateInfo& info)
+{
+	return true;
+}
+
+bool CD3D9WebkitNotification::JavascriptMethodInvoked(EA::WebKit::JavascriptMethodInvokedInfo& info)
+{
+	CSquirrelArguments table;
+	CD3D9WebView * pView = (CD3D9WebView*)info.mpView->GetUserData();
+	table.push(pView->GetName().Get());
+	table.push(info.mMethodName);
+	CSquirrelArguments array;
+	const char * strings[10U] = {0};
+	int stringsCount = 0;
+	for(int i = 0; i < info.mArgumentCount; i++)
+	{
+		switch(info.mArguments[i].GetType())
+		{
+		case EA::WebKit::JavascriptValueType_Boolean:
+			array.push(info.mArguments[i].GetBooleanValue());
+			break;
+		case EA::WebKit::JavascriptValueType_Number:
+			array.push((float)info.mArguments[i].GetNumberValue());
+			break;
+		case EA::WebKit::JavascriptValueType_String:
+			strings[stringsCount] = ConvertUnicodeToANSI(info.mArguments[i].GetStringCharacters());
+			array.push(strings[stringsCount]);
+			stringsCount++;
+			break;
+		default:
+			array.push("undefined");
+			break;
+		}
+	}
+	table.push(array, true);
+	g_pEvents->Call("webkitJSMethodInvoked", &table);
+	for(int i = 0; i < stringsCount; i++)
+	{
+		if(strings[i] != 0)
+		{
+			delete strings[i];
+		}
+	}
+	return true;
+}
+
 CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 {
 	this->device = device;
@@ -195,6 +277,8 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	image->subscribeEvent(CEGUI::PushButton::EventCharacterKey, CEGUI::Event::Subscriber(&OnCharKey));
 	image->subscribeEvent(CEGUI::PushButton::EventKeyUp, CEGUI::Event::Subscriber(&OnKeyUp));
 	image->subscribeEvent(CEGUI::PushButton::EventKeyDown, CEGUI::Event::Subscriber(&OnKeyDown));
+
+	view->SetUserData(this);
 
 	//image->setAlwaysOnTop(true);
 }
@@ -381,6 +465,7 @@ CD3D9WebView * CD3D9WebKit::CreateView(int width, int height, const char * url, 
 	view->SetSize(width, height);
 
 	view->SetURI(url);
+	view->CreateJavascriptBindings("IVMP");
 
 	CD3D9WebView * webView = new CD3D9WebView(width, height, view);
 

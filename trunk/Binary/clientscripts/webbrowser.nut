@@ -20,6 +20,7 @@ function onScriptInit( )
     webView.setParent(webWindow.getName());
     webView.setPosition(0.0, 75.0, false);
     webView.setURI("http://iv-m.com");
+    webView.registerJavaScriptMethod("TestMethod");
 
     webURL.setSize(Width - 70.0, 60.0, false);
     webURL.setParent(webWindow.getName());
@@ -53,6 +54,7 @@ addEvent("keyPress", function (key, state)
                 webWindow.setVisible(true);
                 guiToggleCursor(true);
                 isActive = true;
+	webView.evaluateJavaScript("IVMP.TestMethod(15, 255.1, \"Opened\");");
             }
         }
     }
@@ -66,3 +68,19 @@ function onButtonClick(btnName, bState)
     }
 }
 addEvent("buttonClick", onButtonClick);
+
+function onWebkitLoadUpdate(webViewName, completed, contentLength, lastChangeTime, title, statusCode, uri)
+{
+	//addChatMessage("Loaded URI: " + uri + " With title: " + title);
+	if(webViewName == webView.getName())
+	{
+		webWindow.setText(title);
+	}
+}
+addEvent("webkitLoadUpdate", onWebkitLoadUpdate);
+
+function onWebkitJSMethodInvoked(webViewName, methodName, args)
+{
+	addChatMessage("Browser " + args[2]);
+}
+addEvent("webkitJSMethodInvoked", onWebkitJSMethodInvoked);

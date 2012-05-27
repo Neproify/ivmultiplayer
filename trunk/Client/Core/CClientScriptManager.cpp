@@ -100,6 +100,7 @@ _MEMBER_FUNCTION(GUIWebView, setElementText, 2, "ss")
 _MEMBER_FUNCTION(GUIWebView, getLoadInfo, 0, NULL)
 _MEMBER_FUNCTION(GUIWebView, clickElement, 1, "s")
 _MEMBER_FUNCTION(GUIWebView, setSize, 2, "ii")
+_MEMBER_FUNCTION(GUIWebView, registerJavaScriptMethod, 1, "s")
 _END_CLASS_BASE(GUIWebView, GUIElement)
 
 CClientScriptManager::CClientScriptManager()
