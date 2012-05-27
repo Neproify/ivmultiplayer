@@ -19,6 +19,7 @@
 #include <EAWebkit/EAWebKitViewNotification.h>
 
 #include <list>
+#include <queue>
 
 #include <CLibrary.h>
 #include <SharedUtility.h>
@@ -58,6 +59,14 @@ DWORD DIKToScanCode(WORD DIK)
 extern CGUI                 * g_pGUI;
 extern CMainMenu            * g_pMainMenu;
 
+struct keyEvent
+{
+	EA::WebKit::KeyboardEvent e;
+	EA::WebKit::View * view;
+};
+
+std::queue<keyEvent> keyEventsQueue;
+
 bool OnMouseMove(const CEGUI::EventArgs &eventArgs);
 bool OnMouseWheel(const CEGUI::EventArgs &eventArgs);
 bool OnMouseUp(const CEGUI::EventArgs &eventArgs);
@@ -83,7 +92,6 @@ public:
 		this->height = height;
 		device = g_pGUI->GetDirect3DDevice();
 		D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
-		m_bBeforeGUI = false;
 
 		name = g_pGUI->GetUniqueName();
 
@@ -170,8 +178,6 @@ private:
 
 	int width;
 	int height;
-
-	bool m_bBeforeGUI;
 };
 
 
@@ -249,6 +255,11 @@ public:
 			if(bTick && ((GetTickCount() - tickCount) > 75))
 			{
 				tickCount = GetTickCount();
+				if(keyEventsQueue.size() != 0)
+				{
+					keyEventsQueue.front().view->OnKeyboardEvent(keyEventsQueue.front().e);
+					keyEventsQueue.pop();
+				}
 				b = (*it)->GetView()->Tick();
 			}
 			if(bSetData && b)
@@ -408,7 +419,11 @@ bool OnKeyUp(const CEGUI::EventArgs &eventArgs)
 	e.mId = DIKToScanCode(keyEventArgs.scancode);
 	e.mbChar = false;
 	e.mbDepressed = false;
-	view->GetView()->OnKeyboardEvent(e);
+	keyEvent queueEvent;
+	queueEvent.e = e;
+	queueEvent.view = view->GetView();
+	keyEventsQueue.push(queueEvent);
+	//view->GetView()->OnKeyboardEvent(e);
 	return true;
 }
 bool OnKeyDown(const CEGUI::EventArgs &eventArgs)
@@ -421,7 +436,11 @@ bool OnKeyDown(const CEGUI::EventArgs &eventArgs)
 	e.mId = DIKToScanCode(keyEventArgs.scancode);
 	e.mbChar = false;
 	e.mbDepressed = true;
-	view->GetView()->OnKeyboardEvent(e);
+	keyEvent queueEvent;
+	queueEvent.e = e;
+	queueEvent.view = view->GetView();
+	keyEventsQueue.push(queueEvent);
+	//view->GetView()->OnKeyboardEvent(e);
 	return true;
 }
 bool OnCharKey(const CEGUI::EventArgs &eventArgs)
@@ -434,7 +453,11 @@ bool OnCharKey(const CEGUI::EventArgs &eventArgs)
 	e.mId = keyEventArgs.codepoint;
 	e.mbChar = true;
 	e.mbDepressed = false;
-	view->GetView()->OnKeyboardEvent(e);
+	keyEvent queueEvent;
+	queueEvent.e = e;
+	queueEvent.view = view->GetView();
+	keyEventsQueue.push(queueEvent);
+	//view->GetView()->OnKeyboardEvent(e);
 	return true;
 }
 
