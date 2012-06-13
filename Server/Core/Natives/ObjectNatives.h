@@ -22,6 +22,11 @@ private:
 	static SQInteger SetCoordinates(SQVM * pVM);
 	static SQInteger GetRotation(SQVM * pVM);
 	static SQInteger SetRotation(SQVM * pVM);
+	static SQInteger CreateFire(SQVM * pVM);
+	static SQInteger DeleteFire(SQVM * pVM);
+	static SQInteger CreateExplosion(SQVM * pVM);
+	static SQInteger AttachVehicle(SQVM * pVM);
+	static SQInteger AttachPed(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

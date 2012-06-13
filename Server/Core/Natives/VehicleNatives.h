@@ -52,6 +52,13 @@ private:
 	static SQInteger GetVariation(SQVM * pVM);
 	static SQInteger SetEngineStatus(SQVM * pVM);
 	static SQInteger GetEngineStatus(SQVM * pVM);
+	static SQInteger SwitchTaxiLights(SQVM * pVM);
+	static SQInteger GetTaxiLights(SQVM * pVM);
+	static SQInteger ControlCar(SQVM * pVM);
+	static SQInteger SetLights(SQVM * pVM);
+	static SQInteger GetLights(SQVM * pVM);
+	static SQInteger RepairWheels(SQVM * pVM);
+	static SQInteger RepairWindows(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

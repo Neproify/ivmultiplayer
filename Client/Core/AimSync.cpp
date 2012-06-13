@@ -40,16 +40,16 @@ void StoreAimTarget(IVPed * pPed, CVector3 * vecWeaponTarget)
 			if(pContextData->GetPlayerInfo()->GetPlayerNumber() == 0)
 			{
 				pContextData->SetWeaponAimTarget(*vecWeaponTarget);
-				g_pChatWindow->AddInfoMessage("StoreAimTargetLocal(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
+				g_pChatWindow->AddInfoDebugMessage("StoreAimTargetLocal(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
 			}
 			else
 			{
 				pContextData->GetWeaponAimTarget(*vecWeaponTarget);
-				g_pChatWindow->AddInfoMessage("StoreAimTarget(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
+				g_pChatWindow->AddInfoDebugMessage("StoreAimTarget(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
 			}
 		}
 		else
-			CLogFile::Printf("StoreAimTarget Warning: Invalid Player Ped");
+			CLogFile::PrintDebugf("StoreAimTarget Warning: Invalid Player Ped");
 	}
 }
 
@@ -77,7 +77,7 @@ void StoreShotSourceTarget(IVPed * pPed, CVector3 * pWeaponSource, CVector3 * pW
 			}
 		}
 		else
-			CLogFile::Printf("StoreShotSourceTarget Warning: Invalid Player Ped");
+			CLogFile::PrintDebugf("StoreShotSourceTarget Warning: Invalid Player Ped");
 	}
 }
 

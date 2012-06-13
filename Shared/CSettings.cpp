@@ -30,6 +30,7 @@ void CSettings::LoadDefaults()
 	AddString("password", "");
 	AddBool("query", true);
 	AddBool("listed", false);
+	AddBool("guinametags",false);
 	AddString("hostname", VERSION_IDENTIFIER_2 " Server");
 	AddString("hostaddress", "");
 	AddBool("frequentevents", false);
@@ -37,6 +38,7 @@ void CSettings::LoadDefaults()
 	AddBool("paynspray", true);
 	AddBool("autoaim", true);
 	AddInteger("weather", 1, 1, 10);
+	AddFloat("wind",0.0,0.0,50.0);
 	AddBool("silent", false);
 	AddBool("timestamp", true);
 	AddList("script");

@@ -21,7 +21,7 @@
 #define MAX_PAGES MAX_MESSAGE / MAX_DISPLAYED_MESSAGES
 #define MAX_MESSAGE_LENGTH 128
 #define MESSAGE_CHAT_COLOR (CEGUI::colour)D3DCOLOR_RGBA(255, 255, 255, 255)
-#define MESSAGE_INFO_COLOR (CEGUI::colour)D3DCOLOR_RGBA(0, 128, 128, 255)
+#define MESSAGE_INFO_COLOR (CEGUI::colour)D3DCOLOR_RGBA(0, 225, 225, 225)
 #define MESSAGE_BACKGROUND_COLOR (CEGUI::colour)D3DCOLOR_RGBA(0, 0, 0, 255)
 
 struct CHAT_MESSAGE
@@ -53,6 +53,7 @@ public:
 	void Draw();
 	void AddChatMessage(EntityId playerid, const char * szMessage);
 	void AddInfoMessage(const char * szFormat, ...);
+	void AddInfoDebugMessage(const char * szFormat, ...);
 	void AddMessage(DWORD dwColor, bool bAllowFormatting, const char * szMessage, ...);
 	bool IsEnabled() { return m_bEnabled; }
 	void SetEnabled(bool bEnabled) { m_bEnabled = bEnabled; }

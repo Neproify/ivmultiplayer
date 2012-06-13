@@ -418,6 +418,13 @@ namespace Scripting
 	static void WarpCharIntoCar(unsigned int ped, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_WARP_CHAR_INTO_CAR, ped, vehicle); }
 	static void WarpCharIntoCarAsPassenger(unsigned int ped, unsigned int vehicle, unsigned int seatIndex) { NativeInvoke::Invoke<unsigned int>(NATIVE_WARP_CHAR_INTO_CAR_AS_PASSENGER, ped, vehicle, seatIndex); }
 	static void WarpCharFromCarToCar(unsigned int ped, unsigned int vehicle, unsigned int seatIndex) { NativeInvoke::Invoke<unsigned int>(NATIVE_WARP_CHAR_FROM_CAR_TO_CAR, ped, vehicle, seatIndex); }
+	static void	ScreenFadeIn(unsigned int time) { NativeInvoke::Invoke<unsigned int>(NATIVE_DO_SCREEN_FADE_IN, time); }
+	static void	ScreenFadeInUnhacked(unsigned int time) { NativeInvoke::Invoke<unsigned int>(NATIVE_DO_SCREEN_FADE_IN_UNHACKED, time); }
+	static void	ScreenFadeOut(unsigned int time) { NativeInvoke::Invoke<unsigned int>(NATIVE_DO_SCREEN_FADE_OUT, time); }
+	static void	ScreenFadeOutUnhacked(unsigned int time) { NativeInvoke::Invoke<unsigned int>(NATIVE_DO_SCREEN_FADE_OUT_UNHACKED, time); }
+	static void TriggerPoliceReport(const char * szReport) { NativeInvoke::Invoke<unsigned int>(NATIVE_TRIGGER_POLICE_REPORT, szReport); }
+	static void TriggerMissionComplete(int iMission) { NativeInvoke::Invoke<unsigned int>(NATIVE_TRIGGER_MISSION_COMPLETE_AUDIO, iMission); }
+	static void TriggerGameSound(const char *szMusic) { NativeInvoke::Invoke<unsigned int>(NATIVE_PLAY_SOUND, szMusic/*, NULL, SND_FILENAME | SND_ASYNC*/); }
 
 	// unsigned int Tasks
 	static void SetCharKeepTask(unsigned int ped, bool value) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CHAR_KEEP_TASK, ped, value); }
@@ -642,7 +649,12 @@ namespace Scripting
 	static void SoundCarHorn(unsigned int vehicle, unsigned int duration) { NativeInvoke::Invoke<unsigned int>(NATIVE_SOUND_CAR_HORN, vehicle, duration); }
 	static void WashVehicleTextures(unsigned int vehicle, unsigned int intensity) { NativeInvoke::Invoke<unsigned int>(NATIVE_WASH_VEHICLE_TEXTURES, vehicle, intensity); }
 	static void SetRoomForCarByKey(unsigned int vehicle, eInteriorRoomKey key) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_ROOM_FOR_CAR_BY_KEY, vehicle, key); }
-	static void SetCarEngineOn( unsigned int vehicle, bool toggle ) { NativeInvoke::Invoke< unsigned int >( NATIVE_SET_CAR_ENGINE_ON, vehicle, toggle ); }
+	static void SetCarEngineOn( unsigned int vehicle, bool toggle, bool toggle2 ) { NativeInvoke::Invoke< unsigned int >( NATIVE_SET_CAR_ENGINE_ON, vehicle, toggle, toggle2 ); }
+	static void SetTaxiLights(unsigned int vehicle, bool toggle) { NativeInvoke::Invoke<unsigned int>( NATIVE_SET_TAXI_LIGHTS, vehicle, toggle); }
+	static void ForceCarLights(unsigned int vehicle, int flag) { NativeInvoke::Invoke<unsigned int>( NATIVE_FORCE_CAR_LIGHTS, vehicle, flag); }
+	static void ForceCarLightsOff(unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>( NATIVE_FORCE_ALL_VEHICLE_LIGHTS_OFF, vehicle); }
+	static void SetCarCanBurstTyres(unsigned int vehicle, bool toggle) { NativeInvoke::Invoke<unsigned int>( NATIVE_SET_CAN_BURST_CAR_TYRES, vehicle, toggle); }
+	static void	EnableGPSInVehicle(unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>( NATIVE_ENABLE_GPS_IN_VEHICLE, vehicle ); }
 
 	// unsigned int
 	static void CreateMissionTrain(unsigned int unknown1, float x, float y, float z, bool unknown2, unsigned int *pTrain) { NativeInvoke::Invoke<unsigned int>(NATIVE_CREATE_MISSION_TRAIN, unknown1, x, y, z, unknown2, pTrain); }
@@ -1132,6 +1144,7 @@ namespace Scripting
 	static void UnlockLazlowStation() { NativeInvoke::Invoke<unsigned int>(NATIVE_UNLOCK_LAZLOW_STATION); }
 	static void UnregisterScriptWithAudio() { NativeInvoke::Invoke<unsigned int>(NATIVE_UNREGISTER_SCRIPT_WITH_AUDIO); }
 	static void UnPauseGame() { NativeInvoke::Invoke<unsigned int>(NATIVE_UNPAUSE_GAME); }
+	static bool HasCharAnimFinished(unsigned int ped, const char *anim) { return NativeInvoke::Invoke<bool>(NATIVE_HAS_CHAR_ANIM_FINISHED, ped, anim); }
 
 	// General
 	static void GenerateRandomFloatInRange(float min, float max, float *pValue) { NativeInvoke::Invoke<unsigned int>(NATIVE_GENERATE_RANDOM_FLOAT_IN_RANGE, min, max, pValue); }

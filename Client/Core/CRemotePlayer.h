@@ -21,6 +21,9 @@ private:
 	bool m_bPassenger;
 	BYTE m_byteSeatId;
 	bool m_helmet;
+	bool		  m_bAnimating;
+	String		  m_strAnimGroup;
+	String		  m_strAnimSpec;
 
 public:
 	CRemotePlayer();

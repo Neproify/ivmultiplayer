@@ -23,4 +23,9 @@ public:
 	virtual bool GetPosition(EntityId objectId, CVector3& vecPosition) = 0;
 	virtual bool SetRotation(EntityId objectId, const CVector3& vecRotation) = 0;
 	virtual bool GetRotation(EntityId objectId, CVector3& vecRotation) = 0;
+
+	virtual EntityId CreateFire(const CVector3& vecPosition, float fdensity) = 0;
+	virtual void DeleteFire(EntityId fireId) = 0;
+	virtual void HandleClientJoinFire(EntityId playerId) = 0;
+	virtual void CreateExplosion(const CVector3& vecPosition, float fdensity) = 0;
 };

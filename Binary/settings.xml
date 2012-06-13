@@ -32,6 +32,9 @@
 	<!-- Toggles frequently called events which has impact on CPU usage  -->
 	<frequentevents>false</frequentevents>
 
+	<!-- Toggles the network nametags from GTA IV to nametags from IV:MP(GUI) -->
+	<guinametags>true</guinametags>
+	
 	<!-- The scripts the server will load and run -->
 	<script>cp.nut</script>
 	<script>whisper.nut</script>

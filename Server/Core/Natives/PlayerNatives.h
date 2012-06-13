@@ -93,6 +93,15 @@ private:
 	static SQInteger SetCameraPos(SQVM * pVM);
 	static SQInteger SetCameraLookAt(SQVM * pVM);
 	static SQInteger ResetCamera(SQVM * pVM);
+	static SQInteger forceAnim(SQVM * pVM);
+	static SQInteger requestAnim(SQVM * pVM);
+	static SQInteger triggerAudioEvent(SQVM * pVM);
+	static SQInteger triggerMissionCompleteAudio(SQVM * pVM);
+	static SQInteger triggerPoliceReport(SQVM * pVM);
+	static SQInteger fadeScreenIn(SQVM * pVM);
+	static SQInteger fadeScreenOut(SQVM * pVM);
+	static SQInteger blockWeaponChange(SQVM * pVM);
+	static SQInteger blockWeaponDrop(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

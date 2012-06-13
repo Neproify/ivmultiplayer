@@ -10,12 +10,16 @@
 #pragma once
 
 #include "CGUI.h"
+#include <Math\CVector3.h>
 
 class CNameTags
 {
 private:
 	bool          m_bEnabled;
 	CEGUI::Font * m_pFont;
+	CVector3	  vecCamPosition;
+	CVector3	  vecCamForward;
+	CVector3	  vecLookAt;
 
 public:
 	CNameTags();

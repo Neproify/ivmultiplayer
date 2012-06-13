@@ -39,6 +39,7 @@ std::map<String, unsigned long>     serverPingStartMap;
 extern std::vector<CEGUI::Window *> g_pGUIElements;
 
 void ResetGame();
+void InternalResetGame(bool bToggle);
 
 bool CMainMenu::OnServerBrowserButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
 {
@@ -98,9 +99,15 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
 	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 	{
+		g_pChatWindow->SetEnabled(true);
+		ResetGame();
 		g_pNetworkManager->Disconnect();
-		CGame::SetState(GAME_STATE_MAIN_MENU);
-		SetDisconnectButtonVisible(false);
+        CGame::SetState(GAME_STATE_MAIN_MENU);
+        SetDisconnectButtonVisible(false);
+		for(int i = 0; i < 10; i++)
+			g_pChatWindow->AddMessage(0xFFFFFFAA,false," ");
+
+		g_pChatWindow->AddInfoMessage("Successfully disconnected from server ...");
 	}
 	return true;
 }
@@ -220,6 +227,7 @@ void CMainMenu::OnConnect(String strHost, unsigned short usPort, String strPassw
 
 		// Disable the menu
 		CGame::SetState(GAME_STATE_INGAME);
+		g_pChatWindow->SetEnabled(true);
 	}
 	else if(g_pNetworkManager && !g_pNetworkManager->IsConnected() && g_bGameLoaded == true)
 	{
@@ -232,11 +240,13 @@ void CMainMenu::OnConnect(String strHost, unsigned short usPort, String strPassw
 
 		// Disable the menu
 		CGame::SetState(GAME_STATE_INGAME);
+		g_pChatWindow->SetEnabled(true);
 	}
 	else
 	{
 		// Disable the menu and load the game
 		CGame::SetState(GAME_STATE_LOADING);
+		ShowLoadingScreen();
 	}
 }
 
@@ -604,17 +614,26 @@ CMainMenu::CMainMenu()
 	// jenksta: why was this put here?
 	g_pGUI->GetDefaultWindow()->setAlpha(1.0f);
 
+	// Reset the show stuff
+	m_bCameraState = 1;
+	m_bCameraStateTime = 1;
+
 	// Main Menu
-	float fX = 0.02f;
-	//float fY = 0.7f;
-	//float fY = 0.9f;
+	float fWidth = (float)g_pGUI->GetDisplayWidth();
+	float fHeight = (float)g_pGUI->GetDisplayHeight();
+	float fX = -2.0f;
 	float fY = 0.5f;
 
 	// try to load all images
 	try
 	{
-		CEGUI::ImagesetManager::getSingleton().createFromImageFile("Background", "IVMPBackground.png");
+		CEGUI::ImagesetManager::getSingleton().createFromImageFile("Background", "IVMPBackgroundNetwork.png");
+		CEGUI::ImagesetManager::getSingleton().createFromImageFile("BackgroundLoading", "IVMPBackground.png");
 		CEGUI::ImagesetManager::getSingleton().createFromImageFile("Logo", "IVMPLogoHiRes.png");
+		CEGUI::ImagesetManager::getSingleton().createFromImageFile("LoadingLogo1", "IVMPLoadingLogoHiRes.png");
+		CEGUI::ImagesetManager::getSingleton().createFromImageFile("MenuLogo", "IVMPMainMenuLogo.png");
+		CEGUI::ImagesetManager::getSingleton().createFromImageFile("MenuLogoNetwork", "IVMPMainMenuLogoNetwork.png");
+		CEGUI::ImagesetManager::getSingleton().createFromImageFile("RakNet", "RakNet.png");
 	}
 	catch(CEGUI::InvalidRequestException e)
 	{
@@ -636,86 +655,175 @@ CMainMenu::CMainMenu()
 	m_pBackground->setProperty("BackgroundEnabled", "false");
 	m_pBackground->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
 	m_pBackground->setProperty("Image", "set:Background image:full_image");
-
+	m_pBackground->setProperty("InheritsAlpha","false");
+	m_pBackground->setAlpha(0.975f);
 	m_pBackground->setVisible(false);
+
+	//IV:MP Loading Background
+	m_pLoadingBackground = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pLoadingBackground->setProperty("FrameEnabled", "false");
+	m_pLoadingBackground->setProperty("BackgroundEnabled", "false");
+	m_pLoadingBackground->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
+	m_pLoadingBackground->setProperty("Image", "set:BackgroundLoading image:full_image");
+	m_pLoadingBackground->setProperty("InheritsAlpha","false");
+	m_pLoadingBackground->setAlpha(0.90f);
+	m_pLoadingBackground->setVisible(false);
+
+	// Loadingscreen stuff
+	float height = fWidth/7;
+	float width = fWidth/(float)1.6; // (float) disable warning (double into ?)
+
+	//IV:MP Loading Logo
+	m_pLoadingLogo = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pLoadingLogo->setProperty("FrameEnabled", "false");
+	m_pLoadingLogo->setProperty("BackgroundEnabled", "false");
+	m_pLoadingLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
+	m_pLoadingLogo->setProperty("Image", "set:LoadingLogo1 image:full_image");
+	m_pLoadingLogo->setVisible(false);
+	m_pLoadingLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/3)), CEGUI::UDim(0, ((fHeight/2)-fHeight/3))));
+	m_pLoadingLogo->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
+
+	//RakNet Loading Logo
+	height = 44;
+	width = 134;
+	m_pRaknetLogo = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pRaknetLogo->setProperty("FrameEnabled", "false");
+	m_pRaknetLogo->setProperty("BackgroundEnabled", "false");
+	m_pRaknetLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
+	m_pRaknetLogo->setProperty("Image", "set:RakNet image:full_image");
+	m_pRaknetLogo->setVisible(false);
+	m_pRaknetLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth-width), CEGUI::UDim(0, fHeight-height)));
+	m_pRaknetLogo->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
+
+	//Loading label
+	m_pLoadingText = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pLoadingText->setText("IV:MP is loading, please wait ...");
+	m_pLoadingText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
+	m_pLoadingText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/8)), CEGUI::UDim(0, (fHeight/2))));
+	m_pLoadingText->setProperty("FrameEnabled", "false");
+	m_pLoadingText->setProperty("BackgroundEnabled", "false");
+	m_pLoadingText->setFont(g_pGUI->GetFont("pricedown",24U));
+	m_pLoadingText->setVisible(false);
 
 	//IV:MP Logo
 	m_pLogo = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
-	m_pBackground->addChildWindow( m_pLogo );
 	m_pLogo->setProperty("FrameEnabled", "false");
 	m_pLogo->setProperty("BackgroundEnabled", "false");
-	m_pLogo->setProperty("Image", "set:Logo image:full_image");
-	m_pLogo->setProperty("Disabled", "true");
+	m_pLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
+	m_pLogo->setProperty("Image", "set:MenuLogo image:full_image");
+	m_pLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/4)), CEGUI::UDim(0, ((fHeight/2)-fHeight/4))));
+	m_pLogo->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
+	m_pBackground->addChildWindow( m_pLogo );
 
 	// 0.88
 
 	// TODO: Ability to pass user data to an event subscriber
 
-	fY -= 0.09f;
+	fY += 0.40f;
+	fX += 0.30f;
 
-	m_pDisconnectButton = CreateButton("Disconnect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.14f, 0), CEGUI::UDim(0.015f, 0)),
-		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
+	//Set network stuff
+	m_pHost = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pHost->setText("-");
+	m_pHost->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
+	m_pHost->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)+fWidth/8.75f)),  CEGUI::UDim(0, (fY-10.0f))));
+	m_pHost->setProperty("FrameEnabled", "false");
+	m_pHost->setProperty("BackgroundEnabled", "false");
+	m_pHost->setFont(g_pGUI->GetFont("electronichighwaysign",21U));
+	m_pBackground->addChildWindow( m_pHost );
+
+	m_pPlayers = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pPlayers->setText("-");
+	m_pPlayers->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
+	m_pPlayers->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)+fWidth/8.75f)),  CEGUI::UDim(0, (fY+20.0f))));
+	m_pPlayers->setProperty("FrameEnabled", "false");
+	m_pPlayers->setProperty("BackgroundEnabled", "false");
+	m_pPlayers->setFont(g_pGUI->GetFont("electronichighwaysign",21U));
+	m_pBackground->addChildWindow( m_pPlayers );
+
+	m_pMyName = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pMyName->setText("-");
+	m_pMyName->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
+	m_pMyName->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)+fWidth/8.5f)),  CEGUI::UDim(0, (fY+50.0f))));
+	m_pMyName->setProperty("FrameEnabled", "false");
+	m_pMyName->setProperty("BackgroundEnabled", "false");
+	m_pMyName->setFont(g_pGUI->GetFont("electronichighwaysign",21U));
+	m_pBackground->addChildWindow( m_pMyName );
+
+	m_pHostDesc = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pHostDesc->setText("CONNECTED TO:");
+	m_pHostDesc->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
+	m_pHostDesc->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/4.75f)),  CEGUI::UDim(0, (fY-10.0f))));
+	m_pHostDesc->setProperty("FrameEnabled", "false");
+	m_pHostDesc->setProperty("BackgroundEnabled", "false");
+	m_pHostDesc->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
+	m_pBackground->addChildWindow( m_pHostDesc );
+
+	m_pPlayersDesc = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pPlayersDesc->setText("PLAYERS ONLINE:");
+	m_pPlayersDesc->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
+	m_pPlayersDesc->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/4.75f)),  CEGUI::UDim(0, (fY+20.0f))));
+	m_pPlayersDesc->setProperty("FrameEnabled", "false");
+	m_pPlayersDesc->setProperty("BackgroundEnabled", "false");
+	m_pPlayersDesc->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
+	m_pBackground->addChildWindow( m_pPlayersDesc );
+
+	m_pMyNameDesc = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pMyNameDesc->setText("MY NAME:");
+	m_pMyNameDesc->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
+	m_pMyNameDesc->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/4.75f)),  CEGUI::UDim(0, fY+50.0f)));
+	m_pMyNameDesc->setProperty("FrameEnabled", "false");
+	m_pMyNameDesc->setProperty("BackgroundEnabled", "false");
+	m_pMyNameDesc->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
+	m_pBackground->addChildWindow( m_pMyNameDesc );
+
+	m_pDisconnectButton = CreateButton("Disconnect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.28f, 0), CEGUI::UDim(0.030f, 0)),
+		CEGUI::UVector2(CEGUI::UDim(fX-0.075f, 0), CEGUI::UDim(fY-0.25f, 0)));
 	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseEnter, this));
 	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseLeave, this));
 	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseClick, this));
 	m_pBackground->addChildWindow( m_pDisconnectButton );
 	SetDisconnectButtonVisible(false);
 
-	//fX += 0.2f;
-	//fX += 0.078f;
-	//fY += 0.06f;
-	fY += 0.09f;
-
-	m_pServerBrowserButton = CreateButton("Server Browser", CEGUI::UVector2(CEGUI::UDim(/*0.074f*/0.148f, 0), CEGUI::UDim(0.015f, 0)),
-		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
+	fX = 0.10f;
+	m_pServerBrowserButton = CreateButton("Server Browser", CEGUI::UVector2(CEGUI::UDim(/*0.074f*/0.20f, 0), CEGUI::UDim(0.030f, 0)),
+		CEGUI::UVector2(CEGUI::UDim(fX-0.075f, 0), CEGUI::UDim(fY, 0)));
 	m_pServerBrowserButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserButtonMouseEnter, this));
 	m_pServerBrowserButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserButtonMouseLeave, this));
 	m_pServerBrowserButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserButtonMouseClick, this));
 	m_pBackground->addChildWindow( m_pServerBrowserButton );
 
-	//fX += 0.2f;
-	//fX += 0.078f;
-	//fY += 0.06f;
-	fY += 0.03f;
+	fX = 0.10f;
 
-	m_pQuickConnectButton = CreateButton("Quick Connect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.14f, 0), CEGUI::UDim(0.015f, 0)),
-		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
+	m_pQuickConnectButton = CreateButton("Quick Connect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.20f, 0), CEGUI::UDim(0.030f, 0)),
+		CEGUI::UVector2(CEGUI::UDim(fX+0.175f, 0), CEGUI::UDim(fY, 0)));
 	m_pQuickConnectButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectButtonMouseEnter, this));
 	m_pQuickConnectButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectButtonMouseLeave, this));
 	m_pQuickConnectButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectButtonMouseClick, this));
 	m_pBackground->addChildWindow( m_pQuickConnectButton );
 
-	//fX += 0.2f;
-	//fX += 0.074f;
-	//fY += 0.06f;
-	fY += 0.03f;
+	fX = 0.10f;
 
-	m_pSettingsButton = CreateButton("Settings", CEGUI::UVector2(CEGUI::UDim(/*0.042f*/0.084f, 0), CEGUI::UDim(0.015f, 0)),
-		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
+	m_pSettingsButton = CreateButton("Settings", CEGUI::UVector2(CEGUI::UDim(/*0.042f*/0.162f, 0), CEGUI::UDim(0.030f, 0)),
+		CEGUI::UVector2(CEGUI::UDim(fX+0.425f, 0), CEGUI::UDim(fY, 0)));
 	m_pSettingsButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnSettingsButtonMouseEnter, this));
 	m_pSettingsButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnSettingsButtonMouseLeave, this));
 	m_pSettingsButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnSettingsButtonMouseClick, this));
 	m_pBackground->addChildWindow( m_pSettingsButton );
 
-	//fX += 0.2f;
-	//fX += 0.046f;
-	//fY += 0.06f;
-	fY += 0.03f;
+	fX = 0.10f;
 
-	m_pAboutButton = CreateButton("About", CEGUI::UVector2(CEGUI::UDim(/*0.02f*/0.04f, 0), CEGUI::UDim(0.015f, 0)), // 0.02f
-		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
+	m_pAboutButton = CreateButton("About", CEGUI::UVector2(CEGUI::UDim(/*0.02f*/0.08f, 0), CEGUI::UDim(0.030f, 0)), // 0.02f
+		CEGUI::UVector2(CEGUI::UDim(fX+0.65f, 0), CEGUI::UDim(fY, 0)));
 	m_pAboutButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnAboutButtonMouseEnter, this));
 	m_pAboutButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnAboutButtonMouseLeave, this));
 	m_pAboutButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnAboutButtonMouseClick, this));
 	m_pBackground->addChildWindow( m_pAboutButton );
 
-	//fX += 0.2f;
-	//fX += 0.046f;
-	//fY += 0.06f;
-	fY += 0.03f;
+	fX = 0.10f;
 
-	m_pQuitButton = CreateButton("Quit", CEGUI::UVector2(CEGUI::UDim(/*0.02f*/0.04f, 0), CEGUI::UDim(0.015f, 0)), // 0.02f
-		CEGUI::UVector2(CEGUI::UDim(fX, 0), CEGUI::UDim(fY, 0)));
+	m_pQuitButton = CreateButton("Quit", CEGUI::UVector2(CEGUI::UDim(/*0.02f*/0.08f, 0), CEGUI::UDim(0.030f, 0)), // 0.02f
+		CEGUI::UVector2(CEGUI::UDim(fX+0.825f, 0), CEGUI::UDim(fY, 0)));
 	m_pQuitButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnQuitButtonMouseEnter, this));
 	m_pQuitButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnQuitButtonMouseLeave, this));
 	m_pQuitButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnQuitButtonMouseClick, this));
@@ -974,6 +1082,7 @@ void CMainMenu::OnResetDevice()
 	m_serverBrowser.pWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-300), CEGUI::UDim(0, fHeight/2-225)));
 	m_pQuickConnectWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-260), CEGUI::UDim(0, fHeight/2-195)));
 	m_pSettingsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-260), CEGUI::UDim(0, fHeight/2-190)));
+	SetVisible(true);
 }
 
 CGUIStaticText * CMainMenu::CreateButton(char * szText, CEGUI::UVector2 vecSize, CEGUI::UVector2 vecPosition)
@@ -984,7 +1093,7 @@ CGUIStaticText * CMainMenu::CreateButton(char * szText, CEGUI::UVector2 vecSize,
 	pButton->setPosition(vecPosition);
 	pButton->setProperty("FrameEnabled", "false");
 	pButton->setProperty("BackgroundEnabled", "false");
-	pButton->setFont(g_pGUI->GetFont("tahoma-bold", 10));
+	pButton->setFont(g_pGUI->GetFont("pricedown", 20));
 	pButton->setProperty("TextColours", "tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF");
 	return pButton;
 }
@@ -1006,19 +1115,30 @@ void CMainMenu::SetVisible(bool bVisible)
 		SetQuickConnectWindowVisible(m_bQuickConnectWindowOpen);
 		SetSettingsWindowVisible(m_bSettingsWindowOpen);
 	}
-
-	m_pBackground->setVisible(bVisible);
+	if(bVisible)
+	{
+		m_pBackground->setVisible(bVisible);
+		for(float i = 0.0f; i < 0.95f; i += 0.05f)
+		{
+			m_pBackground->setAlpha(i);
+		}
+	}
+	else
+	{
+		m_pBackground->setVisible(bVisible);
+		for(float i = 0.95f; i > 0.0f; i -= 0.05f)
+		{
+			m_pBackground->setAlpha(i);
+		}
+	}
+	m_pHost->setVisible(true);
 	m_bVisible = bVisible;
 	g_pGUI->SetCursorVisible(bVisible);
 
 	if(g_pNetworkManager && g_pNetworkManager->IsConnected() && bVisible)
-	{
 		m_pDisconnectButton->setVisible(true);
-	}
 	else
-	{
 		m_pDisconnectButton->setVisible(false);
-	}
 }
 
 void CMainMenu::SetServerBrowserWindowVisible(bool bVisible)
@@ -1064,3 +1184,31 @@ void CMainMenu::Process()
 	// Process the server query
 	m_pServerQuery->Process();
 }
+
+void CMainMenu::ShowLoadingScreen()
+{
+	m_pLoadingLogo->setVisible(true);
+	m_pRaknetLogo->setVisible(true);
+	m_pLoadingText->setVisible(true);
+	m_pLoadingBackground->setVisible(true);
+	m_bLoadingScreenActive = true;
+}
+void CMainMenu::HideLoadingScreen()
+{
+	m_pLoadingLogo->setVisible(false);
+	m_pRaknetLogo->setVisible(false);
+	m_pLoadingText->setVisible(false);
+	m_pLoadingBackground->setVisible(false);
+	m_bLoadingScreenActive = false;
+}
+
+void CMainMenu::SetNetworkStats(String strHost,int players, int maxplayers, String strName)
+{
+	String szPlayers;
+	szPlayers.AppendF("%d/%d",players,maxplayers);
+
+	m_pHost->setText(strHost.C_String());
+	m_pPlayers->setText(szPlayers.C_String());
+	m_pMyName->setText(strName.C_String());
+}
+

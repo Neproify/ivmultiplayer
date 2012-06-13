@@ -2542,9 +2542,15 @@ namespace Scripting
 		// DrivingStyleStopForCars, and more?
 	};
 
+	// See this for vehicle doors: http://www.gtamodding.com/index.php?title=BURST_CAR_TYRE
 	enum eVehicleTyre
 	{
-		// todo
+		VEHICLE_TYRE0,
+		VEHICLE_TYRE1,
+		VEHICLE_TYRE2,
+		VEHICLE_TYRE3,
+		VEHICLE_TYRE4,
+		VEHICLE_TYRE5,
 	};
 
 	enum eVehicleLights
@@ -2556,7 +2562,10 @@ namespace Scripting
 
 	enum eVehicleWindow
 	{
-		// todo
+		VEHICLE_WINDOW_LEFTFRONT,
+		VEHICLE_WINDOW_RIGHTFRONT,
+		VEHICLE_WINDOW_LEFTREAR,
+		VEHICLE_WINDOW_RIGHTREAR,
 	};
 
 	enum eVehicleExtra

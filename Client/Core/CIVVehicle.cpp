@@ -373,19 +373,23 @@ void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
 		if(bStatus)
 		{
 			DWORD dwFunc = COffsets::FUNC_CVehicle__SetEngineOn;
-            _asm
-            {
-				push bUnknown
-                mov ecx, pVehicle
-                call dwFunc
+			_asm
+	        {
+			   push bUnknown
+               mov ecx, pVehicle
+               call dwFunc
             }
+			/*Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 1, 1);*/
 		}
 		else
 		{
 			pVehicle->m_byteFlags1 &= 0xE7;
 			*(BYTE *)(pVehicle + 0x1344) = 0;
-			// jenksta: this is incorrect, the native takes 3 parameters, not 2
-			//Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), false);
+
+			/*if(!bStatus)
+				Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 0, 1);
+			else if(bStatus)
+				Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 1, 1);*/
 		}
 	}
 }

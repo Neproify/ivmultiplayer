@@ -58,10 +58,15 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("resetVehicleComponents", ResetComponents, 1, "i");
 	pScriptingManager->RegisterFunction("setVehicleVariation", SetVariation, 2, "ii");
 	pScriptingManager->RegisterFunction("getVehicleVariation", GetVariation, 1, "i");
-
-	//NOTE: Still doesn't work, must be synchronized
-	//pScriptingManager->RegisterFunction("setVehicleEngineState", SetEngineStatus, 2, "ib");
-	//pScriptingManager->RegisterFunction("getVehicleEngineState", GetEngineStatus, 1, "i");
+	pScriptingManager->RegisterFunction("setVehicleTaxiLights", SwitchTaxiLights, 2, "ib");
+	pScriptingManager->RegisterFunction("getVehicleTaxiLights", GetTaxiLights, 1, "i");
+	pScriptingManager->RegisterFunction("controlCarDoors", ControlCar, 4, "iibf");
+	pScriptingManager->RegisterFunction("setVehicleEngineState", SetEngineStatus, 2, "ib");
+	pScriptingManager->RegisterFunction("getVehicleEngineState", GetEngineStatus, 1, "i");
+	pScriptingManager->RegisterFunction("setVehicleLights",SetLights,2,"ib");
+	pScriptingManager->RegisterFunction("getVehicleLights",GetLights,1,"i");
+	pScriptingManager->RegisterFunction("repairVehicleWindows", RepairWindows, 1, "i");
+	pScriptingManager->RegisterFunction("repairVehicleWheels", RepairWheels, 1, "i");
 }
 
 // createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4)
@@ -883,13 +888,155 @@ SQInteger CVehicleNatives::SetEngineStatus(SQVM * pVM)
 SQInteger CVehicleNatives::GetEngineStatus(SQVM * pVM)
 {
 	EntityId vehicleId;
-	sq_getentity(pVM, 2, &vehicleId);
+	sq_getentity(pVM, -1, &vehicleId);
 	
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
 	if(pVehicle)
 	{
 		sq_pushbool(pVM, pVehicle->GetEngineStatus());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::SwitchTaxiLights(SQVM *pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM,-2,&vehicleId);
+
+	SQBool check;
+	sq_getbool(pVM,-1,&check);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	
+	if(pVehicle)
+	{
+		bool bToggle = (check != 0);
+		pVehicle->TurnTaxiLights(bToggle);
+		sq_pushbool(pVM,true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 0;
+}
+
+SQInteger CVehicleNatives::ControlCar(SQVM *pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM,-4,&vehicleId);
+
+	int door;
+	sq_getinteger(pVM,-3,&door);
+
+	SQBool door2;
+	sq_getbool(pVM,-2,&door2);
+
+	SQFloat door3;
+	sq_getfloat(pVM,-1,&door3); 
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	
+	if(pVehicle)
+	{
+		bool bToggle = (door != 0);
+		bool bToggle2 = (door2 != 0);
+		bool bToggle3 = (door3 != 0);
+		pVehicle->ControlCarDoors(bToggle,bToggle2,bToggle3);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 0;
+}
+
+SQInteger CVehicleNatives::SetLights(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM, -2, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+	if(pVehicle)
+	{
+		SQBool bLights;
+		sq_getbool(pVM, -1, &bLights);
+		bool bToggle = (bLights != 0);
+		pVehicle->SetLights(bToggle);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::GetLights(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+	if(pVehicle)
+	{
+		sq_pushbool(pVM,pVehicle->GetLights());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::GetTaxiLights(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+	if(pVehicle)
+	{
+		sq_pushbool(pVM,pVehicle->GetTaxiLights());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::RepairWheels(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+	if(pVehicle)
+	{
+		pVehicle->RepairWheels();
+		sq_pushbool(pVM,true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::RepairWindows(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+	if(pVehicle)
+	{
+		pVehicle->RepairWindows();
+		sq_pushbool(pVM,true);
 		return 1;
 	}
 

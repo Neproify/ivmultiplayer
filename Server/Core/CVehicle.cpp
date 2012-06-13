@@ -11,9 +11,12 @@
 #include "CNetworkManager.h"
 #include "CPlayerManager.h"
 #include <CLogFile.h>
+#include "CEvents.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CPlayerManager * g_pPlayerManager;
+extern CEvents * g_pEvents;
+
 
 CVehicle::CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4)
 {
@@ -39,6 +42,7 @@ void CVehicle::Reset()
 	m_pDriver = NULL;
 	memset(m_pPassengers, 0, sizeof(m_pPassengers));
 	m_uiHealth = 1000;
+	m_fPetrolTankHealth = 1000.0f;
 	m_vecPosition = m_vecSpawnPosition;
 	m_vecRotation = m_vecSpawnRotation;
 	memset(&m_vecTurnSpeed, 0, sizeof(CVector3));
@@ -47,12 +51,29 @@ void CVehicle::Reset()
 	memset(&m_bIndicatorState, 0, sizeof(m_bIndicatorState));
 	ResetComponents(false);
 	m_fDirtLevel = 0.0f;
-	m_bHazzardState = false;
 	m_iHornDuration = 0;
 	m_bSirenState = false;
 	m_ucVariation = 0;
 	m_ucLocked = 0;
 	m_bEngineStatus = false;
+	m_bLights = false;
+	m_fDoor[0] = 0.0f;
+	m_fDoor[1] = 0.0f;
+	m_fDoor[2] = 0.0f;
+	m_fDoor[3] = 0.0f;
+	m_fDoor[4] = 0.0f;
+	m_fDoor[5] = 0.0f;
+	m_bWindow[0] = false;
+	m_bWindow[1] = false;
+	m_bWindow[2] = false;
+	m_bWindow[3] = false;
+	m_bTaxiLight = true;
+	m_bTyre[0] = false;
+	m_bTyre[1] = false;
+	m_bTyre[2] = false;
+	m_bTyre[3] = false;
+	m_bTyre[4] = false;
+	m_bTyre[5] = false;
 }
 
 void CVehicle::SpawnForPlayer(EntityId playerId)
@@ -61,6 +82,7 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	bsSend.WriteCompressed(m_vehicleId);
 	bsSend.Write(m_iModelId);
 	bsSend.Write(m_uiHealth);
+	bsSend.Write(m_fPetrolTankHealth);
 	bsSend.Write(m_vecPosition);
 
 	if(!m_vecRotation.IsEmpty())
@@ -100,6 +122,18 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	bsSend.Write(m_bSirenState);
 	bsSend.Write(m_ucLocked);
 	bsSend.WriteBit(m_bEngineStatus);
+	bsSend.Write(m_bLights);
+	bsSend.Write(m_fDoor[0]);
+	bsSend.Write(m_fDoor[1]);
+	bsSend.Write(m_fDoor[2]);
+	bsSend.Write(m_fDoor[3]);
+	bsSend.Write(m_fDoor[4]);
+	bsSend.Write(m_fDoor[5]);
+	bsSend.Write(m_bWindow[0]);
+	bsSend.Write(m_bWindow[1]);
+	bsSend.Write(m_bWindow[2]);
+	bsSend.Write(m_bWindow[3]);
+	bsSend.Write(m_bTaxiLight);
 	
 	if(m_ucVariation != 0)
 	{
@@ -200,13 +234,43 @@ void CVehicle::StoreInVehicleSync(InVehicleSyncData * syncPacket)
 {
 	m_vecPosition = syncPacket->vecPos;
 	m_vecRotation = syncPacket->vecRotation;
+	if(m_uiHealth != syncPacket->uiHealth || m_fPetrolTankHealth != syncPacket->fPetrolHealth)
+	{
+		CSquirrelArguments pArguments;
+		pArguments.push(m_vehicleId);
+		pArguments.push((int)m_uiHealth);
+		pArguments.push((int)syncPacket->uiHealth);
+		pArguments.push(m_fPetrolTankHealth);
+		pArguments.push(syncPacket->fPetrolHealth);
+
+		g_pEvents->Call("vehicleDamage", &pArguments);
+	}
 	m_uiHealth = syncPacket->uiHealth;
+	m_fPetrolTankHealth = syncPacket->fPetrolHealth;
 	memcpy(m_byteColors, syncPacket->byteColors, sizeof(m_byteColors));
 	memcpy(&m_vecTurnSpeed, &syncPacket->vecTurnSpeed, sizeof(CVector3));
 	memcpy(&m_vecMoveSpeed, &syncPacket->vecMoveSpeed, sizeof(CVector3));
 	m_fDirtLevel = syncPacket->fDirtLevel;
 	m_bSirenState = syncPacket->bSirenState;
 	m_bEngineStatus = syncPacket->bEngineStatus;
+	m_bLights = syncPacket->bLights;
+	m_fDoor[0] = syncPacket->fDoor[0];
+	m_fDoor[1] = syncPacket->fDoor[1];
+	m_fDoor[2] = syncPacket->fDoor[2];
+	m_fDoor[3] = syncPacket->fDoor[3];
+	m_fDoor[4] = syncPacket->fDoor[4];
+	m_fDoor[5] = syncPacket->fDoor[5];
+	m_bWindow[0] = syncPacket->bWindow[0];
+	m_bWindow[1] = syncPacket->bWindow[1];
+	m_bWindow[2] = syncPacket->bWindow[2];
+	m_bWindow[3] = syncPacket->bWindow[3];
+	m_bTaxiLight = syncPacket->bTaxiLights;
+	m_bTyre[0] = syncPacket->bTyre[0];
+	m_bTyre[1] = syncPacket->bTyre[1];
+	m_bTyre[2] = syncPacket->bTyre[2];
+	m_bTyre[3] = syncPacket->bTyre[3];
+	m_bTyre[4] = syncPacket->bTyre[4];
+	m_bTyre[5] = syncPacket->bTyre[5];
 }
 
 void CVehicle::StorePassengerSync(PassengerSyncData * syncPacket)
@@ -544,13 +608,55 @@ bool CVehicle::GetEngineStatus()
 	return m_bEngineStatus;
 }
 
-void CVehicle::SetHazardLights(bool hState)
+void CVehicle::TurnTaxiLights(bool on)
 {
-	m_bHazardLights = hState;
+	m_bTaxiLight = on;
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	bsSend.Write(on);
+	g_pNetworkManager->RPC(RPC_ScriptingTurnTaxiLights, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
-bool CVehicle::GetHazardLights()
+void CVehicle::ControlCarDoors(int door, bool closed, float angle)
 {
-	return m_bHazardLights;
+	m_fDoor[door] = angle;
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	bsSend.Write(door);
+	bsSend.Write(closed);
+	bsSend.Write(angle);
+	g_pNetworkManager->RPC(RPC_ScriptingControlCar, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
+void CVehicle::SetLights(bool lights)
+{
+	m_bLights = lights;
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	bsSend.Write(lights);
+	g_pNetworkManager->RPC(RPC_ScriptingSetCarLights, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+bool CVehicle::GetLights()
+{
+	return m_bLights;
+}
+
+bool CVehicle::GetTaxiLights()
+{
+	return m_bTaxiLight;
+}
+
+void CVehicle::RepairWheels()
+{
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	g_pNetworkManager->RPC(RPC_ScriptingRepairCarTyres, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+void CVehicle::RepairWindows()
+{
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	g_pNetworkManager->RPC(RPC_ScriptingRepairCarWindows, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}

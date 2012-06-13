@@ -110,7 +110,15 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("setPlayerCameraPos", SetCameraPos, 4, "ifff");
 	pScriptingManager->RegisterFunction("setPlayerCameraLookAt", SetCameraLookAt, 4, "ifff");
 	pScriptingManager->RegisterFunction("resetPlayerCamera", ResetCamera, 1, "i");
-
+	pScriptingManager->RegisterFunction("forcePlayerPlayAnimation", forceAnim, 3, "iss");
+	pScriptingManager->RegisterFunction("triggerPlayerPoliceReport", triggerPoliceReport, 2, "is");
+	pScriptingManager->RegisterFunction("triggerPlayerGameSound", triggerAudioEvent, 2, "is");
+	pScriptingManager->RegisterFunction("triggerPlayerMissionSound", triggerMissionCompleteAudio, 2, "ii");
+	pScriptingManager->RegisterFunction("fadePlayerScreenIn",fadeScreenIn, 2, "ii");
+	pScriptingManager->RegisterFunction("fadePlayerScreenOut", fadeScreenOut, 2, "ii");
+	pScriptingManager->RegisterFunction("blockPlayerDropWeaponsAtDeath",blockWeaponDrop, 2, "ib");
+	pScriptingManager->RegisterFunction("blockPlayerWeaponScroll", blockWeaponChange, 2, "ib");
+	pScriptingManager->RegisterFunction("requestPlayerAnimations", requestAnim, 1, "i");
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 }
 
@@ -1991,6 +1999,186 @@ SQInteger CPlayerNatives::ResetCamera(SQVM * pVM)
 		return 1;
 	}
 
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::forceAnim(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -3, &playerId);
+
+	const char *szGroup = NULL;
+	sq_getstring(pVM,-2,&szGroup);
+
+	const char *szAnim = NULL;
+	sq_getstring(pVM,-1,&szAnim);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(String(szGroup));
+		bsSend.Write(String(szAnim));
+		g_pNetworkManager->RPC(RPC_ScriptingForcePlayerAnim, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::requestAnim(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		g_pNetworkManager->RPC(RPC_ScriptingRequestAnims, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::triggerAudioEvent(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	const char *szAudio = NULL;
+	sq_getstring(pVM,-1,&szAudio);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(String(szAudio));
+		g_pNetworkManager->RPC(RPC_ScriptingPlayGameAudio, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::triggerMissionCompleteAudio(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	int szMission;
+	sq_getinteger(pVM,-1,&szMission);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(szMission);
+		g_pNetworkManager->RPC(RPC_ScriptingPlayMissionCompleteAudio, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::triggerPoliceReport(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	const char *szAudio = NULL;
+	sq_getstring(pVM,-1,&szAudio);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(String(szAudio));
+		g_pNetworkManager->RPC(RPC_ScriptingPlayPoliceReport, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::fadeScreenIn(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	int iDuration;
+	sq_getinteger(pVM,-1,&iDuration);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(iDuration);
+		g_pNetworkManager->RPC(RPC_ScriptingFadeScreenIn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::fadeScreenOut(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	int iDuration;
+	sq_getinteger(pVM,-1,&iDuration);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(iDuration);
+		g_pNetworkManager->RPC(RPC_ScriptingFadeScreenOut, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::blockWeaponChange(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	SQBool btoggle;
+	sq_getbool(pVM,-1,&btoggle);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(btoggle);
+		g_pNetworkManager->RPC(RPC_ScriptingBlockWeaponChange, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::blockWeaponDrop(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	SQBool btoggle;
+	sq_getbool(pVM,-1,&btoggle);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(btoggle);
+		g_pNetworkManager->RPC(RPC_ScriptingBlockWeaponDrop, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }

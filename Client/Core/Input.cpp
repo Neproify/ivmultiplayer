@@ -24,6 +24,9 @@
 #include <CEvents.h>
 #include <SharedUtility.h>
 #include "CScreenShot.h"
+#include "CNetworkManager.h"
+#include "CGame.h"
+#include "CPlayerManager.h"
 
 WNDPROC           m_wWndProc = NULL;
 std::list<String> pressedKeys;
@@ -35,6 +38,9 @@ extern CScriptingManager * g_pScriptingManager;
 extern CGUI              * g_pGUI;
 extern CMainMenu         * g_pMainMenu;
 extern CEvents           * g_pEvents;
+extern CNetworkManager	 * g_pNetworkManager;
+extern CGame			 * g_pGame;
+extern CPlayerManager	 * g_pPlayerManager;
 
 String GetKeyNameByCode(DWORD dwCode)
 {
@@ -161,6 +167,10 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		// Show the cursor
 		ShowCursor(true);
 		CLogFile::Print("Gained window focus");
+
+		if(g_pMainMenu)
+			g_pMainMenu->HideLoadingScreen();
+
 		return 1;
 	}
 	// Have we lost focus?
@@ -182,36 +192,72 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		if(g_pGUI && g_pGUI->MsgProc(hWnd, uMsg, wParam, lParam))
 			return 1;
 
-		// Is this a F12 key up?
-		if(uMsg == WM_KEYUP && wParam == VK_F12)
+		if(g_pNetworkManager)
 		{
-			if(g_pMainMenu)
+			// Is this a F12 key up?
+			if(CGame::IsGameLoaded())
 			{
-				if(!g_pMainMenu->IsVisible())
+				if(uMsg == WM_KEYUP && wParam == VK_F12)
 				{
-					if(g_pInputWindow && !g_pInputWindow->IsEnabled())
+					if(g_pMainMenu)
 					{
-						if(CGame::GetState() == GAME_STATE_INGAME)
+						if(!g_pMainMenu->IsVisible())
 						{
-							CGame::SetState(GAME_STATE_IVMP_PAUSE_MENU);
-							CGame::SetInputState(false);
-							return 1;
+							if(g_pInputWindow && !g_pInputWindow->IsEnabled())
+							{
+								if(CGame::GetState() == GAME_STATE_INGAME)
+								{
+									CGame::SetState(GAME_STATE_IVMP_PAUSE_MENU);
+									CGame::SetInputState(false);
+									g_pChatWindow->SetEnabled(false);
+									int players = 0;
+									for(int i = 0; i < MAX_PLAYERS; i++)
+									{
+										if(g_pPlayerManager->DoesExist(i))
+											players++;
+									}
+									if(g_pNetworkManager->IsConnected())
+										g_pMainMenu->SetNetworkStats(g_pNetworkManager->GetHostName(),players,MAX_PLAYERS,g_pLocalPlayer->GetName());
+									/*if(g_pNetworkManager->IsConnected())
+										Scripting::SetTimeScale(0.0);*/
+									return 1;
+								}
+							}
 						}
-					}
-				}
-				else
-				{
-					if(CGame::GetState() == GAME_STATE_IVMP_PAUSE_MENU)
-					{
-						CGame::SetState(GAME_STATE_INGAME);
-						bool state = g_pLocalPlayer->GetControl();
-						CGame::SetInputState(state);
-						return 1;
+						else
+						{
+							if(CGame::GetState() == GAME_STATE_IVMP_PAUSE_MENU)
+							{
+								CGame::SetState(GAME_STATE_INGAME);
+								CGame::SetInputState(g_pLocalPlayer->GetControl());
+								g_pChatWindow->SetEnabled(true);
+								/*if(g_pNetworkManager->IsConnected())
+									Scripting::SetTimeScale(1.0);*/
+								return 1;
+							}
+						}
 					}
 				}
 			}
 		}
-
+		// Is this a F10 key up?
+		if(uMsg == WM_KEYUP && wParam == VK_F1)
+		{
+			CVector3 vecPosition;
+			g_pLocalPlayer->GetPosition(vecPosition);
+			vecPosition.fX += 10.0f;
+			CGame::CreateExplosion(vecPosition, 0, 1.0f, true, false);
+		}
+		// Is this a F10 key up?
+		if(uMsg == WM_KEYUP && wParam == VK_F3)
+		{
+			CVector3 vecPosition;
+			g_pLocalPlayer->GetPosition(vecPosition);
+			vecPosition.fX += 10.0f;
+			char unkown;
+			sprintf(&unkown,"000");
+			CGame::CreateFire(vecPosition,unkown,10);
+		}
 		// Is this a F10 key up?
 		if(uMsg == WM_SYSKEYUP && wParam == VK_F10)
 		{

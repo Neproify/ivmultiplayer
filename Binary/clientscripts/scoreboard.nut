@@ -59,5 +59,11 @@ function onKeyPress(key, status)
 			showscoreboard = false;
 		}
 	}
+	if(key == "u")
+	{
+		local audio = Audio(false,"test.mp3");
+		audio.play();
+		addChatMessage("LOL");
+	}
 }
 addEvent("keyPress", onKeyPress);

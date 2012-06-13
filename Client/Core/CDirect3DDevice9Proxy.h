@@ -37,6 +37,7 @@ public:
 	HRESULT STDMETHODCALLTYPE SetCursorProperties(UINT XHotSpot, UINT YHotSpot, IDirect3DSurface9 * pCursorBitmap);
 	void STDMETHODCALLTYPE    SetCursorPosition(int X, int Y, DWORD Flags);
 	BOOL STDMETHODCALLTYPE    ShowCursor(BOOL bShow);
+	D3DXVECTOR3 GetScreenCoordFromWorld(IDirect3DDevice9 *Device, D3DXVECTOR3 vScreenCoord, D3DXVECTOR3 vWorldLocation);
 	HRESULT STDMETHODCALLTYPE CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS * pPresentationParameters, IDirect3DSwapChain9 ** pSwapChain);
 	HRESULT STDMETHODCALLTYPE GetSwapChain(UINT iSwapChain, IDirect3DSwapChain9 ** pSwapChain);
 	UINT STDMETHODCALLTYPE    GetNumberOfSwapChains();

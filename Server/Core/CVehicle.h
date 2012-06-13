@@ -22,6 +22,7 @@ private:
 	CPlayer     * m_pPassengers[MAX_VEHICLE_PASSENGERS];
 	int           m_iModelId;
 	unsigned int  m_uiHealth;
+	float		  m_fPetrolTankHealth;
 	CVector3      m_vecSpawnPosition;
 	CVector3      m_vecPosition;
 	CVector3      m_vecSpawnRotation;
@@ -31,7 +32,6 @@ private:
 	BYTE          m_byteSpawnColors[4];
 	BYTE          m_byteColors[4];
 	float         m_fDirtLevel;
-	bool          m_bHazzardState;
 	int           m_iHornDuration;
 	bool          m_bSirenState;
 	unsigned char m_ucLocked;
@@ -39,7 +39,11 @@ private:
 	bool          m_bComponents[9];
 	unsigned char m_ucVariation;
 	bool		  m_bEngineStatus;
-	bool		  m_bHazardLights;
+	bool		  m_bLights;
+	float		  m_fDoor[6];
+	bool		  m_bWindow[4];
+	bool		  m_bTaxiLight;
+	bool		  m_bTyre[6];
 
 public:
 	CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4);
@@ -92,6 +96,11 @@ public:
 	unsigned char GetVariation();
 	void          SetEngineStatus(bool bEngineStatus);
 	bool          GetEngineStatus();
-	void		  SetHazardLights(bool hState);
-	bool		  GetHazardLights();
+	void		  TurnTaxiLights(bool taxilights);
+	bool		  GetTaxiLights();
+	void		  RepairWindows();
+	void		  RepairWheels();
+	void		  ControlCarDoors(int door, bool closed, float angle);
+	void		  SetLights(bool lights);
+	bool		  GetLights();
 };

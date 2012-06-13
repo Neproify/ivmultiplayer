@@ -26,6 +26,7 @@ private:
 	static void NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void DeleteVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void NewObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void AttachObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void DeleteObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void NewBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void DeleteBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
@@ -72,6 +73,11 @@ private:
 	static void ScriptingSetVehicleDirtLevel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleSirenState(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleEngineState(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingTurnTaxiLights(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingControlCar(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetVehicleLights(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingRepairVehicleTyres(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingRepairVehicleWindows(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleRotation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
@@ -97,6 +103,13 @@ private:
 	static void ScriptingSetActorCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetActorHeading(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingActorWalkToCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetActorName(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingToggleActorNametag(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetActorColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingToggleActorFrozen(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingToggleActorHelmet(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingWarpActorIntoVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingRemoveActorFromVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetBlipColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetBlipSize(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingToggleBlipShortRange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
@@ -124,6 +137,21 @@ private:
 	static void ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingResetPlayerCamera(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingCreateFire(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingDeleteFire(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingCreateExplosion(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingForcePlayerAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingForceActorAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingBlockWeaponScroll(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingBlockWeaponDrop(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingFadeScreenOut(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingFadeScreenIn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingPlayPoliceReport(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingPlayMissionCompleteAudio(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingPlayGameAudio(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingRequestAnims(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingForceWind(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetNametags(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();

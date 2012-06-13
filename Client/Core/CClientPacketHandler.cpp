@@ -22,13 +22,13 @@ void ResetGame();
 void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Connection failed! (Rejected)");
+	ResetGame();
 	g_pNetworkManager->Disconnect();
 }
 
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Connection established!");
-	g_pChatWindow->AddInfoMessage("Please wait...");
+	g_pChatWindow->AddInfoMessage("Connection stablished, please wait while downloading network content!");
 	CBitStream  bsSend;
 	bsSend.Write(NETWORK_VERSION);
 	bsSend.Write(g_strNick);
@@ -38,46 +38,40 @@ void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerS
 
 void CClientPacketHandler::ConnectionFailed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Connection failed! (Timeout)");
-	g_pChatWindow->AddInfoMessage("Retrying...");
+	g_pChatWindow->AddInfoMessage("Connection failed(Timeout), retrying ....");
 	g_pNetworkManager->Connect();
 }
 
 void CClientPacketHandler::AlreadyConnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Connection failed! (Already Connected)");
+	g_pChatWindow->AddInfoMessage("Connection failed(Already connected)!");
 }
 
 void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Connection failed! (Server Full)");
-	g_pChatWindow->AddInfoMessage("Retrying...");
+	g_pChatWindow->AddInfoMessage("Connection failed(server is full), retrying ....");
 	g_pNetworkManager->Connect();
 }
 
 void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Disconnected from the server.");
-	g_pNetworkManager->Disconnect();
+	g_pChatWindow->AddInfoMessage("Server closed the connection!");
 }
 
 void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Connection to server lost!");
-	g_pChatWindow->AddInfoMessage("Reconnecting...");
+	g_pChatWindow->AddInfoMessage("Connetion to the server lost, retrying ....");
 	ResetGame();
 }
 
 void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Connection failed! (Banned)");
-	g_pNetworkManager->Disconnect();
+	g_pChatWindow->AddInfoMessage("Connection failed(You're banned)!");
 }
 
 void CClientPacketHandler::PasswordInvalid(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Connection failed! (Invalid Password)");
-	g_pNetworkManager->Disconnect();
+	g_pChatWindow->AddInfoMessage("Connection failed(wrong password)!");
 }
 
 void CClientPacketHandler::Register()

@@ -45,10 +45,18 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_dwDoorLockState = 0;
 	m_ulHornDurationEnd = 0;
 	m_uiHealth = 1000;
-	m_fDirtLevel = 1000.0f;
 	m_fPetrolTankHealth = 1000.0f;
+	m_fDirtLevel = 1000.0f;
 	m_ucVariation = 0;
 	m_bEngineStatus = false;
+	m_bTaxiLights = false;
+	m_fDoor1 = 0.0f;
+	m_fDoor2 = 0.0f;
+	m_fDoor3 = 0.0f;
+	m_fDoor4 = 0.0f;
+	m_fDoor5 = 0.0f;
+	m_fDoor6 = 0.0f;
+	m_bLights = false;
 }
 
 CNetworkVehicle::~CNetworkVehicle()
@@ -191,12 +199,20 @@ bool CNetworkVehicle::Create()
 		// Set initial colors
 		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
 
+		// Disable automatic lights and enable GPS
+		Scripting::ForceCarLights(GetScriptingHandle(),1);
+
+		// Disable visible damage & enable "normal" damage
+		SetDamageAble(false);
+		m_pVehicle->SetCanBeVisiblyDamaged(false);
+
 		// Add the vehicle to the world
 		// Not needed as native does it for us
 		//m_pVehicle->AddToWorld();
 
 		// Set the initial health
 		SetHealth(m_uiHealth);
+		SetPetrolTankHealth(m_fPetrolTankHealth);
 
 		// Set the initial position
 		SetPosition(m_vecPosition);
@@ -283,11 +299,12 @@ void CNetworkVehicle::StreamIn()
 		// Set the colors
 		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
 
-		// Disable visible damage
+		// Disable visible damage & enable "normal" damage
+		SetDamageAble(false);
 		m_pVehicle->SetCanBeVisiblyDamaged(false);
 
 		// Disable some damage stuff
-		Scripting::SetCarProofs(GetScriptingHandle(), true, true, true, true, true);
+		Scripting::SetCarProofs(GetScriptingHandle(), false, false, false, false, false);
 
 		// Restore the health
 		SetHealth(m_uiHealth);
@@ -314,6 +331,11 @@ void CNetworkVehicle::StreamIn()
 
 		// Restore the variation
 		SetVariation(m_ucVariation);
+
+		if(m_bLights)
+			Scripting::ForceCarLights(GetScriptingHandle(),2);
+		else if(!m_bLights)
+			Scripting::ForceCarLights(GetScriptingHandle(),1);
 		
 		// Restore the engine state
 		SetEngineState(m_bEngineStatus);
@@ -356,12 +378,10 @@ void CNetworkVehicle::StreamOut()
 
 	// Save the health
 	m_uiHealth = GetHealth();
+	m_fPetrolTankHealth = GetPetrolTankHealth();
 
 	// Save the siren state
 	m_bSirenState = GetSirenState();
-
-	// Save the petrol tank health
-	m_fPetrolTankHealth = GetPetrolTankHealth();
 
 	// Save the dirt level
 	m_fDirtLevel = GetDirtLevel();
@@ -371,6 +391,7 @@ void CNetworkVehicle::StreamOut()
 
 	// Destroy the vehicle
 	Destroy();
+
 }
 
 bool CNetworkVehicle::IsMoving()
@@ -590,6 +611,24 @@ unsigned int CNetworkVehicle::GetHealth()
 	return m_uiHealth;
 }
 
+void CNetworkVehicle::SetPetrolTankHealth(float fHealth)
+{
+	// Are we spawned?
+	if(IsSpawned())
+		m_pVehicle->SetPetrolTankHealth((float)fHealth);
+
+	m_fPetrolTankHealth = fHealth;
+}
+
+float CNetworkVehicle::GetPetrolTankHealth()
+{
+	// Are we spawned?
+	if(IsSpawned())
+		return m_pVehicle->GetPetrolTankHealth();
+
+	return m_fPetrolTankHealth;
+}
+
 void CNetworkVehicle::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
 	// Are we spawned?
@@ -662,29 +701,26 @@ float CNetworkVehicle::GetDirtLevel()
 	return m_fDirtLevel;
 }
 
-void CNetworkVehicle::SetPetrolTankHealth(float fPetrolTankHealth)
-{
-	// Are we spawned?
-	if(IsSpawned())
-		m_pVehicle->SetPetrolTankHealth(fPetrolTankHealth);
-
-	m_fPetrolTankHealth = fPetrolTankHealth;
-}
-
-float CNetworkVehicle::GetPetrolTankHealth()
-{
-	// Are we spawned?
-	if(IsSpawned())
-		return m_pVehicle->GetPetrolTankHealth();
-
-	return m_fPetrolTankHealth;
-}
-
 void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 {
 	SetTargetPosition(emptyVehicleSync->vecPosition, TICK_RATE);
 	SetTargetRotation(emptyVehicleSync->vecRotation, TICK_RATE);
 	SetHealth(emptyVehicleSync->uiHealth);
+	SetPetrolTankHealth(emptyVehicleSync->fPetrolHealth);
+	SetDirtLevel(emptyVehicleSync->fDirtLevel);
+	SetWindow(0,emptyVehicleSync->bWindow[0]);
+	SetWindow(1,emptyVehicleSync->bWindow[1]);
+	SetWindow(2,emptyVehicleSync->bWindow[2]);
+	SetWindow(3,emptyVehicleSync->bWindow[3]);
+	SetLights(emptyVehicleSync->bLights);
+	SetTaxiLights(emptyVehicleSync->bTaxiLights);
+	SetSirenState(emptyVehicleSync->bSirenState);
+	ControlCar(0,0,emptyVehicleSync->fDoor[0]);
+	ControlCar(1,0,emptyVehicleSync->fDoor[1]);
+	ControlCar(2,0,emptyVehicleSync->fDoor[2]);
+	ControlCar(3,0,emptyVehicleSync->fDoor[3]);
+	ControlCar(4,0,emptyVehicleSync->fDoor[4]);
+	ControlCar(5,0,emptyVehicleSync->fDoor[5]);
 }
 
 BYTE CNetworkVehicle::GetMaxPassengers()
@@ -973,11 +1009,9 @@ void CNetworkVehicle::ResetInterpolation()
 
 void CNetworkVehicle::SetInterior(unsigned int uiInterior)
 {
-	/*
 	// TODO: Fix this (disables physics for cars when you enter & leave an interior - you can't drive nor close the door/push them) 
-	if(m_bSpawned && uiInterior != GetInterior() && g_pLocalPlayer->GetAt()->GetVehicleId() != m_vehicleId)
-		Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
-	*/
+	/*if(IsSpawned() && uiInterior != GetInterior() && g_pLocalPlayer->GetVehicle()->GetVehicleId() != m_vehicleId)
+		Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);*/
 }
 
 unsigned int CNetworkVehicle::GetInterior()
@@ -1072,9 +1106,145 @@ bool CNetworkVehicle::IsOnScreen()
 {
 	// Are we spawned?
 	if(IsSpawned())
-		return /*Scripting::IsCarOnScreen(GetScriptingHandle())*/true;
+		return /*Scripting::IsCarOnScreen(GetScriptingHandle())*/ true;
 
 	return false;
+}
+
+void CNetworkVehicle::SetTaxiLights(bool bState)
+{
+	if(IsSpawned())
+		Scripting::SetTaxiLights(GetScriptingHandle(),bState);
+
+	m_bTaxiLights = false;
+}
+
+bool CNetworkVehicle::GetTaxiLights()
+{
+	if(IsSpawned())
+		return m_bTaxiLights;
+
+	return false;
+}
+
+void CNetworkVehicle::ControlCar(int idoor,bool open, float fangle)
+{
+	if(IsSpawned())
+	{
+		if(fangle > 1.9f)
+			Scripting::ControlCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor,0,fangle);
+		else if(fangle > 350.0f)
+			Scripting::OpenCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor);
+		else if(fangle < 2.0f)
+			Scripting::ShutCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor);
+	}
+	
+	if(idoor == 0)
+		m_fDoor1 = fangle;
+	if(idoor == 1)
+		m_fDoor2 = fangle;
+	if(idoor == 2)
+		m_fDoor3 = fangle;
+	if(idoor == 3)
+		m_fDoor4 = fangle;
+	if(idoor == 4)
+		m_fDoor5 = fangle;
+	if(idoor == 5)
+		m_fDoor6 = fangle;
+}
+
+float CNetworkVehicle::GetCarDoor(int idoor)
+{
+	if(IsSpawned())
+	{
+		if(idoor == 0)
+			return m_fDoor1;
+		if(idoor == 1)
+			return m_fDoor2;
+		if(idoor == 2)
+			return m_fDoor3;
+		if(idoor == 3)
+			return m_fDoor4;
+		if(idoor == 4)
+			return m_fDoor5;
+		if(idoor == 5)
+			return m_fDoor6;
+	}
+	return false;
+}
+
+void CNetworkVehicle::SetLights(bool blights)
+{
+	if(IsSpawned())
+	{
+		if(blights)
+		{
+			Scripting::ForceCarLights(GetScriptingHandle(),2);
+			m_bLights = true;
+		}
+		else if(!blights)
+		{
+			Scripting::ForceCarLights(GetScriptingHandle(),1);
+			m_bLights = false;
+		}
+	}
+}
+
+bool CNetworkVehicle::GetLights()
+{
+	if(IsSpawned())
+		return m_bLights;
+
+	return false;
+}
+
+bool CNetworkVehicle::GetWindow(int window)
+{
+	if(IsSpawned())
+	{
+		if(window == 0)
+			return m_fWindow1;
+		else if(window == 1)
+			return m_fWindow2;
+		else if(window == 2)
+			return m_fWindow3;
+		else if(window == 3)
+			return m_fWindow4;
+		else 
+			return false;
+	}
+
+	return false;
+}
+
+void CNetworkVehicle::SetWindow(int window, bool broken)
+{
+	if(IsSpawned())
+	{
+		if(window >= 0 && window <= 4)
+		{
+			if(broken)
+				Scripting::RemoveVehicleWindow(GetScriptingHandle(),(Scripting::eVehicleWindow)window);
+
+			if(window == 0)
+				m_fWindow1 = broken;
+			else if(window == 1)
+				m_fWindow2 = broken;
+			else if(window == 2)
+				m_fWindow3 = broken;
+			else if(window == 3)
+				m_fWindow4 = broken;
+		}
+	}
+}
+
+void CNetworkVehicle::SetDamageAble(bool toggle)
+{
+	if(IsSpawned())
+	{
+		Scripting::SetCarCanBeDamaged(GetScriptingHandle(),toggle);
+		Scripting::SetCarCanBurstTyres(GetScriptingHandle(),toggle);
+	}
 }
 
 void CNetworkVehicle::SetSteeringAngle(float fSteeringAngle)

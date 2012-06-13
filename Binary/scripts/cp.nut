@@ -77,6 +77,140 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/name")
+	{
+		sendPlayerMessage(playerid,"VEHILCENAME:"+getVehicleName(getVehicleModel(getPlayerVehicleId(playerid))));
+	}
+	if(cmd[0] == "/fadein")
+	{
+		fadePlayerScreenIn(playerid,5);
+	}
+	if(cmd[0] == "/fadeout")
+	{
+		fadePlayerScreenOut(playerid, 5);
+	}
+	if(cmd[0] == "/policereport")
+	{
+		triggerPlayerPoliceReport(playerid,"SCRIPTED_REPORTS_C4");
+	}
+	if(cmd[0] == "/mission")
+	{
+		triggerPlayerMissionSound(playerid,6);
+	}
+	if(cmd[0] == "/request")
+	{
+		requestPlayerAnimations(playerid);
+	}
+	if(cmd[0] == "/sound")
+	{
+		triggerPlayerGameSound(playerid,"armor.wav");
+	}
+	if(cmd[0] == "/blib")
+	{
+		local blip = createBlip(75, 0.0, 0.0, 0.0);
+		toggleBlipRoute(blip,true,playerid);
+	}
+	if(cmd[0] == "/forceanimplayer")
+	{
+		forcePlayerPlayAnimation(playerid,"amb@smoking_spliff","create_spliff");
+		sendPlayerMessage(playerid,"OK");
+	}
+	if(cmd[0] == "/createfire")
+	{
+		local pos = getPlayerCoordinates(playerid);
+		createFire(pos[0],pos[1],pos[2],30.0);
+	}
+	if(cmd[0] == "/deletefire")
+	{
+		deleteFire(cmd[1].tointeger());
+	}
+	if(cmd[0] == "/createexplosion")
+	{
+		local pos = getPlayerCoordinates(playerid);
+		createExplosion(pos[0]+10.pos[1]+10,pos[2],5.0);
+	}
+	if(cmd[0] == "/remoteon")
+	{
+		setVehicleEngineState(cmd[1].tointeger(), true);
+	}
+	if(cmd[0] == "/remoteoff")
+	{
+		setVehicleEngineState(cmd[1].tointeger(),false);
+	}
+	if(cmd[0] == "/lights")
+	{
+		setVehicleLights(getPlayerVehicleId(playerid),true);
+	}
+	if(cmd[0] == "/lightsoff")
+	{
+		setVehicleLights(getPlayerVehicleId(playerid),false);
+	}
+	if(cmd[0] == "/ccd")
+	{
+		controlCarDoors(getPlayerVehicleId(playerid),cmd[1].tointeger(),true,cmd[2].tofloat());
+	}
+	if(cmd[0] == "/taxi")
+	{
+		switchTaxiLights(getPlayerVehicleId(playerid),true);
+	}
+	if(cmd[0] == "/taxioff")
+	{
+		switchTaxiLights(getPlayerVehicleId(playerid),false);
+	}
+	if(cmd[0] == "/engine")
+	{
+		setVehicleEngineState(getPlayerVehicleId(playerid),true);
+	}
+	if(cmd[0] == "/engineoff")
+	{
+		setVehicleEngineState(getPlayerVehicleId(playerid),false);
+	}
+	if(cmd[0] == "/createActor")
+	{
+		local pos = getPlayerCoordinates(playerid);
+		local actor = createActor(8,pos[0],pos[1],pos[2],90.0);
+		toggleActorHelmet(actor,false);
+		toggleActorFrozen(actor,false);
+		setActorName(actor,"Jenksta");
+		toggleActorNametag(actor,true);
+		forceActorAnimation(actor,"hello", "gestures@niko");
+	}
+	if(cmd[0] == "/toghelmet1")
+	{
+		toggleActorHelmet(0,true);
+	}
+	if(cmd[0] == "/toghelmet2")
+	{
+		toggleActorHelmet(0,false);
+	}
+	if(cmd[0] == "/togfrozen1")
+	{
+		toggleActorFrozen(0,true);
+	}
+	if(cmd[0] == "/togfrozen2")
+	{
+		toggleActorFrozen(0,false);
+	}
+	if(cmd[0] == "/walk")
+	{
+		actorWalkToCoordinatesForPlayer(playerid,0,0.0,0.0,0.0,1);
+	}
+	if(cmd[0] == "/setname")
+	{
+		setActorName(0,"Fred");
+	}
+	if(cmd[0] == "/togname1")
+	{
+		toggleActorNametag(0,true);
+	}
+	if(cmd[0] == "/togname2")
+	{
+		toggleActorNametag(0,false);
+	}
+	if(cmd[0] == "/forceanim")
+	{
+		forceActorAnimation(0,"hello", "gestures@niko");
+	}
 	if(cmd[0] == "/grav")
 	{
 		setPlayerGravity(playerid, 0);
@@ -434,3 +568,30 @@ function onWebRequest(uri, remote_ip, remote_method)
 	log(format("Web request: %s [%s] [%s]", uri, remote_ip, remote_method));
 }
 addEvent("webRequest", onWebRequest);
+
+function onVehicleDamage(vehicleid,oldhealth,oldpetrol,newhealth,newpetrol)
+{
+	log(format("%d, %d, %d, %d, %d",vehicleid,oldhealth,oldpetrol,newhealth,newpetrol));
+}
+addEvent("vehicleDamage",onVehicleDamage);
+
+function onPlayerShot(playerid,x,y,z,shot)
+{
+	if(shot)
+		log(format("WEP: %d SHOT(%f, %f, %f)",playerid,x,y,z));
+	else
+		log(format("WEP: %d AIM(%f, %f, %f)",playerid,x,y,z));
+}
+addEvent("playerShot",onPlayerShot);
+
+function onVehicleDeath(vehicleid)
+{
+	log("Vehicle Death "+vehicleid);
+}
+addEvent("vehicleDeath",onVehicleDeath);
+
+function onVehicleRespawn(vehicleid)
+{
+	log("Vehicle Respawn "+vehicleid);
+}
+addEvent("vehicleRespawn",onVehicleRespawn);
