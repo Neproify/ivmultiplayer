@@ -34,6 +34,7 @@ public:
 	static void              Open(String strLogFile, bool bAppend = false);
 	static void              Print(const char * szString);
 	static void              Printf(const char * szFormat, ...);
+	static void              PrintDebugf(const char * szFormat, ...);
 	static void              PrintToFile(const char * szString);
 	static void              PrintfToFile(const char * szFormat, ...);
 	static void              Close();

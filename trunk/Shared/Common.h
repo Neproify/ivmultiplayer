@@ -19,6 +19,7 @@
 // or do it like n:iv with Serialize and Deserialize functions
 #include "Math/CMath.h"
 #include "Game/CControlState.h"
+#include "CString.h"
 
 // Linux stuff
 #ifdef _LINUX
@@ -53,16 +54,17 @@
 // Defines used for the max amount of entities we (IV:MP, not GTA) can handle
 // jenksta: although they may be streamed, shouldn't they at least have some sensible limit?
 // NOTE: (if client-side entitys are introduced, those should not use ids from the same range as server ids)
-#define MAX_PLAYERS 32 // Player Info Array Size: 32 // Ped Pool Size: 140
+#define MAX_PLAYERS 48 // Player Info Array Size: 64 // Ped Pool Size: 140
 #define MAX_VEHICLES 0xFFFE // Streamed. See note on Pickups. Vehicle Pool Size: 140
 #define MAX_OBJECTS 0xFFFE // Streamed. See note on Pickups. Object Pool Size: 1300
 #define MAX_CHECKPOINTS 0xFFFE // Streamed. Checkpoint Pool Size: See CStreamer.h
 #define MAX_BLIPS 1300 // Blip Pool Size: 1500
 #define MAX_ACTORS 100 // Ped Pool Size: 140
 #define MAX_PICKUPS 0xFFFE // Streamed. Pickup Pool Size: TODO: 1500?
+#define MAX_FIRE 32
 
 // Max amount of characters a player can use in their name
-#define MAX_NAME 32
+#define MAX_NAME 48
 
 // Max vehicle passengers (NOTE: This is also a GTA limit)
 #define MAX_VEHICLE_PASSENGERS 8
@@ -81,8 +83,8 @@ typedef unsigned short EntityId;
 #define TRIANGLE_CAMERA_LOOK_AT -228.926285f, 458.884644f, 58.0f
 
 // Happiness Island Camera Coordinates
-#define HAPPINESS_CAMERA_POS -593.514526f, -590.455505f, 122.936066f
-#define HAPPINESS_CAMERA_LOOK_AT -608.250122f, -744.111877f, 20.703838f
+#define HAPPINESS_CAMERA_POS 488.702759f, 540.719421f, 161.584091f
+#define HAPPINESS_CAMERA_LOOK_AT -16.441833f, 69.520508f, 140.250290f
 
 // Operating system string
 #ifdef WIN32
@@ -180,6 +182,14 @@ enum eVehicleEntryExit
 #define EXPORT extern "C"
 #endif
 
+// Nametags definitions etc..
+#define b_w					80
+#define	b_h					11
+#define b_i_p				2
+#define h_b_w				(b_w - b_i_p)
+#define	nt_a				18
+#define nt_a_a				36
+
 // Debug Commands Enabled
 //#define DEBUG_COMMANDS_ENABLED
 
@@ -192,6 +202,10 @@ struct OnFootSyncData
 	bool bDuckState : 1;             // ducking
 	unsigned int uHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uWeaponInfo;        // player weapon and ammo
+	bool bAnim;						 // player anim
+	const char* szAnimGroup;		 // anim group
+	const char* szAnimSpecific;		 // anim category from group
+	float fAnimTime;				 // set anim time
 };
 
 struct InVehicleSyncData
@@ -199,14 +213,20 @@ struct InVehicleSyncData
 	CControlState controlState;            // control state
 	CVector3 vecPos;                       // vehicle position
 	CVector3 vecRotation;                  // vehicle rotation
-	unsigned int uiHealth : 16;            // vehicle health
+	unsigned int uiHealth	  ;            // vehicle health
 	unsigned char byteColors[4];           // vehicle colors
 	CVector3 vecTurnSpeed;                 // vehicle turn speed
 	CVector3 vecMoveSpeed;                 // vehicle move speed
-	float fDirtLevel;                      // vehicle dirt level
-	bool bSirenState : 1;                  // siren state
 	bool bEngineStatus : 1;				   // vehicle engine status
 	bool hHazardLights : 1;				   // hazardlights status
+	float fPetrolHealth;
+	float fDirtLevel;      
+	float fDoor[6];
+	bool bLights;
+	bool bTaxiLights : 1;
+	bool bSirenState : 1;
+	bool bWindow[4];
+	bool bTyre[6];
 	unsigned int uPlayerHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uPlayerWeaponInfo;        // player weapon and ammo
 };
@@ -232,7 +252,16 @@ struct EMPTYVEHICLESYNCPACKET
 	EntityId vehicleId;
 	CVector3 vecPosition;
 	CVector3 vecRotation;
-	unsigned int uiHealth : 16;
+	unsigned int uiHealth;
+	float fPetrolHealth;
+	float fDirtLevel;      
+	float fDoor[6];
+	bool bLights;
+	bool bTaxiLights : 1;
+	bool bSirenState : 1;
+	bool bWindow[4];
+	bool bEngineStatus : 1;
+	bool bTyre[6];
 };
 
 struct AimSyncData

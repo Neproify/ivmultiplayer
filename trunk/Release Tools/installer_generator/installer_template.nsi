@@ -124,6 +124,10 @@ Section "Install" SecDummy
 
 	; Copy New Files
 
+	SetOutPath "$GTAIVDirectory"
+	
+	File ..\..\Binary\bass.dll
+	
 	SetOutPath "$INSTDIR"
 
 	File ..\LICENSE
@@ -232,6 +236,9 @@ Section "Uninstall"
 	; Delete The Desktop Shortcut
 
 	Delete "$DESKTOP\${NAME}.lnk"
+	
+	; Delete the bass library
+	Delete "$GTAIVDirectory\bass.dll"
 	
 	; Delete Installer
 

@@ -32,7 +32,7 @@ void CLogFile::Open(String strLogFile, bool bAppend)
 	if(m_fLogFile)
 	{
 		// Log the log file started message
-		PrintToFile("Log file started");
+		//PrintToFile("Log file started");
 	}
 
 	// Unlock the mutex
@@ -74,6 +74,27 @@ void CLogFile::Printf(const char * szFormat, ...)
 
 	// Unlock the mutex
 	m_mutex.Unlock();
+}
+
+void CLogFile::PrintDebugf(const char * szFormat, ...)
+{
+#ifdef _DEBUG
+	// Lock the mutex
+	m_mutex.TryLock(1);
+
+	// Collect the arguments
+	va_list vaArgs;
+	char szBuffer[2048];
+	va_start(vaArgs, szFormat);
+	vsnprintf(szBuffer, sizeof(szBuffer), szFormat, vaArgs);
+	va_end(vaArgs);
+
+	// Print the message
+	Print(szBuffer);
+
+	// Unlock the mutex
+	m_mutex.Unlock();
+#endif
 }
 
 void CLogFile::PrintToFile(const char * szString)
@@ -130,7 +151,7 @@ void CLogFile::Close()
 	if(m_fLogFile)
 	{
 		// Log the log file finished message
-		PrintToFile("Log file finished");
+		//PrintToFile("Log file finished");
 
 		// Close the log file
 		fclose(m_fLogFile);

@@ -54,7 +54,7 @@ void CServerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleName", GetVehicleName, 1, "i");
 	pScriptingManager->RegisterFunction("toggleFrequentEvents", ToggleFrequentEvents, 1, "b");
 	pScriptingManager->RegisterFunction("areFrequentEventsEnabled", AreFrequentEventsEnabled, 0, NULL);
-
+	pScriptingManager->RegisterFunction("forceWind",ForceWind,1,"f");
 	pScriptingManager->RegisterFunction("setWeather", SetWeather, 1, "i");
 	pScriptingManager->RegisterFunction("getWeather", GetWeather, 0, NULL);
 }
@@ -443,5 +443,26 @@ SQInteger CServerNatives::SetWeather(SQVM * pVM)
 SQInteger CServerNatives::GetWeather(SQVM * pVM)
 {
 	sq_pushinteger(pVM, CVAR_GET_INTEGER("weather"));
+	return 1;
+}
+
+// setWeather(weather)
+SQInteger CServerNatives::ForceWind(SQVM * pVM)
+{
+	SQFloat fWind;
+	sq_getfloat(pVM, 2, &fWind);
+	if(fWind != CVAR_GET_INTEGER("wind"))
+	{
+		CVAR_SET_FLOAT("wind", (float)fWind);
+
+		CBitStream bsSend;
+		bsSend.Write((float)fWind);
+		g_pNetworkManager->RPC(RPC_ScriptingForceWind, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }

@@ -83,8 +83,10 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true)
 	m_fSpawnAngle = 0;
 	m_ulLastPureSyncTime = 0;
 	m_uiLastInterior = 0;
+	m_bDisableVehicleInfo = false;
+	m_bAnimating = false;
 	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
-
+	
 	// Patch to override spawn position and let the game call HandleSpawn
 	CPatcher::InstallCallPatch(COffsets::FUNC_GetLocalPlayerSpawnPosition, (DWORD)GetLocalPlayerSpawnPosition, 5);
 	CPatcher::InstallCallPatch(COffsets::CALL_SpawnLocalPlayer, (DWORD)HandleLocalPlayerSpawn, 5);
@@ -266,6 +268,25 @@ void CLocalPlayer::SendOnFootSync()
 	// Get their health and armour
 	syncPacket.uHealthArmour = ((GetHealth() << 16) | GetArmour());
 
+	// Set default animation stuff
+	syncPacket.bAnim = false;
+
+	// Check for anims
+	if(m_bAnimating)
+	{
+		if(!Scripting::HasCharAnimFinished(g_pLocalPlayer->GetScriptingHandle(),m_strAnimGroup))
+		{
+			float fTime;
+			syncPacket.bAnim = true;
+			syncPacket.szAnimGroup = m_strAnimGroup;
+			syncPacket.szAnimSpecific = m_strAnimSpec;
+			Scripting::GetCharAnimCurrentTime(g_pLocalPlayer->GetScriptingHandle(),m_strAnimGroup,m_strAnimSpec,&fTime);
+			syncPacket.fAnimTime = fTime;
+		}
+		else
+			m_bAnimating = false;
+	}
+
 	// Get their current weapon and ammo
 	unsigned int uiCurrentWeapon = GetCurrentWeapon();
 	syncPacket.uWeaponInfo = ((uiCurrentWeapon << 20) | GetAmmo(uiCurrentWeapon));
@@ -312,16 +333,13 @@ void CLocalPlayer::SendInVehicleSync()
 		GetControlState(&syncPacket.controlState);
 
 		// Update the last sent control state
-		memcpy(&m_lastControlStateSent, &syncPacket.controlState, sizeof(CControlState));
+		//memcpy(&m_lastControlStateSent, &syncPacket.controlState, sizeof(CControlState)); // Don't activate, will destroy the control state sync ;)
 
 		// Get their vehicles position
 		pVehicle->GetPosition(syncPacket.vecPos);
 
 		// Get their vehicles rotation
 		pVehicle->GetRotation(syncPacket.vecRotation);
-
-		// Get their vehicles engine health
-		syncPacket.uiHealth = pVehicle->GetHealth();
 
 		// Get their vehicles colors
 		pVehicle->GetColors(syncPacket.byteColors[0], syncPacket.byteColors[1], syncPacket.byteColors[2], syncPacket.byteColors[3]);
@@ -335,8 +353,23 @@ void CLocalPlayer::SendInVehicleSync()
 		// Get their vehicles move speed
 		pVehicle->GetMoveSpeed(syncPacket.vecMoveSpeed);
 
+		// Get their vehicles engine health & petroltank health
+		syncPacket.uiHealth = pVehicle->GetHealth();
+		syncPacket.fPetrolHealth = (float)pVehicle->GetPetrolTankHealth();
+
 		// Get their vehicles dirt level
 		syncPacket.fDirtLevel = pVehicle->GetDirtLevel();
+
+		// Get their lights
+		syncPacket.bLights = pVehicle->GetLights();
+
+		// Get the door stuff
+		syncPacket.fDoor[0] = pVehicle->GetCarDoor(0);
+		syncPacket.fDoor[1] = pVehicle->GetCarDoor(1);
+		syncPacket.fDoor[2] = pVehicle->GetCarDoor(2);
+		syncPacket.fDoor[3] = pVehicle->GetCarDoor(3);
+		syncPacket.fDoor[4] = pVehicle->GetCarDoor(4);
+		syncPacket.fDoor[5] = pVehicle->GetCarDoor(5);
 
 		// Get their health and armour
 		syncPacket.uPlayerHealthArmour = ((GetHealth() << 16) | GetArmour());
@@ -348,6 +381,59 @@ void CLocalPlayer::SendInVehicleSync()
 		// Get their vehicles engine status (untested)
 		syncPacket.bEngineStatus = pVehicle->GetEngineState();
 		
+		// Set default window and typres values
+		syncPacket.bWindow[0] = false;
+		syncPacket.bWindow[1] = false;
+		syncPacket.bWindow[2] = false;
+		syncPacket.bWindow[3] = false;
+		syncPacket.bTyre[0] = false;
+		syncPacket.bTyre[1] = false;
+		syncPacket.bTyre[2] = false;
+		syncPacket.bTyre[3] = false;
+		syncPacket.bTyre[4] = false;
+		syncPacket.bTyre[5] = false;
+
+		// Check windows
+		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)0))
+		{
+			pVehicle->SetWindow(0,true);
+			syncPacket.bWindow[1] = true;
+		}
+		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)1))
+		{
+			pVehicle->SetWindow(1,true);
+			syncPacket.bWindow[2] = true;
+		}
+		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)2))
+		{
+			pVehicle->SetWindow(2,true);
+			syncPacket.bWindow[3] = true;
+		}
+		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)3))
+		{
+			pVehicle->SetWindow(3,true);
+			syncPacket.bWindow[4] = true;
+		}
+
+		// Check tyres
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)0))
+			syncPacket.bTyre[0] = true;
+
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)1))
+			syncPacket.bTyre[1] = true;
+
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)2))
+			syncPacket.bTyre[2] = true;
+
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)3))
+			syncPacket.bTyre[3] = true;
+
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)4))
+			syncPacket.bTyre[4] = true;
+
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)5))
+			syncPacket.bTyre[5] = true;
+
 		// Write the in vehicle sync data to the bit stream
 		bsSend.Write((char *)&syncPacket, sizeof(InVehicleSyncData));
 
@@ -373,6 +459,14 @@ void CLocalPlayer::SendInVehicleSync()
 		}
 
 		g_pNetworkManager->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+
+		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()))
+		{
+			g_pChatWindow->AddInfoMessage("VEHICLE DEATH");
+			CBitStream bsDeath;
+			bsDeath.Write(pVehicle->GetVehicleId());
+			g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+		}
 	}
 }
 
@@ -523,4 +617,12 @@ void CLocalPlayer::SetControl(bool control)
 bool CLocalPlayer::GetControl()
 {
 	return m_bToggleControl;
+}
+
+void CLocalPlayer::SetAnimation(const char * strGroup, const char * strAnim)
+{
+	m_bAnimating = true;
+	Scripting::TaskPlayAnim(GetScriptingHandle(),strAnim, strGroup,(float)8,0,0,0,0,-1);
+	m_strAnimGroup = strGroup;
+	m_strAnimSpec = strAnim;
 }

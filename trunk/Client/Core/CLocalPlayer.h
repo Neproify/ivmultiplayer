@@ -18,13 +18,17 @@
 class CLocalPlayer : public CNetworkPlayer
 {
 private:
-	bool          m_bIsDead;
-	CVector3      m_vecSpawnPosition;
-	float         m_fSpawnAngle;
-	bool		  m_bToggleControl;
-	unsigned long m_ulLastPureSyncTime;
-	unsigned int  m_uiLastInterior;
-	CControlState     m_lastControlStateSent;
+	bool				m_bIsDead;
+	CVector3			m_vecSpawnPosition;
+	float				m_fSpawnAngle;
+	bool				m_bToggleControl;
+	unsigned long		m_ulLastPureSyncTime;
+	unsigned int		m_uiLastInterior;
+	bool				m_bDisableVehicleInfo;
+	CControlState		m_lastControlStateSent;
+	bool				m_bAnimating;
+	String				m_strAnimGroup;
+	String				m_strAnimSpec;
 
 public:
 	CLocalPlayer();
@@ -47,4 +51,8 @@ public:
 	float          GetSpawnRotation() { return m_fSpawnAngle; }
 	void		   SetControl(bool control);
 	bool		   GetControl();
+	bool		   GetVehicleInfos() { return m_bDisableVehicleInfo; }
+	void		   SetVehicleInfos(bool bInfo) { m_bDisableVehicleInfo = bInfo; }
+	void		   SetAnimation(const char * strGroup, const char * strAnim);
+	void		   SaveAnimation(String strGroup, String strAnim);
 };

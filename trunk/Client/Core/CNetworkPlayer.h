@@ -189,6 +189,7 @@ public:
 	bool                     IsGettingJackedFromVehicle();
 	bool                     ClearVehicleEntryTask();
 	bool                     ClearVehicleExitTask();
+	bool					 ClearDieTask();
 
 	//
 	bool                     GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehicle, BYTE &byteSeatId);

@@ -243,7 +243,7 @@ void CFileTransfer::Process()
 					}
 
 					// Notice user that file is sucessfully downloaded
-					g_pChatWindow->AddInfoMessage("File %s sucessfully downloaded.", m_pDownloadFile->strName.C_String());
+					//g_pChatWindow->AddInfoMessage("File %s sucessfully downloaded.", m_pDownloadFile->strName.C_String());
 
 					
 					// Remove the download file from the file list

@@ -41,6 +41,12 @@ private:
 	AimSyncData   m_aimSyncData;
 	unsigned int  m_uiColor;
 	unsigned char m_ucClothes[11];
+	bool		  m_bAnimating;
+	String		  m_strAnimGroup;
+	String		  m_strAnimSpec;
+	float		  m_fAnimTime;
+	CVector3	  m_vecLastAim;
+	CVector3	  m_vecLastShot;
 
 public:
 	CPlayer(EntityId playerId, String strName);
@@ -112,4 +118,5 @@ public:
 	void           ResetClothes();
 	void           SetClothes(unsigned char ucBodyPart, unsigned char ucClothes);
 	unsigned char  GetClothes(unsigned char ucBodyPart);
+	void		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot);
 };

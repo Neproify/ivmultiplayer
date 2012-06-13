@@ -98,6 +98,15 @@ void SavePosCommand(char * szParams)
 	g_pChatWindow->AddInfoMessage("Position data saved to 'SavedData.txt'");
 }
 
+void DisableVehicleInfos(char * szParams)
+{
+	bool bState = g_pLocalPlayer->GetVehicleInfos();
+	
+	if(bState)
+		g_pLocalPlayer->SetVehicleInfos(false);
+	else
+		g_pLocalPlayer->SetVehicleInfos(true);
+}
 #ifdef DEBUG_COMMANDS_ENABLED
 DWORD SkinIdToModelHash(int modelid);
 
@@ -269,6 +278,7 @@ void RegisterCommands()
 	g_pInputWindow->RegisterCommand("savepos", SavePosCommand);
 	g_pInputWindow->RegisterCommand("ping", GetPing);
 	g_pInputWindow->RegisterCommand("fps", GetFPS);
+	g_pInputWindow->RegisterCommand("dvi", DisableVehicleInfos);
 	#ifdef DEBUG_COMMANDS_ENABLED
 	g_pInputWindow->RegisterCommand("ap", AddPlayerCommand);
 	g_pInputWindow->RegisterCommand("dp", DeletePlayerCommand);

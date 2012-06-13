@@ -40,6 +40,7 @@ private:
 	static SQInteger AreFrequentEventsEnabled(SQVM * pVM);
 	static SQInteger SetWeather(SQVM * pVM);
 	static SQInteger GetWeather(SQVM * pVM);
+	static SQInteger ForceWind(SQVM * pvM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

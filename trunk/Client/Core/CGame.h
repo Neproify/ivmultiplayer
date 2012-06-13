@@ -51,6 +51,8 @@ private:
 	static CIVStreaming * m_pStreaming;
 	static CIVWeather   * m_pWeather;
 	static CIVWorld     * m_pWorld;
+	static bool			  m_bNameTags;
+	static bool			  m_bGameLoaded;
 
 public:
 	static unsigned int    GetBase() { return m_uiBaseAddress; }
@@ -102,7 +104,7 @@ public:
 	static String          GetCurrentStreetName();
 	static void            RemoveInitialLoadingScreens();
 	static void            GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition);
-	static void            CreateExplosion(CVector3 vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound = true, bool bInvisible = false, float fCameraShake = 0.0f);
+	static void            CreateExplosion(CVector3& vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound = true, bool bInvisible = false, float fCameraShake = 0.0f);
 	static unsigned int    CreateFire(CVector3 vecPosition, unsigned char ucAllowedGenerations, unsigned int uiStrength);
 	static bool            DeleteFire(unsigned int uiFire);
 	static void          * Alloc(DWORD dwSize);
@@ -110,4 +112,9 @@ public:
 	static void            ToggleLazlowStation(bool bToggle);
 	static void            InitCutscene(char * szCutsceneName, bool bUnknown1 = false, bool bUnknown2 = false);
 	static void            StopCutscene(char * szCutsceneName);
+	static void			   InstallAnimGroups();
+	static void			   SetNameTags(bool nametags) { m_bNameTags = nametags; }
+	static bool			   GetNameTags() { return m_bNameTags; }
+	static void			   SetGameLoaded(bool load) { m_bGameLoaded = load; }
+	static bool			   IsGameLoaded() { return m_bGameLoaded; }
 };

@@ -243,6 +243,11 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	m_uHealth = (syncPacket->uHealthArmour >> 16);
 	m_uArmour = ((syncPacket->uHealthArmour << 16) >> 16);
 
+	m_bAnimating = syncPacket->bAnim;
+	/*m_strAnimGroup = syncPacket->szAnimGroup;
+	m_strAnimSpec = syncPacket->szAnimSpecific;*/
+	m_fAnimTime = syncPacket->fAnimTime;
+
 	// Set the weapon and ammo
 	m_uWeapon = (syncPacket->uWeaponInfo >> 20);
 	m_uAmmo = ((syncPacket->uWeaponInfo << 12) >> 12);
@@ -252,6 +257,7 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
+		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource);
 	}
 
 	// Set the state to on foot
@@ -318,6 +324,7 @@ void CPlayer::StoreInVehicleSync(CVehicle * pVehicle, InVehicleSyncData * syncPa
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
+		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource);
 	}
 
 	// Set the state to in vehicle
@@ -327,7 +334,6 @@ void CPlayer::StoreInVehicleSync(CVehicle * pVehicle, InVehicleSyncData * syncPa
 	CBitStream bsSend;
 	bsSend.WriteCompressed(m_playerId);
 	bsSend.WriteCompressed(pVehicle->GetVehicleId());
-	bsSend.WriteCompressed(pVehicle->GetHazardLights());
 	bsSend.WriteCompressed(GetPing());
 	bsSend.WriteCompressed(m_bHelmet);
 	bsSend.Write((char *)syncPacket, sizeof(InVehicleSyncData));
@@ -344,7 +350,6 @@ void CPlayer::StoreInVehicleSync(CVehicle * pVehicle, InVehicleSyncData * syncPa
 		// Write a 0 bit to say we don't have aim sync
 		bsSend.Write0();
 	}
-
 	g_pNetworkManager->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED, m_playerId, true);
 }
 
@@ -388,6 +393,7 @@ void CPlayer::StorePassengerSync(CVehicle * pVehicle, PassengerSyncData * syncPa
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
+		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource);
 	}
 
 	// Set the state to passenger
@@ -434,6 +440,7 @@ void CPlayer::StoreSmallSync(SmallSyncData * syncPacket, bool bHasAimSyncData, A
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
+		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource);
 	}
 
 	// Send the sync to all other players
@@ -801,4 +808,28 @@ unsigned char CPlayer::GetClothes(unsigned char ucBodyPart)
 		return 0;
 
 	return m_ucClothes[ucBodyPart];
+}
+
+void CPlayer::UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot)
+{
+	CSquirrelArguments pArguments;
+	pArguments.push(m_playerId);
+	if((vecShot-m_vecLastShot).Length() != 0)
+	{
+		m_vecLastAim = vecAim;
+		m_vecLastShot = vecShot;
+		pArguments.push(vecShot.fX);
+		pArguments.push(vecShot.fY);
+		pArguments.push(vecShot.fZ);
+		pArguments.push(true);
+	}
+	else
+	{
+		m_vecLastAim = vecAim;
+		pArguments.push(vecAim.fX);
+		pArguments.push(vecAim.fY);
+		pArguments.push(vecAim.fZ);
+		pArguments.push(false);
+	}
+	g_pEvents->Call("playerShot", &pArguments);
 }

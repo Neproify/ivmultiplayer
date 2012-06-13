@@ -20,6 +20,7 @@ enum eGameVersion
 	GAME_VERSION_5,       // 1.0.0.4
 	GAME_VERSION_6,       // 1.0.6.0
 	GAME_VERSION_7,       // 1.0.7.0
+	GAME_VERSION_8,		  // 1.0.8.0
 };
 
 class COffsets

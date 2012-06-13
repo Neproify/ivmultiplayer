@@ -28,6 +28,11 @@ void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getObjectPosition", GetCoordinates, 1, "i");
 	pScriptingManager->RegisterFunction("setObjectRotation", SetRotation, 4, "ifff");
 	pScriptingManager->RegisterFunction("getObjectRotation", GetRotation, 1, "i");
+	pScriptingManager->RegisterFunction("createExplosion", CreateExplosion, 4, "ffff");
+	pScriptingManager->RegisterFunction("createFire", CreateFire, 4, "ffff");
+	pScriptingManager->RegisterFunction("deleteFire", DeleteFire, 1, "i");
+	pScriptingManager->RegisterFunction("attachObjectToPlayer", AttachPed, 8, "iiffffff");
+	pScriptingManager->RegisterFunction("attachObjectToVehicle", AttachVehicle, 8, "iiffffff");
 }
 
 // createObject(modelhash, x, y, z, rx, ry, rz)
@@ -160,5 +165,90 @@ SQInteger CObjectNatives::GetRotation(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CObjectNatives::CreateExplosion(SQVM * pVM)
+{
+	CVector3 vecPos;
+	float fdensity;
+	sq_getfloat(pVM,-4,&vecPos.fZ);
+	sq_getfloat(pVM,-3,&vecPos.fY);
+	sq_getfloat(pVM,-2,&vecPos.fX);
+	sq_getfloat(pVM,-1,&fdensity);
+	g_pObjectManager->CreateExplosion(vecPos, fdensity);
+
+	sq_pushbool(pVM,true);
+	return 1;
+}
+
+SQInteger CObjectNatives::CreateFire(SQVM *pVM)
+{
+	CVector3 vecPos;
+	float fdensity;
+	sq_getfloat(pVM,-4,&vecPos.fZ);
+	sq_getfloat(pVM,-3,&vecPos.fY);
+	sq_getfloat(pVM,-2,&vecPos.fX);
+	sq_getfloat(pVM,-1,&fdensity);
+	sq_pushentity(pVM, g_pObjectManager->CreateFire(vecPos,fdensity));
+	return 1;
+}
+
+SQInteger CObjectNatives::DeleteFire(SQVM *pVM)
+{
+	EntityId fireId;
+	sq_getentity(pVM,-1,&fireId);
+
+	g_pObjectManager->DeleteFire(fireId);
+	return 1;
+}
+
+SQInteger CObjectNatives::AttachPed(SQVM *pVM)
+{
+	EntityId	objectId;
+	EntityId	playerId;
+	CVector3	vecPos;
+	CVector3	vecRot;
+
+	sq_getentity(pVM,-8,&objectId);
+	sq_getentity(pVM,-7,&playerId);
+	sq_getfloat(pVM,-6,&vecPos.fX);
+	sq_getfloat(pVM,-5,&vecPos.fY);
+	sq_getfloat(pVM,-4,&vecPos.fZ);
+	sq_getfloat(pVM,-3,&vecRot.fX);
+	sq_getfloat(pVM,-2,&vecRot.fY);
+	sq_getfloat(pVM,-1,&vecRot.fZ);
+
+	if(g_pObjectManager->DoesExist(objectId))
+	{
+		g_pObjectManager->AttachToPlayer(objectId,playerId,vecPos,vecRot);
+		sq_pushbool(pVM,true);
+	}
+	sq_pushbool(pVM,false);
+	return 1;
+}
+
+SQInteger CObjectNatives::AttachVehicle(SQVM *pVM)
+{
+	EntityId	objectId;
+	EntityId	vehicleId;
+	CVector3	vecPos;
+	CVector3	vecRot;
+
+	sq_getentity(pVM,-8,&objectId);
+	sq_getentity(pVM,-7,&vehicleId);
+	sq_getfloat(pVM,-6,&vecPos.fX);
+	sq_getfloat(pVM,-5,&vecPos.fY);
+	sq_getfloat(pVM,-4,&vecPos.fZ);
+	sq_getfloat(pVM,-3,&vecRot.fX);
+	sq_getfloat(pVM,-2,&vecRot.fY);
+	sq_getfloat(pVM,-1,&vecRot.fZ);
+
+	if(g_pObjectManager->DoesExist(objectId))
+	{
+		g_pObjectManager->AttachToVehicle(objectId,vehicleId,vecPos,vecRot);
+		sq_pushbool(pVM,true);
+	}
+	sq_pushbool(pVM,false);
 	return 1;
 }

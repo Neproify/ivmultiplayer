@@ -19,7 +19,13 @@ extern CModuleManager  * g_pModuleManager;
 CObjectManager::CObjectManager()
 {
 	for(EntityId x = 0; x < MAX_OBJECTS; x++)
+	{
 		m_bActive[x] = false;
+		m_Objects[x].bAttached = false;
+	}
+
+	for(EntityId y = 0; y < MAX_FIRE; y++)
+		m_bFireActive[y] = false;
 }
 
 CObjectManager::~CObjectManager()
@@ -30,6 +36,14 @@ CObjectManager::~CObjectManager()
 			Delete(x);
 
 		m_bActive[x] = false;
+	}
+
+	for(EntityId x = 0; x < MAX_FIRE; x++)
+	{
+		if(m_bFireActive[x])
+			DeleteFire(x);
+
+		m_bFireActive[x] = false;
 	}
 }
 
@@ -89,6 +103,11 @@ void CObjectManager::HandleClientJoin(EntityId playerId)
 				bsSend.Write(m_Objects[x].dwModelHash);
 				bsSend.Write(m_Objects[x].vecPosition);
 				bsSend.Write(m_Objects[x].vecRotation);
+				bsSend.Write(m_Objects[x].bAttached);
+				bsSend.Write(m_Objects[x].bVehicleAttached);
+				bsSend.Write(m_Objects[x].uiVehiclePlayerId);
+				bsSend.Write(m_Objects[x].vecAttachPosition);
+				bsSend.Write(m_Objects[x].vecAttachRotation);
 			}
 		}
 
@@ -179,4 +198,102 @@ bool CObjectManager::GetRotation(EntityId objectId, CVector3& vecRotation)
 	}
 
 	return false;
+}
+
+EntityId CObjectManager::CreateFire(const CVector3& vecPos, float fdensity)
+{
+	for(EntityId x = 0; x < 32; x++)
+	{
+		if(!m_bFireActive[x])
+		{
+			CBitStream bsSend;
+			bsSend.WriteCompressed(x);
+			bsSend.Write(vecPos);
+			bsSend.Write(fdensity);
+			g_pNetworkManager->RPC(RPC_ScriptingCreateFire, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+			m_FireObject[x].vecPosition = vecPos;
+			m_FireObject[x].fdensity = fdensity;
+			m_bFireActive[x] = true;
+			return x;
+		}
+		return x;
+	}
+	return INVALID_ENTITY_ID;
+}
+
+void CObjectManager::DeleteFire(EntityId fireId)
+{
+	if(m_bFireActive[fireId])
+	{
+		CBitStream bsSend;
+		bsSend.WriteCompressed(fireId);
+		g_pNetworkManager->RPC(RPC_ScriptingDeleteFire, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		m_FireObject[fireId].vecPosition = CVector3(0.0f,0.0f,0.0f);
+		m_bFireActive[fireId] = false;
+	}
+}
+
+void CObjectManager::HandleClientJoinFire(EntityId playerId)
+{
+	CBitStream bsSend;
+	for(EntityId x = 0; x < 32; x++)
+	{
+		if(m_bFireActive[x])
+		{
+			bsSend.WriteCompressed(x);
+			bsSend.Write(m_FireObject[x].vecPosition);
+			bsSend.Write(m_FireObject[x].fdensity);
+			g_pNetworkManager->RPC(RPC_ScriptingCreateFire, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		}
+	}
+}
+
+void CObjectManager::CreateExplosion(const CVector3& vecPos, float fdensity)
+{
+	CBitStream bsSend;
+	bsSend.Write(vecPos);
+	bsSend.Write(fdensity);
+	g_pNetworkManager->RPC(RPC_ScriptingCreateExplosion,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+void CObjectManager::AttachToPlayer(EntityId objectId, EntityId playerId, const CVector3& vecPos, const CVector3& vecRot)
+{
+	if(DoesExist(objectId))
+	{
+		m_Objects[objectId].bAttached = true;
+		m_Objects[objectId].bVehicleAttached = false;
+		m_Objects[objectId].uiVehiclePlayerId = playerId;
+		m_Objects[objectId].vecAttachPosition = vecPos;
+		m_Objects[objectId].vecAttachRotation = vecRot;
+
+		CBitStream bsSend;
+		bsSend.WriteCompressed(objectId);
+		bsSend.Write(m_Objects[objectId].bAttached);
+		bsSend.Write(m_Objects[objectId].bVehicleAttached);
+		bsSend.Write(m_Objects[objectId].uiVehiclePlayerId);
+		bsSend.Write(m_Objects[objectId].vecAttachPosition);
+		bsSend.Write(m_Objects[objectId].vecAttachRotation);
+		g_pNetworkManager->RPC(RPC_ScriptingAttachObject,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	}
+}
+
+void CObjectManager::AttachToVehicle(EntityId objectId, EntityId vehicleId,const CVector3& vecPos, const CVector3& vecRot)
+{
+	if(DoesExist(objectId))
+	{
+		m_Objects[objectId].bAttached = true;
+		m_Objects[objectId].bVehicleAttached = true;
+		m_Objects[objectId].uiVehiclePlayerId = vehicleId;
+		m_Objects[objectId].vecAttachPosition = vecPos;
+		m_Objects[objectId].vecAttachRotation = vecRot;
+
+		CBitStream bsSend;
+		bsSend.WriteCompressed(objectId);
+		bsSend.Write(m_Objects[objectId].bAttached);
+		bsSend.Write(m_Objects[objectId].bVehicleAttached);
+		bsSend.Write(m_Objects[objectId].uiVehiclePlayerId);
+		bsSend.Write(m_Objects[objectId].vecAttachPosition);
+		bsSend.Write(m_Objects[objectId].vecAttachRotation);
+		g_pNetworkManager->RPC(RPC_ScriptingAttachObject,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	}
 }

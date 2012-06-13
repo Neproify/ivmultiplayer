@@ -56,8 +56,19 @@ private:
 	float            m_fPetrolTankHealth;
 	unsigned char    m_ucVariation;
 	bool			 m_bEngineStatus;
+	bool			 m_bTaxiLights;
+	float			 m_fDoor1;
+	float			 m_fDoor2;
+	float			 m_fDoor3;
+	float			 m_fDoor4;
+	float			 m_fDoor5;
+	float			 m_fDoor6;
+	bool			 m_bLights;
+	bool			 m_fWindow1;
+	bool			 m_fWindow2;
+	bool			 m_fWindow3;
+	bool			 m_fWindow4;
 
-	//
 	bool             Create();
 	void             Destroy();
 
@@ -96,6 +107,8 @@ public:
 	void             GetRotation(CVector3& vecRotation);
 	void             SetHealth(unsigned int uiHealth);
 	unsigned int     GetHealth();
+	void			 SetPetrolTankHealth(float fHealth);
+	float			 GetPetrolTankHealth();
 	void             SetMoveSpeed(const CVector3& vecMoveSpeed);
 	void             GetMoveSpeed(CVector3& vecMoveSpeed);
 	void             SetTurnSpeed(const CVector3& vecTurnSpeed);
@@ -104,8 +117,6 @@ public:
 	bool             GetSirenState();
 	void             SetDirtLevel(float fDirtLevel);
 	float            GetDirtLevel();
-	void             SetPetrolTankHealth(float fPetrolTankHealth);
-	float            GetPetrolTankHealth();
 	void             StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync);
 	BYTE             GetMaxPassengers();
 	void             AddToWorld();
@@ -137,4 +148,13 @@ public:
 	float            GetSteeringAngle();
 	void			 SetEngineState(bool bState);
 	bool			 GetEngineState();
+	void		     SetTaxiLights(bool bState);
+	bool			 GetTaxiLights();
+	void			 ControlCar(int idoor, bool close, float fangle);
+	float			 GetCarDoor(int idoor);
+	void			 SetLights(bool lights);
+	bool			 GetLights();
+	bool			 GetWindow(int window);
+	void			 SetWindow(int window, bool broken);
+	void			 SetDamageAble(bool toggle);
 };

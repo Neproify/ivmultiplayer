@@ -21,6 +21,7 @@
 #include "Scripting/CScriptTimerManager.h"
 #include <Network/CNetworkModule.h>
 #include "CFileTransfer.h"
+#include "CAudio.h"
 
 extern String g_strNick;
 extern CLocalPlayer * g_pLocalPlayer;
@@ -169,6 +170,9 @@ void CNetworkManager::Process()
 		// If our checkpoint manager exists process it
 		if(g_pCheckpointManager)
 			g_pCheckpointManager->Pulse();
+
+		// Process the audio manager
+		CAudioManager::Process();
 	}
 }
 
@@ -219,6 +223,10 @@ void CNetworkManager::Disconnect()
 	{
 		// Disconnect from the server
 		m_pNetClient->Disconnect();
+
+		// Delete and stop all Audio Client elements.
+		CAudioManager::SetAllVolume(0.0f);
+		CAudioManager::RemoveAll();
 
 		// Flag ourselves as not joined a server or game
 		m_bJoinedServer = false;

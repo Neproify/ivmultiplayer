@@ -49,6 +49,27 @@ ULONG STDMETHODCALLTYPE CDirect3DDevice9Proxy::Release()
 	return uRet;
 }
 
+D3DXVECTOR3 CDirect3DDevice9Proxy::GetScreenCoordFromWorld(IDirect3DDevice9 *pDevice, D3DXVECTOR3 vScreenCoord, D3DXVECTOR3 vWorldLocation)
+{
+	if( !pDevice )
+		return vScreenCoord;
+
+	D3DVIEWPORT9 viewPort;
+	D3DXVECTOR3 vOrthoLocation;
+	D3DXMATRIX projection, view, world, identity;
+
+	pDevice->GetTransform( D3DTS_VIEW, &view );
+	pDevice->GetTransform( D3DTS_PROJECTION, &projection );
+	pDevice->GetTransform( D3DTS_WORLD, &world );
+
+	pDevice->GetViewport( &viewPort );
+	D3DXMatrixIdentity( &identity );
+
+	D3DXVec3Project(&vScreenCoord, &vWorldLocation, &viewPort, &projection, &view, &identity );
+
+	return vScreenCoord;
+}
+
 HRESULT STDMETHODCALLTYPE CDirect3DDevice9Proxy::TestCooperativeLevel()
 {
 	return m_pD3DDevice->TestCooperativeLevel();

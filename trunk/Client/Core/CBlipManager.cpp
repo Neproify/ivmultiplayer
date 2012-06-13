@@ -149,8 +149,7 @@ void CBlipManager::ToggleRouteBlip(EntityId blipId, bool bToggle)
 {
 	if(m_bActive[blipId])
 	{
-		//TODO: this doesn't actually do anything
-		// Scripting::SetRoute(blipId, bToggle);
+		Scripting::SetRoute(m_Blips[blipId].uiBlipIndex, bToggle);
 		m_Blips[blipId].bRouteBlip = bToggle;
 	}
 }

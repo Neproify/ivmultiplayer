@@ -156,6 +156,10 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	if(pPlayer)
 	{
+		CBitStream bsNametags;
+		bsNametags.Write(CVAR_GET_BOOL("guinametags"));
+		g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
 		// Let the vehicle manager handle the client join
 		g_pVehicleManager->HandleClientJoin(playerId);
 
@@ -164,6 +168,9 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 
 		// Let the object manager handle the client join
 		g_pObjectManager->HandleClientJoin(playerId);
+
+		// Let the fire manager handle the client join
+		g_pObjectManager->HandleClientJoinFire(playerId);
 
 		// Let the blip manager handle the client join
 		g_pBlipManager->HandleClientJoin(playerId);
@@ -186,6 +193,7 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 		bsSend.Write(CVAR_GET_STRING("httpserver"));
 		bsSend.Write((unsigned short)CVAR_GET_INTEGER("httpport"));
 		bsSend.Write((unsigned char)CVAR_GET_INTEGER("weather"));
+		bsSend.Write(CVAR_GET_BOOL("guinametags"));
 
 		// Time
 		unsigned char ucHour = 0, ucMinute = 0;
@@ -891,23 +899,53 @@ void CServerRPCHandler::EventCall(CBitStream * pBitStream, CPlayerSocket * pSend
 	delete pArgs;
 }
 
-void CServerRPCHandler::ScriptingSetHazardLights(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+void CServerRPCHandler::VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
-	//	Read the vehicleid & hazardlightsstate
-	EntityId pVehicle;
-	pBitStream->ReadCompressed(pVehicle);
+	EntityId vehicleId;
+	pBitStream->Read(vehicleId);
 
-	bool bState;
-	pBitStream->Read(bState);
-	
-	CVehicle * pNewVehicle = g_pVehicleManager->GetAt(pVehicle);
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	if(!pVehicle)
+		return;
 
-	if(pNewVehicle)
-		pNewVehicle->SetHazardLights(bState);
+	CSquirrelArguments pArguments;
+	pArguments.push(vehicleId);
+	g_pEvents->Call("vehicleDeath",&pArguments);
+
+	// Sure that we have no player in vehicle(otherwise crash >.<)
+	if(pVehicle->GetDriver())
+	{
+		EntityId playerId = pVehicle->GetDriver()->GetPlayerId();
+		CBitStream bsSend;
+		bsSend.Write(playerId);
+		bsSend.Write0();
+		g_pNetworkManager->RPC(RPC_ScriptingRemovePlayerFromVehicle,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+	}
+	for(EntityId i = 0; i < MAX_PLAYERS; i++)
+	{
+		if(g_pPlayerManager->DoesExist(i))
+		{
+			if(!g_pPlayerManager->GetAt(i)->IsOnFoot())
+			{
+				if(g_pPlayerManager->GetAt(i)->GetVehicle()->GetVehicleId() == pVehicle->GetVehicleId())
+				{
+					CBitStream bsSend;
+					bsSend.Write(i);
+					bsSend.Write0();
+					g_pNetworkManager->RPC(RPC_ScriptingRemovePlayerFromVehicle,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, i, false);
+				}
+			}
+		}
+
+	}
+
+	// If everyone is kickedout of the vehicle, respawn it
+	pVehicle->Respawn();
+	g_pEvents->Call("vehicleRespawn", &pArguments);
 }
 
 void CServerRPCHandler::Register()
@@ -928,7 +966,7 @@ void CServerRPCHandler::Register()
 	AddFunction(RPC_CheckpointEntered, CheckpointEntered);
 	AddFunction(RPC_CheckpointLeft, CheckpointLeft);
 	AddFunction(RPC_ScriptingEventCall, EventCall);
-	AddFunction(RPC_ScriptingSetHazardLights,ScriptingSetHazardLights);
+	AddFunction(RPC_ScriptingVehicleDeath, VehicleDeath);
 }
 
 void CServerRPCHandler::Unregister()
@@ -949,5 +987,5 @@ void CServerRPCHandler::Unregister()
 	RemoveFunction(RPC_CheckpointEntered);
 	RemoveFunction(RPC_CheckpointLeft);
 	RemoveFunction(RPC_ScriptingEventCall);
-	RemoveFunction(RPC_ScriptingSetHazardLights);
+	RemoveFunction(RPC_ScriptingVehicleDeath);
 }

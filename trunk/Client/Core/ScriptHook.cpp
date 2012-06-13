@@ -60,7 +60,6 @@ void CScriptVM__Process()
 		GameLoad();
 		//g_pClient->OnGameLoad();
 
-		// Set the game state to in game
 		CGame::SetState(GAME_STATE_INGAME);
 
 		// Flag the script as loaded

@@ -29,6 +29,8 @@ private:
 	// 
 	static CMainMenu    * m_pSingleton;
 	bool                  m_bVisible;
+	int					  m_bCameraState;
+	int					  m_bCameraStateTime;
 	bool                  m_bDisconnectButtonVisible;
 	bool                  m_bQuickConnectWindowVisible;
 	bool                  m_bSettingsWindowVisible;
@@ -36,6 +38,7 @@ private:
 	bool                  m_bServerBrowserWindowOpen;
 	bool                  m_bQuickConnectWindowOpen;
 	bool                  m_bSettingsWindowOpen;
+	bool				  m_bLoadingScreenActive;
 	CMasterListQuery    * m_pMasterListQuery;
 	CServerQuery        * m_pServerQuery;
 
@@ -48,6 +51,18 @@ private:
 	CGUIStaticText      * m_pSettingsButton;
 	CGUIStaticText      * m_pQuitButton;
 	CGUIStaticText      * m_pAboutButton;
+	CGUIStaticText		* m_pHost;
+	CGUIStaticText		* m_pPlayers;
+	CGUIStaticText		* m_pMyName;
+	CGUIStaticText		* m_pHostDesc;
+	CGUIStaticText		* m_pPlayersDesc;
+	CGUIStaticText		* m_pMyNameDesc;
+
+	//Loading Stuff
+	CGUIStaticImage		* m_pLoadingLogo;
+	CGUIStaticImage		* m_pRaknetLogo;
+	CGUIStaticText		* m_pLoadingText;
+	CGUIStaticImage		* m_pLoadingBackground;
 
 	// Server browser window
 	struct
@@ -156,4 +171,8 @@ public:
 	bool             IsSettingsWindowVisible() { return m_bSettingsWindowVisible; }
 	void             OnResetDevice();
 	void             Process();
+	void			 ShowLoadingScreen();
+	void			 HideLoadingScreen();
+	bool			 IsLoadingScreenActive() { return m_bLoadingScreenActive; };
+	void			 SetNetworkStats(String strHost, int players, int maxplayers, String strName);
 };

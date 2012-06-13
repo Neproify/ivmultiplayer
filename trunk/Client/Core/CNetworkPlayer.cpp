@@ -21,6 +21,7 @@
 #include "IVTasks.h"
 #include "CCamera.h"
 #include "CModelManager.h"
+#include "CChatWindow.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CVehicleManager * g_pVehicleManager;
@@ -30,6 +31,7 @@ extern CCamera         * g_pCamera;
 extern CStreamer       * g_pStreamer;
 extern CModelManager   * g_pModelManager;
 extern bool              m_bControlsDisabled;
+extern CChatWindow     * g_pChatWindow;
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 {
@@ -672,6 +674,9 @@ void CNetworkPlayer::InternalRemoveFromVehicle()
 	// Are we spawned and in a vehicle?
 	if(IsSpawned() && m_pVehicle)
 	{
+		// Set the vehicle can be damaged to false before the task out is called, because when the client crashs, the vehicle is still damage able
+		m_pVehicle->SetDamageAble(false);
+
 		// Create the car set ped out task
 		CIVTaskSimpleCarSetPedOut * pTask = new CIVTaskSimpleCarSetPedOut(m_pVehicle->GetGameVehicle(), 0xF, 0, 1);
 
@@ -1543,6 +1548,12 @@ void CNetworkPlayer::SetName(String strName)
 {
 	m_strName = strName;
 
+	if(!CGame::GetNameTags())
+	{
+		Scripting::RemoveFakeNetworkNameFromPed(GetScriptingHandle());
+		Scripting::GivePedFakeNetworkName(GetScriptingHandle(),m_strName.C_String(),m_uiColor,m_uiColor,m_uiColor,m_uiColor); 
+	}
+
 	if(m_pPlayerInfo)
 		m_pPlayerInfo->SetName(strName.GetData());
 }
@@ -1648,6 +1659,26 @@ bool CNetworkPlayer::ClearVehicleExitTask()
 
 	return false;
 }
+
+bool CNetworkPlayer::ClearDieTask()
+{
+	if(IsSpawned())
+	{
+		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
+
+		if(pTask)
+		{
+			if(pTask->GetType() == TASK_COMPLEX_DIE)
+			{
+				m_pPlayerPed->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 
 bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehicle, BYTE &byteSeatId)
 {
@@ -2068,6 +2099,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 					// Vehicle entry is complete
 					m_vehicleEnterExit.bEntering = false;
 					m_pVehicle = m_vehicleEnterExit.pVehicle;
+					m_pVehicle->SetDamageAble(true);
 					m_byteVehicleSeatId = m_vehicleEnterExit.byteSeatId;
 					m_pVehicle->SetOccupant(m_vehicleEnterExit.byteSeatId, this);
 					m_vehicleEnterExit.pVehicle = NULL;
@@ -2108,6 +2140,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 							// Get our position
 							CVector3 vecPosition;
 							GetPosition(vecPosition);
+							m_vehicleEnterExit.pVehicle->SetDamageAble(false);
 
 							// Send the network rpc
 							CBitStream bitStream;
@@ -2165,6 +2198,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 					// Vehicle exit is complete
 					m_vehicleEnterExit.bExiting = false;
 					m_pVehicle->SetOccupant(m_byteVehicleSeatId, NULL);
+					m_pVehicle->SetDamageAble(false);
 					m_pVehicle = NULL;
 					m_byteVehicleSeatId = 0;
 
@@ -2203,6 +2237,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 
 					// Player has forcefully exited the vehicle (out of windscreen, e.t.c.)
 					m_pVehicle->SetOccupant(m_byteVehicleSeatId, NULL);
+					m_pVehicle->SetDamageAble(false);
 					m_pVehicle = NULL;
 					m_byteVehicleSeatId = 0;
 

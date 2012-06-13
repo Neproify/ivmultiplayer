@@ -89,7 +89,7 @@ HRESULT STDMETHODCALLTYPE CDirectInputDevice8Proxy::GetDeviceState(DWORD p0, LPV
 		char * keyBuffer = (char *)p1;
 
 		// Don't let the game receive the escape key
-		//keyBuffer[DIK_ESCAPE] = 0;
+		keyBuffer[ DIK_H ] = 0;
 
 		if(CGame::GetState() == GAME_STATE_NONE)
 		{
