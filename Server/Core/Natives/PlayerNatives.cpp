@@ -1874,7 +1874,7 @@ SQInteger CPlayerNatives::Respawn(SQVM * pVM)
 	if(pPlayer)
 	{
 		CBitStream bitStream;
-		bitStream.Write(playerId);
+		bitStream.WriteCompressed(playerId);
 		g_pNetworkManager->RPC(RPC_PlayerSpawn, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, pPlayer->GetPlayerId(), false);
 		sq_pushbool(pVM, true);
 		return 1;

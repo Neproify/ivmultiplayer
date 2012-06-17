@@ -194,6 +194,7 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 		bsSend.Write((unsigned short)CVAR_GET_INTEGER("httpport"));
 		bsSend.Write((unsigned char)CVAR_GET_INTEGER("weather"));
 		bsSend.Write(CVAR_GET_BOOL("guinametags"));
+		bsSend.Write(CVAR_GET_INTEGER("maxplayers"));
 
 		// Time
 		unsigned char ucHour = 0, ucMinute = 0;

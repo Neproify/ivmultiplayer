@@ -286,12 +286,6 @@ void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos
 	if(m_pPlayers[playerId]->IsLocalPlayer())
 		return;
 
-	/*if(m_pPlayers[playerId]->GetAt()->IsSpawned())
-	{
-		CLogFile::Printf("Tried to spawn already spawned player (%d).", playerId);
-		return;
-	}*/
-
 	if(!m_bCreated[playerId])
 	{
 		m_pPlayers[playerId]->Create();

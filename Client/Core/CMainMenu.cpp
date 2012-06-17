@@ -744,7 +744,7 @@ CMainMenu::CMainMenu()
 	m_pMyName = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
 	m_pMyName->setText("-");
 	m_pMyName->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
-	m_pMyName->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)+fWidth/8.5f)),  CEGUI::UDim(0, (fY+50.0f))));
+	m_pMyName->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)+fWidth/8.75f)),  CEGUI::UDim(0, (fY+50.0f)))); //(fWidth/2)+fWidth/8.5f)
 	m_pMyName->setProperty("FrameEnabled", "false");
 	m_pMyName->setProperty("BackgroundEnabled", "false");
 	m_pMyName->setFont(g_pGUI->GetFont("electronichighwaysign",21U));
@@ -777,8 +777,8 @@ CMainMenu::CMainMenu()
 	m_pMyNameDesc->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
 	m_pBackground->addChildWindow( m_pMyNameDesc );
 
-	m_pDisconnectButton = CreateButton("Disconnect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.28f, 0), CEGUI::UDim(0.030f, 0)),
-		CEGUI::UVector2(CEGUI::UDim(fX-0.075f, 0), CEGUI::UDim(fY-0.25f, 0)));
+	m_pDisconnectButton = CreateButton("Disconnect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.20f, 0), CEGUI::UDim(0.030f, 0)),
+		CEGUI::UVector2(CEGUI::UDim(fX+0.15f, 0), CEGUI::UDim(fY-0.25f, 0)));
 	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseEnter, this));
 	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseLeave, this));
 	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseClick, this));
@@ -792,8 +792,6 @@ CMainMenu::CMainMenu()
 	m_pServerBrowserButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserButtonMouseLeave, this));
 	m_pServerBrowserButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserButtonMouseClick, this));
 	m_pBackground->addChildWindow( m_pServerBrowserButton );
-
-	fX = 0.10f;
 
 	m_pQuickConnectButton = CreateButton("Quick Connect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.20f, 0), CEGUI::UDim(0.030f, 0)),
 		CEGUI::UVector2(CEGUI::UDim(fX+0.175f, 0), CEGUI::UDim(fY, 0)));
@@ -1115,27 +1113,13 @@ void CMainMenu::SetVisible(bool bVisible)
 		SetQuickConnectWindowVisible(m_bQuickConnectWindowOpen);
 		SetSettingsWindowVisible(m_bSettingsWindowOpen);
 	}
-	if(bVisible)
-	{
-		m_pBackground->setVisible(bVisible);
-		for(float i = 0.0f; i < 0.95f; i += 0.05f)
-		{
-			m_pBackground->setAlpha(i);
-		}
-	}
-	else
-	{
-		m_pBackground->setVisible(bVisible);
-		for(float i = 0.95f; i > 0.0f; i -= 0.05f)
-		{
-			m_pBackground->setAlpha(i);
-		}
-	}
 	m_pHost->setVisible(true);
 	m_bVisible = bVisible;
 	g_pGUI->SetCursorVisible(bVisible);
+	m_pBackground->setVisible(bVisible);
+	m_pBackground->setAlpha(0.95f);
 
-	if(g_pNetworkManager && g_pNetworkManager->IsConnected() && bVisible)
+	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 		m_pDisconnectButton->setVisible(true);
 	else
 		m_pDisconnectButton->setVisible(false);

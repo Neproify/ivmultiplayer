@@ -935,17 +935,16 @@ SQInteger CVehicleNatives::ControlCar(SQVM *pVM)
 	SQBool door2;
 	sq_getbool(pVM,-2,&door2);
 
-	SQFloat door3;
+	float door3;
 	sq_getfloat(pVM,-1,&door3); 
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
 	if(pVehicle)
 	{
-		bool bToggle = (door != 0);
 		bool bToggle2 = (door2 != 0);
 		bool bToggle3 = (door3 != 0);
-		pVehicle->ControlCarDoors(bToggle,bToggle2,bToggle3);
+		pVehicle->ControlCarDoors(door,bToggle2,door3);
 		return 1;
 	}
 

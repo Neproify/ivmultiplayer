@@ -77,6 +77,11 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/respawn")
+	{
+		setPlayerSpawnLocation(playerid, -341.36, 1144.80, 14.79, 40.114815);
+		respawnPlayer(playerid);
+	}
 	if(cmd[0] == "/name")
 	{
 		sendPlayerMessage(playerid,"VEHILCENAME:"+getVehicleName(getVehicleModel(getPlayerVehicleId(playerid))));
@@ -113,12 +118,11 @@ function onPlayerCommand(playerid, command)
 	if(cmd[0] == "/forceanimplayer")
 	{
 		forcePlayerPlayAnimation(playerid,"amb@smoking_spliff","create_spliff");
-		sendPlayerMessage(playerid,"OK");
 	}
 	if(cmd[0] == "/createfire")
 	{
 		local pos = getPlayerCoordinates(playerid);
-		createFire(pos[0],pos[1],pos[2],30.0);
+		createFire(pos[0]+10.0,pos[1]+10.0,pos[2],10.0);
 	}
 	if(cmd[0] == "/deletefire")
 	{
@@ -127,7 +131,7 @@ function onPlayerCommand(playerid, command)
 	if(cmd[0] == "/createexplosion")
 	{
 		local pos = getPlayerCoordinates(playerid);
-		createExplosion(pos[0]+10.pos[1]+10,pos[2],5.0);
+		createExplosion(pos[0]+10.0,pos[1]+10.0,pos[2],10.0);
 	}
 	if(cmd[0] == "/remoteon")
 	{
@@ -151,11 +155,11 @@ function onPlayerCommand(playerid, command)
 	}
 	if(cmd[0] == "/taxi")
 	{
-		switchTaxiLights(getPlayerVehicleId(playerid),true);
+		setVehicleTaxiLights(getPlayerVehicleId(playerid),true);
 	}
 	if(cmd[0] == "/taxioff")
 	{
-		switchTaxiLights(getPlayerVehicleId(playerid),false);
+		setVehicleTaxiLights(getPlayerVehicleId(playerid),false);
 	}
 	if(cmd[0] == "/engine")
 	{
@@ -571,7 +575,7 @@ addEvent("webRequest", onWebRequest);
 
 function onVehicleDamage(vehicleid,oldhealth,oldpetrol,newhealth,newpetrol)
 {
-	log(format("%d, %d, %d, %d, %d",vehicleid,oldhealth,oldpetrol,newhealth,newpetrol));
+	log(format("VEHICLE DAMAGE: %d, %d, %d, %d, %d",vehicleid,oldhealth,oldpetrol,newhealth,newpetrol));
 }
 addEvent("vehicleDamage",onVehicleDamage);
 

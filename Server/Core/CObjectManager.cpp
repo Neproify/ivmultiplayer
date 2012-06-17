@@ -202,7 +202,7 @@ bool CObjectManager::GetRotation(EntityId objectId, CVector3& vecRotation)
 
 EntityId CObjectManager::CreateFire(const CVector3& vecPos, float fdensity)
 {
-	for(EntityId x = 0; x < 32; x++)
+	for(EntityId x = 0; x < MAX_FIRE; x++)
 	{
 		if(!m_bFireActive[x])
 		{
@@ -216,7 +216,6 @@ EntityId CObjectManager::CreateFire(const CVector3& vecPos, float fdensity)
 			m_bFireActive[x] = true;
 			return x;
 		}
-		return x;
 	}
 	return INVALID_ENTITY_ID;
 }
@@ -236,7 +235,7 @@ void CObjectManager::DeleteFire(EntityId fireId)
 void CObjectManager::HandleClientJoinFire(EntityId playerId)
 {
 	CBitStream bsSend;
-	for(EntityId x = 0; x < 32; x++)
+	for(EntityId x = 0; x < MAX_FIRE; x++)
 	{
 		if(m_bFireActive[x])
 		{

@@ -121,7 +121,7 @@ bool CNetworkPlayer::Create()
 	// Create a context data instance for this player
 	m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
 
-	CLogFile::Printf("Create 1");
+	CLogFile::Print("Create 1");
 
 	// Allocate the player ped
 	IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();

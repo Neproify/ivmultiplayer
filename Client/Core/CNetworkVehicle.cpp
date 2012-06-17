@@ -50,12 +50,12 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_ucVariation = 0;
 	m_bEngineStatus = false;
 	m_bTaxiLights = false;
-	m_fDoor1 = 0.0f;
-	m_fDoor2 = 0.0f;
-	m_fDoor3 = 0.0f;
-	m_fDoor4 = 0.0f;
-	m_fDoor5 = 0.0f;
-	m_fDoor6 = 0.0f;
+	m_fDoor[0] = 0.0f;
+	m_fDoor[1] = 0.0f;
+	m_fDoor[2] = 0.0f;
+	m_fDoor[3] = 0.0f;
+	m_fDoor[4] = 0.0f;
+	m_fDoor[5] = 0.0f;
 	m_bLights = false;
 }
 
@@ -1113,85 +1113,67 @@ bool CNetworkVehicle::IsOnScreen()
 
 void CNetworkVehicle::SetTaxiLights(bool bState)
 {
+	// Are we spawned?
 	if(IsSpawned())
 		Scripting::SetTaxiLights(GetScriptingHandle(),bState);
 
-	m_bTaxiLights = false;
+	m_bTaxiLights = bState;
 }
 
 bool CNetworkVehicle::GetTaxiLights()
 {
+	// Are we spawned?
 	if(IsSpawned())
 		return m_bTaxiLights;
 
 	return false;
 }
 
-void CNetworkVehicle::ControlCar(int idoor,bool open, float fangle)
+void CNetworkVehicle::ControlCar(int idoor,bool open, float fAngle)
 {
+	// Are we spawned?
 	if(IsSpawned())
 	{
-		if(fangle > 1.9f)
-			Scripting::ControlCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor,0,fangle);
-		else if(fangle > 350.0f)
+		if(fAngle > 1.9f && fAngle < 350.0f)
+			Scripting::ControlCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor,0,fAngle);
+		else if(fAngle >= 350.0f)
 			Scripting::OpenCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor);
-		else if(fangle < 2.0f)
+		else if(fAngle < 2.0f)
 			Scripting::ShutCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor);
+
+		g_pChatWindow->AddInfoMessage("%d, %f",idoor,fAngle);
 	}
 	
-	if(idoor == 0)
-		m_fDoor1 = fangle;
-	if(idoor == 1)
-		m_fDoor2 = fangle;
-	if(idoor == 2)
-		m_fDoor3 = fangle;
-	if(idoor == 3)
-		m_fDoor4 = fangle;
-	if(idoor == 4)
-		m_fDoor5 = fangle;
-	if(idoor == 5)
-		m_fDoor6 = fangle;
+	// Apply changes
+	m_fDoor[idoor] = fAngle;
 }
 
-float CNetworkVehicle::GetCarDoor(int idoor)
+float CNetworkVehicle::GetCarDoor(int iDoor)
 {
+	// Are we spawned?
 	if(IsSpawned())
-	{
-		if(idoor == 0)
-			return m_fDoor1;
-		if(idoor == 1)
-			return m_fDoor2;
-		if(idoor == 2)
-			return m_fDoor3;
-		if(idoor == 3)
-			return m_fDoor4;
-		if(idoor == 4)
-			return m_fDoor5;
-		if(idoor == 5)
-			return m_fDoor6;
-	}
+		return m_fDoor[iDoor];
+
 	return false;
 }
 
-void CNetworkVehicle::SetLights(bool blights)
+void CNetworkVehicle::SetLights(bool bLights)
 {
+	// Are we spawned?
 	if(IsSpawned())
 	{
-		if(blights)
-		{
+		if(bLights)
 			Scripting::ForceCarLights(GetScriptingHandle(),2);
-			m_bLights = true;
-		}
-		else if(!blights)
-		{
+		else if(!bLights)
 			Scripting::ForceCarLights(GetScriptingHandle(),1);
-			m_bLights = false;
-		}
+
+		m_bLights = bLights;
 	}
 }
 
 bool CNetworkVehicle::GetLights()
 {
+	// Are we spawned?
 	if(IsSpawned())
 		return m_bLights;
 
@@ -1200,46 +1182,33 @@ bool CNetworkVehicle::GetLights()
 
 bool CNetworkVehicle::GetWindow(int window)
 {
+	// Are we spawned?
 	if(IsSpawned())
-	{
-		if(window == 0)
-			return m_fWindow1;
-		else if(window == 1)
-			return m_fWindow2;
-		else if(window == 2)
-			return m_fWindow3;
-		else if(window == 3)
-			return m_fWindow4;
-		else 
-			return false;
-	}
+		return m_bWindow[window];
 
 	return false;
 }
 
 void CNetworkVehicle::SetWindow(int window, bool broken)
 {
+	// Are we spawned?
 	if(IsSpawned())
 	{
 		if(window >= 0 && window <= 4)
 		{
 			if(broken)
 				Scripting::RemoveVehicleWindow(GetScriptingHandle(),(Scripting::eVehicleWindow)window);
+			else if(!broken)
+				//TODO
 
-			if(window == 0)
-				m_fWindow1 = broken;
-			else if(window == 1)
-				m_fWindow2 = broken;
-			else if(window == 2)
-				m_fWindow3 = broken;
-			else if(window == 3)
-				m_fWindow4 = broken;
+			m_bWindow[window] = broken;
 		}
 	}
 }
 
 void CNetworkVehicle::SetDamageAble(bool toggle)
 {
+	// Are we spawned?
 	if(IsSpawned())
 	{
 		Scripting::SetCarCanBeDamaged(GetScriptingHandle(),toggle);
