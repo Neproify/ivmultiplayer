@@ -217,7 +217,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 											players++;
 									}
 									if(g_pNetworkManager->IsConnected())
-										g_pMainMenu->SetNetworkStats(g_pNetworkManager->GetHostName(),players,MAX_PLAYERS,g_pLocalPlayer->GetName());
+										g_pMainMenu->SetNetworkStats(g_pNetworkManager->GetHostName(),players,g_pNetworkManager->GetMaxPlayers(),g_pLocalPlayer->GetName());
 									/*if(g_pNetworkManager->IsConnected())
 										Scripting::SetTimeScale(0.0);*/
 									return 1;
@@ -239,24 +239,6 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 					}
 				}
 			}
-		}
-		// Is this a F10 key up?
-		if(uMsg == WM_KEYUP && wParam == VK_F1)
-		{
-			CVector3 vecPosition;
-			g_pLocalPlayer->GetPosition(vecPosition);
-			vecPosition.fX += 10.0f;
-			CGame::CreateExplosion(vecPosition, 0, 1.0f, true, false);
-		}
-		// Is this a F10 key up?
-		if(uMsg == WM_KEYUP && wParam == VK_F3)
-		{
-			CVector3 vecPosition;
-			g_pLocalPlayer->GetPosition(vecPosition);
-			vecPosition.fX += 10.0f;
-			char unkown;
-			sprintf(&unkown,"000");
-			CGame::CreateFire(vecPosition,unkown,10);
 		}
 		// Is this a F10 key up?
 		if(uMsg == WM_SYSKEYUP && wParam == VK_F10)

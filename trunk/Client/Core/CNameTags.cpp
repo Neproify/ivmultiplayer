@@ -47,7 +47,7 @@ void CNameTags::Draw()
 	if(!m_bEnabled)
 		return;
 
-	if(g_pPlayerManager && g_pCamera && g_pLocalPlayer)
+	if(g_pPlayerManager && g_pCamera && g_pLocalPlayer && g_pLocalPlayer->IsSpawned())
 	{
 		if(g_pGame->GetNameTags())
 		{
@@ -93,7 +93,7 @@ void CNameTags::Draw()
 					float m_fHealth = ( h_b_w * ((float)(pPlayer->GetHealth() - 100.0f) / 100) );
 					float m_fArmour = ( h_b_w * ((float)(pPlayer->GetArmour()) / 100) );
 					float fHealthWidth = Math::Clamp< float >( 0, (b_i_p + m_fHealth), 100 );
-					float fArmourHealth = Math::Clamp< float >( 0, (b_i_p + m_fArmour), 100 );
+					float fArmourWidth = Math::Clamp< float >( 0, (b_i_p + m_fArmour), 100 );
 
 					// set the position to the newest
 					vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.15f); // must be added, otherwise wrong pos
@@ -105,7 +105,7 @@ void CNameTags::Draw()
 					DWORD dwColor = ((pPlayer->GetColor() >> 8) | 0xFF000000);
 
 					// Draw the name tag
-					g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X - (b_w / 2)), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
+					g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X /*- (b_w / 2)*/), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
 
 					if(pPlayer->GetArmour() > 2.0)
 					{
@@ -116,7 +116,7 @@ void CNameTags::Draw()
 						g_pGraphics->DrawBox( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 180, 180, 180) );
 
 						// Armour
-						g_pGraphics->DrawBox( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), fArmourHealth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(225, 225, 225, 225) );
+						g_pGraphics->DrawBox( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), fArmourWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(225, 225, 225, 225) );
 
 						// Background
 						g_pGraphics->DrawBox( (vecScreenPosition.X - (b_w / 2)), (vecScreenPosition.Y + nt_a_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
@@ -187,7 +187,7 @@ void CNameTags::Draw()
 					float m_fHealth = ( h_b_w * ((float)(g_pActorManager->GetHealth(i) - 100.0f) / 100) );
 					float m_fArmour = ( h_b_w * ((float)g_pActorManager->GetArmour(i) / 100) );
 					float fHealthWidth = Math::Clamp< float >( 0, (b_i_p + m_fHealth), 100 );
-					float fArmourHealth = Math::Clamp< float >( 0, (b_i_p + m_fArmour), 100 );
+					float fArmourWidth = Math::Clamp< float >( 0, (b_i_p + m_fArmour), 100 );
 
 					// set the position to the newest
 					vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.15f); // must be added, otherwise wrong pos
@@ -199,7 +199,7 @@ void CNameTags::Draw()
 					DWORD dwColor = ((g_pActorManager->GetNametagColor(i) >> 8) | 0xFF000000);
 
 					// Draw the name tag
-					g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X - (b_w / 2)), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
+					g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X /*- (b_w / 2)*/), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
 
 					if(g_pActorManager->GetArmour(i) > 2.0)
 					{
@@ -210,7 +210,7 @@ void CNameTags::Draw()
 						g_pGraphics->DrawBox( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 180, 180, 180) );
 
 						// Armour
-						g_pGraphics->DrawBox( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), fArmourHealth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(225, 225, 225, 225) );
+						g_pGraphics->DrawBox( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), fArmourWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(225, 225, 225, 225) );
 
 						// Background
 						g_pGraphics->DrawBox( (vecScreenPosition.X - (b_w / 2)), (vecScreenPosition.Y + nt_a_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );

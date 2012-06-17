@@ -190,6 +190,7 @@ SQInteger CObjectNatives::CreateFire(SQVM *pVM)
 	sq_getfloat(pVM,-3,&vecPos.fY);
 	sq_getfloat(pVM,-2,&vecPos.fX);
 	sq_getfloat(pVM,-1,&fdensity);
+
 	sq_pushentity(pVM, g_pObjectManager->CreateFire(vecPos,fdensity));
 	return 1;
 }

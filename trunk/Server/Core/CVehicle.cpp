@@ -613,7 +613,7 @@ void CVehicle::TurnTaxiLights(bool on)
 	m_bTaxiLight = on;
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
-	bsSend.Write(on);
+	bsSend.Write(m_bTaxiLight);
 	g_pNetworkManager->RPC(RPC_ScriptingTurnTaxiLights, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 

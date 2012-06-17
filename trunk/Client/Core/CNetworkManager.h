@@ -32,6 +32,7 @@ private:
 	String                 m_sHostName;
 	bool                   m_bJoinedServer;
 	bool                   m_bJoinedGame;
+	int					   m_iMaxPlayers;
 
 public:
 	CNetworkManager();
@@ -40,6 +41,8 @@ public:
 	CNetClientInterface * GetNetClient() { return m_pNetClient; }
 	String                GetHostName() { return m_sHostName; };
 	void                  SetHostName(String sHostName) { m_sHostName = sHostName; };
+	void				  SetMaxPlayers(int iPlayers) { m_iMaxPlayers = iPlayers; };
+	int					  GetMaxPlayers() { return m_iMaxPlayers; };
 	void                  SetJoinedServer(bool bJoinedServer) { m_bJoinedServer = bJoinedServer; }
 	bool                  HasJoinedGame() { return m_bJoinedGame; }
 	void                  Startup(String strHost, unsigned short usPort, String strPassword);

@@ -105,7 +105,7 @@ public:
 	static void            RemoveInitialLoadingScreens();
 	static void            GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition);
 	static void            CreateExplosion(CVector3& vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound = true, bool bInvisible = false, float fCameraShake = 0.0f);
-	static unsigned int    CreateFire(CVector3 vecPosition, unsigned char ucAllowedGenerations, unsigned int uiStrength);
+	static unsigned int    CreateFire(CVector3 vecPosition, unsigned int uiStrength = 1, unsigned char ucAllowedGenerations = 0);
 	static bool            DeleteFire(unsigned int uiFire);
 	static void          * Alloc(DWORD dwSize);
 	static void            Free(void * pMemory);

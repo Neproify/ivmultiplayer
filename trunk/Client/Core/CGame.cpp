@@ -1096,7 +1096,7 @@ void CGame::CreateExplosion(CVector3& vecPosition, unsigned int uiExplosionType,
 	}
 }
 
-unsigned int CGame::CreateFire(CVector3 vecPosition, unsigned char ucAllowedGenerations, unsigned int uiStrength)
+unsigned int CGame::CreateFire(CVector3 vecPosition, unsigned int uiStrength, unsigned char ucAllowedGenerations)
 {
 	return Scripting::StartScriptFire(vecPosition.fX, vecPosition.fY, vecPosition.fZ, ucAllowedGenerations, uiStrength);
 }

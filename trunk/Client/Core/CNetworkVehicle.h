@@ -57,17 +57,9 @@ private:
 	unsigned char    m_ucVariation;
 	bool			 m_bEngineStatus;
 	bool			 m_bTaxiLights;
-	float			 m_fDoor1;
-	float			 m_fDoor2;
-	float			 m_fDoor3;
-	float			 m_fDoor4;
-	float			 m_fDoor5;
-	float			 m_fDoor6;
+	float			 m_fDoor[6];
 	bool			 m_bLights;
-	bool			 m_fWindow1;
-	bool			 m_fWindow2;
-	bool			 m_fWindow3;
-	bool			 m_fWindow4;
+	bool			 m_bWindow[4];
 
 	bool             Create();
 	void             Destroy();

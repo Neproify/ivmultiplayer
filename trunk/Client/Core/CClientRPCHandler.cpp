@@ -80,6 +80,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	unsigned short usHttpPort;
 	unsigned char ucWeather;
 	bool bGUINametags;
+	int iMaxPlayers;
 	unsigned char ucHour;
 	unsigned char ucMinute;
 	unsigned int uiMinuteDuration;
@@ -96,6 +97,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	pBitStream->Read(usHttpPort);
 	pBitStream->Read(ucWeather);
 	pBitStream->Read(bGUINametags);
+	pBitStream->Read(iMaxPlayers);
 
 	pBitStream->Read(ucHour);
 	pBitStream->Read(ucMinute);
@@ -137,6 +139,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	CGame::SetNameTags(bGUINametags);
 	g_pNetworkManager->SetHostName(sHostName);
+	g_pNetworkManager->SetMaxPlayers(iMaxPlayers);
 	g_pPlayerManager->SetLocalPlayer(playerId, g_pLocalPlayer);
 	g_pLocalPlayer->SetName(g_strNick);
 	g_pLocalPlayer->SetColor(color);
@@ -879,17 +882,21 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 	// Have we joined the game?
 	if(!g_pNetworkManager->HasJoinedGame())
 		return;
+	CLogFile::Printf("PlayerSpawn - 2.5");
 
 	EntityId playerId;
 	pBitStream->ReadCompressed(playerId);
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CLogFile::Printf("PlayerSpawn - 2.75 | playerId: %d",playerId);
 
 	// Is the player valid?
 	if(pPlayer)
 	{
+		CLogFile::Printf("PlayerSpawn - 3");
 		// Is it the local player?
 		if(pPlayer->IsLocalPlayer())
 		{
+			CLogFile::Printf("PlayerSpawn - 3.5");
 			// Respawn the local player
 			g_pLocalPlayer->Respawn();
 		}
@@ -1016,11 +1023,7 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 	bool bHasAimSyncData = pBitStream->ReadBit();
 
 	if(bHasAimSyncData)
-	{
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
-	}
-
-
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 	if(pPlayer && !pPlayer->IsLocalPlayer())
@@ -2682,6 +2685,7 @@ void CClientRPCHandler::ScriptingCreateFire(CBitStream * pBitStream, CPlayerSock
 
 	float fdensity;
 	pBitStream->Read(fdensity);
+
 	g_pFireManager->Create(fireId,vecPos,fdensity);
 }
 
@@ -2706,7 +2710,7 @@ void CClientRPCHandler::ScriptingCreateExplosion(CBitStream * pBitStream, CPlaye
 
 	float fdensity;
 	pBitStream->Read(fdensity);
-	CGame::CreateExplosion(vecPos, 0, fdensity, true, false);
+	CGame::CreateExplosion(vecPos, 1, fdensity);
 }
 
 void CClientRPCHandler::ScriptingForcePlayerAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2812,6 +2816,7 @@ void CClientRPCHandler::ScriptingPlayGameAudio(CBitStream * pBitStream, CPlayerS
 	String szMusic;
 	pBitStream->Read(szMusic);
 
+	//static void TriggerGameSound(const char *szMusic) { NativeInvoke::Invoke<unsigned int>(NATIVE_PLAY_SOUND, szMusic/*, NULL, SND_FILENAME | SND_ASYNC*/); }
 	Scripting::TriggerGameSound(szMusic.C_String());
 }
 

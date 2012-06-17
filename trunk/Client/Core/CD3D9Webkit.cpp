@@ -184,7 +184,7 @@ bool CD3D9WebkitNotification::LoadUpdate(EA::WebKit::LoadInfo& info)
 	const char * szTitle = ConvertUnicodeToANSI(g_pWebkit->GetWebKit()->GetCharacters(info.mPageTitle));
 	CSquirrelArguments table;
 	CD3D9WebView * pView = (CD3D9WebView*)info.mpView->GetUserData();
-	CLogFile::Printf("View: 0x%x", pView);
+	//CLogFile::Printf("View: 0x%x", pView);
 	table.push(pView->GetName().Get());
 	table.push(info.mbCompleted);
 	table.push((int)info.mContentLength);

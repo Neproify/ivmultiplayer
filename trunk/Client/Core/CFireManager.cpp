@@ -9,6 +9,7 @@
 #include "CFireManager.h"
 #include "CGame.h"
 #include "CChatWindow.h"
+#include "Scripting.h"
 
 extern CChatWindow * g_pChatWindow;
 
@@ -35,12 +36,9 @@ void CFireManager::Create(EntityId fireId, CVector3& vecPos, float fdensity)
 		Delete(fireId);
 	
 	m_bActive[fireId] = true;
-	char unkown;
-	sprintf(&unkown,"000");
-	unsigned int handle = CGame::CreateFire(vecPos,unkown,(unsigned int)fdensity);
-	m_Fire[fireId].uiHandle = handle;
+	m_Fire[fireId].uiHandle = CGame::CreateFire(vecPos,(unsigned int)10);
 	m_Fire[fireId].fdensity = fdensity;
-	g_pChatWindow->AddInfoMessage("FIRE READY: X: %f, Y: %f, Z: %f",vecPos.fX,vecPos.fY,vecPos.fZ);
+	g_pChatWindow->AddInfoMessage("FIRE READY: X: %f, Y: %f, Z: %f, density:%f",vecPos.fX,vecPos.fY,vecPos.fZ,fdensity);
 }
 
 void CFireManager::Delete(EntityId fireId)
