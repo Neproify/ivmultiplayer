@@ -28,6 +28,8 @@ private:
 	static SQInteger ToggleRoute(SQVM * pVM);
 	static SQInteger SetName(SQVM * pVM);
 	static SQInteger GetName(SQVM * pVM);
+	static SQInteger SwitchIcon(SQVM * pVM);
+	static SQInteger SwitchIconPlayer(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

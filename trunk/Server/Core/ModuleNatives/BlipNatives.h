@@ -18,7 +18,7 @@ namespace Modules
 	class CBlipModuleNatives : public ICBlipModuleNatives
 	{
 	public:
-		EntityId Create(int iSprite, CVector3 vecPosition);
+		EntityId Create(int iSprite, CVector3 vecPosition, bool bShow);
 		bool Delete(EntityId blipId);
 		bool SetCoordinates(EntityId blipId, CVector3 vecPosition);
 		CVector3 GetCoordinates(EntityId blipId);

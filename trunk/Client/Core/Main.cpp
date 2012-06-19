@@ -267,134 +267,102 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 		{
-			CLogFile::Printf("Shutdown 1");
 
 			// Delete our file transfer
 			SAFE_DELETE(g_pFileTransfer);
-			CLogFile::Printf("Shutdown 2");
 
 			// Delete our camera
 			SAFE_DELETE(g_pCamera);
-			CLogFile::Printf("Shutdown 3");
 
 			// Delete our model manager
 			SAFE_DELETE(g_pModelManager);
-			CLogFile::Printf("Shutdown 4");
 
 			// Delete our pickup manager
 			SAFE_DELETE(g_pPickupManager);
-			CLogFile::Printf("Shutdown 5");
 
 			// Delete our checkpoint manager
 			SAFE_DELETE(g_pCheckpointManager);
-			CLogFile::Printf("Shutdown 6");
 
 			// Delete our object manager
 			SAFE_DELETE(g_pObjectManager);
-			CLogFile::Printf("Shutdown 7");
 
 			// Delete our blip manager
 			SAFE_DELETE(g_pBlipManager);
-			CLogFile::Printf("Shutdown 8");
 
 			// Delete our actor manager
 			SAFE_DELETE(g_pActorManager);
-			CLogFile::Printf("Shutdown 9");
 
 			// Delete our vehicle manager
 			SAFE_DELETE(g_pVehicleManager);
-			CLogFile::Printf("Shutdown 10");
 
 			// Delete our local player
 			SAFE_DELETE(g_pLocalPlayer);
-			CLogFile::Printf("Shutdown 11");
 
 			// Delete our player manager
 			SAFE_DELETE(g_pPlayerManager);
-			CLogFile::Printf("Shutdown 12");
 
 			// Delete our network manager
 			SAFE_DELETE(g_pNetworkManager);
-			CLogFile::Printf("Shutdown 13");
 
 			// Delete our name tags
 			SAFE_DELETE(g_pNameTags);
-			CLogFile::Printf("Shutdown 14");
 
 			// Delete our input window
 			SAFE_DELETE(g_pInputWindow);
-			CLogFile::Printf("Shutdown 15");
 
 			// Delete our chat window
 			SAFE_DELETE(g_pChatWindow);
-			CLogFile::Printf("Shutdown 16");
 
 			// Delete our fps counter
 			SAFE_DELETE(g_pFPSCounter);
-			CLogFile::Printf("Shutdown 17");
 
 			// Delete our credits
 			SAFE_DELETE(g_pCredits);
-			CLogFile::Printf("Shutdown 18");
 
 			// Delete our main menu
 			SAFE_DELETE(g_pMainMenu);
-			CLogFile::Printf("Shutdown 19");
 
 			// Delete our gui
 			SAFE_DELETE(g_pGUI);
-			CLogFile::Printf("Shutdown 20");
 
 			// Delete our streamer class
 			SAFE_DELETE(g_pStreamer);
-			CLogFile::Printf("Shutdown 21");
 
 			// Delete our time class
 			SAFE_DELETE(g_pTime);
-			CLogFile::Printf("Shutdown 22");
 
 			// Delete our traffic lights
 			SAFE_DELETE(g_pTrafficLights);
-			CLogFile::Printf("Shutdown 23");
 
 			// Delete our client task manager
 			SAFE_DELETE(g_pClientTaskManager);
-			CLogFile::Printf("Shutdown 24");
 
 			// Delete our events manager
 			SAFE_DELETE(g_pEvents);
-			CLogFile::Printf("Shutdown 25");
 
 			// Uninstall the Cursor hook
 #ifdef IVMP_DEBUG
 			CCursorHook::Uninstall();
 #endif
-			CLogFile::Printf("Shutdown 26");
 
 			// Uninstall the DirectInput hook
 			CDirectInputHook::Uninstall();
-			CLogFile::Printf("Shutdown 27");
 
 			// Uninstall the Direct3D hook
 			CDirect3DHook::Uninstall();
-			CLogFile::Printf("Shutdown 28");
 
 			// Uninstall the XLive hook
 			// TODO
-			CLogFile::Printf("Shutdown 29");
 
 			// Shutdown audio manager
 			CAudioManager::SetAllVolume(0.0f);
 			CAudioManager::RemoveAll();
 
 			// Shutdown our game
-			CLogFile::Printf("Shutdown CGame");
 			CGame::Shutdown();
-			CLogFile::Printf("Shutdown 30");
 
 			// Close the settings file
 			CSettings::Close();
-			CLogFile::Printf("Shutdown 31");
 
 			// Close the log file
 			CLogFile::Close();

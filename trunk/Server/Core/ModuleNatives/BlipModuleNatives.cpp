@@ -23,9 +23,9 @@ extern CPlayerManager * g_pPlayerManager;
 namespace Modules
 {
 	// createBlip(spriteID, x, y, z)
-	EntityId CBlipModuleNatives::Create(int iSprite, CVector3 vecPosition)
+	EntityId CBlipModuleNatives::Create(int iSprite, CVector3 vecPosition, bool bShow)
 	{
-		return g_pBlipManager->Create(iSprite, vecPosition);
+		return g_pBlipManager->Create(iSprite, vecPosition, bShow);
 	}
 
 	// deleteBlip(blipid)
@@ -215,5 +215,4 @@ namespace Modules
 
 		return NULL;
 	}
-
 }

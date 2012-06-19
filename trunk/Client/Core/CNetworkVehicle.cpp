@@ -10,7 +10,6 @@
 // they are streamed in too (possibly force stream in if not?))
 
 #include "CNetworkVehicle.h"
-#include "CChatWindow.h"
 #include "CPlayerManager.h"
 #include "CModelManager.h"
 #include "CLocalPlayer.h"
@@ -708,19 +707,19 @@ void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 	SetHealth(emptyVehicleSync->uiHealth);
 	SetPetrolTankHealth(emptyVehicleSync->fPetrolHealth);
 	SetDirtLevel(emptyVehicleSync->fDirtLevel);
-	SetWindow(0,emptyVehicleSync->bWindow[0]);
-	SetWindow(1,emptyVehicleSync->bWindow[1]);
-	SetWindow(2,emptyVehicleSync->bWindow[2]);
-	SetWindow(3,emptyVehicleSync->bWindow[3]);
-	SetLights(emptyVehicleSync->bLights);
-	SetTaxiLights(emptyVehicleSync->bTaxiLights);
+	SetWindowBroken(0,emptyVehicleSync->bWindow[0]);
+	SetWindowBroken(1,emptyVehicleSync->bWindow[1]);
+	SetWindowBroken(2,emptyVehicleSync->bWindow[2]);
+	SetWindowBroken(3,emptyVehicleSync->bWindow[3]);
+	SetLightsState(emptyVehicleSync->bLights);
+	SetTaxiLightsState(emptyVehicleSync->bTaxiLights);
 	SetSirenState(emptyVehicleSync->bSirenState);
-	ControlCar(0,0,emptyVehicleSync->fDoor[0]);
-	ControlCar(1,0,emptyVehicleSync->fDoor[1]);
-	ControlCar(2,0,emptyVehicleSync->fDoor[2]);
-	ControlCar(3,0,emptyVehicleSync->fDoor[3]);
-	ControlCar(4,0,emptyVehicleSync->fDoor[4]);
-	ControlCar(5,0,emptyVehicleSync->fDoor[5]);
+	SetCarDoorAngle(0,0,emptyVehicleSync->fDoor[0]);
+	SetCarDoorAngle(1,0,emptyVehicleSync->fDoor[1]);
+	SetCarDoorAngle(2,0,emptyVehicleSync->fDoor[2]);
+	SetCarDoorAngle(3,0,emptyVehicleSync->fDoor[3]);
+	SetCarDoorAngle(4,0,emptyVehicleSync->fDoor[4]);
+	SetCarDoorAngle(5,0,emptyVehicleSync->fDoor[5]);
 }
 
 BYTE CNetworkVehicle::GetMaxPassengers()
@@ -1111,7 +1110,7 @@ bool CNetworkVehicle::IsOnScreen()
 	return false;
 }
 
-void CNetworkVehicle::SetTaxiLights(bool bState)
+void CNetworkVehicle::SetTaxiLightsState(bool bState)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -1120,7 +1119,7 @@ void CNetworkVehicle::SetTaxiLights(bool bState)
 	m_bTaxiLights = bState;
 }
 
-bool CNetworkVehicle::GetTaxiLights()
+bool CNetworkVehicle::GetTaxiLightsState()
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -1157,7 +1156,7 @@ float CNetworkVehicle::GetCarDoor(int iDoor)
 	return false;
 }
 
-void CNetworkVehicle::SetLights(bool bLights)
+void CNetworkVehicle::SetLightsState(bool bLights)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -1171,7 +1170,7 @@ void CNetworkVehicle::SetLights(bool bLights)
 	}
 }
 
-bool CNetworkVehicle::GetLights()
+bool CNetworkVehicle::GetLightsState()
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -1180,39 +1179,39 @@ bool CNetworkVehicle::GetLights()
 	return false;
 }
 
-bool CNetworkVehicle::GetWindow(int window)
+bool CNetworkVehicle::GetWindowBrokenState(int iWindow)
 {
 	// Are we spawned?
 	if(IsSpawned())
-		return m_bWindow[window];
+		return m_bWindow[iWindow];
 
 	return false;
 }
 
-void CNetworkVehicle::SetWindow(int window, bool broken)
+void CNetworkVehicle::SetWindowBroken(int iWindow, bool bBroken)
 {
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		if(window >= 0 && window <= 4)
+		if(iWindow >= 0 && iWindow <= 4)
 		{
-			if(broken)
-				Scripting::RemoveVehicleWindow(GetScriptingHandle(),(Scripting::eVehicleWindow)window);
-			else if(!broken)
+			if(bBroken)
+				Scripting::RemoveVehicleWindow(GetScriptingHandle(),(Scripting::eVehicleWindow)iWindow);
+			else if(!bBroken)
 				//TODO
 
-			m_bWindow[window] = broken;
+			m_bWindow[iWindow] = bBroken;
 		}
 	}
 }
 
-void CNetworkVehicle::SetDamageAble(bool toggle)
+void CNetworkVehicle::SetDamageAble(bool bToggle)
 {
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		Scripting::SetCarCanBeDamaged(GetScriptingHandle(),toggle);
-		Scripting::SetCarCanBurstTyres(GetScriptingHandle(),toggle);
+		Scripting::SetCarCanBeDamaged(GetScriptingHandle(),bToggle);
+		Scripting::SetCarCanBurstTyres(GetScriptingHandle(),bToggle);
 	}
 }
 

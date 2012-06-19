@@ -15,13 +15,14 @@
 
 struct _Blip
 {
-	CVector3 vecSpawnPos;
-	int sprite;
-	unsigned int color;
-	float size;
-	bool shortRange;
-	bool routeBlip;
-	String strName;
+	CVector3		vecSpawnPos;
+	int				iSprite;
+	unsigned int	uiColor;
+	float			fSize;
+	bool			bShortRange;
+	bool			bRouteBlip;
+	bool			bShow;
+	String			strName;
 };
 
 class CBlipManager : public CBlipManagerInterface
@@ -34,7 +35,7 @@ public:
 	CBlipManager();
 	~CBlipManager();
 
-	EntityId     Create(int iSprite, CVector3 vecPosition);
+	EntityId     Create(int iSprite, CVector3 vecPosition, bool bShow);
 	void         Delete(EntityId blipId);
 	void         SetPosition(EntityId blipId, CVector3 vecPosition);
 	CVector3      GetPosition(EntityId blipId);
@@ -49,4 +50,5 @@ public:
 	void         HandleClientJoin(EntityId playerId);
 	bool         DoesExist(EntityId blipId);
 	EntityId     GetBlipCount();
+	void		 SwitchIcon(EntityId blipId, bool bShow, EntityId playerId);
 };

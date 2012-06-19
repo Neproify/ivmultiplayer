@@ -162,7 +162,6 @@ inline bool SortStreamableEntites(CStreamableEntity * pEntity, CStreamableEntity
 }
 
 // TODO: Notify server of stream in/out
-
 void CStreamer::Pulse()
 {
 	unsigned long ulTime = SharedUtility::GetTime();

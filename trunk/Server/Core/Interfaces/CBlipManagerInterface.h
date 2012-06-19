@@ -12,7 +12,7 @@
 class CBlipManagerInterface
 {
 public:
-	virtual EntityId     Create(int iSprite, CVector3 vecPosition) = 0;
+	virtual EntityId     Create(int iSprite, CVector3 vecPosition, bool bShow) = 0;
 	virtual void         Delete(EntityId blipId) = 0;
 	virtual void         SetPosition(EntityId blipId, CVector3 vecPosition) = 0;
 	virtual CVector3     GetPosition(EntityId blipId) = 0;
@@ -24,4 +24,5 @@ public:
 	virtual void	     ToggleRoute(EntityId blipId, bool bRoute) = 0;
 	virtual bool         DoesExist(EntityId blipId) = 0;
 	virtual EntityId     GetBlipCount() = 0;
+	virtual void		 SwitchIcon(EntityId blipId, bool bShow, EntityId playerId) = 0;
 };

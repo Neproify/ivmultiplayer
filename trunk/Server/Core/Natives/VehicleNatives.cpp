@@ -943,7 +943,6 @@ SQInteger CVehicleNatives::ControlCar(SQVM *pVM)
 	if(pVehicle)
 	{
 		bool bToggle2 = (door2 != 0);
-		bool bToggle3 = (door3 != 0);
 		pVehicle->ControlCarDoors(door,bToggle2,door3);
 		return 1;
 	}

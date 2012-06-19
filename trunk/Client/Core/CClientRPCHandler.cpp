@@ -279,26 +279,18 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	// Read the engine state
 	bool bEngineStatus = pBitStream->ReadBit();
 	bool bLights = pBitStream->ReadBit();
-	float Door1;
-	float Door2;
-	float Door3;
-	float Door4;
-	float Door5;
-	float Door6;
-	pBitStream->Read(Door1);
-	pBitStream->Read(Door2);
-	pBitStream->Read(Door3);
-	pBitStream->Read(Door4);
-	pBitStream->Read(Door5);
-	pBitStream->Read(Door6);
-	bool Window1;
-	bool Window2;
-	bool Window3;
-	bool Window4;
-	pBitStream->Read(Window1);
-	pBitStream->Read(Window2);
-	pBitStream->Read(Window3);
-	pBitStream->Read(Window4);
+	float fDoor[5];
+	pBitStream->Read(fDoor[0]);
+	pBitStream->Read(fDoor[1]);
+	pBitStream->Read(fDoor[2]);
+	pBitStream->Read(fDoor[3]);
+	pBitStream->Read(fDoor[4]);
+	pBitStream->Read(fDoor[5]);
+	bool bWindow[3];
+	pBitStream->Read(bWindow[0]);
+	pBitStream->Read(bWindow[1]);
+	pBitStream->Read(bWindow[2]);
+	pBitStream->Read(bWindow[3]);
 	bool TaxiLight;
 	pBitStream->Read(TaxiLight);
 
@@ -359,20 +351,20 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	// set the engine status
 	pVehicle->SetEngineState(bEngineStatus);
 	
-	// set the stuff
-	pVehicle->SetLights(bLights);
+	// set the lights
+	pVehicle->SetLightsState(bLights);
+	pVehicle->SetTaxiLightsState(TaxiLight);
+
+	// set the petrol tank health
 	pVehicle->SetPetrolTankHealth(fPetrolTank);
-	pVehicle->ControlCar(0,0,Door1);
-	pVehicle->ControlCar(0,0,Door2);
-	pVehicle->ControlCar(0,0,Door3);
-	pVehicle->ControlCar(0,0,Door4);
-	pVehicle->ControlCar(0,0,Door5);
-	pVehicle->ControlCar(0,0,Door6);
-	pVehicle->SetWindow(0,Window1);
-	pVehicle->SetWindow(1,Window2);
-	pVehicle->SetWindow(2,Window3);
-	pVehicle->SetWindow(3,Window4);
-	pVehicle->SetTaxiLights(TaxiLight);
+
+	// set the door angle
+	for(int i = 0; i < 6; i++)
+		pVehicle->SetCarDoorAngle(0,0,fDoor[i]);
+
+	// set the window states(broken etc)
+	for(int i = 0; i < 4; i++)
+		pVehicle->SetWindowBroken(0,bWindow[i]);
 
 	// Flag the vehicle as can be streamed in
 	pVehicle->SetCanBeStreamedIn(true);
@@ -457,7 +449,6 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 
 					if(pVehicle)
 						Scripting::AttachObjectToCar(pObject->GetHandle(),pVehicle->GetScriptingHandle(),0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ);
-				
 				}
 			}
 			else if(!bVehicleAttached)
@@ -468,7 +459,6 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 					
 					if(pPlayer)
 						Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
-
 				}
 			}
 		}	
@@ -520,7 +510,6 @@ void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pS
 
 						if(pVehicle)
 							Scripting::AttachObjectToCar(pObject->GetHandle(),pVehicle->GetScriptingHandle(),0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ);
-				
 					}
 				}
 				else if(!bVehicleAttached)
@@ -531,7 +520,6 @@ void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pS
 					
 						if(pPlayer)
 							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
-
 					}
 				}
 			}
@@ -617,13 +605,14 @@ void CClientRPCHandler::NewBlip(CBitStream * pBitStream, CPlayerSocket * pSender
 	if(!pBitStream)
 		return;
 
-	int iSpriteId;
-	CVector3 vecPosition;
-	unsigned int uiColor;
-	float fSize;
-	bool bShortRange;
-	bool bRouteBlip;
-	String strName;
+	int				iSpriteId;
+	CVector3		vecPosition;
+	unsigned int	uiColor;
+	float			fSize;
+	bool			bShortRange;
+	bool			bRouteBlip;
+	bool			bShow;
+	String			strName;
 
 	// Read the blip id
 	EntityId blipId;
@@ -648,6 +637,9 @@ void CClientRPCHandler::NewBlip(CBitStream * pBitStream, CPlayerSocket * pSender
 		//Read if it's a route Blip
 		pBitStream->Read(bRouteBlip);
 
+		// Read if it's shown 
+		pBitStream->Read(bShow);
+
 		// Read the name
 		pBitStream->Read(strName);
 
@@ -657,6 +649,7 @@ void CClientRPCHandler::NewBlip(CBitStream * pBitStream, CPlayerSocket * pSender
 		g_pBlipManager->SetSize(blipId, fSize);
 		g_pBlipManager->ToggleShortRange(blipId, bShortRange);
 		g_pBlipManager->ToggleRouteBlip(blipId, bRouteBlip);
+		g_pBlipManager->Show(blipId, bShow);
 		g_pBlipManager->SetName(blipId, strName);
 	}
 }
@@ -912,25 +905,26 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pBitStream->Read(bHelmet);
 			pBitStream->Read(vecSpawnPos);
 			pBitStream->Read(fHeading);
-	
-			CLogFile::Printf("PlayerSpawn - 4");
 
+			// If the player is already spawned(connected) -> clear die task
 			if(pPlayer->IsSpawned())
 				pPlayer->ClearDieTask();
-			
-			CLogFile::Printf("PlayerSpawn - 6");
 
+			// Reset health to 100, otherwise player is "dead"
+			pPlayer->SetHealth(100);
+
+			// Spawn player
 			g_pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
 
+			// Is there a helmet?
 			if(bHelmet)
 				pPlayer->GiveHelmet();
 
-			CLogFile::Printf("PlayerSpawn - 7");
-			pBitStream->Read(vehicleId);
-			CLogFile::Printf("PlayerSpawn - 8");
 
+			pBitStream->Read(vehicleId);
 			CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
+			// Is the player driver or passenger?
 			if(pVehicle)
 			{
 				BYTE byteVehicleSeatId;
@@ -949,7 +943,6 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 					g_pPlayerManager->GetAt(playerId)->SetClothes(uc, ucClothes);
 				}
 			}
-			CLogFile::Printf("PlayerSpawn - 9");
 		}
 	}
 }
@@ -1669,11 +1662,9 @@ void CClientRPCHandler::ScriptingSetVehicleDirtLevel(CBitStream * pBitStream, CP
 		return;
 
 	EntityId vehicleId;
-
 	float fLevel;
 
 	pBitStream->Read(vehicleId);
-
 	pBitStream->Read(fLevel);
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
@@ -1730,7 +1721,7 @@ void CClientRPCHandler::ScriptingTurnTaxiLights(CBitStream * pBitStream, CPlayer
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
 	if(pVehicle)
-		pVehicle->SetTaxiLights(bState);
+		pVehicle->SetTaxiLightsState(bState);
 }
 
 void CClientRPCHandler::ScriptingControlCar(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1740,18 +1731,18 @@ void CClientRPCHandler::ScriptingControlCar(CBitStream * pBitStream, CPlayerSock
 		return;
 
 	EntityId vehicleId;
-	int idoor;
+	int iDoor;
 	bool bState;
-	float fangle;
+	float fAngle;
 	pBitStream->Read(vehicleId);
-	pBitStream->Read(idoor);
+	pBitStream->Read(iDoor);
 	pBitStream->Read(bState);
-	pBitStream->Read(fangle);
+	pBitStream->Read(fAngle);
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
 	if(pVehicle)
-		pVehicle->ControlCar(idoor,bState,fangle);
+		pVehicle->SetCarDoorAngle(iDoor,bState,fAngle);
 
 }
 
@@ -1762,14 +1753,14 @@ void CClientRPCHandler::ScriptingSetVehicleLights(CBitStream * pBitStream, CPlay
 		return;
 
 	EntityId vehicleId;
-	bool lights;
+	bool bLights;
 	pBitStream->Read(vehicleId);
-	pBitStream->Read(lights);
+	pBitStream->Read(bLights);
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
 	if(pVehicle)
-		pVehicle->SetLights(lights);
+		pVehicle->SetLightsState(bLights);
 }
 
 void CClientRPCHandler::ScriptingRepairVehicleTyres(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2209,6 +2200,24 @@ void CClientRPCHandler::ScriptingSetBlipName(CBitStream * pBitStream, CPlayerSoc
 
 	//Set the blip name
 	g_pBlipManager->SetName(blipId, strName);
+}
+
+void CClientRPCHandler::ScriptingSetBlipIcon(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	// Read the blip id
+	EntityId blipId;
+	pBitStream->Read(blipId);
+
+	//Read the name
+	bool bShow;
+	pBitStream->Read(bShow);
+
+	//Set the blip name
+	g_pBlipManager->Show(blipId, bShow);
 
 }
 
@@ -2947,6 +2956,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingToggleBlipShortRange, ScriptingToggleBlipShortRange);
 	AddFunction(RPC_ScriptingToggleBlipRoute, ScriptingToggleBlipRoute);
 	AddFunction(RPC_ScriptingSetBlipName, ScriptingSetBlipName);
+	AddFunction(RPC_ScriptingSetBlipIcon, ScriptingSetBlipIcon);
 	AddFunction(RPC_ScriptingShowCheckpointForPlayer, ScriptingShowCheckpointForPlayer);
 	AddFunction(RPC_ScriptingHideCheckpointForPlayer, ScriptingHideCheckpointForPlayer);
 	AddFunction(RPC_ScriptingToggleHUD, ScriptingToggleHUD);
@@ -3082,6 +3092,7 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingToggleBlipShortRange);
 	RemoveFunction(RPC_ScriptingToggleBlipRoute);
 	RemoveFunction(RPC_ScriptingSetBlipName);
+	RemoveFunction(RPC_ScriptingSetBlipIcon);
 	RemoveFunction(RPC_ScriptingShowCheckpointForPlayer);
 	RemoveFunction(RPC_ScriptingHideCheckpointForPlayer);
 	RemoveFunction(RPC_ScriptingToggleHUD);

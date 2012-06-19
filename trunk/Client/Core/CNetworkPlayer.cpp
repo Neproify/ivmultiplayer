@@ -438,6 +438,8 @@ void CNetworkPlayer::Kill(bool bInstantly)
 		// Are we getting killed instantly?
 		if(bInstantly)
 		{
+			/* Only use complex die
+
 			// Create the dead task
 			// if this doesn't work vary last 2 params (1, 0 : 0, 1 : 1, 1 : 0, 0)
 			CIVTaskSimpleDead * pTask = new CIVTaskSimpleDead(CGame::GetTime(), 1, 0);
@@ -448,6 +450,8 @@ void CNetworkPlayer::Kill(bool bInstantly)
 				// Set it as the ped task
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
 			}
+			
+			*/
 		}
 		else // We are not getting killed instantly
 		{
@@ -464,10 +468,9 @@ void CNetworkPlayer::Kill(bool bInstantly)
 			if(pTask)
 			{
 				// Set it as the ped task
-				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
+				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
 			}
 		}
-
 		// Set the health and armour to 0
 		SetHealth(0);
 		SetArmour(0);
@@ -488,7 +491,7 @@ bool CNetworkPlayer::IsDying()
 {
 	if(IsSpawned())
 	{
-		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
+		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
 
 		if(pTask)
 		{
@@ -1664,13 +1667,13 @@ bool CNetworkPlayer::ClearDieTask()
 {
 	if(IsSpawned())
 	{
-		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
+		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
 
 		if(pTask)
 		{
 			if(pTask->GetType() == TASK_COMPLEX_DIE)
 			{
-				m_pPlayerPed->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
+				m_pPlayerPed->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_PRIMARY);
 				return true;
 			}
 		}

@@ -115,6 +115,7 @@ private:
 	static void ScriptingToggleBlipShortRange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingToggleBlipRoute(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetBlipName(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetBlipIcon(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingShowCheckpointForPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingHideCheckpointForPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingToggleHUD(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

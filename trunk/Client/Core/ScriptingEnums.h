@@ -2523,7 +2523,7 @@ namespace Scripting
 		VEHICLE_DOOR_LEFT_REAR,
 		VEHICLE_DOOR_RIGHT_REAR,
 		VEHICLE_DOOR_HOOD,
-		VEHICLE_DOOR_TRUNK,
+		VEHICLE_DOOR_TRUNK
 	};
 
 	enum eVehicleDoorLock
@@ -2533,7 +2533,7 @@ namespace Scripting
 		VEHICLE_DOOR_LOCK_1,
 		VEHICLE_DOOR_LOCK_2,
 		VEHICLE_DOOR_LOCK_3,
-		VEHICLE_DOOR_LOCK_4,
+		VEHICLE_DOOR_LOCK_4
 	};
 
 	enum eVehicleDrivingStyle
@@ -2550,14 +2550,14 @@ namespace Scripting
 		VEHICLE_TYRE2,
 		VEHICLE_TYRE3,
 		VEHICLE_TYRE4,
-		VEHICLE_TYRE5,
+		VEHICLE_TYRE5
 	};
 
 	enum eVehicleLights
 	{
 		VEHICLE_LIGHTS_0,
 		VEHICLE_LIGHTS_1,
-		VEHICLE_LIGHTS_2,
+		VEHICLE_LIGHTS_2
 	};
 
 	enum eVehicleWindow
@@ -2565,7 +2565,7 @@ namespace Scripting
 		VEHICLE_WINDOW_LEFTFRONT,
 		VEHICLE_WINDOW_RIGHTFRONT,
 		VEHICLE_WINDOW_LEFTREAR,
-		VEHICLE_WINDOW_RIGHTREAR,
+		VEHICLE_WINDOW_RIGHTREAR
 	};
 
 	enum eVehicleExtra
@@ -2575,7 +2575,8 @@ namespace Scripting
 
 	enum eBlipDisplay
 	{
-		// todo
+		BLIP_MODE_HIDE = 4,
+		BLIP_MODE_SHOW = 0
 	};
 
 	enum eBlipPriority

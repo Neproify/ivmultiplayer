@@ -5,6 +5,8 @@ const White = 0xFFFFFFFF;
 local vehicles = {};
 local createVehicle_Original = createVehicle;
 local blip1, blip2;
+local blip;
+blip = createBlip(75, 0.0, 0.0, 0.0,true);
 
 function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4)
 {
@@ -28,7 +30,6 @@ function onScriptInit()
 	createVehicle(90, -343.609344, 1166.145630, 14.199894, 0.0, 0.0, 268.305298, 0, 0, 0, 0); // Sultan RS 4
 	createVehicle(90, -343.623444, 1162.919067, 14.199799, 0.0, 0.0, 269.975037, 0, 0, 0, 0); // Sultan RS 5
 	createVehicle(90, -343.633057, 1158.563843, 14.126013, 0.0, 0.0, 270.858826, 0, 0, 0, 0); // Sultan RS 6
-	
 	sendConsoleInput("uptime");
 	log(format("Hello %s 0x%x %d", "World", 1337, 1337));
 	log(_version_);
@@ -112,8 +113,15 @@ function onPlayerCommand(playerid, command)
 	}
 	if(cmd[0] == "/blib")
 	{
-		local blip = createBlip(75, 0.0, 0.0, 0.0);
 		toggleBlipRoute(blip,true,playerid);
+	}
+	if(cmd[0] == "/changeblip")
+	{
+		switchBlipIconForPlayer(blip,playerid,true);
+	}
+	if(cmd[0] == "/changeblip2")
+	{
+		switchBlipIconForPlayer(blip,playerid,false);
 	}
 	if(cmd[0] == "/forceanimplayer")
 	{

@@ -105,7 +105,7 @@ void CNameTags::Draw()
 					DWORD dwColor = ((pPlayer->GetColor() >> 8) | 0xFF000000);
 
 					// Draw the name tag
-					g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X /*- (b_w / 2)*/), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
+					g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X - (b_w / 2)), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
 
 					if(pPlayer->GetArmour() > 2.0)
 					{
@@ -199,7 +199,7 @@ void CNameTags::Draw()
 					DWORD dwColor = ((g_pActorManager->GetNametagColor(i) >> 8) | 0xFF000000);
 
 					// Draw the name tag
-					g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X /*- (b_w / 2)*/), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
+					g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X - (b_w / 2)), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
 
 					if(g_pActorManager->GetArmour(i) > 2.0)
 					{

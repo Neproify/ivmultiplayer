@@ -219,14 +219,14 @@ struct InVehicleSyncData
 	CVector3 vecMoveSpeed;                 // vehicle move speed
 	bool bEngineStatus : 1;				   // vehicle engine status
 	bool hHazardLights : 1;				   // hazardlights status
-	float fPetrolHealth;
-	float fDirtLevel;      
-	float fDoor[6];
-	bool bLights;
-	bool bTaxiLights : 1;
-	bool bSirenState : 1;
-	bool bWindow[4];
-	bool bTyre[6];
+	float fPetrolHealth;				   // vehicle petrol tank health
+	float fDirtLevel;					   // vehicle dirt
+	float fDoor[6];						   // vehicle doors(open angle)
+	bool bLights;						   // vehicle lights
+	bool bTaxiLights : 1;				   // vehicle taxilight
+	bool bSirenState : 1;				   // vehicle siren state
+	bool bWindow[4];					   // vehicle window
+	bool bTyre[6];						   // vehicle tyres
 	unsigned int uPlayerHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uPlayerWeaponInfo;        // player weapon and ammo
 };
@@ -248,27 +248,27 @@ struct SmallSyncData
 
 struct EMPTYVEHICLESYNCPACKET
 {
-	EntityId playerId;
-	EntityId vehicleId;
-	CVector3 vecPosition;
-	CVector3 vecRotation;
-	unsigned int uiHealth;
-	float fPetrolHealth;
-	float fDirtLevel;      
-	float fDoor[6];
-	bool bLights;
-	bool bTaxiLights : 1;
-	bool bSirenState : 1;
-	bool bWindow[4];
-	bool bEngineStatus : 1;
+	EntityId playerId;			// playerId
+	EntityId vehicleId;			// vehicleId
+	CVector3 vecPosition;		// vehicle position
+	CVector3 vecRotation;		// vehicle rotation
+	unsigned int uiHealth;		// vehicle health
+	float fPetrolHealth;		// vehicle petrol health
+	float fDirtLevel;			// vehicle dirt
+	float fDoor[6];				// vehicle door(open angle)
+	bool bLights;				// vehicle lights
+	bool bTaxiLights : 1;		// vehicle taxilight
+	bool bSirenState : 1;		// vehicle siren state
+	bool bWindow[4];			// vehicle window
+	bool bEngineStatus : 1;		// vehicle engine
 	bool bTyre[6];
 };
 
 struct AimSyncData
 {
-	CVector3 vecAimTarget;
-	CVector3 vecShotSource;
-	CVector3 vecShotTarget;
+	CVector3 vecAimTarget;		// aim target
+	CVector3 vecShotSource;		// shot source
+	CVector3 vecShotTarget;		// shot target
 };
 
 // Refuse Reasons
