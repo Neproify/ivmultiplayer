@@ -19,7 +19,7 @@
 #include "CPools.h"
 
 
-extern CChatWindow * g_pChatWindow;
+//extern CChatWindow * g_pChatWindow;
 extern CPlayerManager * g_pPlayerManager;
 extern CModelManager * g_pModelManager;
 extern CLocalPlayer * g_pLocalPlayer;
@@ -1141,7 +1141,7 @@ void CNetworkVehicle::ControlCar(int idoor,bool open, float fAngle)
 		else if(fAngle < 2.0f)
 			Scripting::ShutCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor);
 
-		g_pChatWindow->AddInfoMessage("%d, %f",idoor,fAngle);
+		//g_pChatWindow->AddInfoMessage("%d, %f",idoor,fAngle);
 	}
 	
 	// Apply changes

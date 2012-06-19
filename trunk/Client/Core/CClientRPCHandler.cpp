@@ -879,9 +879,10 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 		return;
 	CLogFile::Printf("PlayerSpawn - 2");
 
-	// Have we joined the game?
+	/* Ignore this for now, as the client will recieve PlayerSpawn RPCs while connecting.
 	if(!g_pNetworkManager->HasJoinedGame())
-		return;
+		return; */
+
 	CLogFile::Printf("PlayerSpawn - 2.5");
 
 	EntityId playerId;
