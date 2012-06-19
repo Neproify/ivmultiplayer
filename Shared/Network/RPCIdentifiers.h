@@ -113,6 +113,7 @@ enum eRPCIdentfiers
 	RPC_ScriptingToggleBlipShortRange,
 	RPC_ScriptingToggleBlipRoute,
 	RPC_ScriptingSetBlipName,
+	RPC_ScriptingSetBlipIcon,
 	RPC_ScriptingShowCheckpointForPlayer,
 	RPC_ScriptingHideCheckpointForPlayer,
 	RPC_ScriptingSetCameraBehindPlayer,

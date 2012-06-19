@@ -15,15 +15,16 @@
 
 struct _Blip
 {
-	unsigned int uiBlipIndex;
-	int iSprite;
-	CVector3 vecPosition;
-	unsigned int uiColor;
-	float fSize;
-	bool bShortRange;
-	bool bRouteBlip;
+	unsigned int	uiBlipIndex;
+	int				iSprite;
+	CVector3		vecPosition;
+	unsigned int	uiColor;
+	float			fSize;
+	bool			bShortRange;
+	bool			bRouteBlip;
+	bool			bShow;
 
-	EntityId attachedVehicle;
+	EntityId		attachedVehicle;
 };
 
 class CBlipManager
@@ -46,4 +47,5 @@ public:
 	void SetName(EntityId blipId, String strName);
 	void AttachToVehicle(EntityId blipId, EntityId vehicleId);
 	bool DoesExist(EntityId blipId) { return m_bActive[blipId]; };
+	void Show(EntityId blipId, bool bShow);
 };

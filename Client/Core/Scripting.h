@@ -105,6 +105,7 @@ namespace Scripting
 	static void TaskJump(unsigned int ped, int type) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_JUMP, ped, type); }
 	static void SetAnimGroupForChar(unsigned int ped, char * group) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_ANIM_GROUP_FOR_CHAR, ped, group); }
 	static void SetCharGestureGroup(unsigned int ped, char * group) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CHAR_GESTURE_GROUP, ped, group); }
+	
 	// Could be handy
 	static void SetCharGetOutUpsideDownCar(unsigned int ped, unsigned int p1) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CHAR_GET_OUT_UPSIDE_DOWN_CAR, ped, p1); }
 	static void BlockCharAmbientAnims(unsigned int ped, unsigned int p1) { NativeInvoke::Invoke<unsigned int>(NATIVE_BLOCK_CHAR_AMBIENT_ANIMS, ped, p1); }

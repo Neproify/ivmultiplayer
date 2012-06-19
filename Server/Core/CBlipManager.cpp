@@ -34,7 +34,7 @@ CBlipManager::~CBlipManager()
 	}
 }
 
-EntityId CBlipManager::Create(int iSprite, CVector3 vecPosition)
+EntityId CBlipManager::Create(int iSprite, CVector3 vecPosition, bool bShow)
 {
 	for(EntityId x = 0; x < MAX_BLIPS; x++)
 	{
@@ -44,18 +44,20 @@ EntityId CBlipManager::Create(int iSprite, CVector3 vecPosition)
 			bsSend.WriteCompressed(x);
 			bsSend.Write(iSprite);
 			bsSend.Write(vecPosition);
-			m_Blips[x].color = 0xFFFFFFFF;
-			m_Blips[x].size = 1.0f;
-			m_Blips[x].routeBlip = false;
-			m_Blips[x].shortRange = false;
+			m_Blips[x].uiColor = 0xFFFFFFFF;
+			m_Blips[x].fSize = 1.0f;
+			m_Blips[x].bRouteBlip = false;
+			m_Blips[x].bShortRange = false;
+			m_Blips[x].bShow = true;
 			m_Blips[x].strName = "";
-			bsSend.Write(m_Blips[x].color);
-			bsSend.Write(m_Blips[x].size);
-			bsSend.Write(m_Blips[x].shortRange);
-			bsSend.Write(m_Blips[x].routeBlip);
+			bsSend.Write(m_Blips[x].uiColor);
+			bsSend.Write(m_Blips[x].fSize);
+			bsSend.Write(m_Blips[x].bRouteBlip);
+			bsSend.Write(m_Blips[x].bShortRange);
+			bsSend.Write(m_Blips[x].bShow);
 			bsSend.Write(m_Blips[x].strName);
 			g_pNetworkManager->RPC(RPC_NewBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
-			m_Blips[x].sprite = iSprite;
+			m_Blips[x].iSprite = iSprite;
 			m_Blips[x].vecSpawnPos = vecPosition;
 			m_bActive[x] = true;
 
@@ -98,12 +100,13 @@ void CBlipManager::SetPosition(EntityId blipId, CVector3 vecPosition)
 		//...and create a new one
 		CBitStream bsSend2;
 		bsSend2.WriteCompressed(blipId);
-		bsSend2.Write(m_Blips[blipId].sprite);
+		bsSend2.Write(m_Blips[blipId].iSprite);
 		bsSend2.Write(vecPosition);
-		bsSend2.Write(m_Blips[blipId].color);
-		bsSend2.Write(m_Blips[blipId].size);
-		bsSend2.Write(m_Blips[blipId].shortRange);
-		bsSend2.Write(m_Blips[blipId].routeBlip);
+		bsSend2.Write(m_Blips[blipId].uiColor);
+		bsSend2.Write(m_Blips[blipId].fSize);
+		bsSend2.Write(m_Blips[blipId].bShortRange);
+		bsSend2.Write(m_Blips[blipId].bRouteBlip);
+		bsSend2.Write(m_Blips[blipId].bShow);
 		bsSend2.Write(m_Blips[blipId].strName);
 		g_pNetworkManager->RPC(RPC_NewBlip, &bsSend2, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	}
@@ -121,7 +124,7 @@ void CBlipManager::SetColor(EntityId blipId, unsigned int uiColor)
 {
 	if(DoesExist(blipId))
 	{
-		m_Blips[blipId].color = uiColor;
+		m_Blips[blipId].uiColor = uiColor;
 
 		CBitStream bsSend;
 		bsSend.Write(blipId);
@@ -133,7 +136,7 @@ void CBlipManager::SetColor(EntityId blipId, unsigned int uiColor)
 unsigned int CBlipManager::GetColor(EntityId blipId)
 {
 	if(DoesExist(blipId))
-		return m_Blips[blipId].color;
+		return m_Blips[blipId].uiColor;
 
 	return 0;
 }
@@ -142,7 +145,7 @@ void CBlipManager::SetSize(EntityId blipId, float fSize)
 {
 	if(DoesExist(blipId) && fSize > 0.0f && fSize <= 4.0f)
 	{
-		m_Blips[blipId].size = fSize;
+		m_Blips[blipId].fSize = fSize;
 
 		CBitStream bsSend;
 		bsSend.Write(blipId);
@@ -154,7 +157,7 @@ void CBlipManager::SetSize(EntityId blipId, float fSize)
 float CBlipManager::GetSize(EntityId blipId)
 {
 	if(DoesExist(blipId))
-		return m_Blips[blipId].size;
+		return m_Blips[blipId].fSize;
 
 	return 0.0f;
 }
@@ -163,7 +166,7 @@ void CBlipManager::ToggleShortRange(EntityId blipId, bool bShortRange)
 {
 	if(DoesExist(blipId))
 	{
-		m_Blips[blipId].shortRange = bShortRange;
+		m_Blips[blipId].bShortRange = bShortRange;
 
 		CBitStream bsSend;
 		bsSend.Write(blipId);
@@ -176,7 +179,7 @@ void CBlipManager::ToggleRoute(EntityId blipId, bool bRoute)
 {
 	if(DoesExist(blipId))
 	{
-		m_Blips[blipId].routeBlip = bRoute;
+		m_Blips[blipId].bRouteBlip = bRoute;
 
 		CBitStream bsSend;
 		bsSend.Write(blipId);
@@ -216,12 +219,13 @@ void CBlipManager::HandleClientJoin(EntityId playerId)
 			if(m_bActive[x])
 			{
 				bsSend.WriteCompressed(x);
-				bsSend.Write(m_Blips[x].sprite);
+				bsSend.Write(m_Blips[x].iSprite);
 				bsSend.Write(m_Blips[x].vecSpawnPos);
-				bsSend.Write(m_Blips[x].color);
-				bsSend.Write(m_Blips[x].size);
-				bsSend.Write(m_Blips[x].shortRange);
-				bsSend.Write(m_Blips[x].routeBlip);
+				bsSend.Write(m_Blips[x].uiColor);
+				bsSend.Write(m_Blips[x].fSize);
+				bsSend.Write(m_Blips[x].bShortRange);
+				bsSend.Write(m_Blips[x].bRouteBlip);
+				bsSend.Write(m_Blips[x].bShow);
 				bsSend.Write(m_Blips[x].strName);
 			}
 		}
@@ -249,4 +253,19 @@ EntityId CBlipManager::GetBlipCount()
 	}
 
 	return blipCount;
+}
+
+void CBlipManager::SwitchIcon(EntityId blipId, bool bShow, EntityId playerId)
+{
+	if(DoesExist(blipId))
+	{
+		m_Blips[blipId].bShow = bShow;
+		CBitStream bsSend;
+		bsSend.Write(blipId);
+		bsSend.Write(bShow);
+		if(playerId == INVALID_ENTITY_ID)
+			g_pNetworkManager->RPC(RPC_ScriptingSetBlipIcon, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		else
+			g_pNetworkManager->RPC(RPC_ScriptingSetBlipIcon, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+	}
 }

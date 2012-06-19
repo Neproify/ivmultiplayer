@@ -361,15 +361,11 @@ void CLocalPlayer::SendInVehicleSync()
 		syncPacket.fDirtLevel = pVehicle->GetDirtLevel();
 
 		// Get their lights
-		syncPacket.bLights = pVehicle->GetLights();
+		syncPacket.bLights = pVehicle->GetLightsState();
 
 		// Get the door stuff
-		syncPacket.fDoor[0] = pVehicle->GetCarDoor(0);
-		syncPacket.fDoor[1] = pVehicle->GetCarDoor(1);
-		syncPacket.fDoor[2] = pVehicle->GetCarDoor(2);
-		syncPacket.fDoor[3] = pVehicle->GetCarDoor(3);
-		syncPacket.fDoor[4] = pVehicle->GetCarDoor(4);
-		syncPacket.fDoor[5] = pVehicle->GetCarDoor(5);
+		for(int i = 0; i < 6; i++)
+			syncPacket.fDoor[i] = pVehicle->GetCarDoorAngle(i);
 
 		// Get their health and armour
 		syncPacket.uPlayerHealthArmour = ((GetHealth() << 16) | GetArmour());
@@ -382,56 +378,51 @@ void CLocalPlayer::SendInVehicleSync()
 		syncPacket.bEngineStatus = pVehicle->GetEngineState();
 		
 		// Set default window and typres values
-		syncPacket.bWindow[0] = false;
-		syncPacket.bWindow[1] = false;
-		syncPacket.bWindow[2] = false;
-		syncPacket.bWindow[3] = false;
-		syncPacket.bTyre[0] = false;
-		syncPacket.bTyre[1] = false;
-		syncPacket.bTyre[2] = false;
-		syncPacket.bTyre[3] = false;
-		syncPacket.bTyre[4] = false;
-		syncPacket.bTyre[5] = false;
+		for(int i = 0; i < 4; i++)
+			syncPacket.bWindow[i] = false;
+
+		for(int i = 0; i < 5; i++)
+			syncPacket.bTyre[i] = false;
 
 		// Check windows
 		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)0))
 		{
-			pVehicle->SetWindow(0,true);
+			pVehicle->SetWindowBroken(0,true);
 			syncPacket.bWindow[1] = true;
 		}
 		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)1))
 		{
-			pVehicle->SetWindow(1,true);
+			pVehicle->SetWindowBroken(1,true);
 			syncPacket.bWindow[2] = true;
 		}
 		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)2))
 		{
-			pVehicle->SetWindow(2,true);
+			pVehicle->SetWindowBroken(2,true);
 			syncPacket.bWindow[3] = true;
 		}
 		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)3))
 		{
-			pVehicle->SetWindow(3,true);
+			pVehicle->SetWindowBroken(3,true);
 			syncPacket.bWindow[4] = true;
 		}
 
 		// Check tyres
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)0))
+		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)0))
 			syncPacket.bTyre[0] = true;
 
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)1))
+		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)1))
 			syncPacket.bTyre[1] = true;
 
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)2))
+		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)2))
 			syncPacket.bTyre[2] = true;
 
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)3))
+		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)3))
 			syncPacket.bTyre[3] = true;
 
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)4))
+		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)4))
 			syncPacket.bTyre[4] = true;
 
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)5))
+		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)5))
 			syncPacket.bTyre[5] = true;
 
 		// Write the in vehicle sync data to the bit stream
@@ -462,7 +453,6 @@ void CLocalPlayer::SendInVehicleSync()
 
 		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()))
 		{
-			g_pChatWindow->AddInfoMessage("VEHICLE DEATH");
 			CBitStream bsDeath;
 			bsDeath.Write(pVehicle->GetVehicleId());
 			g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);

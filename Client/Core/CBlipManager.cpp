@@ -192,3 +192,15 @@ void CBlipManager::AttachToVehicle(EntityId blipId, EntityId vehicleId)
 		}
 	}
 }
+
+void CBlipManager::Show(EntityId blipId, bool bShow)
+{
+	if(m_bActive[blipId])
+	{
+		// TODO: Fix native calls, don't try delete/create blip(other way) -> wrong handle
+		/*if(bShow)
+			Scripting::ChangeBlipDisplay(m_Blips[blipId].uiBlipIndex,Scripting::BLIP_MODE_SHOW);
+		else if(!bShow)
+			Scripting::ChangeBlipDisplay(m_Blips[blipId].uiBlipIndex,Scripting::BLIP_MODE_HIDE);*/
+	}
+}

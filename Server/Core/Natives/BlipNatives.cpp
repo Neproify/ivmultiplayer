@@ -23,7 +23,7 @@ extern CPlayerManager * g_pPlayerManager;
 
 void CBlipNatives::Register(CScriptingManager * pScriptingManager)
 {
-	pScriptingManager->RegisterFunction("createBlip", Create, 4, "ifff");
+	pScriptingManager->RegisterFunction("createBlip", Create, 5, "ifffb");
 	pScriptingManager->RegisterFunction("deleteBlip", Delete, 1, "i");
 	pScriptingManager->RegisterFunction("setBlipCoordinates", SetCoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("getBlipCoordinates", GetCoordinates, 1, "i");
@@ -34,9 +34,11 @@ void CBlipNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("setBlipSize", SetSize, -1, "ii");
 	pScriptingManager->RegisterFunction("getBlipSize", GetSize, 1, "i");
 	pScriptingManager->RegisterFunction("toggleBlipShortRange", ToggleShortRange, -1, "ib");
-	pScriptingManager->RegisterFunction("toggleBlipRoute", ToggleRoute, -1, "ib"); // -- needs fixing in Client/CBlipManager first, as the native doesn't set it as route target
+	pScriptingManager->RegisterFunction("toggleBlipRoute", ToggleRoute, -1, "ib"); // TODO, fix native clientside
 	pScriptingManager->RegisterFunction("setBlipName", SetName, -1, "is");
 	pScriptingManager->RegisterFunction("getBlipName", GetName, -1, "is");
+	pScriptingManager->RegisterFunction("switchBlipIcon", SwitchIcon, 2, "ib");
+	pScriptingManager->RegisterFunction("switchBlipIconForPlayer", SwitchIconPlayer, 3, "iib");
 }
 
 // createBlip(spriteID, x, y, z)
@@ -44,9 +46,12 @@ SQInteger CBlipNatives::Create(SQVM * pVM)
 {
 	SQInteger iSprite;
 	CVector3 vecPosition;
+	SQBool bShow;
+	sq_getbool(pVM, -5, &bShow);
 	sq_getinteger(pVM, -4, &iSprite);
 	sq_getvector3(pVM, -3, &vecPosition);
-	sq_pushentity(pVM, g_pBlipManager->Create(iSprite, vecPosition));
+	bool bToggle = (bShow != 0);
+	sq_pushentity(pVM, g_pBlipManager->Create(iSprite, vecPosition, bToggle));
 	return 1;
 }
 
@@ -359,6 +364,49 @@ SQInteger CBlipNatives::GetName(SQVM * pVM)
 		return 1;
 	}
 
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// switchBlipIcon(blipId,switch)
+SQInteger CBlipNatives::SwitchIcon(SQVM * pVM)
+{
+	EntityId blipId;
+	sq_getentity(pVM, -2, &blipId);
+	
+	SQBool bShow;
+	sq_getbool(pVM,-1,&bShow);
+
+	if(g_pBlipManager->DoesExist(blipId))
+	{
+		bool bToggle = (bShow != 0);
+		g_pBlipManager->SwitchIcon(blipId,bToggle,INVALID_ENTITY_ID);
+		sq_pushbool(pVM,true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// switchBlipIcon(blipId, playerid, switch)
+SQInteger CBlipNatives::SwitchIconPlayer(SQVM * pVM)
+{
+	EntityId blipId;
+	sq_getentity(pVM, -3, &blipId);
+
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+	
+	SQBool bShow;
+	sq_getbool(pVM,-1,&bShow);
+
+	if(g_pBlipManager->DoesExist(blipId) && g_pPlayerManager->DoesExist(playerId))
+	{
+		bool bToggle = (bShow != 0);
+		g_pBlipManager->SwitchIcon(blipId,bToggle,playerId);
+		sq_pushbool(pVM,true);
+		return 1;
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }

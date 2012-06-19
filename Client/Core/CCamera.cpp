@@ -145,5 +145,23 @@ void CCamera::SetLookAt(const CVector3& vecLookAt)
 
 void CCamera::GetLookAt(CVector3& vecLookAt)
 {
-	// TODO
+	// TODO: try to get coords from vec
+	// Camera data
+	CIVCam * pGameCam = GetGameCam();
+	CVector3 vecCamPosition;
+	CVector3 vecCamForward;
+	CVector3 vecCamLookAt;
+
+	pGameCam->GetPosition(vecCamPosition);
+	vecCamForward = pGameCam->GetCam()->m_data1.m_matMatrix.vecForward;
+	vecCamLookAt.fX = vecCamPosition.fX + /*floatmul(*/vecCamForward.fX/*, fScale)*/;
+	vecCamLookAt.fY = vecCamPosition.fY + /*floatmul(*/vecCamForward.fY/*, fScale)*/;
+	vecCamLookAt.fZ = vecCamPosition.fZ + /*floatmul(*/vecCamForward.fZ/*, fScale)*/;
+
+	float fScale = 10.0f;
+	vecCamLookAt.fX = vecCamPosition.fX + (vecCamForward.fX * fScale);
+	vecCamLookAt.fY = vecCamPosition.fY + (vecCamForward.fY * fScale);
+	vecCamLookAt.fZ = vecCamPosition.fZ + (vecCamForward.fZ * fScale);
+
+	memcpy(&vecLookAt, &vecLookAt, sizeof(CVector3));
 }

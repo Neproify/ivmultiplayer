@@ -213,12 +213,12 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		pVehicle->SetPetrolTankHealth(syncPacket->fPetrolHealth);
 
 		// Set their door states
-		pVehicle->ControlCar(0,1,syncPacket->fDoor[0]);
-		pVehicle->ControlCar(1,1,syncPacket->fDoor[1]);
-		pVehicle->ControlCar(2,1,syncPacket->fDoor[2]);
-		pVehicle->ControlCar(3,1,syncPacket->fDoor[3]);
-		pVehicle->ControlCar(4,1,syncPacket->fDoor[4]);
-		pVehicle->ControlCar(5,1,syncPacket->fDoor[5]);
+		pVehicle->SetCarDoorAngle(0,1,syncPacket->fDoor[0]);
+		pVehicle->SetCarDoorAngle(1,1,syncPacket->fDoor[1]);
+		pVehicle->SetCarDoorAngle(2,1,syncPacket->fDoor[2]);
+		pVehicle->SetCarDoorAngle(3,1,syncPacket->fDoor[3]);
+		pVehicle->SetCarDoorAngle(4,1,syncPacket->fDoor[4]);
+		pVehicle->SetCarDoorAngle(5,1,syncPacket->fDoor[5]);
 
 		// Set their vehicles color
 		pVehicle->SetColors(syncPacket->byteColors[0], syncPacket->byteColors[1], syncPacket->byteColors[2], syncPacket->byteColors[3]);
@@ -227,10 +227,10 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		pVehicle->SetSirenState(syncPacket->bSirenState);
 
 		// Set their windows
-		pVehicle->SetWindow(0, syncPacket->bWindow[0]);
-		pVehicle->SetWindow(1, syncPacket->bWindow[1]);
-		pVehicle->SetWindow(2, syncPacket->bWindow[2]);
-		pVehicle->SetWindow(3, syncPacket->bWindow[3]);
+		pVehicle->SetWindowBroken(0, syncPacket->bWindow[0]);
+		pVehicle->SetWindowBroken(1, syncPacket->bWindow[1]);
+		pVehicle->SetWindowBroken(2, syncPacket->bWindow[2]);
+		pVehicle->SetWindowBroken(3, syncPacket->bWindow[3]);
 
 		// Set their typres
 		if(syncPacket->bTyre[0])
@@ -253,7 +253,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		pVehicle->SetEngineState(syncPacket->bEngineStatus);
 
 		// Set their lights
-		pVehicle->SetLights(syncPacket->bLights);
+		pVehicle->SetLightsState(syncPacket->bLights);
 
 		// Lock our health
 		LockHealth(syncPacket->uPlayerHealthArmour >> 16);

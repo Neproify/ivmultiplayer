@@ -65,10 +65,10 @@ bool OnMouseMove(const CEGUI::EventArgs &eventArgs)
 	CEGUI::Vector2 deltaMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
 	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
 	EA::WebKit::MouseMoveEvent moveEvent = {0};
-	moveEvent.mX = localMousePos.d_x;
-	moveEvent.mY = localMousePos.d_y;
-	moveEvent.mDX = deltaMousePos.d_x;
-	moveEvent.mDY = deltaMousePos.d_y;
+	moveEvent.mX = (int32_t)localMousePos.d_x;
+	moveEvent.mY = (int32_t)localMousePos.d_y;
+	moveEvent.mDX = (int32_t)deltaMousePos.d_x;
+	moveEvent.mDY = (int32_t)deltaMousePos.d_y;
 	view->GetView()->OnMouseMoveEvent(moveEvent);
 	return true;
 }
@@ -81,8 +81,8 @@ bool OnMouseUp(const CEGUI::EventArgs &eventArgs)
 	CEGUI::Vector2 localMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
 	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
 	EA::WebKit::MouseButtonEvent buttonEvent = {0};
-	buttonEvent.mX = localMousePos.d_x;
-	buttonEvent.mY = localMousePos.d_y;
+	buttonEvent.mX = (int32_t)localMousePos.d_x;
+	buttonEvent.mY = (int32_t)localMousePos.d_y;
 	buttonEvent.mbDepressed = false;
 	buttonEvent.mId = EA::WebKit::kMouseLeft;
 	view->GetView()->OnMouseButtonEvent(buttonEvent);
@@ -97,8 +97,8 @@ bool OnMouseDown(const CEGUI::EventArgs &eventArgs)
 	CEGUI::Vector2 localMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
 	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
 	EA::WebKit::MouseButtonEvent buttonEvent = {0};
-	buttonEvent.mX = localMousePos.d_x;
-	buttonEvent.mY = localMousePos.d_y;
+	buttonEvent.mX = (int32_t)localMousePos.d_x;
+	buttonEvent.mY = (int32_t)localMousePos.d_y;
 	buttonEvent.mbDepressed = true;
 	buttonEvent.mId = EA::WebKit::kMouseLeft;
 	view->GetView()->OnMouseButtonEvent(buttonEvent);
@@ -114,9 +114,9 @@ bool OnMouseWheel(const CEGUI::EventArgs &eventArgs)
 	CEGUI::Vector2 deltaMousePos = CEGUI::CoordConverter::screenToWindow(*mouseEventArgs.window, CEGUI::MouseCursor::getSingleton().getPosition());
 	CD3D9WebView * view = g_pWebkit->GetView(mouseEventArgs.window);
 	EA::WebKit::MouseWheelEvent wheelEvent = {0};
-	wheelEvent.mX = localMousePos.d_x;
-	wheelEvent.mY = localMousePos.d_y;
-	wheelEvent.mZDelta = mouseEventArgs.wheelChange;
+	wheelEvent.mX = (int32_t)localMousePos.d_x;
+	wheelEvent.mY = (int32_t)localMousePos.d_y;
+	wheelEvent.mZDelta = (int32_t)mouseEventArgs.wheelChange;
 	wheelEvent.mLineDelta = 3;
 	view->GetView()->OnMouseWheelEvent(wheelEvent);
 	return true;
@@ -212,7 +212,7 @@ bool CD3D9WebkitNotification::JavascriptMethodInvoked(EA::WebKit::JavascriptMeth
 	CSquirrelArguments array;
 	const char * strings[10U] = {0};
 	int stringsCount = 0;
-	for(int i = 0; i < info.mArgumentCount; i++)
+	for(int i = 0; i < (int)info.mArgumentCount; i++)
 	{
 		switch(info.mArguments[i].GetType())
 		{
@@ -250,6 +250,9 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	this->view = view;
 	this->width = width;
 	this->height = height;
+	float fWidth, fHeight;
+	fWidth = (float)width;
+	fHeight = (float)height;
 	device = g_pGUI->GetDirect3DDevice();
 	D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
 	D3DXCreateSprite(device, &sprite);
@@ -264,13 +267,13 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 
 	CEGUI::Texture & ceguiTexture = g_pGUI->GetRenderer()->createTexture(texture);
 	CEGUI::ImagesetManager::getSingleton().create(String("%s_%d", name.Get(), texturenum).Get(), ceguiTexture);
-	CEGUI::ImagesetManager::getSingleton().get(String("%s_%d", name.Get(), texturenum).Get()).defineImage("full_image", CEGUI::Rect(0, 0, width, height), CEGUI::Point(0, 0));
+	CEGUI::ImagesetManager::getSingleton().get(String("%s_%d", name.Get(), texturenum).Get()).defineImage("full_image", CEGUI::Rect(0, 0, fWidth, fHeight), CEGUI::Point(0, 0));
 
 	image = g_pGUI->CreateGUIStaticImage(CEGUI::String(name.Get()));
 	image->setProperty("FrameEnabled", "false");
 	image->setProperty("BackgroundEnabled", "false");
 	image->setProperty("Image", String("set:%s image:full_image", String("%s_%d", name.Get(), texturenum).Get()).Get());
-	image->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
+	image->setSize(CEGUI::UVector2(CEGUI::UDim(0, fWidth), CEGUI::UDim(0, fHeight)));
 	image->setVisible(true);
 
 	image->subscribeEvent(CEGUI::PushButton::EventMouseMove, CEGUI::Event::Subscriber(&OnMouseMove));
@@ -290,7 +293,7 @@ void CD3D9WebView::RecreateTexture()
 	D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
 	CEGUI::Texture & ceguiTexture = g_pGUI->GetRenderer()->createTexture(texture);
 	CEGUI::ImagesetManager::getSingleton().create(String("%s_%d", name.Get(), texturenum).Get(), ceguiTexture);
-	CEGUI::ImagesetManager::getSingleton().get(String("%s_%d", name.Get(), texturenum).Get()).defineImage("full_image", CEGUI::Rect(0, 0, width, height), CEGUI::Point(0, 0));
+	CEGUI::ImagesetManager::getSingleton().get(String("%s_%d", name.Get(), texturenum).Get()).defineImage("full_image", CEGUI::Rect(0, 0, (float)width, (float)height), CEGUI::Point(0, 0));
 	image->setProperty("Image", String("set:%s image:full_image", String("%s_%d", name.Get(), texturenum).Get()).Get());
 	CEGUI::ImagesetManager::getSingleton().destroy(String("%s_%d", name.Get(), texturenum - 1).Get());
 }
@@ -300,7 +303,7 @@ void CD3D9WebView::SetSize(int width, int height)
 	this->height = height;
 	RecreateTexture();
 	this->view->SetSize(width, height);
-	image->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
+	image->setSize(CEGUI::UVector2(CEGUI::UDim(0, (float)width), CEGUI::UDim(0, (float)height)));
 }
 void CD3D9WebView::SetPosition(CEGUI::UVector2 & vec)
 {
@@ -322,7 +325,7 @@ void CD3D9WebView::Draw(int x, int y, int w, int h)
 	RECT rect = {0, 0, w, h};
 
 	sprite->Begin(D3DXSPRITE_ALPHABLEND);
-	sprite->Draw(texture, &rect, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3(x, y, 0.0f), 0xFFFFFFFF);
+	sprite->Draw(texture, &rect, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3((float)x, (float)y, 0.0f), 0xFFFFFFFF);
 	sprite->End();
 }
 EA::WebKit::View * CD3D9WebView::GetView()
