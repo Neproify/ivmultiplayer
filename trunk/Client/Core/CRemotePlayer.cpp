@@ -227,10 +227,10 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		pVehicle->SetSirenState(syncPacket->bSirenState);
 
 		// Set their windows
-		pVehicle->SetWindowBroken(0, syncPacket->bWindow[0]);
-		pVehicle->SetWindowBroken(1, syncPacket->bWindow[1]);
-		pVehicle->SetWindowBroken(2, syncPacket->bWindow[2]);
-		pVehicle->SetWindowBroken(3, syncPacket->bWindow[3]);
+		pVehicle->SetWindowState(0, syncPacket->bWindow[0]);
+		pVehicle->SetWindowState(1, syncPacket->bWindow[1]);
+		pVehicle->SetWindowState(2, syncPacket->bWindow[2]);
+		pVehicle->SetWindowState(3, syncPacket->bWindow[3]);
 
 		// Set their typres
 		if(syncPacket->bTyre[0])

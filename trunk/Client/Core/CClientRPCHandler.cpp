@@ -364,7 +364,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// set the window states(broken etc)
 	for(int i = 0; i < 4; i++)
-		pVehicle->SetWindowBroken(0,bWindow[i]);
+		pVehicle->SetWindowState(0,bWindow[i]);
 
 	// Flag the vehicle as can be streamed in
 	pVehicle->SetCanBeStreamedIn(true);

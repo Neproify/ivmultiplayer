@@ -387,22 +387,22 @@ void CLocalPlayer::SendInVehicleSync()
 		// Check windows
 		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)0))
 		{
-			pVehicle->SetWindowBroken(0,true);
+			pVehicle->SetWindowState(0,true);
 			syncPacket.bWindow[1] = true;
 		}
 		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)1))
 		{
-			pVehicle->SetWindowBroken(1,true);
+			pVehicle->SetWindowState(1,true);
 			syncPacket.bWindow[2] = true;
 		}
 		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)2))
 		{
-			pVehicle->SetWindowBroken(2,true);
+			pVehicle->SetWindowState(2,true);
 			syncPacket.bWindow[3] = true;
 		}
 		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)3))
 		{
-			pVehicle->SetWindowBroken(3,true);
+			pVehicle->SetWindowState(3,true);
 			syncPacket.bWindow[4] = true;
 		}
 

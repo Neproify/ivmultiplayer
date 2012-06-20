@@ -202,7 +202,7 @@ bool CNetworkVehicle::Create()
 		Scripting::ForceCarLights(GetScriptingHandle(),1);
 
 		// Disable visible damage & enable "normal" damage
-		SetDamageAble(false);
+		SetDamageable(false);
 		m_pVehicle->SetCanBeVisiblyDamaged(false);
 
 		// Add the vehicle to the world
@@ -299,7 +299,7 @@ void CNetworkVehicle::StreamIn()
 		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
 
 		// Disable visible damage & enable "normal" damage
-		SetDamageAble(false);
+		SetDamageable(false);
 		m_pVehicle->SetCanBeVisiblyDamaged(false);
 
 		// Disable some damage stuff
@@ -707,10 +707,10 @@ void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 	SetHealth(emptyVehicleSync->uiHealth);
 	SetPetrolTankHealth(emptyVehicleSync->fPetrolHealth);
 	SetDirtLevel(emptyVehicleSync->fDirtLevel);
-	SetWindowBroken(0,emptyVehicleSync->bWindow[0]);
-	SetWindowBroken(1,emptyVehicleSync->bWindow[1]);
-	SetWindowBroken(2,emptyVehicleSync->bWindow[2]);
-	SetWindowBroken(3,emptyVehicleSync->bWindow[3]);
+	SetWindowState(0,emptyVehicleSync->bWindow[0]);
+	SetWindowState(1,emptyVehicleSync->bWindow[1]);
+	SetWindowState(2,emptyVehicleSync->bWindow[2]);
+	SetWindowState(3,emptyVehicleSync->bWindow[3]);
 	SetLightsState(emptyVehicleSync->bLights);
 	SetTaxiLightsState(emptyVehicleSync->bTaxiLights);
 	SetSirenState(emptyVehicleSync->bSirenState);
@@ -1128,7 +1128,7 @@ bool CNetworkVehicle::GetTaxiLightsState()
 	return false;
 }
 
-void CNetworkVehicle::ControlCar(int idoor,bool open, float fAngle)
+void CNetworkVehicle::SetCarDoorAngle(int idoor,bool open, float fAngle)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -1147,7 +1147,7 @@ void CNetworkVehicle::ControlCar(int idoor,bool open, float fAngle)
 	m_fDoor[idoor] = fAngle;
 }
 
-float CNetworkVehicle::GetCarDoor(int iDoor)
+float CNetworkVehicle::GetCarDoorAngle(int iDoor)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -1179,7 +1179,7 @@ bool CNetworkVehicle::GetLightsState()
 	return false;
 }
 
-bool CNetworkVehicle::GetWindowBrokenState(int iWindow)
+bool CNetworkVehicle::GetWindowState(int iWindow)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -1188,7 +1188,7 @@ bool CNetworkVehicle::GetWindowBrokenState(int iWindow)
 	return false;
 }
 
-void CNetworkVehicle::SetWindowBroken(int iWindow, bool bBroken)
+void CNetworkVehicle::SetWindowState(int iWindow, bool bBroken)
 {
 	// Are we spawned?
 	if(IsSpawned())
@@ -1205,7 +1205,7 @@ void CNetworkVehicle::SetWindowBroken(int iWindow, bool bBroken)
 	}
 }
 
-void CNetworkVehicle::SetDamageAble(bool bToggle)
+void CNetworkVehicle::SetDamageable(bool bToggle)
 {
 	// Are we spawned?
 	if(IsSpawned())
