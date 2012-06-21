@@ -135,6 +135,7 @@ Section "Install" SecDummy
 	File ..\..\Binary\Client.LaunchHelper.dll
 	File ..\..\Binary\Client.Core.dll
 	File ..\..\Binary\Network.Core.dll
+	File ..\..\Binary\EAWebkit.dll
 
 	CreateDirectory "$INSTDIR\CEGUI"
 	CreateDirectory "$INSTDIR\CEGUI\fonts"
@@ -146,19 +147,11 @@ Section "Install" SecDummy
 	
 	SetOutPath "$INSTDIR\CEGUI\fonts"
 	
-	File ..\..\Binary\CEGUI\fonts\bankgothic.ttf
-	File ..\..\Binary\CEGUI\fonts\DejaVuSans.ttf
-	File ..\..\Binary\CEGUI\fonts\pricedown.ttf
-	File ..\..\Binary\CEGUI\fonts\tahoma.ttf
-	File ..\..\Binary\CEGUI\fonts\tahoma-bold.ttf
+	File ..\..\Binary\CEGUI\fonts\*
 
 	SetOutPath "$INSTDIR\CEGUI\imagesets"
 
-	File ..\..\Binary\CEGUI\imagesets\ReadMe.txt
-	File ..\..\Binary\CEGUI\imagesets\WindowsLook.imageset
-	File ..\..\Binary\CEGUI\imagesets\WindowsLook.png
-	File ..\..\Binary\CEGUI\imagesets\IVMPLogoHiRes.png
-	File ..\..\Binary\CEGUI\imagesets\IVMPBackground.png
+	File ..\..\Binary\CEGUI\imagesets\*
 
 	SetOutPath "$INSTDIR\CEGUI\layouts"
 
