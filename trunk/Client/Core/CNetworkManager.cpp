@@ -63,30 +63,23 @@ CNetworkManager::CNetworkManager()
 
 CNetworkManager::~CNetworkManager()
 {
-	CLogFile::Printf("CNetworkManager Shutdown 1");
 	// Unregister the rpcs
 	m_pClientRPCHandler->Unregister();
 
-	CLogFile::Printf("CNetworkManager Shutdown 2");
 	// Delete the rpc handler instance
 	SAFE_DELETE(m_pClientRPCHandler);
 
-	CLogFile::Printf("CNetworkManager Shutdown 3");
 	// Unregister the packets
 	m_pClientPacketHandler->Unregister();
 
-	CLogFile::Printf("CNetworkManager Shutdown 4");
 	// Delete the packet handler instance
 	SAFE_DELETE(m_pClientPacketHandler);
 
-	CLogFile::Printf("CNetworkManager Shutdown 5");
 	// Shutdown the net client instance
 	m_pNetClient->Shutdown(500);
 
-	CLogFile::Printf("CNetworkManager Shutdown 6");
 	// Destroy the net client instance
 	CNetworkModule::DestroyNetClientInterface(m_pNetClient);
-	CLogFile::Printf("CNetworkManager Shutdown 7");
 }
 
 void CNetworkManager::Startup(String strHost, unsigned short usPort, String strPassword)
@@ -116,13 +109,8 @@ void CNetworkManager::PacketHandler(CPacket * pPacket)
 	CNetworkManager * pNetworkManager = g_pNetworkManager;
 
 	// Pass it to the packet handler, if that doesn't handle it, pass it to the rpc handler
-	if(!pNetworkManager->m_pClientPacketHandler->HandlePacket(pPacket) && 
-		!pNetworkManager->m_pClientRPCHandler->HandlePacket(pPacket))
-	{
-#ifdef IVMP_DEBUG
-		CLogFile::Printf("Warning: Unhandled packet (Id: %d)\n", pPacket->packetId);
-#endif
-	}
+	if(!pNetworkManager->m_pClientPacketHandler->HandlePacket(pPacket) && !pNetworkManager->m_pClientRPCHandler->HandlePacket(pPacket))
+		CLogFile::PrintDebugf("Warning: Unhandled packet (Id: %d)\n", pPacket->packetId);
 }
 
 void CNetworkManager::Process()

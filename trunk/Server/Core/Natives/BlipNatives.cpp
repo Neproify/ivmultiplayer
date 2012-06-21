@@ -47,9 +47,9 @@ SQInteger CBlipNatives::Create(SQVM * pVM)
 	SQInteger iSprite;
 	CVector3 vecPosition;
 	SQBool bShow;
-	sq_getbool(pVM, -5, &bShow);
-	sq_getinteger(pVM, -4, &iSprite);
-	sq_getvector3(pVM, -3, &vecPosition);
+	sq_getinteger(pVM, -5, &iSprite);
+	sq_getvector3(pVM, -4, &vecPosition);
+	sq_getbool(pVM, -1, &bShow);
 	bool bToggle = (bShow != 0);
 	sq_pushentity(pVM, g_pBlipManager->Create(iSprite, vecPosition, bToggle));
 	return 1;

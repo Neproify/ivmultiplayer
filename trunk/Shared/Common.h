@@ -203,8 +203,8 @@ struct OnFootSyncData
 	unsigned int uHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uWeaponInfo;        // player weapon and ammo
 	bool bAnim;						 // player anim
-	const char* szAnimGroup;		 // anim group
-	const char* szAnimSpecific;		 // anim category from group
+	String szAnimGroup;				 // anim group
+	String szAnimSpecific;			 // anim category from group
 	float fAnimTime;				 // set anim time
 };
 

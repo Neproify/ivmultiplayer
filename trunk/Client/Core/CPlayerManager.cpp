@@ -273,6 +273,14 @@ bool CPlayerManager::Remove(EntityId playerId)
 	m_bActive[playerId] = false;
 	m_pPlayers[playerId]->Destroy();
 	m_pPlayers[playerId]->Teleport(CVector3(0.0f, 0.0f, -20.0f));
+
+	CNetworkPlayer * pPlayer = GetAt(playerId);
+	if(pPlayer && !pPlayer->IsLocalPlayer())
+	{
+		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
+		if(pRemotePlayer)
+			pRemotePlayer->Destroy();
+	}
 	//delete m_pPlayers[playerId];
 	//m_pPlayers[playerId] = NULL;
 	return true;

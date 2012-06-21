@@ -407,22 +407,22 @@ void CLocalPlayer::SendInVehicleSync()
 		}
 
 		// Check tyres
-		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)0))
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)0))
 			syncPacket.bTyre[0] = true;
 
-		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)1))
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)1))
 			syncPacket.bTyre[1] = true;
 
-		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)2))
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)2))
 			syncPacket.bTyre[2] = true;
 
-		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)3))
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)3))
 			syncPacket.bTyre[3] = true;
 
-		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)4))
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)4))
 			syncPacket.bTyre[4] = true;
 
-		if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)5))
+		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)5))
 			syncPacket.bTyre[5] = true;
 
 		// Write the in vehicle sync data to the bit stream
@@ -611,8 +611,15 @@ bool CLocalPlayer::GetControl()
 
 void CLocalPlayer::SetAnimation(const char * strGroup, const char * strAnim)
 {
-	m_bAnimating = true;
+	/* TODO, reverse this function */
 	Scripting::TaskPlayAnim(GetScriptingHandle(),strAnim, strGroup,(float)8,0,0,0,0,-1);
-	m_strAnimGroup = strGroup;
-	m_strAnimSpec = strAnim;
+}
+
+void CLocalPlayer::SaveAnimation(String strGroup, String strAnim)
+{
+	m_strAnimGroup.Clear();
+	m_strAnimGroup.AppendF(strGroup);
+	m_strAnimSpec.Clear();
+	m_strAnimSpec.AppendF(strAnim);
+	m_bAnimating = true;
 }

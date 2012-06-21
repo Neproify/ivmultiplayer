@@ -12,10 +12,12 @@
 #include "CNetworkManager.h"
 #include <Network/PacketIdentifiers.h>
 #include "CGameFileChecker.h"
+#include "CMainMenu.h"
 
 extern CChatWindow     * g_pChatWindow;
 extern String            g_strNick;
 extern CNetworkManager * g_pNetworkManager;
+extern CMainMenu	   * g_pMainMenu;
 
 void ResetGame();
 
@@ -24,6 +26,7 @@ void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSo
 	g_pChatWindow->AddInfoMessage("Connection failed! (Rejected)");
 	ResetGame();
 	g_pNetworkManager->Disconnect();
+	g_pMainMenu->ResetNetworkStats();
 }
 
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -40,6 +43,7 @@ void CClientPacketHandler::ConnectionFailed(CBitStream * pBitStream, CPlayerSock
 {
 	g_pChatWindow->AddInfoMessage("Connection failed(Timeout), retrying ....");
 	g_pNetworkManager->Connect();
+	g_pMainMenu->ResetNetworkStats();
 }
 
 void CClientPacketHandler::AlreadyConnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -51,17 +55,20 @@ void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * p
 {
 	g_pChatWindow->AddInfoMessage("Connection failed(server is full), retrying ....");
 	g_pNetworkManager->Connect();
+	g_pMainMenu->ResetNetworkStats();
 }
 
 void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Server closed the connection!");
+	g_pMainMenu->ResetNetworkStats();
 }
 
 void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Connetion to the server lost, retrying ....");
 	ResetGame();
+	g_pMainMenu->ResetNetworkStats();
 }
 
 void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -71,7 +78,7 @@ void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSend
 
 void CClientPacketHandler::PasswordInvalid(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Connection failed(wrong password)!");
+	g_pChatWindow->AddInfoMessage("Connection failed(Wrong password)!");
 }
 
 void CClientPacketHandler::Register()
