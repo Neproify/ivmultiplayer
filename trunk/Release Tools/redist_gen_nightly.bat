@@ -1,5 +1,11 @@
 @echo off
 for /f %%i in ('svnversion') do set VERSION=r%%i-Win32-Nightly
+
+call "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+cd ..
+devenv.exe IVMP.sln /build Release
+cd "Release Tools"
+
 7z a IVMP-%VERSION%-Server.zip ../Binary/ivmp-svr.exe
 7z a IVMP-%VERSION%-Server.zip ../Binary/Network.Core.dll
 7z a IVMP-%VERSION%-Server.zip ../Binary/settings.xml
