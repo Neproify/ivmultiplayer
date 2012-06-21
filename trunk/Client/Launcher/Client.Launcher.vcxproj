@@ -89,6 +89,7 @@
       <OutputFile>$(OutDir)\$(TargetName).exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+	  <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
@@ -124,6 +125,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
+	  <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <OutputFile>$(OutDir)\$(TargetName).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
