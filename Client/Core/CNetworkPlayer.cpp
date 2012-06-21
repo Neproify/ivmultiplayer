@@ -383,6 +383,9 @@ void CNetworkPlayer::Destroy()
 
 			// Remove our model info reference
 			m_pModelInfo->RemoveReference();
+
+			// Remove blip
+
 			CLogFile::Printf("Destroy 7");
 		}
 	}

@@ -21,7 +21,7 @@
 	<query>true</query>
 
 	<!-- Add the server to the master list -->
-	<listed>false</listed>
+	<listed>true</listed>
 
 	<!-- The hostname players will see -->
 	<hostname>IV:MP Server</hostname>

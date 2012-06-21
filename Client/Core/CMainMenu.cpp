@@ -107,6 +107,7 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 		for(int i = 0; i < 10; i++)
 			g_pChatWindow->AddMessage(0xFFFFFFAA,false," ");
 
+		ResetNetworkStats();
 		g_pChatWindow->AddInfoMessage("Successfully disconnected from server ...");
 	}
 	return true;
@@ -1196,3 +1197,9 @@ void CMainMenu::SetNetworkStats(String strHost,int players, int maxplayers, Stri
 	m_pMyName->setText(strName.C_String());
 }
 
+void CMainMenu::ResetNetworkStats()
+{
+	m_pHost->setText("-");
+	m_pPlayers->setText("-");
+	m_pMyName->setText("-");
+}

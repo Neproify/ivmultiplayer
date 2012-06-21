@@ -157,49 +157,39 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 void CClientRPCHandler::NewPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	CLogFile::Printf("NewPlayer - 1");
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
-	CLogFile::Printf("NewPlayer - 2");
 
 	// Read the player id
 	EntityId playerId;
 	pBitStream->ReadCompressed(playerId);
-	CLogFile::Printf("NewPlayer - 3");
 
 	// Read the color
 	unsigned int color;
 	pBitStream->Read(color);
-	CLogFile::Printf("NewPlayer - 4");
 
 	// Read the player name
 	String sPlayerName;
 	pBitStream->Read(sPlayerName);
-	CLogFile::Printf("NewPlayer - 5");
 
 	// Add the player to the player manager
 	g_pPlayerManager->Add(playerId, sPlayerName);
 	g_pPlayerManager->GetAt(playerId)->SetColor(color);
-	CLogFile::Printf("NewPlayer - 6");
 }
 
 void CClientRPCHandler::DeletePlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	CLogFile::Printf("DeletePlayer - 1");
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
-	CLogFile::Printf("DeletePlayer - 2");
 
 	// Read the player id
 	EntityId playerId;
 	pBitStream->ReadCompressed(playerId);
-	CLogFile::Printf("DeletePlayer - 3");
 
 	// Remove the player from the player manager
 	g_pPlayerManager->Remove(playerId);
-	CLogFile::Printf("DeletePlayer - 4");
 }
 
 void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2732,7 +2722,9 @@ void CClientRPCHandler::ScriptingForcePlayerAnimation(CBitStream * pBitStream, C
 	String strAnim;
 	pBitStream->Read(strGroup);
 	pBitStream->Read(strAnim);
+
 	g_pLocalPlayer->SetAnimation(strGroup,strAnim);
+	//g_pLocalPlayer->SaveAnimation(strGroup,strAnim);
 }
 
 void CClientRPCHandler::ScriptingForceActorAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

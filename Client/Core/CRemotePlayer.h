@@ -15,15 +15,16 @@
 class CRemotePlayer : public CNetworkPlayer
 {
 private:
-	EntityId m_vehicleId;
-	unsigned int m_uiBlipId;
-	eStateType m_stateType;
-	bool m_bPassenger;
-	BYTE m_byteSeatId;
-	bool m_helmet;
-	bool		  m_bAnimating;
-	String		  m_strAnimGroup;
-	String		  m_strAnimSpec;
+	EntityId			m_vehicleId;
+	unsigned int		m_uiBlipId;
+	eStateType			m_stateType;
+	bool				m_bPassenger;
+	BYTE				m_byteSeatId;
+	bool				m_helmet;
+	bool				m_bAnimating;
+	String				m_strAnimGroup;
+	String				m_strAnimSpec;
+	OnFootSyncData	   *m_pLastSyncData;
 
 public:
 	CRemotePlayer();

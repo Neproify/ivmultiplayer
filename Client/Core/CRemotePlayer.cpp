@@ -27,6 +27,7 @@ CRemotePlayer::CRemotePlayer()
 	m_uiBlipId = NULL;
 	m_stateType = STATE_TYPE_DISCONNECT;
 	m_bPassenger = false;
+	m_pLastSyncData = NULL;
 }
 
 CRemotePlayer::~CRemotePlayer()
@@ -53,8 +54,6 @@ bool CRemotePlayer::Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontR
 
 void CRemotePlayer::Destroy()
 {
-	//CNetworkPlayer::Destroy();
-
 	// remove the blip
 	if(m_uiBlipId != NULL)
 	{
@@ -105,6 +104,12 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	// Set our control state
 	SetControlState(&syncPacket->controlState);
 
+	// If we have new sync data -> continue otherwise we don't need to update it
+	/*if(m_pLastSyncData != syncPacket)
+		m_pLastSyncData = syncPacket;
+	else
+		return;*/
+
 	// Set our position
 	SetTargetPosition(syncPacket->vecPos, TICK_RATE);
 
@@ -124,25 +129,25 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	LockArmour((syncPacket->uHealthArmour << 16) >> 16);
 
 	// Set our anim stuff
-	//bool banim = syncPacket->bAnim;
-	//float fdensity = syncPacket->fAnimTime;
-	//if(banim)
-	//{
-	//	m_strAnimGroup = syncPacket->szAnimGroup;
-	//	m_strAnimSpec = syncPacket->szAnimSpecific;
-	//	const char *szGroup = m_strAnimGroup;
-	//	const char *szAnim = m_strAnimSpec;
-	//	if(!m_bAnimating)
-	//	{
-	//		m_bAnimating = true;
-	//		Scripting::TaskPlayAnim(GetScriptingHandle(),szAnim,szGroup,8.0f,0,0,0,0,-1);
-	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,fdensity);
-	//	}
-	//	else if(m_bAnimating)
-	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,fdensity);
-	//}
-	//else
-	//	m_bAnimating = false;
+	if(syncPacket->bAnim)
+	{
+		m_strAnimGroup = syncPacket->szAnimGroup;
+		m_strAnimSpec = syncPacket->szAnimSpecific;
+		const char *szGroup = m_strAnimGroup;
+		const char *szAnim = m_strAnimSpec;
+
+		// check if we're not animating and the animation isn't finished(1.0)
+		if(!m_bAnimating && syncPacket->fAnimTime < 1.0f)
+		{
+			m_bAnimating = true;
+			Scripting::TaskPlayAnim(GetScriptingHandle(),szAnim,szGroup,8.0f,0,0,0,0,-1);
+			Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,syncPacket->fAnimTime);
+		}
+		else if(m_bAnimating)
+			Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,syncPacket->fAnimTime);
+	}
+	else
+		m_bAnimating = false;
 
 	// Get our new weapon and ammo
 	unsigned int uiWeapon = (syncPacket->uWeaponInfo >> 20);

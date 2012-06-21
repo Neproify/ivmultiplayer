@@ -175,4 +175,5 @@ public:
 	void			 HideLoadingScreen();
 	bool			 IsLoadingScreenActive() { return m_bLoadingScreenActive; };
 	void			 SetNetworkStats(String strHost, int players, int maxplayers, String strName);
+	void			 ResetNetworkStats();
 };
