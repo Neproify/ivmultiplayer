@@ -184,4 +184,15 @@ namespace IVMP
 	{
 		return NewInterfaceContainer.g_pWorldNatives;
 	}
+	namespace Events
+	{
+		inline CEventsInterface * Manager()
+		{
+			return InterfaceContainer.g_pEvents;
+		}
+		inline SquirrelArgumentManager * SquirrelArgumentManager()
+		{
+			return InterfaceContainer.pSquirrelArgumentManager;
+		}
+	}
 }
