@@ -355,4 +355,18 @@ namespace Modules
 	{
 		return CVAR_GET_INTEGER("weather");
 	}
+
+	bool CServerModuleNatives::ForceWind(float fWind)
+	{
+		if(fWind != CVAR_GET_INTEGER("wind"))
+		{
+			CVAR_SET_FLOAT("wind", (float)fWind);
+
+			CBitStream bsSend;
+			bsSend.Write((float)fWind);
+			g_pNetworkManager->RPC(RPC_ScriptingForceWind, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+			return true;
+		}
+		return false;
+	}
 }

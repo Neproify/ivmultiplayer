@@ -567,4 +567,96 @@ namespace Modules
 
 		return false;
 	}
+
+	bool CVehicleModuleNatives::SwitchTaxiLights(EntityId vehicleId, bool check)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	
+		if(pVehicle)
+		{
+			bool bToggle = (check != 0);
+			pVehicle->TurnTaxiLights(bToggle);
+			return true;
+		}
+		return false;
+	}
+
+	bool CVehicleModuleNatives::ControlCarDoors(EntityId vehicleId, int door, bool door2, float door3)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	
+		if(pVehicle)
+		{
+			bool bToggle = (door != 0);
+			bool bToggle2 = (door2 != 0);
+			bool bToggle3 = (door3 != 0);
+			pVehicle->ControlCarDoors(bToggle,bToggle2,bToggle3);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool CVehicleModuleNatives::SetLights(EntityId vehicleId, bool bLights)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			bool bToggle = (bLights != 0);
+			pVehicle->SetLights(bToggle);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool CVehicleModuleNatives::GetLights(EntityId vehicleId)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			return pVehicle->GetLights();
+		}
+
+		return false;
+	}
+
+	bool CVehicleModuleNatives::GetTaxiLights(EntityId vehicleId)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			return pVehicle->GetTaxiLights();
+		}
+		return false;
+	}
+
+	bool CVehicleModuleNatives::RepairWheels(EntityId vehicleId)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			pVehicle->RepairWheels();
+			return true;
+		}
+
+		return false;
+	}
+
+	bool CVehicleModuleNatives::RepairWindows(EntityId vehicleId)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			pVehicle->RepairWindows();
+			return true;
+		}
+
+		return false;
+	}
 }

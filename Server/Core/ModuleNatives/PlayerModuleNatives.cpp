@@ -1154,4 +1154,113 @@ namespace Modules
 
 		return false;
 	}
+
+
+	bool CPlayerModuleNatives::forceAnim(EntityId playerId, const char * szGroup, const char * szAnim)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			CBitStream bsSend;
+			bsSend.Write(String(szGroup));
+			bsSend.Write(String(szAnim));
+			g_pNetworkManager->RPC(RPC_ScriptingForcePlayerAnim, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool CPlayerModuleNatives::requestAnim(EntityId playerId)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			g_pNetworkManager->RPC(RPC_ScriptingRequestAnims, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			return true;
+		}
+		return false;
+	}
+
+	bool CPlayerModuleNatives::triggerAudioEvent(EntityId playerId, const char * szAudio)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			CBitStream bsSend;
+			bsSend.Write(String(szAudio));
+			g_pNetworkManager->RPC(RPC_ScriptingPlayGameAudio, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			return true;
+		}
+		return false;
+	}
+
+	bool CPlayerModuleNatives::triggerMissionCompleteAudio(EntityId playerId, int iMission)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			CBitStream bsSend;
+			bsSend.Write(iMission);
+			g_pNetworkManager->RPC(RPC_ScriptingPlayMissionCompleteAudio, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			return true;
+		}
+		return false;
+	}
+
+	bool CPlayerModuleNatives::triggerPoliceReport(EntityId playerId, const char * szAudio)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			CBitStream bsSend;
+			bsSend.Write(String(szAudio));
+			g_pNetworkManager->RPC(RPC_ScriptingPlayPoliceReport, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			return true;
+		}
+		return false;
+	}
+
+	bool CPlayerModuleNatives::fadeScreenIn(EntityId playerId, int iDuration)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			CBitStream bsSend;
+			bsSend.Write(iDuration);
+			g_pNetworkManager->RPC(RPC_ScriptingFadeScreenIn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			return true;
+		}
+		return false;
+	}
+
+	bool CPlayerModuleNatives::fadeScreenOut(EntityId playerId, int iDuration)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			CBitStream bsSend;
+			bsSend.Write(iDuration);
+			g_pNetworkManager->RPC(RPC_ScriptingFadeScreenOut, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			return true;
+		}
+		return false;
+	}
+
+	bool CPlayerModuleNatives::blockWeaponChange(EntityId playerId, bool btoggle)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			CBitStream bsSend;
+			bsSend.Write(btoggle);
+			g_pNetworkManager->RPC(RPC_ScriptingBlockWeaponChange, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			return true;
+		}
+		return false;
+	}
+
+	bool CPlayerModuleNatives::blockWeaponDrop(EntityId playerId, bool btoggle)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			CBitStream bsSend;
+			bsSend.Write(btoggle);
+			g_pNetworkManager->RPC(RPC_ScriptingBlockWeaponDrop, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			return true;
+		}
+		return false;
+	}
 }

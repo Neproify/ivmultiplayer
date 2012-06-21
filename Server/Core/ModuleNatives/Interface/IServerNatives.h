@@ -40,5 +40,6 @@ namespace Modules
 		virtual bool AreFrequentEventsEnabled() = 0;
 		virtual bool SetWeather(int iWeather) = 0;
 		virtual int GetWeather() = 0;
+		virtual bool ForceWind(float fWind) = 0;
 	};
 }

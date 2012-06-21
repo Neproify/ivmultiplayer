@@ -101,4 +101,39 @@ namespace Modules
 
 		return CVector3();
 	}
+
+	void CObjectModuleNatives::CreateExplosion(CVector3 vecPos, float fDensity)
+	{
+		g_pObjectManager->CreateExplosion(vecPos, fDensity);
+	}
+
+	EntityId CObjectModuleNatives::CreateFire(CVector3 vecPos, float fDensity)
+	{
+		return g_pObjectManager->CreateFire(vecPos,fDensity);
+	}
+
+	void CObjectModuleNatives::DeleteFire(EntityId fireId)
+	{
+		g_pObjectManager->DeleteFire(fireId);
+	}
+
+	bool CObjectModuleNatives::AttachPed(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot)
+	{
+		if(g_pObjectManager->DoesExist(objectId))
+		{
+			g_pObjectManager->AttachToPlayer(objectId,playerId,vecPos,vecRot);
+			return true;
+		}
+		return false;
+	}
+
+	bool CObjectModuleNatives::AttachVehicle(EntityId objectId, EntityId vehicleId, CVector3 vecPos, CVector3 vecRot)
+	{
+		if(g_pObjectManager->DoesExist(objectId))
+		{
+			g_pObjectManager->AttachToVehicle(objectId,vehicleId,vecPos,vecRot);
+			return true;
+		}
+		return false;
+	}
 }

@@ -24,5 +24,10 @@ namespace Modules
 		virtual CVector3 GetCoordinates(EntityId objectId) = 0;
 		virtual bool SetRotation(EntityId objectId, CVector3 vecRotation) = 0;
 		virtual CVector3 GetRotation(EntityId objectId) = 0;
+		virtual void CreateExplosion(CVector3 vecPos, float fDensity) = 0;
+		virtual EntityId CreateFire(CVector3 vecPos, float fDensity) = 0;
+		virtual void DeleteFire(EntityId fireId) = 0;
+		virtual bool AttachPed(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot) = 0;
+		virtual bool AttachVehicle(EntityId objectId, EntityId vehicleId, CVector3 vecPos, CVector3 vecRot) = 0;
 	};
 }
