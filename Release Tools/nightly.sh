@@ -1,4 +1,5 @@
 cd ../
+svn up
 make
 cd "Release Tools"
 GZIPFILE=IVMP-r`svnversion`-Linux-Nightly-Server.tar.gz
