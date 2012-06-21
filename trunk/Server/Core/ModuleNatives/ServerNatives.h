@@ -40,5 +40,6 @@ namespace Modules
 		bool AreFrequentEventsEnabled();
 		bool SetWeather(int iWeather);
 		int GetWeather();
+		bool ForceWind(float fWind);
 	};
 }

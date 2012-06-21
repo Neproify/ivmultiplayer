@@ -24,5 +24,11 @@ namespace Modules
 		CVector3 GetCoordinates(EntityId objectId);
 		bool SetRotation(EntityId objectId, CVector3 vecRotation);
 		CVector3 GetRotation(EntityId objectId);
+
+		void CreateExplosion(CVector3 vecPos, float fDensity);
+		EntityId CreateFire(CVector3 vecPos, float fDensity);
+		void DeleteFire(EntityId fireId);
+		bool AttachPed(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot);
+		bool AttachVehicle(EntityId objectId, EntityId vehicleId, CVector3 vecPos, CVector3 vecRot);
 	};
 }

@@ -94,5 +94,15 @@ namespace Modules
 		CControlState GetPreviousControlState(EntityId playerId);
 		CControlState GetControlState(EntityId playerId);
 		bool TriggerEvent(EntityId playerid, const char * szEventName, const char * szFormat, ...);
+
+		bool forceAnim(EntityId playerId, const char * szGroup, const char * szAnim);
+		bool requestAnim(EntityId playerId);
+		bool triggerAudioEvent(EntityId playerId, const char * szAudio);
+		bool triggerMissionCompleteAudio(EntityId playerId, int iMission);
+		bool triggerPoliceReport(EntityId playerId, const char * szAudio);
+		bool fadeScreenIn(EntityId playerId, int iDuration);
+		bool fadeScreenOut(EntityId playerId, int iDuration);
+		bool blockWeaponChange(EntityId playerId, bool btoggle);
+		bool blockWeaponDrop(EntityId playerId, bool btoggle);
 	};
 }

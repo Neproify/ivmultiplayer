@@ -51,5 +51,13 @@ namespace Modules
 		int GetVariation(EntityId vehicleId);
 		bool SetEngineStatus(EntityId vehicleId, bool bEngineStatusx);
 		bool GetEngineStatus(EntityId vehicleId);
+
+		bool SwitchTaxiLights(EntityId vehicleId, bool check);
+		bool ControlCarDoors(EntityId vehicleId, int door, bool door2, float door3);
+		bool SetLights(EntityId vehicleId, bool bLights);
+		bool GetLights(EntityId vehicleId);
+		bool GetTaxiLights(EntityId vehicleId);
+		bool RepairWheels(EntityId vehicleId);
+		bool RepairWindows(EntityId vehicleId);
 	};
 }

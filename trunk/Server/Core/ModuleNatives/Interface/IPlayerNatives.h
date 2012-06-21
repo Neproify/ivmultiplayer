@@ -94,5 +94,14 @@ namespace Modules
 		virtual CControlState GetPreviousControlState(EntityId playerId) = 0;
 		virtual CControlState GetControlState(EntityId playerId) = 0;
 		virtual bool TriggerEvent(EntityId playerid, const char * szEventName, const char * szFormat, ...) = 0;
+		virtual bool forceAnim(EntityId playerId, const char * szGroup, const char * szAnim) = 0;
+		virtual bool requestAnim(EntityId playerId) = 0;
+		virtual bool triggerAudioEvent(EntityId playerId, const char * szAudio) = 0;
+		virtual bool triggerMissionCompleteAudio(EntityId playerId, int iMission) = 0;
+		virtual bool triggerPoliceReport(EntityId playerId, const char * szAudio) = 0;
+		virtual bool fadeScreenIn(EntityId playerId, int iDuration) = 0;
+		virtual bool fadeScreenOut(EntityId playerId, int iDuration) = 0;
+		virtual bool blockWeaponChange(EntityId playerId, bool btoggle) = 0;
+		virtual bool blockWeaponDrop(EntityId playerId, bool btoggle) = 0;
 	};
 }

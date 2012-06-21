@@ -51,5 +51,12 @@ namespace Modules
 		virtual int GetVariation(EntityId vehicleId) = 0;
 		virtual bool SetEngineStatus(EntityId vehicleId, bool bEngineStatusx) = 0;
 		virtual bool GetEngineStatus(EntityId vehicleId) = 0;
+		virtual bool SwitchTaxiLights(EntityId vehicleId, bool check) = 0;
+		virtual bool ControlCarDoors(EntityId vehicleId, int door, bool door2, float door3) = 0;
+		virtual bool SetLights(EntityId vehicleId, bool bLights) = 0;
+		virtual bool GetLights(EntityId vehicleId) = 0;
+		virtual bool GetTaxiLights(EntityId vehicleId) = 0;
+		virtual bool RepairWheels(EntityId vehicleId) = 0;
+		virtual bool RepairWindows(EntityId vehicleId) = 0;
 	};
 }

@@ -64,6 +64,16 @@ namespace Modules
 		return false;
 	}
 
+	// getActorCoordinates(actorid)
+	CVector3 CActorModuleNatives::GetCoordinates(EntityId actorId)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			return g_pActorManager->GetPosition(actorId);
+		}
+		return CVector3();
+	}
+
 	// setActorHeading(actorid, r)
 	bool CActorModuleNatives::SetHeading(EntityId actorId, float fHeading)
 	{
@@ -89,6 +99,170 @@ namespace Modules
 			return true;
 		}
 
+		return false;
+	}
+
+	// getActorHeading(actorid)
+	float CActorModuleNatives::GetHeading(EntityId actorId)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			return g_pActorManager->GetHeading(actorId);
+		}
+		return 0.0f;
+	}
+
+	// getActorModel(actorid)
+	int CActorModuleNatives::GetModel(EntityId actorId)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			return g_pActorManager->GetModel(actorId);
+		}
+		return 0;
+	}
+
+	// getActorCount()
+	int CActorModuleNatives::GetCount()
+	{
+		if(g_pActorManager)
+		{
+			return g_pActorManager->GetActorCount();
+		}
+		return 0;
+	}
+
+	// setActorName(actorid, name)
+	bool CActorModuleNatives::SetName(EntityId actorId, const char * szName)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			g_pActorManager->SetActorName(actorId, szName);
+			return true;
+		}
+
+		return false;
+	}
+
+	// getActorName(actorid)
+	const char * CActorModuleNatives::GetName(EntityId actorId)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			return g_pActorManager->GetActorName(actorId);
+		}
+		return NULL;
+	}
+
+	// toggleActorNametag(actorid, toggle)
+	bool CActorModuleNatives::ToggleNametag(EntityId actorId, bool show)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			bool bToggle = (show != 0);
+			g_pActorManager->ToggleNametag(actorId, bToggle);
+			return true;
+		}
+		return false;
+	}
+
+	// setActorNametagColor(actorid, color)
+	bool CActorModuleNatives::SetColor(EntityId actorId, int color)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			g_pActorManager->SetColor(actorId,color);
+			return true;
+		}
+		return false;
+	}
+
+	// getActorNametagColor(actorid)
+	int CActorModuleNatives::GetColor(EntityId actorId)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			return g_pActorManager->GetColor(actorId);
+		}
+		return 0;
+	}
+
+	// toggleActorFrozen(actorid, toggle)
+	bool CActorModuleNatives::ToggleFrozen(EntityId actorId, bool frozen)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			bool bToggle = (frozen != 0);
+			g_pActorManager->ToggleFrozen(actorId, bToggle);
+			return true;
+		}
+
+		return false;
+	}
+
+	// toggleActorHelmet(actorid, toggle)
+	bool CActorModuleNatives::ToggleHelmet(EntityId actorId, bool helmet)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			bool bToggle = (helmet != 0);
+			g_pActorManager->ToggleHelmet(actorId, bToggle);
+			return true;
+		}
+		return false;
+	}
+
+	// warpActorIntoVehicle(actorid, vehicleid, seatid)
+	bool CActorModuleNatives::WarpIntoVehicle(EntityId actorId, int vehicleid, int seatid)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			if(seatid > 0 &&  seatid <= 3)
+			{
+				g_pActorManager->WarpIntoVehicle(actorId,vehicleid,seatid);
+				return true;
+			}
+			else
+			{
+				CLogFile::Printf("Can't warp actor %d on the seat %d from the vehicle %d(Seats are only supported from 1 to 3(passenger))",actorId,seatid,vehicleid);
+			}
+		}
+		return false;
+	}
+
+	// removeActorFromVehicle(actorid)
+	bool CActorModuleNatives::RemoveFromVehicle(EntityId actorId)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			g_pActorManager->RemoveFromVehicle(actorId);
+			return true;
+		}
+		return false;
+	}
+
+	void CActorModuleNatives::DeleteAll()
+	{
+		for(EntityId x = 0; x < MAX_ACTORS; x++)
+		{
+			if(g_pActorManager->DoesExist(x))
+			{
+				g_pActorManager->Delete(x);
+			}
+		}
+	}
+
+	bool CActorModuleNatives::ForceAnim(EntityId actorId, const char * szGroup, const char * szAnim)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			CBitStream bsSend;
+			bsSend.Write(actorId);
+			bsSend.Write(String(szGroup));
+			bsSend.Write(String(szAnim));
+			g_pNetworkManager->RPC(RPC_ScriptingForceActorAnimation, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+			return true;
+		}
 		return false;
 	}
 }

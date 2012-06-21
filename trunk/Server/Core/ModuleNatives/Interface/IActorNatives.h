@@ -24,5 +24,20 @@ namespace Modules
 		virtual bool SetCoordinates(EntityId actorId, CVector3 vecPosition) = 0;
 		virtual bool SetHeading(EntityId actorId, float fHeading) = 0;
 		virtual bool WalkToCoordinates(EntityId playerId, EntityId actorId, CVector3 vecPosition, int iType) = 0;
+		virtual CVector3 GetCoordinates(EntityId actorId) = 0;
+		virtual float GetHeading(EntityId actorId) = 0;
+		virtual int GetModel(EntityId actorId) = 0;
+		virtual int GetCount() = 0;
+		virtual bool SetName(EntityId actorId, const char * szName) = 0;
+		virtual const char * GetName(EntityId actorId) = 0;
+		virtual bool ToggleNametag(EntityId actorId, bool show) = 0;
+		virtual bool SetColor(EntityId actorId, int color) = 0;
+		virtual int GetColor(EntityId actorId) = 0;
+		virtual bool ToggleFrozen(EntityId actorId, bool frozen) = 0;
+		virtual bool ToggleHelmet(EntityId actorId, bool helmet) = 0;
+		virtual bool WarpIntoVehicle(EntityId actorId, int vehicleid, int seatid) = 0;
+		virtual bool RemoveFromVehicle(EntityId actorId) = 0;
+		virtual void DeleteAll() = 0;
+		virtual bool ForceAnim(EntityId actorId, const char * szGroup, const char * szAnim) = 0;
 	};
 }
