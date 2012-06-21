@@ -54,8 +54,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor\bass; ..\..\Vendor;..\..\Vendor\Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;CEGUI_STATIC;LOGGER;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor\bass; ..\..\Vendor;..\..\Vendor\Squirrel;..\..\Client\Core\EA;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;CEGUI_STATIC;LOGGER;WIN32_LEAN_AND_MEAN;IVMP_WEBKIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -187,7 +187,7 @@
     <ClInclude Include="..\..\Shared\Game\CTrafficLights.h" />
     <ClInclude Include="CAudio.h" />
     <ClInclude Include="CActorManager.h" />
-	<ClInclude Include="CFireManager.h" />
+    <ClInclude Include="CFireManager.h" />
     <ClInclude Include="CBlipManager.h" />
     <ClInclude Include="CCheckpoint.h" />
     <ClInclude Include="CCheckpointManager.h" />
@@ -358,7 +358,7 @@
     <ClCompile Include="..\..\Shared\Game\CTrafficLights.cpp" />
     <ClCompile Include="CAudio.cpp" />
     <ClCompile Include="CActorManager.cpp" />
-	<ClCompile Include="CFireManager.cpp" />
+    <ClCompile Include="CFireManager.cpp" />
     <ClCompile Include="CBlipManager.cpp" />
     <ClCompile Include="CCheckpoint.cpp" />
     <ClCompile Include="CCheckpointManager.cpp" />
