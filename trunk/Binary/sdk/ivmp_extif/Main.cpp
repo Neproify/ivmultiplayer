@@ -34,7 +34,7 @@ EXPORT bool InitModule(char * szModuleName)
 	strcpy(szModuleName, "Test Module");
 
 	printf("[%s] Our module got loaded!\n", m_szModuleName);
-	GetEventManager()->AddModuleEvent("playerConnect", playerConnect);
+	IVMP::Events::Manager()->AddModuleEvent("playerConnect", playerConnect);
 	return true;
 }
 
