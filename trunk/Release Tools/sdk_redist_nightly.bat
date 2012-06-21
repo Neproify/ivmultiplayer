@@ -1,4 +1,4 @@
-for /f %%i in ('svnversion') do set VERSION=r%%i
+for /f %%i in ('svnversion') do set VERSION=r%%i-Win32-Nightly
 mkdir sdk_release
 cd ..\Server\Core\Interfaces
 call copy.bat
