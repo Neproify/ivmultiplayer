@@ -269,14 +269,14 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	// Read the engine state
 	bool bEngineStatus = pBitStream->ReadBit();
 	bool bLights = pBitStream->ReadBit();
-	float fDoor[5];
+	float fDoor[6];
 	pBitStream->Read(fDoor[0]);
 	pBitStream->Read(fDoor[1]);
 	pBitStream->Read(fDoor[2]);
 	pBitStream->Read(fDoor[3]);
 	pBitStream->Read(fDoor[4]);
 	pBitStream->Read(fDoor[5]);
-	bool bWindow[3];
+	bool bWindow[4];
 	pBitStream->Read(bWindow[0]);
 	pBitStream->Read(bWindow[1]);
 	pBitStream->Read(bWindow[2]);
