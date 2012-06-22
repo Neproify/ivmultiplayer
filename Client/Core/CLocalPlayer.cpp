@@ -146,14 +146,16 @@ void CLocalPlayer::DoDeathCheck()
 		// Get the kill info
 		EntityId playerId = INVALID_ENTITY_ID;
 		EntityId vehicleId = INVALID_ENTITY_ID;
-		GetKillInfo(&playerId, &vehicleId);
+		EntityId weaponId = INVALID_ENTITY_ID;
+		GetKillInfo(&playerId, &vehicleId,&weaponId);
 
-		CLogFile::Printf("HandleDeath(LocalPlayer, %d, %d)", playerId, vehicleId);
+		CLogFile::Printf("HandleDeath(LocalPlayer, %d, %d, %d)", playerId, vehicleId, weaponId);
 
 		// Send the death notification to the server
 		CBitStream bsSend;
 		bsSend.WriteCompressed(playerId);
 		bsSend.WriteCompressed(vehicleId);
+		bsSend.WriteCompressed(weaponId);
 		g_pNetworkManager->RPC(RPC_Death, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 
 		// Mark ourselves as dead
@@ -186,7 +188,6 @@ void CLocalPlayer::Pulse()
 					{
 						// Send on foot sync
 						SendOnFootSync();
-						// TODO: Sync head movement for remote players?
 					}
 					else
 					{
@@ -315,6 +316,17 @@ void CLocalPlayer::SendOnFootSync()
 	}
 
 	g_pNetworkManager->RPC(RPC_OnFootSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+
+	// Send our latest head movement if it's enabled
+	if(CGame::GetHeadMovement()) {
+		CBitStream bsHead;
+		bsHead.Write(GetPlayerId());
+		CVector3 vecLookAt; g_pCamera->GetLookAt(vecLookAt);
+		bsHead.Write(vecLookAt.fX);
+		bsHead.Write(vecLookAt.fY);
+		bsHead.Write(vecLookAt.fZ);
+		g_pNetworkManager->RPC(RPC_HeadMovement, &bsHead, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+	}
 }
 
 void CLocalPlayer::SendInVehicleSync()
@@ -377,53 +389,20 @@ void CLocalPlayer::SendInVehicleSync()
 		// Get their vehicles engine status (untested)
 		syncPacket.bEngineStatus = pVehicle->GetEngineState();
 		
-		// Set default window and typres values
+		// Set default window and typres values & check them
 		for(int i = 0; i < 4; i++)
+		{
 			syncPacket.bWindow[i] = false;
+			if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)i))
+				syncPacket.bWindow[i] = true;
+		}
 
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 6; i++)
+		{
 			syncPacket.bTyre[i] = false;
-
-		// Check windows
-		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)0))
-		{
-			pVehicle->SetWindowState(0,true);
-			syncPacket.bWindow[1] = true;
+			if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i))
+				syncPacket.bTyre[i] = true;
 		}
-		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)1))
-		{
-			pVehicle->SetWindowState(1,true);
-			syncPacket.bWindow[2] = true;
-		}
-		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)2))
-		{
-			pVehicle->SetWindowState(2,true);
-			syncPacket.bWindow[3] = true;
-		}
-		if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)3))
-		{
-			pVehicle->SetWindowState(3,true);
-			syncPacket.bWindow[4] = true;
-		}
-
-		// Check tyres
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)0))
-			syncPacket.bTyre[0] = true;
-
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)1))
-			syncPacket.bTyre[1] = true;
-
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)2))
-			syncPacket.bTyre[2] = true;
-
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)3))
-			syncPacket.bTyre[3] = true;
-
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)4))
-			syncPacket.bTyre[4] = true;
-
-		if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)5))
-			syncPacket.bTyre[5] = true;
 
 		// Write the in vehicle sync data to the bit stream
 		bsSend.Write((char *)&syncPacket, sizeof(InVehicleSyncData));
@@ -451,6 +430,7 @@ void CLocalPlayer::SendInVehicleSync()
 
 		g_pNetworkManager->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
+		// Check if our car is dead(exploded)
 		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()))
 		{
 			CBitStream bsDeath;

@@ -54,6 +54,7 @@ CIVWeather   * CGame::m_pWeather = NULL;
 CIVWorld     * CGame::m_pWorld = NULL;
 bool		   CGame::m_bNameTags = false;
 bool		   CGame::m_bGameLoaded = false;
+bool		   CGame::m_bHeadMovement = true;
 
 void CGame::SetFocused(bool bFocused)
 {

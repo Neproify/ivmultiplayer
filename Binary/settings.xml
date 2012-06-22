@@ -35,6 +35,9 @@
 	<!-- Toggles the network nametags from GTA IV to nametags from IV:MP(GUI) -->
 	<guinametags>true</guinametags>
 	
+	<!-- Toggles the headmovement sync -->
+	<headmovement>true</headmovement>
+	
 	<!-- The scripts the server will load and run -->
 	<script>cp.nut</script>
 	<script>whisper.nut</script>

@@ -833,3 +833,20 @@ void CPlayer::UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot)
 	}
 	g_pEvents->Call("playerShot", &pArguments);
 }
+
+void CPlayer::UpdateHeadMoveSync(CVector3 vecHead)
+{
+	if((vecHead-m_vecLastHeadMove).Length() != 0)
+	{
+		m_vecLastHeadMove = vecHead;
+		CSquirrelArguments pArguments;
+		pArguments.push(m_playerId);
+		pArguments.push(m_vecLastHeadMove.fX);
+		pArguments.push(m_vecLastHeadMove.fY);
+		pArguments.push(m_vecLastHeadMove.fZ);
+		pArguments.push(vecHead.fX);
+		pArguments.push(vecHead.fY);
+		pArguments.push(vecHead.fZ);
+		g_pEvents->Call("headMove", &pArguments);
+	}
+}

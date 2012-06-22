@@ -129,25 +129,25 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	LockArmour((syncPacket->uHealthArmour << 16) >> 16);
 
 	// Set our anim stuff
-	if(syncPacket->bAnim)
-	{
-		m_strAnimGroup = syncPacket->szAnimGroup;
-		m_strAnimSpec = syncPacket->szAnimSpecific;
-		const char *szGroup = m_strAnimGroup;
-		const char *szAnim = m_strAnimSpec;
+	//if(syncPacket->bAnim)
+	//{
+	//	m_strAnimGroup = syncPacket->szAnimGroup;
+	//	m_strAnimSpec = syncPacket->szAnimSpecific;
+	//	const char *szGroup = m_strAnimGroup;
+	//	const char *szAnim = m_strAnimSpec;
 
-		// check if we're not animating and the animation isn't finished(1.0)
-		if(!m_bAnimating && syncPacket->fAnimTime < 1.0f)
-		{
-			m_bAnimating = true;
-			Scripting::TaskPlayAnim(GetScriptingHandle(),szAnim,szGroup,8.0f,0,0,0,0,-1);
-			Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,syncPacket->fAnimTime);
-		}
-		else if(m_bAnimating)
-			Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,syncPacket->fAnimTime);
-	}
-	else
-		m_bAnimating = false;
+	//	// check if we're not animating and the animation isn't finished(1.0)
+	//	if(!m_bAnimating && syncPacket->fAnimTime < 1.0f)
+	//	{
+	//		m_bAnimating = true;
+	//		Scripting::TaskPlayAnim(GetScriptingHandle(),szAnim,szGroup,8.0f,0,0,0,0,-1);
+	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,syncPacket->fAnimTime);
+	//	}
+	//	else if(m_bAnimating)
+	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,syncPacket->fAnimTime);
+	//}
+	//else
+	//	m_bAnimating = false;
 
 	// Get our new weapon and ammo
 	unsigned int uiWeapon = (syncPacket->uWeaponInfo >> 20);
@@ -218,47 +218,53 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		pVehicle->SetPetrolTankHealth(syncPacket->fPetrolHealth);
 
 		// Set their door states
-		pVehicle->SetCarDoorAngle(0,1,syncPacket->fDoor[0]);
-		pVehicle->SetCarDoorAngle(1,1,syncPacket->fDoor[1]);
-		pVehicle->SetCarDoorAngle(2,1,syncPacket->fDoor[2]);
-		pVehicle->SetCarDoorAngle(3,1,syncPacket->fDoor[3]);
-		pVehicle->SetCarDoorAngle(4,1,syncPacket->fDoor[4]);
-		pVehicle->SetCarDoorAngle(5,1,syncPacket->fDoor[5]);
+		for(int i = 0; i < 6; i++)
+		{
+			if(pVehicle->GetCarDoorAngle(i) != syncPacket->fDoor[i])
+				pVehicle->SetCarDoorAngle(i,1,syncPacket->fDoor[i]);
+		}
 
-		// Set their vehicles color
-		pVehicle->SetColors(syncPacket->byteColors[0], syncPacket->byteColors[1], syncPacket->byteColors[2], syncPacket->byteColors[3]);
+		// Check if color set is needed
+		BYTE byteColors[4];
+		pVehicle->GetColors(byteColors[0],byteColors[1],byteColors[2],byteColors[3]);
+		for(int i = 0; i < 4; i++)
+		{
+			if(syncPacket->byteColors[i] != byteColors[i])
+			{
+				// Set their vehicles color
+				pVehicle->SetColors(syncPacket->byteColors[0], syncPacket->byteColors[1], syncPacket->byteColors[2], syncPacket->byteColors[3]);
+				break;
+			}
+			else
+				continue;
+		}
 
 		// Set their vehicles siren state
-		pVehicle->SetSirenState(syncPacket->bSirenState);
+		if(pVehicle->GetSirenState() != syncPacket->bSirenState)
+			pVehicle->SetSirenState(syncPacket->bSirenState);
 
 		// Set their windows
-		pVehicle->SetWindowState(0, syncPacket->bWindow[0]);
-		pVehicle->SetWindowState(1, syncPacket->bWindow[1]);
-		pVehicle->SetWindowState(2, syncPacket->bWindow[2]);
-		pVehicle->SetWindowState(3, syncPacket->bWindow[3]);
+		for(int i = 0; i < 4; i++)
+			pVehicle->SetWindowState(i, syncPacket->bWindow[i]);
 
 		// Set their typres
-		if(syncPacket->bTyre[0])
-			Scripting::BurstCarTyre(GetScriptingHandle(),(Scripting::eVehicleTyre)0);
-		if(syncPacket->bTyre[1])
-			Scripting::BurstCarTyre(GetScriptingHandle(),(Scripting::eVehicleTyre)1);
-		if(syncPacket->bTyre[2])
-			Scripting::BurstCarTyre(GetScriptingHandle(),(Scripting::eVehicleTyre)2);
-		if(syncPacket->bTyre[3])
-			Scripting::BurstCarTyre(GetScriptingHandle(),(Scripting::eVehicleTyre)3);
-		if(syncPacket->bTyre[4])
-			Scripting::BurstCarTyre(GetScriptingHandle(),(Scripting::eVehicleTyre)4);
-		if(syncPacket->bTyre[5])
-			Scripting::BurstCarTyre(GetScriptingHandle(),(Scripting::eVehicleTyre)5);
+		for(int i = 0; i < 6; i++)
+		{
+			if(syncPacket->bTyre[i])
+				Scripting::BurstCarTyre(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i);
+		}
 
 		// Set their vehicles dirt level
-		pVehicle->SetDirtLevel(syncPacket->fDirtLevel);
+		if(pVehicle->GetDirtLevel() != syncPacket->fDirtLevel)
+			pVehicle->SetDirtLevel(syncPacket->fDirtLevel);
 
 		// Set their vehicles engine status
-		pVehicle->SetEngineState(syncPacket->bEngineStatus);
+		if(pVehicle->GetEngineState() != syncPacket->bEngineStatus)
+			pVehicle->SetEngineState(syncPacket->bEngineStatus);
 
 		// Set their lights
-		pVehicle->SetLightsState(syncPacket->bLights);
+		if(pVehicle->GetLightsState() != syncPacket->bLights)
+			pVehicle->SetLightsState(syncPacket->bLights);
 
 		// Lock our health
 		LockHealth(syncPacket->uPlayerHealthArmour >> 16);

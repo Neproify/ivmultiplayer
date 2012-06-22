@@ -42,6 +42,7 @@ private:
 	static SQInteger GetColor(SQVM * pVM);
 	static SQInteger IsDucking(SQVM * pVM);
 	static SQInteger IsJackingAVehicle(SQVM * pVM);
+	static SQInteger GetWeaponSlot(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

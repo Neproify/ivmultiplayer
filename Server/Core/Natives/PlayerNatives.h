@@ -102,6 +102,8 @@ private:
 	static SQInteger fadeScreenOut(SQVM * pVM);
 	static SQInteger blockWeaponChange(SQVM * pVM);
 	static SQInteger blockWeaponDrop(SQVM * pVM);
+	static SQInteger AttachCamToPlayer(SQVM * pVM);
+	static SQInteger AttachCamToVehicle(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

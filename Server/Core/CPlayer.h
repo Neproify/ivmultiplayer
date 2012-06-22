@@ -47,6 +47,7 @@ private:
 	float		  m_fAnimTime;
 	CVector3	  m_vecLastAim;
 	CVector3	  m_vecLastShot;
+	CVector3	  m_vecLastHeadMove;
 
 public:
 	CPlayer(EntityId playerId, String strName);
@@ -119,4 +120,5 @@ public:
 	void           SetClothes(unsigned char ucBodyPart, unsigned char ucClothes);
 	unsigned char  GetClothes(unsigned char ucBodyPart);
 	void		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot);
+	void		   UpdateHeadMoveSync(CVector3 vecHead);
 };

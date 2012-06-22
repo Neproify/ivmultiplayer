@@ -194,6 +194,7 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 		bsSend.Write((unsigned short)CVAR_GET_INTEGER("httpport"));
 		bsSend.Write((unsigned char)CVAR_GET_INTEGER("weather"));
 		bsSend.Write(CVAR_GET_BOOL("guinametags"));
+		bsSend.Write(CVAR_GET_BOOL("headmovement"));
 		bsSend.Write(CVAR_GET_INTEGER("maxplayers"));
 
 		// Time
@@ -351,6 +352,7 @@ void CServerRPCHandler::Death(CBitStream * pBitStream, CPlayerSocket * pSenderSo
 	{
 		EntityId killerPlayerId;
 		EntityId killerVehicleId;
+		EntityId killerWeaponId;
 
 		if(!pBitStream->ReadCompressed(killerPlayerId))
 			return;
@@ -358,12 +360,15 @@ void CServerRPCHandler::Death(CBitStream * pBitStream, CPlayerSocket * pSenderSo
 		if(!pBitStream->ReadCompressed(killerVehicleId))
 			return;
 
+		if(!pBitStream->ReadCompressed(killerWeaponId))
+			return;
+
 		if(killerPlayerId != INVALID_ENTITY_ID)
 		{
 			CPlayer * pKiller = g_pPlayerManager->GetAt(killerPlayerId);
 
 			if(pKiller)
-				CLogFile::Printf("[Death] %s was killed by %s.", pPlayer->GetName().C_String(), pKiller->GetName().C_String());
+				CLogFile::Printf("[Death] %s was killed by %s(Weapon %d).", pPlayer->GetName().C_String(), pKiller->GetName().C_String(), killerWeaponId);
 			else
 				killerPlayerId = INVALID_ENTITY_ID;
 		}
@@ -384,6 +389,7 @@ void CServerRPCHandler::Death(CBitStream * pBitStream, CPlayerSocket * pSenderSo
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
 		pArguments.push(killerPlayerId);
+		pArguments.push(killerWeaponId);
 		pArguments.push(killerVehicleId);
 		g_pEvents->Call("playerDeath", &pArguments);
 
@@ -758,8 +764,6 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 	}
 }
 
-// FIXUPDATE
-// Implement or remove
 void CServerRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -767,6 +771,7 @@ void CServerRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 		return;
 
 	EntityId playerId = pSenderSocket->playerId;
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 	CVector3 vecAim;
 
 	if(!pBitStream->Read(vecAim.fX))
@@ -778,12 +783,20 @@ void CServerRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 	if(!pBitStream->Read(vecAim.fZ))
 		return;
 
-	CBitStream bsSend;
-	bsSend.Write(playerId);
-	bsSend.Write(vecAim.fX);
-	bsSend.Write(vecAim.fY);
-	bsSend.Write(vecAim.fZ);
-	g_pNetworkManager->RPC(RPC_HeadMovement, &bsSend, PRIORITY_HIGH, RELIABILITY_UNRELIABLE, playerId, true);
+	// Check if frequentevents and headmovement is enabled
+	if(CVAR_GET_BOOL("frequentevents") && CVAR_GET_BOOL("headmovement"))
+	{
+		CBitStream bsSend;
+		bsSend.Write(playerId);
+		bsSend.Write(vecAim.fX);
+		bsSend.Write(vecAim.fY);
+		bsSend.Write(vecAim.fZ);
+		g_pNetworkManager->RPC(RPC_HeadMovement, &bsSend, PRIORITY_HIGH, RELIABILITY_UNRELIABLE, INVALID_ENTITY_ID, true);
+
+		// Update our head sync
+		if(pPlayer)
+			pPlayer->UpdateHeadMoveSync(vecAim);
+	}
 }
 
 // TODO: Vehicle id checking here
