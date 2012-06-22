@@ -260,7 +260,7 @@ namespace Scripting
 	static void GetCharSpeed(unsigned int ped, float *pValue) { NativeInvoke::Invoke<unsigned int>(NATIVE_GET_CHAR_SPEED, ped, pValue); }
 	static unsigned int GetCharTextureVariation(unsigned int ped, ePedComponent component) { return NativeInvoke::Invoke<unsigned int>(NATIVE_GET_CHAR_TEXTURE_VARIATION, ped, component); }
 	static void GetCharVelocity(unsigned int ped, float *pX, float *pY, float *pZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_GET_CHAR_VELOCITY, ped, pX, pY, pZ); }
-	static void GetCharWeaponInSlot(unsigned int ped, eWeaponSlot slot, eWeapon *pWeapon, unsigned int *pUnknown1, unsigned int *pUnknown2) { NativeInvoke::Invoke<unsigned int>(NATIVE_GET_CHAR_WEAPON_IN_SLOT, ped, slot, pWeapon, pUnknown1, pUnknown2); }
+	static void GetCharWeaponInSlot(unsigned int ped, eWeaponSlot slot, eWeapon *pWeapon, unsigned int *pAmmo, unsigned int *pUnknown) { NativeInvoke::Invoke<unsigned int>(NATIVE_GET_CHAR_WEAPON_IN_SLOT, ped, slot, pWeapon, pAmmo, pUnknown); }
 	static bool GetCharWillCowerInsteadOfFleeing(unsigned int ped) { return NativeInvoke::Invoke<bool>(NATIVE_GET_CHAR_WILL_COWER_INSTEAD_OF_FLEEING, ped); }
 	static unsigned int GetCurrentCharWeapon(unsigned int ped, eWeapon *pWeapon) { return NativeInvoke::Invoke<unsigned int>(NATIVE_GET_CURRENT_CHAR_WEAPON, ped, pWeapon); }
 	static unsigned int GetDamageToPedBodyPart(unsigned int ped, ePedBodyPart part) { return NativeInvoke::Invoke<unsigned int>(NATIVE_GET_DAMAGE_TO_PED_BODY_PART, ped, part); }

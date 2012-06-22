@@ -751,12 +751,19 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			unsigned int uiArmour = GetArmour();
 			float fHeading = GetCurrentHeading();
 			unsigned int uiInterior = GetInterior();
+			unsigned int uiWeap[13], uiAmmo[13], uiUnknown[13];
+			unsigned int uiCurrWeap = GetCurrentWeapon();
+			for(unsigned int ui = 1; ui < 12; ++ui)
+				GetWeaponInSlot(ui, uiWeap[ui], uiAmmo[ui], uiUnknown[ui]);
 			Scripting::ChangePlayerModel(m_byteGamePlayerNumber, (Scripting::eModel)dwModelHash);
 			m_pPlayerPed->SetPed(m_pPlayerInfo->GetPlayerPed());
 			SetHealth(uiHealth);
 			SetArmour(uiArmour);
 			SetCurrentHeading(fHeading);
 			SetInterior(uiInterior);
+			for(unsigned int ui = 1; ui < 12; ++ui)
+				GiveWeapon(uiWeap[ui], uiAmmo[ui]);
+			SetCurrentWeapon(uiCurrWeap);
 		}
 		// End hacky code that needs to be changed
 
@@ -1081,6 +1088,12 @@ unsigned int CNetworkPlayer::GetAmmo(unsigned int uiWeaponId)
 	}
 
 	return 0;
+}
+
+void CNetworkPlayer::GetWeaponInSlot(unsigned int uiWeaponSlot, unsigned int &uiWeaponId, unsigned int &uiAmmo, unsigned int &uiUnknown)
+{
+	if(IsSpawned())
+		Scripting::GetCharWeaponInSlot(GetScriptingHandle(), (Scripting::eWeaponSlot)uiWeaponSlot, (Scripting::eWeapon *)&uiWeaponId, &uiAmmo, &uiUnknown);
 }
 
 void CNetworkPlayer::GiveMoney(int iAmount)
