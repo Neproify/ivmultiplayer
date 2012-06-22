@@ -148,6 +148,7 @@ public:
 	unsigned int             GetCurrentWeapon();
 	void                     SetAmmo(unsigned int uiWeaponId, unsigned int uiAmmo);
 	unsigned int             GetAmmo(unsigned int uiWeaponId);
+	void					 GetWeaponInSlot(unsigned int uiWeaponSlot, unsigned int &uiWeaponId, unsigned int &uiAmmo, unsigned int &uiUnknown);
 	void                     GiveMoney(int iAmount);
 	void                     SetMoney(int iAmount);
 	void                     ResetMoney();
