@@ -1176,6 +1176,10 @@ void InternalResetGame(bool bAutoConnect)
 	g_pNetworkManager->Startup(g_strHost, g_usPort, g_strPassword);
 	CLogFile::Printf("Started network manager instance");
 
+	// Remove all client scripts(should fix too a crash)
+	//if(g_pClientScriptManager)
+		//g_pClientScriptManager->~CClientScriptManager();
+
 	SAFE_DELETE(g_pClientScriptManager);
 	g_pClientScriptManager = new CClientScriptManager();
 	CLogFile::Printf("Created client script manager instance");

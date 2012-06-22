@@ -98,7 +98,7 @@ public:
 	bool                     IsDying();
 	bool                     IsDead();
 	IVEntity               * GetLastDamageEntity();
-	bool                     GetKillInfo(EntityId * playerId, EntityId * vehicleId);
+	bool                     GetKillInfo(EntityId * playerId, EntityId * vehicleId, EntityId * weaponId);
 
 	//
 	bool                     IsMoving();

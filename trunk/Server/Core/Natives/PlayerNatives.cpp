@@ -119,6 +119,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("blockPlayerDropWeaponsAtDeath",blockWeaponDrop, 2, "ib");
 	pScriptingManager->RegisterFunction("blockPlayerWeaponScroll", blockWeaponChange, 2, "ib");
 	pScriptingManager->RegisterFunction("requestPlayerAnimations", requestAnim, 1, "i");
+	pScriptingManager->RegisterFunction("attachPlayerCameraToPlayer", AttachCamToPlayer, 2, "ii");
+	pScriptingManager->RegisterFunction("attachPlayerCameraToVehicle", AttachCamToVehicle, 2, "ii");
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 }
 
@@ -2176,6 +2178,48 @@ SQInteger CPlayerNatives::blockWeaponDrop(SQVM * pVM)
 		CBitStream bsSend;
 		bsSend.Write(btoggle);
 		g_pNetworkManager->RPC(RPC_ScriptingBlockWeaponDrop, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::AttachCamToPlayer(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	EntityId toPlayerId;
+	sq_getentity(pVM, -1, &toPlayerId);
+
+	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->DoesExist(toPlayerId))
+	{
+		CBitStream bsSend;
+		bsSend.WriteCompressed(toPlayerId);
+		bsSend.Write0();
+		g_pNetworkManager->RPC(RPC_ScriptingAttachCam, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::AttachCamToVehicle(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	EntityId toVehicleId;
+	sq_getentity(pVM, -1, &toVehicleId);
+
+	if(g_pPlayerManager->DoesExist(playerId) && g_pVehicleManager->DoesExist(toVehicleId))
+	{
+		CBitStream bsSend;
+		bsSend.WriteCompressed(toVehicleId);
+		bsSend.Write1();
+		g_pNetworkManager->RPC(RPC_ScriptingAttachCam, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}

@@ -78,6 +78,14 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/attachcameratovehicle")
+	{
+		attachPlayerCameraToVehicle(playerid,cmd[1].tointeger());
+	}
+	if(cmd[0] == "/attachcameratoplayer")
+	{
+		attachPlayerCameraToPlayer(playerid,cmd[1].tointeger());
+	}
 	if(cmd[0] == "/respawn")
 	{
 		setPlayerSpawnLocation(playerid, -341.36, 1144.80, 14.79, 40.114815);

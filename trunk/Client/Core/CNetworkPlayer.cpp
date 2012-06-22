@@ -191,40 +191,25 @@ bool CNetworkPlayer::Create()
 		call dwFunc
 	}
 
-	CLogFile::Printf("Create 7");
-
 	//*(DWORD *)(pPlayerInfo + 0x4DC) = 2;
-
-	CLogFile::Printf("Create 8");
 
 	// Set our player info ped pointer
 	m_pPlayerInfo->SetPlayerPed(pPlayerPed);
 
-	CLogFile::Printf("Create 9");
-
 	// Set our player peds player info pointer
 	pPlayerPed->m_pPlayerInfo = m_pPlayerInfo->GetPlayerInfo();
-
-	CLogFile::Printf("Create 10");
 
 	// Set game player info pointer
 	CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, m_pPlayerInfo->GetPlayerInfo());
 
-	CLogFile::Printf("Create 11");
-
 	// Create player ped instance
 	m_pPlayerPed = new CIVPlayerPed(pPlayerPed);
-
-	CLogFile::Printf("Create 12");
 
 	// Set the context data player ped pointer
 	m_pContextData->SetPlayerPed(m_pPlayerPed);
 
-	CLogFile::Printf("Create 13");
-
 	// Add to world
 	m_pPlayerPed->AddToWorld();
-	CLogFile::Printf("Create 14");
 
 	// Delete player helemt
 	m_bHelmet = false;
@@ -297,7 +282,7 @@ bool CNetworkPlayer::Create()
 	// Reset interpolation
 	ResetInterpolation();
 
-	CLogFile::Printf("Done: PlayerNumber: %d, ScriptingHandle: %d", m_byteGamePlayerNumber, GetScriptingHandle());
+	//CLogFile::Printf("Done: PlayerNumber: %d, ScriptingHandle: %d", m_byteGamePlayerNumber, GetScriptingHandle());
 	return true;
 }
 
@@ -344,10 +329,8 @@ void CNetworkPlayer::Destroy()
 				// Invalidate the player number
 				m_byteGamePlayerNumber = INVALID_PLAYER_PED;
 			}*/
-			CLogFile::Printf("Destroy 1");
 			// Get the player ped pointer
 			IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
-			CLogFile::Printf("Destroy 2");
 
 			IVPedIntelligence * pPedIntelligence = pPlayerPed->m_pPedIntelligence;
 	#define FUNC_ShutdownPedIntelligence 0x9C4DF0
@@ -358,14 +341,11 @@ void CNetworkPlayer::Destroy()
 				mov ecx, pPedIntelligence
 				call dwFunc
 			}
-			CLogFile::Printf("Destroy 3");
 
 			*(DWORD *)(pPlayerPed + 0x260) &= 0xFFFFFFFE;
-			CLogFile::Printf("Destroy 4");
 
 			// Remove the player ped from the world
 			m_pPlayerPed->RemoveFromWorld();
-			CLogFile::Printf("Destroy 5");
 
 			// Delete the player ped
 			// We use the CPed destructor and not the CPlayerPed destructor because the CPlayerPed destructor
@@ -379,58 +359,38 @@ void CNetworkPlayer::Destroy()
 				mov ecx, pPlayerPed
 				call dwFunc
 			}
-			CLogFile::Printf("Destroy 6");
-
 			// Remove our model info reference
 			m_pModelInfo->RemoveReference();
-
-			// Remove blip
-
-			CLogFile::Printf("Destroy 7");
 		}
 	}
-
-	CLogFile::Printf("Destroy 8");
 
 	// Do we have a context data instance
 	if(m_pContextData)
 	{
-		CLogFile::Printf("Destroy 9");
 		// Delete the context data instance
 		CContextDataManager::DestroyContextData(m_pContextData);
-		CLogFile::Printf("Destroy 10");
 
 		// Set the context data pointer to NULL
 		m_pContextData = NULL;
-		CLogFile::Printf("Destroy 11");
 	}
-	CLogFile::Printf("Destroy 12");
-
 	// Delete the player ped instance
 	SAFE_DELETE(m_pPlayerPed);
-	CLogFile::Printf("Destroy 13");
 
 	// Delete our player info instance
 	SAFE_DELETE(m_pPlayerInfo);
-	CLogFile::Printf("Destroy 14");
 
 	// Are we not the local player ped and do we have a valid player number?
 	if(!IsLocalPlayer() && m_byteGamePlayerNumber != INVALID_PLAYER_PED)
 	{
-		CLogFile::Printf("Destroy 15");
 		// Reset game player info pointer
 		CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
-		CLogFile::Printf("Destroy 16");
 
 		// Invalidate the player number
 		m_byteGamePlayerNumber = INVALID_PLAYER_PED;
-		CLogFile::Printf("Destroy 17");
 	}
-	CLogFile::Printf("Destroy 18");
 
 	// Flag ourselves as despawned
 	m_bSpawned = false;
-	CLogFile::Printf("Destroy 19");
 }
 
 void CNetworkPlayer::Kill(bool bInstantly)
@@ -532,16 +492,15 @@ IVEntity * CNetworkPlayer::GetLastDamageEntity()
 	return NULL;
 }
 
-// TODO: Add weapon
-bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId)
+bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId, EntityId * weaponId)
 {
-	// TODO: Include kill weapon
 	// Are we spawned?
 	if(IsSpawned())
 	{
 		// Reset player id and vehicle id
 		*playerId = INVALID_ENTITY_ID;
 		*vehicleId = INVALID_ENTITY_ID;
+		*weaponId = INVALID_ENTITY_ID;
 
 		// Loop through all players
 		for(EntityId i = 0; i < MAX_PLAYERS; i++)
@@ -560,6 +519,7 @@ bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId)
 					{
 						// This player killed us
 						*playerId = i;
+						*weaponId = pPlayer->GetCurrentWeapon();
 						break;
 					}
 					else
@@ -570,6 +530,7 @@ bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId)
 						{
 							// This player killed us with their vehicle
 							*playerId = i;
+							*weaponId = pPlayer->GetCurrentWeapon();
 							*vehicleId = i;
 							break;
 						}

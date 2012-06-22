@@ -63,6 +63,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerColor", GetColor, 1, "i");
 	pScriptingManager->RegisterFunction("isPlayerDucking", IsDucking, 1, "i");
 	pScriptingManager->RegisterFunction("isPlayerJackingAVehicle", IsJackingAVehicle, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerWeaponSlot", GetWeaponSlot, 1, "ii");
 }
 
 // isPlayerConnected(playerid)
@@ -692,6 +693,31 @@ SQInteger CPlayerNatives::IsJackingAVehicle(SQVM * pVM)
 		return 1;
 	}
 
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getPlayerWeaponSlots(playerid, slot)
+SQInteger CPlayerNatives::GetWeaponSlot(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	int iSlot;
+	sq_getinteger(pVM, -1, &iSlot);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		unsigned int uiWeap, uiAmmo, uiUnknown;
+		CSquirrelArguments args;
+ 		pPlayer->GetWeaponInSlot(iSlot, uiWeap, uiAmmo, uiUnknown);
+		args.push((int)uiWeap);
+		args.push((int)uiAmmo);
+		sq_pusharg(pVM, CSquirrelArgument(args, true));
+		return 1;
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }

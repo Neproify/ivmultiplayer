@@ -37,6 +37,7 @@
 #include "CCamera.h"
 #include "CFireManager.h"
 #include "CGame.h"
+#include "CPools.h"
 
 extern String                 g_strNick;
 extern String                 g_strHost;
@@ -73,13 +74,11 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	EntityId playerId;
 	String sHostName;
-	bool bPayAndSpray;
-	bool bAutoAim;
+	bool bPayAndSpray, bAutoAim, bGUINametags, bHeadMovement;
 	unsigned int color;
 	String sHttpServer;
 	unsigned short usHttpPort;
 	unsigned char ucWeather;
-	bool bGUINametags;
 	int iMaxPlayers;
 	unsigned char ucHour;
 	unsigned char ucMinute;
@@ -97,6 +96,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	pBitStream->Read(usHttpPort);
 	pBitStream->Read(ucWeather);
 	pBitStream->Read(bGUINametags);
+	pBitStream->Read(bHeadMovement);
 	pBitStream->Read(iMaxPlayers);
 
 	pBitStream->Read(ucHour);
@@ -138,6 +138,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	g_pFileTransfer->SetServerInformation(sHttpServer.IsEmpty() ? g_strHost : sHttpServer, usHttpPort);
 
 	CGame::SetNameTags(bGUINametags);
+	CGame::SetHeadMovement(bHeadMovement);
 	g_pNetworkManager->SetHostName(sHostName);
 	g_pNetworkManager->SetMaxPlayers(iMaxPlayers);
 	g_pPlayerManager->SetLocalPlayer(playerId, g_pLocalPlayer);
@@ -269,18 +270,18 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	// Read the engine state
 	bool bEngineStatus = pBitStream->ReadBit();
 	bool bLights = pBitStream->ReadBit();
+
+	// Read the door angles
 	float fDoor[6];
-	pBitStream->Read(fDoor[0]);
-	pBitStream->Read(fDoor[1]);
-	pBitStream->Read(fDoor[2]);
-	pBitStream->Read(fDoor[3]);
-	pBitStream->Read(fDoor[4]);
-	pBitStream->Read(fDoor[5]);
+	for(int i = 0; i < 6; i++)
+		pBitStream->Read(fDoor[i]);
+
+	// Read the window states
 	bool bWindow[4];
-	pBitStream->Read(bWindow[0]);
-	pBitStream->Read(bWindow[1]);
-	pBitStream->Read(bWindow[2]);
-	pBitStream->Read(bWindow[3]);
+	for(int i = 0; i < 4; i++)
+		pBitStream->Read(bWindow[i]);
+
+	// Read if taxilight is turned on
 	bool TaxiLight;
 	pBitStream->Read(TaxiLight);
 
@@ -350,7 +351,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// set the door angle
 	for(int i = 0; i < 6; i++)
-		pVehicle->SetCarDoorAngle(0,0,fDoor[i]);
+		pVehicle->SetCarDoorAngle(0,false,fDoor[i]);
 
 	// set the window states(broken etc)
 	for(int i = 0; i < 4; i++)
@@ -1314,15 +1315,15 @@ void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 	if(!pBitStream)
 		return;
 
-	/*EntityId playerId;
-	Vector3 vecAim;
-	bitStream->Read(playerId);
-	bitStream->Read(vecAim.X);
-	bitStream->Read(vecAim.Y);
-	bitStream->Read(vecAim.Z);
+	EntityId playerId;
+	CVector3 vecAim;
+	pBitStream->Read(playerId);
+	pBitStream->Read(vecAim.fX);
+	pBitStream->Read(vecAim.fY);
+	pBitStream->Read(vecAim.fZ);
 
-	if(DoesCharExist(g_pPlayerManager->GetPedHandle(playerId)))
-		TaskLookAtCoord(g_pPlayerManager->GetPedHandle(playerId), vecAim.X, vecAim.Y, vecAim.Z, -2, 0);*/
+	//if(g_pPlayerManager->DoesExist(playerId))
+		//Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(playerId)->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, -2, 0);
 }
 
 void CClientRPCHandler::NameChange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1755,6 +1756,7 @@ void CClientRPCHandler::ScriptingSetVehicleLights(CBitStream * pBitStream, CPlay
 
 void CClientRPCHandler::ScriptingRepairVehicleTyres(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
@@ -1776,6 +1778,7 @@ void CClientRPCHandler::ScriptingRepairVehicleTyres(CBitStream * pBitStream, CPl
 
 void CClientRPCHandler::ScriptingRepairVehicleWindows(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
@@ -2674,6 +2677,7 @@ void CClientRPCHandler::ScriptingResetPlayerCamera(CBitStream * pBitStream, CPla
 
 void CClientRPCHandler::ScriptingCreateFire(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
@@ -2691,6 +2695,7 @@ void CClientRPCHandler::ScriptingCreateFire(CBitStream * pBitStream, CPlayerSock
 
 void CClientRPCHandler::ScriptingDeleteFire(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
@@ -2702,6 +2707,7 @@ void CClientRPCHandler::ScriptingDeleteFire(CBitStream * pBitStream, CPlayerSock
 
 void CClientRPCHandler::ScriptingCreateExplosion(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
@@ -2715,6 +2721,7 @@ void CClientRPCHandler::ScriptingCreateExplosion(CBitStream * pBitStream, CPlaye
 
 void CClientRPCHandler::ScriptingForcePlayerAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
@@ -2729,6 +2736,7 @@ void CClientRPCHandler::ScriptingForcePlayerAnimation(CBitStream * pBitStream, C
 
 void CClientRPCHandler::ScriptingForceActorAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 	
@@ -2746,6 +2754,7 @@ void CClientRPCHandler::ScriptingForceActorAnimation(CBitStream * pBitStream, CP
 
 void CClientRPCHandler::ScriptingBlockWeaponScroll(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 	
@@ -2757,6 +2766,7 @@ void CClientRPCHandler::ScriptingBlockWeaponScroll(CBitStream * pBitStream, CPla
 
 void CClientRPCHandler::ScriptingBlockWeaponDrop(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 	
@@ -2768,6 +2778,7 @@ void CClientRPCHandler::ScriptingBlockWeaponDrop(CBitStream * pBitStream, CPlaye
 
 void CClientRPCHandler::ScriptingFadeScreenIn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 	
@@ -2779,6 +2790,7 @@ void CClientRPCHandler::ScriptingFadeScreenIn(CBitStream * pBitStream, CPlayerSo
 
 void CClientRPCHandler::ScriptingFadeScreenOut(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 	
@@ -2790,6 +2802,7 @@ void CClientRPCHandler::ScriptingFadeScreenOut(CBitStream * pBitStream, CPlayerS
 
 void CClientRPCHandler::ScriptingPlayPoliceReport(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 	
@@ -2801,6 +2814,7 @@ void CClientRPCHandler::ScriptingPlayPoliceReport(CBitStream * pBitStream, CPlay
 
 void CClientRPCHandler::ScriptingPlayMissionCompleteAudio(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 	
@@ -2812,18 +2826,20 @@ void CClientRPCHandler::ScriptingPlayMissionCompleteAudio(CBitStream * pBitStrea
 
 void CClientRPCHandler::ScriptingPlayGameAudio(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 	
 	String szMusic;
 	pBitStream->Read(szMusic);
 
-	//static void TriggerGameSound(const char *szMusic) { NativeInvoke::Invoke<unsigned int>(NATIVE_PLAY_SOUND, szMusic/*, NULL, SND_FILENAME | SND_ASYNC*/); }
-	Scripting::TriggerGameSound(szMusic.C_String());
+	// TODO, try to call it with params(szMusic,NULL, SND_FILENAME | SND_ASYNC)
+	// Scripting::TriggerGameSound(szMusic.C_String());
 }
 
 void CClientRPCHandler::ScriptingRequestAnims(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
@@ -2832,6 +2848,7 @@ void CClientRPCHandler::ScriptingRequestAnims(CBitStream * pBitStream, CPlayerSo
 
 void CClientRPCHandler::ScriptingForceWind(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
@@ -2843,6 +2860,7 @@ void CClientRPCHandler::ScriptingForceWind(CBitStream * pBitStream, CPlayerSocke
 
 void CClientRPCHandler::ScriptingSetNametags(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 	
@@ -2851,6 +2869,36 @@ void CClientRPCHandler::ScriptingSetNametags(CBitStream * pBitStream, CPlayerSoc
 
 	CGame::SetNameTags(bToggle);
 }
+
+void CClientRPCHandler::ScriptingAttachCam(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId attachId;
+	pBitStream->ReadCompressed(attachId);
+
+	if(pBitStream->ReadBit())
+	{
+		if(g_pVehicleManager->Exists(attachId))
+		{
+			unsigned int uiHandle = g_pVehicleManager->Get(attachId)->GetScriptingHandle();
+			/* TODO FIX NATIVE!
+			Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(g_pCamera->GetGameCam()->GetCam()),uiHandle);*/
+		}
+	}
+	else
+	{
+		if(g_pPlayerManager->DoesExist(attachId))
+		{
+			unsigned int uiHandle = g_pPlayerManager->GetAt(attachId)->GetScriptingHandle();
+			/* TODO FIX NATIVE!
+			Scripting::AttachCamToPed(CGame::GetPools()->GetCamPool()->HandleOf(g_pCamera->GetGameCam()->GetCam()),uiHandle);*/
+		}
+	}
+}
+				
 
 void CClientRPCHandler::Register()
 {
@@ -2986,6 +3034,8 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingRequestAnims, ScriptingRequestAnims);
 	AddFunction(RPC_ScriptingForceWind, ScriptingForceWind);
 	AddFunction(RPC_ScriptingSetNametags, ScriptingSetNametags);
+	AddFunction(RPC_ScriptingAttachCam, ScriptingAttachCam);
+
 }
 
 void CClientRPCHandler::Unregister()
@@ -3121,4 +3171,6 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingPlayGameAudio);
 	RemoveFunction(RPC_ScriptingRequestAnims);
 	RemoveFunction(RPC_ScriptingForceWind);
+	RemoveFunction(RPC_ScriptingSetNametags);
+	RemoveFunction(RPC_ScriptingAttachCam);
 }

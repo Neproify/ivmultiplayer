@@ -31,6 +31,7 @@ void CSettings::LoadDefaults()
 	AddBool("query", true);
 	AddBool("listed", false);
 	AddBool("guinametags",false);
+	AddBool("headmovement",true);
 	AddString("hostname", VERSION_IDENTIFIER_2 " Server");
 	AddString("hostaddress", "");
 	AddBool("frequentevents", false);

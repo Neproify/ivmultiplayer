@@ -857,6 +857,8 @@ namespace Scripting
 	static void SetCamPropagate(unsigned int camera, bool value) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CAM_PROPAGATE, camera, value); }
 	static void SetCamRot(unsigned int camera, float angleX, float angleY, float angleZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CAM_ROT, camera, angleX, angleY, angleZ); }
 	static void SetCamTargetPed(unsigned int camera, unsigned int ped) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CAM_TARGET_PED, camera, ped); }
+	static void AttachCamToPed(unsigned int camera, unsigned int ped) { NativeInvoke::Invoke<unsigned int>(NATIVE_ATTACH_CAM_TO_PED, camera, ped); }
+	static void AttachCamToVehicle(unsigned int camera, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_ATTACH_CAM_TO_VEHICLE, camera, vehicle); }
 
 	// Network
 	static bool NetworkIsGameRanked() { return NativeInvoke::Invoke<bool>(NATIVE_NETWORK_IS_GAME_RANKED); }

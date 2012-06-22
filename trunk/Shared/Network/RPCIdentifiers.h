@@ -152,5 +152,6 @@ enum eRPCIdentfiers
 	RPC_ScriptingForceWind,
 	RPC_ScriptingSetNametags,
 	RPC_ScriptingAttachObject,
-	RPC_ScriptingVehicleDeath
+	RPC_ScriptingVehicleDeath,
+	RPC_ScriptingAttachCam
 };

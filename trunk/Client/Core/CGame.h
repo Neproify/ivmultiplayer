@@ -53,6 +53,7 @@ private:
 	static CIVWorld     * m_pWorld;
 	static bool			  m_bNameTags;
 	static bool			  m_bGameLoaded;
+	static bool			  m_bHeadMovement;
 
 public:
 	static unsigned int    GetBase() { return m_uiBaseAddress; }
@@ -113,8 +114,10 @@ public:
 	static void            InitCutscene(char * szCutsceneName, bool bUnknown1 = false, bool bUnknown2 = false);
 	static void            StopCutscene(char * szCutsceneName);
 	static void			   InstallAnimGroups();
-	static void			   SetNameTags(bool nametags) { m_bNameTags = nametags; }
+	static void			   SetNameTags(bool bNametags) { m_bNameTags = bNametags; }
 	static bool			   GetNameTags() { return m_bNameTags; }
+	static void			   SetHeadMovement(bool bMove) { m_bHeadMovement = bMove; }
+	static bool			   GetHeadMovement() { return m_bHeadMovement; }
 	static void			   SetGameLoaded(bool load) { m_bGameLoaded = load; }
 	static bool			   IsGameLoaded() { return m_bGameLoaded; }
 };
