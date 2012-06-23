@@ -279,8 +279,8 @@ void CLocalPlayer::SendOnFootSync()
 		{
 			float fTime;
 			syncPacket.bAnim = true;
-			syncPacket.szAnimGroup = m_strAnimGroup;
-			syncPacket.szAnimSpecific = m_strAnimSpec;
+			strcpy(syncPacket.szAnimGroup, m_strAnimGroup.GetData());
+			strcpy(syncPacket.szAnimSpecific, m_strAnimSpec.GetData());
 			Scripting::GetCharAnimCurrentTime(g_pLocalPlayer->GetScriptingHandle(),m_strAnimGroup,m_strAnimSpec,&fTime);
 			syncPacket.fAnimTime = fTime;
 		}

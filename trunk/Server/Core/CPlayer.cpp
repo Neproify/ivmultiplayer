@@ -244,8 +244,8 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	m_uArmour = ((syncPacket->uHealthArmour << 16) >> 16);
 
 	m_bAnimating = syncPacket->bAnim;
-	m_strAnimGroup = (String)syncPacket->szAnimGroup;
-	m_strAnimSpec = (String)syncPacket->szAnimSpecific;
+	m_strAnimGroup = syncPacket->szAnimGroup;
+	m_strAnimSpec = syncPacket->szAnimSpecific;
 	m_fAnimTime = syncPacket->fAnimTime;
 
 	// Set the weapon and ammo
