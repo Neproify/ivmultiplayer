@@ -53,8 +53,13 @@ bool CNetworkModule::Init()
 	m_pfnDestroyNetClientInterface = (DestroyNetClientInterface_t)m_pLibrary->GetProcedureAddress("DestroyNetClientInterface");
 
 	// Verify the pointers to the net module functions
-	if(!m_pfnGetNetServerInterface || !m_pfnDestroyNetServerInterface || !m_pfnGetNetClientInterface || 
-		!m_pfnDestroyNetClientInterface)
+
+	if(!m_pfnGetNetServerInterface || !m_pfnDestroyNetServerInterface 
+#ifndef _LINUX
+	|| !m_pfnGetNetClientInterface || 
+		!m_pfnDestroyNetClientInterface
+#endif
+	)
 	{
 		//CLogFile::Printf("Net module is corrupt!\n");
 		return false;
