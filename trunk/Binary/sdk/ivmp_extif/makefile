@@ -3,7 +3,7 @@ CFLAGS=-c -Wall -D_LINUX -w -ISDK/ -I. -I../../../Shared -I../../../Server/Core 
 SOURCES=$(wildcard *.cpp)
 SOURCES+=$(wildcard SDK/*.cpp) $(wildcard ../../../Vendor/Squirrel/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=ivmp_helloworld.so
+EXECUTABLE=ivmp_extif.so
 
 all: $(SOURCES) $(EXECUTABLE)
 
