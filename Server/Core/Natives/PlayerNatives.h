@@ -106,6 +106,8 @@ private:
 	static SQInteger AttachCamToVehicle(SQVM * pVM);
 	static SQInteger DisplayHudNotification(SQVM * pVM);
 	static SQInteger FollowVehicleMode(SQVM * pVM);
+	static SQInteger SetAmmoInClip(SQVM * pVM);
+	static SQInteger SetAmmo(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

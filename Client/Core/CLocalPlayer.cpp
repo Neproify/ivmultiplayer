@@ -84,7 +84,7 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true)
 	m_ulLastPureSyncTime = 0;
 	m_uiLastInterior = 0;
 	m_bDisableVehicleInfo = false;
-	m_bAnimating = false;
+	//m_bAnimating = false;
 	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
 	
 	// Patch to override spawn position and let the game call HandleSpawn
@@ -270,23 +270,24 @@ void CLocalPlayer::SendOnFootSync()
 	syncPacket.uHealthArmour = ((GetHealth() << 16) | GetArmour());
 
 	// Set default animation stuff
-	syncPacket.bAnim = false;
+	/*syncPacket.bAnim = false;
 
 	// Check for anims
+	// TODO Fix animation system
 	if(m_bAnimating)
 	{
-		if(!Scripting::HasCharAnimFinished(g_pLocalPlayer->GetScriptingHandle(),m_strAnimGroup))
+		if(!Scripting::HasCharAnimFinished(GetScriptingHandle(),m_strAnimSpec))
 		{
 			float fTime;
 			syncPacket.bAnim = true;
-			strcpy(syncPacket.szAnimGroup, m_strAnimGroup.GetData());
-			strcpy(syncPacket.szAnimSpecific, m_strAnimSpec.GetData());
+			strcpy(syncPacket.szAnimGroup, m_strAnimGroup);
+			strcpy(syncPacket.szAnimSpecific, m_strAnimSpec);
 			Scripting::GetCharAnimCurrentTime(g_pLocalPlayer->GetScriptingHandle(),m_strAnimGroup,m_strAnimSpec,&fTime);
 			syncPacket.fAnimTime = fTime;
 		}
 		else
 			m_bAnimating = false;
-	}
+	}*/
 
 	// Get their current weapon and ammo
 	unsigned int uiCurrentWeapon = GetCurrentWeapon();
@@ -586,18 +587,14 @@ bool CLocalPlayer::GetControl()
 {
 	return m_bToggleControl;
 }
-
+/*
 void CLocalPlayer::SetAnimation(const char * strGroup, const char * strAnim)
 {
-	/* TODO, reverse this function */
+	//TODO, reverse this function
 	Scripting::TaskPlayAnim(GetScriptingHandle(),strAnim, strGroup,(float)8,0,0,0,0,-1);
-}
 
-void CLocalPlayer::SaveAnimation(String strGroup, String strAnim)
-{
-	m_strAnimGroup.Clear();
-	m_strAnimGroup.AppendF(strGroup);
-	m_strAnimSpec.Clear();
-	m_strAnimSpec.AppendF(strAnim);
+	printf(m_strAnimGroup,strGroup);
+	printf(m_strAnimSpec,strAnim);
 	m_bAnimating = true;
 }
+*/

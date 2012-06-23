@@ -34,6 +34,7 @@ private:
 	static SQInteger GetMoney(SQVM * pVM);
 	static SQInteger GetState(SQVM * pVM);
 	static SQInteger GetWeapon(SQVM * pVM);
+	static SQInteger GetAmmoInClip(SQVM * pVM);
 	static SQInteger GetAmmo(SQVM * pVM);
 	static SQInteger GetInterior(SQVM * pVM);
 	static SQInteger GetControlState(SQVM * pVM);

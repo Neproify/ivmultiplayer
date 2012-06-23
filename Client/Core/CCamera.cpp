@@ -168,9 +168,15 @@ void CCamera::GetLookAt(CVector3& vecLookAt)
 
 void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer)
 {
+	// Check if the scriptcam is activated
 	if(!m_bScriptCamActive)
 		ActivateScriptCam();
 
+	// Check if we got no handler
+	if(uiHandle == -1)
+		return;
+
+	// Check if the camera should be attached to a vehicle or player
 	if(bVehicleOrPlayer)
 		Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
 	else

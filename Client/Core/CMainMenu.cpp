@@ -392,7 +392,7 @@ void CMainMenu::OnMasterListQuery(int iType)
 	m_pServerQuery->Reset();
 
 	// Query the master list
-	if(m_pMasterListQuery->Query(iType))
+	if(!m_pMasterListQuery->Query(iType))
 	{
 		String strError("Failed to contact the master list (%s).\nPlease check your internet connection.", CMainMenu::GetSingleton()->m_pMasterListQuery->GetHttpClient()->GetLastErrorString().Get());
 		g_pGUI->ShowMessageBox(strError.Get(), "Error");

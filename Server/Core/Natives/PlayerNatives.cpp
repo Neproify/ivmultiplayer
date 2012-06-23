@@ -123,6 +123,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("attachPlayerCameraToVehicle", AttachCamToVehicle, 2, "ii");
 	pScriptingManager->RegisterFunction("displayHudNotification", DisplayHudNotification, 3, "iis");
 	pScriptingManager->RegisterFunction("setPlayerFollowVehicleMode", FollowVehicleMode, 2, "ii");
+	pScriptingManager->RegisterFunction("setPlayerAmmoInClip", SetAmmoInClip, 2, "ii");
+	pScriptingManager->RegisterFunction("setPlayerAmmo", SetAmmo, 3, "iii");
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 }
 
@@ -2021,9 +2023,10 @@ SQInteger CPlayerNatives::forceAnim(SQVM * pVM)
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
+		bsSend.WriteCompressed(playerId);
 		bsSend.Write(String(szGroup));
 		bsSend.Write(String(szAnim));
-		g_pNetworkManager->RPC(RPC_ScriptingForcePlayerAnim, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		g_pNetworkManager->RPC(RPC_ScriptingForcePlayerAnim, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -2272,6 +2275,49 @@ SQInteger CPlayerNatives::FollowVehicleMode(SQVM * pVM)
 		CBitStream bsSend;
 		bsSend.Write(iMode);
 		g_pNetworkManager->RPC(RPC_ScriptingSetVehicleFollowMode, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::SetAmmoInClip(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	SQInteger iAmmoInClip;
+	sq_getinteger(pVM, -1, &iAmmoInClip);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(iAmmoInClip);
+		g_pNetworkManager->RPC(RPC_ScriptingSetAmmoInClip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::SetAmmo(SQVM * pVM)
+{
+	EntityId playerId;
+	SQInteger iWeaponId;
+	SQInteger iAmmo;
+
+	sq_getentity(pVM, -3, &playerId);
+	sq_getinteger(pVM, -2, &iWeaponId);
+	sq_getinteger(pVM, -1, &iAmmo);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(iWeaponId);
+		bsSend.Write(iAmmo);
+		g_pNetworkManager->RPC(RPC_ScriptingSetAmmo, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}

@@ -133,18 +133,16 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	//{
 	//	m_strAnimGroup = syncPacket->szAnimGroup;
 	//	m_strAnimSpec = syncPacket->szAnimSpecific;
-	//	const char *szGroup = m_strAnimGroup;
-	//	const char *szAnim = m_strAnimSpec;
 
 	//	// check if we're not animating and the animation isn't finished(1.0)
 	//	if(!m_bAnimating && syncPacket->fAnimTime < 1.0f)
 	//	{
 	//		m_bAnimating = true;
-	//		Scripting::TaskPlayAnim(GetScriptingHandle(),szAnim,szGroup,8.0f,0,0,0,0,-1);
-	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,syncPacket->fAnimTime);
+	//		Scripting::TaskPlayAnim(GetScriptingHandle(),m_strAnimSpec.C_String(),m_strAnimGroup.C_String(),8.0f,0,0,0,0,-1);
+	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),m_strAnimGroup.C_String(),m_strAnimSpec.C_String(),syncPacket->fAnimTime);
 	//	}
 	//	else if(m_bAnimating)
-	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),szGroup,szAnim,syncPacket->fAnimTime);
+	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),m_strAnimGroup.C_String(),m_strAnimSpec.C_String(),syncPacket->fAnimTime);
 	//}
 	//else
 	//	m_bAnimating = false;

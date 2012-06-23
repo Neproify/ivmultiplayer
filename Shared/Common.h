@@ -202,10 +202,10 @@ struct OnFootSyncData
 	bool bDuckState : 1;             // ducking
 	unsigned int uHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uWeaponInfo;        // player weapon and ammo
-	bool bAnim;						 // player anim
-	char szAnimGroup[256];				 // anim group
-	char szAnimSpecific[256];			 // anim category from group
-	float fAnimTime;				 // set anim time
+	//bool bAnim;						 // player anim
+	//char szAnimGroup[256];			 // anim group
+	//char szAnimSpecific[256];	     // anim category from group
+	//float fAnimTime;				 // set anim time
 };
 
 struct InVehicleSyncData

@@ -61,6 +61,10 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_uiColor = playerColors[playerId];
 	memset(&m_ucClothes, 0, sizeof(m_ucClothes));
 	m_bHelmet = false;
+	m_szAnimSpec = NULL;
+	m_szAnimSpec = new char[256];
+	m_szAnimGroup = NULL;
+	m_szAnimGroup = new char[256];
 }
 
 CPlayer::~CPlayer()
@@ -243,10 +247,12 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	m_uHealth = (syncPacket->uHealthArmour >> 16);
 	m_uArmour = ((syncPacket->uHealthArmour << 16) >> 16);
 
-	m_bAnimating = syncPacket->bAnim;
-	m_strAnimGroup = syncPacket->szAnimGroup;
-	m_strAnimSpec = syncPacket->szAnimSpecific;
+	/*m_bAnimating = syncPacket->bAnim;
+	m_szAnimGroup = syncPacket->szAnimGroup;
+	m_szAnimSpec = syncPacket->szAnimSpecific;
 	m_fAnimTime = syncPacket->fAnimTime;
+	if(m_bAnimating)
+		CLogFile::Printf("%s/%s",m_szAnimGroup,m_szAnimSpec);*/
 
 	// Set the weapon and ammo
 	m_uWeapon = (syncPacket->uWeaponInfo >> 20);

@@ -42,8 +42,8 @@ private:
 	unsigned int  m_uiColor;
 	unsigned char m_ucClothes[11];
 	bool		  m_bAnimating;
-	String		  m_strAnimGroup;
-	String		  m_strAnimSpec;
+	char*		  m_szAnimGroup;
+	char*		  m_szAnimSpec;
 	float		  m_fAnimTime;
 	CVector3	  m_vecLastAim;
 	CVector3	  m_vecLastShot;
