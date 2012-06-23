@@ -154,7 +154,8 @@ private:
 	static void ScriptingForceWind(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetNametags(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingAttachCam(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-
+	static void ScriptingDisplayHudNotification(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetVehicleFollowMode(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 public:
 	void        Register();
 	void        Unregister();

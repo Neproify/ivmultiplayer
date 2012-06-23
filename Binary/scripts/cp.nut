@@ -52,15 +52,21 @@ function onScriptExit()
 }
 addEvent("scriptExit", onScriptExit);
 
-function onPlayerConnect(playerid)
+function onPlayerConnect(playerID, playerName, playerIP, playerSerial, bHasModdedGameFiles)
 {
-	sendMessageToAll(getPlayerName(playerid) + " (" + playerid + ") has joined the server.", White);
-	sendPlayerMessage(playerid, "Welcome to Central Park", White);
-	setPlayerSpawnLocation(playerid, -341.36, 1144.80, 14.79, 40.114815);
-	//displayPlayerText(playerid, 0.5, 0.5, "Central ~r~Park");
+	sendMessageToAll(playerName + " (" + playerID + ") has connected.", White);
+	if(bHasModdedGameFiles) {
+		return 0; // Don't allow modified game files!
+	}
+	sendPlayerMessage(playerID, "Welcome to Central Park", White);
 	return 1;
 }
 addEvent("playerConnect", onPlayerConnect);
+
+function onPlayerJoin(playerID) {
+	setPlayerSpawnLocation(playerID, -341.36, 1144.80, 14.79, 40.114815);
+}
+addEvent("playerJoin", onPlayerJoin);
 
 function onPlayerDisconnect(playerid, reason)
 {
@@ -78,6 +84,14 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/displayHudMessage")
+	{
+		displayHudNotification(playerid,1,"UNREAD_MESSAGES");
+	}
+	if(cmd[0] == "/vehiclefollow")
+	{
+		setPlayerFollowVehicleMode(playerid,0);
+	}
 	if(cmd[0] == "/attachcameratovehicle")
 	{
 		attachPlayerCameraToVehicle(playerid,cmd[1].tointeger());
@@ -591,16 +605,16 @@ addEvent("webRequest", onWebRequest);
 
 function onVehicleDamage(vehicleid,oldhealth,oldpetrol,newhealth,newpetrol)
 {
-	log(format("VEHICLE DAMAGE: %d, %d, %d, %d, %d",vehicleid,oldhealth,oldpetrol,newhealth,newpetrol));
+	//log(format("VEHICLE DAMAGE: %d, %d, %d, %d, %d",vehicleid,oldhealth,oldpetrol,newhealth,newpetrol));
 }
 addEvent("vehicleDamage",onVehicleDamage);
 
 function onPlayerShot(playerid,x,y,z,shot)
 {
-	if(shot)
-		log(format("WEP: %d SHOT(%f, %f, %f)",playerid,x,y,z));
-	else
-		log(format("WEP: %d AIM(%f, %f, %f)",playerid,x,y,z));
+	//if(shot)
+	//	log(format("WEP: %d SHOT(%f, %f, %f)",playerid,x,y,z));
+	//else
+	//	log(format("WEP: %d AIM(%f, %f, %f)",playerid,x,y,z));
 }
 addEvent("playerShot",onPlayerShot);
 

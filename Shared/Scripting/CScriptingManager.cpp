@@ -893,7 +893,7 @@ void CScriptingManager::RegisterDefaultConstants()
 	RegisterConstant("MAX_CHECKPOINTS", MAX_CHECKPOINTS);
 	RegisterConstant("MAX_BLIPS", MAX_BLIPS);
 	RegisterConstant("MAX_ACTORS", MAX_ACTORS);
-	RegisterConstant("MAX_NAME", MAX_NAME);
+	RegisterConstant("MAX_NAME_LENGTH", MAX_NAME_LENGTH);
 	// TODO: Merge all into INVALID_ENTITY_ID or leave as is?
 	RegisterConstant("INVALID_PLAYER_ID", INVALID_ENTITY_ID);
 	RegisterConstant("INVALID_VEHICLE_ID", INVALID_ENTITY_ID);

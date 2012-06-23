@@ -37,7 +37,6 @@
 #include "CCamera.h"
 #include "CFireManager.h"
 #include "CGame.h"
-#include "CPools.h"
 
 extern String                 g_strNick;
 extern String                 g_strHost;
@@ -1185,18 +1184,14 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
 	// Add the refuse message and refuse reason to the chat window
 	g_pChatWindow->AddInfoMessage("Connection Refused.");
 
-	if(iReason == REFUSE_REASON_INVALIDVERSION)
+	if(iReason == REFUSE_REASON_INVALID_VERSION)
 		g_pChatWindow->AddInfoMessage("You are using an invalid version.");
-	else if(iReason == REFUSE_REASON_TOOSHORT)
-		g_pChatWindow->AddInfoMessage("Your name is too short.");
-	else if(iReason == REFUSE_REASON_TOOLONG)
-		g_pChatWindow->AddInfoMessage("Your name is too long.");
-	else if(iReason == REFUSE_REASON_INUSE)
+	else if(iReason == REFUSE_REASON_NAME_INVALID)
+		g_pChatWindow->AddInfoMessage("You are using an invalid name.");
+	else if(iReason == REFUSE_REASON_NAME_IN_USE)
 		g_pChatWindow->AddInfoMessage("Your name is already in use.");
-	else if(iReason == REFUSE_REASON_INVALIDNAME)
-		g_pChatWindow->AddInfoMessage("Your name is invalid.");
-	else if(iReason == REFUSE_REASON_FILES_MODIFIED)
-		g_pChatWindow->AddInfoMessage("Your game files are modified.");
+	else if(iReason == REFUSE_REASON_ABORTED_BY_SCRIPT)
+		g_pChatWindow->AddInfoMessage("Connection aborted by script!");
 
 	// Disconnect from the server
 	g_pNetworkManager->Disconnect();
@@ -2877,28 +2872,55 @@ void CClientRPCHandler::ScriptingAttachCam(CBitStream * pBitStream, CPlayerSocke
 		return;
 
 	EntityId attachId;
-	pBitStream->ReadCompressed(attachId);
+	bool bVehicleOrPlayer;
+	unsigned int uiHandle;
 
-	if(pBitStream->ReadBit())
+	pBitStream->ReadCompressed(attachId);
+	bVehicleOrPlayer = pBitStream->ReadBit();
+
+	if(g_pCamera)
 	{
-		if(g_pVehicleManager->Exists(attachId))
+		if(bVehicleOrPlayer)
 		{
-			unsigned int uiHandle = g_pVehicleManager->Get(attachId)->GetScriptingHandle();
-			/* TODO FIX NATIVE!
-			Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(g_pCamera->GetGameCam()->GetCam()),uiHandle);*/
+			if(g_pVehicleManager->Exists(attachId))
+				uiHandle = g_pVehicleManager->Get(attachId)->GetScriptingHandle();
 		}
-	}
-	else
-	{
-		if(g_pPlayerManager->DoesExist(attachId))
+		else
 		{
-			unsigned int uiHandle = g_pPlayerManager->GetAt(attachId)->GetScriptingHandle();
-			/* TODO FIX NATIVE!
-			Scripting::AttachCamToPed(CGame::GetPools()->GetCamPool()->HandleOf(g_pCamera->GetGameCam()->GetCam()),uiHandle);*/
+			if(g_pPlayerManager->DoesExist(attachId))
+				uiHandle = g_pPlayerManager->GetAt(attachId)->GetScriptingHandle();
 		}
+		g_pCamera->Attach(uiHandle,bVehicleOrPlayer);
 	}
 }
-				
+
+void CClientRPCHandler::ScriptingDisplayHudNotification(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	int iMode;
+	pBitStream->Read(iMode);
+
+	String iMessage;
+	pBitStream->Read(iMessage);
+
+	Scripting::DisplayHudNotification(iMode,iMessage.C_String(),iMode);
+}
+
+void CClientRPCHandler::ScriptingSetVehicleFollowMode(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	int iMode;
+	pBitStream->Read(iMode);
+
+	if(!g_pLocalPlayer->IsOnFoot())
+		Scripting::SetFollowVehicleCamSubmode(iMode);
+}
 
 void CClientRPCHandler::Register()
 {
@@ -3035,7 +3057,8 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingForceWind, ScriptingForceWind);
 	AddFunction(RPC_ScriptingSetNametags, ScriptingSetNametags);
 	AddFunction(RPC_ScriptingAttachCam, ScriptingAttachCam);
-
+	AddFunction(RPC_ScriptingDisplayHudNotification, ScriptingDisplayHudNotification);
+	AddFunction(RPC_ScriptingSetVehicleFollowMode, ScriptingSetVehicleFollowMode);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3173,4 +3196,6 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingForceWind);
 	RemoveFunction(RPC_ScriptingSetNametags);
 	RemoveFunction(RPC_ScriptingAttachCam);
+	RemoveFunction(RPC_ScriptingDisplayHudNotification);
+	RemoveFunction(RPC_ScriptingSetVehicleFollowMode);
 }

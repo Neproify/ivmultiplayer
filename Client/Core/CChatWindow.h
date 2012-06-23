@@ -27,7 +27,7 @@
 struct CHAT_MESSAGE
 {
 	char          szMessage[MAX_MESSAGE_LENGTH + 1];
-	char          szName[MAX_NAME + 3];
+	char          szName[MAX_NAME_LENGTH + 3];
 	CEGUI::colour messageColor;
 	CEGUI::colour nameColor;
 	float         fNameExtent;

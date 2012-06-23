@@ -43,123 +43,79 @@ extern CModuleManager * g_pModuleManager;
 extern CEvents * g_pEvents;
 extern CVehicle * g_pVehicle;
 
-void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
+	// Read packet data
 	EntityId playerId = pSenderSocket->playerId;
-	CBitStream bsSend;
-
-	// Read their network version
 	int iVersion;
+	pBitStream->Read(iVersion);
 
-	if(!pBitStream->Read(iVersion))
-		return;
+	String strName;
+	pBitStream->Read(strName);
 
+	bool bGameFilesModded = false;
+	bGameFilesModded = pBitStream->ReadBit();
+
+	String strIP = pSenderSocket->GetAddress(true);
+	String strSerial = pSenderSocket->GetSerial();
+
+	// Setup our reply packet
+	CBitStream bsSend;
+	
+	// Check for matching network versions
 	if(iVersion != NETWORK_VERSION)
 	{
-		bsSend.Write(REFUSE_REASON_INVALIDVERSION);
+		bsSend.Write(REFUSE_REASON_INVALID_VERSION);
 		g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
-		CLogFile::Printf("Authorization for %s failed (Invalid version (Client: %x, Server: %x)).", pSenderSocket->GetAddress(true).Get(), iVersion, NETWORK_VERSION);
+		CLogFile::Printf("[Connect] Authorization for %s (%s) failed (Invalid version (Client: %x, Server: %x))!", strIP.Get(), strName.Get(), iVersion, NETWORK_VERSION);
 		return;
 	}
 
-	// Read their name
-	String strName;
-
-	if(!pBitStream->Read(strName))
-		return;
-
-	if(strName.IsEmpty() || strName.GetLength() < 2)
+	// Check that their name is valid
+	if(strName.IsEmpty() || strName.GetLength() > MAX_NAME_LENGTH)
 	{
-		bsSend.Write(REFUSE_REASON_TOOSHORT);
+		bsSend.Write(REFUSE_REASON_NAME_INVALID);
 		g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
-		CLogFile::Printf("Authorization for %s failed (Name too short).", pSenderSocket->GetAddress(true).Get());
-		return;
-	}
-	else if(strName.GetLength() > MAX_NAME)
-	{
-		bsSend.Write(REFUSE_REASON_TOOLONG);
-		g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
-		CLogFile::Printf("Authorization for %s failed (Name too long).", pSenderSocket->GetAddress(true).Get());
+		CLogFile::Printf("[Connect] Authorization for %s (%s) failed (name invalid).", strIP.Get(), strName.Get());
 		return;
 	}
 
+	// Check that their name is not already in use
 	if(g_pPlayerManager->IsNameInUse(strName))
 	{
-		bool bForceDisconnect = false;
-		EntityId otherPlayerId = g_pPlayerManager->GetPlayerFromName(strName);
-
-		// Check if this is even meant to be supported
-		if(CVAR_GET_BOOL("kickoldplayers"))
-		{
-			// Check if the ip matches
-			if(!g_pNetworkManager->GetPlayerIp(otherPlayerId).Compare(pSenderSocket->GetAddress()))
-			{
-				// Check if the HDD Serial matches
-				if(g_pPlayerManager->GetAt(otherPlayerId)->GetSerial() == pSenderSocket->GetSerial())
-					bForceDisconnect = true;
-			}
-		}
-
-		if(bForceDisconnect)
-			g_pNetworkManager->GetNetServer()->KickPlayer(otherPlayerId);
-		else
-		{
-			bsSend.Write(REFUSE_REASON_INUSE);
-			g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
-			CLogFile::Printf("Authorization for %s failed (Name in use).", pSenderSocket->GetAddress(true).Get());
-		}
-
-		return;
-	}
-
-	// Check the player's name
-	CSquirrelArguments nameCheckArguments;
-	nameCheckArguments.push(playerId);
-	nameCheckArguments.push(strName);
-
-	if(g_pEvents->Call("playerNameCheck", &nameCheckArguments).GetInteger() != 1)
-	{
-		bsSend.Write(REFUSE_REASON_INVALIDNAME);
+		bsSend.Write(REFUSE_REASON_NAME_IN_USE);
 		g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
-		CLogFile::Printf("Authorization for %s failed (Invalid name).", pSenderSocket->GetAddress(true).Get());
-		return;
+		CLogFile::Printf("[Connect] Authorization for %s (%s) failed (name in use).", strIP.Get(), strName.Get());
 	}
 
-	// Read if their game files are modified
-	bool bGameFilesModded = false;
+	// Call the playerConnect event, and process the return value
+	CSquirrelArguments playerConnectArguments;
+	playerConnectArguments.push(playerId);
+	playerConnectArguments.push(strName);
+	playerConnectArguments.push(strIP);
+	playerConnectArguments.push(strSerial);
+	playerConnectArguments.push(bGameFilesModded);
 
-	if(!pBitStream->Read(bGameFilesModded))
-		return;
-
-	// Are their game files modified?
-	if(bGameFilesModded)
+	if(g_pEvents->Call("playerConnect", &playerConnectArguments).GetInteger() != 1)
 	{
-		// Check if this server allows game file modifications
-		CSquirrelArguments modCheckArguments;
-		nameCheckArguments.push(playerId);
-
-		if(g_pEvents->Call("playerModifiedGameFiles", &modCheckArguments).GetInteger() == 1)
-		{
-			bsSend.Write(REFUSE_REASON_FILES_MODIFIED);
-			g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
-			CLogFile::Printf("Authorization for %s failed (Game files are modified).", pSenderSocket->GetAddress(true).Get());
-			return;
-		}
+		bsSend.Write(REFUSE_REASON_ABORTED_BY_SCRIPT);
+		g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
+		CLogFile::Printf("[Connect] Authorization for %s (%s) failed (aborted by script).", strIP.Get(), strName.Get());
+		return;
 	}
 
+	CLogFile::Printf("[Connect] Authorization for %s (%s) complete.", strIP.Get(), strName.Get());
+
+	// Setup the player
 	g_pPlayerManager->Add(playerId, strName);
 	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
 	if(pPlayer)
 	{
-		CBitStream bsNametags;
-		bsNametags.Write(CVAR_GET_BOOL("guinametags"));
-		g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-
 		// Let the vehicle manager handle the client join
 		g_pVehicleManager->HandleClientJoin(playerId);
 
@@ -246,12 +202,19 @@ void CServerRPCHandler::PlayerJoin(CBitStream * pBitStream, CPlayerSocket * pSen
 		// Inform the script file manager of the client join
 		g_pClientScriptFileManager->HandleClientJoin(playerId);
 
-		// Call the playerConnect scripting function
+		// Send them our nametag settings
+		CBitStream bsNametags;
+		bsNametags.Write(CVAR_GET_BOOL("guinametags"));
+		g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
+		// TODO: move the playerConnect event to AFTER the file downloads complete!
+
+		// Call the playerConnect event
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
-		g_pEvents->Call("playerConnect", &pArguments);
+		g_pEvents->Call("playerJoin", &pArguments);
 
-		CLogFile::Printf("[Join] %s (%d) has successfully joined the server.", strName.Get(), playerId);
+		CLogFile::Printf("[Join] %s (%d) has joined the game.", strName.Get(), playerId);
 	}
 }
 
@@ -791,11 +754,13 @@ void CServerRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 		bsSend.Write(vecAim.fX);
 		bsSend.Write(vecAim.fY);
 		bsSend.Write(vecAim.fZ);
-		g_pNetworkManager->RPC(RPC_HeadMovement, &bsSend, PRIORITY_HIGH, RELIABILITY_UNRELIABLE, INVALID_ENTITY_ID, true);
 
 		// Update our head sync
 		if(pPlayer)
+		{
 			pPlayer->UpdateHeadMoveSync(vecAim);
+			g_pNetworkManager->RPC(RPC_HeadMovement, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED, pPlayer->GetPlayerId(), true);
+		}
 	}
 }
 
@@ -964,7 +929,8 @@ void CServerRPCHandler::VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pS
 
 void CServerRPCHandler::Register()
 {
-	AddFunction(RPC_PlayerJoin, PlayerJoin);
+	AddFunction(RPC_PlayerConnect, PlayerConnect);
+
 	AddFunction(RPC_Chat, Chat);
 	AddFunction(RPC_Command, Command);
 	AddFunction(RPC_PlayerSpawn, PlayerSpawn);
@@ -985,7 +951,7 @@ void CServerRPCHandler::Register()
 
 void CServerRPCHandler::Unregister()
 {
-	RemoveFunction(RPC_PlayerJoin);
+	RemoveFunction(RPC_PlayerConnect);
 	RemoveFunction(RPC_Chat);
 	RemoveFunction(RPC_Command);
 	RemoveFunction(RPC_PlayerSpawn);

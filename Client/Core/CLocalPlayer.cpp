@@ -408,8 +408,6 @@ void CLocalPlayer::SendInVehicleSync()
 		bsSend.Write((char *)&syncPacket, sizeof(InVehicleSyncData));
 
 		// Check if they are doing a drive by
-		// TODO: Also sync aim for turret rotation on firetrucks?
-		// (Or find turret rotation var in vehicle structure)
 		if(syncPacket.controlState.IsDoingDriveBy())
 		{
 			// Write a 1 bit to say we have aim sync

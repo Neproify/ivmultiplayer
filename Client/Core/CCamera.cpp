@@ -165,3 +165,15 @@ void CCamera::GetLookAt(CVector3& vecLookAt)
 
 	memcpy(&vecLookAt, &vecLookAt, sizeof(CVector3));
 }
+
+void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer)
+{
+	if(!m_bScriptCamActive)
+		ActivateScriptCam();
+
+	if(bVehicleOrPlayer)
+		Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+	else
+		Scripting::AttachCamToPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+
+}

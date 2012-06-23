@@ -36,9 +36,9 @@ void CFireManager::Create(EntityId fireId, CVector3& vecPos, float fdensity)
 		Delete(fireId);
 	
 	m_bActive[fireId] = true;
-	m_Fire[fireId].uiHandle = CGame::CreateFire(vecPos,(unsigned int)10);
+	m_Fire[fireId].uiHandle = CGame::CreateFire(vecPos,(unsigned int)fdensity);
 	m_Fire[fireId].fdensity = fdensity;
-	g_pChatWindow->AddInfoMessage("FIRE READY: X: %f, Y: %f, Z: %f, density:%f",vecPos.fX,vecPos.fY,vecPos.fZ,fdensity);
+	g_pChatWindow->AddInfoMessage("FIRE READY: X: %f, Y: %f, Z: %f, density: %f",vecPos.fX,vecPos.fY,vecPos.fZ,fdensity);
 }
 
 void CFireManager::Delete(EntityId fireId)

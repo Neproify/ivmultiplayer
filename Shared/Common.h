@@ -45,8 +45,8 @@
 // Network module version
 #define NETWORK_MODULE_VERSION 0x05
 
-// Network version
-#define NETWORK_VERSION 0x6C
+// Network version - increment this when packet layouts change!
+#define NETWORK_VERSION 0x6D
 
 // Tick Rate
 #define TICK_RATE 100
@@ -64,7 +64,7 @@
 #define MAX_FIRE 32
 
 // Max amount of characters a player can use in their name
-#define MAX_NAME 48
+#define MAX_NAME_LENGTH 18
 
 // Max vehicle passengers (NOTE: This is also a GTA limit)
 #define MAX_VEHICLE_PASSENGERS 8
@@ -274,11 +274,10 @@ struct AimSyncData
 // Refuse Reasons
 enum eRefuseReason
 {
-	REFUSE_REASON_INVALIDVERSION,
-	REFUSE_REASON_TOOSHORT,
-	REFUSE_REASON_TOOLONG,
-	REFUSE_REASON_INUSE,
-	REFUSE_REASON_INVALIDNAME,
+	REFUSE_REASON_INVALID_VERSION,
+	REFUSE_REASON_NAME_IN_USE,
+	REFUSE_REASON_NAME_INVALID,
+	REFUSE_REASON_ABORTED_BY_SCRIPT,
 	REFUSE_REASON_FILES_MODIFIED
 };
 
