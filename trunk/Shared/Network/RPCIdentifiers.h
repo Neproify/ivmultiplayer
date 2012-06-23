@@ -158,5 +158,7 @@ enum eRPCIdentfiers
 	RPC_ScriptingVehicleDeath,
 	RPC_ScriptingAttachCam,
 	RPC_ScriptingDisplayHudNotification,
-	RPC_ScriptingSetVehicleFollowMode
+	RPC_ScriptingSetVehicleFollowMode,
+	RPC_ScriptingSetAmmoInClip,
+	RPC_ScriptingSetAmmo
 };

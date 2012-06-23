@@ -64,6 +64,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("isPlayerDucking", IsDucking, 1, "i");
 	pScriptingManager->RegisterFunction("isPlayerJackingAVehicle", IsJackingAVehicle, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerWeaponSlot", GetWeaponSlot, 1, "ii");
+	pScriptingManager->RegisterFunction("getPlayerAmmoInClip", GetAmmoInClip, 1, "ii");
 }
 
 // isPlayerConnected(playerid)
@@ -402,6 +403,27 @@ SQInteger CPlayerNatives::GetWeapon(SQVM * pVM)
 	if(pPlayer)
 	{
 		sq_pushinteger(pVM, pPlayer->GetCurrentWeapon());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+//getPlayerAmmoInClip(playerid, weaponId)
+SQInteger CPlayerNatives::GetAmmoInClip(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	int iWeaponId;
+	sq_getinteger(pVM, -1, &iWeaponId);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetAmmoInClip(iWeaponId));
 		return 1;
 	}
 

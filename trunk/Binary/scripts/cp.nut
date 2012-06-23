@@ -84,6 +84,14 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/setammo")
+	{
+		setPlayerAmmo(playerid,cmd[1].tointeger(),cmd[2].tointeger());
+	}
+	if(cmd[0] == "/setammoinclip")
+	{
+		setPlayerAmmoInClip(playerid,cmd[1].tointeger());
+	}
 	if(cmd[0] == "/displayHudMessage")
 	{
 		displayHudNotification(playerid,1,"UNREAD_MESSAGES");
@@ -205,9 +213,9 @@ function onPlayerCommand(playerid, command)
 		local actor = createActor(8,pos[0],pos[1],pos[2],90.0);
 		toggleActorHelmet(actor,false);
 		toggleActorFrozen(actor,false);
-		setActorName(actor,"Jenksta");
+		setActorName(actor,"JeNkStAX");
 		toggleActorNametag(actor,true);
-		forceActorAnimation(actor,"hello", "gestures@niko");
+		forceAnimationAtActor(actor,"amb@smoking_spliff","create_spliff");
 	}
 	if(cmd[0] == "/toghelmet1")
 	{

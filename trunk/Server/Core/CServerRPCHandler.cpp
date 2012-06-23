@@ -116,6 +116,11 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 
 	if(pPlayer)
 	{
+		// Send them our nametag settings(this must be send BEFORE the players/actors are created!!!!!)
+		CBitStream bsNametags;
+		bsNametags.Write(CVAR_GET_BOOL("guinametags"));
+		g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
 		// Let the vehicle manager handle the client join
 		g_pVehicleManager->HandleClientJoin(playerId);
 
@@ -201,11 +206,6 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 
 		// Inform the script file manager of the client join
 		g_pClientScriptFileManager->HandleClientJoin(playerId);
-
-		// Send them our nametag settings
-		CBitStream bsNametags;
-		bsNametags.Write(CVAR_GET_BOOL("guinametags"));
-		g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 
 		// TODO: move the playerConnect event to AFTER the file downloads complete!
 

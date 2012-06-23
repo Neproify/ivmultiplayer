@@ -2720,13 +2720,18 @@ void CClientRPCHandler::ScriptingForcePlayerAnimation(CBitStream * pBitStream, C
 	if(!pBitStream)
 		return;
 
+	EntityId playerId;
 	String strGroup;
 	String strAnim;
+	pBitStream->ReadCompressed(playerId);
 	pBitStream->Read(strGroup);
 	pBitStream->Read(strAnim);
 
-	g_pLocalPlayer->SetAnimation(strGroup,strAnim);
-	//g_pLocalPlayer->SaveAnimation(strGroup,strAnim);
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer && pPlayer->IsSpawned() && !pPlayer->IsLocalPlayer())
+		Scripting::TaskPlayAnim(pPlayer->GetScriptingHandle(),strAnim.C_String(), strGroup.C_String(),(float)8,0,0,0,0,5000);
+	else if(pPlayer && pPlayer->IsSpawned() && pPlayer->IsLocalPlayer())
+		Scripting::TaskPlayAnim(g_pLocalPlayer->GetScriptingHandle(),strAnim.C_String(), strGroup.C_String(),(float)8,0,0,0,0,5000);
 }
 
 void CClientRPCHandler::ScriptingForceActorAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2873,7 +2878,7 @@ void CClientRPCHandler::ScriptingAttachCam(CBitStream * pBitStream, CPlayerSocke
 
 	EntityId attachId;
 	bool bVehicleOrPlayer;
-	unsigned int uiHandle;
+	unsigned int uiHandle = -1;
 
 	pBitStream->ReadCompressed(attachId);
 	bVehicleOrPlayer = pBitStream->ReadBit();
@@ -2920,6 +2925,23 @@ void CClientRPCHandler::ScriptingSetVehicleFollowMode(CBitStream * pBitStream, C
 
 	if(!g_pLocalPlayer->IsOnFoot())
 		Scripting::SetFollowVehicleCamSubmode(iMode);
+}
+
+void CClientRPCHandler::ScriptingSetAmmoInClip(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
+{	
+	unsigned int uiAmmoInClip;
+	pBitStream->Read(uiAmmoInClip);
+
+	g_pLocalPlayer->SetAmmoInClip(uiAmmoInClip);
+}
+
+void CClientRPCHandler::ScriptingSetAmmo(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
+{	
+	unsigned int uiWeapon, uiAmmo;
+	pBitStream->Read(uiWeapon);
+	pBitStream->Read(uiAmmo);
+
+	g_pLocalPlayer->SetAmmo(uiWeapon, uiAmmo);
 }
 
 void CClientRPCHandler::Register()
@@ -3059,6 +3081,8 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingAttachCam, ScriptingAttachCam);
 	AddFunction(RPC_ScriptingDisplayHudNotification, ScriptingDisplayHudNotification);
 	AddFunction(RPC_ScriptingSetVehicleFollowMode, ScriptingSetVehicleFollowMode);
+	AddFunction(RPC_ScriptingSetAmmoInClip, ScriptingSetAmmoInClip);
+	AddFunction(RPC_ScriptingSetAmmo, ScriptingSetAmmo);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3198,4 +3222,6 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingAttachCam);
 	RemoveFunction(RPC_ScriptingDisplayHudNotification);
 	RemoveFunction(RPC_ScriptingSetVehicleFollowMode);
+	RemoveFunction(RPC_ScriptingSetAmmoInClip);
+	RemoveFunction(RPC_ScriptingSetAmmo);
 }

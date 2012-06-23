@@ -149,6 +149,9 @@ public:
 	void                     SetAmmo(unsigned int uiWeaponId, unsigned int uiAmmo);
 	unsigned int             GetAmmo(unsigned int uiWeaponId);
 	void					 GetWeaponInSlot(unsigned int uiWeaponSlot, unsigned int &uiWeaponId, unsigned int &uiAmmo, unsigned int &uiUnknown);
+	unsigned int             GetAmmoInClip(unsigned int uiWeaponId);
+	void                     SetAmmoInClip(unsigned int uiAmmoInClip);
+	unsigned int             GetMaxAmmoInClip(unsigned int uiWeaponId);
 	void                     GiveMoney(int iAmount);
 	void                     SetMoney(int iAmount);
 	void                     ResetMoney();
@@ -181,7 +184,7 @@ public:
 	void                     SetDucking(bool bDucking);
 	bool                     IsDucking();
 	void                     SetCameraBehind();
-	virtual void             Pulse();
+	virtual void             Pulse(); 
 
 	// 
 	bool                     IsGettingInToAVehicle();

@@ -714,6 +714,7 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			unsigned int uiInterior = GetInterior();
 			unsigned int uiWeap[13], uiAmmo[13], uiUnknown[13];
 			unsigned int uiCurrWeap = GetCurrentWeapon();
+			unsigned int uiAmmoInClip = GetAmmoInClip(uiCurrWeap);
 			for(unsigned int ui = 1; ui < 12; ++ui)
 				GetWeaponInSlot(ui, uiWeap[ui], uiAmmo[ui], uiUnknown[ui]);
 			Scripting::ChangePlayerModel(m_byteGamePlayerNumber, (Scripting::eModel)dwModelHash);
@@ -724,7 +725,9 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			SetInterior(uiInterior);
 			for(unsigned int ui = 1; ui < 12; ++ui)
 				GiveWeapon(uiWeap[ui], uiAmmo[ui]);
+			SetAmmo(uiCurrWeap, GetAmmo(uiCurrWeap)-uiAmmoInClip+GetMaxAmmoInClip(uiCurrWeap));
 			SetCurrentWeapon(uiCurrWeap);
+			SetAmmoInClip(uiAmmoInClip);
 		}
 		// End hacky code that needs to be changed
 
@@ -1028,7 +1031,13 @@ void CNetworkPlayer::SetAmmo(unsigned int uiWeaponId, unsigned int uiAmmo)
 
 		if(pWeapon)
 			pWeapon->SetAmmo(uiAmmo);*/
-		Scripting::SetCharAmmo(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo);
+		if(uiAmmo < 0)
+			uiAmmo = 0;
+
+		if(uiWeaponId == GetCurrentWeapon() && GetAmmo(uiWeaponId) == GetAmmoInClip(uiWeaponId) && uiAmmo < GetAmmo(uiWeaponId)) 
+			SetAmmoInClip(uiAmmo);
+		else
+			Scripting::SetCharAmmo(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo);
 	}
 }
 
@@ -1055,6 +1064,41 @@ void CNetworkPlayer::GetWeaponInSlot(unsigned int uiWeaponSlot, unsigned int &ui
 {
 	if(IsSpawned())
 		Scripting::GetCharWeaponInSlot(GetScriptingHandle(), (Scripting::eWeaponSlot)uiWeaponSlot, (Scripting::eWeapon *)&uiWeaponId, &uiAmmo, &uiUnknown);
+}
+
+unsigned int CNetworkPlayer::GetAmmoInClip(unsigned int uiWeapon)
+{
+	if(IsSpawned())
+	{
+		unsigned int uiAmmoInClip;
+		Scripting::GetAmmoInClip(GetScriptingHandle(), (Scripting::eWeapon)uiWeapon, &uiAmmoInClip);
+		return uiAmmoInClip;
+	}
+	return 0;
+}
+
+void CNetworkPlayer::SetAmmoInClip(unsigned int uiAmmoInClip)
+{
+	if(IsSpawned())
+	{
+		unsigned int uiWeapon = GetCurrentWeapon();
+		if(uiAmmoInClip < 0)
+			uiAmmoInClip = 0;
+		else if(uiAmmoInClip > GetMaxAmmoInClip(uiWeapon))
+			uiAmmoInClip = GetMaxAmmoInClip(uiWeapon);
+		Scripting::SetAmmoInClip(GetScriptingHandle(), (Scripting::eWeapon)uiWeapon, uiAmmoInClip);
+	}
+}
+
+unsigned int CNetworkPlayer::GetMaxAmmoInClip(unsigned int uiWeapon)
+{
+	if(IsSpawned())
+	{
+		unsigned int uiMaxAmmoInClip;
+		Scripting::GetMaxAmmoInClip(GetScriptingHandle(), (Scripting::eWeapon)uiWeapon, &uiMaxAmmoInClip);
+		return uiMaxAmmoInClip;
+	}
+	return 0;
 }
 
 void CNetworkPlayer::GiveMoney(int iAmount)

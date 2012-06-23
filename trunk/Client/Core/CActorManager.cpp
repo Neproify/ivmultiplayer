@@ -63,7 +63,7 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	Scripting::SetCharHealth(m_Actors[actorId].uiActorIndex, 200);
 	Scripting::AddArmourToChar(m_Actors[actorId].uiActorIndex, 200);
 	Scripting::SetCharDefaultComponentVariation(m_Actors[actorId].uiActorIndex);
-	Scripting::AddArmourToChar(m_Actors[actorId].uiActorIndex, 200);
+	//Scripting::AddArmourToChar(m_Actors[actorId].uiActorIndex, 200);
 	Scripting::SetCharHeading(m_Actors[actorId].uiActorIndex, fHeading);
 	Scripting::AllowReactionAnims(m_Actors[actorId].uiActorIndex,false);
 
@@ -250,7 +250,7 @@ unsigned int CActorManager::GetScriptingHandle(EntityId actorId)
 void CActorManager::ForceAnimation(EntityId actorId, const char * szGroup, const char * szAnim)
 {
 	if(m_bActive[actorId])
-		Scripting::TaskPlayAnim(m_Actors[actorId].uiActorIndex,szAnim,szGroup,float(8),0,0,0,0,-1);
+		Scripting::TaskPlayAnim(GetScriptingHandle(actorId),szAnim,szGroup,float(8),0,0,0,0,-1);
 }
 
 float CActorManager::GetHealth(EntityId actorId)

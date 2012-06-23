@@ -26,9 +26,9 @@ private:
 	unsigned int		m_uiLastInterior;
 	bool				m_bDisableVehicleInfo;
 	CControlState		m_lastControlStateSent;
-	bool				m_bAnimating;
-	String				m_strAnimGroup;
-	String				m_strAnimSpec;
+	/*bool			    m_bAnimating;
+	char*				m_strAnimGroup;
+	char*				m_strAnimSpec;*/
 
 public:
 	CLocalPlayer();
@@ -53,6 +53,5 @@ public:
 	bool		   GetControl();
 	bool		   GetVehicleInfos() { return m_bDisableVehicleInfo; }
 	void		   SetVehicleInfos(bool bInfo) { m_bDisableVehicleInfo = bInfo; }
-	void		   SetAnimation(const char * strGroup, const char * strAnim);
-	void		   SaveAnimation(String strGroup, String strAnim);
+	/*void		   SetAnimation(const char * strGroup, const char * strAnim);*/
 };
