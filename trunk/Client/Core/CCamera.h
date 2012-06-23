@@ -33,4 +33,5 @@ public:
 	void     GetPosition(CVector3& vecPosition);
 	void     SetLookAt(const CVector3& vecLookAt);
 	void     GetLookAt(CVector3& vecLookAt);
+	void	 Attach(unsigned int uiHandle, bool bVehicleOrPlayer);
 };

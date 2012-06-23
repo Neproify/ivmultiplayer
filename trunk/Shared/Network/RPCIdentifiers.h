@@ -14,6 +14,10 @@ typedef unsigned char RPCIdentifier;
 
 enum eRPCIdentfiers
 {
+
+	// Player RPCs
+	RPC_PlayerConnect,
+
 	// RPC's
 	RPC_Message,
 	RPC_NewObject,
@@ -40,7 +44,6 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetModel,
 	RPC_Command,
 	RPC_Chat,
-	RPC_PlayerJoin,
 	RPC_CheckpointLeft,
 	RPC_Death,
 	RPC_VehicleEnterExit,
@@ -153,5 +156,7 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetNametags,
 	RPC_ScriptingAttachObject,
 	RPC_ScriptingVehicleDeath,
-	RPC_ScriptingAttachCam
+	RPC_ScriptingAttachCam,
+	RPC_ScriptingDisplayHudNotification,
+	RPC_ScriptingSetVehicleFollowMode
 };

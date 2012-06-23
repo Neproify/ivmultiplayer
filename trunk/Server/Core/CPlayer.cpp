@@ -471,7 +471,7 @@ void CPlayer::Process()
 
 bool CPlayer::SetName(String strName)
 {
-	if(strName.GetLength() < 2 || strName.GetLength() > MAX_NAME)
+	if(strName.GetLength() < 2 || strName.GetLength() > MAX_NAME_LENGTH)
 		return false;
 
 	if(strName == m_strName || g_pPlayerManager->IsNameInUse(strName))

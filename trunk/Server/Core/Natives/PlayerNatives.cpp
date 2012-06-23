@@ -121,6 +121,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("requestPlayerAnimations", requestAnim, 1, "i");
 	pScriptingManager->RegisterFunction("attachPlayerCameraToPlayer", AttachCamToPlayer, 2, "ii");
 	pScriptingManager->RegisterFunction("attachPlayerCameraToVehicle", AttachCamToVehicle, 2, "ii");
+	pScriptingManager->RegisterFunction("displayHudNotification", DisplayHudNotification, 3, "iis");
+	pScriptingManager->RegisterFunction("setPlayerFollowVehicleMode", FollowVehicleMode, 2, "ii");
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 }
 
@@ -2220,6 +2222,56 @@ SQInteger CPlayerNatives::AttachCamToVehicle(SQVM * pVM)
 		bsSend.WriteCompressed(toVehicleId);
 		bsSend.Write1();
 		g_pNetworkManager->RPC(RPC_ScriptingAttachCam, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::DisplayHudNotification(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -3, &playerId);
+	
+	int iMode;
+	sq_getinteger(pVM, -2, &iMode);
+
+	const char * szMessage;
+	sq_getstring(pVM, -1, &szMessage);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(iMode);
+		bsSend.Write(String(szMessage));
+		g_pNetworkManager->RPC(RPC_ScriptingDisplayHudNotification, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::FollowVehicleMode(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+	
+	int iMode;
+	sq_getinteger(pVM, -1, &iMode);
+	if(iMode < 0 || iMode > 5)
+	{
+		CLogFile::Print("Vehicle follow modes are only supported from 0 to 5!");
+		sq_pushbool(pVM,false);
+		return 1;
+	}
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(iMode);
+		g_pNetworkManager->RPC(RPC_ScriptingSetVehicleFollowMode, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}

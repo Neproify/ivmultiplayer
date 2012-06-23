@@ -71,7 +71,6 @@ void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 		m_bActive[playerId] = true;
 		m_pPlayers[playerId]->AddForWorld();
 		m_pPlayers[playerId]->SetState(STATE_TYPE_CONNECT);
-		CLogFile::Printf("[Connect] %s (%d) has connected to the server.", sPlayerName.Get(), playerId);
 	}
 }
 

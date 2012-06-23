@@ -104,6 +104,8 @@ private:
 	static SQInteger blockWeaponDrop(SQVM * pVM);
 	static SQInteger AttachCamToPlayer(SQVM * pVM);
 	static SQInteger AttachCamToVehicle(SQVM * pVM);
+	static SQInteger DisplayHudNotification(SQVM * pVM);
+	static SQInteger FollowVehicleMode(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

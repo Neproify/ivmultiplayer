@@ -31,12 +31,12 @@ void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSo
 
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pChatWindow->AddInfoMessage("Connection stablished, please wait while downloading network content!");
+	g_pChatWindow->AddInfoMessage("Connection established, please wait..");
 	CBitStream  bsSend;
 	bsSend.Write(NETWORK_VERSION);
 	bsSend.Write(g_strNick);
-	bsSend.Write(!CGameFileChecker::CheckFiles());
-	g_pNetworkManager->RPC(RPC_PlayerJoin, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
+	bsSend.WriteBit(!CGameFileChecker::CheckFiles());
+	g_pNetworkManager->RPC(RPC_PlayerConnect, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 }
 
 void CClientPacketHandler::ConnectionFailed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

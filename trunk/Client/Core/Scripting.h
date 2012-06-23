@@ -82,7 +82,8 @@ namespace Scripting
 	static void SetPedDontDoEvasiveDives(unsigned int p0, bool p1) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_PED_DONT_DO_EVASIVE_DIVES, p0, p1); }
 	static void SetPedDontUseVehicleSpecificAnims(unsigned int p0, bool p1) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_PED_DONT_USE_VEHICLE_SPECIFIC_ANIMS, p0, p1); }
 	static void SetPlayerKeepsWeaponsWhenRespawned(unsigned int p0) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_PLAYER_KEEPS_WEAPONS_WHEN_RESPAWNED, p0); }
-
+	static void DisplayHudNotification(int icon, const char * name, int number) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_PHONE_HUD_ITEM, icon, name, number); }
+	
 	// Vehicles
 	static void SmashCarWindow(unsigned int vehicle, eVehicleWindow window) { NativeInvoke::Invoke<unsigned int>(NATIVE_SMASH_CAR_WINDOW, vehicle, window); }
 	static void SwitchCarSiren(unsigned int vehicle, bool on) { NativeInvoke::Invoke<unsigned int>(NATIVE_SWITCH_CAR_SIREN, vehicle, on); }
@@ -123,6 +124,10 @@ namespace Scripting
 	// Camera
 	static void ActivateScriptedCams(int unknown1_1, int unknown2_1) { NativeInvoke::Invoke<unsigned int>(NATIVE_ACTIVATE_SCRIPTED_CAMS, unknown1_1, unknown2_1); }
 	static void PointCamAtCoord(unsigned int cam, float pX, float pY, float pZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_CAM_AT_COORD, cam, pX, pY, pZ); }
+	static void PointCamAtVehicle(unsigned int cam, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_CAM_AT_VEHICLE, cam, vehicle); }
+	static void PointCamFixedAtVehicle(unsigned int cam, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_FIXED_CAM_AT_VEHICLE, cam, vehicle); }
+	static void SetFollowVehicleCamSubmode(unsigned int p0) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_FOLLOW_VEHICLE_CAM_SUBMODE, p0); }
+	static void SetFollowVehicleCamOffset(unsigned int p0, unsigned int p1, unsigned int p2, unsigned int p3) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_FOLLOW_VEHICLE_CAM_OFFSET, p0, p1, p2, p3); }
 
 	// Objects
 	static void SetObjectRotation(unsigned int objectIndex, float fX, float fY, float fZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_OBJECT_ROTATION, objectIndex, fX, fY, fZ); }
