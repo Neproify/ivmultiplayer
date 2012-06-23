@@ -43,10 +43,10 @@
 #endif
 
 // Network module version
-#define NETWORK_MODULE_VERSION 0x05
+#define NETWORK_MODULE_VERSION 0x06
 
 // Network version - increment this when packet layouts change!
-#define NETWORK_VERSION 0x6D
+#define NETWORK_VERSION 0x7A
 
 // Tick Rate
 #define TICK_RATE 100
