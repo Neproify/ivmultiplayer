@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -w -D_SERVER -D_LINUX -I../../Shared -I../../Vendor/Squirrel -I../../Vendor/ -I.
+CFLAGS=-c -g -w -D_SERVER -D_LINUX -I../../Shared -I../../Vendor/Squirrel -I../../Vendor/ -I.
 SOURCES=$(wildcard *.cpp)
 SOURCES+=$(wildcard ../../Vendor/tinyxml/*.cpp)
 SOURCES+=$(wildcard Natives/*.cpp)
