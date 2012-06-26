@@ -391,19 +391,20 @@ void CLocalPlayer::SendInVehicleSync()
 		syncPacket.bEngineStatus = pVehicle->GetEngineState();
 		
 		// Set default window and typres values & check them
-		for(int i = 0; i < 4; i++)
+		for(int i = 0; i <= 3; i++)
 		{
 			syncPacket.bWindow[i] = false;
 			if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)i))
 				syncPacket.bWindow[i] = true;
 		}
-
-		for(int i = 0; i < 6; i++)
+		
+		// TODO, detect tyres from vehicles(2,4, or 6)
+		/*for(int i = 0; i <= 5; i++)
 		{
 			syncPacket.bTyre[i] = false;
-			if(!Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i))
+			if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i))
 				syncPacket.bTyre[i] = true;
-		}
+		}*/
 
 		// Write the in vehicle sync data to the bit stream
 		bsSend.Write((char *)&syncPacket, sizeof(InVehicleSyncData));

@@ -25,11 +25,22 @@ struct _Blip
 	String			strName;
 };
 
+struct _PlayerBlip
+{
+	EntityId	playerId;
+	int			iSprite;
+	bool		bShortRange;
+	bool		bShow;
+};
+
 class CBlipManager : public CBlipManagerInterface
 {
 private:
 	bool m_bActive[MAX_BLIPS];
 	_Blip m_Blips[MAX_BLIPS];
+
+	bool m_bPlayerActive[MAX_PLAYERS];
+	_PlayerBlip m_PlayerBlips[MAX_PLAYERS];
 
 public:
 	CBlipManager();
@@ -51,4 +62,11 @@ public:
 	bool         DoesExist(EntityId blipId);
 	EntityId     GetBlipCount();
 	void		 SwitchIcon(EntityId blipId, bool bShow, EntityId playerId);
+
+	void		 CreateForPlayer(EntityId playerId, int iSprite, bool bShow);
+	void		 DeleteForPlayer(EntityId playerId);
+	void	     ToggleShortRangeForPlayer(EntityId playerId, bool bToggle);
+	void		 SetSpriteForPlayer(EntityId playerId, int iSprite);
+	void		 ToggleDisplayForPlayer(EntityId playerId, bool bToggle);
+	bool		 DoesPlayerBlipExist(EntityId playerId) { return m_bPlayerActive[playerId]; }
 };

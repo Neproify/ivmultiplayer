@@ -669,7 +669,7 @@ SQInteger CVehicleNatives::GetOccupants(SQVM * pVM)
 SQInteger CVehicleNatives::SetLocked(SQVM * pVM)
 {
 	EntityId vehicleId;
-	SQInteger iLocked;
+	int iLocked;
 
 	sq_getentity(pVM, -2, &vehicleId);
 	sq_getinteger(pVM, -1, &iLocked);

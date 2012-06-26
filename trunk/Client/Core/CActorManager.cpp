@@ -30,7 +30,7 @@ CActorManager::~CActorManager()
 	}
 }
 
-void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String name, bool togglename, int color, bool frozen, bool helmet)
+void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, int iColor, bool bFrozen, bool bHelmet)
 {
 	if(m_bActive[actorId])
 		Delete(actorId);
@@ -67,9 +67,9 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	Scripting::SetCharHeading(m_Actors[actorId].uiActorIndex, fHeading);
 	Scripting::AllowReactionAnims(m_Actors[actorId].uiActorIndex,false);
 
-	if(frozen)
+	if(bFrozen)
 		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,true);
-	if(helmet)
+	if(bHelmet)
 		Scripting::GivePedHelmet(m_Actors[actorId].uiActorIndex);
 
 	if(!CGame::GetNameTags())
@@ -77,9 +77,9 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 		Scripting::AddBlipForChar(m_Actors[actorId].uiActorIndex, &m_Actors[actorId].uiBlipId);
 		Scripting::ChangeBlipSprite(m_Actors[actorId].uiBlipId, Scripting::BLIP_OBJECTIVE);
 		Scripting::ChangeBlipScale(m_Actors[actorId].uiBlipId, 0.5);
-		Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].name);
+		Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].strName.Get());
 		Scripting::RemoveFakeNetworkNameFromPed(m_Actors[actorId].uiActorIndex);
-		Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,name.Get(),255,255,255,255);
+		Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,strName.Get(),255,255,255,255);
 	}
 	m_bActive[actorId] = true;
 
@@ -142,73 +142,75 @@ CVector3 CActorManager::GetPosition(EntityId actorId)
 	Scripting::GetCharCoordinates(m_Actors[actorId].uiActorIndex,&vecPosition1,&vecPosition2,&vecPosition3);
 
 	if(m_bActive[actorId])
+	{
 		m_Actors[actorId].vecPosition = CVector3(vecPosition1,vecPosition2,vecPosition3); 
 		return CVector3(vecPosition1,vecPosition2,vecPosition3);
+	}
 
 	return CVector3(0.0f, 0.0f, 0.0f);
 }
 
-void CActorManager::SetName(EntityId actorId, String name)
+void CActorManager::SetName(EntityId actorId, String strName)
 {
 	if(m_bActive[actorId])
 	{
-		m_Actors[actorId].name = name;
+		m_Actors[actorId].strName = strName;
 		if(!CGame::GetNameTags()) {
-		Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].name);
-		Scripting::RemoveFakeNetworkNameFromPed(m_Actors[actorId].uiActorIndex);
-		Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,name.Get(),255,255,255,255);
+			Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].strName.C_String());
+			Scripting::RemoveFakeNetworkNameFromPed(m_Actors[actorId].uiActorIndex);
+			Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,strName.Get(),255,255,255,255);
 		}
 	}
 }
 
-bool CActorManager::ToggleNametag(EntityId actorId, bool show)
+bool CActorManager::ToggleNametag(EntityId actorId, bool bShow)
 {
 	if(m_bActive[actorId])
 	{
-		m_Actors[actorId].nametag = show;
+		m_Actors[actorId].bNametag = bShow;
 		return 1;
 	}
 	return false;
 }
 
-void CActorManager::SetColor(EntityId actorId, int color)
+void CActorManager::SetColor(EntityId actorId, int iColor)
 {
 	if(m_bActive[actorId])
-		m_Actors[actorId].nametagColor = color;
+		m_Actors[actorId].iNametagColor = iColor;
 }
 
-bool CActorManager::ToggleFrozen(EntityId actorId, bool frozen)
+bool CActorManager::ToggleFrozen(EntityId actorId, bool bFrozen)
 {
 	if(m_bActive[actorId])
 	{
-		m_Actors[actorId].frozen = frozen;
-		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,frozen);
+		m_Actors[actorId].bFrozen = bFrozen;
+		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,bFrozen);
 		return 1;
 	}
 	return false;
 }
 
-bool CActorManager::ToggleHelmet(EntityId actorId, bool helmet)
+bool CActorManager::ToggleHelmet(EntityId actorId, bool bHelmet)
 {
 	if(m_bActive[actorId])
 	{
-		Scripting::EnablePedHelmet(m_Actors[actorId].uiActorIndex, helmet);
-		m_Actors[actorId].helmet = helmet;
+		Scripting::EnablePedHelmet(m_Actors[actorId].uiActorIndex, bHelmet);
+		m_Actors[actorId].bHelmet = bHelmet;
 		return 1;
 	}
 	return false;
 }
 
-void CActorManager::WarpIntoVehicle(EntityId actorId, int vehicleid, int seatid)
+void CActorManager::WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iSeatId)
 {
 	if(m_bActive[actorId])
 	{
-		if(seatid > 0 && seatid <= 3)
+		if(iSeatId > 0 && iSeatId <= 3 && vehicleId != -1)
 		{
-			Scripting::WarpCharIntoCarAsPassenger(m_Actors[actorId].uiActorIndex, vehicleid, (seatid - 1));
-			m_Actors[actorId].vehicleid = vehicleid;
-			m_Actors[actorId].seatid = seatid;
-			m_Actors[actorId].stateincar = true;
+			Scripting::WarpCharIntoCarAsPassenger(m_Actors[actorId].uiActorIndex, vehicleId, (iSeatId - 1));
+			m_Actors[actorId].vehicleId = vehicleId;
+			m_Actors[actorId].iSeatid = iSeatId;
+			m_Actors[actorId].bStateincar = true;
 		}
 	}
 }
@@ -217,12 +219,12 @@ void CActorManager::RemoveFromVehicle(EntityId actorId)
 {
 	if(m_bActive[actorId])
 	{
-		if(m_Actors[actorId].stateincar)
+		if(m_Actors[actorId].bStateincar)
 		{
-			Scripting::TaskLeaveCar(m_Actors[actorId].uiActorIndex, m_Actors[actorId].vehicleid);
-			m_Actors[actorId].vehicleid = -1;
-			m_Actors[actorId].seatid = -1;
-			m_Actors[actorId].stateincar = false;
+			Scripting::TaskLeaveCar(m_Actors[actorId].uiActorIndex, m_Actors[actorId].vehicleId);
+			m_Actors[actorId].vehicleId = -1;
+			m_Actors[actorId].iSeatid = -1;
+			m_Actors[actorId].bStateincar = false;
 		}
 	}
 }
@@ -276,4 +278,3 @@ float CActorManager::GetArmour(EntityId actorId)
 
 	return 0.0f;
 }
-

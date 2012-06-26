@@ -55,6 +55,10 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_fDoor[3] = 0.0f;
 	m_fDoor[4] = 0.0f;
 	m_fDoor[5] = 0.0f;
+	m_bWindow[0] = false;
+	m_bWindow[1] = false;
+	m_bWindow[2] = false;
+	m_bWindow[3] = false;
 	m_bLights = false;
 }
 
@@ -707,19 +711,15 @@ void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 	SetHealth(emptyVehicleSync->uiHealth);
 	SetPetrolTankHealth(emptyVehicleSync->fPetrolHealth);
 	SetDirtLevel(emptyVehicleSync->fDirtLevel);
-	SetWindowState(0,emptyVehicleSync->bWindow[0]);
-	SetWindowState(1,emptyVehicleSync->bWindow[1]);
-	SetWindowState(2,emptyVehicleSync->bWindow[2]);
-	SetWindowState(3,emptyVehicleSync->bWindow[3]);
 	SetLightsState(emptyVehicleSync->bLights);
 	SetTaxiLightsState(emptyVehicleSync->bTaxiLights);
 	SetSirenState(emptyVehicleSync->bSirenState);
-	SetCarDoorAngle(0,0,emptyVehicleSync->fDoor[0]);
-	SetCarDoorAngle(1,0,emptyVehicleSync->fDoor[1]);
-	SetCarDoorAngle(2,0,emptyVehicleSync->fDoor[2]);
-	SetCarDoorAngle(3,0,emptyVehicleSync->fDoor[3]);
-	SetCarDoorAngle(4,0,emptyVehicleSync->fDoor[4]);
-	SetCarDoorAngle(5,0,emptyVehicleSync->fDoor[5]);
+
+	for(int i = 0; i <= 3; i++)
+		SetWindowState(i,emptyVehicleSync->bWindow[i]);
+	
+	for(int i = 0; i <= 5; i++)
+		SetCarDoorAngle(i,false,emptyVehicleSync->fDoor[i]);
 }
 
 BYTE CNetworkVehicle::GetMaxPassengers()
@@ -1128,23 +1128,21 @@ bool CNetworkVehicle::GetTaxiLightsState()
 	return false;
 }
 
-void CNetworkVehicle::SetCarDoorAngle(int idoor,bool open, float fAngle)
+void CNetworkVehicle::SetCarDoorAngle(int iDoor,bool bClose, float fAngle)
 {
 	// Are we spawned?
 	if(IsSpawned())
 	{
 		if(fAngle > 1.9f && fAngle < 350.0f)
-			Scripting::ControlCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor,0,fAngle);
+			Scripting::ControlCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)iDoor,bClose,fAngle);
 		else if(fAngle >= 350.0f)
-			Scripting::OpenCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor);
+			Scripting::OpenCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)iDoor);
 		else if(fAngle < 2.0f)
-			Scripting::ShutCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)idoor);
-
-		//g_pChatWindow->AddInfoMessage("%d, %f",idoor,fAngle);
+			Scripting::ShutCarDoor(GetScriptingHandle(),(Scripting::eVehicleDoor)iDoor);
 	}
 	
 	// Apply changes
-	m_fDoor[idoor] = fAngle;
+	m_fDoor[iDoor] = fAngle;
 }
 
 float CNetworkVehicle::GetCarDoorAngle(int iDoor)

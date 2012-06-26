@@ -281,8 +281,8 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 		pBitStream->Read(bWindow[i]);
 
 	// Read if taxilight is turned on
-	bool TaxiLight;
-	pBitStream->Read(TaxiLight);
+	bool bTaxiLight;
+	pBitStream->Read(bTaxiLight);
 
 	// Read the variation
 	unsigned char ucVariation = 0;
@@ -343,18 +343,18 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	
 	// set the lights
 	pVehicle->SetLightsState(bLights);
-	pVehicle->SetTaxiLightsState(TaxiLight);
+	pVehicle->SetTaxiLightsState(bTaxiLight);
 
 	// set the petrol tank health
 	pVehicle->SetPetrolTankHealth(fPetrolTank);
 
 	// set the door angle
 	for(int i = 0; i < 6; i++)
-		pVehicle->SetCarDoorAngle(0,false,fDoor[i]);
+		pVehicle->SetCarDoorAngle(i,false,fDoor[i]);
 
 	// set the window states(broken etc)
 	for(int i = 0; i < 4; i++)
-		pVehicle->SetWindowState(0,bWindow[i]);
+		pVehicle->SetWindowState(i,bWindow[i]);
 
 	// Flag the vehicle as can be streamed in
 	pVehicle->SetCanBeStreamedIn(true);
@@ -713,16 +713,16 @@ void CClientRPCHandler::ScriptingWarpActorIntoVehicle(CBitStream * pBitStream, C
 	EntityId actorId;
 	pBitStream->Read(actorId);
 
-	int vehicleid;
-	pBitStream->Read(vehicleid);
+	EntityId vehicleId;
+	pBitStream->Read(vehicleId);
 
-	int seatid;
-	pBitStream->Read(seatid);
+	int iSeatid;
+	pBitStream->Read(iSeatid);
 
 	if(g_pActorManager->DoesExist(actorId))
 	{
-		unsigned int ped = g_pActorManager->GetScriptingHandle(actorId);
-		g_pActorManager->WarpIntoVehicle(ped, vehicleid, seatid);
+		if(g_pVehicleManager->Exists(vehicleId))
+			g_pActorManager->WarpIntoVehicle(g_pActorManager->GetScriptingHandle(actorId), g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(), iSeatid);
 	}
 }
 
@@ -736,10 +736,7 @@ void CClientRPCHandler::ScriptingRemoveActorFromVehicle(CBitStream * pBitStream,
 	pBitStream->Read(actorId);
 
 	if(g_pActorManager->DoesExist(actorId))
-	{
-		unsigned int ped = g_pActorManager->GetScriptingHandle(actorId);
-		g_pActorManager->RemoveFromVehicle(ped);
-	}
+		g_pActorManager->RemoveFromVehicle(g_pActorManager->GetScriptingHandle(actorId));
 }
 
 void CClientRPCHandler::ScriptingToggleActorNametag(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -900,8 +897,9 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			if(pPlayer->IsSpawned())
 				pPlayer->ClearDieTask();
 
-			// Reset health to 100, otherwise player is "dead"
-			pPlayer->SetHealth(100);
+			// Reset health to 200(IV Health + 100), otherwise player is "dead"
+			if(pPlayer->IsSpawned())
+				pPlayer->SetHealth(200);
 
 			// Spawn player
 			g_pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
@@ -909,7 +907,6 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			// Is there a helmet?
 			if(bHelmet)
 				pPlayer->GiveHelmet();
-
 
 			pBitStream->Read(vehicleId);
 			CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
@@ -1181,21 +1178,23 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
 	int iReason;
 	pBitStream->Read(iReason);
 
-	// Add the refuse message and refuse reason to the chat window
-	g_pChatWindow->AddInfoMessage("Connection Refused.");
-
-	if(iReason == REFUSE_REASON_INVALID_VERSION)
-		g_pChatWindow->AddInfoMessage("You are using an invalid version.");
-	else if(iReason == REFUSE_REASON_NAME_INVALID)
-		g_pChatWindow->AddInfoMessage("You are using an invalid name.");
-	else if(iReason == REFUSE_REASON_NAME_IN_USE)
-		g_pChatWindow->AddInfoMessage("Your name is already in use.");
-	else if(iReason == REFUSE_REASON_ABORTED_BY_SCRIPT)
-		g_pChatWindow->AddInfoMessage("Connection aborted by script!");
-
-	// Disconnect from the server
-	g_pNetworkManager->Disconnect();
+	// Determine the refuse reason
+	String strReason = "Connection refused";
+ 
+ 	if(iReason == REFUSE_REASON_INVALID_VERSION)
+		strReason = "You are using an invalid version.";
+ 	else if(iReason == REFUSE_REASON_NAME_INVALID)
+		strReason = "You are using an invalid name.";
+ 	else if(iReason == REFUSE_REASON_NAME_IN_USE)
+		strReason = "Your name is already in use.";
+ 	else if(iReason == REFUSE_REASON_ABORTED_BY_SCRIPT)
+		strReason = "Connection aborted by script!";
+ 
+ 	// Disconnect from the server & show the message
+ 	g_pNetworkManager->Disconnect();
+	g_pMainMenu->ShowMessageBox(strReason.C_String(),"Connection failed", true, true);
 }
+
 
 void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -2929,6 +2928,10 @@ void CClientRPCHandler::ScriptingSetVehicleFollowMode(CBitStream * pBitStream, C
 
 void CClientRPCHandler::ScriptingSetAmmoInClip(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
 {	
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
 	unsigned int uiAmmoInClip;
 	pBitStream->Read(uiAmmoInClip);
 
@@ -2937,11 +2940,109 @@ void CClientRPCHandler::ScriptingSetAmmoInClip(CBitStream * pBitStream, CPlayerS
 
 void CClientRPCHandler::ScriptingSetAmmo(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
 {	
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
 	unsigned int uiWeapon, uiAmmo;
 	pBitStream->Read(uiWeapon);
 	pBitStream->Read(uiAmmo);
 
 	g_pLocalPlayer->SetAmmo(uiWeapon, uiAmmo);
+}
+
+void CClientRPCHandler::ScriptingCreatePlayerBlip(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
+{	
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId playerId;
+	int iSprite;
+	bool bShortRange;
+	bool bShow;
+
+	pBitStream->ReadCompressed(playerId);
+	pBitStream->Read(iSprite);
+	pBitStream->Read(bShortRange);
+	pBitStream->Read(bShow);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer)
+	{
+		if(!pPlayer->GetBlipActivity() && !pPlayer->IsLocalPlayer())
+		{
+			unsigned int uiHandle;
+			Scripting::AddBlipForChar(pPlayer->GetScriptingHandle(), &uiHandle);
+			Scripting::ChangeBlipSprite(uiHandle, (Scripting::eBlipSprite)iSprite);
+			Scripting::ChangeBlipScale(uiHandle, 0.5);
+			Scripting::ChangeBlipNameFromAscii(uiHandle,  pPlayer->GetName().C_String());
+			pPlayer->SetBlip(uiHandle);
+			pPlayer->SetBlipActive(true);
+		}
+	}
+}
+
+void CClientRPCHandler::ScriptingRemovePlayerBlip(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
+{	
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId playerId;
+
+	pBitStream->ReadCompressed(playerId);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer)
+	{
+		if(pPlayer->GetBlipActivity())
+		{
+			Scripting::RemoveBlip(pPlayer->GetBlip());
+			pPlayer->SetBlipActive(false);
+			pPlayer->SetBlip(NULL);
+		}
+	}
+}
+
+void CClientRPCHandler::ScriptingChangePlayerBlip(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
+{	
+		// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId playerId;
+	int iSprite;
+	bool bShortRange;
+	bool bShow;
+
+	pBitStream->ReadCompressed(playerId);
+	pBitStream->Read(iSprite);
+	pBitStream->Read(bShortRange);
+	pBitStream->Read(bShow);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer)
+	{
+		if(!pPlayer->GetBlipActivity())
+		{
+			unsigned int uiHandle = pPlayer->GetBlip();
+
+			// Apply short range
+			Scripting::SetBlipAsShortRange(uiHandle, bShow);
+
+			// Apply display
+			if(bShow)
+				Scripting::ChangeBlipDisplay(uiHandle,Scripting::BLIP_MODE_SHOW);
+			else if(!bShow)
+				Scripting::ChangeBlipDisplay(uiHandle,Scripting::BLIP_MODE_HIDE);
+
+			// Apply sprite
+			Scripting::ChangeBlipSprite(uiHandle, (Scripting::eBlipSprite)iSprite);
+
+			pPlayer->SetBlipActive(true);
+		}
+	}
 }
 
 void CClientRPCHandler::Register()
@@ -3083,6 +3184,9 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingSetVehicleFollowMode, ScriptingSetVehicleFollowMode);
 	AddFunction(RPC_ScriptingSetAmmoInClip, ScriptingSetAmmoInClip);
 	AddFunction(RPC_ScriptingSetAmmo, ScriptingSetAmmo);
+	AddFunction(RPC_ScriptingCreatePlayerBlip, ScriptingCreatePlayerBlip);
+	AddFunction(RPC_ScriptingRemovePlayerBlip, ScriptingRemovePlayerBlip);
+	AddFunction(RPC_ScriptingChangePlayerBlip, ScriptingChangePlayerBlip);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3224,4 +3328,7 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingSetVehicleFollowMode);
 	RemoveFunction(RPC_ScriptingSetAmmoInClip);
 	RemoveFunction(RPC_ScriptingSetAmmo);
+	RemoveFunction(RPC_ScriptingCreatePlayerBlip);
+	RemoveFunction(RPC_ScriptingRemovePlayerBlip);
+	RemoveFunction(RPC_ScriptingChangePlayerBlip);
 }

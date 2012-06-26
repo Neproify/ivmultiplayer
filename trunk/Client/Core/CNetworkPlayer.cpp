@@ -54,6 +54,8 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	ResetVehicleEnterExit();
 	m_bHealthLocked = false;
 	m_bArmourLocked = false;
+	m_bPlayerBlipCreated = false;
+	m_uiPlayerBlipHandle = NULL;
 	m_bHelmet = false;
 
 	if(IsLocalPlayer())
@@ -431,7 +433,7 @@ void CNetworkPlayer::Kill(bool bInstantly)
 			if(pTask)
 			{
 				// Set it as the ped task
-				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
+				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 			}
 		}
 		// Set the health and armour to 0
@@ -454,7 +456,7 @@ bool CNetworkPlayer::IsDying()
 {
 	if(IsSpawned())
 	{
-		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
+		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 
 		if(pTask)
 		{
@@ -1555,6 +1557,26 @@ void CNetworkPlayer::Pulse()
 		{
 			// Check vehicle entry/exit key
 			CheckVehicleEntryExitKey();
+
+			// Check if our car is death
+			if(m_bVehicleDeathCheck)
+			{
+				if(m_pVehicle)
+				{
+					if(m_pVehicle->GetDriver() == NULL)
+					{
+						if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()))
+						{
+							CBitStream bsDeath;
+							bsDeath.Write(m_pVehicle->GetVehicleId());
+							g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+							m_bVehicleDeathCheck = true;
+						}
+					}
+					else
+						m_bVehicleDeathCheck = false;
+				}
+			}
 		}
 		else
 		{
@@ -1688,13 +1710,13 @@ bool CNetworkPlayer::ClearDieTask()
 {
 	if(IsSpawned())
 	{
-		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
+		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 
 		if(pTask)
 		{
 			if(pTask->GetType() == TASK_COMPLEX_DIE)
 			{
-				m_pPlayerPed->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_PRIMARY);
+				m_pPlayerPed->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 				return true;
 			}
 		}
@@ -1914,6 +1936,20 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 				ClearVehicleEntryTask();
 			}
 		}
+
+		if((int)m_pVehicle->GetHealth() < 0 || (float)m_pVehicle->GetPetrolTankHealth() < 0.0f)
+		{
+			if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()))
+			{
+				CBitStream bsDeath;
+				bsDeath.Write(m_pVehicle->GetVehicleId());
+				g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+				m_bVehicleDeathCheck = true;
+			}
+		}
+
+		// Reset Driver
+		m_pVehicle->SetDriver(NULL);
 
 		// Reset interpolation
 		ResetInterpolation();

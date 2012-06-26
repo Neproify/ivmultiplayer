@@ -30,6 +30,10 @@ private:
 	static SQInteger GetName(SQVM * pVM);
 	static SQInteger SwitchIcon(SQVM * pVM);
 	static SQInteger SwitchIconPlayer(SQVM * pVM);
+	static SQInteger CreatePlayerBlip(SQVM * pVM);
+	static SQInteger DeletePlayerBlip(SQVM * pVM);
+	static SQInteger TogglePlayerShortRange(SQVM * pVM);
+	static SQInteger TogglePlayerBlipDisplay(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

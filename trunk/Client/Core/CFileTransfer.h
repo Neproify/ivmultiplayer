@@ -13,6 +13,7 @@
 #include <list>
 #include <CFileChecksum.h>
 #include <Network/CHttpClient.h>
+#include "CGUI.h"
 
 struct ServerFile
 {
@@ -29,6 +30,8 @@ private:
 	bool                    m_bDownloadingFile;
 	ServerFile            * m_pDownloadFile;
 	FILE                  * m_fDownloadFile;
+	CGUIStaticText		  * m_pFileText;
+	CGUIStaticImage		  * m_pFileImage;
 
 private:
 	static bool  ReceiveHandler(const char * szData, unsigned int uiDataSize, void * pUserData);

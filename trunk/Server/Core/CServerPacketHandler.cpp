@@ -31,6 +31,8 @@ void CServerPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket
 {
 	if(g_pPlayerManager->DoesExist(pSenderSocket->playerId))
 		g_pPlayerManager->Remove(pSenderSocket->playerId, 1);
+	else // User disconnect between playerConnect and playerJoin
+		CLogFile::Printf("[Connect] Authorization for %s failed (connection timed out).", pSenderSocket->GetAddress(false).Get());
 }
 
 void CServerPacketHandler::Register()

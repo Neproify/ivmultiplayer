@@ -24,7 +24,6 @@ extern CLocalPlayer * g_pLocalPlayer;
 CRemotePlayer::CRemotePlayer()
 {
 	m_vehicleId = INVALID_ENTITY_ID;
-	m_uiBlipId = NULL;
 	m_stateType = STATE_TYPE_DISCONNECT;
 	m_bPassenger = false;
 	m_pLastSyncData = NULL;
@@ -54,12 +53,6 @@ bool CRemotePlayer::Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontR
 
 void CRemotePlayer::Destroy()
 {
-	// remove the blip
-	if(m_uiBlipId != NULL)
-	{
-		Scripting::RemoveBlip(m_uiBlipId);
-		m_uiBlipId = NULL;
-	}
 }
 
 void CRemotePlayer::Kill()
@@ -74,11 +67,6 @@ void CRemotePlayer::Init()
 {
 	if(IsSpawned())
 	{
-		Scripting::SetDontActivateRagdollFromPlayerImpact(GetScriptingHandle(), true);
-		Scripting::AddBlipForChar(GetScriptingHandle(), &m_uiBlipId);
-		Scripting::ChangeBlipSprite(m_uiBlipId, Scripting::BLIP_OBJECTIVE);
-		Scripting::ChangeBlipScale(m_uiBlipId, 0.5);
-		Scripting::ChangeBlipNameFromAscii(m_uiBlipId, GetName());
 		ToggleRagdoll(false);
 		SetColor(GetColor());
 		Scripting::SetPedDiesWhenInjured(GetScriptingHandle(), false);
@@ -216,10 +204,10 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		pVehicle->SetPetrolTankHealth(syncPacket->fPetrolHealth);
 
 		// Set their door states
-		for(int i = 0; i < 6; i++)
+		for(int i = 0; i <= 5; i++)
 		{
 			if(pVehicle->GetCarDoorAngle(i) != syncPacket->fDoor[i])
-				pVehicle->SetCarDoorAngle(i,1,syncPacket->fDoor[i]);
+				pVehicle->SetCarDoorAngle(i,false,syncPacket->fDoor[i]);
 		}
 
 		// Check if color set is needed
@@ -242,15 +230,17 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 			pVehicle->SetSirenState(syncPacket->bSirenState);
 
 		// Set their windows
-		for(int i = 0; i < 4; i++)
+		for(int i = 0; i <= 3; i++)
 			pVehicle->SetWindowState(i, syncPacket->bWindow[i]);
 
 		// Set their typres
-		for(int i = 0; i < 6; i++)
+		// TODO get typres from vehice, don't activate -> pure virtual function call >.<
+		/*for(int i = 0; i <= 5; i++)
 		{
 			if(syncPacket->bTyre[i])
 				Scripting::BurstCarTyre(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i);
 		}
+		*/
 
 		// Set their vehicles dirt level
 		if(pVehicle->GetDirtLevel() != syncPacket->fDirtLevel)
@@ -384,7 +374,7 @@ void CRemotePlayer::SetColor(unsigned int uiColor)
 		Scripting::GivePedFakeNetworkName(GetScriptingHandle(),GetName().Get(),uiColor,uiColor,uiColor,uiColor);
 	}
 
-	if(m_uiBlipId != NULL)
-		Scripting::ChangeBlipColour(m_uiBlipId, uiColor);
+	if(GetBlipActivity())
+		Scripting::ChangeBlipColour(GetBlip(), uiColor);
 
 }

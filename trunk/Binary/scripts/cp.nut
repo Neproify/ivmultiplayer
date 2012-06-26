@@ -54,6 +54,7 @@ addEvent("scriptExit", onScriptExit);
 
 function onPlayerConnect(playerID, playerName, playerIP, playerSerial, bHasModdedGameFiles)
 {
+	// Don't use natives here, the player sends only the request, he's NOT connected to the server!
 	sendMessageToAll(playerName + " (" + playerID + ") has connected.", White);
 	if(bHasModdedGameFiles) {
 		return 0; // Don't allow modified game files!
@@ -64,6 +65,7 @@ function onPlayerConnect(playerID, playerName, playerIP, playerSerial, bHasModde
 addEvent("playerConnect", onPlayerConnect);
 
 function onPlayerJoin(playerID) {
+	// Now you can use the natives, because the player is registered at the server
 	setPlayerSpawnLocation(playerID, -341.36, 1144.80, 14.79, 40.114815);
 }
 addEvent("playerJoin", onPlayerJoin);
@@ -76,9 +78,17 @@ function onPlayerDisconnect(playerid, reason)
 		strreason = "Timeout/Crash";
 
 	sendMessageToAll(getPlayerName(playerid) + " (" + playerid + ") has left the server (" + strreason + ").", White);
+	deletePlayerBlip(playerid);
 	return 1;
 }
 addEvent("playerDisconnect", onPlayerDisconnect);
+
+function onSpawn(playerid)
+{
+	createPlayerBlip(playerid, 54);
+	togglePlayerBlipShortRange(playerid,true);
+}
+addEvent("playerSpawn", onSpawn);
 
 function onPlayerCommand(playerid, command)
 {
@@ -594,10 +604,10 @@ function onPlayerCommand(playerid, command)
 }
 addEvent("playerCommand", onPlayerCommand);
 
-function onPlayerDeath(playerid, killerid, killervehicle)
+function onPlayerDeath(playerid, killerid, killerweapon, killervehicle)
 {
 	if(killerid != INVALID_PLAYER_ID)
-		sendMessageToAll("[FF0000FF]" + getPlayerName(playerid) + " [FFFFFFFF](" + playerid + ") was killed by [FFFF0000]" + getPlayerName(killerid) + " [FFFFFFFF](" + killerid + ").", White, true);
+		sendMessageToAll("[FF0000FF]" + getPlayerName(playerid) + " [FFFFFFFF](" + playerid + ") was killed by [FFFF0000]" + getPlayerName(killerid) + " [FFFFFFFF](" + killerid + ")(Weapon: "+killerweapon+").", White, true);
 	else
 		sendMessageToAll(getPlayerName(playerid) + " died");
 

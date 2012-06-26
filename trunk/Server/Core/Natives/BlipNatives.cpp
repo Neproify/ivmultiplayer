@@ -39,6 +39,11 @@ void CBlipNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getBlipName", GetName, -1, "is");
 	pScriptingManager->RegisterFunction("switchBlipIcon", SwitchIcon, 2, "ib");
 	pScriptingManager->RegisterFunction("switchBlipIconForPlayer", SwitchIconPlayer, 3, "iib");
+
+	pScriptingManager->RegisterFunction("createPlayerBlip", CreatePlayerBlip, 2, "ii");
+	pScriptingManager->RegisterFunction("deletePlayerBlip", DeletePlayerBlip, 1, "i");
+	pScriptingManager->RegisterFunction("togglePlayerBlipShortRange", TogglePlayerShortRange, 2, "ib");
+	pScriptingManager->RegisterFunction("togglePlayerBlipDisplay", TogglePlayerBlipDisplay, 2, "ib");
 }
 
 // createBlip(spriteID, x, y, z)
@@ -384,6 +389,7 @@ SQInteger CBlipNatives::SwitchIcon(SQVM * pVM)
 		sq_pushbool(pVM,true);
 		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -407,6 +413,82 @@ SQInteger CBlipNatives::SwitchIconPlayer(SQVM * pVM)
 		sq_pushbool(pVM,true);
 		return 1;
 	}
+
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CBlipNatives::CreatePlayerBlip(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	int iSprite;
+	sq_getinteger(pVM, -1, &iSprite);
+
+	if(g_pPlayerManager->DoesExist(playerId) && !g_pBlipManager->DoesPlayerBlipExist(playerId))
+	{
+		g_pBlipManager->CreateForPlayer(playerId, iSprite, true);
+		sq_pushbool(pVM,true);
+		return 1;
+	}
+
+	sq_pushbool(pVM,false);
+	return 1;
+}
+
+SQInteger CBlipNatives::DeletePlayerBlip(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
+	{
+		g_pBlipManager->DeleteForPlayer(playerId);
+		sq_pushbool(pVM,true);
+		return 1;
+	}
+
+	sq_pushbool(pVM,false);
+	return 1;
+}
+
+SQInteger CBlipNatives::TogglePlayerBlipDisplay(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	SQBool bToggle;
+	sq_getbool(pVM, -1, &bToggle);
+
+	bool bShow = (bToggle != 0);
+	if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
+	{
+		g_pBlipManager->ToggleDisplayForPlayer(playerId, bShow);
+		sq_pushbool(pVM,true);
+		return 1;
+	}
+
+	sq_pushbool(pVM,false);
+	return 1;
+}
+
+SQInteger CBlipNatives::TogglePlayerShortRange(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+
+	SQBool bToggle;
+	sq_getbool(pVM, -1, &bToggle);
+
+	bool bShow = (bToggle != 0);
+	if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
+	{
+		g_pBlipManager->ToggleShortRangeForPlayer(playerId, bShow);
+		sq_pushbool(pVM,true);
+		return 1;
+	}
+
+	sq_pushbool(pVM,false);
 	return 1;
 }

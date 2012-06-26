@@ -251,11 +251,11 @@ CD3D9WebView::CD3D9WebView(int width, int height, EA::WebKit::View * view)
 	this->width = width;
 	this->height = height;
 	float fWidth, fHeight;
-	fWidth = (float)width;
-	fHeight = (float)height;
 	device = g_pGUI->GetDirect3DDevice();
 	D3DXCreateTexture(device, width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture);
 	D3DXCreateSprite(device, &sprite);
+	fWidth = (float)width;
+	fHeight = (float)height;
 
 	view->SetUserData(this);
 

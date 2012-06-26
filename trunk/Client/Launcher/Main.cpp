@@ -116,8 +116,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Check if LaunchGTAIV.exe is already running
 	if(SharedUtility::IsProcessRunning("LaunchGTAIV.exe"))
 	{
-		ShowMessageBox("LaunchGTAIV.exe is already running. Cannot launch IV: Multiplayer.");
-		return 1;
+		if(ShowMessageBox("LaunchGTAIV is already running and needs to be terminated before IV: Multiplayer can be started. Do you want to do that now?", MB_ICONQUESTION | MB_YESNO ) == IDYES)
+		{
+			if(!SharedUtility::_TerminateProcess("LaunchGTAIV.exe"))
+			{
+				ShowMessageBox("LaunchGTAIV.exe could not be terminated. Cannot launch IV: Multiplayer.");
+				return 1;
+			}
+		}
+		else
+		{
+			ShowMessageBox("LaunchGTAIV.exe is already running. Cannot launch IV: Multiplayer.");
+			return 1;
+		}
 	}
 
 	// Generate the command line
