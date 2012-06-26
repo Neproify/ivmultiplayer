@@ -1,4 +1,4 @@
-//============== Copyright © 2010 IV:MP Team. All rights reserved. ==============
+//============== Copyright © 2012 IV:MP Team. All rights reserved. ==============
 // File: Main.cpp
 //===============================================================================
 
