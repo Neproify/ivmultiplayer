@@ -85,7 +85,7 @@ addEvent("playerDisconnect", onPlayerDisconnect);
 
 function onSpawn(playerid)
 {
-	createPlayerBlip(playerid, 54);
+	createPlayerBlip(playerid, 3);
 	togglePlayerBlipShortRange(playerid,true);
 }
 addEvent("playerSpawn", onSpawn);
