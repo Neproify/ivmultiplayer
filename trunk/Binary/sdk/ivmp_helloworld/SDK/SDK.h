@@ -1,4 +1,4 @@
-//============== Copyright © 2010 IV:MP Team. All rights reserved. ==============
+//============== Copyright © 2012 IV:MP Team. All rights reserved. ==============
 // File: Definitions.h
 //===============================================================================
 
@@ -28,6 +28,27 @@ typedef void (* LogPrintf_t)(const char * szFormat, ...);
 #define LogPrintf FuncContainer.myLogPrintf
 
 void RegisterFunction(HSQUIRRELVM pVM, const char * szName, SQFUNCTION pfnFunction);
+
+struct InterfaceContainer_t
+{
+	class CNetworkManagerInterface* g_pNetworkManager;
+	class CPlayerManagerInterface* g_pPlayerManager;
+	class CVehicleManagerInterface* g_pVehicleManager;
+	class CObjectManagerInterface* g_pObjectManager;
+	class CBlipManagerInterface* g_pBlipManager;
+	class CActorManagerInterface* g_pActorManager;
+	class CPickupManagerInterface* g_pPickupManager;
+	class CCheckpointManagerInterface* g_pCheckpointManager;
+	void* g_pModelManager;
+	void* g_pScriptingManager;
+	class CModuleManagerInterface* g_pModuleManager;
+	void* g_pRakServer;
+	void* g_pConfig;
+	class CTimeInterface* g_pTime;
+	class CTrafficLightsInterface* g_pTrafficLights;
+	class CEventsInterface* g_pEvents;
+	class SquirrelArgumentManager* pSquirrelArgumentManager;
+};
 
 struct FuncContainer_t
 {
@@ -152,4 +173,5 @@ struct FuncContainer_t
 	LogPrintf_t myLogPrintf;
 };
 
+extern FuncContainer_t FuncContainer;
 

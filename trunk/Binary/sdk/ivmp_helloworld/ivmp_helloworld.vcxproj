@@ -94,6 +94,24 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SDK\Interfaces\CActorManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CBlipManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CCheckpointManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CEventsInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CModuleInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CModuleManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CNetworkManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CObjectManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CPickupManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CPlayerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CPlayerManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CScriptingManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CSquirrelInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CTimeInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CTrafficLightsInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CVehicleInterface.h" />
+    <ClInclude Include="SDK\Interfaces\CVehicleManagerInterface.h" />
+    <ClInclude Include="SDK\Interfaces\InterfaceCommon.h" />
     <ClInclude Include="SDK\SDK.h" />
     <ClInclude Include="SDK\Squirrel.h" />
     <ClInclude Include="Functions.h" />
