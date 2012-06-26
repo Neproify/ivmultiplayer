@@ -93,13 +93,7 @@ bool CFileTransfer::StartDownload(String strName, String strType)
 
 		// Show message stuff
 		strText.Clear();
-		if(strType == "script")
-			strText.AppendF("[SCRIPT] %s",strName.Get());
-		else if(strType == "resource")
-			strText.AppendF("[RESOURCE] %s",strName.Get());
-		else
-			strText.AppendF("[UNKOWN] %s",strName.Get());
-
+		strText.AppendF("%s",strName.Get());
 		m_pFileImage->setVisible(true);
 		m_pFileText->setText(strText.Get());
 		m_pFileText->setVisible(true);

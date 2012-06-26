@@ -1570,7 +1570,7 @@ void CNetworkPlayer::Pulse()
 							CBitStream bsDeath;
 							bsDeath.Write(m_pVehicle->GetVehicleId());
 							g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
-							m_bVehicleDeathCheck = true;
+							m_bVehicleDeathCheck = false;
 						}
 					}
 					else
@@ -1939,12 +1939,12 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 
 		if((int)m_pVehicle->GetHealth() < 0 || (float)m_pVehicle->GetPetrolTankHealth() < 0.0f)
 		{
+			m_bVehicleDeathCheck = true;
 			if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()))
 			{
 				CBitStream bsDeath;
 				bsDeath.Write(m_pVehicle->GetVehicleId());
 				g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
-				m_bVehicleDeathCheck = true;
 			}
 		}
 
