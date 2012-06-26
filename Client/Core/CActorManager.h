@@ -17,15 +17,15 @@
  {
 	unsigned int    uiActorIndex;
 	CIVModelInfo *  pModelInfo;
-	String		    name;
+	String		    strName;
 	CVector3	    vecPosition;	
-	bool		    nametag;
-	int			    nametagColor;
-	bool			frozen;			
-	bool			helmet;
-	bool			stateincar;
-	int				vehicleid;
-	int				seatid;
+	bool		    bNametag;
+	int			    iNametagColor;
+	bool			bFrozen;			
+	bool			bHelmet;
+	bool			bStateincar;
+	EntityId		vehicleId;
+	int				iSeatid;
 	unsigned int	uiBlipId;
  };
 
@@ -39,20 +39,20 @@ public:
 	CActorManager();
 	~CActorManager();
 
-	void			Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String name, bool togglename, int color, bool frozen, bool helmet);
+	void			Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, int iColor, bool bFrozen, bool bHelmet);
 	bool			Delete(EntityId actorId);
 	void			SetPosition(EntityId actorId, CVector3 vecPosition);
 	CVector3		GetPosition(EntityId actorId);
 	void			SetHeading(EntityId actorId, float fHeading);
-	String			GetName(EntityId actorId) { return m_Actors[actorId].name; }
-	bool			IsNameTagEnabled(EntityId actorId) { return m_Actors[actorId].nametag; }
-	void			SetName(EntityId actorId, String name);
-	int				GetNametagColor(EntityId actorId) { return m_Actors[actorId].nametagColor; }
-	bool			ToggleNametag(EntityId actorId, bool show);
-	void			SetColor(EntityId actorId, int color);
-	bool			ToggleFrozen(EntityId actorId, bool frozen);
-	bool			ToggleHelmet(EntityId actorId, bool helmet);
-	void			WarpIntoVehicle(EntityId actorId, int vehicleid, int seatid);
+	String			GetName(EntityId actorId) { return m_Actors[actorId].strName; }
+	bool			IsNameTagEnabled(EntityId actorId) { return m_Actors[actorId].bNametag; }
+	void			SetName(EntityId actorId, String strName);
+	int				GetNametagColor(EntityId actorId) { return m_Actors[actorId].iNametagColor; }
+	bool			ToggleNametag(EntityId actorId, bool bShow);
+	void			SetColor(EntityId actorId, int Color);
+	bool			ToggleFrozen(EntityId actorId, bool bFrozen);
+	bool			ToggleHelmet(EntityId actorId, bool bHelmet);
+	void			WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iSeatId);
 	void			RemoveFromVehicle(EntityId actorId);
 	bool			IsCharOnScreen(EntityId actorId);
 	bool			DoesExist(EntityId actorId) { return m_bActive[actorId]; };

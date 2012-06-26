@@ -12,15 +12,20 @@
 #include "CNetworkManager.h"
 #include "CEvents.h"
 #include "CModuleManager.h"
+#include "CPlayerManager.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CEvents * g_pEvents;
 extern CModuleManager * g_pModuleManager;
+extern CPlayerManager * g_pPlayerManager;
 
 CBlipManager::CBlipManager()
 {
 	for(EntityId x = 0; x < MAX_BLIPS; x++)
 		m_bActive[x] = false;
+
+	for(EntityId y = 0; y < MAX_PLAYERS; y++)
+		m_bPlayerActive[y] = false;
 }
 
 CBlipManager::~CBlipManager()
@@ -31,6 +36,14 @@ CBlipManager::~CBlipManager()
 			Delete(x);
 
 		m_bActive[x] = false;
+	}
+
+	for(EntityId y = 0; y < MAX_PLAYERS; y++)
+	{
+		if(m_bPlayerActive[y])
+			DeleteForPlayer(y);
+
+		m_bPlayerActive[y] = false;
 	}
 }
 
@@ -232,6 +245,21 @@ void CBlipManager::HandleClientJoin(EntityId playerId)
 
 		g_pNetworkManager->RPC(RPC_NewBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	}
+	if(g_pPlayerManager->GetPlayerCount() > 0)
+	{
+		CBitStream bsSend;
+		for(EntityId y = 0; y < MAX_PLAYERS; y++)
+		{
+			if(m_bPlayerActive[y])
+			{
+				bsSend.WriteCompressed(y);
+				bsSend.Write(m_PlayerBlips[y].iSprite);
+				bsSend.Write(m_PlayerBlips[y].bShortRange);
+				bsSend.Write(m_PlayerBlips[y].bShow);
+			}
+		}
+		g_pNetworkManager->RPC(RPC_ScriptingCreatePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+	}
 }
 
 bool CBlipManager::DoesExist(EntityId blipId)
@@ -268,4 +296,83 @@ void CBlipManager::SwitchIcon(EntityId blipId, bool bShow, EntityId playerId)
 		else
 			g_pNetworkManager->RPC(RPC_ScriptingSetBlipIcon, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	}
+}
+
+void CBlipManager::CreateForPlayer(EntityId playerId, int iSprite, bool bShow)
+{
+	// Check if we already have a blip for the player
+	if(m_bPlayerActive[playerId])
+		return;
+
+	m_bPlayerActive[playerId] = true;
+	m_PlayerBlips[playerId].bShortRange = false;
+	m_PlayerBlips[playerId].iSprite = iSprite;
+	m_PlayerBlips[playerId].bShow = bShow;
+
+	CBitStream bsSend;
+	bsSend.WriteCompressed(playerId);
+	bsSend.Write(m_PlayerBlips[playerId].iSprite);
+	bsSend.Write(m_PlayerBlips[playerId].bShortRange);
+	bsSend.Write(m_PlayerBlips[playerId].bShow);
+	g_pNetworkManager->RPC(RPC_ScriptingCreatePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+
+}
+
+void CBlipManager::DeleteForPlayer(EntityId playerId)
+{
+	// Check if we have a blip for the player
+	if(!m_bPlayerActive[playerId])
+		return;
+
+	CBitStream bsSend;
+	bsSend.WriteCompressed(playerId);
+	g_pNetworkManager->RPC(RPC_ScriptingRemovePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+void CBlipManager::ToggleShortRangeForPlayer(EntityId playerId, bool bToggle)
+{
+	// Check if we have a blip for the player
+	if(!m_bPlayerActive[playerId])
+		return;
+
+	m_PlayerBlips[playerId].bShortRange = bToggle;
+
+	CBitStream bsSend;
+	bsSend.WriteCompressed(playerId);
+	bsSend.Write(m_PlayerBlips[playerId].iSprite);
+	bsSend.Write(m_PlayerBlips[playerId].bShortRange);
+	bsSend.Write(m_PlayerBlips[playerId].bShow);
+	g_pNetworkManager->RPC(RPC_ScriptingChangePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+void CBlipManager::SetSpriteForPlayer(EntityId playerId, int iToggle)
+{
+	// Check if we have a blip for the player
+	if(!m_bPlayerActive[playerId])
+		return;
+
+	m_PlayerBlips[playerId].iSprite = iToggle;
+
+	CBitStream bsSend;
+	bsSend.WriteCompressed(playerId);
+	bsSend.Write(m_PlayerBlips[playerId].iSprite);
+	bsSend.Write(m_PlayerBlips[playerId].bShortRange);
+	bsSend.Write(m_PlayerBlips[playerId].bShow);
+	g_pNetworkManager->RPC(RPC_ScriptingChangePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+void CBlipManager::ToggleDisplayForPlayer(EntityId playerId, bool bToggle)
+{
+	// Check if we have a blip for the player
+	if(!m_bPlayerActive[playerId])
+		return;
+
+	m_PlayerBlips[playerId].bShow = bToggle;
+
+	CBitStream bsSend;
+	bsSend.WriteCompressed(playerId);
+	bsSend.Write(m_PlayerBlips[playerId].iSprite);
+	bsSend.Write(m_PlayerBlips[playerId].bShortRange);
+	bsSend.Write(m_PlayerBlips[playerId].bShow);
+	g_pNetworkManager->RPC(RPC_ScriptingChangePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }

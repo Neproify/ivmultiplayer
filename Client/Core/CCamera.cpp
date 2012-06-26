@@ -132,6 +132,10 @@ void CCamera::GetPosition(CVector3& vecPosition)
 
 void CCamera::SetLookAt(const CVector3& vecLookAt)
 {
+	// If the camera is already activated, deactivate it first!
+	if(m_bScriptCamActive)
+		DeactivateScriptCam();
+
 	// Activate the script cam if needed
 	if(!m_bScriptCamActive)
 		ActivateScriptCam();
@@ -139,7 +143,7 @@ void CCamera::SetLookAt(const CVector3& vecLookAt)
 	// Load the world at the look at
 	CGame::GetStreaming()->LoadWorldAtPosition(vecLookAt);
 
-	// Set the script cam look at
+	// Set the script cam look at | Fix native!
 	Scripting::PointCamAtCoord(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ);
 }
 

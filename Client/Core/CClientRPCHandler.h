@@ -158,6 +158,9 @@ private:
 	static void ScriptingSetVehicleFollowMode(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetAmmoInClip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetAmmo(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void	ScriptingCreatePlayerBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void	ScriptingRemovePlayerBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void	ScriptingChangePlayerBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();

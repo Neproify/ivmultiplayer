@@ -635,6 +635,7 @@ CMainMenu::CMainMenu()
 		CEGUI::ImagesetManager::getSingleton().createFromImageFile("MenuLogo", "IVMPMainMenuLogo.png");
 		CEGUI::ImagesetManager::getSingleton().createFromImageFile("MenuLogoNetwork", "IVMPMainMenuLogoNetwork.png");
 		CEGUI::ImagesetManager::getSingleton().createFromImageFile("RakNet", "RakNet.png");
+		CEGUI::ImagesetManager::getSingleton().createFromImageFile("Download", "Download.png");
 	}
 	catch(CEGUI::InvalidRequestException e)
 	{
@@ -1202,4 +1203,15 @@ void CMainMenu::ResetNetworkStats()
 	m_pHost->setText("-");
 	m_pPlayers->setText("-");
 	m_pMyName->setText("-");
+}
+
+void CMainMenu::ShowMessageBox(const char * szMessage, const char * szHeader, bool bGameMenu, bool bResetGame)
+{
+	g_pGUI->ShowMessageBox(szMessage,szHeader);
+
+	if(bGameMenu)
+		CGame::SetState(GAME_STATE_MAIN_MENU);
+
+	if(bResetGame)
+		ResetGame();
 }

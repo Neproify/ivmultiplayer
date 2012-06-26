@@ -36,7 +36,7 @@
 	<guinametags>false</guinametags>
 	
 	<!-- Toggles the headmovement sync -->
-	<headmovement>true</headmovement>
+	<headmovement>false</headmovement>
 	
 	<!-- The scripts the server will load and run -->
 	<script>cp.nut</script>

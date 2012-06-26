@@ -19,6 +19,11 @@
 extern CClientScriptManager * g_pClientScriptManager;
 extern CChatWindow          * g_pChatWindow;
 extern CNetworkManager      * g_pNetworkManager;
+extern CGUI					* g_pGUI;
+
+#define TRANSFERBOX_WIDTH       350
+#define TRANSFERBOX_HEIGHT      58
+String strText;
 
 CFileTransfer::CFileTransfer()
 {
@@ -28,6 +33,8 @@ CFileTransfer::CFileTransfer()
 	m_bDownloadingFile = false;
 	m_pDownloadFile = NULL;
 	m_fDownloadFile = NULL;
+	m_pFileImage = NULL;
+	m_pFileText = NULL;
 }
 
 bool CFileTransfer::ReceiveHandler(const char * szData, unsigned int uiDataSize, void * pUserData)
@@ -45,6 +52,7 @@ bool CFileTransfer::ReceiveHandler(const char * szData, unsigned int uiDataSize,
 
 bool CFileTransfer::StartDownload(String strName, String strType)
 {
+
 	// Ensure we have a server address set
 	if(m_httpClient.GetHost().IsNotEmpty())
 	{
@@ -83,6 +91,20 @@ bool CFileTransfer::StartDownload(String strName, String strType)
 		// Create the post path string
 		String strPostPath("/%s/%s", strFolderName.Get(), strName.Get());
 
+		// Show message stuff
+		strText.Clear();
+		if(strType == "script")
+			strText.AppendF("[SCRIPT] %s",strName.Get());
+		else if(strType == "resource")
+			strText.AppendF("[RESOURCE] %s",strName.Get());
+		else
+			strText.AppendF("[UNKOWN] %s",strName.Get());
+
+		m_pFileImage->setVisible(true);
+		m_pFileText->setText(strText.Get());
+		m_pFileText->setVisible(true);
+
+
 		// Send the request
 		m_httpClient.Get(strPostPath);
 		return true;
@@ -95,6 +117,35 @@ void CFileTransfer::SetServerInformation(String strAddress, unsigned short usPor
 {
 	m_httpClient.SetHost(strAddress);
 	m_httpClient.SetPort(usPort);
+
+	float fWidth = (float)g_pGUI->GetDisplayWidth();
+	float fHeight = (float)g_pGUI->GetDisplayHeight();
+
+	// Initialize visible stuff
+	if(!m_pFileImage)
+	{
+		m_pFileImage = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+		m_pFileImage->setProperty("FrameEnabled", "false");
+		m_pFileImage->setProperty("BackgroundEnabled", "false");
+		m_pFileImage->setSize(CEGUI::UVector2(CEGUI::UDim(0, (386.0f*1.5f)), CEGUI::UDim(0, (114.0f*1.5f))));
+		m_pFileImage->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/3),  CEGUI::UDim(0, fHeight/2+(fHeight/(float)6.5))));
+		m_pFileImage->setProperty("Image", "set:Download image:full_image");
+		m_pFileImage->setProperty("InheritsAlpha","false");
+		m_pFileImage->setAlpha(0.90f);
+		m_pFileImage->setVisible(false);
+	}
+
+	if(!m_pFileText)
+	{
+		m_pFileText = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+		m_pFileText->setText("FileManager: Downloading now - ");
+		m_pFileText->setSize(CEGUI::UVector2(CEGUI::UDim(TRANSFERBOX_WIDTH, 0), CEGUI::UDim(TRANSFERBOX_HEIGHT, 0)));
+		m_pFileText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/(float)2.75),  CEGUI::UDim(0, fHeight/2-(fHeight/4))));
+		m_pFileText->setProperty("FrameEnabled", "false");
+		m_pFileText->setProperty("BackgroundEnabled", "false");
+		m_pFileText->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
+		m_pFileText->setVisible(false);
+	}
 }
 
 void CFileTransfer::AddFile(String strFileName, CFileChecksum fileChecksum, bool bIsResource)
@@ -245,12 +296,11 @@ void CFileTransfer::Process()
 					// Notice user that file is sucessfully downloaded
 					//g_pChatWindow->AddInfoMessage("File %s sucessfully downloaded.", m_pDownloadFile->strName.C_String());
 
-					
 					// Remove the download file from the file list
 					m_fileList.remove(m_pDownloadFile);
 
 					// Delete the download file
-					delete m_pDownloadFile;
+					SAFE_DELETE(m_pDownloadFile);
 
 					// Reset the download file
 					m_pDownloadFile = NULL;
@@ -260,6 +310,13 @@ void CFileTransfer::Process()
 
 					// Reset out http client
 					m_httpClient.Reset();
+
+					// Wait
+					//Sleep(500);
+
+					// Hide message & image
+					m_pFileText->setVisible(false);
+					m_pFileImage->setVisible(false);
 					
 				}
 				else

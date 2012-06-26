@@ -100,7 +100,7 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 	else if(byteReason == 1)
 		strReason = "Lost Connection";
 
-	CLogFile::Printf("[Part] %s (%d) left the server (%s).", m_pPlayers[playerId]->GetName().Get(), playerId, strReason.Get());
+	CLogFile::Printf("[Quit] %s (%d) left the server (%s).", m_pPlayers[playerId]->GetName().Get(), playerId, strReason.Get());
 
 	delete m_pPlayers[playerId];
 	m_pPlayers[playerId] = NULL;

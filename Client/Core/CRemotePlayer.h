@@ -16,7 +16,6 @@ class CRemotePlayer : public CNetworkPlayer
 {
 private:
 	EntityId			m_vehicleId;
-	unsigned int		m_uiBlipId;
 	eStateType			m_stateType;
 	bool				m_bPassenger;
 	BYTE				m_byteSeatId;

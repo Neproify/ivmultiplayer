@@ -38,12 +38,12 @@ CObjectManager::~CObjectManager()
 		m_bActive[x] = false;
 	}
 
-	for(EntityId x = 0; x < MAX_FIRE; x++)
+	for(EntityId y = 0; y < MAX_FIRE; y++)
 	{
-		if(m_bFireActive[x])
-			DeleteFire(x);
+		if(m_bFireActive[y])
+			DeleteFire(y);
 
-		m_bFireActive[x] = false;
+		m_bFireActive[y] = false;
 	}
 }
 

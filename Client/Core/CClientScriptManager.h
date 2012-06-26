@@ -38,4 +38,5 @@ public:
 	void                      Unload(String strName);
 	bool                      Exists(String strName);
 	void                      LoadAll();
+	void					  RemoveAll();
 };

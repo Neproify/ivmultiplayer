@@ -2550,14 +2550,14 @@ namespace Scripting
 		VEHICLE_TYRE2,
 		VEHICLE_TYRE3,
 		VEHICLE_TYRE4,
-		VEHICLE_TYRE5
+		VEHICLE_TYRE5,
 	};
 
 	enum eVehicleLights
 	{
 		VEHICLE_LIGHTS_0,
 		VEHICLE_LIGHTS_1,
-		VEHICLE_LIGHTS_2
+		VEHICLE_LIGHTS_2,
 	};
 
 	enum eVehicleWindow
@@ -2565,7 +2565,7 @@ namespace Scripting
 		VEHICLE_WINDOW_LEFTFRONT,
 		VEHICLE_WINDOW_RIGHTFRONT,
 		VEHICLE_WINDOW_LEFTREAR,
-		VEHICLE_WINDOW_RIGHTREAR
+		VEHICLE_WINDOW_RIGHTREAR,
 	};
 
 	enum eVehicleExtra
@@ -2575,8 +2575,10 @@ namespace Scripting
 
 	enum eBlipDisplay
 	{
+		// TODO 
+		// fix the values(wrong)
 		BLIP_MODE_HIDE = 4,
-		BLIP_MODE_SHOW = 0
+		BLIP_MODE_SHOW = 0,
 	};
 
 	enum eBlipPriority

@@ -187,7 +187,7 @@ CClientScriptManager::~CClientScriptManager()
 	SAFE_DELETE(m_pScripting);
 
 	for(std::list<ClientScript *>::iterator iter = m_clientScripts.begin(); iter != m_clientScripts.end(); iter++)
-		delete (*iter);
+		SAFE_DELETE (*iter);
 
 	m_clientScripts.clear();
 }
@@ -209,7 +209,7 @@ void CClientScriptManager::RemoveScript(String strName)
 
 		if(pClientScript->strName == strName)
 		{
-			delete pClientScript;
+			SAFE_DELETE (pClientScript);
 			m_clientScripts.remove(pClientScript);
 			CLogFile::Printf("ClientScript %s removed.", strName.Get());
 			return;
@@ -272,5 +272,18 @@ void CClientScriptManager::LoadAll()
 	{
 		ClientScript * pClientScript = (*iter);
 		Load(pClientScript->strName);
+	}
+}
+
+void CClientScriptManager::RemoveAll()
+{
+	for(std::list<ClientScript *>::iterator iter = m_clientScripts.begin(); iter != m_clientScripts.end(); iter++)
+	{
+		CLogFile::Printf("CClientScriptingManager::RemoveAll() -> 1");
+		ClientScript * pClientScript = (*iter);
+		CLogFile::Printf("CClientScriptingManager::RemoveAll() -> 2");
+		SAFE_DELETE(pClientScript);
+		CLogFile::Printf("CClientScriptingManager::RemoveAll() -> 3");
+		m_clientScripts.remove(pClientScript);
 	}
 }

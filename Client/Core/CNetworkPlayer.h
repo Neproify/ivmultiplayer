@@ -57,6 +57,7 @@ private:
 	CVector3          m_vecShotTarget;
 	unsigned short    m_usPing;
 	CNetworkVehicle * m_pVehicle;
+	bool			  m_bVehicleDeathCheck;
 	BYTE              m_byteVehicleSeatId;
 	struct
 	{
@@ -70,6 +71,8 @@ private:
 	unsigned int      m_uiLockedHealth;
 	bool              m_bArmourLocked;
 	unsigned int      m_uiLockedArmour;
+	bool			  m_bPlayerBlipCreated;
+	unsigned int	  m_uiPlayerBlipHandle;
 
 public:
 	CNetworkPlayer(bool bIsLocalPlayer = false);
@@ -208,6 +211,13 @@ public:
 	void                     SetRequestingVehicleEnterExit(bool bRequesting) { m_vehicleEnterExit.bRequesting = bRequesting; }
 	bool                     GetRequestingVehicleEnterExit() { return m_vehicleEnterExit.bRequesting; }
 
+	//
 	void                     ToggleRagdoll(bool bToggle);
 	bool                     IsOnScreen();
+
+	//
+	void					 SetBlip(unsigned int uiHandle) { m_uiPlayerBlipHandle = uiHandle; }
+	unsigned int			 GetBlip() { return m_uiPlayerBlipHandle; }
+	void					 SetBlipActive(bool bActive) { m_bPlayerBlipCreated = bActive; }
+	bool					 GetBlipActivity() { return m_bPlayerBlipCreated; }
 };

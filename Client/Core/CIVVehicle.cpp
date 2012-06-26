@@ -372,11 +372,12 @@ void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
 	{
 		if(bStatus)
 		{
+			DWORD dwAddress = COffsets::FUNC_CVehicle__SetEngineOn;
 			_asm
 	        {
 			   push bUnknown
                mov ecx, pVehicle
-               call COffsets::FUNC_CVehicle__SetEngineOn;
+               call dwAddress
             }
 			/*Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 1, 1);*/
 		}

@@ -160,5 +160,8 @@ enum eRPCIdentfiers
 	RPC_ScriptingDisplayHudNotification,
 	RPC_ScriptingSetVehicleFollowMode,
 	RPC_ScriptingSetAmmoInClip,
-	RPC_ScriptingSetAmmo
+	RPC_ScriptingSetAmmo,
+	RPC_ScriptingCreatePlayerBlip,
+	RPC_ScriptingRemovePlayerBlip,
+	RPC_ScriptingChangePlayerBlip
 };

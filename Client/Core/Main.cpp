@@ -12,6 +12,7 @@
 #ifdef IVMP_WEBKIT
 #include "CD3D9Webkit.hpp"
 #endif
+
 #include <winsock2.h>
 #include <windows.h>
 #include <d3d9.h>
@@ -251,6 +252,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 #ifdef IVMP_DEBUG
 			CCursorHook::Install();
 #endif
+
+			// Initialize the client script manager
+			g_pClientScriptManager = new CClientScriptManager();
+
 			// Initialize the file transfer
 			g_pFileTransfer = new CFileTransfer();
 
@@ -333,6 +338,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 			// Delete our traffic lights
 			SAFE_DELETE(g_pTrafficLights);
+
+			// Delete our client script manager
+			SAFE_DELETE(g_pClientScriptManager);
 
 			// Delete our client task manager
 			SAFE_DELETE(g_pClientTaskManager);
@@ -1070,7 +1078,7 @@ void GameScriptProcess()
 	if(g_bResetGame)
 	{
 		// Reset the game
-		InternalResetGame(true);
+		InternalResetGame(false);
 
 		// Flag the game as no longer needed to reset
 		g_bResetGame = false;
@@ -1176,9 +1184,9 @@ void InternalResetGame(bool bAutoConnect)
 	g_pNetworkManager->Startup(g_strHost, g_usPort, g_strPassword);
 	CLogFile::Printf("Started network manager instance");
 
-	// Remove all client scripts(should fix too a crash)
-	//if(g_pClientScriptManager)
-		//g_pClientScriptManager->~CClientScriptManager();
+	// Remove all clientscripts
+	if(g_pClientScriptManager)
+		g_pClientScriptManager->RemoveAll();
 
 	SAFE_DELETE(g_pClientScriptManager);
 	g_pClientScriptManager = new CClientScriptManager();
@@ -1231,6 +1239,10 @@ void InternalResetGame(bool bAutoConnect)
 
 	CGame::SetGameLoaded(g_bGameLoaded);
 
+	// Reset the network stats
+	g_pMainMenu->ResetNetworkStats();
+
+	// Auto connect(if needed)
 	if(g_pNetworkManager && bAutoConnect)
 		g_pNetworkManager->Connect();
 

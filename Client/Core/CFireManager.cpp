@@ -12,7 +12,6 @@
 #include "Scripting.h"
 
 extern CChatWindow * g_pChatWindow;
-
 extern CGame * g_pGame;
 
 CFireManager::CFireManager()

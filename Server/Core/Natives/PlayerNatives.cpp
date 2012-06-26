@@ -545,6 +545,7 @@ SQInteger CPlayerNatives::SendMessageToAll(SQVM * pVM)
 		bsSend.Write(bAllowFormatting);
 		g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 		sq_pushbool(pVM, true);
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);

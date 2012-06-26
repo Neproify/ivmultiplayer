@@ -189,4 +189,6 @@ void CGraphics::GenerateTextures( IDirect3DTexture9 ** pTexture, DWORD dwColour 
 	for(int xy=0; xy < 8*8; xy++)
 	*pDst16++ = colour16;
 	(*pTexture)->UnlockRect(0);
+
+	m_pDevice->Release();
 }
