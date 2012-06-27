@@ -2024,7 +2024,7 @@ SQInteger CPlayerNatives::forceAnim(SQVM * pVM)
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bsSend.WriteCompressed(playerId);
+		bsSend.Write(playerId);
 		bsSend.Write(String(szGroup));
 		bsSend.Write(String(szAnim));
 		g_pNetworkManager->RPC(RPC_ScriptingForcePlayerAnim, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);

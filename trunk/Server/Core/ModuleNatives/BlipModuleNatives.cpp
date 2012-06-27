@@ -215,4 +215,51 @@ namespace Modules
 
 		return NULL;
 	}
+
+	bool CBlipModuleNatives::CreatePlayerBlip(EntityId playerId, int iSprite)
+	{
+
+		if(g_pPlayerManager->DoesExist(playerId) && !g_pBlipManager->DoesPlayerBlipExist(playerId))
+		{
+			g_pBlipManager->CreateForPlayer(playerId, iSprite, true);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool CBlipModuleNatives::DeletePlayerBlip(EntityId playerId)
+	{
+		if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
+		{
+			g_pBlipManager->DeleteForPlayer(playerId);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool CBlipModuleNatives::TogglePlayerBlipDisplay(EntityId playerId, bool bToggle)
+	{
+		bool bShow = (bToggle != 0);
+		if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
+		{
+			g_pBlipManager->ToggleDisplayForPlayer(playerId, bShow);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool CBlipModuleNatives::TogglePlayerShortRange(EntityId playerId, bool bToggle)
+	{
+		bool bShow = (bToggle != 0);
+		if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
+		{
+			g_pBlipManager->ToggleShortRangeForPlayer(playerId, bShow);
+			return true;
+		}
+
+		return false;
+	}
 }
