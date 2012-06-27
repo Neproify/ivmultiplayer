@@ -54,7 +54,7 @@ void CVehicle::Reset()
 	m_iHornDuration = 0;
 	m_bSirenState = false;
 	m_ucVariation = 0;
-	m_ucLocked = 0;
+	m_iLocked = 0;
 	m_bEngineStatus = false;
 	m_bLights = false;
 	m_fDoor[0] = 0.0f;
@@ -120,7 +120,7 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 
 	bsSend.Write(m_iHornDuration);
 	bsSend.Write(m_bSirenState);
-	bsSend.Write(m_ucLocked);
+	bsSend.Write(m_iLocked);
 	bsSend.WriteBit(m_bEngineStatus);
 	bsSend.Write(m_bLights);
 	bsSend.Write(m_fDoor[0]);
@@ -428,21 +428,21 @@ bool CVehicle::GetSirenState()
 	return m_bSirenState;
 }
 
-bool CVehicle::SetLocked(unsigned char ucLocked)
+bool CVehicle::SetLocked(int iLocked)
 {
-	if(ucLocked >= 0 && ucLocked < 3)
+	if(iLocked >= 0 && iLocked < 3)
 	{
-		m_ucLocked = ucLocked;
+		m_iLocked = iLocked;
 
 		CBitStream bsSend;
 		bsSend.Write(m_vehicleId);
-		bsSend.Write(m_ucLocked);
+		bsSend.Write(iLocked);
 		g_pNetworkManager->RPC(RPC_ScriptingSetVehicleLocked, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 		return true;
 	}
 	else
 	{
-		CLogFile::Printf("Unkown vehicle doorlock state %d (only supported from 0 to 2)!",ucLocked);
+		CLogFile::Printf("Unkown vehicle doorlock state %d (only supported from 0 to 2)!",iLocked);
 		return false;
 	}
 
@@ -451,7 +451,7 @@ bool CVehicle::SetLocked(unsigned char ucLocked)
 
 unsigned char CVehicle::GetLocked()
 {
-	return m_ucLocked;
+	return m_iLocked;
 }
 
 void CVehicle::SetIndicatorState(bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight)

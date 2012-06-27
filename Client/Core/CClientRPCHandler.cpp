@@ -263,8 +263,11 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	bool bSirenState = pBitStream->ReadBit();
 
 	// Read the lock state
-	unsigned char ucLocked;
-	pBitStream->Read(ucLocked);
+	int iLocked;
+	pBitStream->Read(iLocked);
+
+	// Convert int to dword
+	DWORD dwLockState = static_cast<DWORD>(iLocked);
 
 	// Read the engine state
 	bool bEngineStatus = pBitStream->ReadBit();
@@ -333,7 +336,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	pVehicle->SetSirenState(bSirenState);
 
 	// set the locked state
-	pVehicle->SetDoorLockState(ucLocked);
+	pVehicle->SetDoorLockState(dwLockState);
 
 	// set the variation
 	pVehicle->SetVariation(ucVariation);
@@ -977,6 +980,7 @@ void CClientRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSoc
 
 	EntityId playerId;
 	String sChat;
+
 	pBitStream->ReadCompressed(playerId);
 	pBitStream->Read(sChat);
 
@@ -2347,14 +2351,17 @@ void CClientRPCHandler::ScriptingSetVehicleLocked(CBitStream * pBitStream, CPlay
 		return;
 
 	EntityId vehicleId;
-	unsigned char ucLocked;
+	int iLocked;
+
 	pBitStream->Read(vehicleId);
-	pBitStream->Read(ucLocked);
+	pBitStream->Read(iLocked);
+
+	// Convert int to dword
+	DWORD dwLockState = static_cast<DWORD>(iLocked);
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
-
 	if(pVehicle)
-		pVehicle->SetDoorLockState(ucLocked);
+		pVehicle->SetDoorLockState(dwLockState);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerClothes(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

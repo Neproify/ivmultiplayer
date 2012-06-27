@@ -246,7 +246,7 @@ void CServerRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSoc
 
 			CBitStream bsSend;
 			bsSend.WriteCompressed(playerId);
-			bsSend.Write(strChat);
+			bsSend.Write(String(strChat));
 			g_pNetworkManager->RPC(RPC_Chat, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 		}
 	}
