@@ -2722,7 +2722,7 @@ void CClientRPCHandler::ScriptingForcePlayerAnimation(CBitStream * pBitStream, C
 	EntityId playerId;
 	String strGroup;
 	String strAnim;
-	pBitStream->ReadCompressed(playerId);
+	pBitStream->Read(playerId);
 	pBitStream->Read(strGroup);
 	pBitStream->Read(strAnim);
 

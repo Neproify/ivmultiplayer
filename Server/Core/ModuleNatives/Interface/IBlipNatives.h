@@ -30,5 +30,9 @@ namespace Modules
 		virtual bool ToggleRoute(EntityId blipId, bool bToggle, EntityId playerId) = 0;
 		virtual bool SetName(EntityId blipId, const char * szName, EntityId playerId) = 0;
 		virtual const char * GetName(EntityId blipId) = 0;
+		virtual bool CreatePlayerBlip(EntityId playerId, int iSprite) = 0;
+		virtual bool DeletePlayerBlip(EntityId playerId) = 0;
+		virtual bool TogglePlayerBlipDisplay(EntityId playerId, bool bToggle) = 0;
+		virtual bool TogglePlayerShortRange(EntityId playerId, bool bToggle) = 0;
 	};
 }
