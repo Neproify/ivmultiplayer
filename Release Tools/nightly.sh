@@ -1,5 +1,6 @@
 cd ../
 svn up
+make clean
 make
 cd Network.Release
 sh build.sh
