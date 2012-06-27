@@ -94,6 +94,10 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/lockVehicle")
+	{
+		setVehicleLocked(cmd[1].tointeger(),cmd[2].tointeger());
+	}
 	if(cmd[0] == "/setammo")
 	{
 		setPlayerAmmo(playerid,cmd[1].tointeger(),cmd[2].tointeger());

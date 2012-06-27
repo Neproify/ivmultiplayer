@@ -42,7 +42,7 @@ public:
 	virtual void                      SoundHorn(unsigned int iDuration) = 0;
 	virtual void                      SetSirenState(bool bSirenState) = 0;
 	virtual bool                      GetSirenState() = 0;
-	virtual bool                      SetLocked(unsigned char ucLocked) = 0;
+	virtual bool                      SetLocked(int iLocked) = 0;
 	virtual unsigned char             GetLocked() = 0;
 	virtual void                      SetIndicatorState(bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight) = 0;
 	virtual bool                      GetIndicatorState(unsigned char ucSlot) = 0;
