@@ -89,6 +89,8 @@ namespace Scripting
 	static void SwitchCarSiren(unsigned int vehicle, bool on) { NativeInvoke::Invoke<unsigned int>(NATIVE_SWITCH_CAR_SIREN, vehicle, on); }
 	static void SetCarCoordinatesNoOffset(unsigned int vehicle, float x, float y, float z) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CAR_COORDINATES_NO_OFFSET, vehicle, x, y, z); }
 	static void SetVehicleSteerBias(unsigned int vehicle, float bias) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_VEHICLE_STEER_BIAS, vehicle, bias); }
+	static void LockCarDoor(unsigned int vehicle, int flag) { NativeInvoke::Invoke<unsigned int>(NATIVE_LOCK_CAR_DOORS, vehicle, flag); }
+	static void SetCarLightMultiplier(unsigned int vehicle, float multiplier) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CAR_LIGHT_MULTIPLIER, vehicle, multiplier); }
 
 	// Peds
 	static void SetNextDesiredMoveState(ePedMoveState state) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_NEXT_DESIRED_MOVE_STATE, state); }
@@ -126,8 +128,9 @@ namespace Scripting
 	static void PointCamAtCoord(unsigned int cam, float pX, float pY, float pZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_CAM_AT_COORD, cam, pX, pY, pZ); }
 	static void PointCamAtVehicle(unsigned int cam, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_CAM_AT_VEHICLE, cam, vehicle); }
 	static void PointCamFixedAtVehicle(unsigned int cam, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_FIXED_CAM_AT_VEHICLE, cam, vehicle); }
-	static void SetFollowVehicleCamSubmode(unsigned int p0) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_FOLLOW_VEHICLE_CAM_SUBMODE, p0); }
-	static void SetFollowVehicleCamOffset(unsigned int p0, unsigned int p1, unsigned int p2, unsigned int p3) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_FOLLOW_VEHICLE_CAM_OFFSET, p0, p1, p2, p3); }
+	static void SetFollowVehicleCamSubmode(unsigned int mode) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_FOLLOW_VEHICLE_CAM_SUBMODE, mode); }
+	static void SetFollowVehicleCamOffset(unsigned int vehicle, float pX, float pY, float pZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_FOLLOW_VEHICLE_CAM_OFFSET, vehicle, pX, pY, pZ); }
+	static void SetDrunkCam(unsigned int cam, float drunk, int ms) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_DRUNK_CAM, cam, drunk, ms); }
 
 	// Objects
 	static void SetObjectRotation(unsigned int objectIndex, float fX, float fY, float fZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_OBJECT_ROTATION, objectIndex, fX, fY, fZ); }

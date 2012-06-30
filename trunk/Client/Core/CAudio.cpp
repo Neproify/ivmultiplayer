@@ -99,9 +99,8 @@ void CAudio::Pause ( )
 bool CAudio::IsStarted ( )
 {
 	if ( m_bPlayed )
-	{
 		return true;
-	}
+
 	return false;
 }
 
@@ -189,16 +188,17 @@ void CAudioManager::RemoveAll ( )
 {
 	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
 	{
-		m_Audio.remove((*iter));
 		SAFE_DELETE((*iter));
 	}
+	m_Audio.clear();
 }
 
 void CAudioManager::SetAllVolume ( float fVolume )
 {
 	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
 	{
-		(*iter)->SetVolume ( fVolume );
+		if((*iter) && (*iter)->IsStarted())
+			(*iter)->SetVolume ( fVolume );
 	}
 }
 
@@ -214,6 +214,7 @@ void CAudioManager::Process ( )
 {
 	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
 	{
-		(*iter)->Process ( );
+		if((*iter) && (*iter)->IsStarted())
+			(*iter)->Process ( );
 	}
 }

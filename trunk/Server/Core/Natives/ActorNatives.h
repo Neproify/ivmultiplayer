@@ -29,6 +29,7 @@ private:
 	static SQInteger SetName(SQVM * pVM);
 	static SQInteger GetName(SQVM * pVM);
 	static SQInteger ToggleNametag(SQVM * pVM);
+	static SQInteger ToggleBlip(SQVM * pVM);
 	static SQInteger SetColor(SQVM * pVM);
 	static SQInteger GetColor(SQVM * pVM);
 	static SQInteger ToggleFrozen(SQVM * pVM);

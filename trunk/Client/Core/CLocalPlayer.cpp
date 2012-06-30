@@ -319,13 +319,16 @@ void CLocalPlayer::SendOnFootSync()
 	g_pNetworkManager->RPC(RPC_OnFootSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
 	// Send our latest head movement if it's enabled
-	if(CGame::GetHeadMovement()) {
+	if(CGame::GetHeadMovement()) 
+	{
 		CBitStream bsHead;
-		bsHead.Write(GetPlayerId());
-		CVector3 vecLookAt; g_pCamera->GetLookAt(vecLookAt);
+		CVector3 vecLookAt; 
+
+		g_pCamera->GetLookAt(vecLookAt);
 		bsHead.Write(vecLookAt.fX);
 		bsHead.Write(vecLookAt.fY);
 		bsHead.Write(vecLookAt.fZ);
+
 		g_pNetworkManager->RPC(RPC_HeadMovement, &bsHead, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 	}
 }
@@ -377,8 +380,12 @@ void CLocalPlayer::SendInVehicleSync()
 		syncPacket.bLights = pVehicle->GetLightsState();
 
 		// Get the door stuff
-		for(int i = 0; i < 6; i++)
-			syncPacket.fDoor[i] = pVehicle->GetCarDoorAngle(i);
+		syncPacket.fDoor[0] = pVehicle->GetCarDoorAngle(0);
+		syncPacket.fDoor[1] = pVehicle->GetCarDoorAngle(1);
+		syncPacket.fDoor[2] = pVehicle->GetCarDoorAngle(2);
+		syncPacket.fDoor[3] = pVehicle->GetCarDoorAngle(3);
+		syncPacket.fDoor[4] = pVehicle->GetCarDoorAngle(4);
+		syncPacket.fDoor[5] = pVehicle->GetCarDoorAngle(5);
 
 		// Get their health and armour
 		syncPacket.uPlayerHealthArmour = ((GetHealth() << 16) | GetArmour());
@@ -391,20 +398,26 @@ void CLocalPlayer::SendInVehicleSync()
 		syncPacket.bEngineStatus = pVehicle->GetEngineState();
 		
 		// Set default window and typres values & check them
-		for(int i = 0; i <= 3; i++)
+		for(int i = 0; i <= 5; i++)
 		{
-			syncPacket.bWindow[i] = false;
+			if(i < 4)
+			{
+				syncPacket.bWindow[i] = false;
+				syncPacket.bTyre[i] = false;
+			}
+			else if(i > 3)
+				syncPacket.bTyre[i] = false;
+		}
+
+		/*
+		// TODO, get windows!(eVehicleWindow enum)
 			if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)i))
 				syncPacket.bWindow[i] = true;
-		}
 		
 		// TODO, detect tyres from vehicles(2,4, or 6)
-		/*for(int i = 0; i <= 5; i++)
-		{
-			syncPacket.bTyre[i] = false;
 			if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i))
 				syncPacket.bTyre[i] = true;
-		}*/
+		*/
 
 		// Write the in vehicle sync data to the bit stream
 		bsSend.Write((char *)&syncPacket, sizeof(InVehicleSyncData));

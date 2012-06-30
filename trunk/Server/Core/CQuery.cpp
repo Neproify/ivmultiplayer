@@ -315,7 +315,7 @@ bool CQuery::AddRule(String strRule, String strValue)
 		return false;
 
 	// Create a new rule
-	QueryRule * pRule = new QueryRule;
+	QueryRule * pRule = new QueryRule();
 	pRule->strRule = strRule;
 	pRule->strValue = strValue;
 
@@ -334,7 +334,7 @@ bool CQuery::RemoveRule(String strRule)
 		return false;
 
 	// Delete the rule and remove it from the rule list
-	delete pRule;
+	SAFE_DELETE(pRule);
 	m_rules.remove(pRule);
 	return true;
 }

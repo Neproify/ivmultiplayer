@@ -31,7 +31,8 @@ namespace Modules
 		int GetCount();
 		bool SetName(EntityId actorId, const char * szName);
 		const char * GetName(EntityId actorId);
-		bool ToggleNametag(EntityId actorId, bool show);
+		bool ToggleNametag(EntityId actorId, bool bShow);
+		bool ToggleBlip(EntityId actorId, bool bShow);
 		bool SetColor(EntityId actorId, int color);
 		int GetColor(EntityId actorId);
 		bool ToggleFrozen(EntityId actorId, bool frozen);

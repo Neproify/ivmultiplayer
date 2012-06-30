@@ -152,6 +152,8 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	CGame::SetInputState(true);
 	CGame::SetState(GAME_STATE_INGAME);
+	String strText = "Please wait a moment while initialing all resources ....";
+	Scripting::PrintStringWithLiteralStringNow("STRING", strText, 2000, 1);
 	g_pChatWindow->AddInfoMessage("Successfully joined %s.", sHostName.C_String());
 }
 
@@ -275,12 +277,12 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// Read the door angles
 	float fDoor[6];
-	for(int i = 0; i < 6; i++)
+	for(int i = 0; i <= 5; i++)
 		pBitStream->Read(fDoor[i]);
 
 	// Read the window states
 	bool bWindow[4];
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i <= 3; i++)
 		pBitStream->Read(bWindow[i]);
 
 	// Read if taxilight is turned on
@@ -335,28 +337,28 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	// Set the vehicle siren state
 	pVehicle->SetSirenState(bSirenState);
 
-	// set the locked state
+	// Set the locked state
 	pVehicle->SetDoorLockState(dwLockState);
 
-	// set the variation
+	// Set the variation
 	pVehicle->SetVariation(ucVariation);
 
-	// set the engine status
+	// Set the engine status
 	pVehicle->SetEngineState(bEngineStatus);
 	
-	// set the lights
+	// Set the lights
 	pVehicle->SetLightsState(bLights);
 	pVehicle->SetTaxiLightsState(bTaxiLight);
 
-	// set the petrol tank health
+	// Set the petrol tank health
 	pVehicle->SetPetrolTankHealth(fPetrolTank);
 
-	// set the door angle
-	for(int i = 0; i < 6; i++)
+	// Set the door angle
+	for(int i = 0; i <= 5; i++)
 		pVehicle->SetCarDoorAngle(i,false,fDoor[i]);
 
-	// set the window states(broken etc)
-	for(int i = 0; i < 4; i++)
+	// Set the window states(broken etc)
+	for(int i = 0; i <= 3; i++)
 		pVehicle->SetWindowState(i,bWindow[i]);
 
 	// Flag the vehicle as can be streamed in
@@ -674,8 +676,7 @@ void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSende
 	String name;
 	bool togglename;
 	int color;
-	bool frozen;
-	bool helmet;
+	bool frozen, helmet, bBlip;
 
 	while(pBitStream->ReadCompressed(actorId))
 	{
@@ -687,8 +688,9 @@ void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSende
 		pBitStream->Read(color);
 		pBitStream->Read(frozen);
 		pBitStream->Read(helmet);
+		pBitStream->Read(bBlip);
 
-		g_pActorManager->Create(actorId, iModelId, vecPosition, fHeading, name, togglename, color, frozen, helmet);
+		g_pActorManager->Create(actorId, iModelId, vecPosition, fHeading, name, togglename, color, frozen, helmet, bBlip);
 	}
 }
 
@@ -751,10 +753,25 @@ void CClientRPCHandler::ScriptingToggleActorNametag(CBitStream * pBitStream, CPl
 	EntityId actorId;
 	pBitStream->Read(actorId);
 
-	bool show;
-	pBitStream->Read(show);
+	bool bShow;
+	pBitStream->Read(bShow);
 
-	g_pActorManager->ToggleNametag(actorId,show);
+	g_pActorManager->ToggleNametag(actorId,bShow);
+}
+
+void CClientRPCHandler::ScriptingToggleActorBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId actorId;
+	pBitStream->Read(actorId);
+
+	bool bShow;
+	pBitStream->Read(bShow);
+
+	g_pActorManager->ToggleBlip(actorId,bShow);
 }
 
 void CClientRPCHandler::ScriptingSetActorColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1315,13 +1332,14 @@ void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 
 	EntityId playerId;
 	CVector3 vecAim;
-	pBitStream->Read(playerId);
+
+	pBitStream->ReadCompressed(playerId);
 	pBitStream->Read(vecAim.fX);
 	pBitStream->Read(vecAim.fY);
 	pBitStream->Read(vecAim.fZ);
 
-	//if(g_pPlayerManager->DoesExist(playerId))
-		//Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(playerId)->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, -2, 0);
+	if(g_pPlayerManager->DoesExist(playerId))
+		Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(playerId)->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, TICK_RATE, 0);
 }
 
 void CClientRPCHandler::NameChange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1570,21 +1588,19 @@ void CClientRPCHandler::ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlay
 	Scripting::SetCharGravity(g_pLocalPlayer->GetScriptingHandle(), grav);
 }
 
-// Broken :(
 /*void CClientRPCHandler::SetPlayerDrunk(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
-	bool toggle;
-	pBitStream->Read();
-	Scripting::SetPedIsDrunk(g_pLocalPlayer->GetPlayerIndex(), !toggle);
-}*/
+	bool bToggle;
+	bToggle = pBitStream->ReadBit();
 
+	Scripting::SetPedIsDrunk(g_pLocalPlayer->GetScriptingHandle(), !bToggle);
+}
 
-// TODO!!!! - Wont work that way (Error @compiling)
-/*void CClientRPCHandler::SetVehicleGravity(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+void CClientRPCHandler::SetVehicleGravity(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
@@ -1597,7 +1613,7 @@ void CClientRPCHandler::ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlay
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
 	if(pVehicle)
-		Scripting::SetCharGravity(pVehicle, grav);
+		//TODO
 }*/
 
 void CClientRPCHandler::ScriptingSetVehicleIndicators(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1631,11 +1647,9 @@ void CClientRPCHandler::ScriptingSoundVehicleHorn(CBitStream * pBitStream, CPlay
 		return;
 
 	EntityId vehicleId;
-
 	unsigned int iDuration;
 
 	pBitStream->Read(vehicleId);
-
 	pBitStream->Read(iDuration);
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
@@ -2356,12 +2370,13 @@ void CClientRPCHandler::ScriptingSetVehicleLocked(CBitStream * pBitStream, CPlay
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(iLocked);
 
-	// Convert int to dword
-	DWORD dwLockState = static_cast<DWORD>(iLocked);
+	//// Convert int to dword
+	//DWORD dwLockState = static_cast<DWORD>(iLocked);
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 	if(pVehicle)
-		pVehicle->SetDoorLockState(dwLockState);
+		Scripting::LockCarDoor(pVehicle->GetScriptingHandle(),iLocked);
+	//pVehicle->SetDoorLockState(dwLockState);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerClothes(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2755,7 +2770,7 @@ void CClientRPCHandler::ScriptingForceActorAnimation(CBitStream * pBitStream, CP
 	pBitStream->Read(strAnim);
 
 	if(g_pActorManager->DoesExist(actorId))
-		g_pActorManager->ForceAnimation(actorId,strGroup,strAnim);
+		g_pActorManager->ForceAnimation(actorId,strGroup.Get(),strAnim.Get());
 }
 
 void CClientRPCHandler::ScriptingBlockWeaponScroll(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2840,7 +2855,7 @@ void CClientRPCHandler::ScriptingPlayGameAudio(CBitStream * pBitStream, CPlayerS
 	pBitStream->Read(szMusic);
 
 	// TODO, try to call it with params(szMusic,NULL, SND_FILENAME | SND_ASYNC)
-	// Scripting::TriggerGameSound(szMusic.C_String());
+	// Scripting::TriggerGameSound(szMusic.Get());
 }
 
 void CClientRPCHandler::ScriptingRequestAnims(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3138,6 +3153,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingActorWalkToCoordinates, ScriptingActorWalkToCoordinates);
 	AddFunction(RPC_ScriptingSetActorName, ScriptingSetActorName);
 	AddFunction(RPC_ScriptingToggleActorNametag, ScriptingToggleActorNametag);
+	AddFunction(RPC_ScriptingToggleActorBlip, ScriptingToggleActorBlip);
 	AddFunction(RPC_ScriptingSetActorColor, ScriptingSetActorColor);
 	AddFunction(RPC_ScriptingToggleActorFrozen, ScriptingToggleActorFrozen);
 	AddFunction(RPC_ScriptingToggleActorHelmet, ScriptingToggleActorHelmet);
@@ -3282,6 +3298,7 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingActorWalkToCoordinates);
 	RemoveFunction(RPC_ScriptingSetActorName);
 	RemoveFunction(RPC_ScriptingToggleActorNametag);
+	RemoveFunction(RPC_ScriptingToggleActorBlip);
 	RemoveFunction(RPC_ScriptingSetActorColor);
 	RemoveFunction(RPC_ScriptingToggleActorFrozen);
 	RemoveFunction(RPC_ScriptingToggleActorFrozen);

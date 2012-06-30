@@ -30,7 +30,8 @@ namespace Modules
 		virtual int GetCount() = 0;
 		virtual bool SetName(EntityId actorId, const char * szName) = 0;
 		virtual const char * GetName(EntityId actorId) = 0;
-		virtual bool ToggleNametag(EntityId actorId, bool show) = 0;
+		virtual bool ToggleNametag(EntityId actorId, bool bShow) = 0;
+		virtual bool ToggleBlip(EntityId actorId, bool bShow) = 0;
 		virtual bool SetColor(EntityId actorId, int color) = 0;
 		virtual int GetColor(EntityId actorId) = 0;
 		virtual bool ToggleFrozen(EntityId actorId, bool frozen) = 0;

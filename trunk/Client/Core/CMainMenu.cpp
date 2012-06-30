@@ -99,11 +99,12 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
 	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 	{
-		g_pChatWindow->SetEnabled(true);
 		ResetGame();
 		g_pNetworkManager->Disconnect();
         CGame::SetState(GAME_STATE_MAIN_MENU);
         SetDisconnectButtonVisible(false);
+		g_pChatWindow->SetEnabled(true);
+
 		for(int i = 0; i < 10; i++)
 			g_pChatWindow->AddMessage(0xFFFFFFAA,false," ");
 

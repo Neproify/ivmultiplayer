@@ -486,6 +486,23 @@ void _declspec(naked) GetPlayerPedFromPlayerInfo_Hook()
 		retn
 	}
 }
+DWORD dwAddJump;
+void _declspec(naked) CameraPointAtCoord(CVector3 * vecLookAt)
+{
+	_asm push ebp;
+	_asm mov ebp, esp;
+	_asm mov eax, [ebp+0Ch];
+	_asm mov vecLookAt, eax;
+	_asm pushad;
+
+	dwAddJump = ( 0xAFE840 + 0x6 );
+
+	_asm popad;
+	_asm push ebp;
+	_asm mov ebp, esp;
+	_asm and esp, 0FFFFFFF0h;
+	_asm jmp dwAddJump;
+}
 
 bool CGame::Patch()
 {
@@ -590,6 +607,9 @@ bool CGame::Patch()
 
 		// Disable sleep
 		*(DWORD *)(GetBase() + 0x401835) = 1;
+
+		// Hook for pointcamatcoord
+		//CPatcher::InstallJmpPatch((GetBase() + 0xAFE840), (DWORD)CameraPointAtCoord);
 
 		// Don't initialize error reporting
 		CPatcher::InstallRetnPatch(GetBase() + 0xD356D0);
@@ -1660,4 +1680,23 @@ void CGame::InstallAnimGroups()
 	Scripting::RequestAnims("visemes@f_lo");
 	Scripting::RequestAnims("visemes@m_hi");
 	Scripting::RequestAnims("visemes@m_lo");
+}
+
+DWORD CGame::GetNativeAddress(DWORD dwNative)
+{
+	DWORD dwFunc = COffsets::FUNC_ScrVM__FindNativeAddress;
+	DWORD dwNativeFunc = NULL;
+	_asm
+	{
+		push esi
+		mov esi, dwNative
+		call dwFunc
+		pop esi
+		mov dwNativeFunc, eax
+	}
+
+	if(dwNativeFunc != NULL)
+		return dwNativeFunc;
+
+	return -1;
 }

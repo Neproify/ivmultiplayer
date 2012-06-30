@@ -30,7 +30,7 @@ CActorManager::~CActorManager()
 	}
 }
 
-void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, int iColor, bool bFrozen, bool bHelmet)
+void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, int iColor, bool bFrozen, bool bHelmet, bool bBlip)
 {
 	if(m_bActive[actorId])
 		Delete(actorId);
@@ -74,10 +74,13 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 
 	if(!CGame::GetNameTags())
 	{
-		Scripting::AddBlipForChar(m_Actors[actorId].uiActorIndex, &m_Actors[actorId].uiBlipId);
-		Scripting::ChangeBlipSprite(m_Actors[actorId].uiBlipId, Scripting::BLIP_OBJECTIVE);
-		Scripting::ChangeBlipScale(m_Actors[actorId].uiBlipId, 0.5);
-		Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].strName.Get());
+		if(bBlip)
+		{
+			Scripting::AddBlipForChar(m_Actors[actorId].uiActorIndex, &m_Actors[actorId].uiBlipId);
+			Scripting::ChangeBlipSprite(m_Actors[actorId].uiBlipId, Scripting::BLIP_OBJECTIVE);
+			Scripting::ChangeBlipScale(m_Actors[actorId].uiBlipId, 0.5);
+			Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].strName.Get());
+		}
 		Scripting::RemoveFakeNetworkNameFromPed(m_Actors[actorId].uiActorIndex);
 		Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,strName.Get(),255,255,255,255);
 	}
@@ -169,6 +172,21 @@ bool CActorManager::ToggleNametag(EntityId actorId, bool bShow)
 	{
 		m_Actors[actorId].bNametag = bShow;
 		return 1;
+	}
+	return false;
+}
+
+bool CActorManager::ToggleBlip(EntityId actorId, bool bShow)
+{
+	if(m_bActive[actorId])
+	{
+		if(bShow)
+			Scripting::AddBlipForChar(m_Actors[actorId].uiActorIndex, &m_Actors[actorId].uiBlipId);
+		else if(!bShow)
+			Scripting::RemoveBlip(m_Actors[actorId].uiBlipId);
+		
+		m_Actors[actorId].bBlip = bShow;
+		return true;
 	}
 	return false;
 }

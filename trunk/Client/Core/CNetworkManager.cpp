@@ -178,7 +178,7 @@ void CNetworkManager::Connect()
 			g_pChatWindow->AddInfoMessage("Establishing connection to %s:%d...", m_pNetClient->GetHost(), m_pNetClient->GetPort());
 			break;
 		case INVALID_PARAMETER:
-			g_pChatWindow->AddInfoMessage("Connection failed! (Invalid Parameter)");
+			g_pChatWindow->AddInfoMessage("Connection failed! (Invalid Parameter(Different Client-Server version))");
 			break;
 		case CANNOT_RESOLVE_DOMAIN_NAME:
 			g_pChatWindow->AddInfoMessage("Connection failed! (Cannot Resolve Domain Name)");

@@ -277,13 +277,11 @@ void CClientScriptManager::LoadAll()
 
 void CClientScriptManager::RemoveAll()
 {
+	m_pScripting->UnloadAll();
 	for(std::list<ClientScript *>::iterator iter = m_clientScripts.begin(); iter != m_clientScripts.end(); iter++)
 	{
-		CLogFile::Printf("CClientScriptingManager::RemoveAll() -> 1");
 		ClientScript * pClientScript = (*iter);
-		CLogFile::Printf("CClientScriptingManager::RemoveAll() -> 2");
 		SAFE_DELETE(pClientScript);
-		CLogFile::Printf("CClientScriptingManager::RemoveAll() -> 3");
-		m_clientScripts.remove(pClientScript);
 	}
+	m_clientScripts.clear();
 }

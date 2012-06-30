@@ -1078,7 +1078,7 @@ void GameScriptProcess()
 	if(g_bResetGame)
 	{
 		// Reset the game
-		InternalResetGame(false);
+		InternalResetGame(true);
 
 		// Flag the game as no longer needed to reset
 		g_bResetGame = false;
@@ -1188,10 +1188,6 @@ void InternalResetGame(bool bAutoConnect)
 	if(g_pClientScriptManager)
 		g_pClientScriptManager->RemoveAll();
 
-	SAFE_DELETE(g_pClientScriptManager);
-	g_pClientScriptManager = new CClientScriptManager();
-	CLogFile::Printf("Created client script manager instance");
-
 	// Reset file transfer
 	g_pFileTransfer->Reset();
 
@@ -1218,8 +1214,16 @@ void InternalResetGame(bool bAutoConnect)
 	Scripting::AllowStuntJumpsToTrigger(false);
 	CLogFile::Printf("Reset world");
 
+	// Destroy the camera and create it again
+	if(g_pCamera)
+	{
+		g_pCamera->~CCamera();
+		g_pCamera = NULL;
+	}
 	if(!g_pCamera)
-		g_pCamera = new CCamera(); CLogFile::Printf("Created camera instance");
+		g_pCamera = new CCamera(); 
+	
+	CLogFile::Printf("Created/Reseted camera instance");
 
 	if(g_pLocalPlayer)
 		g_pLocalPlayer->SetControl(true);

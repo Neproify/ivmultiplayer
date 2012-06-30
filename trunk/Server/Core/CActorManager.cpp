@@ -45,6 +45,7 @@ EntityId CActorManager::Create(int iModelId, CVector3 vecPosition, float fHeadin
 			m_Actors[x].color = 0xFFFFFFAA;
 			m_Actors[x].frozen = false;
 			m_Actors[x].helmet = false;
+			m_Actors[x].bBlip = true;
 
 			CBitStream bsSend;
 			bsSend.WriteCompressed(x);
@@ -56,6 +57,7 @@ EntityId CActorManager::Create(int iModelId, CVector3 vecPosition, float fHeadin
 			bsSend.Write(m_Actors[x].color);
 			bsSend.Write(m_Actors[x].frozen);
 			bsSend.Write(m_Actors[x].helmet);
+			bsSend.Write(m_Actors[x].bBlip);
 
 			g_pNetworkManager->RPC(RPC_NewActor, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 			m_Actors[x].iModelId = iModelId;
@@ -174,6 +176,7 @@ void CActorManager::HandleClientJoin(EntityId playerId)
 				bsSend.Write(m_Actors[x].color);
 				bsSend.Write(m_Actors[x].frozen);
 				bsSend.Write(m_Actors[x].helmet);
+				bsSend.Write(m_Actors[x].bBlip);
 			}
 		}
 
@@ -189,13 +192,26 @@ bool CActorManager::DoesExist(EntityId actorId)
 	return m_bActive[actorId];
 }
 
-bool CActorManager::ToggleNametag(EntityId actorId, bool show)
+bool CActorManager::ToggleNametag(EntityId actorId, bool bShow)
 {
-	m_Actors[actorId].togglename = show;
+	m_Actors[actorId].togglename = bShow;
 	CBitStream bsSend;
 	bsSend.Write(actorId);
-	bsSend.Write(show);
+	bsSend.Write(bShow);
 	g_pNetworkManager->RPC(RPC_ScriptingToggleActorNametag, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	return 1;
+}
+
+bool CActorManager::ToggleBlip(EntityId actorId, bool bShow)
+{
+	if(m_Actors[actorId].bBlip != bShow)
+	{
+		m_Actors[actorId].bBlip = bShow;
+		CBitStream bsSend;
+		bsSend.Write(actorId);
+		bsSend.Write(bShow);
+		g_pNetworkManager->RPC(RPC_ScriptingToggleActorBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	}
 	return 1;
 }
 

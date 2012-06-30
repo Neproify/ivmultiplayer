@@ -1576,6 +1576,8 @@ void CNetworkPlayer::Pulse()
 					else
 						m_bVehicleDeathCheck = false;
 				}
+				else
+					m_bVehicleDeathCheck = false;
 			}
 		}
 		else
@@ -1945,6 +1947,7 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 				CBitStream bsDeath;
 				bsDeath.Write(m_pVehicle->GetVehicleId());
 				g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+				m_bVehicleDeathCheck = false;
 			}
 		}
 

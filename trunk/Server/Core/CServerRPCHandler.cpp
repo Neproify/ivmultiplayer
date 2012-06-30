@@ -747,10 +747,10 @@ void CServerRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 		return;
 
 	// Check if frequentevents and headmovement is enabled
-	if(CVAR_GET_BOOL("frequentevents") && CVAR_GET_BOOL("headmovement"))
+	if(CVAR_GET_BOOL("headmovement"))
 	{
 		CBitStream bsSend;
-		bsSend.Write(playerId);
+		bsSend.WriteCompressed(playerId);
 		bsSend.Write(vecAim.fX);
 		bsSend.Write(vecAim.fY);
 		bsSend.Write(vecAim.fZ);
@@ -759,7 +759,7 @@ void CServerRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 		if(pPlayer)
 		{
 			pPlayer->UpdateHeadMoveSync(vecAim);
-			g_pNetworkManager->RPC(RPC_HeadMovement, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED, pPlayer->GetPlayerId(), true);
+			g_pNetworkManager->RPC(RPC_HeadMovement, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED, INVALID_ENTITY_ID, true);
 		}
 	}
 }

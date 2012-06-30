@@ -80,6 +80,7 @@ enum eRPCIdentfiers
 	RPC_ScriptingActorWalkToCoordinates,
 	RPC_ScriptingSetActorName,
 	RPC_ScriptingToggleActorNametag,
+	RPC_ScriptingToggleActorBlip,
 	RPC_ScriptingSetActorColor,
 	RPC_ScriptingToggleActorFrozen,
 	RPC_ScriptingToggleActorHelmet,

@@ -94,6 +94,10 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/behind")
+	{
+		setCameraBehindPlayer(playerid);
+	}
 	if(cmd[0] == "/lockVehicle")
 	{
 		setVehicleLocked(cmd[1].tointeger(),cmd[2].tointeger());

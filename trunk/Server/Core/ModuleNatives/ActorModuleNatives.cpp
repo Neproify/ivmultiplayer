@@ -155,17 +155,28 @@ namespace Modules
 	}
 
 	// toggleActorNametag(actorid, toggle)
-	bool CActorModuleNatives::ToggleNametag(EntityId actorId, bool show)
+	bool CActorModuleNatives::ToggleNametag(EntityId actorId, bool bShow)
 	{
 		if(g_pActorManager->DoesExist(actorId))
 		{
-			bool bToggle = (show != 0);
+			bool bToggle = (bShow != 0);
 			g_pActorManager->ToggleNametag(actorId, bToggle);
 			return true;
 		}
 		return false;
 	}
 
+	// toggleActorBlip(actorid, toggle)
+	bool CActorModuleNatives::ToggleBlip(EntityId actorId, bool bShow)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{
+			bool bToggle = (bShow != 0);
+			g_pActorManager->ToggleBlip(actorId, bToggle);
+			return true;
+		}
+		return false;
+	}
 	// setActorNametagColor(actorid, color)
 	bool CActorModuleNatives::SetColor(EntityId actorId, int color)
 	{
