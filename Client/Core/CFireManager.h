@@ -9,7 +9,6 @@
 
 #pragma once
 #include <Common.h>
-#define MAX_FIRE 32
 
 struct _Fire
 {

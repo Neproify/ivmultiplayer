@@ -105,6 +105,7 @@ private:
 	static void ScriptingActorWalkToCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetActorName(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingToggleActorNametag(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingToggleActorBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetActorColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingToggleActorFrozen(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingToggleActorHelmet(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

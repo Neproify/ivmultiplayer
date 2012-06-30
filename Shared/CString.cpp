@@ -376,7 +376,7 @@ int String::ToInteger() const
 void String::FromInteger(int iValue)
 {
 	char szBuffer[64];
-	Set(itoa(iValue, szBuffer, 10));
+	Set(_itoa(iValue, szBuffer, 10));
 }
 
 float String::ToFloat() const

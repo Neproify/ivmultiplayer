@@ -36,10 +36,8 @@ private:
 
 		if(dwNativeFunc != NULL)
 			((NativeCall)dwNativeFunc)(pNativeContext);
-#ifdef IVMP_DEBUG
 		else
-			CLogFile::Printf("Failed to find native address of hash 0x%p", uiHash);
-#endif
+			CLogFile::PrintDebugf("Failed to find native address of hash 0x%p", uiHash);
 	}
 
 public:

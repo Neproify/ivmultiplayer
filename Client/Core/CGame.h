@@ -120,4 +120,5 @@ public:
 	static bool			   GetHeadMovement() { return m_bHeadMovement; }
 	static void			   SetGameLoaded(bool load) { m_bGameLoaded = load; }
 	static bool			   IsGameLoaded() { return m_bGameLoaded; }
+	static DWORD		   GetNativeAddress(DWORD dwNative);
 };

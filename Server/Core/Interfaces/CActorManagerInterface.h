@@ -23,7 +23,8 @@ public:
 	virtual String		GetActorName(EntityId actorId) = 0;
 	virtual void		SetColor(EntityId actorId, int color) = 0;
 	virtual int			GetColor(EntityId actorId) = 0;
-	virtual bool		ToggleNametag(EntityId actorId, bool show) = 0;
+	virtual bool		ToggleNametag(EntityId actorId, bool bShow) = 0;
+	virtual bool		ToggleBlip(EntityId actorId, bool bShow) = 0;
 	virtual bool		ToggleFrozen(EntityId actorId, bool frozen) = 0;
 	virtual bool		ToggleHelmet(EntityId actorId, bool helmet) = 0;
 	virtual void		WarpIntoVehicle(EntityId actorId, int vehicleid, int seatid) = 0;

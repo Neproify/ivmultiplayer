@@ -18,8 +18,9 @@ struct _Actor
 	int			iModelId;
 	CVector3	vecPosition;
 	float		fHeading;
-	String		name;		
+	String		name;
 	bool		togglename;
+	bool		bBlip;
 	int			color;
 	bool		frozen;
 	bool		helmet;
@@ -48,7 +49,8 @@ public:
 	String		GetActorName(EntityId actorId);
 	void		SetColor(EntityId actorId, int color);
 	int			GetColor(EntityId actorId) { return m_Actors[actorId].color; }
-	bool		ToggleNametag(EntityId actorId, bool show);
+	bool		ToggleNametag(EntityId actorId, bool bShow);
+	bool		ToggleBlip(EntityId actorId, bool bShow);
 	bool		ToggleFrozen(EntityId actorId, bool frozen);
 	bool		ToggleHelmet(EntityId actorId, bool helmet);
 	void		WarpIntoVehicle(EntityId actorId, int vehicleid, int seatid);

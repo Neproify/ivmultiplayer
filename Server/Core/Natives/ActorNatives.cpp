@@ -37,6 +37,7 @@ void CActorNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("setActorName",SetName,2,"is");
 	pScriptingManager->RegisterFunction("getActorName",GetName,1,"i");
 	pScriptingManager->RegisterFunction("toggleActorNametag", ToggleNametag, 2, "ib");
+	pScriptingManager->RegisterFunction("toggleActorBlip", ToggleBlip, 2, "ib");
 	pScriptingManager->RegisterFunction("setActorNametagColor",SetColor,2,"ii");
 	pScriptingManager->RegisterFunction("getActorNametagColor",GetColor,1,"i");
 	pScriptingManager->RegisterFunction("toggleActorFrozen",ToggleFrozen,2,"ib");
@@ -278,6 +279,23 @@ SQInteger CActorNatives::ToggleNametag(SQVM * pVM)
 	return 1;
 }
 
+// toggleActorBlip(actorid, toggle)
+SQInteger CActorNatives::ToggleBlip(SQVM * pVM)
+{
+	EntityId actorId;
+	SQBool show;
+	sq_getentity(pVM, -2, &actorId);
+	sq_getbool(pVM, -1, &show);
+		
+	if(g_pActorManager->DoesExist(actorId))
+	{
+		bool bToggle = (show != 0);
+		g_pActorManager->ToggleBlip(actorId, bToggle);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
 // setActorNametagColor(actorid, color)
 SQInteger CActorNatives::SetColor(SQVM * pVM)
 {

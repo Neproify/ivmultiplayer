@@ -167,7 +167,7 @@ void CCamera::GetLookAt(CVector3& vecLookAt)
 	vecCamLookAt.fY = vecCamPosition.fY + (vecCamForward.fY * fScale);
 	vecCamLookAt.fZ = vecCamPosition.fZ + (vecCamForward.fZ * fScale);
 
-	memcpy(&vecLookAt, &vecLookAt, sizeof(CVector3));
+	memcpy(&vecLookAt, &vecCamLookAt, sizeof(CVector3));
 }
 
 void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer)

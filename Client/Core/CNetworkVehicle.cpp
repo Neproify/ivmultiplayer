@@ -17,11 +17,10 @@
 #include <SharedUtility.h>
 #include "CPools.h"
 
-
-//extern CChatWindow * g_pChatWindow;
 extern CPlayerManager * g_pPlayerManager;
 extern CModelManager * g_pModelManager;
 extern CLocalPlayer * g_pLocalPlayer;
+
 CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	: CStreamableEntity(STREAM_ENTITY_VEHICLE, 200.0f)
 {
@@ -205,7 +204,7 @@ bool CNetworkVehicle::Create()
 		// Disable automatic lights and enable GPS
 		Scripting::ForceCarLights(GetScriptingHandle(),1);
 
-		// Disable visible damage & enable "normal" damage
+		// Disable visible/"normal" damage
 		SetDamageable(false);
 		m_pVehicle->SetCanBeVisiblyDamaged(false);
 
@@ -305,9 +304,6 @@ void CNetworkVehicle::StreamIn()
 		// Disable visible damage & enable "normal" damage
 		SetDamageable(false);
 		m_pVehicle->SetCanBeVisiblyDamaged(false);
-
-		// Disable some damage stuff
-		Scripting::SetCarProofs(GetScriptingHandle(), false, false, false, false, false);
 
 		// Restore the health
 		SetHealth(m_uiHealth);
@@ -1151,7 +1147,7 @@ float CNetworkVehicle::GetCarDoorAngle(int iDoor)
 	if(IsSpawned())
 		return m_fDoor[iDoor];
 
-	return false;
+	return 0.0f;
 }
 
 void CNetworkVehicle::SetLightsState(bool bLights)

@@ -230,12 +230,12 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 			pVehicle->SetSirenState(syncPacket->bSirenState);
 
 		// Set their windows
-		for(int i = 0; i <= 3; i++)
+		/*for(int i = 0; i <= 3; i++)
 			pVehicle->SetWindowState(i, syncPacket->bWindow[i]);
 
 		// Set their typres
-		// TODO get typres from vehice, don't activate -> pure virtual function call >.<
-		/*for(int i = 0; i <= 5; i++)
+		// TODO get typres from vehice
+		for(int i = 0; i <= 5; i++)
 		{
 			if(syncPacket->bTyre[i])
 				Scripting::BurstCarTyre(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i);

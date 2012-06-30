@@ -27,6 +27,8 @@
 #include "CNetworkManager.h"
 #include "CGame.h"
 #include "CPlayerManager.h"
+//#include "CCamera.h"
+//#include "CPools.h"
 
 WNDPROC           m_wWndProc = NULL;
 std::list<String> pressedKeys;
@@ -41,6 +43,7 @@ extern CEvents           * g_pEvents;
 extern CNetworkManager	 * g_pNetworkManager;
 extern CGame			 * g_pGame;
 extern CPlayerManager	 * g_pPlayerManager;
+//extern CCamera			 * g_pCamera;
 
 String GetKeyNameByCode(DWORD dwCode)
 {
@@ -252,6 +255,21 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 				CScreenShot::Reset();
 			}
 		}
+
+		//// Is this a F2 key up?
+		//if(uMsg == WM_KEYUP && wParam == VK_F2)
+		//{
+		//	//Scripting::ActivateScriptedCams(true, true);
+		//	Scripting::SetPedIsDrunk(g_pLocalPlayer->GetScriptingHandle(), true);
+		//	Scripting::SetDrunkCam(CGame::GetPools()->GetCamPool()->HandleOf(g_pCamera->GetScriptCam()->GetCam()),5.0,50000);
+		//}
+
+		/*if(uMsg == WM_KEYUP && wParam == VK_F2)
+		{
+			DWORD dwAddress = Scripting::NATIVE_FORCE_CAR_LIGHTS;
+			DWORD dwNew = CGame::GetNativeAddress(dwAddress);
+			g_pChatWindow->AddInfoMessage("Native Addres: 0x%x",dwNew);
+		}*/
 
 		// Is this a F7 key up?
 		if(uMsg == WM_KEYUP && wParam == VK_F7)

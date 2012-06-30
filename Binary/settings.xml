@@ -43,6 +43,7 @@
 	<script>whisper.nut</script>
 	<script>namecheck.nut</script>
 	<script>runcode.nut</script>
+	<script>indicators.nut</script>
 	
 	<!-- The scripts the client will download and run -->
 	<clientscript>scoreboard.nut</clientscript>

@@ -20,6 +20,7 @@
 	String		    strName;
 	CVector3	    vecPosition;	
 	bool		    bNametag;
+	bool		    bBlip;
 	int			    iNametagColor;
 	bool			bFrozen;			
 	bool			bHelmet;
@@ -39,16 +40,18 @@ public:
 	CActorManager();
 	~CActorManager();
 
-	void			Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, int iColor, bool bFrozen, bool bHelmet);
+	void			Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, int iColor, bool bFrozen, bool bHelmet, bool bBlip);
 	bool			Delete(EntityId actorId);
 	void			SetPosition(EntityId actorId, CVector3 vecPosition);
 	CVector3		GetPosition(EntityId actorId);
 	void			SetHeading(EntityId actorId, float fHeading);
 	String			GetName(EntityId actorId) { return m_Actors[actorId].strName; }
 	bool			IsNameTagEnabled(EntityId actorId) { return m_Actors[actorId].bNametag; }
+	bool			IsBlipEnabled(EntityId actorId) { return m_Actors[actorId].bBlip; }
 	void			SetName(EntityId actorId, String strName);
 	int				GetNametagColor(EntityId actorId) { return m_Actors[actorId].iNametagColor; }
 	bool			ToggleNametag(EntityId actorId, bool bShow);
+	bool			ToggleBlip(EntityId actorId, bool bShow);
 	void			SetColor(EntityId actorId, int Color);
 	bool			ToggleFrozen(EntityId actorId, bool bFrozen);
 	bool			ToggleHelmet(EntityId actorId, bool bHelmet);

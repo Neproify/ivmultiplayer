@@ -102,7 +102,7 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 
 	CLogFile::Printf("[Quit] %s (%d) left the server (%s).", m_pPlayers[playerId]->GetName().Get(), playerId, strReason.Get());
 
-	delete m_pPlayers[playerId];
+	SAFE_DELETE( m_pPlayers[playerId] );
 	m_pPlayers[playerId] = NULL;
 	m_bActive[playerId] = false;
 	return true;
