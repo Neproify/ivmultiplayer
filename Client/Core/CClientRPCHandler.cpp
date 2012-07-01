@@ -152,8 +152,8 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	CGame::SetInputState(true);
 	CGame::SetState(GAME_STATE_INGAME);
-	String strText = "Please wait a moment while initialing all resources ....";
-	Scripting::PrintStringWithLiteralStringNow("STRING", strText, 2000, 1);
+	//String strText = "Please wait a moment while initialing all resources ....";
+	//Scripting::PrintStringWithLiteralStringNow("STRING", strText.Get(), 2000, 1);
 	g_pChatWindow->AddInfoMessage("Successfully joined %s.", sHostName.C_String());
 }
 

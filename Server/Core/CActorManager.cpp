@@ -199,7 +199,7 @@ bool CActorManager::DoesExist(EntityId actorId)
 
 bool CActorManager::ToggleNametag(EntityId actorId, bool bShow)
 {
-	m_Actors[actorId].togglename = bShow;
+	m_Actors[actorId].bTogglename = bShow;
 	CBitStream bsSend;
 	bsSend.Write(actorId);
 	bsSend.Write(bShow);
