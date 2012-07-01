@@ -18,13 +18,13 @@ struct _Actor
 	int			iModelId;
 	CVector3	vecPosition;
 	float		fHeading;
-	String		name;
-	bool		togglename;
+	String		strName;
+	bool		bTogglename;
 	bool		bBlip;
-	int			color;
-	bool		frozen;
-	bool		helmet;
-	bool		stateincar;
+	int			iColor;
+	bool		bFrozen;
+	bool		bHelmet;
+	bool		bStateincar;
 };
 
 class CActorManager : public CActorManagerInterface
@@ -45,15 +45,15 @@ public:
 	float		GetHeading(EntityId actorId) { return m_Actors[actorId].fHeading; }
 	int			GetModel(EntityId actorId) { return m_Actors[actorId].iModelId; }
 	void		HandleClientJoin(EntityId playerId);
-	void		SetActorName(EntityId actorId, String name);
+	void		SetActorName(EntityId actorId, String strName);
 	String		GetActorName(EntityId actorId);
-	void		SetColor(EntityId actorId, int color);
-	int			GetColor(EntityId actorId) { return m_Actors[actorId].color; }
+	void		SetColor(EntityId actorId, int iColor);
+	int			GetColor(EntityId actorId) { return m_Actors[actorId].iColor; }
 	bool		ToggleNametag(EntityId actorId, bool bShow);
 	bool		ToggleBlip(EntityId actorId, bool bShow);
-	bool		ToggleFrozen(EntityId actorId, bool frozen);
-	bool		ToggleHelmet(EntityId actorId, bool helmet);
-	void		WarpIntoVehicle(EntityId actorId, int vehicleid, int seatid);
+	bool		ToggleFrozen(EntityId actorId, bool bFrozen);
+	bool		ToggleHelmet(EntityId actorId, bool bHelmet);
+	void		WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iSeatid);
 	void		RemoveFromVehicle(EntityId actorId);
 	bool		DoesExist(EntityId actorId);
 	EntityId	GetActorCount();

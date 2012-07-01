@@ -2370,13 +2370,24 @@ void CClientRPCHandler::ScriptingSetVehicleLocked(CBitStream * pBitStream, CPlay
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(iLocked);
 
-	//// Convert int to dword
-	//DWORD dwLockState = static_cast<DWORD>(iLocked);
+	// Convert int to dword
+	DWORD dwLockState = static_cast<DWORD>(iLocked);
+
+	/* TODO Fix state 1! (http://www.gtamodding.com/index.php?title=LOCK_CAR_DOORS)
+	
+	And add this paramters(?)
+	0 - unlocked car
+	1 - locked car - the player and characters refuses to enter the car
+    2 - locked car - the player tries to enter and break the (driver)window
+    3 - locked for the player, not locked for NPCs
+    4 - locked, the player is stuck in the car 
+
+	Scripting::LockCarDoor(pVehicle->GetScriptingHandle(),iLocked);
+	*/
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 	if(pVehicle)
-		Scripting::LockCarDoor(pVehicle->GetScriptingHandle(),iLocked);
-	//pVehicle->SetDoorLockState(dwLockState);
+		pVehicle->SetDoorLockState(dwLockState);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerClothes(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

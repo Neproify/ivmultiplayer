@@ -270,7 +270,7 @@ unsigned int CActorManager::GetScriptingHandle(EntityId actorId)
 void CActorManager::ForceAnimation(EntityId actorId, const char * szGroup, const char * szAnim)
 {
 	if(m_bActive[actorId])
-		Scripting::TaskPlayAnim(GetScriptingHandle(actorId),szAnim,szGroup,float(8),0,0,0,0,-1);
+		Scripting::TaskPlayAnim(GetScriptingHandle(actorId),szAnim,szGroup,float(8),0,0,0,0,5000);
 }
 
 float CActorManager::GetHealth(EntityId actorId)
