@@ -59,9 +59,9 @@
 #define MAX_OBJECTS 0xFFFE // Streamed. See note on Pickups. Object Pool Size: 1300
 #define MAX_CHECKPOINTS 0xFFFE // Streamed. Checkpoint Pool Size: See CStreamer.h
 #define MAX_BLIPS 1300 // Blip Pool Size: 1500
-#define MAX_ACTORS 100 // Ped Pool Size: 140
 #define MAX_PICKUPS 0xFFFE // Streamed. Pickup Pool Size: TODO: 1500?
 #define MAX_FIRE 32
+#define MAX_ACTORS 72
 
 // Max amount of characters a player can use in their name
 #define MAX_NAME_LENGTH 18
