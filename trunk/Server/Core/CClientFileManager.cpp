@@ -101,6 +101,6 @@ void CClientFileManager::HandleClientJoin(EntityId playerId)
 		bitStream.Write((char *)&((*iter).second), sizeof(CFileChecksum));
 
 		// Send the rpc
-		g_pNetworkManager->RPC(RPC_NewFile, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, true);
+		g_pNetworkManager->RPC(RPC_NewFile, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	}	
 }
