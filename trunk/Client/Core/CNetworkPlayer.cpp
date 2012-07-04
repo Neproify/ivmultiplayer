@@ -1832,7 +1832,7 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			return;
 
 		// Is the vehicle streamed in?
-		if(pVehicle->IsStreamedIn())
+		if(pVehicle->IsStreamedIn() && pVehicle->GetDoorLockState() == 0)
 		{
 			// Create the enter vehicle task
 			int iUnknown = -4;
@@ -2088,6 +2088,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 				else
 					CLogFile::Printf("HandleVehicleEntryKey(%d)", m_playerId);
 
+
 				// Are we not already requesting a vehicle entry or exit?
 				if(!m_vehicleEnterExit.bRequesting)
 				{
@@ -2110,12 +2111,19 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 						}
 
 						// Have we found a close vehicle?
-						if(bFound)
+						if(bFound && pVehicle && pVehicle->IsSpawned())
 						{
 							if(IsLocalPlayer())
-								CLogFile::Printf("HandleVehicleEntry(LocalPlayer, %d, %d)", pVehicle->GetVehicleId(), byteSeatId);
+								CLogFile::Printf("HandleVehicleEntry(LocalPlayer, %d, %d, %d)", pVehicle->GetVehicleId(), byteSeatId, pVehicle->GetDoorLockState());
 							else
-								CLogFile::Printf("HandleVehicleEntry(%d, %d, %d)", m_playerId, pVehicle->GetVehicleId(), byteSeatId);
+								CLogFile::Printf("HandleVehicleEntry(%d, %d, %d, %d)", m_playerId, pVehicle->GetVehicleId(), byteSeatId, pVehicle->GetDoorLockState());
+
+							if(pVehicle->GetDoorLockState() > 0)
+							{
+								m_vehicleEnterExit.bRequesting = false;
+								m_vehicleEnterExit.bEntering = false;
+								return;
+							}
 
 							// Is this a network vehicle?
 							if(pVehicle->IsNetworkVehicle())

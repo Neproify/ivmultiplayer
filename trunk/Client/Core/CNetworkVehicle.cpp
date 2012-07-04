@@ -753,27 +753,29 @@ void CNetworkVehicle::RemoveFromWorld(bool bStopMoving)
 
 void CNetworkVehicle::SetDoorLockState(DWORD dwDoorLockState)
 {
+
 	// Get the actual lock state
 	DWORD dwState = 0;
 
-	switch(dwDoorLockState)
+	/*switch(dwDoorLockState)
 	{
 		case 0:
-			dwState = 0;
+			dwState = 1;
 			break;
 		case 1:
-			dwState = 1;
+			dwState = 0;
 			break;
 		case 2:
 			dwState = 7;
 			break;
 		default:
 			return;
-	}
+	}*/ // ADAMIX: FIX ME?
 
 	// Are we spawned?
 	if(IsSpawned())
 	{
+		//Scripting::LockCarDoor(GetScriptingHandle(), dwDoorLockState);
 		m_pVehicle->SetDoorLockState(dwState);
 	}
 		
@@ -789,7 +791,7 @@ DWORD CNetworkVehicle::GetDoorLockState()
 	if(IsSpawned())
 		dwState = m_pVehicle->GetDoorLockState();
 		
-	switch(dwState)
+	/*switch(dwState)
 	{
 		case 0:
 			return 0;
@@ -799,9 +801,8 @@ DWORD CNetworkVehicle::GetDoorLockState()
 			return 2;
 		default:
 			CLogFile::Printf("Unknown vehicle %d door state %d", m_vehicleId, m_pVehicle->GetDoorLockState()); 
-	}
-
-	return 0;
+	}*/ // ADAMIX: FIX ME?
+	return dwState;
 }
 
 void CNetworkVehicle::Pulse()
