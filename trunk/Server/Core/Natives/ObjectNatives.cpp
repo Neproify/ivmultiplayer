@@ -172,9 +172,9 @@ SQInteger CObjectNatives::CreateExplosion(SQVM * pVM)
 {
 	CVector3 vecPos;
 	float fdensity;
-	sq_getfloat(pVM,-4,&vecPos.fZ);
+	sq_getfloat(pVM,-4,&vecPos.fX);
 	sq_getfloat(pVM,-3,&vecPos.fY);
-	sq_getfloat(pVM,-2,&vecPos.fX);
+	sq_getfloat(pVM,-2,&vecPos.fZ);
 	sq_getfloat(pVM,-1,&fdensity);
 	g_pObjectManager->CreateExplosion(vecPos, fdensity);
 
@@ -186,9 +186,9 @@ SQInteger CObjectNatives::CreateFire(SQVM *pVM)
 {
 	CVector3 vecPos;
 	float fdensity;
-	sq_getfloat(pVM,-4,&vecPos.fZ);
+	sq_getfloat(pVM,-4,&vecPos.fX);
 	sq_getfloat(pVM,-3,&vecPos.fY);
-	sq_getfloat(pVM,-2,&vecPos.fX);
+	sq_getfloat(pVM,-2,&vecPos.fZ);
 	sq_getfloat(pVM,-1,&fdensity);
 
 	sq_pushentity(pVM, g_pObjectManager->CreateFire(vecPos,fdensity));

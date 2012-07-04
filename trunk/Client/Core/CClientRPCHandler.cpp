@@ -2712,7 +2712,7 @@ void CClientRPCHandler::ScriptingCreateFire(CBitStream * pBitStream, CPlayerSock
 		return;
 
 	EntityId fireId;
-	pBitStream->ReadCompressed(fireId);
+	pBitStream->Read(fireId);
 
 	CVector3 vecPos;
 	pBitStream->Read(vecPos);
@@ -2730,7 +2730,7 @@ void CClientRPCHandler::ScriptingDeleteFire(CBitStream * pBitStream, CPlayerSock
 		return;
 
 	EntityId fireId;
-	pBitStream->ReadCompressed(fireId);
+	pBitStream->Read(fireId);
 
 	g_pFireManager->Delete(fireId);
 }

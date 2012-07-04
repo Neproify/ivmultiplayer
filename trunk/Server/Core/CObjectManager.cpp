@@ -207,7 +207,7 @@ EntityId CObjectManager::CreateFire(const CVector3& vecPos, float fdensity)
 		if(!m_bFireActive[x])
 		{
 			CBitStream bsSend;
-			bsSend.WriteCompressed(x);
+			bsSend.Write(x);
 			bsSend.Write(vecPos);
 			bsSend.Write(fdensity);
 			g_pNetworkManager->RPC(RPC_ScriptingCreateFire, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
@@ -225,7 +225,7 @@ void CObjectManager::DeleteFire(EntityId fireId)
 	if(m_bFireActive[fireId])
 	{
 		CBitStream bsSend;
-		bsSend.WriteCompressed(fireId);
+		bsSend.Write(fireId);
 		g_pNetworkManager->RPC(RPC_ScriptingDeleteFire, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 		m_FireObject[fireId].vecPosition = CVector3(0.0f,0.0f,0.0f);
 		m_bFireActive[fireId] = false;
@@ -239,7 +239,7 @@ void CObjectManager::HandleClientJoinFire(EntityId playerId)
 	{
 		if(m_bFireActive[x])
 		{
-			bsSend.WriteCompressed(x);
+			bsSend.Write(x);
 			bsSend.Write(m_FireObject[x].vecPosition);
 			bsSend.Write(m_FireObject[x].fdensity);
 			g_pNetworkManager->RPC(RPC_ScriptingCreateFire, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
