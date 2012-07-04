@@ -84,6 +84,10 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 		Scripting::RemoveFakeNetworkNameFromPed(m_Actors[actorId].uiActorIndex);
 		Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,strName.Get(),255,255,255,255);
 	}
+	else
+	{
+		m_Actors[actorId].strName = strName;
+	}
 	m_bActive[actorId] = true;
 
 	// Check position for freeze char
