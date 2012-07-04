@@ -587,16 +587,13 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 			arguments.push(pSenderSocket->playerId);
 			arguments.push(vehicleId);
 			arguments.push(byteSeatId);
-			bool bReply = (g_pEvents->Call("vehicleEntryRequest", &arguments).GetInteger() == 1);
-
-			// Reply to the vehicle entry request
-			CBitStream bitStream;
-			bitStream.WriteCompressed(pSenderSocket->playerId);
-			bitStream.WriteBit(bReply);
-
-			// Was the reply ok?
-			if(bReply)
+			if(g_pEvents->Call("vehicleEntryRequest", &arguments).GetInteger() == 1)
 			{
+				// Reply to the vehicle entry request
+				CBitStream bitStream;
+				bitStream.WriteCompressed(pSenderSocket->playerId);
+				bitStream.Write1();
+
 				bitStream.Write((BYTE)VEHICLE_ENTRY_RETURN);
 				bitStream.Write(vehicleId);
 				bitStream.Write(byteSeatId);

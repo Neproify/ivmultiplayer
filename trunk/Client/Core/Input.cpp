@@ -183,7 +183,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		CGame::SetFocused(false);
 
 		// Hide the cursor
-		ShowCursor(false);
+		ShowCursor(true);
 		CLogFile::Print("Lost window focus");
 		return 1;
 	}
