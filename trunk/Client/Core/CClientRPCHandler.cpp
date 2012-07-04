@@ -727,7 +727,7 @@ void CClientRPCHandler::ScriptingWarpActorIntoVehicle(CBitStream * pBitStream, C
 	if(g_pActorManager->DoesExist(actorId))
 	{
 		if(g_pVehicleManager->Exists(vehicleId))
-			g_pActorManager->WarpIntoVehicle(g_pActorManager->GetScriptingHandle(actorId), g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(), iSeatid);
+			g_pActorManager->WarpIntoVehicle(actorId, vehicleId, iSeatid);
 	}
 }
 
@@ -741,7 +741,7 @@ void CClientRPCHandler::ScriptingRemoveActorFromVehicle(CBitStream * pBitStream,
 	pBitStream->Read(actorId);
 
 	if(g_pActorManager->DoesExist(actorId))
-		g_pActorManager->RemoveFromVehicle(g_pActorManager->GetScriptingHandle(actorId));
+		g_pActorManager->RemoveFromVehicle(actorId);
 }
 
 void CClientRPCHandler::ScriptingToggleActorNametag(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

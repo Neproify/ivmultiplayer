@@ -762,7 +762,7 @@ void CNetworkVehicle::SetDoorLockState(DWORD dwDoorLockState)
 			dwState = 0;
 			break;
 		case 1:
-			dwState = 3;
+			dwState = 1;
 			break;
 		case 2:
 			dwState = 7;
@@ -773,7 +773,10 @@ void CNetworkVehicle::SetDoorLockState(DWORD dwDoorLockState)
 
 	// Are we spawned?
 	if(IsSpawned())
+	{
 		m_pVehicle->SetDoorLockState(dwState);
+	}
+		
 
 	m_dwDoorLockState = dwState;
 }
