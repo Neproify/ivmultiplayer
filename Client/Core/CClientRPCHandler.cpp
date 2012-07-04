@@ -675,7 +675,7 @@ void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSende
 	float fHeading;
 	String name;
 	bool togglename;
-	int color;
+	unsigned int color;
 	bool frozen, helmet, bBlip;
 
 	while(pBitStream->Read(actorId))
@@ -686,6 +686,7 @@ void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSende
 		pBitStream->Read(name);
 		pBitStream->Read(togglename);
 		pBitStream->Read(color);
+		CLogFile::Printf("Got color: 0x%X", color);
 		pBitStream->Read(frozen);
 		pBitStream->Read(helmet);
 		pBitStream->Read(bBlip);
@@ -783,8 +784,10 @@ void CClientRPCHandler::ScriptingSetActorColor(CBitStream * pBitStream, CPlayerS
 	EntityId actorId;
 	pBitStream->Read(actorId);
 
-	int color;
+	unsigned int color;
 	pBitStream->Read(color);
+
+	CLogFile::Printf("Got color: 0x%X", color);
 
 	g_pActorManager->SetColor(actorId,color);
 }

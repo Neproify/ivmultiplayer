@@ -21,7 +21,7 @@
 	CVector3	    vecPosition;	
 	bool		    bNametag;
 	bool		    bBlip;
-	int			    iNametagColor;
+	unsigned int    iNametagColor;
 	bool			bFrozen;			
 	bool			bHelmet;
 	bool			bStateincar;
@@ -40,7 +40,7 @@ public:
 	CActorManager();
 	~CActorManager();
 
-	void			Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, int iColor, bool bFrozen, bool bHelmet, bool bBlip);
+	void			Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, unsigned int iColor, bool bFrozen, bool bHelmet, bool bBlip);
 	bool			Delete(EntityId actorId);
 	void			SetPosition(EntityId actorId, CVector3 vecPosition);
 	CVector3		GetPosition(EntityId actorId);
@@ -52,7 +52,7 @@ public:
 	int				GetNametagColor(EntityId actorId) { return m_Actors[actorId].iNametagColor; }
 	bool			ToggleNametag(EntityId actorId, bool bShow);
 	bool			ToggleBlip(EntityId actorId, bool bShow);
-	void			SetColor(EntityId actorId, int Color);
+	void			SetColor(EntityId actorId, unsigned int Color);
 	bool			ToggleFrozen(EntityId actorId, bool bFrozen);
 	bool			ToggleHelmet(EntityId actorId, bool bHelmet);
 	void			WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iSeatId);

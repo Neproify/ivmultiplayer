@@ -21,8 +21,8 @@ public:
 	virtual int			GetModel(EntityId actorId) = 0;
 	virtual void		SetActorName(EntityId actorId, String strName) = 0;
 	virtual String		GetActorName(EntityId actorId) = 0;
-	virtual void		SetColor(EntityId actorId, int iCcolor) = 0;
-	virtual int			GetColor(EntityId actorId) = 0;
+	virtual void		SetColor(EntityId actorId, unsigned int iCcolor) = 0;
+	virtual unsigned int GetColor(EntityId actorId) = 0;
 	virtual bool		ToggleNametag(EntityId actorId, bool bShow) = 0;
 	virtual bool		ToggleBlip(EntityId actorId, bool bShow) = 0;
 	virtual bool		ToggleFrozen(EntityId actorId, bool bFrozen) = 0;

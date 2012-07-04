@@ -300,7 +300,7 @@ SQInteger CActorNatives::ToggleBlip(SQVM * pVM)
 SQInteger CActorNatives::SetColor(SQVM * pVM)
 {
 	EntityId actorId;
-	int color;
+	SQInteger color = 0xFFFFFFFF;
 	sq_getentity(pVM, -2, &actorId);
 	sq_getinteger(pVM, -1, &color);
 
