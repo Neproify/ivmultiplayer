@@ -31,7 +31,7 @@ CCheckpoint::~CCheckpoint()
 void CCheckpoint::AddForPlayer(EntityId playerId)
 {
 	CBitStream bsSend;
-	bsSend.WriteCompressed(m_checkpointId);
+	bsSend.Write(m_checkpointId);
 	bsSend.Write(m_wType);
 	bsSend.Write(m_vecPosition);
 	bsSend.Write(m_vecTargetPosition);
@@ -51,7 +51,7 @@ void CCheckpoint::AddForWorld()
 void CCheckpoint::DeleteForPlayer(EntityId playerId)
 {
 	CBitStream bsSend;
-	bsSend.WriteCompressed(m_checkpointId);
+	bsSend.Write(m_checkpointId);
 	g_pNetworkManager->RPC(RPC_DeleteCheckpoint, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 }
 
@@ -67,7 +67,7 @@ void CCheckpoint::DeleteForWorld()
 void CCheckpoint::ShowForPlayer(EntityId playerId)
 {
 	CBitStream bsSend;
-	bsSend.WriteCompressed(playerId);
+	bsSend.Write(m_checkpointId);
 	g_pNetworkManager->RPC(RPC_ScriptingShowCheckpointForPlayer, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 }
 
@@ -83,7 +83,7 @@ void CCheckpoint::ShowForWorld()
 void CCheckpoint::HideForPlayer(EntityId playerId)
 {
 	CBitStream bsSend;
-	bsSend.WriteCompressed(playerId);
+	bsSend.Write(m_checkpointId);
 	g_pNetworkManager->RPC(RPC_ScriptingHideCheckpointForPlayer, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 }
 

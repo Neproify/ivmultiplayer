@@ -678,7 +678,7 @@ void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSende
 	int color;
 	bool frozen, helmet, bBlip;
 
-	while(pBitStream->ReadCompressed(actorId))
+	if(pBitStream->Read(actorId))
 	{
 		pBitStream->Read(iModelId);
 		pBitStream->Read(vecPosition);
@@ -826,7 +826,7 @@ void CClientRPCHandler::DeleteActor(CBitStream * pBitStream, CPlayerSocket * pSe
 		return;
 
 	EntityId actorId;
-	pBitStream->ReadCompressed(actorId);
+	pBitStream->Read(actorId);
 	g_pActorManager->Delete(actorId);
 }
 
@@ -842,7 +842,7 @@ void CClientRPCHandler::NewCheckpoint(CBitStream * pBitStream, CPlayerSocket * p
 	CVector3 vecTargetPosition;
 	float fRadius;
 
-	while(pBitStream->ReadCompressed(checkpointId))
+	while(pBitStream->Read(checkpointId))
 	{
 		pBitStream->Read(wType);
 		pBitStream->Read(vecPosition);
@@ -867,7 +867,7 @@ void CClientRPCHandler::DeleteCheckpoint(CBitStream * pBitStream, CPlayerSocket 
 		return;
 
 	EntityId checkpointId;
-	pBitStream->ReadCompressed(checkpointId);
+	pBitStream->Read(checkpointId);
 	g_pCheckpointManager->Delete(checkpointId);
 }
 
@@ -2234,7 +2234,7 @@ void CClientRPCHandler::ScriptingShowCheckpointForPlayer(CBitStream * pBitStream
 
 	// Read the checkpoint id
 	EntityId checkpointId;
-	pBitStream->ReadCompressed(checkpointId);
+	pBitStream->Read(checkpointId);
 
 	// Set the checkpoint to visible
 	CCheckpoint* pCheckpoint = g_pCheckpointManager->Get(checkpointId);
@@ -2250,7 +2250,7 @@ void CClientRPCHandler::ScriptingHideCheckpointForPlayer(CBitStream * pBitStream
 
 	// Read the checkpoint id
 	EntityId checkpointId;
-	pBitStream->ReadCompressed(checkpointId);
+	pBitStream->Read(checkpointId);
 
 	// Set the checkpoint to not visible
 	CCheckpoint* pCheckpoint = g_pCheckpointManager->Get(checkpointId);

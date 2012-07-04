@@ -50,7 +50,7 @@ EntityId CActorManager::Create(int iModelId, CVector3 vecPosition, float fHeadin
 			m_Actors[x].bBlip = true;
 
 			CBitStream bsSend;
-			bsSend.WriteCompressed(x);
+			bsSend.Write(x);
 			bsSend.Write(iModelId);
 			bsSend.Write(vecPosition);
 			bsSend.Write(fHeading);
@@ -87,7 +87,7 @@ void CActorManager::Delete(EntityId actorId)
 	g_pEvents->Call("actorDelete", &pArguments);
 
 	CBitStream bsSend;
-	bsSend.WriteCompressed(actorId);
+	bsSend.Write(actorId);
 	g_pNetworkManager->RPC(RPC_DeleteActor, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	m_bActive[actorId] = false;
 }
@@ -172,7 +172,7 @@ void CActorManager::HandleClientJoin(EntityId playerId)
 		{
 			if(m_bActive[x])
 			{
-				bsSend.WriteCompressed(x);
+				bsSend.Write(x);
 				bsSend.Write(m_Actors[x].iModelId);
 				bsSend.Write(m_Actors[x].vecPosition);
 				bsSend.Write(m_Actors[x].fHeading);
