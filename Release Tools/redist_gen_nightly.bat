@@ -5,7 +5,7 @@ call "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
 cd ..
 devenv.exe IVMP.sln /build Release
 cd Network.Release
-call build.bat
+rem call build.bat
 cd ..
 cd "Release Tools"
 

@@ -7,6 +7,8 @@ local createVehicle_Original = createVehicle;
 local blip1, blip2;
 local blip;
 blip = createBlip(75, 0.0, 0.0, 0.0,true);
+local cp1;
+local actor1;
 
 function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4)
 {
@@ -30,6 +32,10 @@ function onScriptInit()
 	createVehicle(90, -343.609344, 1166.145630, 14.199894, 0.0, 0.0, 268.305298, 0, 0, 0, 0); // Sultan RS 4
 	createVehicle(90, -343.623444, 1162.919067, 14.199799, 0.0, 0.0, 269.975037, 0, 0, 0, 0); // Sultan RS 5
 	createVehicle(90, -343.633057, 1158.563843, 14.126013, 0.0, 0.0, 270.858826, 0, 0, 0, 0); // Sultan RS 6
+	cp1 = createCheckpoint(3, -343.447662, 1171.119263, 14.146016, -343.447662, 1176.119263, 14.146016, 3.0);
+	actor1 = createActor(242, -341.36, 1142.80, 14.79, 5.0);
+	local actor2 = createActor(242, -343.36, 1142.80, 14.79, 5.0);
+	local actor3 = createActor(242, -342.36, 1142.80, 14.79, 5.0);
 	sendConsoleInput("uptime");
 	log(format("Hello %s 0x%x %d", "World", 1337, 1337));
 	log(_version_);
@@ -59,7 +65,6 @@ function onPlayerConnect(playerID, playerName, playerIP, playerSerial, bHasModde
 	if(bHasModdedGameFiles) {
 		return 0; // Don't allow modified game files!
 	}
-	sendPlayerMessage(playerID, "Welcome to Central Park", White);
 	return 1;
 }
 addEvent("playerConnect", onPlayerConnect);
@@ -67,6 +72,8 @@ addEvent("playerConnect", onPlayerConnect);
 function onPlayerJoin(playerID) {
 	// Now you can use the natives, because the player is registered at the server
 	setPlayerSpawnLocation(playerID, -341.36, 1144.80, 14.79, 40.114815);
+	sendPlayerMessage(playerID, "Welcome to Central Park", White);
+	sendPlayerMessage(playerID, "cp: " + cp1, White);
 }
 addEvent("playerJoin", onPlayerJoin);
 
@@ -94,6 +101,14 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/atest")
+	{
+		setActorName(actor1, "adamixcock");
+		toggleActorNametag(actor1, true);
+		toggleActorHelmet(actor1, false);
+		toggleActorFrozen(actor1, false);
+		//warpActorIntoVehicle(actor1, 2, 2);
+	}
 	if(cmd[0] == "/behind")
 	{
 		setCameraBehindPlayer(playerid);
@@ -527,6 +542,11 @@ function onPlayerCommand(playerid, command)
 		return 1;
 	}
 
+	if(cmd[0] == "/cptest")
+	{
+		hideCheckpointForAll(cp1);
+	}
+	
 	if(cmd[0] == "/testcheckpoint")
 	{
 		if(cmd.len() == 2)

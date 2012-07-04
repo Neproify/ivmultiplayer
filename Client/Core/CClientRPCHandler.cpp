@@ -678,7 +678,7 @@ void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSende
 	int color;
 	bool frozen, helmet, bBlip;
 
-	if(pBitStream->Read(actorId))
+	while(pBitStream->Read(actorId))
 	{
 		pBitStream->Read(iModelId);
 		pBitStream->Read(vecPosition);
