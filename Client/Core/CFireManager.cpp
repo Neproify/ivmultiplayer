@@ -29,7 +29,7 @@ CFireManager::~CFireManager()
 	}
 }
 
-void CFireManager::Create(EntityId fireId, CVector3& vecPos, float fdensity)
+void CFireManager::Create(EntityId fireId, CVector3 vecPos, float fdensity)
 {
 	if(m_bActive[fireId])
 		Delete(fireId);

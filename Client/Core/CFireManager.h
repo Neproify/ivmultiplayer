@@ -27,7 +27,7 @@ public:
 	CFireManager();
 	~CFireManager();
 
-	void Create(EntityId fireId, CVector3& vecPos, float fdensity);
+	void Create(EntityId fireId, CVector3 vecPos, float fdensity);
 	void Delete(EntityId fireId);
 	bool DoesExist(EntityId fireId) { return m_bActive[fireId]; };
 };

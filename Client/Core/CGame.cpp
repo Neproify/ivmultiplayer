@@ -486,22 +486,29 @@ void _declspec(naked) GetPlayerPedFromPlayerInfo_Hook()
 		retn
 	}
 }
+
 DWORD dwAddJump;
 void _declspec(naked) CameraPointAtCoord(CVector3 * vecLookAt)
 {
-	_asm push ebp;
-	_asm mov ebp, esp;
-	_asm mov eax, [ebp+0Ch];
-	_asm mov vecLookAt, eax;
-	_asm pushad;
+	_asm 
+	{
+		push ebp
+		mov ebp, esp
+		mov eax, [ebp+0Ch]
+		mov vecLookAt, eax
+		pushad
+	}
 
-	dwAddJump = ( 0xAFE840 + 0x6 );
+	dwAddJump = ((CGame::GetBase() +  0xAFE840) + 0x6 );
 
-	_asm popad;
-	_asm push ebp;
-	_asm mov ebp, esp;
-	_asm and esp, 0FFFFFFF0h;
-	_asm jmp dwAddJump;
+	_asm
+	{
+		popad
+		push ebp
+		mov ebp, esp
+		and esp, 0FFFFFFF0h
+		jmp dwAddJump
+	}
 }
 
 bool CGame::Patch()
