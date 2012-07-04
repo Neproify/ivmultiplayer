@@ -33,7 +33,9 @@ void CFireManager::Create(EntityId fireId, CVector3& vecPos, float fdensity)
 {
 	if(m_bActive[fireId])
 		Delete(fireId);
-	
+
+	CLogFile::Printf("Creating fire at: %f %f %f %f", vecPos.fX, vecPos.fY, vecPos.fZ, fdensity);
+
 	m_bActive[fireId] = true;
 	m_Fire[fireId].vecPos = vecPos;
 	m_Fire[fireId].fdensity = fdensity;
