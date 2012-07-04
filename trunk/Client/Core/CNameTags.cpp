@@ -130,7 +130,7 @@ void CNameTags::Draw()
 				String strNameTag("%s", g_pActorManager->GetName(i).Get());
 
 				// Get the name tag color
-				DWORD dwColor = ((g_pActorManager->GetNametagColor(i) >> 8) | 0xFF000000);
+				unsigned int dwColor = ((g_pActorManager->GetNametagColor(i) >> 8) | 0xFF000000);
 
 				// Draw the name tag
 				g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X - (b_w / 2)), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);

@@ -104,14 +104,14 @@ void CActorManager::SetPosition(EntityId actorId, CVector3 vecPosition)
 	}
 }
 
-void CActorManager::SetColor(EntityId actorId, int iColor)
+void CActorManager::SetColor(EntityId actorId, unsigned int iColor)
 {
 	if(m_bActive[actorId])
 	{
 		m_Actors[actorId].iColor = iColor;
 		CBitStream bsSend;
 		bsSend.Write(actorId);
-		bsSend.Write(iColor);
+		bsSend.Write((DWORD)iColor);
 		g_pNetworkManager->RPC(RPC_ScriptingSetActorColor, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	}
 }

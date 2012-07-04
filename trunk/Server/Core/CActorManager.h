@@ -21,7 +21,7 @@ struct _Actor
 	String		strName;
 	bool		bTogglename;
 	bool		bBlip;
-	int			iColor;
+	unsigned int iColor;
 	bool		bFrozen;
 	bool		bHelmet;
 	bool		bStateincar;
@@ -47,8 +47,8 @@ public:
 	void		HandleClientJoin(EntityId playerId);
 	void		SetActorName(EntityId actorId, String strName);
 	String		GetActorName(EntityId actorId);
-	void		SetColor(EntityId actorId, int iColor);
-	int			GetColor(EntityId actorId) { return m_Actors[actorId].iColor; }
+	void		SetColor(EntityId actorId, unsigned int iColor);
+	unsigned int GetColor(EntityId actorId) { return m_Actors[actorId].iColor; }
 	bool		ToggleNametag(EntityId actorId, bool bShow);
 	bool		ToggleBlip(EntityId actorId, bool bShow);
 	bool		ToggleFrozen(EntityId actorId, bool bFrozen);

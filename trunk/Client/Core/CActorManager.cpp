@@ -30,7 +30,7 @@ CActorManager::~CActorManager()
 	}
 }
 
-void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, int iColor, bool bFrozen, bool bHelmet, bool bBlip)
+void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, unsigned int iColor, bool bFrozen, bool bHelmet, bool bBlip)
 {
 	if(m_bActive[actorId])
 		Delete(actorId);
@@ -87,6 +87,7 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	else
 	{
 		m_Actors[actorId].strName = strName;
+		m_Actors[actorId].iNametagColor = iColor;
 	}
 	m_bActive[actorId] = true;
 
@@ -195,7 +196,7 @@ bool CActorManager::ToggleBlip(EntityId actorId, bool bShow)
 	return false;
 }
 
-void CActorManager::SetColor(EntityId actorId, int iColor)
+void CActorManager::SetColor(EntityId actorId, unsigned int iColor)
 {
 	if(m_bActive[actorId])
 		m_Actors[actorId].iNametagColor = iColor;
