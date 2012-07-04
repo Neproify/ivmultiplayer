@@ -775,8 +775,8 @@ void CNetworkVehicle::SetDoorLockState(DWORD dwDoorLockState)
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		//Scripting::LockCarDoor(GetScriptingHandle(), dwDoorLockState);
-		m_pVehicle->SetDoorLockState(dwState);
+		Scripting::LockCarDoor(GetScriptingHandle(), dwDoorLockState);
+		//m_pVehicle->SetDoorLockState(dwState);
 	}
 		
 
