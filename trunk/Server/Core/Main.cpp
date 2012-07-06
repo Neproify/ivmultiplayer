@@ -414,13 +414,14 @@ int main(int argc, char ** argv)
 
 	g_pEvents = new CEvents();
 	g_pScriptingManager = new CScriptingManager();
-	g_pClientScriptFileManager = new CClientFileManager(true);
 	g_pClientResourceFileManager = new CClientFileManager(false);
+	g_pClientScriptFileManager = new CClientFileManager(true);
 
 	// Initialize the network module, if it fails, exit
 	if(!CNetworkModule::Init())
 	{
-		CLogFile::Print("Failed to initialize the network module!\n");
+		CLogFile::Print("Failed to initialize the network module!\n Server shuts down in 3 seconds");
+		Sleep(3000);
 		return 1;
 	}
 
@@ -538,6 +539,18 @@ int main(int argc, char ** argv)
 	int iResourcesLoaded = 0;
 	int iFailedResources = 0;
 
+	std::list<String> clientresources = CVAR_GET_LIST("clientresource");
+	for(std::list<String>::iterator iter = clientresources.begin(); iter != clientresources.end(); iter++)
+	{	
+		if(!g_pClientResourceFileManager->Start(*iter))
+		{
+			CLogFile::Printf("Warning: Failed to load client resource %s.", (*iter).Get());
+			iFailedResources++;
+		}
+		else
+			iResourcesLoaded++;
+	}
+
 	std::list<String> scripts = CVAR_GET_LIST("script");
 	for(std::list<String>::iterator iter = scripts.begin(); iter != scripts.end(); iter++)
 	{
@@ -558,18 +571,6 @@ int main(int argc, char ** argv)
 		if(!g_pClientScriptFileManager->Start(*iter))
 		{
 			CLogFile::Printf("Warning: Failed to load client script %s.", (*iter).Get());
-			iFailedResources++;
-		}
-		else
-			iResourcesLoaded++;
-	}
-
-	std::list<String> clientresources = CVAR_GET_LIST("clientresource");
-	for(std::list<String>::iterator iter = clientresources.begin(); iter != clientresources.end(); iter++)
-	{	
-		if(!g_pClientResourceFileManager->Start(*iter))
-		{
-			CLogFile::Printf("Warning: Failed to load client resource %s.", (*iter).Get());
 			iFailedResources++;
 		}
 		else

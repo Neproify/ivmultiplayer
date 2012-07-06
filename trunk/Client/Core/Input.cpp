@@ -27,8 +27,6 @@
 #include "CNetworkManager.h"
 #include "CGame.h"
 #include "CPlayerManager.h"
-//#include "CCamera.h"
-//#include "CPools.h"
 
 WNDPROC           m_wWndProc = NULL;
 std::list<String> pressedKeys;
@@ -183,7 +181,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		CGame::SetFocused(false);
 
 		// Hide the cursor
-		ShowCursor(true);
+		ShowCursor(false);
 		CLogFile::Print("Lost window focus");
 		return 1;
 	}

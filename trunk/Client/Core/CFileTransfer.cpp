@@ -23,7 +23,6 @@ extern CGUI					* g_pGUI;
 
 #define TRANSFERBOX_WIDTH       350
 #define TRANSFERBOX_HEIGHT      58
-String strText;
 
 CFileTransfer::CFileTransfer()
 {
@@ -92,12 +91,19 @@ bool CFileTransfer::StartDownload(String strName, String strType)
 		String strPostPath("/%s/%s", strFolderName.Get(), strName.Get());
 
 		// Show message stuff
-		strText.Clear();
+		String strText;
 		strText.AppendF("%s",strName.Get());
-		m_pFileImage->setVisible(true);
-		m_pFileText->setText(strText.Get());
-		m_pFileText->setVisible(true);
 
+		// Set stuff & check if we have our gui stuff
+		if(m_pFileImage && m_pFileText)
+		{
+			// Set the filename
+			m_pFileText->setText(strText.Get());
+
+			// Set the image and text visible
+			m_pFileImage->setVisible(true);
+			m_pFileText->setVisible(true);
+		}
 
 		// Send the request
 		m_httpClient.Get(strPostPath);
@@ -115,9 +121,28 @@ void CFileTransfer::SetServerInformation(String strAddress, unsigned short usPor
 	float fWidth = (float)g_pGUI->GetDisplayWidth();
 	float fHeight = (float)g_pGUI->GetDisplayHeight();
 
-	// Initialize visible stuff
+	// Check if we have created image and text stuff for download, if not create it
 	if(!m_pFileImage)
 	{
+		// Try to load the image download.png - NOW!
+		try
+		{
+			CEGUI::ImagesetManager::getSingleton().createFromImageFile("Download", "Download.png");
+		}
+		catch(CEGUI::InvalidRequestException e)
+		{
+			String strFile = e.getMessage().c_str();
+			strFile = strFile.SubStr(strFile.Find(" - ")+3, (unsigned int)-1);
+			String str("IV:MP failed to load. (%s)", strFile.Get());
+			MessageBox(NULL, str.C_String(), "IV:MP Error", MB_OK | MB_ICONERROR);
+			ExitProcess(0);
+		}
+		catch(CEGUI::Exception e)
+		{
+			MessageBox(NULL, "IV:MP failed to load. Check CEGUI.log for details.", "IV:MP Error", MB_OK | MB_ICONERROR);
+			ExitProcess(0);
+		}
+
 		m_pFileImage = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
 		m_pFileImage->setProperty("FrameEnabled", "false");
 		m_pFileImage->setProperty("BackgroundEnabled", "false");
@@ -128,7 +153,6 @@ void CFileTransfer::SetServerInformation(String strAddress, unsigned short usPor
 		m_pFileImage->setAlpha(0.90f);
 		m_pFileImage->setVisible(false);
 	}
-
 	if(!m_pFileText)
 	{
 		m_pFileText = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
@@ -305,9 +329,6 @@ void CFileTransfer::Process()
 					// Reset out http client
 					m_httpClient.Reset();
 
-					// Wait
-					//Sleep(500);
-
 					// Hide message & image
 					m_pFileText->setVisible(false);
 					m_pFileImage->setVisible(false);
@@ -345,13 +366,12 @@ void CFileTransfer::Reset()
 
 	// Clear the file transfer list
 	for(std::list<ServerFile *>::iterator iter = m_fileList.begin(); iter != m_fileList.end(); iter++)
-		delete (*iter);
+		SAFE_DELETE(*iter);
 
 	m_fileList.clear();
 
 	// Reset download vars
 	m_bDownloadingFile = false;
-
 	m_pDownloadFile = NULL;
 
 	if(m_fDownloadFile)

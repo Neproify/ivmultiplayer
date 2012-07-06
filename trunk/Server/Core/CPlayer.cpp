@@ -844,7 +844,7 @@ void CPlayer::UpdateHeadMoveSync(CVector3 vecHead)
 {
 	if((vecHead-m_vecLastHeadMove).Length() != 0)
 	{
-		m_vecLastHeadMove = vecHead;
+		// push stuff
 		CSquirrelArguments pArguments;
 		pArguments.push(m_playerId);
 		pArguments.push(m_vecLastHeadMove.fX);
@@ -853,6 +853,11 @@ void CPlayer::UpdateHeadMoveSync(CVector3 vecHead)
 		pArguments.push(vecHead.fX);
 		pArguments.push(vecHead.fY);
 		pArguments.push(vecHead.fZ);
+
+		// Update coords
+		m_vecLastHeadMove = vecHead;
+
+		// Call the event
 		g_pEvents->Call("headMove", &pArguments);
 	}
 }

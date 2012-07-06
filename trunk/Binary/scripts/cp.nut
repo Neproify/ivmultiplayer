@@ -73,7 +73,7 @@ function onPlayerJoin(playerID) {
 	// Now you can use the natives, because the player is registered at the server
 	setPlayerSpawnLocation(playerID, -341.36, 1144.80, 14.79, 40.114815);
 	sendPlayerMessage(playerID, "Welcome to Central Park", White);
-	sendPlayerMessage(playerID, "cp: " + cp1, White);
+	sendPlayerMessage(playerID, "Checkpoint: " + cp1, White);
 }
 addEvent("playerJoin", onPlayerJoin);
 
@@ -651,16 +651,16 @@ addEvent("webRequest", onWebRequest);
 
 function onVehicleDamage(vehicleid,oldhealth,oldpetrol,newhealth,newpetrol)
 {
-	//log(format("VEHICLE DAMAGE: %d, %d, %d, %d, %d",vehicleid,oldhealth,oldpetrol,newhealth,newpetrol));
+	log(format("VEHICLE DAMAGE: %d, %d, %d, %d, %d",vehicleid,oldhealth,oldpetrol,newhealth,newpetrol));
 }
 addEvent("vehicleDamage",onVehicleDamage);
 
 function onPlayerShot(playerid,x,y,z,shot)
 {
-	//if(shot)
-	//	log(format("WEP: %d SHOT(%f, %f, %f)",playerid,x,y,z));
-	//else
-	//	log(format("WEP: %d AIM(%f, %f, %f)",playerid,x,y,z));
+	if(shot)
+		log(format("WEP: %d SHOT(%f, %f, %f)",playerid,x,y,z));
+	else
+		log(format("WEP: %d AIM(%f, %f, %f)",playerid,x,y,z));
 }
 addEvent("playerShot",onPlayerShot);
 
@@ -675,3 +675,15 @@ function onVehicleRespawn(vehicleid)
 	log("Vehicle Respawn "+vehicleid);
 }
 addEvent("vehicleRespawn",onVehicleRespawn);
+
+function onHeadMovement(playerid, oldx, oldy, oldz, newx, newy, newz)
+{
+	log(format("HEAD: %d OLD(%f, %f, %f) | NEW (%f, %f, %f)",playerid,oldx,oldy,oldz,newx,newy,newz));
+}
+addEvent("headMove",onHeadMovement);
+
+function onVehicleRequest(playerid,vehicleid,seat)
+{
+	return 1;
+}
+addEvent("vehicleEntryRequest", onVehicleRequest);

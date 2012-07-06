@@ -42,8 +42,8 @@ public:
 	virtual void                      SoundHorn(unsigned int iDuration) = 0;
 	virtual void                      SetSirenState(bool bSirenState) = 0;
 	virtual bool                      GetSirenState() = 0;
-	virtual bool                      SetLocked(int iLocked) = 0;
-	virtual unsigned char             GetLocked() = 0;
+	virtual bool                      SetLocked(unsigned int iLocked) = 0;
+	virtual unsigned int	          GetLocked() = 0;
 	virtual void                      SetIndicatorState(bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight) = 0;
 	virtual bool                      GetIndicatorState(unsigned char ucSlot) = 0;
 	virtual void                      SetComponentState(unsigned char ucSlot, bool bOn) = 0;
