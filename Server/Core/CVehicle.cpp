@@ -428,7 +428,7 @@ bool CVehicle::GetSirenState()
 	return m_bSirenState;
 }
 
-bool CVehicle::SetLocked(int iLocked)
+bool CVehicle::SetLocked(unsigned int iLocked)
 {
 	if(iLocked >= 0 && iLocked < 3)
 	{
@@ -449,7 +449,7 @@ bool CVehicle::SetLocked(int iLocked)
 	return false;
 }
 
-unsigned char CVehicle::GetLocked()
+unsigned int CVehicle::GetLocked()
 {
 	return m_iLocked;
 }

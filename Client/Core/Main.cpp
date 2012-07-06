@@ -1240,7 +1240,6 @@ void InternalResetGame(bool bAutoConnect)
 	// Mark the game as loaded.
 	if(!g_bGameLoaded)
 		g_bGameLoaded = true;
-
 	CGame::SetGameLoaded(g_bGameLoaded);
 
 	// Reset the network stats

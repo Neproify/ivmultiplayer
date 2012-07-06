@@ -141,8 +141,6 @@ bool CNetworkVehicle::Create()
 		// Get our model index
 		int iModelIndex = m_pModelInfo->GetIndex();
 
-		CLogFile::Printf("CNetworkVehicle::Create 3 - 3");
-
 		CLogFile::Printf("pModelInfo + 0x70 = %d", *(DWORD *)(m_pModelInfo->GetModelInfo() + 0x70));
 		//memset((void *)(CGame::GetBase() + 0x841808), 0x90, 5);
 		//memset((void *)(CGame::GetBase() + 0x8419B8), 0x90, 5);
@@ -162,13 +160,9 @@ bool CNetworkVehicle::Create()
 			mov pVehicle, eax
 		}
 
-		CLogFile::Printf("CNetworkVehicle::Create 4");
-
 		// Invalid vehicle?
 		if(!pVehicle)
 			return false;
-
-		CLogFile::Printf("CNetworkVehicle::Create 4 - 4");
 
 		dwFunc = (CGame::GetBase() + 0xC6CFC0);
 		_asm
@@ -178,8 +172,6 @@ bool CNetworkVehicle::Create()
 			add esp, 4
 		}
 
-		CLogFile::Printf("CNetworkVehicle::Create 5");
-
 		dwFunc = (CGame::GetBase() + 0xB77BB0);
 		_asm
 		{
@@ -188,8 +180,6 @@ bool CNetworkVehicle::Create()
 			call dwFunc
 			add esp, 8
 		}
-
-		CLogFile::Printf("CNetworkVehicle::Create 6");
 
 		// Create the vehicle instance
 		m_pVehicle = new CIVVehicle(pVehicle);
@@ -753,33 +743,28 @@ void CNetworkVehicle::RemoveFromWorld(bool bStopMoving)
 
 void CNetworkVehicle::SetDoorLockState(DWORD dwDoorLockState)
 {
-
 	// Get the actual lock state
 	DWORD dwState = 0;
 
-	/*switch(dwDoorLockState)
+	switch(dwDoorLockState)
 	{
 		case 0:
-			dwState = 1;
+			dwState = 0;
 			break;
 		case 1:
-			dwState = 0;
+			dwState = 3;
 			break;
 		case 2:
 			dwState = 7;
 			break;
 		default:
 			return;
-	}*/ // ADAMIX: FIX ME?
+	}
 
 	// Are we spawned?
 	if(IsSpawned())
-	{
 		Scripting::LockCarDoor(GetScriptingHandle(), dwDoorLockState);
-		//m_pVehicle->SetDoorLockState(dwState);
-	}
 		
-
 	m_dwDoorLockState = dwState;
 }
 
@@ -791,7 +776,7 @@ DWORD CNetworkVehicle::GetDoorLockState()
 	if(IsSpawned())
 		dwState = m_pVehicle->GetDoorLockState();
 		
-	/*switch(dwState)
+	switch(dwState)
 	{
 		case 0:
 			return 0;
@@ -801,7 +786,7 @@ DWORD CNetworkVehicle::GetDoorLockState()
 			return 2;
 		default:
 			CLogFile::Printf("Unknown vehicle %d door state %d", m_vehicleId, m_pVehicle->GetDoorLockState()); 
-	}*/ // ADAMIX: FIX ME?
+	}
 	return dwState;
 }
 

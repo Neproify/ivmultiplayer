@@ -8,16 +8,17 @@
 //==============================================================================
 #include "CFireManager.h"
 #include "CGame.h"
-#include "CChatWindow.h"
 #include "Scripting.h"
 
-extern CChatWindow * g_pChatWindow;
 extern CGame * g_pGame;
 
 CFireManager::CFireManager()
 {
 	for(EntityId x = 0; x < MAX_FIRE; x++)
+	{
 		m_bActive[x] = false;
+		m_Fire[x].uiHandle = -1;
+	}
 }
 
 CFireManager::~CFireManager()
@@ -31,11 +32,11 @@ CFireManager::~CFireManager()
 
 void CFireManager::Create(EntityId fireId, CVector3 vecPos, float fdensity)
 {
+	// Do we have created the fire?
 	if(m_bActive[fireId])
 		Delete(fireId);
 
-	CLogFile::Printf("Creating fire at: %f %f %f %f", vecPos.fX, vecPos.fY, vecPos.fZ, fdensity);
-
+	// Set the parameters
 	m_bActive[fireId] = true;
 	m_Fire[fireId].vecPos = vecPos;
 	m_Fire[fireId].fdensity = fdensity;
@@ -44,9 +45,16 @@ void CFireManager::Create(EntityId fireId, CVector3 vecPos, float fdensity)
 
 void CFireManager::Delete(EntityId fireId)
 {
+	// Do we have created the fire?
 	if(m_bActive[fireId]){
 		m_bActive[fireId] = false;
 		m_Fire[fireId].vecPos = CVector3(0.0f,0.0f,0.0f);
-		CGame::DeleteFire(m_Fire[fireId].uiHandle);
+
+		// Check if we have a fire handle
+		if(m_Fire[fireId].uiHandle != -1)
+			CGame::DeleteFire(m_Fire[fireId].uiHandle);
+
+		// Reset fire handle
+		m_Fire[fireId].uiHandle = -1;
 	}
 }

@@ -2129,11 +2129,11 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 							if(pVehicle->IsNetworkVehicle())
 							{
 								// Request the vehicle entry
-								CBitStream bitStream;
-								bitStream.Write((BYTE)VEHICLE_ENTRY_REQUEST);
-								bitStream.WriteCompressed(pVehicle->GetVehicleId());
-								bitStream.Write(byteSeatId);
-								g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+								CBitStream bsSend;
+								bsSend.Write((BYTE)VEHICLE_ENTRY_REQUEST);
+								bsSend.WriteCompressed(pVehicle->GetVehicleId());
+								bsSend.Write(byteSeatId);
+								g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 								m_vehicleEnterExit.bRequesting = true;
 							}
 							else

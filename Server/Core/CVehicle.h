@@ -34,7 +34,7 @@ private:
 	float         m_fDirtLevel;
 	int           m_iHornDuration;
 	bool          m_bSirenState;
-	int			  m_iLocked;
+	unsigned int  m_iLocked;
 	bool          m_bIndicatorState[4];
 	bool          m_bComponents[9];
 	unsigned char m_ucVariation;
@@ -85,8 +85,8 @@ public:
 	void          SoundHorn(unsigned int iDuration);
 	void          SetSirenState(bool bSirenState);
 	bool          GetSirenState();
-	bool          SetLocked(int iLocked);
-	unsigned char GetLocked();
+	bool          SetLocked(unsigned int iLocked);
+	unsigned int  GetLocked();
 	void          SetIndicatorState(bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight);
 	bool          GetIndicatorState(unsigned char ucSlot);
 	void          SetComponentState(unsigned char ucSlot, bool bOn);

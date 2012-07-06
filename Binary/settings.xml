@@ -8,8 +8,8 @@
 	<!-- An external webserver that you host your files on, can be either the server's name or IP -->
 	<!-- httpserver>example.com</httpserver -->
 
-	<!-- Maximum number of players the server will support (Max 32) -->
-	<maxplayers>32</maxplayers>
+	<!-- Maximum number of players the server will support (Max 48) -->
+	<maxplayers>48</maxplayers>
 
 	<!-- Maximum number of vehicles the server will support (Max 65534) -->
 	<maxvehicles>400</maxvehicles>
@@ -36,7 +36,7 @@
 	<guinametags>false</guinametags>
 	
 	<!-- Toggles the headmovement sync -->
-	<headmovement>false</headmovement>
+	<headmovement>true</headmovement>
 	
 	<!-- The scripts the server will load and run -->
 	<script>cp.nut</script>

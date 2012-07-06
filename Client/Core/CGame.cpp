@@ -169,7 +169,6 @@ void CGame::Initialize()
 	CLogFile::Printf("Game Base: 0x%p (0x%p)", m_uiBaseAddress, (m_uiBaseAddress - 0x400000));
 	m_uiBaseAddress -= 0x400000;
 	COffsets::Init(m_uiBaseAddress);
-	CLogFile::Printf("GAMEADDRESS: %d",m_uiBaseAddress);
 
 	if(COffsets::GetVersion() == GAME_VERSION_UNKNOWN)
 	{
@@ -182,7 +181,7 @@ void CGame::Initialize()
 		CLogFile::Printf("Applied patches");
 		InstallKeySyncHooks();
 		InstallAimSyncHooks();
-		CLogFile::Printf("Applied key sync/ aim sync hooks");
+		CLogFile::Printf("Applied key sync/aim sync hooks");
 
 		InstallIndicatorHooks();
 		InstallTrafficLightHooks();

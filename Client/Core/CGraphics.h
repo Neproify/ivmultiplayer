@@ -30,14 +30,15 @@ public:
 	CGraphics(IDirect3DDevice9 * pDevice);
 	~CGraphics();
 
-	void OnLostDevice();
-	void OnResetDevice();
-	void Begin();
-	void End();
-	void DrawPixel(float fX, float fY, unsigned long ulColor);
-	void DrawLine(float fStartX, float fStartY, float fEndX, float fEndY, unsigned long ulColor);
-	void DrawRect(float fX, float fY, float fWidth, float fHeight, unsigned long ulColor);
-	void DrawBox( float fLeft, float fTop, float fWidth, float fHeight, DWORD dwColour );
-	float GetFontHeight( float fScale = 1.0f );
+	void	OnLostDevice();
+	void	OnResetDevice();
+	void	Begin();
+	void	End();
+	void	DrawPixel(float fX, float fY, unsigned long ulColor);
+	void	DrawLine(float fStartX, float fStartY, float fEndX, float fEndY, unsigned long ulColor);
+	void	DrawRect(float fX, float fY, float fWidth, float fHeight, unsigned long ulColor);
+	void	DrawBox( float fLeft, float fTop, float fWidth, float fHeight, DWORD dwColour );
+	float	GetFontHeight( float fScale = 1.0f );
+
 	IDirect3DDevice9 *GetDevice() { return m_pDevice; };
 };

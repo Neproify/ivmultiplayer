@@ -72,18 +72,11 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 		return;
 
 	EntityId playerId;
-	String sHostName;
+	String sHostName, sHttpServer;
 	bool bPayAndSpray, bAutoAim, bGUINametags, bHeadMovement;
-	unsigned int color;
-	String sHttpServer;
 	unsigned short usHttpPort;
-	unsigned char ucWeather;
-	int iMaxPlayers;
-	unsigned char ucHour;
-	unsigned char ucMinute;
-	unsigned int uiMinuteDuration;
-	unsigned char ucTrafficLightState;
-	unsigned int uiTrafficLightTimePassed, uiGreenDuration, uiYellowDuration, uiRedDuration;
+	unsigned char ucWeather, ucTrafficLightState, ucHour, ucMinute;
+	unsigned int color, iMaxPlayers, uiMinuteDuration, uiTrafficLightTimePassed, uiGreenDuration, uiYellowDuration, uiRedDuration;
 
 	pBitStream->Read(playerId);
 	pBitStream->Read(sHostName);
@@ -152,8 +145,6 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	CGame::SetInputState(true);
 	CGame::SetState(GAME_STATE_INGAME);
-	//String strText = "Please wait a moment while initialing all resources ....";
-	//Scripting::PrintStringWithLiteralStringNow("STRING", strText.Get(), 2000, 1);
 	g_pChatWindow->AddInfoMessage("Successfully joined %s.", sHostName.C_String());
 }
 
@@ -2375,18 +2366,6 @@ void CClientRPCHandler::ScriptingSetVehicleLocked(CBitStream * pBitStream, CPlay
 
 	// Convert int to dword
 	DWORD dwLockState = static_cast<DWORD>(iLocked);
-
-	/* TODO Fix state 1! (http://www.gtamodding.com/index.php?title=LOCK_CAR_DOORS)
-	
-	And add this paramters(?)
-	0 - unlocked car
-	1 - locked car - the player and characters refuses to enter the car
-    2 - locked car - the player tries to enter and break the (driver)window
-    3 - locked for the player, not locked for NPCs
-    4 - locked, the player is stuck in the car 
-
-	Scripting::LockCarDoor(pVehicle->GetScriptingHandle(),iLocked);
-	*/
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 	if(pVehicle)

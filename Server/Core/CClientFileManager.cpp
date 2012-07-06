@@ -84,23 +84,20 @@ bool CClientFileManager::Exists(String strName)
 
 void CClientFileManager::HandleClientJoin(EntityId playerId)
 {
-	CBitStream bitStream;
+	CBitStream bsSend;
 
 	for(iterator iter = begin(); iter != end(); ++ iter)
 	{
-		// Reset the bit stream
-		bitStream.Reset();
-
 		// Write if the file is a script or resource
-		bitStream.Write(bIsScriptManager);
+		bsSend.Write(bIsScriptManager);
 
 		// Write the file name
-		bitStream.Write((*iter).first);
+		bsSend.Write((*iter).first);
 
 		// Write the file checksum
-		bitStream.Write((char *)&((*iter).second), sizeof(CFileChecksum));
+		bsSend.Write((char *)&((*iter).second), sizeof(CFileChecksum));
 
 		// Send the rpc
-		g_pNetworkManager->RPC(RPC_NewFile, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-	}	
+		g_pNetworkManager->RPC(RPC_NewFile, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+	}
 }

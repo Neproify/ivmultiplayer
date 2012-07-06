@@ -574,7 +574,6 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 		{
 			// Read the seat id
 			BYTE byteSeatId;
-
 			if(!pBitStream->Read(byteSeatId))
 				return;
 
@@ -592,7 +591,7 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 				// Reply to the vehicle entry request
 				CBitStream bitStream;
 				bitStream.WriteCompressed(pSenderSocket->playerId);
-				bitStream.Write1();
+				bitStream.WriteBit(true); // or just Write1()?
 
 				bitStream.Write((BYTE)VEHICLE_ENTRY_RETURN);
 				bitStream.Write(vehicleId);
