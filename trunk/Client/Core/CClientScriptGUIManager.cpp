@@ -49,7 +49,7 @@ void CClientScriptGUIManager::Delete(CEGUI::Window * pWindow)
 		GUIElement * pElement = (*iter);
 
 		// Is this the element we are looking for?
-		if(pElement->pWindow == pWindow)
+		if(pElement && pElement->pWindow == pWindow)
 		{
 			// Check if this window present in d3d9webkit
 			CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
