@@ -836,6 +836,7 @@ void CScriptingManager::UnloadAll()
 		for(iter = m_scripts.begin(); iter != m_scripts.end(); iter++)
 			(*iter)->Unload();
 	}
+	m_scripts.clear();
 }
 
 void CScriptingManager::RegisterFunction(String strFunctionName, SQFUNCTION pfnFunction, int iParameterCount, String strFunctionTemplate)

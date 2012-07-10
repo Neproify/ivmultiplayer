@@ -655,6 +655,13 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC180) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC190) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
+
+		// Fix vehicle crash
+		//CPatcher::InstallNopPatch((GetBase() + 0x43B511), 6);
+		//CPatcher::InstallNopPatch((GetBase() + 0x862B7A), 6);
+		//CPatcher::InstallNopPatch((GetBase() + 0x862BDC), 6);
+		CPatcher::InstallNopPatch((GetBase() + 0xCBA1F1), 6);
+
 		return true;
 	}
 
