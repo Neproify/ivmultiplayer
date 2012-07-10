@@ -52,10 +52,10 @@ void RegisterClientNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getCurrentStreetName", sq_getCurrentStreetName, 0, NULL);
 	pScriptingManager->RegisterFunction("getVehicleName", sq_getVehicleName, 1, "i");
 	pScriptingManager->RegisterFunction("getFPS", sq_getFPS, 0, NULL);
+	pScriptingManager->RegisterFunction("isGameFocused", sq_isGameFocused, 0, NULL);
+	pScriptingManager->RegisterFunction("getScreenPositionFromWorldPosition", sq_getScreenPositionFromWorldPosition, 3, "fff");
 
 	pScriptingManager->RegisterFunction("triggerServerEvent", sq_triggerServerEvent, -1, NULL);
-
-	pScriptingManager->RegisterFunction("getScreenPositionFromWorldPosition", sq_getScreenPositionFromWorldPosition, 3, "fff");
 }
 
 // addChatMessage(string)
@@ -387,6 +387,7 @@ int sq_getFPS(SQVM * pVM)
 	return 1;
 }
 
+// getScreenPositionFromWorldPosition(x, y, z)
 int sq_getScreenPositionFromWorldPosition(SQVM * pVM)
 {
 	CVector3 vecWorldPos;
@@ -399,5 +400,12 @@ int sq_getScreenPositionFromWorldPosition(SQVM * pVM)
 	sq_pushfloat(pVM, vecScreenPos.Y);
 	sq_arrayappend(pVM, -2);
 
+	return 1;
+}
+
+// isGameFocused()
+int sq_isGameFocused(SQVM * pVM)
+{
+	sq_pushbool(pVM, CGame::IsFocused());
 	return 1;
 }

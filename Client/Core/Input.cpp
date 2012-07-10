@@ -254,7 +254,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			}
 		}
 
-		//// Is this a F2 key up?
+		// Is this a F2 key up?
 		//if(uMsg == WM_KEYUP && wParam == VK_F2)
 		//{
 		//	//Scripting::ActivateScriptedCams(true, true);
@@ -266,7 +266,20 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		{
 			DWORD dwAddress = Scripting::NATIVE_FORCE_CAR_LIGHTS;
 			DWORD dwNew = CGame::GetNativeAddress(dwAddress);
-			g_pChatWindow->AddInfoMessage("Native Addres: 0x%x",dwNew);
+			g_pChatWindow->AddInfoMessage("NATIVE_FORCE_CAR_LIGHTS: 0x%x",dwNew);
+
+			dwAddress = Scripting::NATIVE_REMOVE_CAR_WINDOW;
+			dwNew = CGame::GetNativeAddress(dwAddress);
+			g_pChatWindow->AddInfoMessage("NATIVE_REMOVE_CAR_WINDOW: 0x%x",dwNew);
+
+			dwAddress = Scripting::NATIVE_CONTROL_CAR_DOOR;
+			dwNew = CGame::GetNativeAddress(dwAddress);
+			g_pChatWindow->AddInfoMessage("NATIVE_CONTROL_CAR_DOOR: 0x%x",dwNew);
+
+			dwAddress = Scripting::NATIVE_SET_TAXI_LIGHTS;
+			dwNew = CGame::GetNativeAddress(dwAddress);
+			g_pChatWindow->AddInfoMessage("NATIVE_SET_TAXI_LIGHTS: 0x%x",dwNew);
+
 		}*/
 
 		// Is this a F7 key up?

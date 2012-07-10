@@ -590,7 +590,7 @@ namespace Modules
 			bool bToggle = (door != 0);
 			bool bToggle2 = (door2 != 0);
 			bool bToggle3 = (door3 != 0);
-			pVehicle->ControlCarDoors(bToggle,bToggle2,bToggle3);
+			pVehicle->SetCarDoorAngle(bToggle,bToggle2,bToggle3);
 			return true;
 		}
 

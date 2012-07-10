@@ -176,5 +176,5 @@ public:
 	bool			 IsLoadingScreenActive() { return m_bLoadingScreenActive; };
 	void			 SetNetworkStats(String strHost, int players, int maxplayers, String strName);
 	void			 ResetNetworkStats();
-	void			 ShowMessageBox(const char * szMessage, const char * szHeader, bool bGameMenu, bool bResetGame);
+	void			 ShowMessageBox(const char * szMessage, const char * szHeader, bool bGameMenu, bool bResetGame, bool bAllowReconnect);
 };

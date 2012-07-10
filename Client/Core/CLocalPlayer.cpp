@@ -23,15 +23,17 @@
 #include "CCutsceneInteriors.h"
 #include "COffsets.h"
 #include "CCamera.h"
+#include "CClientScriptManager.h"
 
-extern CNetworkManager * g_pNetworkManager;
-extern CPlayerManager  * g_pPlayerManager;
-extern CVehicleManager * g_pVehicleManager;
-extern CStreamer       * g_pStreamer;
-extern CChatWindow     * g_pChatWindow;
-extern CInputWindow    * g_pInputWindow;
-extern CCamera         * g_pCamera;
-extern bool              m_bControlsDisabled;
+extern CNetworkManager		* g_pNetworkManager;
+extern CPlayerManager		* g_pPlayerManager;
+extern CVehicleManager		* g_pVehicleManager;
+extern CStreamer			* g_pStreamer;
+extern CChatWindow			* g_pChatWindow;
+extern CInputWindow			* g_pInputWindow;
+extern CCamera				* g_pCamera;
+extern bool					m_bControlsDisabled;
+extern CClientScriptManager * g_pClientScriptManager;
 
 void * pAddress = NULL;
 void * pReturnAddress = NULL;
@@ -84,6 +86,7 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true)
 	m_ulLastPureSyncTime = 0;
 	m_uiLastInterior = 0;
 	m_bDisableVehicleInfo = false;
+	m_bFirstSpawn = false;
 	//m_bAnimating = false;
 	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
 	
@@ -105,6 +108,13 @@ void CLocalPlayer::Respawn()
 
 void CLocalPlayer::HandleSpawn()
 {
+	// Now load our client scripts(seems that all resources are downloaded ;))
+	if(!m_bFirstSpawn)
+	{
+		g_pClientScriptManager->LoadAll();
+		m_bFirstSpawn = true;
+	}
+
 	CLogFile::Printf("HandleSpawn(LocalPlayer)");
 
 	// Enable input if needed
@@ -203,6 +213,8 @@ void CLocalPlayer::Pulse()
 							SendPassengerSync();
 						}
 					}
+					// Send our empty vehicle sync
+					//SendEmptyVehicleSync();
 				}
 				else
 				{
@@ -319,7 +331,7 @@ void CLocalPlayer::SendOnFootSync()
 	g_pNetworkManager->RPC(RPC_OnFootSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
 	// Send our latest head movement if it's enabled
-	if(CGame::GetHeadMovement()) 
+	if(CGame::GetHeadMovement() && IsSpawned()) 
 	{
 		CBitStream bsHead;
 		CVector3 vecLookAt; 
@@ -443,8 +455,8 @@ void CLocalPlayer::SendInVehicleSync()
 
 		g_pNetworkManager->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
-		// Check if our car is dead(exploded)
-		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()))
+		// Check if our car is dead(exploded or in water)
+		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || Scripting::IsCarInWater(pVehicle->GetScriptingHandle()))
 		{
 			CBitStream bsDeath;
 			bsDeath.Write(pVehicle->GetVehicleId());
@@ -612,3 +624,40 @@ void CLocalPlayer::SetAnimation(const char * strGroup, const char * strAnim)
 	m_bAnimating = true;
 }
 */
+
+// TODO: or just sync nearest vehicle?
+void CLocalPlayer::SendEmptyVehicleSync()
+{
+	EMPTYVEHICLESYNCPACKET * syncPacket;
+	CBitStream bsSend;
+	unsigned int ui = 0;
+	unsigned int uiOccupants = 0;
+
+	for(EntityId iD = 0; iD < g_pVehicleManager->GetCount(); iD++)
+	{
+		if(g_pVehicleManager->Get(iD)->IsSpawned() && g_pVehicleManager->Get(iD)->IsStreamedIn())
+		{
+			// Reset stuff
+			ui = 0;
+			uiOccupants = 0;
+			bsSend.Reset();
+
+			while(ui != 8)
+			{
+				ui++;
+				if(!g_pVehicleManager->Get(iD)->GetOccupant(ui))
+					continue;
+				else
+					uiOccupants++;
+			}
+			if(uiOccupants == 0)
+			{
+				g_pVehicleManager->Get(iD)->StoreEmptySync(syncPacket);
+			
+				bsSend.Write((char *)syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
+				g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+			}
+		}
+	}
+}
+			

@@ -184,5 +184,8 @@ public:
 	bool			 GetWindowState(int iWindow);
 	void			 SetWindowState(int iWindow, bool bBroken);
 
+	void			 SetDeformation(CVector3 vecPos, CVector3 vecDeformation);
+	CVector3		 GetDeformation(CVector3 vecPos);
+
 	void			 SetDamageable(bool bToggle);
 };

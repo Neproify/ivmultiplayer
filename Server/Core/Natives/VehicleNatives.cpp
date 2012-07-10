@@ -929,21 +929,21 @@ SQInteger CVehicleNatives::ControlCar(SQVM *pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM,-4,&vehicleId);
 
-	int door;
-	sq_getinteger(pVM,-3,&door);
+	int iDoor;
+	sq_getinteger(pVM,-3,&iDoor);
 
-	SQBool door2;
-	sq_getbool(pVM,-2,&door2);
+	SQBool bDoor;
+	sq_getbool(pVM,-2,&bDoor);
 
-	float door3;
-	sq_getfloat(pVM,-1,&door3); 
+	float fAngle;
+	sq_getfloat(pVM,-1,&fAngle); 
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
 	if(pVehicle)
 	{
-		bool bToggle2 = (door2 != 0);
-		pVehicle->ControlCarDoors(door,bToggle2,door3);
+		bool bToggle = (bDoor != 0);
+		pVehicle->SetCarDoorAngle(iDoor,bToggle,fAngle);
 		return 1;
 	}
 
@@ -969,7 +969,7 @@ SQInteger CVehicleNatives::SetLights(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
-	return 1;
+	return 0;
 }
 
 SQInteger CVehicleNatives::GetLights(SQVM * pVM)
@@ -986,7 +986,7 @@ SQInteger CVehicleNatives::GetLights(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
-	return 1;
+	return 0;
 }
 
 SQInteger CVehicleNatives::GetTaxiLights(SQVM * pVM)
@@ -1003,7 +1003,7 @@ SQInteger CVehicleNatives::GetTaxiLights(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
-	return 1;
+	return 0;
 }
 
 SQInteger CVehicleNatives::RepairWheels(SQVM * pVM)
@@ -1021,7 +1021,7 @@ SQInteger CVehicleNatives::RepairWheels(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
-	return 1;
+	return 0;
 }
 
 SQInteger CVehicleNatives::RepairWindows(SQVM * pVM)
@@ -1039,5 +1039,5 @@ SQInteger CVehicleNatives::RepairWindows(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
-	return 1;
+	return 0;
 }

@@ -15,11 +15,15 @@
 #include "CChatWindow.h"
 #include "CNetworkManager.h"
 #include "CLogFile.h"
+#include "CMainMenu.h"
+#include "CLocalPlayer.h"
 
 extern CClientScriptManager * g_pClientScriptManager;
 extern CChatWindow          * g_pChatWindow;
 extern CNetworkManager      * g_pNetworkManager;
 extern CGUI					* g_pGUI;
+extern CMainMenu			* g_pMainMenu;
+extern CLocalPlayer			* g_pLocalPlayer;
 
 #define TRANSFERBOX_WIDTH       350
 #define TRANSFERBOX_HEIGHT      58
@@ -195,15 +199,16 @@ void CFileTransfer::AddFile(String strFileName, CFileChecksum fileChecksum, bool
 				// Add the script to the client script manager
 				g_pClientScriptManager->AddScript(strFileName, strFilePath);
 
-				// Load the script
-				g_pClientScriptManager->Load(strFileName);
+				// Check if we had already our first spawn
+				if(g_pLocalPlayer->GetFirstSpawn())
+					g_pClientScriptManager->Load(strFileName);
 			}
 
 			return;
 		}
 	}
 
-	ServerFile * pServerFile = new  ServerFile;
+	ServerFile * pServerFile = new  ServerFile();
 	pServerFile->strName = strFileName;
 	memcpy(&pServerFile->fileChecksum, &fileChecksum, sizeof(CFileChecksum));
 	pServerFile->strType = (bIsResource ? "resource" : "script");
@@ -254,13 +259,13 @@ void CFileTransfer::Process()
 				}
 				else
 				{
-					g_pChatWindow->AddInfoMessage("Failed to start download of %s %s", pServerFile->strType.Get(), pServerFile->strName.Get());
-
 					// Reset all transfers
 					Reset();
 
-					// Disconnect from the server
-					g_pNetworkManager->Disconnect();
+					// Show Message
+					String strMessage; 
+					strMessage.AppendF("Failed to start download of %s %s", pServerFile->strType.Get(), pServerFile->strName.Get());
+					g_pMainMenu->ShowMessageBox(strMessage.Get(),"Download failed",true,false, false);
 				}
 			}
 		}
@@ -307,21 +312,16 @@ void CFileTransfer::Process()
 						// Add the script to the client script manager
 						g_pClientScriptManager->AddScript(m_pDownloadFile->strName, strFilePath);
 
-						// Load the script
-						g_pClientScriptManager->Load(m_pDownloadFile->strName);
+						// Check if we had already our first spawn
+						if(g_pLocalPlayer->GetFirstSpawn())
+							g_pClientScriptManager->Load(m_pDownloadFile->strName);
 					}
-
-					// Notice user that file is sucessfully downloaded
-					//g_pChatWindow->AddInfoMessage("File %s sucessfully downloaded.", m_pDownloadFile->strName.C_String());
 
 					// Remove the download file from the file list
 					m_fileList.remove(m_pDownloadFile);
 
 					// Delete the download file
 					SAFE_DELETE(m_pDownloadFile);
-
-					// Reset the download file
-					m_pDownloadFile = NULL;
 
 					// Flag ourselves as no longer downloading
 					m_bDownloadingFile = false;
@@ -336,7 +336,10 @@ void CFileTransfer::Process()
 				}
 				else
 				{
-					g_pChatWindow->AddInfoMessage("Failed to download %s %s (Checksum mismatch)", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get());
+					// Show Message
+					String strMessage; 
+					strMessage.AppendF("Failed to download %s %s (Checksum mismatch)", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get());
+					g_pMainMenu->ShowMessageBox(strMessage.Get(),"Download failed",true,false, false);
 
 					// Reset all transfers
 					Reset();
@@ -347,7 +350,10 @@ void CFileTransfer::Process()
 			}
 			else
 			{
-				g_pChatWindow->AddInfoMessage("Failed to download %s %s (%s)", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get(), m_httpClient.GetLastErrorString().Get());
+				// Show Message
+				String strMessage; 
+				strMessage.AppendF("Failed to download %s %s (%s)", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get(), m_httpClient.GetLastErrorString().Get());
+				g_pMainMenu->ShowMessageBox(strMessage.Get(),"Download failed",true,false, false);
 
 				// Reset all transfers
 				Reset();

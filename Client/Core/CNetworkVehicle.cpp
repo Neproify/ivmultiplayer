@@ -692,20 +692,28 @@ float CNetworkVehicle::GetDirtLevel()
 
 void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 {
-	SetTargetPosition(emptyVehicleSync->vecPosition, TICK_RATE);
-	SetTargetRotation(emptyVehicleSync->vecRotation, TICK_RATE);
-	SetHealth(emptyVehicleSync->uiHealth);
-	SetPetrolTankHealth(emptyVehicleSync->fPetrolHealth);
-	SetDirtLevel(emptyVehicleSync->fDirtLevel);
-	SetLightsState(emptyVehicleSync->bLights);
-	SetTaxiLightsState(emptyVehicleSync->bTaxiLights);
-	SetSirenState(emptyVehicleSync->bSirenState);
+	if(IsSpawned() && IsStreamedIn())
+	{
+		emptyVehicleSync->vehicleId = GetVehicleId();
+		GetPosition(emptyVehicleSync->vecPosition);
+		GetRotation(emptyVehicleSync->vecRotation);
+		emptyVehicleSync->uiHealth = GetHealth();
+		emptyVehicleSync->fPetrolHealth = GetPetrolTankHealth();
+		emptyVehicleSync->bLights = GetLightsState();
+		emptyVehicleSync->bTaxiLights = GetTaxiLightsState();
+		emptyVehicleSync->bSirenState = GetSirenState();
+		emptyVehicleSync->bEngineStatus = GetEngineState();
+		emptyVehicleSync->fDirtLevel = GetDirtLevel();
 
-	for(int i = 0; i <= 3; i++)
-		SetWindowState(i,emptyVehicleSync->bWindow[i]);
+		/*for(int i = 0; i <= 3; i++)
+			emptyVehicleSync->bWindow[i] = GetWindowState(i);
+
+		for(int i = 0; i <= 5; i++)
+			emptyVehicleSync->bTyre[i] = 0;*/
 	
-	for(int i = 0; i <= 5; i++)
-		SetCarDoorAngle(i,false,emptyVehicleSync->fDoor[i]);
+		for(int i = 0; i <= 5; i++)
+			emptyVehicleSync->fDoor[i] = GetCarDoorAngle(i);
+	}
 }
 
 BYTE CNetworkVehicle::GetMaxPassengers()
@@ -1230,4 +1238,16 @@ bool CNetworkVehicle::GetEngineState()
 		return m_bEngineStatus;//m_pVehicle->GetEngineStatus();
 
 	return false;
+}
+
+CVector3 CNetworkVehicle::GetDeformation(CVector3 vecPosition)
+{
+	// Are we spawned?
+	if(IsSpawned())
+	{
+		CVector3 vecDeformation;
+		Scripting::GetCarDeformationAtPos(GetScriptingHandle(),vecPosition.fX, vecPosition.fY, vecPosition.fZ,&vecDeformation);
+		return vecDeformation;
+	}
+	return CVector3(0.0f, 0.0f, 0.0f);
 }

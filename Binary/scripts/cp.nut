@@ -36,6 +36,13 @@ function onScriptInit()
 	actor1 = createActor(242, -341.36, 1142.80, 14.79, 5.0);
 	local actor2 = createActor(242, -343.36, 1142.80, 14.79, 5.0);
 	local actor3 = createActor(242, -342.36, 1142.80, 14.79, 5.0);
+	for(local i = 0; i < 15; i++)
+	{
+		local actor = createActor(242, -341.36 + i + 1, 1142.80, 14.79, 5.0);
+		setActorName(actor, "StupidBot #" + i);
+		setActorNametagColor(actor, White);
+	}
+	setActorName(actor3, "sucks");
 	sendConsoleInput("uptime");
 	log(format("Hello %s 0x%x %d", "World", 1337, 1337));
 	log(_version_);
@@ -63,7 +70,7 @@ function onPlayerConnect(playerID, playerName, playerIP, playerSerial, bHasModde
 	// Don't use natives here, the player sends only the request, he's NOT connected to the server!
 	sendMessageToAll(playerName + " (" + playerID + ") has connected.", White);
 	if(bHasModdedGameFiles) {
-		return 0; // Don't allow modified game files!
+	//	return 0; // Don't allow modified game files!
 	}
 	return 1;
 }
@@ -73,7 +80,7 @@ function onPlayerJoin(playerID) {
 	// Now you can use the natives, because the player is registered at the server
 	setPlayerSpawnLocation(playerID, -341.36, 1144.80, 14.79, 40.114815);
 	sendPlayerMessage(playerID, "Welcome to Central Park", White);
-	sendPlayerMessage(playerID, "Checkpoint: " + cp1, White);
+	sendPlayerMessage(playerID, "cp: " + cp1, White);
 }
 addEvent("playerJoin", onPlayerJoin);
 
@@ -94,6 +101,8 @@ function onSpawn(playerid)
 {
 	createPlayerBlip(playerid, 3);
 	togglePlayerBlipShortRange(playerid,true);
+	local pos = getPlayerCoordinates(playerid);
+	createFire(pos[0], pos[1], pos[2], 5.0);
 }
 addEvent("playerSpawn", onSpawn);
 
@@ -651,16 +660,16 @@ addEvent("webRequest", onWebRequest);
 
 function onVehicleDamage(vehicleid,oldhealth,oldpetrol,newhealth,newpetrol)
 {
-	log(format("VEHICLE DAMAGE: %d, %d, %d, %d, %d",vehicleid,oldhealth,oldpetrol,newhealth,newpetrol));
+	//log(format("VEHICLE DAMAGE: %d, %d, %d, %d, %d",vehicleid,oldhealth,oldpetrol,newhealth,newpetrol));
 }
 addEvent("vehicleDamage",onVehicleDamage);
 
 function onPlayerShot(playerid,x,y,z,shot)
 {
-	if(shot)
-		log(format("WEP: %d SHOT(%f, %f, %f)",playerid,x,y,z));
-	else
-		log(format("WEP: %d AIM(%f, %f, %f)",playerid,x,y,z));
+	//if(shot)
+	//	log(format("WEP: %d SHOT(%f, %f, %f)",playerid,x,y,z));
+	//else
+	//	log(format("WEP: %d AIM(%f, %f, %f)",playerid,x,y,z));
 }
 addEvent("playerShot",onPlayerShot);
 
@@ -686,4 +695,4 @@ function onVehicleRequest(playerid,vehicleid,seat)
 {
 	return 1;
 }
-addEvent("vehicleEntryRequest", onVehicleRequest);
+-addEvent("vehicleEntryRequest", onVehicleRequest);

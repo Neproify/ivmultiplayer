@@ -22,3 +22,4 @@ _MEMBER_FUNCTION_IMPL(Audio, getVolume);
 _MEMBER_FUNCTION_IMPL(Audio, restoreVolume);
 _MEMBER_FUNCTION_IMPL(Audio, setPosition);
 _MEMBER_FUNCTION_IMPL(Audio, clearPosition);
+_MEMBER_FUNCTION_IMPL(Audio, usePositionSystem);

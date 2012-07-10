@@ -1206,7 +1206,7 @@ void CMainMenu::ResetNetworkStats()
 	m_pMyName->setText("-");
 }
 
-void CMainMenu::ShowMessageBox(const char * szMessage, const char * szHeader, bool bGameMenu, bool bResetGame)
+void CMainMenu::ShowMessageBox(const char * szMessage, const char * szHeader, bool bGameMenu, bool bResetGame, bool bAllowReconnect)
 {
 	g_pGUI->ShowMessageBox(szMessage,szHeader);
 
@@ -1214,5 +1214,5 @@ void CMainMenu::ShowMessageBox(const char * szMessage, const char * szHeader, bo
 		CGame::SetState(GAME_STATE_MAIN_MENU);
 
 	if(bResetGame)
-		ResetGame();
+		InternalResetGame(bAllowReconnect);
 }
