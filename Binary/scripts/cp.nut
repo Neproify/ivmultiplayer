@@ -695,4 +695,4 @@ function onVehicleRequest(playerid,vehicleid,seat)
 {
 	return 1;
 }
--addEvent("vehicleEntryRequest", onVehicleRequest);
+addEvent("vehicleEntryRequest", onVehicleRequest);
