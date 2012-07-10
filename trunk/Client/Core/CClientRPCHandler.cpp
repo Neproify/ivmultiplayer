@@ -867,31 +867,24 @@ void CClientRPCHandler::DeleteCheckpoint(CBitStream * pBitStream, CPlayerSocket 
 
 void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	CLogFile::Printf("PlayerSpawn - 1");
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
-	CLogFile::Printf("PlayerSpawn - 2");
 
 	/* Ignore this for now, as the client will recieve PlayerSpawn RPCs while connecting.
 	if(!g_pNetworkManager->HasJoinedGame())
 		return; */
 
-	CLogFile::Printf("PlayerSpawn - 2.5");
-
 	EntityId playerId;
 	pBitStream->ReadCompressed(playerId);
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	CLogFile::Printf("PlayerSpawn - 2.75 | playerId: %d",playerId);
 
 	// Is the player valid?
 	if(pPlayer)
 	{
-		CLogFile::Printf("PlayerSpawn - 3");
 		// Is it the local player?
 		if(pPlayer->IsLocalPlayer())
 		{
-			CLogFile::Printf("PlayerSpawn - 3.5");
 			// Respawn the local player
 			g_pLocalPlayer->Respawn();
 		}
@@ -1156,16 +1149,16 @@ void CClientRPCHandler::SmallSync(CBitStream * pBitStream, CPlayerSocket * pSend
 
 void CClientRPCHandler::EmptyVehicleSync(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	// Ensure we have a valid bit stream
-	if(!pBitStream)
-		return;
-
-	EMPTYVEHICLESYNCPACKET syncPacket;
-	pBitStream->Read((PCHAR)&syncPacket, sizeof(EMPTYVEHICLESYNCPACKET));
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(syncPacket.vehicleId);
-
-	if(pVehicle)
-		pVehicle->StoreEmptySync(&syncPacket);
+//	// Ensure we have a valid bit stream
+//	if(!pBitStream)
+//		return;
+//
+//	EMPTYVEHICLESYNCPACKET syncPacket;
+//	pBitStream->Read((PCHAR)&syncPacket, sizeof(EMPTYVEHICLESYNCPACKET));
+//	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(syncPacket.vehicleId);
+//
+//	if(pVehicle)
+//		pVehicle->StoreEmptySync(&syncPacket);
 }
 
 void CClientRPCHandler::Message(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1207,7 +1200,7 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
  
  	// Disconnect from the server & show the message
  	g_pNetworkManager->Disconnect();
-	g_pMainMenu->ShowMessageBox(strReason.C_String(),"Connection failed", true, true);
+	g_pMainMenu->ShowMessageBox(strReason.C_String(),"Connection failed", true, true, false);
 }
 
 

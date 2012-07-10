@@ -207,9 +207,7 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 		// Inform the script file manager of the client join
 		g_pClientScriptFileManager->HandleClientJoin(playerId);
 
-		// TODO: move the playerConnect event to AFTER the file downloads complete!
-
-		// Call the playerConnect event
+		// Call the playerJoin event(AFTER he has downloaded all files)
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
 		g_pEvents->Call("playerJoin", &pArguments);
@@ -760,15 +758,12 @@ void CServerRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 	}
 }
 
-// TODO: Vehicle id checking here
 void CServerRPCHandler::EmptyVehicleSync(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	// FIXUPDATE
 	// Ensure we have a valid bit stream
-	/*if(!pBitStream)
+	if(!pBitStream)
 		return;
 
-	// TODO: Server needs to store this?
 	EntityId playerId = pSenderSocket->playerId;
 
 	if(CVAR_GET_BOOL("frequentevents"))
@@ -776,18 +771,22 @@ void CServerRPCHandler::EmptyVehicleSync(CBitStream * pBitStream, CPlayerSocket 
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
 
-		if(g_pEvents->Call("playerEmptyVehicleSyncReceived", &pArguments) != 1 || g_pEvents->Call("playerSyncReceived", &pArguments) != 1)
+		if(g_pEvents->Call("playerEmptyVehicleSyncReceived", &pArguments).GetInteger() != 1 || g_pEvents->Call("playerSyncReceived", &pArguments).GetInteger() != 1)
 			return;
 	}
 
-	CBitStream bsSend(packet->data, packet->length, false);
+	CBitStream bsSend;
 	EMPTYVEHICLESYNCPACKET syncPacket;
 
 	if(!pBitStream->Read((PCHAR)&syncPacket, sizeof(EMPTYVEHICLESYNCPACKET)))
 		return;
 
-	//g_pVehicleManager->StoreEmptyVehicleSync(&syncPacket);
-	g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED, playerId, true);*/
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(syncPacket.vehicleId);
+	if(pVehicle && g_pVehicleManager->DoesExist(syncPacket.vehicleId))
+		pVehicle->StoreEmptyVehicle(&syncPacket);
+
+	//bsSend.Write((char *)&syncPacket, sizeof(EMPTYVEHICLESYNCPACKET));
+	//g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED, playerId, false);
 }
 
 void CServerRPCHandler::NameChange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

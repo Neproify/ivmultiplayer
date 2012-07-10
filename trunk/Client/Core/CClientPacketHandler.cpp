@@ -26,7 +26,7 @@ void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSo
 	//g_pChatWindow->AddInfoMessage("Connection failed! (Rejected)");
 	g_pNetworkManager->Disconnect();
 	g_pMainMenu->ResetNetworkStats();
-	g_pMainMenu->ShowMessageBox("The server rejected your connection request!", "Connection failed", true, false);
+	g_pMainMenu->ShowMessageBox("The server rejected your connection request!", "Connection failed", true, false, false);
 }
 
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -49,7 +49,7 @@ void CClientPacketHandler::ConnectionFailed(CBitStream * pBitStream, CPlayerSock
 void CClientPacketHandler::AlreadyConnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	//g_pChatWindow->AddInfoMessage("Connection failed(Already connected)!");
-	g_pMainMenu->ShowMessageBox("You're already on the server!", "Connection failed", true, false);
+	g_pMainMenu->ShowMessageBox("You're already on the server!", "Connection failed", true, false, false);
 }
 
 void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -57,33 +57,33 @@ void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * p
 	//g_pChatWindow->AddInfoMessage("Connection failed(server is full), retrying ....");
 	g_pNetworkManager->Connect();
 	g_pMainMenu->ResetNetworkStats();
-	g_pMainMenu->ShowMessageBox("The server is full!", "Connection failed", true, false);
+	g_pMainMenu->ShowMessageBox("The server is full!", "Connection failed", true, false, false);
 }
 
 void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	//g_pChatWindow->AddInfoMessage("Server closed the connection!");
 	g_pMainMenu->ResetNetworkStats();
-	g_pMainMenu->ShowMessageBox("The server closed the connection!", "Disconnected", true, true);
+	g_pMainMenu->ShowMessageBox("The server closed the connection!", "Disconnected", true, true, false);
 }
 
 void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	//g_pChatWindow->AddInfoMessage("Connetion to the server lost, retrying ....");
 	g_pMainMenu->ResetNetworkStats();
-	g_pMainMenu->ShowMessageBox("Lost connection to the server, retrying..", "Timeout", false, true);
+	g_pMainMenu->ShowMessageBox("Lost connection to the server, retrying..", "Timeout", false, true, true);
 }
 
 void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	//g_pChatWindow->AddInfoMessage("Connection failed(You're banned)!");
-	g_pMainMenu->ShowMessageBox("You are banned from the Server!", "Connection failed", false, false);
+	g_pMainMenu->ShowMessageBox("You are banned from the Server!", "Connection failed", false, false, false);
 }
 
 void CClientPacketHandler::PasswordInvalid(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	//g_pChatWindow->AddInfoMessage("Connection failed(Wrong password)!");
-	g_pMainMenu->ShowMessageBox("Incorrect password!", "Connection failed", true, false);
+	g_pMainMenu->ShowMessageBox("Incorrect password!", "Connection failed", true, false, false);
 }
 
 void CClientPacketHandler::Register()

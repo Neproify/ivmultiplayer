@@ -22,8 +22,11 @@ private:
 
 	CVector3			m_vecPosition;
 	float				m_fRange;
+	bool				m_bUrl;
+	bool				m_bReplay;
+	bool			    m_bUsingPositionSystem;
 public:
-	CAudio	(bool url, const char * szSoundFile );
+	CAudio	(bool bUrl, bool bReplay, const char * szSoundFile );
 	~CAudio ( );
 
 	// Functions
@@ -31,12 +34,12 @@ public:
 	void Stop ( );
 	void Pause ( );
 	bool IsStarted ( );
-
 	void  SetVolume ( float fVolume );
 	void  RestoreVolume ( );
 	float GetVolume ( );
 	void  ClearPosition();
 	void  SetPosition ( CVector3 &vecPositon, float fRange );
+	void  UsePositionSystem( bool bUse );
 	void  Process ();
 };
 

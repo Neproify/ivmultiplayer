@@ -17,14 +17,19 @@
 
 _MEMBER_FUNCTION_IMPL(Audio, constructor)
 {
-	SQBool url;
-	sq_getbool(pVM,-1,&url);
+	SQBool bUrl;
+	sq_getbool(pVM,-3,&bUrl);
+
+	SQBool bReplay;
+	sq_getbool(pVM,-2,&bReplay);
 
 	const char *szSoundName;
 	sq_getstring ( pVM, -1, &szSoundName );
-	bool bToggle = (url != 0);
 
-	CAudio * pAudio = new CAudio (bToggle, szSoundName );
+	bool bToggle = (bUrl != 0);
+	bool bToggle2 = (bReplay != 0);
+
+	CAudio * pAudio = new CAudio (bToggle, bToggle2, szSoundName );
 
 	if(!pAudio || SQ_FAILED(sq_setinstance(pVM, pAudio)))
 	{
@@ -127,5 +132,18 @@ _MEMBER_FUNCTION_IMPL(Audio, clearPosition)
 	pAudio->ClearPosition();
 
 	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(Audio, usePositionSystem)
+{
+	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	SQBool bGet;
+	sq_getbool(pVM, -1, &bGet );
+	bool bToggle = (bGet != 0);
+	
+	pAudio->UsePositionSystem(bToggle);
+
+	sq_pushbool ( pVM, true );
 	return 1;
 }

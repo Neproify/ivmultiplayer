@@ -8,7 +8,7 @@
 	<!-- An external webserver that you host your files on, can be either the server's name or IP -->
 	<!-- httpserver>example.com</httpserver -->
 
-	<!-- Maximum number of players the server will support (Max 48) -->
+	<!-- Maximum number of players the server will support (Max 32) -->
 	<maxplayers>48</maxplayers>
 
 	<!-- Maximum number of vehicles the server will support (Max 65534) -->
@@ -48,6 +48,7 @@
 	<!-- The scripts the client will download and run -->
 	<clientscript>scoreboard.nut</clientscript>
 	<clientscript>webbrowser.nut</clientscript>
+	<clientscript>audio.nut</clientscript>
 	
 	<!-- The resources the client will download and used by clientscripts -->
 	<!-- clientresource>ivmp.png</clientresource -->

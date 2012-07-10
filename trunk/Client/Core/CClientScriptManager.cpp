@@ -106,7 +106,7 @@ _END_CLASS_BASE(GUIWebView, GUIElement)
 
 // Audio
 _BEGIN_CLASS(Audio)
-_MEMBER_FUNCTION(Audio, constructor, 2, "bs")
+_MEMBER_FUNCTION(Audio, constructor, 3, "bbs")
 _MEMBER_FUNCTION(Audio, deleteSound, 0, NULL)
 _MEMBER_FUNCTION(Audio, play, 0, NULL)
 _MEMBER_FUNCTION(Audio, stop, 0, NULL)
@@ -117,6 +117,7 @@ _MEMBER_FUNCTION(Audio, getVolume, 0, NULL)
 _MEMBER_FUNCTION(Audio, restoreVolume, 0, NULL)
 _MEMBER_FUNCTION(Audio, setPosition, 4, "ffff")
 _MEMBER_FUNCTION(Audio, clearPosition, 0, NULL)
+_MEMBER_FUNCTION(Audio, usePositionSystem, 1, "b")
 _END_CLASS(Audio)
 
 CClientScriptManager::CClientScriptManager()
@@ -194,7 +195,7 @@ CClientScriptManager::~CClientScriptManager()
 
 void CClientScriptManager::AddScript(String strName, String strPath)
 {
-	ClientScript * pClientScript = new ClientScript;
+	ClientScript * pClientScript = new ClientScript();
 	pClientScript->strName = strName;
 	pClientScript->strPath = strPath;
 	m_clientScripts.push_back(pClientScript);

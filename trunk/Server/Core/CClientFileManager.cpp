@@ -88,6 +88,9 @@ void CClientFileManager::HandleClientJoin(EntityId playerId)
 
 	for(iterator iter = begin(); iter != end(); ++ iter)
 	{
+		// Reset the bit stream
+ 		bsSend.Reset();
+
 		// Write if the file is a script or resource
 		bsSend.Write(bIsScriptManager);
 

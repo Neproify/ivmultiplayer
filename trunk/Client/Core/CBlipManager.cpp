@@ -157,7 +157,7 @@ void CBlipManager::ToggleRouteBlip(EntityId blipId, bool bToggle)
 void CBlipManager::SetName(EntityId blipId, String strName)
 {
 	if(m_bActive[blipId])
-		Scripting::ChangeBlipNameFromAscii(blipId, strName);
+		Scripting::ChangeBlipNameFromAscii(m_Blips[blipId].uiBlipIndex, strName.Get());
 }
 
 void CBlipManager::AttachToVehicle(EntityId blipId, EntityId vehicleId) 

@@ -373,23 +373,23 @@ void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
 		if(bStatus)
 		{
 			DWORD dwAddress = COffsets::FUNC_CVehicle__SetEngineOn;
-			_asm
+			/*_asm
 	        {
 			   push bUnknown
                mov ecx, pVehicle
                call dwAddress
-            }
-			/*Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 1, 1);*/
+            }*/
+			Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 1, 1);
 		}
 		else
 		{
-			pVehicle->m_byteFlags1 &= 0xE7;
-			*(BYTE *)(pVehicle + 0x1344) = 0;
+			/*pVehicle->m_byteFlags1 &= 0xE7;
+			*(BYTE *)(pVehicle + 0x1344) = 0;*/
 
-			/*if(!bStatus)
-				Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 0, 1);
+			if(!bStatus)
+				Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 0, 0);
 			else if(bStatus)
-				Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 1, 1);*/
+				Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 1, 1);
 		}
 	}
 }

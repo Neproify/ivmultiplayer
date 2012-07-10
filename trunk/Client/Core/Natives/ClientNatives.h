@@ -41,3 +41,4 @@ SQUIRREL_FUNCTION(getCurrentStreetName);
 SQUIRREL_FUNCTION(getVehicleName);
 SQUIRREL_FUNCTION(getFPS);
 SQUIRREL_FUNCTION(getScreenPositionFromWorldPosition);
+SQUIRREL_FUNCTION(isGameFocused);

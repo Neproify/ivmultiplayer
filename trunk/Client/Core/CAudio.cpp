@@ -21,13 +21,12 @@ extern CChatWindow * g_pChatWindow;
 std::list<CAudio *> CAudioManager::m_Audio;
 CLibrary * CAudioManager::m_pLibrary = NULL;
 
-CAudio::CAudio (bool url, const char * szSoundFile )
+CAudio::CAudio (bool bUrl, bool bReplay, const char * szSoundFile )
 {
-	if(!url)
+	if(!bUrl)
 	{
 		sprintf( m_szSoundFile, SharedUtility::GetAbsolutePath("clientfiles\\resources\\%s", szSoundFile ).Get() );
 		m_dwChannel = NULL;
-		SetVolume ( 100.0f );
 
 		if ( HIWORD(BASS_GetVersion()) != BASSVERSION ) 
 		{
@@ -45,13 +44,28 @@ CAudio::CAudio (bool url, const char * szSoundFile )
 
 		// Clear 3d sound position.
 		ClearPosition();
-	}
-	else {
-		sprintf( m_szSoundFile, szSoundFile);
-		m_dwChannel = NULL;
-		SetVolume ( 100.0f );
 
-		if ( HIWORD(BASS_GetVersion()) !=BASSVERSION ) 
+		// Set default volume
+		SetVolume ( 100.0f );
+	}
+	else if(bUrl)
+	{
+		/*char szPath[MAX_PATH];
+		sprintf(szPath, szSoundFile);
+		for(size_t i = strlen(szPath); i > 0; i--)
+		{
+			if(szPath[i] == '/')
+			{
+				szPath[i]='\\';
+			}
+		}
+		sprintf( m_szSoundFile, "%s", szPath );
+
+		CLogFile::Printf("%s", m_szSoundFile);*/
+		sprintf( m_szSoundFile, "%s", szSoundFile );
+		m_dwChannel = NULL;
+
+		if ( HIWORD(BASS_GetVersion()) !=BASSVERSION )
 		{
 			g_pChatWindow->AddInfoMessage("Audio: Failed to play music %s, invalid audio client version!",szSoundFile);
 			return;
@@ -60,14 +74,22 @@ CAudio::CAudio (bool url, const char * szSoundFile )
 		// Init bass
 		BASS_Init(-1, 44100, 0, 0, NULL);
 
-		m_dwChannel = BASS_StreamCreateFile(FALSE, m_szSoundFile, 0, 0, BASS_SAMPLE_LOOP);
+		m_dwChannel = BASS_StreamCreateURL(m_szSoundFile,0,BASS_STREAM_BLOCK|BASS_STREAM_STATUS|BASS_STREAM_AUTOFREE,0,0);
 
 		// Add audio entity to list.
 		CAudioManager::AddToList(this);
 
 		// Clear 3d sound position.
 		ClearPosition();
+
+		// Set default volume
+		SetVolume ( 100.0f );
 	}
+
+	// Apply url
+	m_bUrl = bUrl;
+	m_bReplay = bReplay;
+	m_bUsingPositionSystem = false;
 }
 
 CAudio::~CAudio ( )
@@ -78,15 +100,24 @@ CAudio::~CAudio ( )
 
 void CAudio::Play ( )
 {
-	BASS_ChannelPlay ( m_dwChannel, FALSE );
+	if( m_dwChannel == -1 )
+	{
+		// Recreate channel
+		if(m_bUrl)
+			m_dwChannel = BASS_StreamCreateURL(m_szSoundFile,0,BASS_STREAM_BLOCK|BASS_STREAM_STATUS|BASS_STREAM_AUTOFREE,0,0);
+		else if(!m_bUrl)
+			m_dwChannel = BASS_StreamCreateFile(FALSE, m_szSoundFile, 0, 0, BASS_SAMPLE_LOOP);
+	}
+	BASS_ChannelPlay ( m_dwChannel, m_bReplay );
 	m_bPlayed = true;
 }
 
 void CAudio::Stop ( )
 {
-	BASS_ChannelPause ( m_dwChannel );
-	// TODO -add clear buffer.
-	m_dwChannel = BASS_StreamCreateFile(FALSE, m_szSoundFile, 0, 0, BASS_SAMPLE_LOOP);
+	// stop channel
+	BASS_ChannelStop( m_dwChannel );
+	m_dwChannel = -1;
+
 	m_bPlayed = false;
 }
 
@@ -152,10 +183,18 @@ void CAudio::SetPosition ( CVector3 &vecPositon, float fRange )
 	m_fRange = fRange;
 }
 
+void CAudio::UsePositionSystem( bool bUse )
+{
+	m_bUsingPositionSystem = bUse;
+}
+
 void CAudio::Process ( )
 {
 	if ( m_vecPosition.IsEmpty ( ) )
 		return ;
+
+	if( !m_bUsingPositionSystem )
+		return;
 
 	CVector3 vecLocalPlayer;
 
@@ -168,15 +207,14 @@ void CAudio::Process ( )
 	{
 		fVolume = exp ( -fDistance * ( 5.0f / m_fRange ) );
 		SetVolume ( fVolume/0.01f );
-	} else {
+	} 
+	else 
 		SetVolume ( 0.0f );
-	}
 }
 
 void CAudioManager::Init( )
 {
 	m_pLibrary = new CLibrary();
-
 }
 
 void CAudioManager::AddToList ( CAudio *pAudio )
@@ -187,34 +225,25 @@ void CAudioManager::AddToList ( CAudio *pAudio )
 void CAudioManager::RemoveAll ( )
 {
 	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
-	{
 		SAFE_DELETE((*iter));
-	}
+
 	m_Audio.clear();
 }
 
 void CAudioManager::SetAllVolume ( float fVolume )
 {
 	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
-	{
-		if((*iter) && (*iter)->IsStarted())
-			(*iter)->SetVolume ( fVolume );
-	}
+		(*iter)->SetVolume ( fVolume );
 }
 
 void CAudioManager::RestoreAllVolume ( )
 {
 	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
-	{
 		(*iter)->RestoreVolume ( );
-	}
 }
 
 void CAudioManager::Process ( )
 {
 	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
-	{
-		if((*iter) && (*iter)->IsStarted())
 			(*iter)->Process ( );
-	}
 }
