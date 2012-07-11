@@ -14,6 +14,7 @@
 #include "Input.h"
 
 extern WNDPROC m_wWndProc;
+extern bool               g_bWindowedMode;
 
 CDirect3D9Proxy::CDirect3D9Proxy(IDirect3D9 * pD3D)
 {
@@ -115,6 +116,18 @@ HRESULT STDMETHODCALLTYPE CDirect3D9Proxy::CreateDevice(UINT Adapter, D3DDEVTYPE
 
 	// Disable minimize & maximize box
 	SetWindowLong(hFocusWindow, GWL_STYLE, GetWindowLong(hFocusWindow, GWL_STYLE) & ~WS_MINIMIZEBOX & ~WS_MAXIMIZEBOX);
+
+	// Set windowed mode
+	if(g_bWindowedMode)
+	{
+		pPresentationParameters->Windowed = 1;
+		pPresentationParameters->Flags = 0;
+		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+		pPresentationParameters->PresentationInterval = 0;
+		LONG_PTR style = GetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE);
+		SetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE, style | WS_POPUPWINDOW | WS_CAPTION | WS_THICKFRAME);
+		SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_NOTOPMOST, 0, 0, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight, SWP_SHOWWINDOW);
+	}
 
 	// Create the d3d device
 	HRESULT hr = m_pD3D->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
