@@ -1218,8 +1218,8 @@ void InternalResetGame(bool bAutoConnect)
 	CGame::SetTime(0,0);
 	
 	// Remove all gui stuff(images etc, after disconnect)
-	if(g_pGUI && g_pGUI->IsInitialized())
-		g_pGUI->OnResetDevice();
+	//if(g_pGUI && g_pGUI->IsInitialized())
+		//g_pGUI->OnResetDevice();
 
 	// Mark the game as loaded.
 	if(!g_bGameLoaded)

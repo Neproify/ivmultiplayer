@@ -29,7 +29,7 @@ _MEMBER_FUNCTION_IMPL(Audio, constructor)
 	bool bToggle = (bUrl != 0);
 	bool bToggle2 = (bReplay != 0);
 
-	CAudio * pAudio = new CAudio (bToggle, bToggle2, szSoundName );
+	CAudio * pAudio = new CAudio(bToggle, bToggle2, szSoundName);
 
 	if(!pAudio || SQ_FAILED(sq_setinstance(pVM, pAudio)))
 	{

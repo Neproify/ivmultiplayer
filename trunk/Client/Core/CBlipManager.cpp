@@ -149,7 +149,8 @@ void CBlipManager::ToggleRouteBlip(EntityId blipId, bool bToggle)
 {
 	if(m_bActive[blipId])
 	{
-		DWORD dwFunction = (CGame::GetBase()+0x810DC0);
+		// TODO, fix _asm code
+		/*DWORD dwFunction = (CGame::GetBase()+0x810DC0);
 		unsigned int uiIndex = m_Blips[blipId].uiBlipIndex;		
 		_asm
 		{
@@ -159,6 +160,9 @@ void CBlipManager::ToggleRouteBlip(EntityId blipId, bool bToggle)
 			call dwFunction
 			add esp, 0Ch
 		}
+		m_Blips[blipId].bRouteBlip = bToggle;*/
+
+		Scripting::SetRoute(m_Blips[blipId].uiBlipIndex, bToggle);
 		m_Blips[blipId].bRouteBlip = bToggle;
 	}
 }

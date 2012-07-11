@@ -189,6 +189,7 @@ function onPlayerCommand(playerid, command)
 		{
 			// NOTE: The route(on radar) will have the same color as the blip!
 			setBlipColor(blip,0xE59338FF,playerid);
+			sendPlayerMessage(playerid,"ROUTE",White);
 			setVehicleGpsState(getPlayerVehicleId(playerid),true);
 			toggleBlipRoute(blip,true,playerid);
 		}

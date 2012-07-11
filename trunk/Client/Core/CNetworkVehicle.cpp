@@ -197,7 +197,7 @@ bool CNetworkVehicle::Create()
 
 		// Disable visible/"normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(true);
+		m_pVehicle->SetCanBeVisiblyDamaged(false);
 
 		// Add the vehicle to the world
 		// Not needed as native does it for us
@@ -294,7 +294,7 @@ void CNetworkVehicle::StreamIn()
 
 		// Disable visible damage & enable "normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(true);
+		m_pVehicle->SetCanBeVisiblyDamaged(false);
 
 		// Restore the health
 		SetHealth(m_uiHealth);
