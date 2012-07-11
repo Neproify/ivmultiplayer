@@ -108,7 +108,12 @@ void CAudio::Play ( )
 		else if(!m_bUrl)
 			m_dwChannel = BASS_StreamCreateFile(FALSE, m_szSoundFile, 0, 0, BASS_SAMPLE_LOOP);
 	}
-	BASS_ChannelPlay ( m_dwChannel, m_bReplay );
+
+	if(m_bReplay)
+		BASS_ChannelPlay ( m_dwChannel, TRUE );
+	else if(!m_bReplay)
+		BASS_ChannelPlay ( m_dwChannel, FALSE );
+
 	m_bPlayed = true;
 }
 

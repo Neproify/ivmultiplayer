@@ -53,6 +53,7 @@ void RegisterClientNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleName", sq_getVehicleName, 1, "i");
 	pScriptingManager->RegisterFunction("getFPS", sq_getFPS, 0, NULL);
 	pScriptingManager->RegisterFunction("isGameFocused", sq_isGameFocused, 0, NULL);
+	pScriptingManager->RegisterFunction("setRadarZoom", sq_setRadarZoom, 1, "f");
 	pScriptingManager->RegisterFunction("getScreenPositionFromWorldPosition", sq_getScreenPositionFromWorldPosition, 3, "fff");
 
 	pScriptingManager->RegisterFunction("triggerServerEvent", sq_triggerServerEvent, -1, NULL);
@@ -407,5 +408,15 @@ int sq_getScreenPositionFromWorldPosition(SQVM * pVM)
 int sq_isGameFocused(SQVM * pVM)
 {
 	sq_pushbool(pVM, CGame::IsFocused());
+	return 1;
+}
+
+int sq_setRadarZoom(SQVM * pVM)
+{
+	float fZoom;
+	sq_getfloat(pVM,-1,&fZoom);
+
+	Scripting::SetRadarZoom(fZoom);
+	sq_pushbool(pVM,true);
 	return 1;
 }

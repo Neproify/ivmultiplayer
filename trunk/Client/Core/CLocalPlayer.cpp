@@ -391,6 +391,10 @@ void CLocalPlayer::SendInVehicleSync()
 		// Get their lights
 		syncPacket.bLights = pVehicle->GetLightsState();
 
+		// Get vehicle deformation
+		//CVector3 vecPos;
+		//pVehicle->GetDeformation(vecPos);
+
 		// Get the door stuff
 		syncPacket.fDoor[0] = pVehicle->GetCarDoorAngle(0);
 		syncPacket.fDoor[1] = pVehicle->GetCarDoorAngle(1);

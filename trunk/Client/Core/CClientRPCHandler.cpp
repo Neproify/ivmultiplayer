@@ -3053,6 +3053,23 @@ void CClientRPCHandler::ScriptingChangePlayerBlip(CBitStream * pBitStream, CPlay
 	}
 }
 
+void CClientRPCHandler::ScriptingSetVehicleGPSState(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	bool bState = false;
+	pBitStream->ReadCompressed(vehicleId);
+	pBitStream->Read(bState);
+
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	if(pVehicle)
+	{
+		pVehicle->SetVehicleGPSState(bState);
+	}
+}
+
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -3196,6 +3213,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingCreatePlayerBlip, ScriptingCreatePlayerBlip);
 	AddFunction(RPC_ScriptingRemovePlayerBlip, ScriptingRemovePlayerBlip);
 	AddFunction(RPC_ScriptingChangePlayerBlip, ScriptingChangePlayerBlip);
+	AddFunction(RPC_ScriptingSetVehicleGPSState, ScriptingSetVehicleGPSState);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3341,4 +3359,5 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingCreatePlayerBlip);
 	RemoveFunction(RPC_ScriptingRemovePlayerBlip);
 	RemoveFunction(RPC_ScriptingChangePlayerBlip);
+	RemoveFunction(RPC_ScriptingSetVehicleGPSState);
 }

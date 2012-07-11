@@ -41,20 +41,20 @@ extern CClientTaskManager * g_pClientTaskManager;
 extern CCredits           * g_pCredits;
 extern CMainMenu		  * g_pMainMenu;
 
-unsigned int   CGame::m_uiBaseAddress = 0;
-bool           CGame::m_bInputState = false;
-eState         CGame::m_State = GAME_STATE_NONE;
-bool           CGame::m_bFocused = false;
-CPools       * CGame::m_pPools = NULL;
-CIVPad       * CGame::m_pPad = NULL;
-CIVModelInfo   CGame::m_modelInfos[NUM_ModelInfos];
-CIVWeaponInfo  CGame::m_weaponInfos[NUM_WeaponInfos];
-CIVStreaming * CGame::m_pStreaming = NULL;
-CIVWeather   * CGame::m_pWeather = NULL;
-CIVWorld     * CGame::m_pWorld = NULL;
-bool		   CGame::m_bNameTags = false;
-bool		   CGame::m_bGameLoaded = false;
-bool		   CGame::m_bHeadMovement = true;
+unsigned int				CGame::m_uiBaseAddress = 0;
+bool						CGame::m_bInputState = false;
+eState						CGame::m_State = GAME_STATE_NONE;
+bool						CGame::m_bFocused = false;
+CPools						* CGame::m_pPools = NULL;
+CIVPad						* CGame::m_pPad = NULL;
+CIVModelInfo				CGame::m_modelInfos[NUM_ModelInfos];
+CIVWeaponInfo				CGame::m_weaponInfos[NUM_WeaponInfos];
+CIVStreaming				* CGame::m_pStreaming = NULL;
+CIVWeather					* CGame::m_pWeather = NULL;
+CIVWorld					* CGame::m_pWorld = NULL;
+bool						CGame::m_bNameTags = false;
+bool						CGame::m_bGameLoaded = false;
+bool						 CGame::m_bHeadMovement = true;
 
 void CGame::SetFocused(bool bFocused)
 {
@@ -661,7 +661,6 @@ bool CGame::Patch()
 		//CPatcher::InstallNopPatch((GetBase() + 0x862B7A), 6);
 		//CPatcher::InstallNopPatch((GetBase() + 0x862BDC), 6);
 		CPatcher::InstallNopPatch((GetBase() + 0xCBA1F1), 6);
-
 		return true;
 	}
 

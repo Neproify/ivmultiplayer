@@ -30,14 +30,16 @@ struct ClientCommand
 class CInputWindow
 {
 private:
-	char m_szInput[MAX_INPUT_LENGTH];
-	int m_iCurrentHistory;
-	int m_iTotalHistory;
-	char m_szCurrent[MAX_INPUT_LENGTH];
-	char m_szHistory[MAX_RECALLS][MAX_INPUT_LENGTH];
-	bool m_bEnabled;
-	std::list<ClientCommand *> m_pCommands;
-	unsigned long m_ulChatLineBgColor;
+	char						m_szInput[MAX_INPUT_LENGTH];
+	int							m_iCurrentHistory;
+	int							m_iTotalHistory;
+	char						m_szCurrent[MAX_INPUT_LENGTH];
+	char						m_szHistory[MAX_RECALLS][MAX_INPUT_LENGTH];
+	bool						m_bEnabled;
+	std::list<ClientCommand *>	m_pCommands;
+	unsigned long				m_ulChatLineBgColor;
+	CGUIStaticImage				* m_pEditBoxImage;
+	CGUIEditBox					* m_pEditBox;
 
 public:
 	CInputWindow();
@@ -49,8 +51,6 @@ public:
 	bool IsEnabled();
 	void Enable();
 	void Disable();
-	void Backspace();
-	void AddChar(unsigned char ucChar);
 	void AddToHistory(char * szMessage);
 	void RelocateHistory();
 	void RecallUp();
@@ -60,4 +60,5 @@ public:
 	void ClearInput();
 	void CursorLeft();
 	void CursorRight();
+	String GetChatBoxText();
 };

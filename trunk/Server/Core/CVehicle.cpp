@@ -74,6 +74,7 @@ void CVehicle::Reset()
 	m_bTyre[3] = false;
 	m_bTyre[4] = false;
 	m_bTyre[5] = false;
+	m_bGpsState = false;
 }
 
 void CVehicle::SpawnForPlayer(EntityId playerId)
@@ -134,6 +135,7 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	bsSend.Write(m_bWindow[2]);
 	bsSend.Write(m_bWindow[3]);
 	bsSend.Write(m_bTaxiLight);
+	bsSend.Write(m_bGpsState);
 	
 	if(m_ucVariation != 0)
 	{
@@ -271,6 +273,7 @@ void CVehicle::StoreInVehicleSync(InVehicleSyncData * syncPacket)
 	m_bTyre[3] = syncPacket->bTyre[3];
 	m_bTyre[4] = syncPacket->bTyre[4];
 	m_bTyre[5] = syncPacket->bTyre[5];
+	m_bGpsState = syncPacket->bGpsState;
 }
 
 void CVehicle::StorePassengerSync(PassengerSyncData * syncPacket)
@@ -758,4 +761,19 @@ void CVehicle::SetPetrolTankHealth(float fHealth)
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(m_fPetrolTankHealth);
 	// TODO SEND
+}
+
+void CVehicle::SetVehicleGPSState(bool bState)
+{
+	m_bGpsState = bState;
+
+	CBitStream bsSend;
+	bsSend.WriteCompressed(m_vehicleId);
+	bsSend.Write(bState);
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleGPSState, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+bool CVehicle::GetVehicleGPSState()
+{
+	return m_bGpsState;
 }

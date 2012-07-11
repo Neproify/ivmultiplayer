@@ -67,6 +67,8 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleLights",GetLights,1,"i");
 	pScriptingManager->RegisterFunction("repairVehicleWindows", RepairWindows, 1, "i");
 	pScriptingManager->RegisterFunction("repairVehicleWheels", RepairWheels, 1, "i");
+	pScriptingManager->RegisterFunction("setVehicleGpsState", SetGpsState, 2, "ib");
+	pScriptingManager->RegisterFunction("getVehicleGpsState", GetGpsState, 1, "i");
 }
 
 // createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4)
@@ -1040,4 +1042,43 @@ SQInteger CVehicleNatives::RepairWindows(SQVM * pVM)
 
 	sq_pushbool(pVM, false);
 	return 0;
+}
+
+// setVehicleGpsState(vehicleid, state)
+SQInteger CVehicleNatives::SetGpsState(SQVM *pVM)
+{
+	EntityId vehicleId;
+	SQBool bState;
+
+	sq_getentity(pVM, -1, &vehicleId);
+	sq_getbool(pVM, -2, &bState);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	if(pVehicle)
+	{
+		pVehicle->SetVehicleGPSState((bState==SQTrue?true:false));
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getVehicleGpsState(vehicleid)
+SQInteger CVehicleNatives::GetGpsState(SQVM *pVM)
+{
+	EntityId vehicleId;
+
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	if(pVehicle)
+	{
+		sq_pushbool(pVM, pVehicle->GetVehicleGPSState());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
 }

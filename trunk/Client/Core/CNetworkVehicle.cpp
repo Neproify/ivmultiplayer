@@ -59,6 +59,7 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_bWindow[2] = false;
 	m_bWindow[3] = false;
 	m_bLights = false;
+	m_bGpsState = false;
 }
 
 CNetworkVehicle::~CNetworkVehicle()
@@ -196,7 +197,7 @@ bool CNetworkVehicle::Create()
 
 		// Disable visible/"normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(false);
+		m_pVehicle->SetCanBeVisiblyDamaged(true);
 
 		// Add the vehicle to the world
 		// Not needed as native does it for us
@@ -293,7 +294,7 @@ void CNetworkVehicle::StreamIn()
 
 		// Disable visible damage & enable "normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(false);
+		m_pVehicle->SetCanBeVisiblyDamaged(true);
 
 		// Restore the health
 		SetHealth(m_uiHealth);
@@ -309,6 +310,9 @@ void CNetworkVehicle::StreamIn()
 
 		// Apply the lock state
 		SetDoorLockState(m_dwDoorLockState);
+
+		// Restore gps state
+		SetVehicleGPSState(m_bGpsState);
 
 		// Sound horn if needed
 		if(m_ulHornDurationEnd > SharedUtility::GetTime())
@@ -1235,7 +1239,7 @@ bool CNetworkVehicle::GetEngineState()
 {
 	// Are we spawned?
 	if(IsSpawned())
-		return m_bEngineStatus;//m_pVehicle->GetEngineStatus();
+		return m_pVehicle->GetEngineStatus();
 
 	return false;
 }
@@ -1245,9 +1249,25 @@ CVector3 CNetworkVehicle::GetDeformation(CVector3 vecPosition)
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		CVector3 vecDeformation;
-		Scripting::GetCarDeformationAtPos(GetScriptingHandle(),vecPosition.fX, vecPosition.fY, vecPosition.fZ,&vecDeformation);
-		return vecDeformation;
+		Scripting::GetCarDeformationAtPos(GetScriptingHandle(),m_vecPosition.fX, m_vecPosition.fY, m_vecPosition.fZ, &vecPosition);
+		CLogFile::Printf("DEFORMATION(%f, %f, %f)",vecPosition.fX,vecPosition.fY,vecPosition.fZ);
 	}
 	return CVector3(0.0f, 0.0f, 0.0f);
+}
+
+void CNetworkVehicle::SetVehicleGPSState(bool bState)
+{
+	if(IsSpawned())
+	{
+		m_pVehicle->SetGPSState(bState);
+		m_bGpsState = bState;
+	}
+}
+
+bool CNetworkVehicle::GetVehicleGPSState()
+{
+	if(IsSpawned())
+		return m_pVehicle->GetGPSState();
+	
+	return false;
 }

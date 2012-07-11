@@ -401,7 +401,7 @@ bool CIVVehicle::GetEngineStatus()
 
 	if(pVehicle)
 		// not working, need way to detect engine
-		return ( *(BYTE *)( pVehicle + 0x1344 ) == 1 );
+		return ( *(char *)( pVehicle + 0xF64 ) == 1 );
 
 	return false;
 }
@@ -523,5 +523,26 @@ bool CIVVehicle::CanBeVisiblyDamaged()
 	if(pVehicle)
 		return IS_BIT_SET(pVehicle->m_byteFlags9, 4);
 
+	return false;
+}
+
+void CIVVehicle::SetGPSState(bool bState)
+{
+	IVVehicle * pVehicle = GetVehicle();
+	if(pVehicle)
+	{
+		//2818
+		*(bool*)(pVehicle + 0xB02) = bState;
+	}
+}
+
+bool CIVVehicle::GetGPSState()
+{
+	IVVehicle * pVehicle = GetVehicle();
+	if(pVehicle)
+	{
+		//2818
+		return *(bool*)(pVehicle + 0xB02);
+	}
 	return false;
 }

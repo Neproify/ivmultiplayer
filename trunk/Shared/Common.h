@@ -227,6 +227,7 @@ struct InVehicleSyncData
 	bool bSirenState : 1;				   // vehicle siren state
 	bool bWindow[4];					   // vehicle window
 	bool bTyre[6];						   // vehicle tyres
+	bool bGpsState : 1;				       // gps state
 	unsigned int uPlayerHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uPlayerWeaponInfo;        // player weapon and ammo
 };
