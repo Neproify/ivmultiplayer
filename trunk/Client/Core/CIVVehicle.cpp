@@ -10,7 +10,6 @@
 #include "CIVVehicle.h"
 #include "COffsets.h"
 #include "CPools.h"
-#include "Scripting.h"
 
 CIVVehicle::CIVVehicle() : CIVPhysical()
 {
@@ -372,24 +371,23 @@ void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
 	{
 		if(bStatus)
 		{
-			DWORD dwAddress = COffsets::FUNC_CVehicle__SetEngineOn;
-			/*_asm
-	        {
-			   push bUnknown
-               mov ecx, pVehicle
-               call dwAddress
-            }*/
-			Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 1, 1);
+			bool bUnknownTrue = true;
+			DWORD CVehicle__TurnOnEngine = (CGame::GetBase() + 0x9D3600);
+			_asm
+			{
+				push bUnknownTrue
+				mov ecx, pVehicle
+				call CVehicle__TurnOnEngine
+			}
 		}
 		else
 		{
-			/*pVehicle->m_byteFlags1 &= 0xE7;
-			*(BYTE *)(pVehicle + 0x1344) = 0;*/
-
-			if(!bStatus)
-				Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 0, 0);
-			else if(bStatus)
-				Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), 1, 1);
+			DWORD CVehicle__TurnOffEngine = (CGame::GetBase() + 0x9C6710);
+			_asm
+			{
+				mov ecx, pVehicle
+				call CVehicle__TurnOffEngine
+			}
 		}
 	}
 }
@@ -400,8 +398,7 @@ bool CIVVehicle::GetEngineStatus()
 	IVVehicle * pVehicle = GetVehicle();
 
 	if(pVehicle)
-		// not working, need way to detect engine
-		return ( *(char *)( pVehicle + 0xF64 ) == 1 );
+		return *(bool *)( pVehicle + 0x1344 );
 
 	return false;
 }
@@ -531,7 +528,6 @@ void CIVVehicle::SetGPSState(bool bState)
 	IVVehicle * pVehicle = GetVehicle();
 	if(pVehicle)
 	{
-		//2818
 		*(bool*)(pVehicle + 0xB02) = bState;
 	}
 }
@@ -541,7 +537,6 @@ bool CIVVehicle::GetGPSState()
 	IVVehicle * pVehicle = GetVehicle();
 	if(pVehicle)
 	{
-		//2818
 		return *(bool*)(pVehicle + 0xB02);
 	}
 	return false;

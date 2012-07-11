@@ -149,7 +149,16 @@ void CBlipManager::ToggleRouteBlip(EntityId blipId, bool bToggle)
 {
 	if(m_bActive[blipId])
 	{
-		Scripting::SetRoute(m_Blips[blipId].uiBlipIndex, bToggle);
+		DWORD dwFunction = (CGame::GetBase()+0x810DC0);
+		unsigned int uiIndex = m_Blips[blipId].uiBlipIndex;		
+		_asm
+		{
+			push bToggle
+			push uiIndex
+			push 8
+			call dwFunction
+			add esp, 0Ch
+		}
 		m_Blips[blipId].bRouteBlip = bToggle;
 	}
 }
@@ -164,7 +173,8 @@ void CBlipManager::AttachToVehicle(EntityId blipId, EntityId vehicleId)
 {
 	if(m_bActive[blipId])
 	{
-		if(g_pVehicleManager->Exists(vehicleId)) {
+		if(g_pVehicleManager->Exists(vehicleId)) 
+		{
 			CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 			
 			//Remove the position blip

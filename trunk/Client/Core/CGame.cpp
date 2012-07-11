@@ -661,6 +661,9 @@ bool CGame::Patch()
 		//CPatcher::InstallNopPatch((GetBase() + 0x862B7A), 6);
 		//CPatcher::InstallNopPatch((GetBase() + 0x862BDC), 6);
 		CPatcher::InstallNopPatch((GetBase() + 0xCBA1F1), 6);
+		// Disable auto vehicle start when player enter to it
+		//CPatcher::InstallNopPatch((GetBase() + 0xA28AF0), 6);
+
 		return true;
 	}
 
