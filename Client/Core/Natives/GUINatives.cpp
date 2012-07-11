@@ -7,7 +7,6 @@
 //
 //==============================================================================
 
-#include "../CD3D9Webkit.hpp"
 #include "../Natives.h"
 #include <Scripting/CScriptingManager.h>
 #include <Squirrel/sqstate.h>
@@ -33,7 +32,6 @@ extern CGraphics * g_pGraphics;
 extern CScriptingManager * g_pScriptingManager;
 extern CClientScriptManager * g_pClientScriptManager;
 extern CEvents * g_pEvents;
-extern CD3D9WebKit * g_pWebkit;
 
 bool OnButtonClick(const CEGUI::EventArgs &eventArgs)
 {
@@ -59,7 +57,6 @@ bool OnWindowClose(const CEGUI::EventArgs &eventArgs)
 	g_pEvents->Call("windowClose", &pArguments, pScript);
 	return true;
 }
-// GUI
 
 // Font
 _MEMBER_FUNCTION_IMPL(GUIFont, constructor)
@@ -706,239 +703,6 @@ _MEMBER_FUNCTION_IMPL(GUIProgressBar, setValue)
  	char szNewProgress[4];
 	sprintf(szNewProgress, "%f", fCurrentValue*0.01);
 	pWindow->setProperty("CurrentProgress", szNewProgress);
-
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-// GUIWebView
-_MEMBER_FUNCTION_IMPL(GUIWebView, constructor)
-{
-	SQInteger width, height;
-	const char * szUrl;
-	sq_getinteger(pVM, -3, &width);
-	sq_getinteger(pVM, -2, &height);
-	sq_getstring(pVM, -1, &szUrl);
-	CD3D9WebView * pView = g_pWebkit->CreateView(width, height, g_pGUI->GetDirect3DDevice());
-	pView->GetView()->SetURI(szUrl);
-
-	if(!pView || SQ_FAILED(sq_setinstance(pVM, pView->GetWindow())))
-	{
-		CLogFile::Printf("Can't create GUIWebView.");
-		sq_pushbool(pVM, false);
-		return 1;
-	}
-
-	g_pClientScriptManager->GetGUIManager()->Add(pView->GetWindow(), g_pClientScriptManager->GetScriptingManager()->Get(pVM));
-	pView->GetWindow()->setVisible(true);
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, setURI)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	const char * szURL;
-	sq_getstring(pVM, -1, &szURL);
-
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		pView->GetView()->CancelLoad();
-		pView->GetView()->SetURI(szURL);
-	}
-
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, evaluateJavaScript)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	const char * script;
-	sq_getstring(pVM, -1, &script);
-
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		EA::WebKit::JavascriptValue * pValue = g_pWebkit->GetWebKit()->CreateJavaScriptValue();
-		pView->GetView()->EvaluateJavaScript(script, strlen(script), pValue);
-		switch(pValue->GetType())
-		{
-		case EA::WebKit::JavascriptValueType_Boolean:
-			sq_pushbool(pVM, pValue->GetBooleanValue());
-			break;
-		case EA::WebKit::JavascriptValueType_Number:
-			sq_pushfloat(pVM, (float)pValue->GetNumberValue());
-			break;
-		//case EA::WebKit::JavascriptValueType_String:
-		//	sq_pushstring(pVM, pValue->GetStringCharacters());
-		default:
-			sq_pushbool(pVM, false);
-		}
-	}
-
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, sendSignal)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	const char * szSignal;
-	sq_getstring(pVM, -1, &szSignal);
-
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		if(strcmp(szSignal, "back") == 0)
-		{
-			pView->GetView()->GoBack();
-		}
-		else if(strcmp(szSignal, "forward") == 0)
-		{
-			pView->GetView()->GoForward();
-		}
-		else if(strcmp(szSignal, "cancel") == 0)
-		{
-			pView->GetView()->CancelLoad();
-		}
-		else if(strcmp(szSignal, "refresh") == 0)
-		{
-			pView->GetView()->Refresh();
-		}
-		sq_pushbool(pVM, true);
-		return 1;
-	}
-
-	sq_pushbool(pVM, false);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, setHTML)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	const char * szHTML;
-	sq_getstring(pVM, -1, &szHTML);
-
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		pView->GetView()->SetHTML(szHTML, strlen(szHTML));
-	}
-
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, setElementText)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	const char * text;
-	const char * id;
-	sq_getstring(pVM, -1, &id);
-	sq_getstring(pVM, -2, &text);
-
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		pView->GetView()->SetElementTextById(id, text);
-	}
-
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, getLoadInfo)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		CSquirrelArguments table;
-		table.push("completed");
-		table.push(pView->GetView()->GetLoadInfo().mbCompleted);
-		table.push("content-length");
-		table.push((int)pView->GetView()->GetLoadInfo().mContentLength);
-		table.push("last-changed-time");
-		table.push((int)pView->GetView()->GetLoadInfo().mLastChangedTime);
-		table.push("title");
-		table.push(0); // ADAMIX: todo
-		table.push("status-code");
-		table.push(pView->GetView()->GetLoadInfo().mStatusCode);
-		table.push("uri");
-		table.push(0); // ADAMIX: todo
-		sq_pusharg(pVM, CSquirrelArgument(table, false));
-	}
-
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, clickElement)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	const char * szElementOrId;
-	sq_getstring(pVM, -1, &szElementOrId);
-
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		pView->GetView()->ClickElementsByIdOrClass(szElementOrId);
-	}
-
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, setSize)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	int width, height;
-	sq_getinteger(pVM, -1, &width);
-	sq_getinteger(pVM, -2, &height);
-
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		pView->SetSize(width, height);
-	}
-
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, registerJavaScriptMethod)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	const char * szMethod;
-	sq_getstring(pVM, -1, &szMethod);
-
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		pView->GetView()->RegisterJavascriptMethod(szMethod);
-		pView->GetView()->RebindJavascript();
-	}
-
-	sq_pushbool(pVM, true);
-	return 1;
-}
-
-_MEMBER_FUNCTION_IMPL(GUIWebView, draw)
-{
- 	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);
-	int x, y, width, height;
-	sq_getinteger(pVM, -1, &x);
-	sq_getinteger(pVM, -2, &y);
-	sq_getinteger(pVM, -3, &width);
-	sq_getinteger(pVM, -4, &height);
-
-	CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
-	if(pView)
-	{
-		pView->Draw(x, y, width, height);
-	}
 
 	sq_pushbool(pVM, true);
 	return 1;

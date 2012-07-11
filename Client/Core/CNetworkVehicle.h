@@ -60,6 +60,7 @@ private:
 	float			 m_fDoor[6];
 	bool			 m_bLights;
 	bool			 m_bWindow[4];
+	bool			 m_bGpsState;
 
 	bool             Create();
 	void             Destroy();
@@ -188,4 +189,7 @@ public:
 	CVector3		 GetDeformation(CVector3 vecPos);
 
 	void			 SetDamageable(bool bToggle);
+
+	void			 SetVehicleGPSState(bool bState);
+	bool			 GetVehicleGPSState();
 };

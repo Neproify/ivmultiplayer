@@ -40,6 +40,7 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("isVehicleOccupied", IsOccupied, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleOccupants", GetOccupants, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleEngineState", GetEngineStatus, 1, "i");
+	pScriptingManager->RegisterFunction("getVehicleGpsState", GetGpsState, 1, "i");
 }
 
 // getVehicleCoordinates(vehicleid)
@@ -342,6 +343,25 @@ SQInteger CVehicleNatives::GetEngineStatus(SQVM * pVM)
 	if(pVehicle)
 	{
 		sq_pushbool(pVM, pVehicle->GetEngineState());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getVehicleGpsState(vehicleid)
+SQInteger CVehicleNatives::GetGpsState(SQVM *pVM)
+{
+	EntityId vehicleId;
+
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+
+	if(pVehicle)
+	{
+		sq_pushbool(pVM, pVehicle->GetVehicleGPSState());
 		return 1;
 	}
 

@@ -162,6 +162,7 @@ private:
 	static void	ScriptingCreatePlayerBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void	ScriptingRemovePlayerBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void	ScriptingChangePlayerBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetVehicleGPSState(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
 
 public:
 	void        Register();

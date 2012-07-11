@@ -183,9 +183,15 @@ function onPlayerCommand(playerid, command)
 	{
 		triggerPlayerGameSound(playerid,"armor.wav");
 	}
-	if(cmd[0] == "/blib")
+	if(cmd[0] == "/gps")
 	{
-		toggleBlipRoute(blip,true,playerid);
+		if(isPlayerInAnyVehicle(playerid))
+		{
+			// NOTE: The route(on radar) will have the same color as the blip!
+			setBlipColor(blip,0xE59338FF,playerid);
+			setVehicleGpsState(getPlayerVehicleId(playerid),true);
+			toggleBlipRoute(blip,true,playerid);
+		}
 	}
 	if(cmd[0] == "/changeblip")
 	{

@@ -2575,10 +2575,8 @@ namespace Scripting
 
 	enum eBlipDisplay
 	{
-		// TODO 
-		// fix the values(wrong)
-		BLIP_MODE_HIDE = 4,
-		BLIP_MODE_SHOW = 0,
+		BLIP_MODE_HIDE = 0, // WRONG
+		BLIP_MODE_SHOW = 2,
 	};
 
 	enum eBlipPriority

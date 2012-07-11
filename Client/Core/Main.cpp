@@ -9,10 +9,6 @@
 //
 //==============================================================================
 
-#ifdef IVMP_WEBKIT
-#include "CD3D9Webkit.hpp"
-#endif
-
 #include <winsock2.h>
 #include <windows.h>
 #include <d3d9.h>
@@ -91,11 +87,6 @@ CCredits             * g_pCredits = NULL;
 CNameTags            * g_pNameTags = NULL;
 CClientTaskManager   * g_pClientTaskManager = NULL;
 CFireManager		 * g_pFireManager = NULL;
-
-#ifdef IVMP_WEBKIT
-CD3D9WebKit * g_pWebkit;
-CD3D9WebView * g_pWebView;
-#endif
 
 bool		   g_bGameLoaded = false;
 bool           g_bWindowedMode = false;
@@ -664,12 +655,6 @@ void Direct3DRender()
 	if(g_pGUI)
 		g_pGUI->Render();
 
-#ifdef IVMP_WEBKIT
-	if(g_pWebkit)
-	{
-		g_pWebkit->RenderAll();
-	}
-#endif
 	// If our main menu exists process it
 	if(g_pMainMenu)
 		g_pMainMenu->Process();
@@ -905,11 +890,6 @@ void Direct3DReset()
 			g_pVersionIdentifier->setProperty("TextColours", "tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF");
 			g_pVersionIdentifier->setAlpha(0.6f);
 			g_pVersionIdentifier->setVisible(true);
-
-#ifdef IVMP_WEBKIT
-			g_pWebkit = new CD3D9WebKit();
-#endif
-
 
 			// TODO: Make the default stuff (Chat window, main menu, e.t.c) a xml layout so it
 			// can be edited by users
@@ -1236,6 +1216,10 @@ void InternalResetGame(bool bAutoConnect)
 	CGame::GetWeather()->SetWeather(WEATHER_SUNNY);
 	g_pTime->SetTime(0, 0);
 	CGame::SetTime(0,0);
+	
+	// Remove all gui stuff(images etc, after disconnect)
+	if(g_pGUI && g_pGUI->IsInitialized())
+		g_pGUI->OnResetDevice();
 
 	// Mark the game as loaded.
 	if(!g_bGameLoaded)

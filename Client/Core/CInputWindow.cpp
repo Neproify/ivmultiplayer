@@ -27,9 +27,6 @@ extern CEvents * g_pEvents;
 extern bool m_bControlsDisabled;
 extern CGraphics * g_pGraphics;
 
-// test code
-//CEGUI::Editbox * pEditBox = NULL;
-// end test code
 CInputWindow::CInputWindow()
 {
 	memset(m_szInput, 0, sizeof(m_szInput));
@@ -38,15 +35,26 @@ CInputWindow::CInputWindow()
 	m_iTotalHistory = 0;
 	memset(m_szCurrent, 0, sizeof(m_szCurrent));
 	memset(m_szHistory, 0, sizeof(m_szHistory));
+
+	if(g_pGUI && g_pGUI->IsInitialized())
+	{
+		m_pEditBox = g_pGUI->CreateGUIEditBox(g_pGUI->GetDefaultWindow());
+		m_pEditBox->setText("");
+		m_pEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0f, 75.0f), CEGUI::UDim(0.0f, ((20.0f * MAX_DISPLAYED_MESSAGES) + 30.0f))));
+		m_pEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.25f, 0), CEGUI::UDim(0.03375f, 0)));
+		m_pEditBox->setFont(g_pGUI->GetFont("sans",10U));
+		m_pEditBox->setVisible(false);
+
+		m_pEditBoxImage = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+		m_pEditBoxImage->setProperty("FrameEnabled", "false");
+		m_pEditBoxImage->setProperty("BackgroundEnabled", "false");
+		m_pEditBoxImage->setProperty("Image", "set:Chat image:full_image");
+		m_pEditBoxImage->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0f, 26.0f), CEGUI::UDim(0.0f, ((20.0f * MAX_DISPLAYED_MESSAGES) + 31.5f))));
+		m_pEditBoxImage->setSize(CEGUI::UVector2(CEGUI::UDim(0.025f,0), CEGUI::UDim(0.027f, 0)));
+		m_pEditBoxImage->setVisible(false);
+	}
+
 	ClearInput();
-	// test code
-	// TODO
-	/*pEditBox = (CEGUI::Editbox *)g_pGUI->CreateGUIEditBox();
-	pEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0f, 26.0f), CEGUI::UDim(0.0f, ((20.0f * MAX_DISPLAYED_MESSAGES) + 30.0f))));
-	pEditBox->setVisible(true);
-	pEditBox->setEnabled(true);
-	pEditBox->activate();*/
-	// end test code
 }
 
 CInputWindow::~CInputWindow()
@@ -73,15 +81,6 @@ void CInputWindow::Draw()
 			m_ulChatLineBgColor = D3DCOLOR_ARGB(usAlphaColor,CVAR_GET_INTEGER("chatbgr"),
 												CVAR_GET_INTEGER("chatbgg"),CVAR_GET_INTEGER("chatbgb"));
 			g_pGraphics->DrawRect(5 , 35 + MAX_DISPLAYED_MESSAGES * 20 , 500 , 25 , m_ulChatLineBgColor);
-			//Draw Text on top of the background
-			size_t sLen = strlen(m_szInput);
-			char * szInput = (char *)malloc(sLen + 4);
-			sprintf(szInput, "> %s_", m_szInput);
-
-			g_pGUI->DrawText(szInput, CEGUI::Vector2(26.0f, ((20 * MAX_DISPLAYED_MESSAGES) + 38)), MESSAGE_BACKGROUND_COLOR, pFont, false);
-			g_pGUI->DrawText(szInput, CEGUI::Vector2(25.0f, ((20 * MAX_DISPLAYED_MESSAGES) + 37)), INPUT_COLOR, pFont, false);
-
-			free(szInput);
 		}
 	}
 }
@@ -125,13 +124,9 @@ bool CInputWindow::HandleInput(UINT uMsg, DWORD dwChar)
 		}
 		else if(uMsg == WM_CHAR)
 		{
-			if(dwChar == VK_BACK)
-			{
-				Backspace();
-				return true;
-			}
+			if((unsigned char) dwChar < ' ')
+                return false;
 
-			AddChar((char)dwChar);
 			return true;
 		}
 	}
@@ -163,8 +158,10 @@ bool CInputWindow::HandleInput(UINT uMsg, DWORD dwChar)
 
 void CInputWindow::ProcessInput()
 {
-	if(strlen(m_szInput) > 0)
+	if(strlen(GetChatBoxText().C_String()) > 0 && IsEnabled())
 	{
+		sprintf(m_szInput,"%s",GetChatBoxText().C_String());
+
 		if(m_szInput[0] == COMMAND_CHAR)
 		{
 			// Command entered
@@ -242,8 +239,14 @@ bool CInputWindow::IsEnabled()
 
 void CInputWindow::Enable()
 {
-	if(g_pGUI->IsCursorVisible(true)) return;
+	g_pGUI->SetCursorVisible(true);
 	CGame::SetInputState(false);
+
+	m_pEditBox->setVisible(true);
+	m_pEditBox->setEnabled(true);
+	m_pEditBoxImage->setVisible(true);
+	m_pEditBox->activate();
+
 	m_bEnabled = true;
 }
 
@@ -252,41 +255,12 @@ void CInputWindow::Disable()
 	if(!m_bControlsDisabled)
 		CGame::SetInputState(true);
 
+	m_pEditBox->setVisible(false);
+	m_pEditBoxImage->setVisible(false);
+	m_pEditBox->deactivate();
+	g_pGUI->SetCursorVisible(false);
+
 	m_bEnabled = false;
-}
-
-void CInputWindow::Backspace()
-{
-	size_t sLen = strlen(m_szInput);
-
-	if(sLen == 0)
-		return;
-
-	if(m_szInput[sLen - 1] == '%')
-		m_szInput[sLen - 2] = '\0';
-
-	m_szInput[sLen - 1] = '\0';
-}
-
-void CInputWindow::AddChar(unsigned char ucChar)
-{
-	if(ucChar < ' ')
-		return;
-
-	size_t sLen = strlen(m_szInput);
-
-	if(sLen < (MAX_INPUT_LENGTH - 2))
-	{
-		if(ucChar == '%')
-		{
-			m_szInput[sLen] = ucChar;
-			sLen = strlen(m_szInput);
-			m_szInput[sLen] = ucChar;
-		}
-		else
-			m_szInput[sLen] = ucChar;
-		m_szInput[sLen + 1] = '\0';
-	}
 }
 
 void CInputWindow::AddToHistory(char * szMessage)
@@ -317,10 +291,10 @@ void CInputWindow::RecallUp()
 	if(m_iCurrentHistory < MAX_RECALLS && ((m_iTotalHistory - 1) > m_iCurrentHistory))
 	{
 		if(m_iCurrentHistory == -1)
-			strcpy(m_szCurrent, m_szInput);
+			m_pEditBox->setText(m_szInput);
 
 		m_iCurrentHistory++;
-		strcpy(m_szInput, m_szHistory[m_iCurrentHistory]);
+		m_pEditBox->setText(m_szHistory[m_iCurrentHistory]);
 	}
 }
 
@@ -331,9 +305,9 @@ void CInputWindow::RecallDown()
 		m_iCurrentHistory--;
 
 		if(m_iCurrentHistory == -1)
-			strcpy(m_szInput, m_szCurrent);
+			m_pEditBox->setText(m_szCurrent);
 		else
-			strcpy(m_szInput, m_szHistory[m_iCurrentHistory]);
+			m_pEditBox->setText(m_szHistory[m_iCurrentHistory]);
 	}
 }
 
@@ -366,6 +340,8 @@ void CInputWindow::UnregisterCommand(char * szCommandName)
 void CInputWindow::ClearInput()
 {
 	memset(m_szInput, 0, sizeof(m_szInput));
+	if(m_pEditBox && g_pGUI && g_pGUI->IsInitialized())
+		m_pEditBox->setText("");
 }
 
 void CInputWindow::CursorLeft()
@@ -376,4 +352,15 @@ void CInputWindow::CursorLeft()
 void CInputWindow::CursorRight()
 {
 	
+}
+
+String CInputWindow::GetChatBoxText()
+{
+	if(m_pEditBox)
+	{
+		String strMessage;
+		strMessage.AppendF("%s",m_pEditBox->getText().c_str());
+		return strMessage;
+	}
+	return String("Failed to get message input!");
 }

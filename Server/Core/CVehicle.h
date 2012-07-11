@@ -44,6 +44,7 @@ private:
 	bool		  m_bWindow[4];
 	bool		  m_bTaxiLight;
 	bool		  m_bTyre[6];
+	bool		  m_bGpsState;
 
 public:
 	CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4);
@@ -110,4 +111,6 @@ public:
 	void		  SetWindowState(unsigned int uiWindow, bool bState);
 	bool		  GetTyreState(unsigned int uiTyre);
 	void		  SetTyreState(unsigned int uiTyre, bool bState);
+	void		  SetVehicleGPSState(bool bState);
+	bool		  GetVehicleGPSState();
 };

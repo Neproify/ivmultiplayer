@@ -164,5 +164,6 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetAmmo,
 	RPC_ScriptingCreatePlayerBlip,
 	RPC_ScriptingRemovePlayerBlip,
-	RPC_ScriptingChangePlayerBlip
+	RPC_ScriptingChangePlayerBlip,
+	RPC_ScriptingSetVehicleGPSState
 };

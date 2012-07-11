@@ -7,7 +7,6 @@
 //
 //==============================================================================
 
-#include "CD3D9Webkit.hpp"
 #include "CInputWindow.h"
 #include "CChatWindow.h"
 #include "CNetworkManager.h"
@@ -24,8 +23,7 @@ extern CNetworkManager * g_pNetworkManager;
 extern CPlayerManager * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
 extern CModelManager * g_pModelManager;
-extern CFPSCounter * g_pFPSCounter;
-extern CD3D9WebKit * g_pWebkit;
+extern CFPSCounter * g_pFPSCounter;;
 
 void QuitCommand(char * szParams)
 {
@@ -35,9 +33,6 @@ void QuitCommand(char * szParams)
 	
 	// Delete the network manager interface
 	SAFE_DELETE(g_pNetworkManager);
-
-	// Delete the webkit interface
-	SAFE_DELETE(g_pWebkit);
 
 	// Exit
 	ExitProcess(0);
