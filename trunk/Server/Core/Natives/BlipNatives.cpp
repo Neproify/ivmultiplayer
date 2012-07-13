@@ -507,9 +507,9 @@ SQInteger CBlipNatives::TogglePlayerBlipDisplayForPlayer(SQVM * pVM)
 	sq_getbool(pVM, -1, &bToggle);
 
 	bool bShow = (bToggle != 0);
-	if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
+	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->DoesExist(toPlayerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
 	{
-		g_pBlipManager->TogglePlayerDisplay(playerId, bShow);
+		g_pBlipManager->TogglePlayerDisplayForPlayer(playerId, toPlayerId, bShow);
 		sq_pushbool(pVM,true);
 		return 1;
 	}
@@ -530,9 +530,9 @@ SQInteger CBlipNatives::TogglePlayerShortRangeForPlayer(SQVM * pVM)
 	sq_getbool(pVM, -1, &bToggle);
 
 	bool bShow = (bToggle != 0);
-	if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
+	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->DoesExist(toPlayerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
 	{
-		g_pBlipManager->TogglePlayerShortRange(playerId, bShow);
+		g_pBlipManager->TogglePlayerShortRangeForPlayer(playerId, toPlayerId, bShow);
 		sq_pushbool(pVM,true);
 		return 1;
 	}
