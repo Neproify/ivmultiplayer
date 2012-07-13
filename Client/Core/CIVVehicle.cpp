@@ -541,3 +541,23 @@ bool CIVVehicle::GetGPSState()
 	}
 	return false;
 }
+
+//TODO: Add Get? *(DWORD *)(pVehicle + 0xFD0); // 4048
+void CIVVehicle::BurstCarTyre(int iTyre)
+{
+	IVVehicle * pVehicle = GetVehicle();
+	if(pVehicle)
+	{
+		DWORD dwFunc = (CGame::GetBase() + 0x9C5510);
+		_asm
+		{
+			push iTyre
+			mov ecx, pVehicle
+			call dwFunc
+		}
+	}
+}
+
+// Set Lights(?)
+// WORD or BYTE?
+//*(BYTE *)(pVehicle + 0x1112) ^= ((char)iState ^*(BYTE *)(pVehicle + 0x1112) & 3;

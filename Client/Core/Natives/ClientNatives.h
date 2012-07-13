@@ -43,3 +43,4 @@ SQUIRREL_FUNCTION(getFPS);
 SQUIRREL_FUNCTION(getScreenPositionFromWorldPosition);
 SQUIRREL_FUNCTION(isGameFocused);
 SQUIRREL_FUNCTION(setRadarZoom);
+SQUIRREL_FUNCTION(getActorCoordinates);

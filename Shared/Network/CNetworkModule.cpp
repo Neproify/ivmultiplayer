@@ -10,6 +10,8 @@
 #include "CNetworkModule.h"
 #include <CLibrary.h>
 #include <SharedUtility.h>
+#include <CLogFile.h>
+#include <Common.h>
 
 CLibrary *                  CNetworkModule::m_pLibrary;
 GetNetServerInterface_t     CNetworkModule::m_pfnGetNetServerInterface;
@@ -42,7 +44,7 @@ bool CNetworkModule::Init()
 	// Verify the net module version
 	if(!VerifyVersion(NETWORK_MODULE_VERSION))
 	{
-		//CLogFile::Printf("Invalid net module version!\n");
+		CLogFile::Printf("Invalid net module version!\n");
 		return false;
 	}
 
@@ -58,13 +60,12 @@ bool CNetworkModule::Init()
 #ifndef _LINUX
 	|| !m_pfnGetNetClientInterface || 
 		!m_pfnDestroyNetClientInterface
-#endif
+	#endif
 	)
 	{
 		//CLogFile::Printf("Net module is corrupt!\n");
 		return false;
 	}
-
 	return true;
 }
 

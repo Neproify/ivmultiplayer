@@ -113,7 +113,8 @@ public:
 	static void            ToggleLazlowStation(bool bToggle);
 	static void            InitCutscene(char * szCutsceneName, bool bUnknown1 = false, bool bUnknown2 = false);
 	static void            StopCutscene(char * szCutsceneName);
-	static void			   InstallAnimGroups();
+	static void			   RequestAnimGroup(const char *szAnimGroup);
+	static void			   ReleaseAnimGroup(const char *szAnimGroup);
 	static void			   SetNameTags(bool bNametags) { m_bNameTags = bNametags; }
 	static bool			   GetNameTags() { return m_bNameTags; }
 	static void			   SetHeadMovement(bool bMove) { m_bHeadMovement = bMove; }
@@ -121,4 +122,5 @@ public:
 	static void			   SetGameLoaded(bool load) { m_bGameLoaded = load; }
 	static bool			   IsGameLoaded() { return m_bGameLoaded; }
 	static DWORD		   GetNativeAddress(DWORD dwNative);
+	static String		   GetAnimationGroup();
 };

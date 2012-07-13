@@ -152,6 +152,7 @@ private:
 	static void ScriptingPlayMissionCompleteAudio(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingPlayGameAudio(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingRequestAnims(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingReleaseAnims(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingForceWind(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetNametags(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingAttachCam(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

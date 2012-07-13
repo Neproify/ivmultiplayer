@@ -244,7 +244,7 @@ namespace Modules
 		bool bShow = (bToggle != 0);
 		if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
 		{
-			g_pBlipManager->ToggleDisplayForPlayer(playerId, bShow);
+			g_pBlipManager->TogglePlayerDisplay(playerId, bShow);
 			return true;
 		}
 
@@ -256,7 +256,7 @@ namespace Modules
 		bool bShow = (bToggle != 0);
 		if(g_pPlayerManager->DoesExist(playerId) && g_pBlipManager->DoesPlayerBlipExist(playerId))
 		{
-			g_pBlipManager->ToggleShortRangeForPlayer(playerId, bShow);
+			g_pBlipManager->TogglePlayerShortRange(playerId, bShow);
 			return true;
 		}
 

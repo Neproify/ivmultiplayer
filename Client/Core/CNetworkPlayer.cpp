@@ -123,22 +123,15 @@ bool CNetworkPlayer::Create()
 	// Create a context data instance for this player
 	m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
 
-	CLogFile::Print("Create 1");
-
 	// Allocate the player ped
 	IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();
-
-	CLogFile::Printf("Create 2");
 
 	// Ensure the player ped pointer is valid
 	if(!pPlayerPed)
 	{
-		CLogFile::Printf("Create 2 FAIL");
 		Destroy();
 		return false;
 	}
-
-	CLogFile::Printf("Create 3");
 
 	// Call the CPlayerPed constructor
 #define FUNC_CPlayerPed__Constructor 0x9C1910
@@ -177,11 +170,7 @@ bool CNetworkPlayer::Create()
 		call dwFunc
 	}
 
-	CLogFile::Printf("Create 5");
-
 	*(DWORD *)(pPlayerPed + 0x260) |= 1u;
-
-	CLogFile::Printf("Create 6");
 
 	// Setup the player ped intelligence
 #define FUNC_SetupPedIntelligence 0x89EC20

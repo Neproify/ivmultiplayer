@@ -63,7 +63,7 @@ void CBlipManager::Create(EntityId blipId, int iSprite, CVector3 vecPosition)
 	SetName(blipId, "");
 
 	m_Blips[blipId].iSprite = iSprite;
-	memcpy(&m_Blips[blipId].vecPosition, &vecPosition, sizeof(CVector3));
+	m_Blips[blipId].vecPosition = vecPosition;
 	m_Blips[blipId].attachedVehicle = INVALID_ENTITY_ID;
 	m_bActive[blipId] = true;
 }
@@ -149,21 +149,25 @@ void CBlipManager::ToggleRouteBlip(EntityId blipId, bool bToggle)
 {
 	if(m_bActive[blipId])
 	{
-		// TODO, fix _asm code
-		/*DWORD dwFunction = (CGame::GetBase()+0x810DC0);
-		unsigned int uiIndex = m_Blips[blipId].uiBlipIndex;		
+		DWORD dwFunction = (CGame::GetBase()+0x810DC0);
+		unsigned int uiIndex = m_Blips[blipId].uiBlipIndex;	
+		int iToggle = (int)bToggle;
+
 		_asm
 		{
-			push bToggle
+			push iToggle
 			push uiIndex
 			push 8
 			call dwFunction
 			add esp, 0Ch
 		}
-		m_Blips[blipId].bRouteBlip = bToggle;*/
-
-		Scripting::SetRoute(m_Blips[blipId].uiBlipIndex, bToggle);
 		m_Blips[blipId].bRouteBlip = bToggle;
+
+		//Scripting::SetRoute(m_Blips[blipId].uiBlipIndex, bToggle);
+		//m_Blips[blipId].bRouteBlip = bToggle;
+
+		// Set Color again, and again, and again
+		SetColor(blipId, m_Blips[blipId].uiColor);
 	}
 }
 

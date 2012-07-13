@@ -29,5 +29,6 @@ public:
 
 	void Create(EntityId fireId, CVector3 vecPos, float fdensity);
 	void Delete(EntityId fireId);
+	void ReCreateAllFire();
 	bool DoesExist(EntityId fireId) { return m_bActive[fireId]; };
 };

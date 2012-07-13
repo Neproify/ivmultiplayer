@@ -241,6 +241,16 @@ void CMainMenu::OnConnect(String strHost, unsigned short usPort, String strPassw
 	}
 	else
 	{
+		// Testcode
+		DWORD dwAudio = (CGame::GetBase() + 0x10F75A0); // audio 
+		DWORD dwFunc = (CGame::GetBase() + 0x7B9980); // or 0x420A48(?)
+
+		_asm
+		{
+			mov ecx, dwAudio
+			call dwFunc
+		}
+
 		// Disable the menu and load the game
 		CGame::SetState(GAME_STATE_LOADING);
 		ShowLoadingScreen();

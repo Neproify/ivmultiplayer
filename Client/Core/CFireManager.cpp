@@ -58,3 +58,22 @@ void CFireManager::Delete(EntityId fireId)
 		m_Fire[fireId].uiHandle = -1;
 	}
 }
+
+void CFireManager::ReCreateAllFire()
+{
+	for(EntityId x = 0; x < MAX_FIRE; x++)
+	{
+		if(m_bActive[x])
+		{
+			// Check if we have a fire handle
+			if(m_Fire[x].uiHandle != -1)
+				CGame::DeleteFire(m_Fire[x].uiHandle);
+
+			// Reset fire handle
+			m_Fire[x].uiHandle = -1;
+
+			// Recreate
+			m_Fire[x].uiHandle = CGame::CreateFire(m_Fire[x].vecPos,(unsigned int)m_Fire[x].fdensity);
+		}
+	}
+}

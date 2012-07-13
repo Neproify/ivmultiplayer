@@ -151,4 +151,5 @@ public:
 	bool        CanBeVisiblyDamaged();
 	void		SetGPSState(bool bState);
 	bool		GetGPSState();
+	void		BurstCarTyre(int iTyre);
 };

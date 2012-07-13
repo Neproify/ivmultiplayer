@@ -714,6 +714,9 @@
     <ClInclude Include="CFireManager.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
+    <ClInclude Include="AnimGroups.h">
+      <Filter>Header Files\Game\Scripting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">

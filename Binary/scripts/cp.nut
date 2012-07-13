@@ -5,10 +5,11 @@ const White = 0xFFFFFFFF;
 local vehicles = {};
 local createVehicle_Original = createVehicle;
 local blip1, blip2;
-local blip;
-blip = createBlip(75, 0.0, 0.0, 0.0,true);
+local blip = createBlip(75, 0.0, 0.0, 0.0,true);
+setBlipName(blip,"ILoveIVMP");
 local cp1;
 local actor1;
+local blipcolortest;
 
 function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4)
 {
@@ -26,17 +27,17 @@ function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4)
 
 function onScriptInit()
 {
-	createVehicle(65, -343.447662, 1176.119263, 14.146016, 0.0, 0.0, 268.219513, 0, 0, 0, 0); // Police Patriot
-	createVehicle(90, -343.527313, 1172.740479, 14.199832, 0.0, 0.0, 268.217010, 0, 0, 0, 0); // Sultan RS 2
-	createVehicle(90, -343.501099, 1168.932739, 14.199870, 0.0, 0.0, 269.241302, 0, 0, 0, 0); // Sultan RS 3
-	createVehicle(90, -343.609344, 1166.145630, 14.199894, 0.0, 0.0, 268.305298, 0, 0, 0, 0); // Sultan RS 4
-	createVehicle(90, -343.623444, 1162.919067, 14.199799, 0.0, 0.0, 269.975037, 0, 0, 0, 0); // Sultan RS 5
-	createVehicle(90, -343.633057, 1158.563843, 14.126013, 0.0, 0.0, 270.858826, 0, 0, 0, 0); // Sultan RS 6
+	createVehicle(91, -343.447662, 1176.119263, 14.146016, 0.0, 0.0, 268.219513, 0, 0, 0, 0);
+	createVehicle(95, -343.527313, 1172.740479, 14.199832, 0.0, 0.0, 268.217010, 0, 0, 0, 0); 
+	createVehicle(40, -343.501099, 1168.932739, 14.199870, 0.0, 0.0, 269.241302, 0, 0, 0, 0);
+	createVehicle(18, -343.609344, 1166.145630, 14.199894, 0.0, 0.0, 268.305298, 0, 0, 0, 0);
+	createVehicle(17, -343.623444, 1162.919067, 14.199799, 0.0, 0.0, 269.975037, 0, 0, 0, 0);
+	createVehicle(3, -343.633057, 1158.563843, 14.126013, 0.0, 0.0, 270.858826, 0, 0, 0, 0); 
 	cp1 = createCheckpoint(3, -343.447662, 1171.119263, 14.146016, -343.447662, 1176.119263, 14.146016, 3.0);
 	actor1 = createActor(242, -341.36, 1142.80, 14.79, 5.0);
 	local actor2 = createActor(242, -343.36, 1142.80, 14.79, 5.0);
 	local actor3 = createActor(242, -342.36, 1142.80, 14.79, 5.0);
-	for(local i = 0; i < 15; i++)
+	for(local i = 0; i < 5; i++)
 	{
 		local actor = createActor(242, -341.36 + i + 1, 1142.80, 14.79, 5.0);
 		setActorName(actor, "StupidBot #" + i);
@@ -51,7 +52,10 @@ function onScriptInit()
 	log("---------------------");
 	log(SCRIPT_NAME + " loaded");
 	log("---------------------");
-
+	blipcolortest = createBlip(78,1000.0,1000.0,0.0,true);
+	setBlipColor(blipcolortest,0xE59338FF,-1);
+	setBlipName(blipcolortest, "idk");
+	
 	return 1;
 }
 addEvent("scriptInit", onScriptInit);
@@ -103,6 +107,16 @@ function onSpawn(playerid)
 	togglePlayerBlipShortRange(playerid,true);
 	local pos = getPlayerCoordinates(playerid);
 	createFire(pos[0], pos[1], pos[2], 5.0);
+	
+	// Request here all animations, which you use
+	// ATTENTION: It can take 1 up to 5 seconds to load the animation(s) successfully!
+	requestPlayerAnimations(playerid,"amb@smoking_spliff");
+	requestPlayerAnimations(playerid,"amb@taxi_wait_i_f_b");
+	requestPlayerAnimations(playerid,"amb@taxi_hail_f");
+	
+	// NOTE: IF you USED the animations and don't need it anymore -> unrequestplayeranimations
+	// ATTENTION: You must load at all players the animations, if you force it!
+	//unRequestPlayerAnimations(playerid,"amb@smoking_spliff");
 }
 addEvent("playerSpawn", onSpawn);
 
@@ -110,6 +124,10 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/setvehpos")
+	{
+		setVehicleCoordinates(cmd[1].tointeger(),cmd[2].tofloat(),cmd[3].tofloat(),cmd[4].tofloat());
+	}
 	if(cmd[0] == "/atest")
 	{
 		setActorName(actor1, "adamixcock");
@@ -175,10 +193,6 @@ function onPlayerCommand(playerid, command)
 	{
 		triggerPlayerMissionSound(playerid,6);
 	}
-	if(cmd[0] == "/request")
-	{
-		requestPlayerAnimations(playerid);
-	}
 	if(cmd[0] == "/sound")
 	{
 		triggerPlayerGameSound(playerid,"armor.wav");
@@ -194,6 +208,16 @@ function onPlayerCommand(playerid, command)
 			toggleBlipRoute(blip,true,playerid);
 		}
 	}
+	if(cmd[0] == "/gps2")
+	{
+		if(isPlayerInAnyVehicle(playerid))
+		{
+			// NOTE: The route(on radar) will have the same color as the blip!
+			sendPlayerMessage(playerid,"ROUTE 2!",White);
+			setVehicleGpsState(getPlayerVehicleId(playerid),true);
+			toggleBlipRoute(blipcolortest,true,playerid);
+		}
+	}
 	if(cmd[0] == "/changeblip")
 	{
 		switchBlipIconForPlayer(blip,playerid,true);
@@ -205,6 +229,14 @@ function onPlayerCommand(playerid, command)
 	if(cmd[0] == "/forceanimplayer")
 	{
 		forcePlayerPlayAnimation(playerid,"amb@smoking_spliff","create_spliff");
+	}
+	if(cmd[0] == "/forcetaxi1")
+	{
+		forcePlayerPlayAnimation(playerid,"amb@taxi_wait_i_f_b","look_around");
+	}
+	if(cmd[0] == "/forcetaxi2")
+	{
+		forcePlayerPlayAnimation(playerid,"amb@taxi_hail_f","hail_right");
 	}
 	if(cmd[0] == "/createfire")
 	{

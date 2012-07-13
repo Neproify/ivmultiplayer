@@ -188,7 +188,7 @@ enum eVehicleEntryExit
 #define b_i_p				2
 #define h_b_w				(b_w - b_i_p)
 #define	nt_a				18
-#define nt_a_a				36
+#define nt_a_a				30
 
 // Debug Commands Enabled
 //#define DEBUG_COMMANDS_ENABLED
