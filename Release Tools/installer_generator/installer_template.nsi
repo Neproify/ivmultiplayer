@@ -135,7 +135,6 @@ Section "Install" SecDummy
 	File ..\..\Binary\Client.LaunchHelper.dll
 	File ..\..\Binary\Client.Core.dll
 	File ..\..\Binary\Network.Core.dll
-	File ..\..\Binary\EAWebkit.dll
 
 	CreateDirectory "$INSTDIR\CEGUI"
 	CreateDirectory "$INSTDIR\CEGUI\fonts"
