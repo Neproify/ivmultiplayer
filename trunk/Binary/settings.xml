@@ -33,7 +33,7 @@
 	<frequentevents>false</frequentevents>
 
 	<!-- Toggles the network nametags from GTA IV to nametags from IV:MP(GUI) -->
-	<guinametags>false</guinametags>
+	<guinametags>true</guinametags>
 	
 	<!-- Toggles the headmovement sync -->
 	<headmovement>true</headmovement>

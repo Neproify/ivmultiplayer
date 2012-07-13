@@ -34,6 +34,8 @@ private:
 	static SQInteger DeletePlayerBlip(SQVM * pVM);
 	static SQInteger TogglePlayerShortRange(SQVM * pVM);
 	static SQInteger TogglePlayerBlipDisplay(SQVM * pVM);
+	static SQInteger TogglePlayerShortRangeForPlayer(SQVM * pVM);
+	static SQInteger TogglePlayerBlipDisplayForPlayer(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

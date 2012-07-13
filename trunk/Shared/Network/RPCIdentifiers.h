@@ -66,6 +66,7 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetPlayerCoordinates,
 	RPC_ScriptingForcePlayerAnim,
 	RPC_ScriptingRequestAnims,
+	RPC_ScriptingReleaseAnims,
 	RPC_ScriptingSetPlayerTime,
 	RPC_ScriptingSetPlayerWeather,
 	RPC_ScriptingSetPlayerGravity,

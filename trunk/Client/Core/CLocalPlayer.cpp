@@ -24,6 +24,7 @@
 #include "COffsets.h"
 #include "CCamera.h"
 #include "CClientScriptManager.h"
+#include "CFireManager.h"
 
 extern CNetworkManager		* g_pNetworkManager;
 extern CPlayerManager		* g_pPlayerManager;
@@ -34,6 +35,7 @@ extern CInputWindow			* g_pInputWindow;
 extern CCamera				* g_pCamera;
 extern bool					m_bControlsDisabled;
 extern CClientScriptManager * g_pClientScriptManager;
+extern CFireManager			* g_pFireManager;
 
 void * pAddress = NULL;
 void * pReturnAddress = NULL;
@@ -108,6 +110,10 @@ void CLocalPlayer::Respawn()
 
 void CLocalPlayer::HandleSpawn()
 {
+	// If we're already spawned(min. one time death), recreate fire(deleted after respawn)
+	if(m_bFirstSpawn)
+		g_pFireManager->ReCreateAllFire();
+
 	// Now load our client scripts(seems that all resources are downloaded ;))
 	if(!m_bFirstSpawn)
 	{
@@ -427,13 +433,18 @@ void CLocalPlayer::SendInVehicleSync()
 
 		/*
 		// TODO, get windows!(eVehicleWindow enum)
+		for(int i = 0; i <= 3; i++)
+		{
 			if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)i))
 				syncPacket.bWindow[i] = true;
-		
+		}
+
 		// TODO, detect tyres from vehicles(2,4, or 6)
+		for(int i = 0; i <= 5; i++)
+		{
 			if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i))
 				syncPacket.bTyre[i] = true;
-		*/
+		}*/
 
 		// Write the in vehicle sync data to the bit stream
 		bsSend.Write((char *)&syncPacket, sizeof(InVehicleSyncData));
@@ -460,7 +471,7 @@ void CLocalPlayer::SendInVehicleSync()
 		g_pNetworkManager->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
 		// Check if our car is dead(exploded or in water)
-		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || Scripting::IsCarInWater(pVehicle->GetScriptingHandle()))
+		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(pVehicle->GetScriptingHandle()) && syncPacket.vecPos.fZ < -1.0f))
 		{
 			CBitStream bsDeath;
 			bsDeath.Write(pVehicle->GetVehicleId());
@@ -632,7 +643,7 @@ void CLocalPlayer::SetAnimation(const char * strGroup, const char * strAnim)
 // TODO: or just sync nearest vehicle?
 void CLocalPlayer::SendEmptyVehicleSync()
 {
-	EMPTYVEHICLESYNCPACKET * syncPacket;
+	EMPTYVEHICLESYNCPACKET syncPacket;
 	CBitStream bsSend;
 	unsigned int ui = 0;
 	unsigned int uiOccupants = 0;
@@ -656,9 +667,9 @@ void CLocalPlayer::SendEmptyVehicleSync()
 			}
 			if(uiOccupants == 0)
 			{
-				g_pVehicleManager->Get(iD)->StoreEmptySync(syncPacket);
+				g_pVehicleManager->Get(iD)->StoreEmptySync(&syncPacket);
 			
-				bsSend.Write((char *)syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
+				bsSend.Write((char *)&syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
 				g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 			}
 		}

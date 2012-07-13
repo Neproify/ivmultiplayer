@@ -23,6 +23,7 @@
 #include "../CLocalPlayer.h"
 #include "../CFPSCounter.h"
 #include "../CIVWeather.h"
+#include "../CActorManager.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CChatWindow * g_pChatWindow;
@@ -32,6 +33,7 @@ extern CScriptingManager * g_pScriptingManager;
 extern CModelManager * g_pModelManager;
 extern CLocalPlayer * g_pLocalPlayer;
 extern CFPSCounter * g_pFPSCounter;
+extern CActorManager * g_pActorManager;
 
 // Client functions
 
@@ -55,6 +57,8 @@ void RegisterClientNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("isGameFocused", sq_isGameFocused, 0, NULL);
 	pScriptingManager->RegisterFunction("setRadarZoom", sq_setRadarZoom, 1, "f");
 	pScriptingManager->RegisterFunction("getScreenPositionFromWorldPosition", sq_getScreenPositionFromWorldPosition, 3, "fff");
+	
+	pScriptingManager->RegisterFunction("getActorPosition", sq_getActorCoordinates, 1, "i");
 
 	pScriptingManager->RegisterFunction("triggerServerEvent", sq_triggerServerEvent, -1, NULL);
 }
@@ -411,6 +415,7 @@ int sq_isGameFocused(SQVM * pVM)
 	return 1;
 }
 
+// setRadarZoom(fZoom)
 int sq_setRadarZoom(SQVM * pVM)
 {
 	float fZoom;
@@ -418,5 +423,27 @@ int sq_setRadarZoom(SQVM * pVM)
 
 	Scripting::SetRadarZoom(fZoom);
 	sq_pushbool(pVM,true);
+	return 1;
+}
+
+// getActorCoordinates(actorid) // pls take a look at the wiki ;)
+int sq_getActorCoordinates(SQVM * pVM)
+{
+	EntityId actorId;
+	sq_getentity(pVM,-1,&actorId);
+
+	if(g_pActorManager->DoesExist(actorId))
+	{
+		CVector3 vecPosition;
+		Scripting::GetCharCoordinates(g_pActorManager->GetScriptingHandle(actorId),&vecPosition.fX,&vecPosition.fY,&vecPosition.fZ);
+		CSquirrelArguments args;
+		args.push(vecPosition.fX);
+		args.push(vecPosition.fY);
+		args.push(vecPosition.fZ);
+		sq_pusharg(pVM, CSquirrelArgument(args, true));
+	}
+	else
+		sq_pushbool(pVM,false);
+
 	return 1;
 }

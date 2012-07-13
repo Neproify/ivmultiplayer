@@ -109,10 +109,11 @@ void CAudio::Play ( )
 			m_dwChannel = BASS_StreamCreateFile(FALSE, m_szSoundFile, 0, 0, BASS_SAMPLE_LOOP);
 	}
 
+	// Fix this shit replay!
 	if(m_bReplay)
-		BASS_ChannelPlay ( m_dwChannel, TRUE );
+		BASS_ChannelPlay ( m_dwChannel, (BOOL)TRUE );
 	else if(!m_bReplay)
-		BASS_ChannelPlay ( m_dwChannel, FALSE );
+		BASS_ChannelPlay ( m_dwChannel, (BOOL)FALSE );
 
 	m_bPlayed = true;
 }

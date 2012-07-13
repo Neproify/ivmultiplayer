@@ -65,8 +65,10 @@ public:
 
 	void		 CreateForPlayer(EntityId playerId, int iSprite, bool bShow);
 	void		 DeleteForPlayer(EntityId playerId);
-	void	     ToggleShortRangeForPlayer(EntityId playerId, bool bToggle);
+	void	     TogglePlayerShortRange(EntityId playerId, bool bToggle);
+	void		 TogglePlayerDisplay(EntityId playerId, bool bToggle);
+	void	     TogglePlayerShortRangeForPlayer(EntityId playerId, EntityId toPlayerId, bool bToggle);
 	void		 SetSpriteForPlayer(EntityId playerId, int iSprite);
-	void		 ToggleDisplayForPlayer(EntityId playerId, bool bToggle);
+	void		 TogglePlayerDisplayForPlayer(EntityId playerId, EntityId toPlayerId, bool bToggle);
 	bool		 DoesPlayerBlipExist(EntityId playerId) { return m_bPlayerActive[playerId]; }
 };

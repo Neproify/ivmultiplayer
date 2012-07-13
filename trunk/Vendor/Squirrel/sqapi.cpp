@@ -1,6 +1,9 @@
 /*
 	see copyright notice in squirrel.h
 */
+
+#pragma warning( disable : 4996 )
+
 #include "sqpcheader.h"
 #include "sqvm.h"
 #include "sqstring.h"

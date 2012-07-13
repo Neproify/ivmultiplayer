@@ -631,12 +631,12 @@ void CClientRPCHandler::NewBlip(CBitStream * pBitStream, CPlayerSocket * pSender
 
 		// Create the blip in the blip manager
 		g_pBlipManager->Create(blipId, iSpriteId, vecPosition);
-		g_pBlipManager->SetColor(blipId, uiColor); 
 		g_pBlipManager->SetSize(blipId, fSize);
 		g_pBlipManager->ToggleShortRange(blipId, bShortRange);
 		g_pBlipManager->ToggleRouteBlip(blipId, bRouteBlip);
 		g_pBlipManager->Show(blipId, bShow);
 		g_pBlipManager->SetName(blipId, strName);
+		g_pBlipManager->SetColor(blipId, uiColor); 
 	}
 }
 
@@ -2850,7 +2850,22 @@ void CClientRPCHandler::ScriptingRequestAnims(CBitStream * pBitStream, CPlayerSo
 	if(!pBitStream)
 		return;
 
-	CGame::InstallAnimGroups();
+	String strGroup;
+	pBitStream->Read(strGroup);
+
+	CGame::RequestAnimGroup(strGroup.Get());
+}
+
+void CClientRPCHandler::ScriptingReleaseAnims(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	String strGroup;
+	pBitStream->Read(strGroup);
+
+	CGame::ReleaseAnimGroup(strGroup.Get());
 }
 
 void CClientRPCHandler::ScriptingForceWind(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3203,6 +3218,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingPlayMissionCompleteAudio, ScriptingPlayMissionCompleteAudio);
 	AddFunction(RPC_ScriptingPlayGameAudio, ScriptingPlayGameAudio);
 	AddFunction(RPC_ScriptingRequestAnims, ScriptingRequestAnims);
+	AddFunction(RPC_ScriptingReleaseAnims, ScriptingReleaseAnims);
 	AddFunction(RPC_ScriptingForceWind, ScriptingForceWind);
 	AddFunction(RPC_ScriptingSetNametags, ScriptingSetNametags);
 	AddFunction(RPC_ScriptingAttachCam, ScriptingAttachCam);
@@ -3349,6 +3365,7 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingPlayMissionCompleteAudio);
 	RemoveFunction(RPC_ScriptingPlayGameAudio);
 	RemoveFunction(RPC_ScriptingRequestAnims);
+	RemoveFunction(RPC_ScriptingReleaseAnims);
 	RemoveFunction(RPC_ScriptingForceWind);
 	RemoveFunction(RPC_ScriptingSetNametags);
 	RemoveFunction(RPC_ScriptingAttachCam);

@@ -192,4 +192,6 @@ public:
 
 	void			 SetVehicleGPSState(bool bState);
 	bool			 GetVehicleGPSState();
+
+	void			 FixCarFloating();
 };

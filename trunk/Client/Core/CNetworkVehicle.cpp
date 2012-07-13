@@ -197,7 +197,7 @@ bool CNetworkVehicle::Create()
 
 		// Disable visible/"normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(false);
+		m_pVehicle->SetCanBeVisiblyDamaged(true);
 
 		// Add the vehicle to the world
 		// Not needed as native does it for us
@@ -213,6 +213,8 @@ bool CNetworkVehicle::Create()
 		// Set the initial rotation
 		SetRotation(m_vecRotation);
 
+		// Try fix floating bug
+		FixCarFloating();
 		return true;
 	}
 
@@ -280,6 +282,12 @@ void CNetworkVehicle::StreamIn()
 	// Attempt to create the vehicle
 	if(Create())
 	{
+		// Set the position
+		SetPosition(m_vecPosition);
+
+		// Try fix floating bug
+		FixCarFloating();
+
 		// Set the rotation
 		SetRotation(m_vecRotation);
 
@@ -294,7 +302,7 @@ void CNetworkVehicle::StreamIn()
 
 		// Disable visible damage & enable "normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(false);
+		m_pVehicle->SetCanBeVisiblyDamaged(true);
 
 		// Restore the health
 		SetHealth(m_uiHealth);
@@ -346,6 +354,9 @@ void CNetworkVehicle::StreamIn()
 			if(m_pPassengers[i])
 				m_pPassengers[i]->InternalPutInVehicle(this, (i + 1));
 		}
+
+		// Try fix floating bug
+		FixCarFloating();
 	}
 }
 
@@ -384,7 +395,6 @@ void CNetworkVehicle::StreamOut()
 
 	// Destroy the vehicle
 	Destroy();
-
 }
 
 bool CNetworkVehicle::IsMoving()
@@ -1270,4 +1280,56 @@ bool CNetworkVehicle::GetVehicleGPSState()
 		return m_pVehicle->GetGPSState();
 	
 	return false;
+}
+
+//#include "CChatWindow.h"
+//extern CChatWindow * g_pChatWindow;
+
+void CNetworkVehicle::FixCarFloating()
+{
+	// Check if we have a vehicle pointer
+	if( m_pVehicle == NULL )
+		return;
+
+	// Check if we have a helicopter(IDS (112, 113, 114))
+	if( m_pModelInfo->GetIndex() > 111 && m_pModelInfo->GetIndex() < 116)
+		return;
+
+	CVector3 vecPos;
+	Scripting::GetCarCoordinates(GetScriptingHandle(),&vecPos.fX,&vecPos.fY,&vecPos.fZ);
+
+	CVector3 vecLastPosition;
+	m_pVehicle->GetPosition(vecLastPosition);
+
+	CVector3 vecSavedPosition;
+	vecSavedPosition = m_vecPosition;
+
+	//g_pChatWindow->AddInfoMessage("FixCarFloating, GOT(%f,%f,%f), SAVED(%f,%f,%f), CHECKED(%f,%f,%f)",vecPos.fX,vecPos.fY,vecPos.fZ, vecSavedPosition.fX, vecSavedPosition.fY, vecSavedPosition.fZ, vecLastPosition.fY,vecLastPosition.fZ);
+
+	if((vecPos-vecLastPosition).Length() > 0)
+	{
+		float fZ;
+		Scripting::GetGroundZFor3DCoord(vecPos.fX,vecPos.fY,vecPos.fZ,&fZ);
+		SetPosition(CVector3(vecPos.fX,vecPos.fY,fZ));
+		Scripting::SetCarOnGroundProperly(GetScriptingHandle());
+		return;
+	}
+
+	if((vecPos-vecSavedPosition).Length() > 0)
+	{
+		float fZ;
+		Scripting::GetGroundZFor3DCoord(vecPos.fX,vecPos.fY,vecPos.fZ,&fZ);
+		SetPosition(CVector3(vecPos.fX,vecPos.fY,fZ));
+		Scripting::SetCarOnGroundProperly(GetScriptingHandle());
+		return;
+	}
+
+	if((vecLastPosition-vecSavedPosition).Length() > 0)
+	{
+		float fZ;
+		Scripting::GetGroundZFor3DCoord(vecPos.fX,vecPos.fY,vecPos.fZ,&fZ);
+		SetPosition(CVector3(vecPos.fX,vecPos.fY,fZ));
+		Scripting::SetCarOnGroundProperly(GetScriptingHandle());
+		return;
+	}
 }

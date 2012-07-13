@@ -95,6 +95,7 @@ private:
 	static SQInteger ResetCamera(SQVM * pVM);
 	static SQInteger forceAnim(SQVM * pVM);
 	static SQInteger requestAnim(SQVM * pVM);
+	static SQInteger releaseAnim(SQVM * pVM);
 	static SQInteger triggerAudioEvent(SQVM * pVM);
 	static SQInteger triggerMissionCompleteAudio(SQVM * pVM);
 	static SQInteger triggerPoliceReport(SQVM * pVM);

@@ -329,7 +329,7 @@ void CBlipManager::DeleteForPlayer(EntityId playerId)
 	g_pNetworkManager->RPC(RPC_ScriptingRemovePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
-void CBlipManager::ToggleShortRangeForPlayer(EntityId playerId, bool bToggle)
+void CBlipManager::TogglePlayerShortRange(EntityId playerId, bool bToggle)
 {
 	// Check if we have a blip for the player
 	if(!m_bPlayerActive[playerId])
@@ -361,7 +361,7 @@ void CBlipManager::SetSpriteForPlayer(EntityId playerId, int iToggle)
 	g_pNetworkManager->RPC(RPC_ScriptingChangePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
-void CBlipManager::ToggleDisplayForPlayer(EntityId playerId, bool bToggle)
+void CBlipManager::TogglePlayerDisplay(EntityId playerId, bool bToggle)
 {
 	// Check if we have a blip for the player
 	if(!m_bPlayerActive[playerId])
@@ -375,4 +375,32 @@ void CBlipManager::ToggleDisplayForPlayer(EntityId playerId, bool bToggle)
 	bsSend.Write(m_PlayerBlips[playerId].bShortRange);
 	bsSend.Write(m_PlayerBlips[playerId].bShow);
 	g_pNetworkManager->RPC(RPC_ScriptingChangePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+void CBlipManager::TogglePlayerDisplayForPlayer(EntityId playerId, EntityId toPlayerId, bool bToggle)
+{
+	// Check if we have a blip for the player
+	if(!m_bPlayerActive[playerId])
+		return;
+
+	CBitStream bsSend;
+	bsSend.WriteCompressed(playerId);
+	bsSend.Write(m_PlayerBlips[playerId].iSprite);
+	bsSend.Write(m_PlayerBlips[playerId].bShortRange);
+	bsSend.Write(bToggle);
+	g_pNetworkManager->RPC(RPC_ScriptingChangePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, toPlayerId, false);
+}
+
+void CBlipManager::TogglePlayerShortRangeForPlayer(EntityId playerId, EntityId toPlayerId, bool bToggle)
+{
+	// Check if we have a blip for the player
+	if(!m_bPlayerActive[playerId])
+		return;
+
+	CBitStream bsSend;
+	bsSend.WriteCompressed(playerId);
+	bsSend.Write(m_PlayerBlips[playerId].iSprite);
+	bsSend.Write(bToggle);
+	bsSend.Write(m_PlayerBlips[playerId].bShow);
+	g_pNetworkManager->RPC(RPC_ScriptingChangePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, toPlayerId, false);
 }

@@ -118,7 +118,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("fadePlayerScreenOut", fadeScreenOut, 2, "ii");
 	pScriptingManager->RegisterFunction("blockPlayerDropWeaponsAtDeath",blockWeaponDrop, 2, "ib");
 	pScriptingManager->RegisterFunction("blockPlayerWeaponScroll", blockWeaponChange, 2, "ib");
-	pScriptingManager->RegisterFunction("requestPlayerAnimations", requestAnim, 1, "i");
+	pScriptingManager->RegisterFunction("requestPlayerAnimations", requestAnim, 2, "is");
+	pScriptingManager->RegisterFunction("releasePlayerAnimations", releaseAnim, 2, "is");
 	pScriptingManager->RegisterFunction("attachPlayerCameraToPlayer", AttachCamToPlayer, 2, "ii");
 	pScriptingManager->RegisterFunction("attachPlayerCameraToVehicle", AttachCamToVehicle, 2, "ii");
 	pScriptingManager->RegisterFunction("displayHudNotification", DisplayHudNotification, 3, "iis");
@@ -2039,11 +2040,36 @@ SQInteger CPlayerNatives::forceAnim(SQVM * pVM)
 SQInteger CPlayerNatives::requestAnim(SQVM * pVM)
 {
 	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
+	sq_getentity(pVM, -2, &playerId);
+	
+	const char *szAnim = NULL;
+	sq_getstring(pVM,-1,&szAnim);
 
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
-		g_pNetworkManager->RPC(RPC_ScriptingRequestAnims, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		CBitStream bsSend;
+		bsSend.Write(String(szAnim));
+		g_pNetworkManager->RPC(RPC_ScriptingRequestAnims, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::releaseAnim(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -2, &playerId);
+	
+	const char *szAnim = NULL;
+	sq_getstring(pVM,-1,&szAnim);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(String(szAnim));
+		g_pNetworkManager->RPC(RPC_ScriptingReleaseAnims, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
