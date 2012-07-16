@@ -84,6 +84,7 @@ function onPlayerJoin(playerID) {
 	// Now you can use the natives, because the player is registered at the server
 	setPlayerSpawnLocation(playerID, -341.36, 1144.80, 14.79, 40.114815);
 	sendPlayerMessage(playerID, "Welcome to Central Park", White);
+	sendPlayerMessage(playerID, "ƒобро пожаловать в центральный парк!(Russian test)", White);
 	sendPlayerMessage(playerID, "cp: " + cp1, White);
 }
 addEvent("playerJoin", onPlayerJoin);

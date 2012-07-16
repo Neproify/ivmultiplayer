@@ -42,7 +42,7 @@ CInputWindow::CInputWindow()
 		m_pEditBox->setText("");
 		m_pEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0f, 75.0f), CEGUI::UDim(0.0f, ((20.0f * MAX_DISPLAYED_MESSAGES) + 30.0f))));
 		m_pEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.25f, 0), CEGUI::UDim(0.03375f, 0)));
-		m_pEditBox->setFont(g_pGUI->GetFont("sans",10U));
+		m_pEditBox->setFont(g_pGUI->GetFont("tahoma-bold",10U));
 		m_pEditBox->setVisible(false);
 
 		m_pEditBoxImage = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());

@@ -1,4 +1,4 @@
-//============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
+﻿//============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
 // File: CGUI.cpp
 // Project: Client.Core
@@ -698,6 +698,27 @@ void CGUI::RemoveGUIWindow(CEGUI::Window * pWindow)
 	}
 }
 
+std::string CGUIWindow::getText()
+{
+	CEGUI::String str = CEGUI::Window::getText();
+	int len = str.length();
+
+	if(len == 0)
+		return std::string();
+
+	char * Ansi = new char[str.length() + 1];
+	std::string out;
+	for(int i = 0; i < str.size(); i++)
+	{
+		Ansi[i] = (UCHAR)str[i];
+	}
+	Ansi[str.size()] = 0;
+	out = Ansi;
+	delete Ansi;
+
+	return out;
+}
+
 void CGUI::RemoveGUIWindow(CGUITitleBar * pTitleBar)
 {
 	RemoveGUIWindow((CEGUI::Window *)pTitleBar);
@@ -962,8 +983,12 @@ bool CGUI::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// Is it a char?
 		if(uMsg == WM_CHAR)
 		{
-			// Pass it to the GUI
-			if(m_pSystem->injectChar(wParam))
+			// Temporary strings for unicode conversion
+			unsigned char ucAnsi = wParam;
+			WCHAR wcUnicode = 0;
+			SharedUtility::AnsiToUnicode((const char *)&ucAnsi, 1, &wcUnicode, 1);
+
+			if(m_pSystem->injectChar((CEGUI::utf32)wParam))
 				return true;
 		}
 

@@ -42,18 +42,23 @@
 //InheritedStructTypedef(CEGUI::Window, CGUIButton);
 // TODO: These should all be the cegui types
 // e.g. typedef CGUITitleBar CEGUI::TitleBar?
-struct CGUITitleBar : CEGUI::Window {};
-struct CGUIButton : CEGUI::Window {};
-struct CGUIFrameWindow : CEGUI::Window {};
-struct CGUIEditBox : CEGUI::Window {};
-struct CGUIMultiLineEditBox : CEGUI::Window {};
-struct CGUIStaticImage : CEGUI::Window {};
-struct CGUIStaticText : CEGUI::Window {};
-struct CGUICheckBox : CEGUI::Window {};
-struct CGUIMultiColumnList : CEGUI::Window {};
-struct CGUITabControl : CEGUI::Window {};
-struct CGUITabContentPane : CEGUI::Window {};
-struct CGUIProgressBar : CEGUI::Window {};
+struct CGUIWindow : CEGUI::Window
+{
+	std::string getText();
+};
+
+struct CGUITitleBar : CGUIWindow {};
+struct CGUIButton : CGUIWindow {};
+struct CGUIFrameWindow : CGUIWindow {};
+struct CGUIEditBox : CGUIWindow {};
+struct CGUIMultiLineEditBox : CGUIWindow {};
+struct CGUIStaticImage : CGUIWindow {};
+struct CGUIStaticText : CGUIWindow {};
+struct CGUICheckBox : CGUIWindow {};
+struct CGUIMultiColumnList : CGUIWindow {};
+struct CGUITabControl : CGUIWindow {};
+struct CGUITabContentPane : CGUIWindow {};
+struct CGUIProgressBar : CGUIWindow {};
 
 struct Vector2
 {
