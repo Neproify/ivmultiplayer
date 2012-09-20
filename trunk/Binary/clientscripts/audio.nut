@@ -4,6 +4,7 @@
 // Audio(url or resource, replay, url to file or add only name from the ressource)
 local audiourl = Audio(true,false,"http://martinkonrad.square7.ch/testmusic.mp3");
 local audiourlposition = Audio(true,false,"http://martinkonrad.square7.ch/testmusic.mp3");
+audiourl.play();
 
 function onKeyPress(key, status)
 {
@@ -28,7 +29,7 @@ function onKeyPress(key, status)
 		if (status == "down")
 		{
 			audiourlposition.usePositionSystem(true);
-			audiourlposition.setPosition(-341.36, 1144.80, 14.79,30.0);
+			audiourlposition.setPosition(1649.508179, 395.261627, 38.151573,30.0);
 			audiourlposition.play();
 			addChatMessage("Music stream with position system starts to play...");
 		}
@@ -39,6 +40,20 @@ function onKeyPress(key, status)
 		{
 			audiourlposition.stop();
 			addChatMessage("Stopped music stream with position system");
+		}
+	}
+	else if(key == "n")
+	{
+		if(status == "down")
+		{
+			tuneRadio(true,19);
+		}
+	}
+	else if(key == "m")
+	{
+		if(status == "down")
+		{
+			tuneRadio(false,19);
 		}
 	}
 }

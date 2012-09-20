@@ -110,110 +110,112 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 
 	CLogFile::Printf("[Connect] Authorization for %s (%s) complete.", strIP.Get(), strName.Get());
 
-	// Setup the player
+	// Send them our nametag settings(this must be send BEFORE the players/actors are created!!!!!)
+	CBitStream bsNametags;
+	bsNametags.Write(CVAR_GET_BOOL("guinametags"));
+	g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
+		// Setup the player
 	g_pPlayerManager->Add(playerId, strName);
 	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
-	if(pPlayer)
+	if(!pPlayer)
+		return;
+
+	// Let the vehicle manager handle the client join
+	g_pVehicleManager->HandleClientJoin(playerId);
+
+	// Let the player manager handle the client join
+	g_pPlayerManager->HandleClientJoin(playerId);
+
+	// Let the object manager handle the client join
+	g_pObjectManager->HandleClientJoin(playerId);
+
+	// Let the fire manager handle the client join
+	g_pObjectManager->HandleClientJoinFire(playerId);
+
+	// Let the blip manager handle the client join
+	g_pBlipManager->HandleClientJoin(playerId);
+
+	// Let the checkpoint manager handle the client join
+	g_pCheckpointManager->HandleClientJoin(playerId);
+
+	// Let the pickup manager handle the client join
+	g_pPickupManager->HandleClientJoin(playerId);
+
+	// Let the actor manager handle the client join
+	g_pActorManager->HandleClientJoin(playerId);
+
+
+	// Construct the reply bit stream
+	bsSend.Write(playerId);
+	bsSend.Write(CVAR_GET_STRING("hostname"));
+	bsSend.Write(CVAR_GET_BOOL("paynspray"));
+	bsSend.Write(CVAR_GET_BOOL("autoaim"));
+	bsSend.Write(pPlayer->GetColor());
+	bsSend.Write(CVAR_GET_STRING("httpserver"));
+	bsSend.Write((unsigned short)CVAR_GET_INTEGER("httpport"));
+	bsSend.Write((unsigned char)CVAR_GET_INTEGER("weather"));
+	bsSend.Write(CVAR_GET_BOOL("guinametags"));
+	bsSend.Write(CVAR_GET_BOOL("headmovement"));
+	bsSend.Write(CVAR_GET_INTEGER("maxplayers"));
+
+	// Time
+	unsigned char ucHour = 0, ucMinute = 0;
+	g_pTime->GetTime(&ucHour, &ucMinute);
+	bsSend.Write((unsigned char)(ucHour + (24 * (1 + g_pTime->GetDayOfWeek()))));
+	bsSend.Write(ucMinute);
+	if(g_pTime->GetMinuteDuration() != CTime::DEFAULT_MINUTE_DURATION)
 	{
-		// Send them our nametag settings(this must be send BEFORE the players/actors are created!!!!!)
-		CBitStream bsNametags;
-		bsNametags.Write(CVAR_GET_BOOL("guinametags"));
-		g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		bsSend.Write1();
+		bsSend.Write(g_pTime->GetMinuteDuration());
+	}
+	else
+		bsSend.Write0();
 
-		// Let the vehicle manager handle the client join
-		g_pVehicleManager->HandleClientJoin(playerId);
+	// Traffic Lights
+	bsSend.Write((BYTE)g_pTrafficLights->GetSetState());
+	bsSend.Write(g_pTrafficLights->GetTimeThisCylce());
 
-		// Let the player manager handle the client join
-		g_pPlayerManager->HandleClientJoin(playerId);
-
-		// Let the object manager handle the client join
-		g_pObjectManager->HandleClientJoin(playerId);
-
-		// Let the fire manager handle the client join
-		g_pObjectManager->HandleClientJoinFire(playerId);
-
-		// Let the blip manager handle the client join
-		g_pBlipManager->HandleClientJoin(playerId);
-
-		// Let the actor manager handle the client join
-		g_pActorManager->HandleClientJoin(playerId);
-
-		// Let the checkpoint manager handle the client join
-		g_pCheckpointManager->HandleClientJoin(playerId);
-
-		// Let the pickup manager handle the client join
-		g_pPickupManager->HandleClientJoin(playerId);
-
-		// Construct the reply bit stream
-		bsSend.Write(playerId);
-		bsSend.Write(CVAR_GET_STRING("hostname"));
-		bsSend.Write(CVAR_GET_BOOL("paynspray"));
-		bsSend.Write(CVAR_GET_BOOL("autoaim"));
-		bsSend.Write(pPlayer->GetColor());
-		bsSend.Write(CVAR_GET_STRING("httpserver"));
-		bsSend.Write((unsigned short)CVAR_GET_INTEGER("httpport"));
-		bsSend.Write((unsigned char)CVAR_GET_INTEGER("weather"));
-		bsSend.Write(CVAR_GET_BOOL("guinametags"));
-		bsSend.Write(CVAR_GET_BOOL("headmovement"));
-		bsSend.Write(CVAR_GET_INTEGER("maxplayers"));
-
-		// Time
-		unsigned char ucHour = 0, ucMinute = 0;
-		g_pTime->GetTime(&ucHour, &ucMinute);
-		bsSend.Write((unsigned char)(ucHour + (24 * (1 + g_pTime->GetDayOfWeek()))));
-		bsSend.Write(ucMinute);
-		if(g_pTime->GetMinuteDuration() != CTime::DEFAULT_MINUTE_DURATION)
-		{
+	if(g_pTrafficLights->GetSetState() != CTrafficLights::TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)
+	{
+		if(g_pTrafficLights->IsLocked())
 			bsSend.Write1();
-			bsSend.Write(g_pTime->GetMinuteDuration());
-		}
 		else
 			bsSend.Write0();
 
-		// Traffic Lights
-		bsSend.Write((BYTE)g_pTrafficLights->GetSetState());
-		bsSend.Write(g_pTrafficLights->GetTimeThisCylce());
-
-		if(g_pTrafficLights->GetSetState() != CTrafficLights::TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)
+		if(!g_pTrafficLights->IsUsingDefaultDurations())
 		{
-			if(g_pTrafficLights->IsLocked())
-				bsSend.Write1();
+			bsSend.Write1();
+			if(g_pTrafficLights->GetSetState() >= CTrafficLights::TRAFFIC_LIGHT_STATE_FLASHING_FLASHING)
+				bsSend.Write(g_pTrafficLights->GetYellowDuration());
 			else
-				bsSend.Write0();
-
-			if(!g_pTrafficLights->IsUsingDefaultDurations())
 			{
-				bsSend.Write1();
-				if(g_pTrafficLights->GetSetState() >= CTrafficLights::TRAFFIC_LIGHT_STATE_FLASHING_FLASHING)
-					bsSend.Write(g_pTrafficLights->GetYellowDuration());
-				else
-				{
-					bsSend.Write(g_pTrafficLights->GetGreenDuration());
-					bsSend.Write(g_pTrafficLights->GetYellowDuration());
-					bsSend.Write(g_pTrafficLights->GetRedDuration());
-				}
+				bsSend.Write(g_pTrafficLights->GetGreenDuration());
+				bsSend.Write(g_pTrafficLights->GetYellowDuration());
+				bsSend.Write(g_pTrafficLights->GetRedDuration());
 			}
-			else
-				bsSend.Write0();
 		}
-
-		// Send the joined game RPC
-		g_pNetworkManager->RPC(RPC_JoinedGame, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-
-		// Inform the resource file manager of the client join
-		g_pClientResourceFileManager->HandleClientJoin(playerId);
-
-		// Inform the script file manager of the client join
-		g_pClientScriptFileManager->HandleClientJoin(playerId);
-
-		// Call the playerJoin event(AFTER he has downloaded all files)
-		CSquirrelArguments pArguments;
-		pArguments.push(playerId);
-		g_pEvents->Call("playerJoin", &pArguments);
-
-		CLogFile::Printf("[Join] %s (%d) has joined the game.", strName.Get(), playerId);
+		else
+			bsSend.Write0();
 	}
+
+	// Send the joined game RPC
+	g_pNetworkManager->RPC(RPC_JoinedGame, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
+	// Inform the resource file manager of the client join
+	g_pClientResourceFileManager->HandleClientJoin(playerId);
+
+	// Inform the script file manager of the client join
+	g_pClientScriptFileManager->HandleClientJoin(playerId);
+
+	// Call the playerJoin event(AFTER he has downloaded all files)
+	CSquirrelArguments pArguments;
+	pArguments.push(playerId);
+	g_pEvents->Call("playerJoin", &pArguments);
+
+	CLogFile::Printf("[Join] %s (%d) has joined the game.", strName.Get(), playerId);
+	
 }
 
 void CServerRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -286,10 +288,9 @@ void CServerRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 	if(pPlayer)
 	{
 		int iSkinId;
-
-		if(!pBitStream->Read(iSkinId))
-			return;
-
+		if(!pBitStream->Read(iSkinId)) // if we can't read the model, select nico skin
+			iSkinId = 0; 
+	
 		pPlayer->SetModel(iSkinId);
 		pPlayer->SpawnForWorld();
 		CLogFile::Printf("[Spawn] %s spawned.", pPlayer->GetName().C_String());
@@ -890,42 +891,86 @@ void CServerRPCHandler::VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pS
 	pArguments.push(vehicleId);
 	g_pEvents->Call("vehicleDeath",&pArguments);
 
-	// Sure that we have no player in vehicle(otherwise crash >.<)
-	if(pVehicle->GetDriver())
+	if(g_pEvents->Call("vehicleRespawn", &pArguments).GetInteger() == 1)
 	{
-		EntityId playerId = pVehicle->GetDriver()->GetPlayerId();
-		CBitStream bsSend;
-		bsSend.Write(playerId);
-		bsSend.Write0();
-		g_pNetworkManager->RPC(RPC_ScriptingRemovePlayerFromVehicle,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-	}
-	for(EntityId i = 0; i < MAX_PLAYERS; i++)
-	{
-		if(g_pPlayerManager->DoesExist(i))
+		// Sure that we have no player in vehicle(otherwise crash >.<)
+		if(pVehicle->GetDriver())
 		{
-			if(!g_pPlayerManager->GetAt(i)->IsOnFoot())
+			EntityId playerId = pVehicle->GetDriver()->GetPlayerId();
+			CBitStream bsSend;
+			bsSend.Write(playerId);
+			bsSend.Write0();
+			g_pNetworkManager->RPC(RPC_ScriptingRemovePlayerFromVehicle,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		}
+		// Loop trough all players
+		for(EntityId i = 0; i < MAX_PLAYERS; i++)
+		{
+			if(g_pPlayerManager->DoesExist(i))
 			{
-				if(g_pPlayerManager->GetAt(i)->GetVehicle()->GetVehicleId() == pVehicle->GetVehicleId())
+				if(!g_pPlayerManager->GetAt(i)->IsOnFoot())
 				{
-					CBitStream bsSend;
-					bsSend.Write(i);
-					bsSend.Write0();
-					g_pNetworkManager->RPC(RPC_ScriptingRemovePlayerFromVehicle,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, i, false);
+					if(g_pPlayerManager->GetAt(i)->GetVehicle()->GetVehicleId() == pVehicle->GetVehicleId())
+					{
+						CBitStream bsSend;
+						bsSend.Write(i);
+						bsSend.Write0();
+						g_pNetworkManager->RPC(RPC_ScriptingRemovePlayerFromVehicle,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, i, false);
+					}
 				}
 			}
+
 		}
-
+		// If all is checked -> respawn it
+		pVehicle->Respawn();
 	}
-
-	// If everyone is kickedout of the vehicle, respawn it
-	pVehicle->Respawn();
-	g_pEvents->Call("vehicleRespawn", &pArguments);
+		
 }
 
+void CServerRPCHandler::SyncActor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId playerId = pSenderSocket->playerId;
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		ActorSyncData syncPacket;
+		if(!pBitStream->Read((char *)&syncPacket, sizeof(ActorSyncData)))
+			return;
+
+		g_pActorManager->UpdateDrivePos(syncPacket.actorId,syncPacket.vecPos,syncPacket.vecRot, syncPacket.bDriving);
+	}
+}
+
+void CServerRPCHandler::RequestActorUpdate(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId playerId = pSenderSocket->playerId;
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	EntityId actorId;
+	pBitStream->Read(actorId);
+
+	CLogFile::Print("REQUEST ACTOR");
+	if(pPlayer)
+	{
+		CBitStream bsSend;
+		bsSend.Write(actorId);
+		CVector3 vecPos; 
+		g_pVehicleManager->GetAt(g_pActorManager->GetVehicle(actorId))->GetPosition(vecPos);
+		bsSend.Write(vecPos);
+		g_pNetworkManager->RPC(RPC_ScriptingActorDriveToCoords, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+	}
+}
 void CServerRPCHandler::Register()
 {
 	AddFunction(RPC_PlayerConnect, PlayerConnect);
-
 	AddFunction(RPC_Chat, Chat);
 	AddFunction(RPC_Command, Command);
 	AddFunction(RPC_PlayerSpawn, PlayerSpawn);
@@ -942,6 +987,8 @@ void CServerRPCHandler::Register()
 	AddFunction(RPC_CheckpointLeft, CheckpointLeft);
 	AddFunction(RPC_ScriptingEventCall, EventCall);
 	AddFunction(RPC_ScriptingVehicleDeath, VehicleDeath);
+	AddFunction(RPC_SyncActor, SyncActor);
+	AddFunction(RPC_RequestActorUpdate, RequestActorUpdate);
 }
 
 void CServerRPCHandler::Unregister()
@@ -963,4 +1010,6 @@ void CServerRPCHandler::Unregister()
 	RemoveFunction(RPC_CheckpointLeft);
 	RemoveFunction(RPC_ScriptingEventCall);
 	RemoveFunction(RPC_ScriptingVehicleDeath);
+	RemoveFunction(RPC_SyncActor);
+	RemoveFunction(RPC_RequestActorUpdate);
 }

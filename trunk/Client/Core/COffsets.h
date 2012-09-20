@@ -77,7 +77,8 @@ public:
 	static unsigned int FUNC_CQuaternion__ConvertFromMatrix;
 
 	// Vehicle
-	static unsigned int FUNC_CVehicle__SetEngineOn;
+	static unsigned int FUNC_CVehicle__TurnEngineOn;
+	static unsigned int FUNC_CVehicle__TurnEngineOff;
 	static unsigned int FUNC_CVehicle__RefreshColours;
 
 	// Misc

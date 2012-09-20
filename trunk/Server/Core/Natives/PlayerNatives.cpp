@@ -124,8 +124,12 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("attachPlayerCameraToVehicle", AttachCamToVehicle, 2, "ii");
 	pScriptingManager->RegisterFunction("displayHudNotification", DisplayHudNotification, 3, "iis");
 	pScriptingManager->RegisterFunction("setPlayerFollowVehicleMode", FollowVehicleMode, 2, "ii");
+	pScriptingManager->RegisterFunction("setPlayerFollowVehicleOffset", FollowVehicleOffset, 5, "iifff");
 	pScriptingManager->RegisterFunction("setPlayerAmmoInClip", SetAmmoInClip, 2, "ii");
 	pScriptingManager->RegisterFunction("setPlayerAmmo", SetAmmo, 3, "iii");
+	pScriptingManager->RegisterFunction("setPlayerUseMobilePhone", SetMobilePhone, 2, "ib");
+	pScriptingManager->RegisterFunction("sayPlayerSpeech", SaySpeech, 3, "iss");
+	pScriptingManager->RegisterFunction("letPlayerDriveAutomaticAtCoords", DriveAutomatic, 7, "iiffffi");
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 }
 
@@ -1080,7 +1084,7 @@ SQInteger CPlayerNatives::DisplayText(SQVM * pVM)
 		bsSend.Write(fPos[0]);
 		bsSend.Write(fPos[1]);
 		bsSend.Write(String(szText));
-		bsSend.Write(iTime);
+		bsSend.Write((int)iTime);
 		g_pNetworkManager->RPC(RPC_ScriptingDisplayText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -1104,7 +1108,7 @@ SQInteger CPlayerNatives::DisplayTextForAll(SQVM * pVM)
 	bsSend.Write(fPos[0]);
 	bsSend.Write(fPos[1]);
 	bsSend.Write(String(szText));
-	bsSend.Write(iTime);
+	bsSend.Write((int)iTime);
 	g_pNetworkManager->RPC(RPC_ScriptingDisplayText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	sq_pushbool(pVM, true);
 	return 1;
@@ -1124,7 +1128,7 @@ SQInteger CPlayerNatives::DisplayInfoText(SQVM * pVM)
 	{
 		CBitStream bsSend;
 		bsSend.Write(String(szText));
-		bsSend.Write(iTime);
+		bsSend.Write((int)iTime);
 		g_pNetworkManager->RPC(RPC_ScriptingDisplayInfoText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -1143,7 +1147,7 @@ SQInteger CPlayerNatives::DisplayInfoTextForAll(SQVM * pVM)
 	sq_getinteger(pVM, -1, &iTime);
 	CBitStream bsSend;
 	bsSend.Write(String(szText));
-	bsSend.Write(iTime);
+	bsSend.Write((int)iTime);
 	g_pNetworkManager->RPC(RPC_ScriptingDisplayText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	sq_pushbool(pVM, true);
 	return 1;
@@ -1746,13 +1750,13 @@ SQInteger CPlayerNatives::TriggerEvent(SQVM * pVM)
 	CHECK_TYPE("triggerClientEvent", 1, 2, OT_INTEGER);
 	CHECK_TYPE("triggerClientEvent", 2, 3, OT_STRING);
 
-	SQInteger playerid;
-	sq_getinteger(pVM, 2, &playerid);
+	SQInteger playerId;
+	sq_getinteger(pVM, 2, &playerId);
 	CSquirrelArguments arguments(pVM, 3);
 
 	CBitStream bsSend;
 	arguments.serialize(&bsSend);
-	g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerid, false, PACKET_CHANNEL_SCRIPT);
+	g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false, PACKET_CHANNEL_SCRIPT);
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -2102,13 +2106,13 @@ SQInteger CPlayerNatives::triggerMissionCompleteAudio(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -2, &playerId);
 
-	int szMission;
+	SQInteger szMission;
 	sq_getinteger(pVM,-1,&szMission);
 
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bsSend.Write(szMission);
+		bsSend.Write((int)szMission);
 		g_pNetworkManager->RPC(RPC_ScriptingPlayMissionCompleteAudio, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -2142,13 +2146,13 @@ SQInteger CPlayerNatives::fadeScreenIn(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -2, &playerId);
 
-	int iDuration;
+	SQInteger iDuration;
 	sq_getinteger(pVM,-1,&iDuration);
 
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bsSend.Write(iDuration);
+		bsSend.Write((int)iDuration);
 		g_pNetworkManager->RPC(RPC_ScriptingFadeScreenIn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -2162,13 +2166,13 @@ SQInteger CPlayerNatives::fadeScreenOut(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -2, &playerId);
 
-	int iDuration;
+	SQInteger iDuration;
 	sq_getinteger(pVM,-1,&iDuration);
 
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bsSend.Write(iDuration);
+		bsSend.Write((int)iDuration);
 		g_pNetworkManager->RPC(RPC_ScriptingFadeScreenOut, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -2182,13 +2186,14 @@ SQInteger CPlayerNatives::blockWeaponChange(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -2, &playerId);
 
-	SQBool btoggle;
-	sq_getbool(pVM,-1,&btoggle);
+	SQBool bToggle;
+	sq_getbool(pVM,-1,&bToggle);
 
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
+		bool bSwitch = (bToggle != 0);
 		CBitStream bsSend;
-		bsSend.Write(btoggle);
+		bsSend.Write(bSwitch);
 		g_pNetworkManager->RPC(RPC_ScriptingBlockWeaponChange, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -2202,13 +2207,14 @@ SQInteger CPlayerNatives::blockWeaponDrop(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -2, &playerId);
 
-	SQBool btoggle;
-	sq_getbool(pVM,-1,&btoggle);
+	SQBool bToggle;
+	sq_getbool(pVM,-1,&bToggle);
 
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
+		bool bSwitch = (bToggle != 0);
 		CBitStream bsSend;
-		bsSend.Write(btoggle);
+		bsSend.Write(bSwitch);
 		g_pNetworkManager->RPC(RPC_ScriptingBlockWeaponDrop, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -2264,7 +2270,7 @@ SQInteger CPlayerNatives::DisplayHudNotification(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -3, &playerId);
 	
-	int iMode;
+	SQInteger iMode;
 	sq_getinteger(pVM, -2, &iMode);
 
 	const char * szMessage;
@@ -2273,7 +2279,7 @@ SQInteger CPlayerNatives::DisplayHudNotification(SQVM * pVM)
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bsSend.Write(iMode);
+		bsSend.Write((int)iMode);
 		bsSend.Write(String(szMessage));
 		g_pNetworkManager->RPC(RPC_ScriptingDisplayHudNotification, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
@@ -2288,8 +2294,9 @@ SQInteger CPlayerNatives::FollowVehicleMode(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -2, &playerId);
 	
-	int iMode;
+	SQInteger iMode;
 	sq_getinteger(pVM, -1, &iMode);
+
 	if(iMode < 0 || iMode > 5)
 	{
 		CLogFile::Print("Vehicle follow modes are only supported from 0 to 5!");
@@ -2300,8 +2307,34 @@ SQInteger CPlayerNatives::FollowVehicleMode(SQVM * pVM)
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bsSend.Write(iMode);
+		bsSend.Write((int)iMode);
 		g_pNetworkManager->RPC(RPC_ScriptingSetVehicleFollowMode, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::FollowVehicleOffset(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -5, &playerId);
+
+	EntityId vehicleId;
+	sq_getentity(pVM, -4, &vehicleId);
+
+	CVector3 vecPos;
+	sq_getfloat(pVM, -3, &vecPos.fX);
+	sq_getfloat(pVM, -2, &vecPos.fY);
+	sq_getfloat(pVM, -1, &vecPos.fZ);
+
+	if(g_pPlayerManager->DoesExist(playerId) && g_pVehicleManager->DoesExist(vehicleId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(vehicleId);
+		bsSend.Write(vecPos);
+		g_pNetworkManager->RPC(RPC_ScriptingSetVehicleFollowOffset, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -2320,7 +2353,7 @@ SQInteger CPlayerNatives::SetAmmoInClip(SQVM * pVM)
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bsSend.Write(iAmmoInClip);
+		bsSend.Write((int)iAmmoInClip);
 		g_pNetworkManager->RPC(RPC_ScriptingSetAmmoInClip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -2342,12 +2375,123 @@ SQInteger CPlayerNatives::SetAmmo(SQVM * pVM)
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
 		CBitStream bsSend;
-		bsSend.Write(iWeaponId);
-		bsSend.Write(iAmmo);
+		bsSend.Write((int)iWeaponId);
+		bsSend.Write((int)iAmmo);
 		g_pNetworkManager->RPC(RPC_ScriptingSetAmmo, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::SetMobilePhone(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool bUse;
+
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &bUse);
+
+	bool bToggle = (bUse != 0);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		g_pPlayerManager->GetAt(playerId)->UseMobilePhone(bToggle);
+		CBitStream bsSend;
+		bsSend.Write(playerId);
+		bsSend.Write(bToggle);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerUseMobilePhone, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::SaySpeech(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -3, &playerId);
+	
+	const char * szVoice;
+	sq_getstring(pVM, -2, &szVoice);
+
+	const char * szText;
+	sq_getstring(pVM, -1, &szText);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(playerId);
+		bsSend.Write(String(szVoice));
+		bsSend.Write(String(szText));
+		g_pNetworkManager->RPC(RPC_ScriptingPlayerSaySpeech, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::DriveAutomatic(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM,-7,&playerId);
+
+	EntityId vehicleId;
+	sq_getentity(pVM,-6,&vehicleId);
+
+	CVector3 vecPos;
+	sq_getfloat(pVM,-5,&vecPos.fX);
+	sq_getfloat(pVM,-4,&vecPos.fY);
+	sq_getfloat(pVM,-3,&vecPos.fZ);
+
+	float fSpeed;
+	sq_getfloat(pVM,-2,&fSpeed);
+
+	SQInteger iDrivingStyle;
+	sq_getinteger(pVM,-1,&iDrivingStyle);
+
+	// Check if we have a valid drivingstyle
+	if(iDrivingStyle < 0 || iDrivingStyle > 3)
+	{
+		CLogFile::Print("Failed to activate automatic vehicle drive(wrong drivingstyle(supported from 0 to 3))");
+		sq_pushbool(pVM,false);
+		return false;
+	}
+
+	// Check if we have a valid vehicle
+	if(!g_pVehicleManager->DoesExist(vehicleId))
+	{
+		CLogFile::Print("Failed to activate automatic vehicle drive(wrong vehicle(not valid))");
+		sq_pushbool(pVM,false);
+		return false;
+	}
+
+	// Check if we are in your vehicle
+	if(g_pVehicleManager->GetAt(vehicleId)->GetDriver()->GetPlayerId() != playerId)
+	{
+		CLogFile::Print("Failed to activate automatic vehicle drive(given player is not as driver in given vehicle)");
+		sq_pushbool(pVM,false);
+		return false;
+	}
+
+	// Check if we have a valid player
+	if(!g_pPlayerManager->DoesExist(playerId))
+	{
+		CLogFile::Print("Failed to activate automatic vehicle drive(wrong player(not valid))");
+		sq_pushbool(pVM,false);
+		return false;
+	}
+	
+	CBitStream bsSend;
+	bsSend.Write(playerId);
+	bsSend.Write(vehicleId);
+	bsSend.Write(vecPos);
+	bsSend.Write(fSpeed);
+	bsSend.Write((int)iDrivingStyle);
+	g_pNetworkManager->RPC(RPC_ScriptingLetPlayerDriveAutomatic, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+	sq_pushbool(pVM, true);
 	return 1;
 }

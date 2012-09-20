@@ -22,6 +22,7 @@
 #include <Network/CNetworkModule.h>
 #include "CFileTransfer.h"
 #include "CAudio.h"
+#include "CActorManager.h"
 
 extern String g_strNick;
 extern CLocalPlayer * g_pLocalPlayer;
@@ -36,6 +37,7 @@ extern CStreamer * g_pStreamer;
 extern CScriptTimerManager * g_pScriptTimerManager;
 extern CNetworkManager * g_pNetworkManager;
 extern CFileTransfer * g_pFileTransfer;
+extern CActorManager * g_pActorManager;
 
 CNetworkManager::CNetworkManager()
 {
@@ -161,6 +163,9 @@ void CNetworkManager::Process()
 
 		// Process the audio manager
 		CAudioManager::Process();
+
+		// Process the actor manager
+		g_pActorManager->Process();
 	}
 }
 

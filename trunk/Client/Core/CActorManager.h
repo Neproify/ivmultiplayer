@@ -28,6 +28,10 @@
 	EntityId		vehicleId;
 	int				iSeatid;
 	unsigned int	uiBlipId;
+	bool			bRender;
+	bool			bFailedEnterVehicle;
+	CVector3		vecDriveFinalPos;
+	CVector3		vecDrivePos;
  };
 
 class CActorManager
@@ -39,7 +43,8 @@ private:
 public:
 	CActorManager();
 	~CActorManager();
-
+	bool			bGameFocused;
+	bool			bMenuFocused;
 	void			Create(EntityId actorId, int iModelId, CVector3 vecPosition, float fHeading, String strName, bool bTogglename, unsigned int iColor, bool bFrozen, bool bHelmet, bool bBlip);
 	bool			Delete(EntityId actorId);
 	void			SetPosition(EntityId actorId, CVector3 vecPosition);
@@ -58,9 +63,12 @@ public:
 	void			WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iSeatId);
 	void			RemoveFromVehicle(EntityId actorId);
 	bool			IsCharOnScreen(EntityId actorId);
-	bool			DoesExist(EntityId actorId) { return m_bActive[actorId]; };
 	unsigned int	GetScriptingHandle(EntityId actorId);
 	void			ForceAnimation(EntityId actorId, const char * szGroup, const char * szAnim);
 	float	        GetHealth(EntityId actorId);
 	float			GetArmour(EntityId actorId);
+	void			DriveToPoint(EntityId actorId, EntityId vehicleId, CVector3 vecPos, CVector3 vecRot, CVector3 vecFinalPos, bool bDrive);
+	EntityId		GetVehicleId(EntityId actorId) { return m_Actors[actorId].vehicleId; }
+	bool			DoesExist(EntityId actorId) { return m_bActive[actorId]; };
+	void			Process();
 };

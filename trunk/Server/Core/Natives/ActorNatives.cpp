@@ -34,18 +34,20 @@ void CActorNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("setActorHeading", SetHeading, 2, "if");
 	pScriptingManager->RegisterFunction("getActorHeading", GetHeading, 1, "i");
 	pScriptingManager->RegisterFunction("actorWalkToCoordinatesForPlayer", WalkToCoordinates, 6, "iifffi");
-	pScriptingManager->RegisterFunction("setActorName",SetName,2,"is");
-	pScriptingManager->RegisterFunction("getActorName",GetName,1,"i");
+	pScriptingManager->RegisterFunction("setActorName",SetName, 2, "is");
+	pScriptingManager->RegisterFunction("getActorName",GetName, 1, "i");
 	pScriptingManager->RegisterFunction("toggleActorNametag", ToggleNametag, 2, "ib");
 	pScriptingManager->RegisterFunction("toggleActorBlip", ToggleBlip, 2, "ib");
-	pScriptingManager->RegisterFunction("setActorNametagColor",SetColor,2,"ii");
-	pScriptingManager->RegisterFunction("getActorNametagColor",GetColor,1,"i");
-	pScriptingManager->RegisterFunction("toggleActorFrozen",ToggleFrozen,2,"ib");
-	pScriptingManager->RegisterFunction("toggleActorHelmet",ToggleHelmet,2,"ib");
-	pScriptingManager->RegisterFunction("warpActorIntoVehicle",WarpIntoVehicle,3,"iii");
-	pScriptingManager->RegisterFunction("removeActorFromVehicle",RemoveFromVehicle,1, "i");
-	pScriptingManager->RegisterFunction("deleteAllActors",DeleteAll,0,NULL);
+	pScriptingManager->RegisterFunction("setActorNametagColor",SetColor, 2, "ii");
+	pScriptingManager->RegisterFunction("getActorNametagColor",GetColor, 1, "i");
+	pScriptingManager->RegisterFunction("toggleActorFrozen",ToggleFrozen, 2, "ib");
+	pScriptingManager->RegisterFunction("toggleActorHelmet",ToggleHelmet, 2, "ib");
+	pScriptingManager->RegisterFunction("warpActorIntoVehicle",WarpIntoVehicle, 3, "iii");
+	pScriptingManager->RegisterFunction("removeActorFromVehicle",RemoveFromVehicle, 1, "i");
+	pScriptingManager->RegisterFunction("deleteAllActors",DeleteAll, 0, NULL);
+	pScriptingManager->RegisterFunction("driveActorToCoordinates", DriveToCoordinates, 4,"ifff");
 	pScriptingManager->RegisterFunction("forceAnimationAtActor", ForceAnim, 3, "iss");
+	pScriptingManager->RegisterFunction("sayActorSpeech", SaySpeech, 3, "iss");
 }
 
 // createActor(modelhash, x, y, z, r)
@@ -217,7 +219,7 @@ SQInteger CActorNatives::WalkToCoordinates(SQVM * pVM)
 		CBitStream bsSend;
 		bsSend.Write(actorId);
 		bsSend.Write(vecPosition);
-		bsSend.Write(iType);
+		bsSend.Write((int)iType);
 		g_pNetworkManager->RPC(RPC_ScriptingActorWalkToCoordinates, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -368,24 +370,24 @@ SQInteger CActorNatives::ToggleHelmet(SQVM * pVM)
 SQInteger CActorNatives::WarpIntoVehicle(SQVM * pVM)
 {
 	EntityId actorId;
-	int vehicleid;
-	int seatid;
+	EntityId vehicleId;
+	SQInteger seatid;
 	
 	sq_getentity(pVM, -3, &actorId);
-	sq_getinteger(pVM, -2, &vehicleid);
+	sq_getentity(pVM, -2, &vehicleId);
 	sq_getinteger(pVM, -1, &seatid);
 
 	if(g_pActorManager->DoesExist(actorId))
 	{
-		if(seatid > 0 &&  seatid <= 3)
+		if(seatid >= 0 &&  seatid <= 3)
 		{
-			g_pActorManager->WarpIntoVehicle(actorId,vehicleid,seatid);
+			g_pActorManager->WarpIntoVehicle(actorId,vehicleId,(int)seatid);
 			sq_pushbool(pVM, true);
 			return 1;
 		}
 		else
 		{
-			CLogFile::Printf("Can't warp actor %d on the seat %d from the vehicle %d(Seats are only supported from 1 to 3(passenger))",actorId,seatid,vehicleid);
+			CLogFile::Printf("Can't warp actor %d on the seat %d from the vehicle %d(Seats are only supported from 0 to 3(driver and passenger))",actorId,seatid,vehicleId);
 			sq_pushbool(pVM, false);
 		}
 	}
@@ -442,5 +444,55 @@ SQInteger CActorNatives::ForceAnim(SQVM * pVM)
 		bsSend.Write(String(szAnim));
 		g_pNetworkManager->RPC(RPC_ScriptingForceActorAnimation, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	}
+	return 1;
+}
+
+SQInteger CActorNatives::DriveToCoordinates(SQVM * pVM)
+{
+	EntityId actorId;
+	sq_getentity(pVM,-4, &actorId);
+
+	CVector3 vecPos;
+	sq_getfloat(pVM, -3, &vecPos.fX);
+	sq_getfloat(pVM, -2, &vecPos.fY);
+	sq_getfloat(pVM, -1, &vecPos.fZ);
+
+	if(g_pActorManager->DoesExist(actorId))
+	{
+		if(g_pActorManager->UpdateDrivePos(actorId,vecPos,CVector3(),false))
+		{
+			CBitStream bsSend;
+			bsSend.Write(actorId);
+			bsSend.Write(vecPos);
+			g_pNetworkManager->RPC(RPC_ScriptingActorDriveToCoords, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		}
+		else
+			CLogFile::Printf("Failed to set actor's %d state to driving(not in a vehicle!)",actorId);
+	}
+	return 1;
+}
+
+SQInteger CActorNatives::SaySpeech(SQVM * pVM)
+{
+	EntityId actorId;
+	sq_getentity(pVM, -3, &actorId);
+	
+	const char * szVoice;
+	sq_getstring(pVM, -2, &szVoice);
+
+	const char * szText;
+	sq_getstring(pVM, -1, &szText);
+
+	if(g_pActorManager->DoesExist(actorId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(actorId);
+		bsSend.Write(String(szVoice));
+		bsSend.Write(String(szText));
+		g_pNetworkManager->RPC(RPC_ScriptingActorSaySpeech, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
 	return 1;
 }

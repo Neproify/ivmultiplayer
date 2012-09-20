@@ -34,7 +34,7 @@ CRemotePlayer::~CRemotePlayer()
 	Destroy();
 }
 
-bool CRemotePlayer::Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate)
+bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate)
 {
 	if(!bDontRecreate)
 	{
@@ -53,6 +53,7 @@ bool CRemotePlayer::Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontR
 
 void CRemotePlayer::Destroy()
 {
+
 }
 
 void CRemotePlayer::Kill()
@@ -67,7 +68,7 @@ void CRemotePlayer::Init()
 {
 	if(IsSpawned())
 	{
-		ToggleRagdoll(false);
+		ToggleRagdoll(true);
 		SetColor(GetColor());
 		Scripting::SetPedDiesWhenInjured(GetScriptingHandle(), false);
 		Scripting::SetCharInvincible(GetScriptingHandle(), true);
@@ -79,6 +80,7 @@ void CRemotePlayer::Init()
 		//Scripting::SetAnimGroupForChar(m_pedIndex, "move_player");
 		//Scripting::SetCharGestureGroup(m_pedIndex, "GESTURES@MALE");
 		Scripting::BlockCharHeadIk(GetScriptingHandle(), true);
+
 		m_stateType = STATE_TYPE_SPAWN;
 	}
 }
@@ -99,13 +101,16 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 		return;*/
 
 	// Set our position
-	SetTargetPosition(syncPacket->vecPos, TICK_RATE);
+	SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
 
 	// Set our heading
 	SetCurrentHeading(syncPacket->fHeading);
 
 	// Set our move speed
 	SetMoveSpeed(syncPacket->vecMoveSpeed);
+
+	// Set our turn speed
+	SetTurnSpeed(syncPacket->vecTurnSpeed);
 
 	// Set our ducking state
 	SetDucking(syncPacket->bDuckState);
@@ -188,13 +193,17 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		SetControlState(&syncPacket->controlState);
 
 		// Set their vehicles target position
-		pVehicle->SetTargetPosition(syncPacket->vecPos, TICK_RATE);
+		pVehicle->SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
 
 		// Set their vehicles target rotation
-		pVehicle->SetTargetRotation(syncPacket->vecRotation, TICK_RATE);
+		pVehicle->SetTargetRotation(syncPacket->vecRotation, TICK_RATE*2);
 		
-		// Set their vehicles turn speed
-		pVehicle->SetTurnSpeed(syncPacket->vecTurnSpeed);
+		// Check if we have no bike(otherwise -> shake shake, shake shake shake IT! :P)
+		if(pVehicle->GetModelInfo()->GetIndex() < 105 || pVehicle->GetModelInfo()->GetIndex() > 111)
+		{
+			// Set their vehicles turn speed
+			pVehicle->SetTurnSpeed(syncPacket->vecTurnSpeed);
+		}
 
 		// Set their vehicles move speed
 		pVehicle->SetMoveSpeed(syncPacket->vecMoveSpeed);

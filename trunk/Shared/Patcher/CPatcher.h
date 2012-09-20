@@ -40,5 +40,6 @@ public:
 	static DWORD          GetFunctionAddress(char * szLibrary, unsigned int uOrdinal);
 	static void         * InstallDetourPatch(char * szLibrary, char * szFunction, DWORD dwFunctionAddress);
 	static void         * InstallDetourPatch(char * szLibrary, unsigned int uOrdinal, DWORD dwFunctionAddress);
+	static BYTE			  InstallDetourPatchWithData(char * szLibrary, unsigned int uOrdinal, DWORD dwFunctionAddress);
 	static void           UninstallDetourPatch(void * pTrampoline, DWORD dwFunctionAddress);
 };

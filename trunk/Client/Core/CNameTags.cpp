@@ -106,7 +106,7 @@ void CNameTags::Draw()
 		for(EntityId i = 0; i < MAX_ACTORS; i++)
 		{
 			// Is the current actor active?
-			if(g_pActorManager->DoesExist(i))
+			if(g_pActorManager->DoesExist(i)/* && g_pActorManager->IsNameTagEnabled(i)*/)
 			{
 				// Get the player position + add z coord
 				vecWorldPosition = g_pActorManager->GetPosition(i);
@@ -230,7 +230,7 @@ void CNameTags::Draw()
 			for(EntityId i = 0; i < MAX_ACTORS; i++)
 			{
 				// Is the current actor active?
-				if(g_pActorManager->DoesExist(i))
+				if(g_pActorManager->DoesExist(i)/* && g_pActorManager->IsNameTagEnabled(i)*/)
 				{
 					// Get the player position + add z coord
 					vecWorldPosition = g_pActorManager->GetPosition(i);

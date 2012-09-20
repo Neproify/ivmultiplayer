@@ -10,6 +10,7 @@
 #pragma once
 #include <d3d9.h>
 #include <d3dx9.h>
+#include <Math\CVector3.h>
 
 class CVertexList
 {
@@ -39,6 +40,7 @@ public:
 	void	DrawRect(float fX, float fY, float fWidth, float fHeight, unsigned long ulColor);
 	void	DrawBox( float fLeft, float fTop, float fWidth, float fHeight, DWORD dwColour );
 	float	GetFontHeight( float fScale = 1.0f );
+	void	GetScreenPositionFromWorldPosition(CVector3 vecWorld, CVector3 * vecScreen);
 
 	IDirect3DDevice9 *GetDevice() { return m_pDevice; };
 };

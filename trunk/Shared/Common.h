@@ -24,6 +24,8 @@
 // Linux stuff
 #ifdef _LINUX
 #include <Linux.h>
+#define SQInteger (int)SQInteger
+#define SQBool	  (bool)SQBool)
 #endif
 
 // Compile modes
@@ -104,7 +106,7 @@ typedef unsigned short EntityId;
 #endif
 
 // Mod version string
-#define MOD_VERSION_STRING "0.1 T4"
+#define MOD_VERSION_STRING "0.1 RC2 DEV Snapshot #1"
 
 // Query port offset
 #define QUERY_PORT_OFFSET 137
@@ -116,12 +118,12 @@ typedef unsigned short EntityId;
 #define MASTERLIST_TIMEOUT 0
 #else if COMPILE_MODE == COMPILE_MODE_RELEASE
 #define MASTERLIST_ADDRESS "www.master.iv-multiplayer.com"
-#define MASTERLIST_VERSION "01T4"
+#define MASTERLIST_VERSION "01RC1"
 #define MASTERLIST_TIMEOUT 50000
 #endif
 
 // Version identifiers
-#define VERSION_IDENTIFIER MOD_NAME " " MOD_VERSION_STRING " (" __DATE__ ", " __TIME__ ")" DEBUG_IDENTIFIER
+#define VERSION_IDENTIFIER MOD_NAME " " MOD_VERSION_STRING /*" (" __DATE__ ", " __TIME__ ")"*/ DEBUG_IDENTIFIER
 #define VERSION_IDENTIFIER_2 MOD_NAME " " MOD_VERSION_STRING DEBUG_IDENTIFIER
 
 // Vehicle entry/exit rpc types
@@ -199,13 +201,14 @@ struct OnFootSyncData
 	CVector3 vecPos;                 // player position
 	float fHeading;                  // player heading
 	CVector3 vecMoveSpeed;           // player move speed
+	CVector3 vecTurnSpeed;			 // player turn speed
 	bool bDuckState : 1;             // ducking
 	unsigned int uHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uWeaponInfo;        // player weapon and ammo
-	//bool bAnim;						 // player anim
-	//char szAnimGroup[256];			 // anim group
-	//char szAnimSpecific[256];	     // anim category from group
-	//float fAnimTime;				 // set anim time
+	bool bAnim;						 // player anim
+	char szAnimGroup[256];			 // anim group
+	char szAnimSpecific[256];	     // anim category from group
+	float fAnimTime;				 // set anim time
 };
 
 struct InVehicleSyncData
@@ -247,12 +250,22 @@ struct SmallSyncData
 	unsigned int uWeaponInfo;   // weapon and ammo
 };
 
+struct ActorSyncData
+{
+	EntityId actorId;	// actorid
+	EntityId vehicleId;	// vehicleid
+	CVector3 vecPos;	// vehicle position
+	CVector3 vecRot;	// vehicle rotation
+	bool	 bDriving;	// driving(yes/no)
+};
+
 struct EMPTYVEHICLESYNCPACKET
 {
-	EntityId playerId;			// playerId
 	EntityId vehicleId;			// vehicleId
 	CVector3 vecPosition;		// vehicle position
 	CVector3 vecRotation;		// vehicle rotation
+	CVector3 vecTurnSpeed;      // vehicle turn speed
+	CVector3 vecMoveSpeed;      // vehicle move speed
 	unsigned int uiHealth;		// vehicle health
 	float fPetrolHealth;		// vehicle petrol health
 	float fDirtLevel;			// vehicle dirt
@@ -262,7 +275,7 @@ struct EMPTYVEHICLESYNCPACKET
 	bool bSirenState : 1;		// vehicle siren state
 	bool bWindow[4];			// vehicle window
 	bool bEngineStatus : 1;		// vehicle engine
-	bool bTyre[6];
+	bool bTyre[6];				// vehicle tyre
 };
 
 struct AimSyncData

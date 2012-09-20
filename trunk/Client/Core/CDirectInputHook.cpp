@@ -40,6 +40,7 @@ HRESULT WINAPI CDirectInputHook::DirectInput8Create_Hook(HINSTANCE hinst, DWORD 
 	else
 		CLogFile::Printf("DirectInput8Create Call Failed!");
 
+	CLogFile::Printf("DirectInput8Create Call Finished!");
 	return hr;
 }
 

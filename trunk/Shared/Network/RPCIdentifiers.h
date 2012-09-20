@@ -54,6 +54,8 @@ enum eRPCIdentfiers
 	RPC_DeleteFile,
 	RPC_NewPickup,
 	RPC_DeletePickup,
+	RPC_SyncActor,
+	RPC_RequestActorUpdate,
 
 	// Scripting RPC's
 	RPC_ScriptingTogglePayAndSpray,
@@ -87,7 +89,9 @@ enum eRPCIdentfiers
 	RPC_ScriptingToggleActorHelmet,
 	RPC_ScriptingWarpActorIntoVehicle,
 	RPC_ScriptingRemoveActorFromVehicle,
+	RPC_ScriptingStopActorDriving,
 	RPC_ScriptingForceActorAnimation,
+	RPC_ScriptingActorDriveToCoords,
 	RPC_ScriptingSetSpawnLocation,
 	RPC_ScriptingSetVehicleColor,
 	RPC_ScriptingToggleRagdoll,
@@ -161,10 +165,20 @@ enum eRPCIdentfiers
 	RPC_ScriptingAttachCam,
 	RPC_ScriptingDisplayHudNotification,
 	RPC_ScriptingSetVehicleFollowMode,
+	RPC_ScriptingSetVehicleFollowOffset,
 	RPC_ScriptingSetAmmoInClip,
 	RPC_ScriptingSetAmmo,
 	RPC_ScriptingCreatePlayerBlip,
 	RPC_ScriptingRemovePlayerBlip,
 	RPC_ScriptingChangePlayerBlip,
-	RPC_ScriptingSetVehicleGPSState
+	RPC_ScriptingSetVehicleGPSState,
+	RPC_ScriptingSetVehicleAlarm,
+	RPC_ScriptingSetVehiclePetrolTankHealth,
+	RPC_ScriptingSetVehicleTryeState,
+	RPC_ScriptingSetVehicleWindowState,
+	RPC_ScriptingSetPlayerUseMobilePhone,
+	RPC_ScriptingMarkVehicleAsActorVehicle,
+	RPC_ScriptingPlayerSaySpeech,
+	RPC_ScriptingActorSaySpeech,
+	RPC_ScriptingLetPlayerDriveAutomatic
 };

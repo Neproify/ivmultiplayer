@@ -59,8 +59,10 @@ private:
 	static SQInteger GetLights(SQVM * pVM);
 	static SQInteger RepairWheels(SQVM * pVM);
 	static SQInteger RepairWindows(SQVM * pVM);
-	static SQInteger SetGpsState(SQVM *pVM);
-	static SQInteger GetGpsState(SQVM *pVM);
+	static SQInteger SetGpsState(SQVM * pVM);
+	static SQInteger GetGpsState(SQVM * pVM);
+	static SQInteger SetAlarm(SQVM * pVM);
+	static SQInteger MarkVehicle(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

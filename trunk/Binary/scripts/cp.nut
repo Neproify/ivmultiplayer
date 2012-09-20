@@ -17,45 +17,36 @@ function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4)
 
 	if(vehicleId != INVALID_VEHICLE_ID)
 	{
-		log("Created a vehicle with id " + vehicleId + " (Model " + model + " (" + getVehicleName(model) + "))");
+		//log("Created a vehicle with id " + vehicleId + " (Model " + model + " (" + getVehicleName(model) + "))");
 		vehicles[vehicles.len()] <- vehicleId;
 	}
-
-
 	return vehicleId;
 }
 
 function onScriptInit()
 {
-	createVehicle(91, -343.447662, 1176.119263, 14.146016, 0.0, 0.0, 268.219513, 0, 0, 0, 0);
-	createVehicle(95, -343.527313, 1172.740479, 14.199832, 0.0, 0.0, 268.217010, 0, 0, 0, 0); 
-	createVehicle(40, -343.501099, 1168.932739, 14.199870, 0.0, 0.0, 269.241302, 0, 0, 0, 0);
-	createVehicle(18, -343.609344, 1166.145630, 14.199894, 0.0, 0.0, 268.305298, 0, 0, 0, 0);
-	createVehicle(17, -343.623444, 1162.919067, 14.199799, 0.0, 0.0, 269.975037, 0, 0, 0, 0);
-	createVehicle(3, -343.633057, 1158.563843, 14.126013, 0.0, 0.0, 270.858826, 0, 0, 0, 0); 
+	createVehicle(50, 1682.030884, 415.455414, 28.492632, 359.998413, 358.788818, 47.536011, 1, 1, 1, 1); // car1
+	createVehicle(27, 1667.659546, 432.233398, 28.631674, 0.607056, 351.466797, 88.324951, 0, 0, 0, 0); // car2
+	createVehicle(37, 1666.811768, 421.175903, 28.643723, 359.297852, 351.982788, 268.549927, 0, 0, 0, 0); // car3
+	createVehicle(40, 1657.118408, 421.462982, 28.569500, 359.828613, 352.884033, 267.583008, 0, 0, 0, 0); // car4
+	createVehicle(93, 1649.273560, 421.382935, 28.761145, 0.001465, 351.280945, 270.491577, 0, 0, 0, 0); // car5
+	createVehicle(3, 1641.365967, 421.592712, 28.691023, 359.782715, 352.587891, 269.953735, 0, 0, 0, 0); // car6
+	createVehicle(95, 1631.719482, 420.940094, 28.562838, 1.065430, 352.694153, 277.920654, 0, 0, 0, 0); // car7
+	createVehicle(91, 1628.712646, 430.695221, 28.632729, 359.860657, 352.000366, 96.860474, 0, 0, 0, 0); // car8
+	//createVehicle(12, 1644.682373, 443.919067, 28.959641, 0.186646, 359.772217, 181.766296, 1, 1, 1, 1); // car9
+	createVehicle(90, 1655.603516, 439.904358, 28.416683, 359.700562, 352.003357, 0.547791, 0, 0, 0, 0); // car10
+	createVehicle(18, 1655.166138, 448.823395, 28.452307, 0.021606, 352.756836, 358.443848, 0, 0, 0, 0); // car11
+	createVehicle(106, 1650.725464, 411.433807, 30.725628, 0.017944, 0.080933, 28.687622, 0, 0, 0, 0); // car12
+	createVehicle(108, 1647.794922, 411.647644, 30.763536, 359.298218, 2.161499, 335.835205, 1, 1, 1, 1); // car13
 	cp1 = createCheckpoint(3, -343.447662, 1171.119263, 14.146016, -343.447662, 1176.119263, 14.146016, 3.0);
 	actor1 = createActor(242, -341.36, 1142.80, 14.79, 5.0);
-	local actor2 = createActor(242, -343.36, 1142.80, 14.79, 5.0);
-	local actor3 = createActor(242, -342.36, 1142.80, 14.79, 5.0);
-	for(local i = 0; i < 5; i++)
-	{
-		local actor = createActor(242, -341.36 + i + 1, 1142.80, 14.79, 5.0);
-		setActorName(actor, "StupidBot #" + i);
-		setActorNametagColor(actor, White);
-	}
-	setActorName(actor3, "sucks");
-	sendConsoleInput("uptime");
-	log(format("Hello %s 0x%x %d", "World", 1337, 1337));
 	log(_version_);
 	local config = getConfig();
 	log("Port = " + config["port"]);
-	log("---------------------");
-	log(SCRIPT_NAME + " loaded");
-	log("---------------------");
+	log(SCRIPT_NAME + " sucessfully loaded");
 	blipcolortest = createBlip(78,1000.0,1000.0,0.0,true);
 	setBlipColor(blipcolortest,0xE59338FF,-1);
 	setBlipName(blipcolortest, "idk");
-	
 	return 1;
 }
 addEvent("scriptInit", onScriptInit);
@@ -80,12 +71,12 @@ function onPlayerConnect(playerID, playerName, playerIP, playerSerial, bHasModde
 }
 addEvent("playerConnect", onPlayerConnect);
 
-function onPlayerJoin(playerID) {
+function onPlayerJoin(playerid) {
 	// Now you can use the natives, because the player is registered at the server
-	setPlayerSpawnLocation(playerID, -341.36, 1144.80, 14.79, 40.114815);
-	sendPlayerMessage(playerID, "Welcome to Central Park", White);
-	sendPlayerMessage(playerID, "ƒобро пожаловать в центральный парк!(Russian test)", White);
-	sendPlayerMessage(playerID, "cp: " + cp1, White);
+	setPlayerSpawnLocation(playerid, /*-341.36, 1144.80, 14.79, 40.114815*/1649.508179, 395.261627, 38.151573, -2.931725);
+	sendPlayerMessage(playerid, "Welcome to Central Park", White);
+	sendPlayerMessage(playerid, "Press [FFFF0000]'I'[FFFFFFAA] to stop the music!",0xFFFFFFAA,true);
+	setPlayerTime(playerid, 6, 50);
 }
 addEvent("playerJoin", onPlayerJoin);
 
@@ -104,10 +95,9 @@ addEvent("playerDisconnect", onPlayerDisconnect);
 
 function onSpawn(playerid)
 {
+	//setPlayerModel(playerid, 7);
 	createPlayerBlip(playerid, 3);
 	togglePlayerBlipShortRange(playerid,true);
-	local pos = getPlayerCoordinates(playerid);
-	createFire(pos[0], pos[1], pos[2], 5.0);
 	
 	// Request here all animations, which you use
 	// ATTENTION: It can take 1 up to 5 seconds to load the animation(s) successfully!
@@ -125,6 +115,55 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/attachObject")
+	{
+		local pos = getPlayerCoordinates(playerid);
+		attachObjectToPlayer(playerid,cmd[1].tointeger(),0.0,0.0,3.0,0.0,0.0,0.0);
+	}
+	if(cmd[0] == "/clothes")
+	{
+		setPlayerClothes(playerid, cmd[1].tointeger(), cmd[2].tointeger());
+	}
+	if(cmd[0] == "/createObject")
+	{
+		local pos = getPlayerCoordinates(playerid);
+		createObject(cmd[1].tointeger(), pos[0]+2.0, pos[1]+2.0, pos[2], 0.0, 0.0, 0.0);
+	}
+	if(cmd[0] == "/toggleblip")
+	{
+		if(cmd[1].tointeger() == 1)
+			switchBlipIcon(blip,true);
+		else if(cmd[1].tointeger() == 0)
+			switchBlipIcon(blip,false);
+	}
+	if(cmd[0] == "/driveautomatic")
+	{
+		letPlayerDriveAutomaticAtCoords(playerid,getPlayerVehicleId(playerid),1044.286743, 255.983231, 31.037477,15.0,0);
+	}
+	if(cmd[0] == "/sayspeech")
+	{
+		sayPlayerSpeech(playerid,"JIMMY_PEGORINO", "GET_OUT_OF_HERE");
+	}
+	if(cmd[0] == "/actorspeech")
+	{
+		sayActorSpeech(cmd[1].tointeger(),"JIMMY_PEGORINO", "GET_OUT_OF_HERE");
+	}
+	if(cmd[0] == "/gotovehicle")
+	{
+		local pos = getVehicleCoordinates(cmd[1].tointeger());
+		setPlayerCoordinates(playerid,pos[0],pos[1],pos[2]);
+	}
+	if(cmd[0] == "/alarm")
+	{
+		setVehicleAlarm(getPlayerVehicleId(playerid),cmd[1].tointeger());
+	}
+	if(cmd[0] == "/mobilephone")
+	{
+		if(cmd[1].tointeger() == 1)
+			setPlayerUseMobilePhone(playerid,true);
+		else if(cmd[1].tointeger() == 0)
+			setPlayerUseMobilePhone(playerid,false);
+	}
 	if(cmd[0] == "/setvehpos")
 	{
 		setVehicleCoordinates(cmd[1].tointeger(),cmd[2].tofloat(),cmd[3].tofloat(),cmd[4].tofloat());
@@ -159,7 +198,26 @@ function onPlayerCommand(playerid, command)
 	}
 	if(cmd[0] == "/vehiclefollow")
 	{
+		// Offset like as taxi-passenger in singleplayer
+		// NOTE: You have to set the coordinates for the vehicle! (width, lenght, height)(FROM THE VEHICLE)
+		setPlayerFollowVehicleOffset(playerid,getPlayerVehicleId(playerid),0.325,-1.0,0.0);
 		setPlayerFollowVehicleMode(playerid,0);
+	}
+	if(cmd[0] == "/vehiclefollow2")
+	{
+		// Offset like as taxi-passenger in singleplayer
+		// NOTE: You have to set the coordinates for the vehicle! (width, lenght, height)(FROM THE VEHICLE)
+		setPlayerFollowVehicleOffset(playerid,getPlayerVehicleId(playerid),0.325,-1.75,0.0);
+		setPlayerFollowVehicleMode(playerid,0);
+	}
+	if(cmd[0] == "/variation")
+	{
+		setVehicleVariation(getPlayerVehicleId(playerid),cmd[1].tointeger());
+	}
+	if(cmd[0] == "/vehicleego")
+	{
+		setPlayerFollowVehicleMode(playerid,1);
+		setPlayerFollowVehicleOffset(playerid,getPlayerVehicleId(playerid),0.5,-4.0,0.0);
 	}
 	if(cmd[0] == "/attachcameratovehicle")
 	{
@@ -171,7 +229,7 @@ function onPlayerCommand(playerid, command)
 	}
 	if(cmd[0] == "/respawn")
 	{
-		setPlayerSpawnLocation(playerid, -341.36, 1144.80, 14.79, 40.114815);
+		setPlayerSpawnLocation(playerid, /*-341.36, 1144.80, 14.79, 40.114815*/1649.508179, 395.261627, 38.151573, -2.931725);
 		respawnPlayer(playerid);
 	}
 	if(cmd[0] == "/name")
@@ -458,6 +516,22 @@ function onPlayerCommand(playerid, command)
 				sendPlayerMessage(playerid, getVehicleName(model) + " spawned at your position (ID " + veh + ").");
 			}
 		}
+		else if(cmd.len() == 6)
+		{
+			local model = cmd[1].tointeger();
+			local pos;
+			if(isPlayerInAnyVehicle(playerid))
+				pos = getVehicleCoordinates(getPlayerVehicleId(playerid));
+			else
+				pos = getPlayerCoordinates(playerid);
+			local heading = getPlayerHeading(playerid);
+			local veh = createVehicle(model, pos[0], pos[1], pos[2], 0.0, 0.0, heading, cmd[2].tointeger(),cmd[3].tointeger(),cmd[4].tointeger(),cmd[5].tointeger());
+			if(veh != INVALID_VEHICLE_ID)
+			{
+				warpPlayerIntoVehicle(playerid, veh);
+				sendPlayerMessage(playerid, getVehicleName(model) + " spawned at your position (ID " + veh + ").");
+			}
+		}
 
 		return 1;
 	}
@@ -676,8 +750,6 @@ function onPlayerCommand(playerid, command)
 			}
 		}
 	}
-	
-	return 0;
 }
 addEvent("playerCommand", onPlayerCommand);
 
@@ -722,12 +794,13 @@ addEvent("vehicleDeath",onVehicleDeath);
 function onVehicleRespawn(vehicleid)
 {
 	log("Vehicle Respawn "+vehicleid);
+	return 1;
 }
 addEvent("vehicleRespawn",onVehicleRespawn);
 
 function onHeadMovement(playerid, oldx, oldy, oldz, newx, newy, newz)
 {
-	log(format("HEAD: %d OLD(%f, %f, %f) | NEW (%f, %f, %f)",playerid,oldx,oldy,oldz,newx,newy,newz));
+	//log(format("HEAD: %d OLD(%f, %f, %f) | NEW (%f, %f, %f)",playerid,oldx,oldy,oldz,newx,newy,newz));
 }
 addEvent("headMove",onHeadMovement);
 

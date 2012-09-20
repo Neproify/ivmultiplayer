@@ -25,7 +25,8 @@ enum eVehicleSeat
 class IVDamageManager
 {
 public:
-	// TODO
+	PAD(IVDamageManager, pad0, 0x4); //04
+	CVector3 vecDamage; 			 
 };
 
 class IVVehicle : public IVPhysical
@@ -78,10 +79,10 @@ public:
 	PAD(IVVehicle, pad15, 0x4);   // 111C-1120
 	BYTE m_byteSirenHealth[8];    // 1120-1128
 	float m_fPetrolTankHealth;    // 1128-112C
-	//PAD(IVVehicle, pad16, 0xC4); // 112C-11F0
-	PAD(IVVehicle, pad16, 0x88);  // 112C-11B4
-	IVDamageManager *m_pDamageManager; // 11B4-11B8
-	PAD(IVVehicle, pad17, 0x38);  // 11B8-11F0
+	PAD(IVVehicle, pad16, 0xC4); // 112C-11F0
+	//PAD(IVVehicle, pad16, 0x88);  // 112C-11B4
+	//IVDamageManager *m_pDamageManager; // 11B4-11B8
+	//PAD(IVVehicle, pad17, 0x38);  // 11B8-11F0
 	BYTE m_byteSirenOn[8];        // 11F0-11F8
 	// 0x1130 - Unknown
 	PAD(IVVehicle, pad18, 0xEC);  // 11F8-12E4
@@ -152,4 +153,5 @@ public:
 	void		SetGPSState(bool bState);
 	bool		GetGPSState();
 	void		BurstCarTyre(int iTyre);
+	void		GetDeformation(CVector3& vecPos);
 };

@@ -55,6 +55,8 @@ bool CFileTransfer::ReceiveHandler(const char * szData, unsigned int uiDataSize,
 
 bool CFileTransfer::StartDownload(String strName, String strType)
 {
+	if(m_pFileImage)
+		m_pFileImage->setVisible(true);
 
 	// Ensure we have a server address set
 	if(m_httpClient.GetHost().IsNotEmpty())
@@ -105,7 +107,6 @@ bool CFileTransfer::StartDownload(String strName, String strType)
 			m_pFileText->setText(strText.Get());
 
 			// Set the image and text visible
-			m_pFileImage->setVisible(true);
 			m_pFileText->setVisible(true);
 		}
 
@@ -160,12 +161,12 @@ void CFileTransfer::SetServerInformation(String strAddress, unsigned short usPor
 	if(!m_pFileText)
 	{
 		m_pFileText = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
-		m_pFileText->setText("FileManager: Downloading now - ");
+		m_pFileText->setText("Waiting for resources download");
 		m_pFileText->setSize(CEGUI::UVector2(CEGUI::UDim(TRANSFERBOX_WIDTH, 0), CEGUI::UDim(TRANSFERBOX_HEIGHT, 0)));
 		m_pFileText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/(float)2.75),  CEGUI::UDim(0, fHeight/2-(fHeight/4))));
 		m_pFileText->setProperty("FrameEnabled", "false");
 		m_pFileText->setProperty("BackgroundEnabled", "false");
-		m_pFileText->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
+		m_pFileText->setFont(g_pGUI->GetFont("BebasNeue",28U));
 		m_pFileText->setVisible(false);
 	}
 }
@@ -331,7 +332,6 @@ void CFileTransfer::Process()
 
 					// Hide message & image
 					m_pFileText->setVisible(false);
-					m_pFileImage->setVisible(false);
 					
 				}
 				else

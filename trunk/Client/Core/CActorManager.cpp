@@ -11,14 +11,25 @@
 #include "CActorManager.h"
 #include "CChatWindow.h"
 #include "CModelmanager.h"
+#include "CVehicleManager.h"
+#include "CNetworkManager.h"
 #include <CLogfile.h>
 
 extern CModelManager * g_pModelManager;
+extern CVehicleManager * g_pVehicleManager;
+extern CNetworkManager * g_pNetworkManager;
 
 CActorManager::CActorManager()
 {
 	for(EntityId x = 0; x < MAX_ACTORS; x++)
+	{
 		m_bActive[x] = false;
+		m_Actors[x].bRender = false;
+		m_Actors[x].bFailedEnterVehicle = false;
+	}
+
+	bGameFocused = true;
+	bMenuFocused = false;
 }
 
 CActorManager::~CActorManager()
@@ -89,6 +100,7 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 		m_Actors[actorId].strName = strName;
 		m_Actors[actorId].iNametagColor = iColor;
 	}
+	m_Actors[actorId].bNametag = true;
 	m_bActive[actorId] = true;
 
 	// Check position for freeze char
@@ -126,6 +138,7 @@ bool CActorManager::Delete(EntityId actorId)
 	}
 
 	m_bActive[actorId] = false;
+	m_Actors[actorId].bRender = false;
 	return true;
 }
 
@@ -176,7 +189,7 @@ bool CActorManager::ToggleNametag(EntityId actorId, bool bShow)
 	if(m_bActive[actorId])
 	{
 		m_Actors[actorId].bNametag = bShow;
-		return 1;
+		return true;
 	}
 	return false;
 }
@@ -208,7 +221,7 @@ bool CActorManager::ToggleFrozen(EntityId actorId, bool bFrozen)
 	{
 		m_Actors[actorId].bFrozen = bFrozen;
 		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,bFrozen);
-		return 1;
+		return true;
 	}
 	return false;
 }
@@ -219,18 +232,32 @@ bool CActorManager::ToggleHelmet(EntityId actorId, bool bHelmet)
 	{
 		Scripting::EnablePedHelmet(m_Actors[actorId].uiActorIndex, bHelmet);
 		m_Actors[actorId].bHelmet = bHelmet;
-		return 1;
+		return true;
 	}
 	return false;
 }
 
 void CActorManager::WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iSeatId)
 {
-	if(m_bActive[actorId])
+	if(m_bActive[actorId] && g_pVehicleManager->Exists(vehicleId))
 	{
+		CVector3 vecPos, vecCarPos; 
+
+		Scripting::GetCarCoordinates(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),&vecCarPos.fX,&vecCarPos.fY,&vecCarPos.fZ);
+
+		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,false);
+		Scripting::SetCharCoordinates(m_Actors[actorId].uiActorIndex,vecCarPos.fX,(vecCarPos.fY+2.0f), vecCarPos.fZ);
+
 		if(iSeatId > 0 && iSeatId <= 3 && vehicleId != -1)
 		{
-			Scripting::WarpCharIntoCarAsPassenger(m_Actors[actorId].uiActorIndex, vehicleId, (iSeatId - 1));
+			Scripting::WarpCharIntoCarAsPassenger(m_Actors[actorId].uiActorIndex, g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(), (iSeatId - 1));
+			m_Actors[actorId].vehicleId = vehicleId;
+			m_Actors[actorId].iSeatid = iSeatId;
+			m_Actors[actorId].bStateincar = true;
+		}
+		else if(iSeatId == 0 && vehicleId != -1)
+		{
+			Scripting::WarpCharIntoCar(m_Actors[actorId].uiActorIndex, g_pVehicleManager->Get(vehicleId)->GetScriptingHandle());
 			m_Actors[actorId].vehicleId = vehicleId;
 			m_Actors[actorId].iSeatid = iSeatId;
 			m_Actors[actorId].bStateincar = true;
@@ -240,11 +267,12 @@ void CActorManager::WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iS
 
 void CActorManager::RemoveFromVehicle(EntityId actorId)
 {
-	if(m_bActive[actorId])
+	if(m_bActive[actorId] && g_pVehicleManager->Exists(m_Actors[actorId].vehicleId))
 	{
+		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,true);
 		if(m_Actors[actorId].bStateincar)
 		{
-			Scripting::TaskLeaveCar(m_Actors[actorId].uiActorIndex, m_Actors[actorId].vehicleId);
+			Scripting::TaskLeaveCar(m_Actors[actorId].uiActorIndex, g_pVehicleManager->Get(m_Actors[actorId].vehicleId)->GetScriptingHandle());
 			m_Actors[actorId].vehicleId = -1;
 			m_Actors[actorId].iSeatid = -1;
 			m_Actors[actorId].bStateincar = false;
@@ -300,4 +328,137 @@ float CActorManager::GetArmour(EntityId actorId)
 	}
 
 	return 0.0f;
+}
+
+void CActorManager::DriveToPoint(EntityId actorId, EntityId vehicleId, CVector3 vecPos, CVector3 vecRot, CVector3 vecFinalPos, bool bDrive)
+{
+	if(m_bActive[actorId])
+	{
+		if(bDrive)
+		{
+			// Apply coords
+			m_Actors[actorId].vecDriveFinalPos = vecFinalPos;
+			g_pVehicleManager->Get(m_Actors[actorId].vehicleId)->GetPosition(vecPos);
+			m_Actors[actorId].vecDrivePos = vecPos;
+			m_Actors[actorId].vehicleId = vehicleId;
+
+			if(!g_pVehicleManager->Exists(vehicleId) || !g_pVehicleManager->Get(vehicleId)->IsSpawned() || !g_pVehicleManager->Get(vehicleId)->IsStreamedIn())
+			{	
+				m_Actors[actorId].bFailedEnterVehicle = true;
+			}
+			else
+			{
+				Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,false);
+				WarpIntoVehicle(actorId,m_Actors[actorId].vehicleId, m_Actors[actorId].iSeatid);
+				
+				g_pVehicleManager->Get(vehicleId)->SetPosition(vecPos);
+
+				g_pVehicleManager->Get(vehicleId)->GetRotation(vecRot);
+				g_pVehicleManager->Get(vehicleId)->SetRotation(vecRot);
+
+				Scripting::TaskCarDriveToCoord(m_Actors[actorId].uiActorIndex,g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),vecFinalPos.fX,vecFinalPos.fY,vecFinalPos.fZ, 10.0f, 0, 0, 0, 5.0f, -1);
+				m_Actors[actorId].bRender = true;
+			}
+		}
+		else
+			m_Actors[actorId].bRender = false;
+	}
+}
+CBitStream		bsSend;
+float			fHeading;
+unsigned int	uiVehicleHandle;
+void CActorManager::Process()
+{
+	// Check if we were in the menu or on desk and if, get the latest coords
+	if(!bGameFocused)
+	{
+		if(CGame::IsFocused())
+		{
+			for(EntityId i = 0; i < MAX_ACTORS; i++)
+			{
+				if(m_bActive[i] && m_Actors[i].bRender)
+				{
+					bsSend.Reset();
+
+					bsSend.Write(i);
+					g_pNetworkManager->RPC(RPC_RequestActorUpdate, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+				}
+			}
+		}
+	}
+	if(bMenuFocused)
+	{
+		if(!CGame::IsMenuActive())
+		{
+			for(EntityId i = 0; i < MAX_ACTORS; i++)
+			{
+				if(m_bActive[i] && m_Actors[i].bRender)
+				{
+					bsSend.Reset();
+
+					bsSend.Write(i);
+					g_pNetworkManager->RPC(RPC_RequestActorUpdate, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+				}
+			}
+		}
+	}
+
+	if(CGame::IsMenuActive())
+		bMenuFocused = true;
+
+	for(EntityId i = 0; i < MAX_ACTORS; i++)
+	{
+		if(m_bActive[i] && m_Actors[i].bRender)
+		{
+			if(g_pVehicleManager->Exists(m_Actors[i].vehicleId))
+			{
+				// Reset stuff
+				bsSend.Reset();
+				fHeading = 0.0f;
+				uiVehicleHandle = -1;
+
+				CNetworkVehicle * pVehicle = g_pVehicleManager->Get(m_Actors[i].vehicleId);
+				if(!pVehicle)
+					return;
+
+				if(!pVehicle->IsSpawned() || !pVehicle->IsStreamedIn())
+					return;
+
+				ActorSyncData actorSync;
+				uiVehicleHandle = g_pVehicleManager->Get(m_Actors[i].vehicleId)->GetScriptingHandle();
+
+				actorSync.actorId = i;
+				actorSync.vehicleId = m_Actors[i].vehicleId;
+				pVehicle->GetPosition(actorSync.vecPos);
+				pVehicle->GetRotation(actorSync.vecRot);
+
+				if((actorSync.vecPos-m_Actors[i].vecDriveFinalPos).Length() < 5.0)
+					actorSync.bDriving = true;
+				else
+					actorSync.bDriving = false;
+
+				bsSend.Write((char *)&actorSync, sizeof(ActorSyncData));
+				g_pNetworkManager->RPC(RPC_SyncActor, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+			}
+			else
+			{
+				// Reset stuff
+				bsSend.Reset();
+				fHeading = 0.0f;
+				ActorSyncData actorSync;
+
+				actorSync.bDriving = false;
+				bsSend.Write((char *)&actorSync, sizeof(ActorSyncData));
+				g_pNetworkManager->RPC(RPC_SyncActor, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+			}
+		}
+		else if(m_bActive[i] && m_Actors[i].bFailedEnterVehicle)
+		{
+			if(g_pVehicleManager->Exists(m_Actors[i].vehicleId) && g_pVehicleManager->Get(m_Actors[i].vehicleId)->IsSpawned() && g_pVehicleManager->Get(m_Actors[i].vehicleId)->IsStreamedIn())
+			{
+				m_Actors[i].bFailedEnterVehicle = false;
+				DriveToPoint(i, m_Actors[i].vehicleId, m_Actors[i].vecDrivePos, CVector3(), m_Actors[i].vecDriveFinalPos, true);
+			}
+		}
+	}
 }

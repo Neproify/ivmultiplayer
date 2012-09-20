@@ -37,7 +37,9 @@ private:
 	static SQInteger WarpIntoVehicle(SQVM * pVM);
 	static SQInteger RemoveFromVehicle(SQVM * pVM);
 	static SQInteger DeleteAll(SQVM * pVM);
+	static SQInteger DriveToCoordinates(SQVM * pVM);
 	static SQInteger ForceAnim(SQVM * pVM);
+	static SQInteger SaySpeech(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

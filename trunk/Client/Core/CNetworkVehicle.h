@@ -20,6 +20,8 @@ private:
 	CNetworkPlayer * m_pDriver;
 	CNetworkPlayer * m_pPassengers[MAX_VEHICLE_PASSENGERS];
 	CIVModelInfo   * m_pModelInfo;
+	CVector3		 m_vecSpawnPosition;
+	CVector3		 m_vecSpawnRotation;
 	CVector3         m_vecPosition;
 	CVector3         m_vecRotation;
 	CVector3         m_vecMoveSpeed;
@@ -61,6 +63,8 @@ private:
 	bool			 m_bLights;
 	bool			 m_bWindow[4];
 	bool			 m_bGpsState;
+	bool			 m_bActorVehicle;
+	bool			 m_bFirstStreamIn;
 
 	bool             Create();
 	void             Destroy();
@@ -79,6 +83,9 @@ public:
 
 	bool             IsSpawned() { return (m_pVehicle != NULL); }
 	bool             IsOccupied();
+
+	void			 SetSpawnPosition(CVector3 vecPos) { m_vecSpawnPosition = vecPos; }
+	void			 SetSpawnRotation(CVector3 vecRot) { m_vecSpawnRotation = vecRot; }
 
 	void             SetDriver(CNetworkPlayer * pDriver) { m_pDriver = pDriver; }
 	CNetworkPlayer * GetDriver() { return m_pDriver; }
@@ -194,4 +201,5 @@ public:
 	bool			 GetVehicleGPSState();
 
 	void			 FixCarFloating();
+	void			 MarkAsActorVehicle(bool bToggle) { m_bActorVehicle = bToggle; }
 };

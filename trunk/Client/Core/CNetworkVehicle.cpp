@@ -16,10 +16,12 @@
 #include "Scripting.h"
 #include <SharedUtility.h>
 #include "CPools.h"
+#include "CNetworkManager.h"
 
 extern CPlayerManager * g_pPlayerManager;
 extern CModelManager * g_pModelManager;
 extern CLocalPlayer * g_pLocalPlayer;
+extern CNetworkManager * g_pNetworkManager;
 
 CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	: CStreamableEntity(STREAM_ENTITY_VEHICLE, 200.0f)
@@ -60,6 +62,8 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_bWindow[3] = false;
 	m_bLights = false;
 	m_bGpsState = false;
+	m_bActorVehicle = false;
+	m_bFirstStreamIn = false;
 }
 
 CNetworkVehicle::~CNetworkVehicle()
@@ -142,7 +146,7 @@ bool CNetworkVehicle::Create()
 		// Get our model index
 		int iModelIndex = m_pModelInfo->GetIndex();
 
-		CLogFile::Printf("pModelInfo + 0x70 = %d", *(DWORD *)(m_pModelInfo->GetModelInfo() + 0x70));
+		//CLogFile::Printf("pModelInfo + 0x70 = %d", *(DWORD *)(m_pModelInfo->GetModelInfo() + 0x70));
 		//memset((void *)(CGame::GetBase() + 0x841808), 0x90, 5);
 		//memset((void *)(CGame::GetBase() + 0x8419B8), 0x90, 5);
 
@@ -197,21 +201,27 @@ bool CNetworkVehicle::Create()
 
 		// Disable visible/"normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(true);
+		m_pVehicle->SetCanBeVisiblyDamaged(false);
 
 		// Add the vehicle to the world
 		// Not needed as native does it for us
 		//m_pVehicle->AddToWorld();
 
-		// Set the initial health
-		SetHealth(m_uiHealth);
-		SetPetrolTankHealth(m_fPetrolTankHealth);
+		// Set the initial health(1000)
+		SetHealth(1000);
+		SetPetrolTankHealth(1000.0f);
 
 		// Set the initial position
 		SetPosition(m_vecPosition);
 
 		// Set the initial rotation
 		SetRotation(m_vecRotation);
+
+		// Set the initial taxi lights
+		SetTaxiLightsState(m_bTaxiLights);
+
+		// Set the proofs
+		Scripting::SetCarProofs(GetScriptingHandle(),false,false,false,false,false);
 
 		// Try fix floating bug
 		FixCarFloating();
@@ -282,6 +292,15 @@ void CNetworkVehicle::StreamIn()
 	// Attempt to create the vehicle
 	if(Create())
 	{
+		// Check streamin(actor stuff etc)
+		if(m_bFirstStreamIn && m_bActorVehicle)
+			return;
+
+		if(!m_bFirstStreamIn)
+			m_bFirstStreamIn = true;
+
+		//CLogFile::Printf("Vehicle Streamin %d",m_vehicleId);
+
 		// Set the position
 		SetPosition(m_vecPosition);
 
@@ -302,7 +321,6 @@ void CNetworkVehicle::StreamIn()
 
 		// Disable visible damage & enable "normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(true);
 
 		// Restore the health
 		SetHealth(m_uiHealth);
@@ -364,6 +382,10 @@ void CNetworkVehicle::StreamOut()
 {
 	if(GetDriver() == g_pLocalPlayer)
 		CLogFile::Printf("STREAM OUT ON LOCAL PLAYERS VEHICLE!");
+
+	// Check if the vehicle is marked as an actor vehicle
+	if(m_bActorVehicle)
+		return;
 
 	// Save the coordinates
 	GetPosition(m_vecPosition);
@@ -458,10 +480,7 @@ void CNetworkVehicle::SetModel(DWORD dwModelHash)
 		return;
 	}
 
-	// Are we spawned?
-	bool bSpawned = IsSpawned();
-
-	if(bSpawned)
+	if(IsSpawned())
 	{
 		// Stream ourselves out
 		CLogFile::Printf("CClientVehicle::SetModel Stream Out Begin");
@@ -473,7 +492,7 @@ void CNetworkVehicle::SetModel(DWORD dwModelHash)
 	m_pModelInfo = pNewModelInfo;
 
 	// Were we spawned?
-	if(bSpawned)
+	if(IsSpawned())
 	{
 		// Stream ourselves back in
 		CLogFile::Printf("CClientVehicle::SetModel Stream In Begin");
@@ -583,7 +602,8 @@ void CNetworkVehicle::GetRotation(CVector3& vecRotation)
 		CVector3 vecNewRotation;
 		CGame::ConvertRotationMatrixToEulerAngles(matMatrix, vecNewRotation);
 
-#pragma message("CGame::ConvertRotationMatrixToEulerAngles should flip the rotation itself")
+		#pragma message("CGame::ConvertRotationMatrixToEulerAngles should flip the rotation itself")
+		
 		// Flip the rotation
 		vecNewRotation.fX = ((2 * PI) - vecNewRotation.fX);
 		vecNewRotation.fY = ((2 * PI) - vecNewRotation.fY);
@@ -718,6 +738,20 @@ void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 		emptyVehicleSync->bSirenState = GetSirenState();
 		emptyVehicleSync->bEngineStatus = GetEngineState();
 		emptyVehicleSync->fDirtLevel = GetDirtLevel();
+		GetTurnSpeed(emptyVehicleSync->vecTurnSpeed);
+		GetMoveSpeed(emptyVehicleSync->vecMoveSpeed);
+
+		CVector3 vecPos;
+		GetPosition(vecPos);
+		if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f || vecPos.fZ < -1.0f)
+		{
+			if(Scripting::IsCarDead(GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && vecPos.fZ < -1.0f))
+			{
+				CBitStream bsDeath;
+				bsDeath.Write(GetVehicleId());
+				g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+			}
+		}
 
 		/*for(int i = 0; i <= 3; i++)
 			emptyVehicleSync->bWindow[i] = GetWindowState(i);
@@ -783,11 +817,11 @@ void CNetworkVehicle::SetDoorLockState(DWORD dwDoorLockState)
 			return;
 	}
 
+	m_dwDoorLockState = dwState;
+
 	// Are we spawned?
 	if(IsSpawned())
-		Scripting::LockCarDoor(GetScriptingHandle(), dwDoorLockState);
-		
-	m_dwDoorLockState = dwState;
+		Scripting::LockCarDoor(GetScriptingHandle(), m_dwDoorLockState);
 }
 
 DWORD CNetworkVehicle::GetDoorLockState()
@@ -1213,10 +1247,18 @@ void CNetworkVehicle::SetWindowState(int iWindow, bool bBroken)
 void CNetworkVehicle::SetDamageable(bool bToggle)
 {
 	// Are we spawned?
-	if(IsSpawned())
+	if(IsSpawned() && m_pVehicle)
 	{
-		Scripting::SetCarCanBeDamaged(GetScriptingHandle(),bToggle);
-		Scripting::SetCarCanBurstTyres(GetScriptingHandle(),bToggle);
+		// Check if we are "burning" -> if let the car burn out and than explode
+		if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f)
+		{
+			// TODO?
+		}
+		else
+		{
+			Scripting::SetCarCanBeDamaged(GetScriptingHandle(),bToggle);
+			Scripting::SetCarCanBurstTyres(GetScriptingHandle(),bToggle);
+		}
 	}
 }
 
@@ -1240,7 +1282,7 @@ void CNetworkVehicle::SetEngineState(bool bState)
 {
 	// Are we spawned?
 	if(IsSpawned())
-		m_pVehicle->SetEngineStatus(bState ? 1:0, bState ? 1:0);
+		m_pVehicle->SetEngineStatus(bState ? 1 : 0, bState ? 1 : 0);
 
 	m_bEngineStatus = bState;
 }
@@ -1249,7 +1291,7 @@ bool CNetworkVehicle::GetEngineState()
 {
 	// Are we spawned?
 	if(IsSpawned())
-		return m_pVehicle->GetEngineStatus();
+		return m_bEngineStatus;
 
 	return false;
 }
@@ -1260,6 +1302,7 @@ CVector3 CNetworkVehicle::GetDeformation(CVector3 vecPosition)
 	if(IsSpawned())
 	{
 		Scripting::GetCarDeformationAtPos(GetScriptingHandle(),m_vecPosition.fX, m_vecPosition.fY, m_vecPosition.fZ, &vecPosition);
+		//m_pVehicle->GetDeformation(vecPosition);
 		CLogFile::Printf("DEFORMATION(%f, %f, %f)",vecPosition.fX,vecPosition.fY,vecPosition.fZ);
 	}
 	return CVector3(0.0f, 0.0f, 0.0f);
@@ -1282,18 +1325,18 @@ bool CNetworkVehicle::GetVehicleGPSState()
 	return false;
 }
 
-//#include "CChatWindow.h"
-//extern CChatWindow * g_pChatWindow;
-
 void CNetworkVehicle::FixCarFloating()
 {
 	// Check if we have a vehicle pointer
 	if( m_pVehicle == NULL )
 		return;
 
-	// Check if we have a helicopter(IDS (112, 113, 114))
+	// Check if we have a helicopter(IDS (112, 113, 114, 115))
 	if( m_pModelInfo->GetIndex() > 111 && m_pModelInfo->GetIndex() < 116)
 		return;
+
+	// Unfreeze the car so we can put it on the ground
+	Scripting::FreezeCarPosition(GetScriptingHandle(),false);
 
 	CVector3 vecPos;
 	Scripting::GetCarCoordinates(GetScriptingHandle(),&vecPos.fX,&vecPos.fY,&vecPos.fZ);
@@ -1303,8 +1346,6 @@ void CNetworkVehicle::FixCarFloating()
 
 	CVector3 vecSavedPosition;
 	vecSavedPosition = m_vecPosition;
-
-	//g_pChatWindow->AddInfoMessage("FixCarFloating, GOT(%f,%f,%f), SAVED(%f,%f,%f), CHECKED(%f,%f,%f)",vecPos.fX,vecPos.fY,vecPos.fZ, vecSavedPosition.fX, vecSavedPosition.fY, vecSavedPosition.fZ, vecLastPosition.fY,vecLastPosition.fZ);
 
 	if((vecPos-vecLastPosition).Length() > 0)
 	{

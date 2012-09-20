@@ -15,16 +15,23 @@
 
 struct _Actor
 {
-	int			iModelId;
-	CVector3	vecPosition;
-	float		fHeading;
-	String		strName;
-	bool		bTogglename;
-	bool		bBlip;
-	unsigned int iColor;
-	bool		bFrozen;
-	bool		bHelmet;
-	bool		bStateincar;
+	int				iModelId;
+	CVector3		vecPosition;
+	float			fHeading;
+	String			strName;
+	bool			bTogglename;
+	bool			bBlip;
+	unsigned int	iColor;
+	bool			bFrozen;
+	bool			bHelmet;
+	bool			bStateincar;
+	int				iSeat;
+
+	bool			bDrivingAutomatic;
+	EntityId		vehicleId;
+	CVector3		vecDrivePos;
+	CVector3		vecDriveRot;
+	CVector3		vecDriveFinalPos;
 };
 
 class CActorManager : public CActorManagerInterface
@@ -56,5 +63,7 @@ public:
 	void		WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iSeatid);
 	void		RemoveFromVehicle(EntityId actorId);
 	bool		DoesExist(EntityId actorId);
+	bool		UpdateDrivePos(EntityId actorId, CVector3 vecDrivePos, CVector3 vecDriveRot, bool bStopDriving);
+	EntityId	GetVehicle(EntityId actorId) { return m_Actors[actorId].vehicleId; }
 	EntityId	GetActorCount();
 };

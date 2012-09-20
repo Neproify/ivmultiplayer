@@ -38,6 +38,7 @@
 #include "CClientScriptManager.h"
 #include "CMainMenu.h"
 #include "CFPSCounter.h"
+#include "CDebugView.h"
 #include "SharedUtility.h"
 #include "CFileTransfer.h"
 #include "CGraphics.h"
@@ -77,6 +78,7 @@ CScriptingManager    * g_pScriptingManager = NULL;
 CClientScriptManager * g_pClientScriptManager = NULL;
 CMainMenu            * g_pMainMenu = NULL;
 CFPSCounter          * g_pFPSCounter = NULL;
+CDebugView			 * g_pDebugView = NULL;
 CGUIStaticText       * g_pVersionIdentifier = NULL;
 CFileTransfer        * g_pFileTransfer = NULL;
 CStreamer            * g_pStreamer = NULL;
@@ -242,13 +244,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			// Install the Cursor hook
 #ifdef IVMP_DEBUG
 			CCursorHook::Install();
+			g_pDebugView = new CDebugView();
 #endif
-
 			// Initialize the client script manager
 			g_pClientScriptManager = new CClientScriptManager();
-
-			// Initialize the file transfer
-			g_pFileTransfer = new CFileTransfer();
 
 			// Initialize the events manager
 			g_pEvents = new CEvents();
@@ -259,6 +258,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 				CLogFile::Printf("Failed to initialize the network module!\n");
 				ExitProcess(0);
 			}
+
+			// Initialize the file transfer
+			g_pFileTransfer = new CFileTransfer();
+
+			// Initialize audio manager
+			CAudioManager::Init();
 		}
 		break;
 	case DLL_PROCESS_DETACH:
@@ -312,6 +317,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			// Delete our fps counter
 			SAFE_DELETE(g_pFPSCounter);
 
+#ifdef IVMP_DEBUG
+			// Delete out debug viewer
+			SAFE_DELETE(g_pDebugView);
+#endif
 			// Delete our credits
 			SAFE_DELETE(g_pCredits);
 
@@ -350,9 +359,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			// Uninstall the Direct3D hook
 			CDirect3DHook::Uninstall();
 
-			// Uninstall the XLive hook
-			// TODO
-
 			// Shutdown audio manager
 			CAudioManager::SetAllVolume(0.0f);
 			CAudioManager::RemoveAll();
@@ -365,233 +371,15 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 			// Close the log file
 			CLogFile::Close();
+
+			// Uninstall the XLive hook
+			CXLiveHook::Uninstall(); // TODO fix uninstall patch stuff
 		}
 		break;
 	}
 
 	return TRUE;
 }
-
-// debug view
-#define DEBUG_TEXT_TOP (40.0f + (MAX_DISPLAYED_MESSAGES * 20))
-float g_fDebugTextTop = 0;
-
-void DrawDebugText(String strText)
-{
-	// Get the font
-	CEGUI::Font * pFont = NULL/*g_pGUI->GetFont("tahoma-bold", 10)*/;
-
-	// Draw the text
-	g_pGUI->DrawText(strText, CEGUI::Vector2(26.0f, g_fDebugTextTop), CEGUI::colour(0xFFFFFFFF), pFont);
-
-	// Increment the text top
-	g_fDebugTextTop += 14.0f;
-}
-
-void DebugDumpTask(String strName, CIVTask * pTask)
-{
-	if(!pTask)
-	{
-		//DrawDebugText(String("%s: None (9999)", strName.Get()));
-		return;
-	}
-
-	DrawDebugText(String("%s: %s (%d)", strName.Get(), pTask->GetName(), pTask->GetType()));
-	CIVTask * pSubTask = NULL;
-
-	/*while((pSubTask = pTask->GetTask()))
-	{
-		DrawDebugText(String("%s: %s (%d)", strName.Get(), pSubTask->GetName(), pSubTask->GetType()));
-		pTask = pSubTask;
-	}*/
-}
-
-bool bFireGunDisabled = false;
-
-void DebugDumpTasks(int iType)
-{
-	CIVPedTaskManager * pPedTaskManager = g_pLocalPlayer->GetGamePlayerPed()->GetPedTaskManager();
-
-	if(iType == 0)
-	{
-		DrawDebugText("Priority Tasks: ");
-		DrawDebugText("");
-		DebugDumpTask("PhysicalResponse", pPedTaskManager->GetTask(TASK_PRIORITY_PHYSICAL_RESPONSE));
-		DebugDumpTask("EventResponseTemp", pPedTaskManager->GetTask(TASK_PRIORITY_EVENT_RESPONSE_TEMP));
-		DebugDumpTask("EventResponseNonTemp", pPedTaskManager->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP));
-		DebugDumpTask("Primary", pPedTaskManager->GetTask(TASK_PRIORITY_PRIMARY));
-		DebugDumpTask("Default", pPedTaskManager->GetTask(TASK_PRIORITY_DEFAULT));
-		DrawDebugText("");
-	}
-	else if(iType == 1)
-	{
-		DrawDebugText("Secondary Tasks: ");
-		DrawDebugText("");
-		DebugDumpTask("Attack", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_ATTACK));
-		DebugDumpTask("Duck", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_DUCK));
-		DebugDumpTask("Say", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_SAY));
-		DebugDumpTask("FacialComplex", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_FACIAL_COMPLEX));
-		DebugDumpTask("PartialAnim", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_PARTIAL_ANIM));
-		DebugDumpTask("IK", pPedTaskManager->GetTaskSecondary(TASK_SECONDARY_IK));
-		DrawDebugText("");
-		
-	}
-	else if(iType == 2)
-	{
-		DrawDebugText("Movement Tasks: ");
-		DrawDebugText("");
-		DebugDumpTask("MovementTask0", pPedTaskManager->GetTaskMovement(TASK_MOVEMENT_UNKNOWN0));
-		DebugDumpTask("MovementTask1", pPedTaskManager->GetTaskMovement(TASK_MOVEMENT_UNKNOWN1));
-		DebugDumpTask("MovementTask2", pPedTaskManager->GetTaskMovement(TASK_MOVEMENT_UNKNOWN2));
-		DrawDebugText("");
-	}
-}
-
-#include "CRemotePlayer.h"
-CRemotePlayer * pClonePlayer = NULL;
-
-void DrawDebugView()
-{
-	if(g_pGUI && g_pLocalPlayer && g_pCamera)
-	{
-		if(GetAsyncKeyState(VK_F8) && !pClonePlayer)
-		{
-			pClonePlayer = new CRemotePlayer();
-			pClonePlayer->Spawn(CVector3(), 0);
-		}
-
-		/*if(GetAsyncKeyState(VK_F7))
-		{
-			*(DWORD *)(CGame::GetBase() + 0xCCA0E0) = 0x900004C2;
-			g_pChatWindow->AddInfoMessage("Disabled CTaskSimpleFireGun::SetPedPosition");
-		}
-		else if(GetAsyncKeyState(VK_F8))
-		{
-		// this is where the target data is processed
-			*(DWORD *)(CGame::GetBase() + 0xCCAA30) = 0x900004C2;
-			g_pChatWindow->AddInfoMessage("Disabled CTaskSimpleFireGun::ProcessPed");
-		}*/
-
-		g_fDebugTextTop = DEBUG_TEXT_TOP;
-		DrawDebugText("Local Player Debug: ");
-		DrawDebugText("");
-
-		// Position data
-		CVector3 vecPosition;
-		g_pLocalPlayer->GetPosition(vecPosition);
-		DrawDebugText(String("Position: %f, %f, %f Heading (C/D): %f, %f", vecPosition.fX, vecPosition.fY, vecPosition.fZ, g_pLocalPlayer->GetCurrentHeading(), g_pLocalPlayer->GetDesiredHeading()));
-
-		// Speed data
-		CVector3 vecMoveSpeed;
-		g_pLocalPlayer->GetMoveSpeed(vecMoveSpeed);
-		DrawDebugText(String("Move Speed: %f, %f, %f", vecMoveSpeed.fX, vecMoveSpeed.fY, vecMoveSpeed.fZ));
-
-		// Camera data
-		CIVCam * pGameCam = g_pCamera->GetGameCam();
-		CVector3 vecCamPosition;
-		pGameCam->GetPosition(vecCamPosition);
-		CVector3 vecCamForward;
-		vecCamForward = pGameCam->GetCam()->m_data1.m_matMatrix.vecForward;
-		CVector3 vecLookAt;
-		vecLookAt.fX = vecCamPosition.fX + /*floatmul(*/vecCamForward.fX/*, fScale)*/;
-		vecLookAt.fY = vecCamPosition.fY + /*floatmul(*/vecCamForward.fY/*, fScale)*/;
-		vecLookAt.fZ = vecCamPosition.fZ + /*floatmul(*/vecCamForward.fZ/*, fScale)*/;
-		DrawDebugText(String("Camera Position: %f, %f, %f Camera Look At: %f, %f, %f", vecCamPosition.fX, vecCamPosition.fY, vecCamPosition.fZ, vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ));
-
-		// Health, armour and ducking data
-		DrawDebugText(String("Health: %d Armour: %d Ducking: %d", g_pLocalPlayer->GetHealth(), g_pLocalPlayer->GetArmour(), g_pLocalPlayer->IsDucking()));
-
-		// Weapon data
-		unsigned int uiWeaponId = g_pLocalPlayer->GetCurrentWeapon();
-		DrawDebugText(String("Weapon: %d Ammo: %d", uiWeaponId, g_pLocalPlayer->GetAmmo(uiWeaponId)));	
-
-		// Damage data
-		IVEntity * pDamageEntity = g_pLocalPlayer->GetGamePlayerPed()->GetPhysical()->m_pLastDamageEntity;
-		eWeaponType damageWeapon = g_pLocalPlayer->GetGamePlayerPed()->GetPhysical()->m_lastDamageWeapon;
-		DrawDebugText(String("Last Damage Entity: 0x%x Last Damage Weapon: %d", pDamageEntity, (unsigned int)damageWeapon));
-
-		DrawDebugText("");
-
-		// Priority task data
-		DebugDumpTasks(0);
-
-		// Secondary task data
-		DebugDumpTasks(1);
-
-		// Movement task data
-		DebugDumpTasks(2);
-
-		// get targetting pool (this is always 0)
-		/*struct IVTargetting { };
-		CIVPool<IVTargetting *> * pTargettingPool = new CIVPool<IVTargetting *>(*(IVPool **)COffsets::VAR_TargettingPool);
-		DrawDebugText(String("Targetting Pool Count: %d", pTargettingPool->GetUsed()));*/
-
-		/*if(bGotSimpleFireGun)
-		{
-			DrawDebugText("64 bytes from SimpleFireGun Task: ");
-			BYTE * pMemory = (BYTE *)pTask;
-			for(int i = 0; i < 4; i++)
-			{
-				DrawDebugText(String("%.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x, %.2x", 
-					pMemory[(16*i)],pMemory[(16*i)+1],pMemory[(16*i)+2],pMemory[(16*i)+3],
-					pMemory[(16*i)+4],pMemory[(16*i)+5],pMemory[(16*i)+6],pMemory[(16*i)+7],
-					pMemory[(16*i)+8],pMemory[(16*i)+9],pMemory[(16*i)+10],pMemory[(16*i)+11],
-					pMemory[(16*i)+12],pMemory[(16*i)+13],pMemory[(16*i)+14],pMemory[(16*i)+15]));
-			}
-		}*/
-
-		// delete targetting pool
-		//delete pTargettingPool;
-
-		// Debug aim test
-		CControlState controlState;
-		g_pLocalPlayer->GetControlState(&controlState);
-
-		if(controlState.IsAiming() || controlState.IsFiring())
-		{
-			float fScale = 10.0f;
-			vecLookAt.fX = vecCamPosition.fX + (vecCamForward.fX * fScale);
-			vecLookAt.fY = vecCamPosition.fY + (vecCamForward.fY * fScale);
-			vecLookAt.fZ = vecCamPosition.fZ + (vecCamForward.fZ * fScale);
-			CNetworkVehicle * pVehicle = g_pVehicleManager->Get(0);
-
-			if(pVehicle)
-				pVehicle->SetPosition(vecLookAt);
-		}
-
-		if(pClonePlayer)
-		{
-			vecPosition.fX += 5.0f;
-			pClonePlayer->SetPosition(vecPosition);
-			pClonePlayer->SetCurrentHeading(g_pLocalPlayer->GetCurrentHeading());
-
-			if(pClonePlayer->GetCurrentWeapon() != uiWeaponId)
-				pClonePlayer->GiveWeapon(uiWeaponId, g_pLocalPlayer->GetAmmo(uiWeaponId));
-
-			pClonePlayer->SetDucking(g_pLocalPlayer->IsDucking());
-			pClonePlayer->SetControlState(&controlState);
-
-			{
-				float fScale = 10.0f;
-				CVector3 vecAim = (vecCamPosition + (vecCamForward * fScale));
-				vecAim.fX += 5.0f;
-
-				if(controlState.IsFiring())
-					Scripting::TaskShootAtCoord(pClonePlayer->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, 45000, 5);
-				else if(controlState.IsAiming())
-					Scripting::TaskAimGunAtCoord(pClonePlayer->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, 45000);
-				else
-				{
-					CIVTask * pTask = pClonePlayer->GetGamePlayerPed()->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
-
-					if(pTask && (pTask->GetType() == TASK_COMPLEX_GUN || pTask->GetType() == TASK_COMPLEX_AIM_AND_THROW_PROJECTILE))
-						pClonePlayer->GetGamePlayerPed()->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_PRIMARY);
-				}
-			}
-		}
-	}
-}
-// debug view end
 
 // Direct3DDevice9::EndScene
 void Direct3DRender()
@@ -847,9 +635,6 @@ void Direct3DRender()
 		if(g_pNameTags)
 			g_pNameTags->Draw();
 	}
-#ifdef _DEBUG
-	DrawDebugView();
-#endif
 }
 
 // Direct3DDevice9::Reset
@@ -909,7 +694,7 @@ void Direct3DReset()
 	}
 
 	// If our graphics instance does not exist create it
-	if(!g_pGraphics)
+	if(!g_pGraphics && g_pDevice)
 		g_pGraphics = new CGraphics(g_pDevice);
 	else
 		g_pGraphics->OnResetDevice();
@@ -963,97 +748,12 @@ void GameLoad()
 
 bool bDoPlayerShit = false;
 CNetworkPlayer * pPlayer = NULL;
+#include "CRemotePlayer.h"
+CRemotePlayer * pClonePlayer = NULL;
 
-#if 0
-CNetworkPlayer * pPlayers[32];
-bool bFirst = true;
-#endif
 
 void GameScriptProcess()
 {
-#if 0
-	if(bFirst)
-	{
-		for(int i = 0; i < 32; i++)
-			pPlayers[i] = NULL;
-
-		bFirst = false;
-	}
-
-	if(GetAsyncKeyState(VK_F5))
-	{
-		CLogFile::Printf("Player creation test");
-		for(int i = 0; i < 100; i++)
-		{
-			CLogFile::Printf("Create players %d time", i);
-			for(int x = 1; x < 32; x++)
-			{
-				CLogFile::Printf("New player %d", x);
-				pPlayers[x] = new CNetworkPlayer(false);
-				CLogFile::Printf("New player done %d", x);
-				CLogFile::Printf("Create player %d", x);
-				pPlayers[x]->Create();
-				CLogFile::Printf("Create player done %d", x);
-			}
-			CLogFile::Printf("Create players done %d time", i);
-			CLogFile::Printf("Destroy players %d time", i);
-			for(int x = 1; x < 32; x++)
-			{
-				CLogFile::Printf("Destroy player %d", x);
-				pPlayers[x]->Destroy();
-				CLogFile::Printf("Destroy player done %d", x);
-				CLogFile::Printf("Delete player %d", x);
-				delete pPlayers[x];
-				pPlayers[x] = NULL;
-				CLogFile::Printf("Delete player done %d", x);
-			}
-			CLogFile::Printf("Destroy players done %d time", i);
-		}
-		CLogFile::Printf("Player creation done test");
-	}
-	if(GetAsyncKeyState(VK_F7))
-		bDoPlayerShit = true;
-
-	if(bDoPlayerShit && CGame::GetState() == GAME_STATE_INGAME && g_pNetworkManager && g_pNetworkManager->HasJoinedGame())
-	{
-		if(pPlayer == NULL)
-		{
-			g_pPlayerManager->Add(1, "j3nk5t4");
-			pPlayer = g_pPlayerManager->GetAt(1);
-			g_pPlayerManager->Spawn(1, 90, CVector3(), 0.0f);
-		}
-
-		CVector3 vecPosition;
-		g_pLocalPlayer->GetPosition(&vecPosition);
-		vecPosition.fX += 5;
-		pPlayer->SetPosition(&vecPosition);
-		pPlayer->SetCurrentHeading(g_pLocalPlayer->GetCurrentHeading());
-		CControlState controlState;
-		g_pLocalPlayer->GetControlState(&controlState);
-		pPlayer->SetControlState(&controlState);
-		AimSyncData aimSyncData;
-		g_pLocalPlayer->GetAimSyncData(&aimSyncData);
-		//pPlayer->SetAimSyncData(&aimSyncData);
-		pPlayer->LockHealth(g_pLocalPlayer->GetHealth());
-		pPlayer->LockArmour(g_pLocalPlayer->GetArmour());
-		unsigned int uiWeaponId = g_pLocalPlayer->GetCurrentWeapon();
-		unsigned int uiAmmo = g_pLocalPlayer->GetAmmo(uiWeaponId);
-
-		if(pPlayer->GetCurrentWeapon() != uiWeaponId)
-		{
-			g_pChatWindow->AddInfoMessage("Changing weapon to %d (%d ammo)\n", uiWeaponId, uiAmmo);
-			pPlayer->GiveWeapon(uiWeaponId, g_pLocalPlayer->GetAmmo(uiWeaponId));
-			pPlayer->SetCurrentWeapon(uiWeaponId);
-		}
-
-		if(pPlayer->GetAmmo(uiWeaponId) != uiAmmo)
-		{
-			g_pChatWindow->AddInfoMessage("Changing ammo to %d (%d weapon)", uiAmmo, uiWeaponId);
-			pPlayer->SetAmmo(uiWeaponId, uiAmmo);
-		}
-	}
-#endif
-
 	// Do we need to reset the game?
 	if(g_bResetGame)
 	{
@@ -1068,11 +768,35 @@ void GameScriptProcess()
 	if(g_pNetworkManager)
 		g_pNetworkManager->Process();
 
+	// HACKY!
+	// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
+	//		       ...If the player is in the vehicle, it will turn it automatic on -.-
+	if(g_pLocalPlayer)
+	{
+		if(g_pLocalPlayer->GetVehicle() != NULL)
+		{
+			// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
+			//		 ...If the player is in the vehicle, it will turn it automatic on -.-
+			if(!g_pLocalPlayer->GetVehicle()->GetEngineState())
+				g_pLocalPlayer->GetVehicle()->SetEngineState(false);
+		}
+	}
+	for(EntityId playerId = 0; playerId < MAX_PLAYERS; playerId++)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			if(g_pPlayerManager->GetAt(playerId)->GetVehicle() != NULL)
+			{
+				if(!g_pPlayerManager->GetAt(playerId)->GetVehicle()->GetEngineState() != NULL)
+					g_pPlayerManager->GetAt(playerId)->GetVehicle()->SetEngineState(false);
+			}
+		}
+	}
+
 	// Hide the loading screens
 	g_pMainMenu->HideLoadingScreen();
 
 	// If we have text to draw draw it
-	// TODO: Move this to another class?
 	if(iTextTime > 0)
 	{
 		if((int)(SharedUtility::GetTime() - dwTextStartTick) < iTextTime)
@@ -1104,10 +828,6 @@ void InternalResetGame(bool bAutoConnect)
 	g_pCheckpointManager = new CCheckpointManager();
 	CLogFile::Printf("Created checkpoint manager instance");
 
-	SAFE_DELETE(g_pActorManager);
-	g_pActorManager = new CActorManager();
-	CLogFile::Printf("Created actor manager instance");
-
 	SAFE_DELETE(g_pBlipManager);
 	g_pBlipManager = new CBlipManager();
 	CLogFile::Printf("Created blip manager instance");
@@ -1120,9 +840,20 @@ void InternalResetGame(bool bAutoConnect)
 	g_pFireManager = new CFireManager();
 	CLogFile::Printf("Created fire manager instance");
 
+	// Set all vehicles to destroyable
+	if(g_pVehicleManager)
+	{
+		for(EntityId i = 0; i < g_pVehicleManager->GetCount(); i++)
+			g_pVehicleManager->Get(i)->MarkAsActorVehicle(false);
+	}
+
 	SAFE_DELETE(g_pVehicleManager);
 	g_pVehicleManager = new CVehicleManager();
 	CLogFile::Printf("Created vehicle manager instance");
+
+	SAFE_DELETE(g_pActorManager);
+	g_pActorManager = new CActorManager();
+	CLogFile::Printf("Created actor manager instance");
 
 	// Reset the streamer
 	g_pStreamer->Reset();
@@ -1198,19 +929,17 @@ void InternalResetGame(bool bAutoConnect)
 	if(g_pCamera)
 	{
 		g_pCamera->~CCamera();
-		g_pCamera = NULL;
+		SAFE_DELETE(g_pCamera);
+		g_pCamera = new CCamera(); 
 	}
-	if(!g_pCamera)
+	else if(!g_pCamera)
 		g_pCamera = new CCamera(); 
 	
 	CLogFile::Printf("Created/Reseted camera instance");
 
-	if(g_pLocalPlayer)
-		g_pLocalPlayer->SetControl(true);
-
 	g_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
 	g_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT));
-	CLogFile::Printf("Reset camera instance");
+	CLogFile::Printf("Reset camera stuff");
 
 	// Set the time and weather after the camera set, one of the camera stuff changes the time and the weather
 	CGame::GetWeather()->SetWeather(WEATHER_SUNNY);
@@ -1220,6 +949,9 @@ void InternalResetGame(bool bAutoConnect)
 	// Remove all gui stuff(images etc, after disconnect)
 	//if(g_pGUI && g_pGUI->IsInitialized())
 		//g_pGUI->OnResetDevice();
+
+	if(g_pLocalPlayer)
+		g_pLocalPlayer->SetControl(true);
 
 	// Mark the game as loaded.
 	if(!g_bGameLoaded)

@@ -27,6 +27,7 @@
 #include "CNetworkManager.h"
 #include "CGame.h"
 #include "CPlayerManager.h"
+#include "CActorManager.h"
 
 WNDPROC           m_wWndProc = NULL;
 std::list<String> pressedKeys;
@@ -41,7 +42,7 @@ extern CEvents           * g_pEvents;
 extern CNetworkManager	 * g_pNetworkManager;
 extern CGame			 * g_pGame;
 extern CPlayerManager	 * g_pPlayerManager;
-//extern CCamera			 * g_pCamera;
+extern CActorManager	 * g_pActorManager;
 
 String GetKeyNameByCode(DWORD dwCode)
 {
@@ -164,6 +165,8 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	{
 		// Set the game focused flag
 		CGame::SetFocused(true);
+		if(g_pActorManager)
+			g_pActorManager->bGameFocused = true;
 
 		// Show the cursor
 		ShowCursor(true);
@@ -179,6 +182,8 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	{
 		// Set the game focused flag
 		CGame::SetFocused(false);
+		if(g_pActorManager)
+			g_pActorManager->bGameFocused = false;
 
 		// Hide the cursor
 		ShowCursor(false);
@@ -241,6 +246,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 				}
 			}
 		}
+
 		// Is this a F10 key up?
 		if(uMsg == WM_SYSKEYUP && wParam == VK_F10)
 		{
@@ -253,6 +259,14 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 				CScreenShot::Reset();
 			}
 		}
+
+		/*if(uMsg == WM_KEYUP && wParam == VK_F2)
+		{
+			CVector3 vecPos; g_pLocalPlayer->GetPosition(vecPos);
+			unsigned int uiObjectHandle;
+			Scripting::CreateObject((Scripting::eModel)2999442604, vecPos.fX,vecPos.fY,vecPos.fZ,&uiObjectHandle,true);
+			Scripting::TaskHoldObject(g_pLocalPlayer->GetScriptingHandle(),uiObjectHandle);
+		}*/
 
 		// Is this a F2 key up?
 		//if(uMsg == WM_KEYUP && wParam == VK_F2)

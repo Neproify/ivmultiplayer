@@ -28,6 +28,7 @@ CVehicle::CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, 
 	m_byteSpawnColors[1] = byteColor2;
 	m_byteSpawnColors[2] = byteColor3;
 	m_byteSpawnColors[3] = byteColor4;
+	m_bActorVehicle = false;
 	Reset();
 	SpawnForWorld();
 }
@@ -136,7 +137,7 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	bsSend.Write(m_bWindow[3]);
 	bsSend.Write(m_bTaxiLight);
 	bsSend.Write(m_bGpsState);
-	
+
 	if(m_ucVariation != 0)
 	{
 		bsSend.Write1();
@@ -146,6 +147,12 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 		bsSend.Write0();
 
 	g_pNetworkManager->RPC(RPC_NewVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
+	// Mark vehicle as actor vehicle
+	bsSend.Reset();
+	bsSend.Write(m_vehicleId);
+	bsSend.Write(m_bActorVehicle);
+	g_pNetworkManager->RPC(RPC_ScriptingMarkVehicleAsActorVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 }
 
 void CVehicle::DestroyForPlayer(EntityId playerId)
@@ -319,6 +326,11 @@ void CVehicle::SetPosition(const CVector3& vecPosition)
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleCoordinates, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
+void CVehicle::SetPositionSave(CVector3 vecPosition)
+{
+	m_vecPosition = vecPosition;
+}
+
 void CVehicle::GetPosition(CVector3& vecPosition)
 {
 	vecPosition = m_vecPosition;
@@ -332,6 +344,11 @@ void CVehicle::SetRotation(const CVector3& vecRotation)
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(vecRotation);
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleRotation, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+void CVehicle::SetRotationSave(CVector3 vecRotation)
+{
+	m_vecRotation = vecRotation;
 }
 
 void CVehicle::GetRotation(CVector3& vecRotation)
@@ -670,9 +687,6 @@ void CVehicle::RepairWindows()
 void CVehicle::StoreEmptyVehicle(EMPTYVEHICLESYNCPACKET * syncPacket)
 {
 	// Check stuff
-	if(syncPacket->bEngineStatus != GetEngineStatus())
-		SetEngineStatus(syncPacket->bEngineStatus);
-
 	if(syncPacket->bLights != GetLights())
 		SetLights(syncPacket->bLights);
 
@@ -691,18 +705,24 @@ void CVehicle::StoreEmptyVehicle(EMPTYVEHICLESYNCPACKET * syncPacket)
 	if(syncPacket->uiHealth != GetHealth())
 		SetHealth(syncPacket->uiHealth);
 
-	CVector3 vecPos; GetPosition(vecPos);
-	if((vecPos-syncPacket->vecPosition).Length() != 0)
-		SetPosition(syncPacket->vecPosition);
-
-	CVector3 vecRot; GetRotation(vecRot);
-	if((vecRot-syncPacket->vecRotation).Length() != 0)
-		SetRotation(syncPacket->vecRotation);
-
-	for(unsigned int ui = 0; ui <= 5; ui++)
+	// Only when the vehicle stands still -> update stuff
+	if(syncPacket->vecMoveSpeed.Length() == 0)
 	{
-		if(syncPacket->fDoor[ui] != m_fDoor[ui])
-			SetCarDoorAngle(ui, false, syncPacket->fDoor[ui]);
+		CVector3 vecPos; GetPosition(vecPos);
+		if((vecPos-syncPacket->vecPosition).Length() > 5.0f || (vecPos-syncPacket->vecPosition).Length() < -5.0f)
+			SetPosition(syncPacket->vecPosition);
+
+		CVector3 vecRot; GetRotation(vecRot);
+		if((vecRot-syncPacket->vecRotation).Length() > 5.0f || (vecRot-syncPacket->vecRotation).Length() < -5.0f)
+			SetRotation(syncPacket->vecRotation);
+
+		CVector3 vecTurnSpeed; GetTurnSpeed(vecTurnSpeed);
+		if((vecTurnSpeed-syncPacket->vecTurnSpeed).Length() > 5.0f || (vecTurnSpeed-syncPacket->vecTurnSpeed).Length() < -5.0f)
+			SetTurnSpeed(syncPacket->vecTurnSpeed);
+
+		CVector3 vecMoveSpeed; GetMoveSpeed(vecMoveSpeed);
+		if((vecMoveSpeed-syncPacket->vecMoveSpeed).Length() > 5.0f || (vecMoveSpeed-syncPacket->vecMoveSpeed).Length() < -5.0f)
+			SetMoveSpeed(syncPacket->vecMoveSpeed);
 	}
 
 	/*for(unsigned int ui = 0; ui <= 3; ui++)
@@ -730,7 +750,7 @@ void CVehicle::SetWindowState(unsigned int uiWindow, bool bState)
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(m_bWindow[uiWindow]);
-	//TODO SEND
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleWindowState, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
 bool CVehicle::GetTyreState(unsigned int uiTyre)
@@ -745,7 +765,7 @@ void CVehicle::SetTyreState(unsigned int uiTyre, bool bState)
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(m_bTyre[uiTyre]);
-	// TODO SEND
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleTryeState, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
 float CVehicle::GetPetrolTankHealth()
@@ -760,7 +780,7 @@ void CVehicle::SetPetrolTankHealth(float fHealth)
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(m_fPetrolTankHealth);
-	// TODO SEND
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehiclePetrolTankHealth, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
 void CVehicle::SetVehicleGPSState(bool bState)
@@ -768,7 +788,7 @@ void CVehicle::SetVehicleGPSState(bool bState)
 	m_bGpsState = bState;
 
 	CBitStream bsSend;
-	bsSend.WriteCompressed(m_vehicleId);
+	bsSend.Write(m_vehicleId);
 	bsSend.Write(bState);
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleGPSState, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
@@ -776,4 +796,22 @@ void CVehicle::SetVehicleGPSState(bool bState)
 bool CVehicle::GetVehicleGPSState()
 {
 	return m_bGpsState;
+}
+
+void CVehicle::SetAlarm(int iDuration)
+{
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	bsSend.Write(iDuration);
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleAlarm, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+void CVehicle::MarkVehicle(bool bToggle)
+{
+	m_bActorVehicle = bToggle;
+
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	bsSend.Write(m_bActorVehicle);
+	g_pNetworkManager->RPC(RPC_ScriptingMarkVehicleAsActorVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }

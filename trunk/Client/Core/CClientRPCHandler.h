@@ -158,12 +158,24 @@ private:
 	static void ScriptingAttachCam(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingDisplayHudNotification(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleFollowMode(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetVehicleFollowOffset(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetAmmoInClip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetAmmo(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void	ScriptingCreatePlayerBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void	ScriptingRemovePlayerBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void	ScriptingChangePlayerBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetVehicleGPSState(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingSetVehicleAlarm(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingSetVehiclePetrolTankHealth(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingSetVehicleTyreState(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingSetVehicleWindowState(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingSetPlayerUseMobilePhone(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingStopActorDriving(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingActorDriveToCoords(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingMarkVehicleAsActorVehicle(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingForcePlayerSpeech(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
+	static void ScriptingForceActorSpeech(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingLetPlayerDriveAutomatic(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();

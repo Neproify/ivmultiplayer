@@ -14,10 +14,8 @@
 class CAudio
 {
 private:
-	char 				m_szSoundFile[MAX_PATH+64];
 	bool				m_bPlayed;
 	int					m_iRepeatsNum;
-	DWORD				m_dwChannel;
 	float				m_fOldVolume;
 
 	CVector3			m_vecPosition;
@@ -25,22 +23,30 @@ private:
 	bool				m_bUrl;
 	bool				m_bReplay;
 	bool			    m_bUsingPositionSystem;
+	char 				m_szSoundFile[MAX_PATH+64];
+	DWORD				m_dwChannel;
+
 public:
+
 	CAudio	(bool bUrl, bool bReplay, const char * szSoundFile );
 	~CAudio ( );
 
 	// Functions
-	void Play ( );
-	void Stop ( );
-	void Pause ( );
-	bool IsStarted ( );
-	void  SetVolume ( float fVolume );
-	void  RestoreVolume ( );
-	float GetVolume ( );
-	void  ClearPosition();
-	void  SetPosition ( CVector3 &vecPositon, float fRange );
-	void  UsePositionSystem( bool bUse );
-	void  Process ();
+	void	Play ( );
+	void	Stop ( );
+	void	Pause ( );
+	bool	IsStarted ( );
+	void	SetVolume ( float fVolume );
+	void	RestoreVolume ( );
+	float	GetVolume ( );
+	void	ClearPosition();
+	void	SetPosition ( CVector3 &vecPositon, float fRange );
+	void	UsePositionSystem( bool bUse );
+	void	Process ();
+	DWORD	GetChannel() { return m_dwChannel; }
+	char	GetSoundfile() { return m_szSoundFile[MAX_PATH+64]; }
+	void	SetChannel(DWORD dwChannel) { m_dwChannel = dwChannel; }
+	bool	IsUrlUsed() { return m_bUrl; }
 };
 
 class CAudioManager
@@ -49,8 +55,8 @@ private:
 	static CLibrary		*	m_pLibrary;
 	static bool				m_bActive;
 public:
-	static void Init();
 	static std::list<CAudio *> m_Audio;
+	static void Init();
 	static void AddToList ( CAudio *pAudio );
 	static void RemoveAll ( );
 	static void SetAllVolume ( float fVolume );

@@ -2538,8 +2538,10 @@ namespace Scripting
 
 	enum eVehicleDrivingStyle
 	{
-		// todo
-		// DrivingStyleStopForCars, and more?
+		DRIVING_STYLE_0, //Normal driving, stop for traffic lights
+		DRIVING_STYLE_1, //Ignore traffic lights, drive around traffic
+		DRIVING_STYLE_2, //Ignore streets, try to drive directly to point
+		DRIVING_STYLE_3 //Ignore traffic lights, stay in lane
 	};
 
 	// See this for vehicle doors: http://www.gtamodding.com/index.php?title=BURST_CAR_TYRE
@@ -2575,7 +2577,7 @@ namespace Scripting
 
 	enum eBlipDisplay
 	{
-		BLIP_MODE_HIDE = 0, // WRONG
+		BLIP_MODE_HIDE = 1,
 		BLIP_MODE_SHOW = 2,
 	};
 
@@ -2769,6 +2771,7 @@ namespace Scripting
 	{
 		// todo
 		// should be hashes of all the interior room names I think
+		// GTA IV DIR\pc\data\maps\interior
 	};
 
 	enum ePadButton

@@ -20,6 +20,7 @@ private:
 	CVector3 m_vecPosition;
 	CVector3 m_vecTargetPosition;
 	float    m_fRadius;
+	bool	 m_bShow;
 
 public:
 	CCheckpoint(EntityId checkpointId, WORD wType, CVector3 vecPosition, CVector3 vecTargetPosition, float fRadius);

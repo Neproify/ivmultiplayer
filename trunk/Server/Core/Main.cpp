@@ -392,9 +392,27 @@ int main(int argc, char ** argv)
 
 	HEIPHEN_GEN(" " VERSION_IDENTIFIER " " OS_STRING " Server", heiphens);
 
+#ifdef WIN32
+		// Color stuff
+		CONSOLE_SCREEN_BUFFER_INFO csbiScreen;
+		WORD wOldColAttr;	// For input process.
+
+		GetConsoleScreenBufferInfo((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), &csbiScreen);
+		wOldColAttr = csbiScreen.wAttributes;
+
+		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
+
+		// Print message to console.
+		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+#endif
 	//----------------------------------------------------------
 	CLogFile::Print("");
-	CLogFile::Print(heiphens);
+	CLogFile::Print("====================================================================");
+#ifdef WIN32
+	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
+#else
+	CLogFile::Print("====================================================================");
+#endif
 	CLogFile::Print(" " VERSION_IDENTIFIER " " OS_STRING " Server");
 	CLogFile::Print(" Copyright (C) 2009-2012 IV:MP Team");
 	CLogFile::Printf(" Port: %d", CVAR_GET_INTEGER("port"));
@@ -408,8 +426,13 @@ int main(int argc, char ** argv)
 		CLogFile::Printf(" HTTP Server: %s", CVAR_GET_STRING("httpserver").Get());
 
 	CLogFile::Printf(" Max Players: %d", CVAR_GET_INTEGER("maxplayers"));
-	CLogFile::Print(heiphens);
-	CLogFile::Print("");
+#ifdef WIN32
+	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+	CLogFile::Print("====================================================================");
+	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
+#else
+	CLogFile::Print("====================================================================");
+#endif
 	//----------------------------------------------------------
 
 	g_pEvents = new CEvents();
@@ -430,7 +453,8 @@ int main(int argc, char ** argv)
 	// Startup the network manager, if it fails exit
 	if(!g_pNetworkManager->Startup(CVAR_GET_INTEGER("port"), CVAR_GET_INTEGER("maxplayers"), CVAR_GET_STRING("password"), CVAR_GET_STRING("hostaddress")))
 	{
-		CLogFile::Print("Failed to startup the network manager!\n");
+		CLogFile::Print("Failed to startup the network manager!\n Server shuts down in 3 seconds");
+		Sleep(3000);
 		return 1;
 	}
 
@@ -463,8 +487,13 @@ int main(int argc, char ** argv)
 	std::list<String> modules = CVAR_GET_LIST("module");
 	if(modules.size() > 0)
 	{
-		CLogFile::Print("Loading modules");
-		CLogFile::Print("----------------");
+#ifdef WIN32
+		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
+		CLogFile::Print("\n============ Loading Modules ===========\n");
+		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
+#else
+		CLogFile::Print("\n============ Loading Modules ===========\n");
+#endif
 
 		for(std::list<String>::iterator iter = modules.begin(); iter != modules.end(); ++iter)
 		{
@@ -534,8 +563,14 @@ int main(int argc, char ** argv)
 
 	g_ulStartTick = SharedUtility::GetTime();
 
-	CLogFile::Print("Loading resources");
-	CLogFile::Print("------------------");
+#ifdef WIN32
+		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
+		CLogFile::Print("\n============ Loading Resources ===========\n");
+		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
+#else
+		CLogFile::Print("\n============ Loading Resources ===========\n");
+#endif
+
 	int iResourcesLoaded = 0;
 	int iFailedResources = 0;
 
@@ -577,8 +612,14 @@ int main(int argc, char ** argv)
 			iResourcesLoaded++;
 	}
 
-	CLogFile::Printf("Successfully loaded %d resources (%d failed).", iResourcesLoaded, iFailedResources);
-	CLogFile::Print("------------------");
+	#ifdef WIN32
+		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
+		CLogFile::Printf("Successfully loaded %d resources (%d failed).", iResourcesLoaded, iFailedResources);
+		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
+	#else
+		CLogFile::Printf("Successfully loaded %d resources (%d failed).", iResourcesLoaded, iFailedResources);
+	#endif
 
 	// Start the input thread
 	CThread inputThread;
@@ -591,7 +632,13 @@ int main(int argc, char ** argv)
 	if(CVAR_GET_BOOL("listed"))
 		g_pMasterList = new CMasterList(MASTERLIST_ADDRESS, MASTERLIST_VERSION, MASTERLIST_TIMEOUT, CVAR_GET_INTEGER("port"));
 
-	CLogFile::Printf("Server started.");
+#ifdef WIN32
+	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+	CLogFile::Print("\n====================================================================\n");
+	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
+#else
+	CLogFile::Print("\n====================================================================\n");
+#endif
 
 #if 0
 	// test

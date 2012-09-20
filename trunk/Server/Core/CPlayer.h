@@ -45,6 +45,7 @@ private:
 	char*		  m_szAnimGroup;
 	char*		  m_szAnimSpec;
 	float		  m_fAnimTime;
+	bool		  m_bMobilePhoneUse;
 	CVector3	  m_vecLastAim;
 	CVector3	  m_vecLastShot;
 	CVector3	  m_vecLastHeadMove;
@@ -119,6 +120,7 @@ public:
 	void           ResetClothes();
 	void           SetClothes(unsigned char ucBodyPart, unsigned char ucClothes);
 	unsigned char  GetClothes(unsigned char ucBodyPart);
+	void		   UseMobilePhone(bool bUse) { m_bMobilePhoneUse = bUse; }
 	void		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot);
 	void		   UpdateHeadMoveSync(CVector3 vecHead);
 };

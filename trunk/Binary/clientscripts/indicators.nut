@@ -53,10 +53,15 @@ addEvent("keyPress",
 	}
 );
 
+// Testcode for dooropen
+setPlayerDoorLockState(getLocalPlayer(),"cj_bank_door_L",-28.0, -463.0, 16.0, false, 1.0);
 
 addEvent("frameRender", 
 	function()
 	{
+		// Test draw light
+		//drawLightWithRange(-374.137909, 1113.159546, 14.679585,125,125,0,20.0,30.0);
+		
 		if(waitingTurn > 0 || doneTurn > 0)
 		{
 			local pad = getPlayerPadState(getLocalPlayer());

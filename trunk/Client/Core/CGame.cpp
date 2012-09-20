@@ -179,6 +179,12 @@ void CGame::Initialize()
 
 	if(Patch())
 	{
+// DOES this native have any function, ida says nope
+#ifdef DEBUG
+		Scripting::DebugOn();
+		CLogFile::Printf("Applied GTAIV DEBUG mode");
+#endif
+
 		CLogFile::Printf("Applied patches");
 		InstallKeySyncHooks();
 		InstallAimSyncHooks();
@@ -190,6 +196,7 @@ void CGame::Initialize()
 
 		InstallScriptHooks();
 		CLogFile::Printf("Applied script hooks");
+
 	}
 	else
 	{
@@ -557,8 +564,6 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0x9B1ED0) = 0x0CC2C033;
 		*(BYTE *)(GetBase() + 0x9B1ED4) = 0x00;
 
-		// NOTE: When vehicle exits are disabled, pressing the exit vehicle key
-		// still applies the vehicle handbrake, fix this asap
 		// Disable vehicle exits
 		*(BYTE *)(GetBase() + 0x9BBBFC) = 0xEB;
 
@@ -657,19 +662,40 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC190) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
 
+		// Loadingscreen stuff(not needed yet)
+		//CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
+		//*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
+		/*CPatcher::InstallJmpPatch((GetBase() + 0x422CA7), (GetBase() + 0x422CAE));*/
+
 		// Fix vehicle crash
 		//CPatcher::InstallNopPatch((GetBase() + 0x43B511), 6);
 		//CPatcher::InstallNopPatch((GetBase() + 0x862B7A), 6);
 		//CPatcher::InstallNopPatch((GetBase() + 0x862BDC), 6);
-		CPatcher::InstallNopPatch((GetBase() + 0xCBA1F1), 6);
-		// Disable auto vehicle start when player enter to it
-		//CPatcher::InstallNopPatch((GetBase() + 0xA28AF0), 6);
+		//CPatcher::InstallNopPatch((GetBase() + 0xCBA1F1), 6);
+		CPatcher::InstallJmpPatch((GetBase() + 0xCBA1F0), (GetBase() + 0xCBA230));
+		
+		// Disalbe vehicle engine noise
+		//CPatcher::InstallJmpPatch((GetBase() + 0xCEF9E0), (GetBase() + 0xCEFA1B));
 
-		// Loadingscreen stuff
-		CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
-		*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
-		//CPatcher::InstallJmpPatch(0x422CA7, (GetBase() + 0x422CAE));
+        // Disable auto vehicle start when player enter to it
+		CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (GetBase() + /*0xA9F2F1*/0xA9F5D5));
+		//CPatcher::InstallNopPatch((GetBase() + 0x4DA1EC), 4);
+		//CPatcher::InstallJmpPatch((GetBase() + 0x439482), (GetBase() + 0x4394BC));
+		//CPatcher::InstallJmpPatch((GetBase() + 0x454E22), (GetBase() + 0x454E77)); // Not Sure
+		//CPatcher::InstallJmpPatch((GetBase() + 0x4A1600), (GetBase() + 0x4A163E));
 
+		// Fix player crash(sometimes)
+		//CPatcher::InstallJmpPatch((GetBase() + 0xB98400), (GetBase() + 0xB9845A));
+
+        // Increase pools and playerinfo size
+        //VPool *pPedPool = *(IVPool **)(GetBase() + COffsets::VAR_PedPool);
+		//pPedPool->m_dwEntrySize = (DWORD)100; // (Default 32, Our 100)
+		//*(DWORD **)(GetBase() + 0x11A7008) = *(DWORD **)100; // IVPlayerInfo ** (Default 32, Our 100)
+
+		// Make the game think that all stuff is already loaded
+		// TODO: int __cdecl sub_424140(char a1) and reverse stuff so we can skip the loadingscreen
+		// NOTE: Problem is now that modules and other stuff is loaded while starting the game
+		//*(DWORD *)(GetBase() + 0x18A8F48)[*(DWORD *)100 * *(DWORD *)(GetBase() + 0x18A8258)] = 0;
 		return true;
 	}
 

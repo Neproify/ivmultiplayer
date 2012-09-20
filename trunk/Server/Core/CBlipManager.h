@@ -71,4 +71,9 @@ public:
 	void		 SetSpriteForPlayer(EntityId playerId, int iSprite);
 	void		 TogglePlayerDisplayForPlayer(EntityId playerId, EntityId toPlayerId, bool bToggle);
 	bool		 DoesPlayerBlipExist(EntityId playerId) { return m_bPlayerActive[playerId]; }
+
+	int			 GetPlayerBlipSprite(EntityId playerId) { return m_PlayerBlips[playerId].iSprite; }
+	bool		 GetPlayerBlipShow(EntityId playerId) { return m_PlayerBlips[playerId].bShow; }
+
+
 };

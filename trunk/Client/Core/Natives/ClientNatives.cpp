@@ -56,10 +56,10 @@ void RegisterClientNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getFPS", sq_getFPS, 0, NULL);
 	pScriptingManager->RegisterFunction("isGameFocused", sq_isGameFocused, 0, NULL);
 	pScriptingManager->RegisterFunction("setRadarZoom", sq_setRadarZoom, 1, "f");
+	pScriptingManager->RegisterFunction("drawLightWithRange", sq_drawLightWithRange, 8, "fffiiiff");
 	pScriptingManager->RegisterFunction("getScreenPositionFromWorldPosition", sq_getScreenPositionFromWorldPosition, 3, "fff");
-	
 	pScriptingManager->RegisterFunction("getActorPosition", sq_getActorCoordinates, 1, "i");
-
+	pScriptingManager->RegisterFunction("tuneRadio", sq_tuneRadio, 2, "bi");
 	pScriptingManager->RegisterFunction("triggerServerEvent", sq_triggerServerEvent, -1, NULL);
 }
 
@@ -397,7 +397,7 @@ int sq_getScreenPositionFromWorldPosition(SQVM * pVM)
 {
 	CVector3 vecWorldPos;
 	Vector2 vecScreenPos;
-	sq_getvector3(pVM, -3, &vecWorldPos);
+	sq_getvector3(pVM, -1, &vecWorldPos);
 	CGame::GetScreenPositionFromWorldPosition(vecWorldPos, vecScreenPos);
 	sq_newarray(pVM, 0);
 	sq_pushfloat(pVM, vecScreenPos.X);
@@ -426,6 +426,25 @@ int sq_setRadarZoom(SQVM * pVM)
 	return 1;
 }
 
+int sq_drawLightWithRange(SQVM * pVM)
+{
+	CVector3 vecPos;
+	int R,G,B;
+	float fDensity, fRange;
+	sq_getfloat(pVM, -8, &vecPos.fX);
+	sq_getfloat(pVM, -7, &vecPos.fY);
+	sq_getfloat(pVM, -6, &vecPos.fZ);
+	sq_getinteger(pVM, -5, &R);
+	sq_getinteger(pVM, -4, &G);
+	sq_getinteger(pVM, -3, &B);
+	sq_getfloat(pVM, -2, &fDensity);
+	sq_getfloat(pVM, -1, &fRange);
+
+	Scripting::DrawLightWithRange(vecPos.fX, vecPos.fY, vecPos.fZ, R, G, B, fDensity, fRange);
+	sq_pushbool(pVM,true);
+	return 1;
+}
+
 // getActorCoordinates(actorid) // pls take a look at the wiki ;)
 int sq_getActorCoordinates(SQVM * pVM)
 {
@@ -445,5 +464,30 @@ int sq_getActorCoordinates(SQVM * pVM)
 	else
 		sq_pushbool(pVM,false);
 
+	return 1;
+}
+
+int sq_tuneRadio(SQVM * pVM)
+{
+	int iStationIndex;
+	sq_getinteger(pVM, -1, &iStationIndex);
+
+	SQBool bToggle;
+	sq_getbool(pVM, -2, &bToggle);
+
+	bool bSwitch = (bToggle != 0);
+
+	if(bSwitch)
+	{
+		Scripting::SetMobileRadioEnabledDuringGameplay(1);
+		Scripting::SetMobilePhoneRadioState(1);
+		Scripting::RetuneRadioToStationIndex((Scripting::eRadioStation)iStationIndex);
+	}
+	else
+	{
+		Scripting::SetMobileRadioEnabledDuringGameplay(0);
+		Scripting::SetMobilePhoneRadioState(0);
+	}
+	sq_pushbool(pVM,true);
 	return 1;
 }

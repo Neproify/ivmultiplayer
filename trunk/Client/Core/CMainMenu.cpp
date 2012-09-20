@@ -97,17 +97,14 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
 	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 	{
-		ResetGame();
-		g_pNetworkManager->Disconnect();
-        CGame::SetState(GAME_STATE_MAIN_MENU);
         SetDisconnectButtonVisible(false);
 		g_pChatWindow->SetEnabled(true);
 
 		for(int i = 0; i < 10; i++)
 			g_pChatWindow->AddMessage(0xFFFFFFAA,false," ");
 
-		ResetNetworkStats();
-		g_pChatWindow->AddInfoMessage("Successfully disconnected from server ...");
+		g_pNetworkManager->Disconnect();
+		ShowMessageBox("Successfully disconnected from server ...","Disconnect",true,true,false);
 	}
 	return true;
 }
@@ -786,15 +783,15 @@ CMainMenu::CMainMenu()
 	m_pMyNameDesc->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
 	m_pBackground->addChildWindow( m_pMyNameDesc );
 
-	m_pDisconnectButton = CreateButton("Disconnect", CEGUI::UVector2(CEGUI::UDim(/*0.07f*/0.20f, 0), CEGUI::UDim(0.030f, 0)),
-		CEGUI::UVector2(CEGUI::UDim(fX+0.15f, 0), CEGUI::UDim(fY-0.25f, 0)));
+	fX = 0.10f;
+	m_pDisconnectButton = CreateButton("Disconnect",  CEGUI::UVector2(CEGUI::UDim(/*0.074f*/0.20f, 0), CEGUI::UDim(0.030f, 0)),
+		CEGUI::UVector2(CEGUI::UDim(fX-0.0175f, 0), CEGUI::UDim(fY-0.25f, 0)));
+	m_pBackground->addChildWindow( m_pDisconnectButton );
 	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseEnter, this));
 	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseLeave, this));
 	m_pDisconnectButton->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnDisconnectButtonMouseClick, this));
-	m_pBackground->addChildWindow( m_pDisconnectButton );
 	SetDisconnectButtonVisible(false);
 
-	fX = 0.10f;
 	m_pServerBrowserButton = CreateButton("Server Browser", CEGUI::UVector2(CEGUI::UDim(/*0.074f*/0.20f, 0), CEGUI::UDim(0.030f, 0)),
 		CEGUI::UVector2(CEGUI::UDim(fX-0.075f, 0), CEGUI::UDim(fY, 0)));
 	m_pServerBrowserButton->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserButtonMouseEnter, this));
@@ -1127,11 +1124,6 @@ void CMainMenu::SetVisible(bool bVisible)
 	g_pGUI->SetCursorVisible(bVisible);
 	m_pBackground->setVisible(bVisible);
 	m_pBackground->setAlpha(0.95f);
-
-	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
-		m_pDisconnectButton->setVisible(true);
-	else
-		m_pDisconnectButton->setVisible(false);
 }
 
 void CMainMenu::SetServerBrowserWindowVisible(bool bVisible)
@@ -1214,11 +1206,11 @@ void CMainMenu::ResetNetworkStats()
 
 void CMainMenu::ShowMessageBox(const char * szMessage, const char * szHeader, bool bGameMenu, bool bResetGame, bool bAllowReconnect)
 {
-	g_pGUI->ShowMessageBox(szMessage,szHeader);
-
 	if(bGameMenu)
 		CGame::SetState(GAME_STATE_MAIN_MENU);
 
 	if(bResetGame)
 		InternalResetGame(bAllowReconnect);
+
+	g_pGUI->ShowMessageBox(szMessage,szHeader);
 }

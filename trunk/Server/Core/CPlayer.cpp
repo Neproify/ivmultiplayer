@@ -44,7 +44,7 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	//m_pScriptingInstance = sq_createinstance()
 	m_strName = strName;
 	m_bSpawned = 0;
-	m_iModelId = 0;
+	m_iModelId = 1;
 	m_pVehicle = NULL;
 	m_byteVehicleSeatId = -1;
 	memset(&m_previousControlState, 0, sizeof(CControlState));
@@ -65,6 +65,7 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_szAnimSpec = new char[256];
 	m_szAnimGroup = NULL;
 	m_szAnimGroup = new char[256];
+	m_bMobilePhoneUse = false;
 }
 
 CPlayer::~CPlayer()
