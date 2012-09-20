@@ -173,5 +173,49 @@ void * CPatcher::InstallDetourPatch(char * szLibrary, unsigned int uOrdinal, DWO
 
 void CPatcher::UninstallDetourPatch(void * pTrampoline, DWORD dwFunctionAddress)
 {
-	return UninstallDetourPatchInternal(dwFunctionAddress, pTrampoline);
+	// Unprotect the address memory
+	ProtectionInfo protectionInfo = Unprotect(dwFunctionAddress, 5);
+
+	// Copy the trampoline to the address
+	memcpy((void *)dwFunctionAddress, pTrampoline, 5);
+
+	// Re-protect the address memory
+	Reprotect(protectionInfo);
+
+	// Free trampoline
+	free(pTrampoline);
+}
+
+BYTE CPatcher::InstallDetourPatchWithData(char * szLibrary, unsigned int uOrdinal, DWORD dwFunctionAddress)
+{
+	DWORD dwAddress = GetFunctionAddress(szLibrary, uOrdinal);
+	DWORD dwDetourAddress = dwFunctionAddress;
+	BYTE byteType = X86_JMP;
+	int iSize = 5;
+
+	// Allocate the trampoline memory
+	BYTE * pbyteTrampoline = (BYTE *)malloc(iSize + 5);
+
+	// Unprotect the trampoline memory
+	Unprotect((DWORD)pbyteTrampoline, (iSize + 5));
+
+	// Unprotect the address memory
+	ProtectionInfo protectionInfo = Unprotect(dwAddress, (iSize + 5));
+
+	// Copy the overwritten address memory to the trampoline memory
+	memcpy(pbyteTrampoline, (void *)dwAddress, iSize);
+
+	// Write the type to the trampoline memory
+	DWORD dwTrampoline = (DWORD)(pbyteTrampoline + iSize);
+	*(BYTE *)dwTrampoline = byteType;
+	*(DWORD *)(dwTrampoline + 1) = ((dwAddress + iSize) - dwTrampoline - 5);
+
+	// Write the type to the address memory
+	*(BYTE *)dwAddress = byteType;
+	*(DWORD *)(dwAddress + 1) = (dwDetourAddress - dwAddress - 5);
+
+	// Re-protect the address memory
+	Reprotect(protectionInfo);
+
+	return (pbyteTrampoline != NULL);
 }

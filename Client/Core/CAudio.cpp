@@ -251,5 +251,5 @@ void CAudioManager::RestoreAllVolume ( )
 void CAudioManager::Process ( )
 {
 	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
-			(*iter)->Process ( );
+		(*iter)->Process ( );
 }

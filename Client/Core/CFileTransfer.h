@@ -44,5 +44,6 @@ public:
 	void         SetServerInformation(String strAddress, unsigned short usPort);
 	void         AddFile(String strFileName, CFileChecksum fileChecksum, bool bIsResource);
 	void         Process();
+	void		 SetDownloadImageVisible(bool bVisible) { m_pFileImage->setVisible(bVisible); }
 	void         Reset();
 };

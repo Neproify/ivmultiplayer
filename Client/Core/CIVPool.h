@@ -44,6 +44,9 @@ public:
 	CIVPool(IVPool * pPool)
 	{
 		m_pPool = pPool;
+
+		// TRy this?
+		//m_pPool->m_dwEntrySize = (DWORD)48;
 	}
 
 	~CIVPool()

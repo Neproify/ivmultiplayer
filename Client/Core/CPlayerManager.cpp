@@ -239,9 +239,7 @@ void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 	}
 
 	if(!m_pPlayers[playerId])
-	{
 		m_pPlayers[playerId] = new CRemotePlayer();
-	}
 
 	m_pPlayers[playerId]->SetPlayerId(playerId);
 	m_pPlayers[playerId]->SetName(sPlayerName);
@@ -252,12 +250,11 @@ void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
 		g_pEvents->Call("playerConnect", &pArguments);
-	}}
+	}
+}
 
 bool CPlayerManager::Remove(EntityId playerId)
 {
-	CLogFile::Printf("CPlayerManager::Remove");
-
 	if(!DoesExist(playerId))
 	{
 		CLogFile::Printf("Tried to remove inexistent player (%d).", playerId);
@@ -266,7 +263,7 @@ bool CPlayerManager::Remove(EntityId playerId)
 
 	if(m_pPlayers[playerId]->IsLocalPlayer())
 	{
-		CLogFile::Printf(__FILE__,__LINE__,"Tried to remove local player (%d).", playerId);
+		CLogFile::Printf("Tried to remove local player (%d).", playerId);
 		return false;
 	}
 
@@ -281,8 +278,7 @@ bool CPlayerManager::Remove(EntityId playerId)
 		if(pRemotePlayer)
 			pRemotePlayer->Destroy();
 	}
-	//delete m_pPlayers[playerId];
-	//m_pPlayers[playerId] = NULL;
+	//SAFE_DELETE(m_pPlayers[playerId]);
 	return true;
 }
 
@@ -300,9 +296,20 @@ void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos
 		m_bCreated[playerId] = true;
 	}
 
-	m_pPlayers[playerId]->SetModel(SkinIdToModelHash(iModelId));
 	CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(m_pPlayers[playerId]);
-	pRemotePlayer->Spawn(vecSpawnPos, fSpawnHeading, true);
+	pRemotePlayer->Spawn(iModelId, vecSpawnPos, fSpawnHeading, true);
+
+	// Enable this when set skin at spawn isn't working..
+	/*
+	while(!pRemotePlayer->IsSpawned())
+	{
+		//Wait
+		Sleep(5);
+	}
+
+	if(m_pPlayers[playerId]->IsSpawned() && m_pPlayers[playerId]->GetGamePlayerPed() != NULL)
+		m_pPlayers[playerId]->SetModel(SkinIdToModelHash(iModelId));
+	*/
 
 	if(g_pEvents)
 	{

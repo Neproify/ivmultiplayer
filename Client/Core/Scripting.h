@@ -24,6 +24,10 @@ namespace Scripting
 	static int GetControlValue(unsigned int p0, unsigned int p1) { return NativeInvoke::Invoke<int>(NATIVE_GET_CONTROL_VALUE, p0, p1); }
 	static void GetPadState(unsigned int p0, unsigned int p1, int * p2) { NativeInvoke::Invoke<unsigned int>(NATIVE_GET_PAD_STATE, p0, p1, p2); }
 
+	// Handy
+	static void SetMobileRadioEnabledDuringGameplay(bool bToggle) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLA, bToggle); }
+	static void SetMobilePhoneRadioState(unsigned int p0) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_MOBILE_PHONE_RADIO_STATE, p0); }
+
 	// Models
 	static void RequestModel(eModel model) { NativeInvoke::Invoke<unsigned int>(NATIVE_REQUEST_MODEL, model); }
 
@@ -91,7 +95,7 @@ namespace Scripting
 	static void SetVehicleSteerBias(unsigned int vehicle, float bias) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_VEHICLE_STEER_BIAS, vehicle, bias); }
 	static void LockCarDoor(unsigned int vehicle, int flag) { NativeInvoke::Invoke<unsigned int>(NATIVE_LOCK_CAR_DOORS, vehicle, flag); }
 	static void SetCarLightMultiplier(unsigned int vehicle, float multiplier) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CAR_LIGHT_MULTIPLIER, vehicle, multiplier); }
-
+	
 	// Peds
 	static void SetNextDesiredMoveState(ePedMoveState state) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_NEXT_DESIRED_MOVE_STATE, state); }
 	static void SetDontActivateRagdollFromPlayerImpact(unsigned int ped, bool Trigger) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_DONT_ACTIVATE_RAGDOLL_FROM_PLAYER_IMPACT, ped, Trigger); }
@@ -122,6 +126,8 @@ namespace Scripting
 	// Players
 	static unsigned int GetLeftPlayerCashToReachLevel(unsigned int player) { return NativeInvoke::Invoke<unsigned int>(NATIVE_GET_LEFT_PLAYER_CASH_TO_REACH_LEVEL, player); }
 	static void DeletePlayer(unsigned int player) { NativeInvoke::Invoke<unsigned int>(NATIVE_DELETE_PLAYER, player); }
+	static void SayAmbientSpeechWithVoice(unsigned int ped, const char *szText, const char *szVoice, unsigned int p3, unsigned int p4, unsigned int p5) { NativeInvoke::Invoke<unsigned int>(NATIVE_SAY_AMBIENT_SPEECH_WITH_VOICE, ped, szText, szVoice, p3, p4, p5); }
+	static void TaskHoldObject(unsigned int ped, unsigned int object) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_HOLD_OBJECT, ped, object); }
 
 	// Camera
 	static void ActivateScriptedCams(int unknown1_1, int unknown2_1) { NativeInvoke::Invoke<unsigned int>(NATIVE_ACTIVATE_SCRIPTED_CAMS, unknown1_1, unknown2_1); }
@@ -442,6 +448,7 @@ namespace Scripting
 	static void TaskAimGunAtChar(unsigned int ped, unsigned int targetPed, unsigned int duration) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_AIM_GUN_AT_CHAR, ped, targetPed, duration); } 
 	static void TaskAimGunAtCoord(unsigned int ped, float tX, float tY, float tZ, unsigned int duration) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_AIM_GUN_AT_COORD, ped, tX, tY, tZ, duration); }
 	static void TaskCarDriveWander(unsigned int ped, unsigned int vehicle, float speed, eVehicleDrivingStyle drivingStyle) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_CAR_DRIVE_WANDER, ped, vehicle, speed, drivingStyle); }
+	static void TaskCarDriveToCoord(unsigned int unknown_0, unsigned int vehicle, float fX, float fY, float fZ, float speed, unsigned int unknown_1, unsigned int unknown_2, unsigned int unknown_3, float funknown, unsigned int unknown_4) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_CAR_DRIVE_TO_COORD_NOT_AGAINST_TRA, unknown_0, vehicle, fX, fY, fZ, speed, unknown_1, unknown_2, unknown_3, funknown, unknown_4); }
 	static void TaskCarMission(unsigned int ped, unsigned int vehicle, unsigned int targetEntity, unsigned int missionType, float speed, eVehicleDrivingStyle drivingStyle, unsigned int unknown6_10, unsigned int unknown7_5) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_CAR_MISSION, ped, vehicle, targetEntity, missionType, speed, drivingStyle, unknown6_10, unknown7_5); } // target is whatever missiontype requires (ie. vehicle or just 0). missiontypes: 5=wait(, 21=drivetoplayer()
 	static void TaskCarMissionNotAgainstTraffic(unsigned int ped, unsigned int vehicle, unsigned int targetEntity, unsigned int missionType, float speed, eVehicleDrivingStyle  drivingStyle, unsigned int unknown6_10, unsigned int unknown7_5) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_CAR_MISSION_NOT_AGAINST_TRAFFIC, ped, vehicle, targetEntity, missionType, speed, drivingStyle, unknown6_10, unknown7_5); }
 	static void TaskCarMissionCoorsTarget(unsigned int ped, unsigned int vehicle, float x, float y, float z, unsigned int unknown0_4, float speed, unsigned int unknown2_1, unsigned int unknown3_5, unsigned int unknown4_10) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_CAR_MISSION_COORS_TARGET, ped, vehicle, x, y, z, unknown0_4, speed, unknown2_1, unknown3_5, unknown4_10); }
@@ -489,6 +496,7 @@ namespace Scripting
 	static void TaskWanderStandard(unsigned int ped) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_WANDER_STANDARD, ped); }
 	static void TaskWarpCharIntoCarAsDriver(unsigned int ped, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_WARP_CHAR_INTO_CAR_AS_DRIVER, ped, vehicle); }
 	static void TaskWarpCharIntoCarAsPassenger(unsigned int ped, unsigned int vehicle, unsigned int seatIndex) { NativeInvoke::Invoke<unsigned int>(NATIVE_TASK_WARP_CHAR_INTO_CAR_AS_PASSENGER, ped, vehicle, seatIndex); }
+	static void DebugOn() { NativeInvoke::Invoke<unsigned int>(NATIVE_DEBUG_ON); }
 
 	// Task Sequence
 	static void OpenSequenceTask(unsigned int *pTaskSequence) { NativeInvoke::Invoke<unsigned int>(NATIVE_OPEN_SEQUENCE_TASK, pTaskSequence); }
@@ -907,6 +915,7 @@ namespace Scripting
 	static void SwitchRandomTrains(bool on) { NativeInvoke::Invoke<unsigned int>(NATIVE_SWITCH_RANDOM_TRAINS, on); }
 	static void SwitchGarbageTrucks(bool on) { NativeInvoke::Invoke<unsigned int>(NATIVE_SWITCH_GARBAGE_TRUCKS, on); }
 	static void SwitchMadDrivers(bool on) { NativeInvoke::Invoke<unsigned int>(NATIVE_SWITCH_MAD_DRIVERS, on); }
+	static void SetStateOfClosestDoorOfType(unsigned int dwHash, float fX, float fY, float fZ, bool bLock, float fSwing) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_STATE_OF_CLOSEST_DOOR_OF_TYPE, dwHash, fX, fY, fZ, bLock, fSwing); }
 
 	// Garages
 	static void CloseGarage(const char *garageName) { NativeInvoke::Invoke<unsigned int>(NATIVE_CLOSE_GARAGE, garageName); }
@@ -1057,6 +1066,7 @@ namespace Scripting
 	static void DoScreenFadeOut(unsigned int timeMS) { NativeInvoke::Invoke<unsigned int>(NATIVE_DO_SCREEN_FADE_OUT, timeMS); }
 	static void DoScreenFadeOutUnhacked(unsigned int timeMS) { NativeInvoke::Invoke<unsigned int>(NATIVE_DO_SCREEN_FADE_OUT_UNHACKED, timeMS); }
 	static void DrawRect(float x1, float y1, float x2, float y2, unsigned char r, unsigned char g, unsigned char b, unsigned char a) { NativeInvoke::Invoke<unsigned int>(NATIVE_DRAW_RECT, x1, y1, x2, y2, r, g, b, a); }
+	static void DrawLightWithRange(float x, float y, float z, int red, int green, int blue, float intensity, float range) { NativeInvoke::Invoke<unsigned int>(NATIVE_DRAW_LIGHT_WITH_RANGE,x, y, z, red, green, blue, intensity, range); }
 	static void EnableMaxAmmoCap(bool enable) { NativeInvoke::Invoke<unsigned int>(NATIVE_ENABLE_MAX_AMMO_CAP, enable); }
 	static void EnablePoliceScanner() { NativeInvoke::Invoke<unsigned int>(NATIVE_ENABLE_POLICE_SCANNER); }
 	static void EnableSceneStreaming(bool enable) { NativeInvoke::Invoke<unsigned int>(NATIVE_ENABLE_SCENE_STREAMING, enable); }

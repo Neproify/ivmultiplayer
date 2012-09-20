@@ -65,6 +65,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("isPlayerJackingAVehicle", IsJackingAVehicle, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerWeaponSlot", GetWeaponSlot, 1, "ii");
 	pScriptingManager->RegisterFunction("getPlayerAmmoInClip", GetAmmoInClip, 1, "ii");
+	pScriptingManager->RegisterFunction("setPlayerDoorLockState", SetDoorLockState, 7, "isfffbf");
 }
 
 // isPlayerConnected(playerid)
@@ -741,5 +742,37 @@ SQInteger CPlayerNatives::GetWeaponSlot(SQVM * pVM)
 		return 1;
 	}
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::SetDoorLockState(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -7, &playerId);
+
+	const char *szString;
+	sq_getstring(pVM, -6, &szString);
+
+	CVector3 vecPos;
+	sq_getfloat(pVM, -5, &vecPos.fX);
+	sq_getfloat(pVM, -4, &vecPos.fY);
+	sq_getfloat(pVM, -3, &vecPos.fZ);
+
+	SQBool bState;
+	sq_getbool(pVM, -2, &bState);
+	bool bToggle = (bState != 0);
+
+	float fSwing;
+	sq_getfloat(pVM, -1, &fSwing);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer)
+	{
+		DWORD dwHash = Scripting::GetHashKey(szString);
+		Scripting::SetStateOfClosestDoorOfType(dwHash, vecPos.fX, vecPos.fY, vecPos.fZ, bToggle, fSwing);
+		sq_pushbool(pVM,true);
+		return 1;
+	}
+	sq_pushbool(pVM,false);
 	return 1;
 }

@@ -21,6 +21,7 @@ CCheckpoint::CCheckpoint(EntityId checkpointId, WORD wType, CVector3 vecPosition
 	m_vecPosition = vecPosition;
 	m_vecTargetPosition = vecTargetPosition;
 	m_fRadius = fRadius;
+	m_bShow = true;
 }
 
 CCheckpoint::~CCheckpoint()
@@ -37,6 +38,11 @@ void CCheckpoint::AddForPlayer(EntityId playerId)
 	bsSend.Write(m_vecTargetPosition);
 	bsSend.Write(m_fRadius);
 	g_pNetworkManager->RPC(RPC_NewCheckpoint, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
+	if(m_bShow)
+		ShowForPlayer(playerId);
+	else
+		HideForPlayer(playerId);
 }
 
 void CCheckpoint::AddForWorld()
@@ -78,6 +84,7 @@ void CCheckpoint::ShowForWorld()
 		if(g_pPlayerManager->DoesExist(i))
 			ShowForPlayer(i);
 	}
+	m_bShow = true;
 }
 
 void CCheckpoint::HideForPlayer(EntityId playerId)
@@ -94,6 +101,7 @@ void CCheckpoint::HideForWorld()
 		if(g_pPlayerManager->DoesExist(i))
 			HideForPlayer(i);
 	}
+	m_bShow = false;
 }
 
 void CCheckpoint::SetType(WORD wType)

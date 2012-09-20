@@ -13,6 +13,7 @@
 #include "CGame.h"
 #include "SharedUtility.h"
 #include "CGUI.h"
+#include <CSettings.h>
 
 extern CGUI * g_pGUI;
 
@@ -125,6 +126,7 @@ void CGraphics::DrawRect(float fX, float fY, float fWidth, float fHeight, unsign
 	m_pDevice->SetTexture(0, NULL);
 	m_pDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
 	m_pDevice->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 4, 2, &indices[0], D3DFMT_INDEX16, &vertex[0], sizeof(D3DVERTEX));
+	//m_pDevice->Release();
 	End();
 }
 
@@ -153,12 +155,13 @@ void CGraphics::DrawBox( float fLeft, float fTop, float fWidth, float fHeight, D
 	m_pDevice->SetFVF( D3DFVF_TL );
 	m_pDevice->SetTexture( 0, m_pTexture );
 	m_pDevice->DrawPrimitiveUP( D3DPT_TRIANGLESTRIP, 2, qV, sizeof( CVertexList ) );
+	m_pDevice->Release();
 }
 
 float CGraphics::GetFontHeight( float fScale )
 {
 	// Get the font
-	CEGUI::Font* pFont = g_pGUI->GetFont( "tahoma" );
+	CEGUI::Font* pFont = g_pGUI->GetFont( CVAR_GET_STRING("chatfont") );
 
 	// Is the font valid?
 	if( pFont )
@@ -191,4 +194,24 @@ void CGraphics::GenerateTextures( IDirect3DTexture9 ** pTexture, DWORD dwColour 
 	(*pTexture)->UnlockRect(0);
 
 	m_pDevice->Release();
+}
+
+void CGraphics::GetScreenPositionFromWorldPosition(CVector3 vecWorld, CVector3 * vecScreen)
+{
+	// Get the game matrix
+	D3DXMATRIX gameMatrix;
+	D3DVIEWPORT9 viewport;
+	D3DXVECTOR3 vec;
+
+	memcpy(gameMatrix,*(D3DXMATRIX *)((CGame::GetBase()+0xE93650)/* + 0x23C*/),sizeof(D3DXMATRIX));
+	D3DXMatrixTranspose( &gameMatrix, &gameMatrix );
+	m_pDevice->GetViewport(&viewport);
+	D3DXVec3TransformCoord( &vec, &D3DXVECTOR3( vecWorld.fX, vecWorld.fY, vecWorld.fZ ), &gameMatrix );
+
+	// Screen Position
+	vecScreen->fX = viewport.X + (1.0f + vec.x) * viewport.Width / 2.0f;
+	vecScreen->fY = viewport.Y + (1.0f - vec.y) * viewport.Height / 2.0f;
+
+	// If Z > 1.0f = not on the screen
+	vecScreen->fZ = viewport.MinZ + vec.z * (viewport.MaxZ - viewport.MinZ);
 }

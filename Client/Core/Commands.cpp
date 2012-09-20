@@ -84,9 +84,8 @@ void SavePosCommand(char * szParams)
 	else
 	{
 		g_pLocalPlayer->GetPosition(vecPosition);
-		float fHeading = g_pLocalPlayer->GetCurrentHeading();
 		int iModelId = ModelHashToSkinId(g_pLocalPlayer->GetModelInfo()->GetHash());
-		fprintf(file, "PlayerData(%d, %f, %f, %f, %f);%s%s\n", iModelId, vecPosition.fX, vecPosition.fY, vecPosition.fZ, fHeading, szParams ? " // " : "", szParams ? szParams : "");
+		fprintf(file, "PlayerData(%d, %f, %f, %f, %f);%s%s\n", iModelId, vecPosition.fX, vecPosition.fY, vecPosition.fZ, g_pLocalPlayer->GetCurrentHeading(), szParams ? " // " : "", szParams ? szParams : "");
 	}
 
 	fclose(file);

@@ -98,8 +98,8 @@ void ContextSwitch(IVPed * pPed, bool bPost)
 				}
 			}
 		}
-		else
-			CLogFile::Printf("ContextSwitch Warning: Invalid Player Ped");
+		//else
+			//CLogFile::Printf("ContextSwitch Warning: Invalid Player Ped");
 	}
 }
 

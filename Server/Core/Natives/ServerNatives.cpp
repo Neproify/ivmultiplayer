@@ -219,11 +219,14 @@ SQInteger CServerNatives::GetHostName(SQVM * pVM)
 // togglePayAndSpray(toggle)
 SQInteger CServerNatives::TogglePayAndSpray(SQVM * pVM)
 {
-	bool toggle;
-	sq_getinteger(pVM, -1, (SQInteger*)&toggle);
-	CVAR_SET_BOOL("paynspray", toggle);
+	SQBool bSwitch;
+	sq_getbool(pVM, -1, &bSwitch);
+
+	bool bToggle = (bSwitch != 0);
+	CVAR_SET_BOOL("paynspray", bToggle);
+
 	CBitStream bsSend;
-	bsSend.Write(toggle);
+	bsSend.Write(bToggle);
 	g_pNetworkManager->RPC(RPC_ScriptingTogglePayAndSpray, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
 	return 1;
 }
@@ -231,11 +234,14 @@ SQInteger CServerNatives::TogglePayAndSpray(SQVM * pVM)
 // toggleAutoAim(toggle)
 SQInteger CServerNatives::ToggleAutoAim(SQVM * pVM)
 {
-	bool toggle;
-	sq_getinteger(pVM, -1, (SQInteger*)&toggle);
-	CVAR_SET_BOOL("autoaim", toggle);
+	SQBool bSwitch;
+	sq_getbool(pVM, -1, &bSwitch);
+
+	bool bToggle = (bSwitch != 0);
+	CVAR_SET_BOOL("autoaim", bToggle);
+
 	CBitStream bsSend;
-	bsSend.Write(toggle);
+	bsSend.Write(bToggle);
 	g_pNetworkManager->RPC(RPC_ScriptingToggleAutoAim, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
 	return 1;
 }

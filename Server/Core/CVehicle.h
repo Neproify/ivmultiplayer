@@ -45,6 +45,7 @@ private:
 	bool		  m_bTaxiLight;
 	bool		  m_bTyre[6];
 	bool		  m_bGpsState;
+	bool		  m_bActorVehicle;
 
 public:
 	CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4);
@@ -75,8 +76,10 @@ public:
 	void		  SetPetrolTankHealth(float fHealth);
 	float		  GetPetrolTankHealth();
 	void          SetPosition(const CVector3& vecPosition);
+	void		  SetPositionSave(CVector3 vecPosition);
 	void          GetPosition(CVector3& vecPosition);
 	void          SetRotation(const CVector3& vecRotation);
+	void          SetRotationSave(CVector3 vecRotation);
 	void          GetRotation(CVector3& vecRotation);
 	void          SetDirtLevel(float fDirtLevel);
 	float         GetDirtLevel();
@@ -113,4 +116,6 @@ public:
 	void		  SetTyreState(unsigned int uiTyre, bool bState);
 	void		  SetVehicleGPSState(bool bState);
 	bool		  GetVehicleGPSState();
+	void		  SetAlarm(int iDuration);
+	void		  MarkVehicle(bool bToggle);
 };

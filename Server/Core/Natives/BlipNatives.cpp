@@ -15,6 +15,9 @@
 #include "../CNetworkManager.h"
 #include "../CPlayerManager.h"
 
+//  Disable bool warning
+#pragma warning( disable:4800 )
+
 extern CBlipManager * g_pBlipManager;
 extern CNetworkManager * g_pNetworkManager;
 extern CPlayerManager * g_pPlayerManager;
@@ -34,7 +37,7 @@ void CBlipNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("setBlipSize", SetSize, -1, "ii");
 	pScriptingManager->RegisterFunction("getBlipSize", GetSize, 1, "i");
 	pScriptingManager->RegisterFunction("toggleBlipShortRange", ToggleShortRange, -1, "ib");
-	pScriptingManager->RegisterFunction("toggleBlipRoute", ToggleRoute, -1, "ib"); // TODO, fix native clientside
+	pScriptingManager->RegisterFunction("toggleBlipRoute", ToggleRoute, -1, "ib");
 	pScriptingManager->RegisterFunction("setBlipName", SetName, -1, "is");
 	pScriptingManager->RegisterFunction("getBlipName", GetName, -1, "is");
 	pScriptingManager->RegisterFunction("switchBlipIcon", SwitchIcon, 2, "ib");
@@ -145,7 +148,7 @@ SQInteger CBlipNatives::SetColor(SQVM * pVM)
 			{
 				CBitStream bsSend;
 				bsSend.Write(blipId);
-				bsSend.Write(iColor);
+				bsSend.Write((int)iColor);
 				g_pNetworkManager->RPC(RPC_ScriptingSetBlipColor, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 				sq_pushbool(pVM, true);
 				return 1;
@@ -262,7 +265,7 @@ SQInteger CBlipNatives::ToggleShortRange(SQVM * pVM)
 		{
 			CBitStream bsSend;
 			bsSend.Write(blipId);
-			bsSend.Write(bToggle);
+			bsSend.Write((bool)bToggle);
 			g_pNetworkManager->RPC(RPC_ScriptingToggleBlipShortRange, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 			sq_pushbool(pVM, true);
 			return 1;
@@ -302,7 +305,7 @@ SQInteger CBlipNatives::ToggleRoute(SQVM * pVM)
 		{
 			CBitStream bsSend;
 			bsSend.Write(blipId);
-			bsSend.Write(bToggle);
+			bsSend.Write((bool)bToggle);
 			g_pNetworkManager->RPC(RPC_ScriptingToggleBlipRoute, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 			sq_pushbool(pVM, true);
 			return 1;
@@ -425,12 +428,12 @@ SQInteger CBlipNatives::CreatePlayerBlip(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -2, &playerId);
 
-	int iSprite;
+	SQInteger iSprite;
 	sq_getinteger(pVM, -1, &iSprite);
 
 	if(g_pPlayerManager->DoesExist(playerId) && !g_pBlipManager->DoesPlayerBlipExist(playerId))
 	{
-		g_pBlipManager->CreateForPlayer(playerId, iSprite, true);
+		g_pBlipManager->CreateForPlayer(playerId, (int)iSprite, true);
 		sq_pushbool(pVM,true);
 		return 1;
 	}

@@ -31,6 +31,8 @@ private:
 	static void CheckpointLeft(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void EventCall(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void SyncActor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void RequestActorUpdate(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();

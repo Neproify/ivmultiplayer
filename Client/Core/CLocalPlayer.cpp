@@ -25,6 +25,7 @@
 #include "CCamera.h"
 #include "CClientScriptManager.h"
 #include "CFireManager.h"
+#include "CFileTransfer.h"
 
 extern CNetworkManager		* g_pNetworkManager;
 extern CPlayerManager		* g_pPlayerManager;
@@ -36,6 +37,7 @@ extern CCamera				* g_pCamera;
 extern bool					m_bControlsDisabled;
 extern CClientScriptManager * g_pClientScriptManager;
 extern CFireManager			* g_pFireManager;
+extern CFileTransfer		* g_pFileTransfer;
 
 void * pAddress = NULL;
 void * pReturnAddress = NULL;
@@ -110,6 +112,10 @@ void CLocalPlayer::Respawn()
 
 void CLocalPlayer::HandleSpawn()
 {
+	// Hide the filedownload stuff
+	if(g_pFileTransfer)
+		g_pFileTransfer->SetDownloadImageVisible(false);
+
 	// If we're already spawned(min. one time death), recreate fire(deleted after respawn)
 	if(m_bFirstSpawn)
 		g_pFireManager->ReCreateAllFire();
@@ -231,8 +237,7 @@ void CLocalPlayer::Pulse()
 						SendSmallSync();
 					}
 				}
-
-				// Have we changed interiors?
+				//Have we changed interiors?
 				if(GetInterior() != m_uiLastInterior)
 				{
 					// Set the new interior
@@ -270,7 +275,7 @@ void CLocalPlayer::SendOnFootSync()
 	GetControlState(&syncPacket.controlState);
 
 	// Update the last sent control state
-	memcpy(&m_lastControlStateSent, &syncPacket.controlState, sizeof(CControlState));
+	//memcpy(&m_lastControlStateSent, &syncPacket.controlState, sizeof(CControlState));
 
 	// Get their position
 	GetPosition(syncPacket.vecPos);
@@ -280,6 +285,9 @@ void CLocalPlayer::SendOnFootSync()
 
 	// Get their move speed
 	GetMoveSpeed(syncPacket.vecMoveSpeed);
+
+	// Get their turn speed
+	GetTurnSpeed(syncPacket.vecTurnSpeed);
 
 	// Get their ducking state
 	syncPacket.bDuckState = IsDucking();
@@ -645,32 +653,34 @@ void CLocalPlayer::SendEmptyVehicleSync()
 {
 	EMPTYVEHICLESYNCPACKET syncPacket;
 	CBitStream bsSend;
-	unsigned int ui = 0;
-	unsigned int uiOccupants = 0;
+	int uiOccupants = 0;
 
 	for(EntityId iD = 0; iD < g_pVehicleManager->GetCount(); iD++)
 	{
-		if(g_pVehicleManager->Get(iD)->IsSpawned() && g_pVehicleManager->Get(iD)->IsStreamedIn())
+		if(g_pVehicleManager->Exists(iD))
 		{
-			// Reset stuff
-			ui = 0;
-			uiOccupants = 0;
-			bsSend.Reset();
+			if(g_pVehicleManager->Get(iD)->IsSpawned() && g_pVehicleManager->Get(iD)->IsStreamedIn())
+			{
+				// Reset stuff
+				uiOccupants = 0;
+				bsSend.Reset();
 
-			while(ui != 8)
-			{
-				ui++;
-				if(!g_pVehicleManager->Get(iD)->GetOccupant(ui))
-					continue;
-				else
-					uiOccupants++;
-			}
-			if(uiOccupants == 0)
-			{
-				g_pVehicleManager->Get(iD)->StoreEmptySync(&syncPacket);
+				for(BYTE i = 0; i < g_pVehicleManager->Get(iD)->GetMaxPassengers(); i++)
+				{
+					// Does this passenger seat contain a passenger?
+					if(g_pVehicleManager->Get(iD)->GetPassenger(i))
+					{
+						uiOccupants = 1;
+						break;
+					}
+				}
+				if(uiOccupants == 0)
+				{
+					g_pVehicleManager->Get(iD)->StoreEmptySync(&syncPacket);
 			
-				bsSend.Write((char *)&syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
-				g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+					bsSend.Write((char *)&syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
+					g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+				}
 			}
 		}
 	}

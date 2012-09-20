@@ -44,3 +44,5 @@ SQUIRREL_FUNCTION(getScreenPositionFromWorldPosition);
 SQUIRREL_FUNCTION(isGameFocused);
 SQUIRREL_FUNCTION(setRadarZoom);
 SQUIRREL_FUNCTION(getActorCoordinates);
+SQUIRREL_FUNCTION(drawLightWithRange);
+SQUIRREL_FUNCTION(tuneRadio);

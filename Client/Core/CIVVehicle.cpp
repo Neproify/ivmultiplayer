@@ -558,6 +558,15 @@ void CIVVehicle::BurstCarTyre(int iTyre)
 	}
 }
 
+void CIVVehicle::GetDeformation(CVector3& vecPos)
+{
+	IVVehicle * pVehicle = GetVehicle();
+	if(pVehicle)
+	{
+		//vecPos = pVehicle->m_pDamageManager->vecDamage;
+	}
+}
+
 // Set Lights(?)
 // WORD or BYTE?
 //*(BYTE *)(pVehicle + 0x1112) ^= ((char)iState ^*(BYTE *)(pVehicle + 0x1112) & 3;

@@ -17,6 +17,7 @@ class CRemotePlayer : public CNetworkPlayer
 private:
 	EntityId			m_vehicleId;
 	eStateType			m_stateType;
+	int					m_iModelId;
 	bool				m_bPassenger;
 	BYTE				m_byteSeatId;
 	bool				m_helmet;
@@ -29,7 +30,7 @@ public:
 	CRemotePlayer();
 	~CRemotePlayer();	
 
-	bool         Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate = false);
+	bool         Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate = false);
 	void         Destroy();
 	void         Kill();
 	void         Init();

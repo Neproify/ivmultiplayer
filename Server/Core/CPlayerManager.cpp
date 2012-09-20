@@ -19,12 +19,14 @@
 #include "CVehicleManager.h"
 #include "CModuleManager.h"
 #include "CEvents.h"
+#include "CBlipManager.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CScriptingManager * g_pScriptingManager;
 extern CVehicleManager * g_pVehicleManager;
 extern CModuleManager * g_pModuleManager;
 extern CEvents * g_pEvents;
+extern CBlipManager * g_pBlipManager;
 
 CPlayerManager::CPlayerManager()
 {
@@ -120,13 +122,16 @@ void CPlayerManager::Pulse()
 void CPlayerManager::HandleClientJoin(EntityId playerId)
 {
 	if(GetPlayerCount() > 1)
-	{
+ 	{
 		for(EntityId x = 0; x < MAX_PLAYERS; x++)
 		{
 			if(m_bActive[x] && x != playerId)
 			{
 				m_pPlayers[x]->AddForPlayer(playerId);
 				m_pPlayers[x]->SpawnForPlayer(playerId);
+
+				if(g_pBlipManager->DoesPlayerBlipExist(x))
+					g_pBlipManager->CreateForPlayer(x,g_pBlipManager->GetPlayerBlipSprite(x),g_pBlipManager->GetPlayerBlipShow(x));
 			}
 		}
 	}

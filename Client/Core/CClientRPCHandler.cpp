@@ -76,20 +76,20 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	bool bPayAndSpray, bAutoAim, bGUINametags, bHeadMovement;
 	unsigned short usHttpPort;
 	unsigned char ucWeather, ucTrafficLightState, ucHour, ucMinute;
-	unsigned int color, iMaxPlayers, uiMinuteDuration, uiTrafficLightTimePassed, uiGreenDuration, uiYellowDuration, uiRedDuration;
+	unsigned int uiColor, uiMaxPlayers, uiMinuteDuration, uiTrafficLightTimePassed, uiGreenDuration, uiYellowDuration, uiRedDuration;
 
 	pBitStream->Read(playerId);
 	pBitStream->Read(sHostName);
 	pBitStream->Read(bPayAndSpray);
 	pBitStream->Read(bAutoAim);
-	pBitStream->Read(color);
+	pBitStream->Read(uiColor);
 
 	pBitStream->Read(sHttpServer);
 	pBitStream->Read(usHttpPort);
 	pBitStream->Read(ucWeather);
 	pBitStream->Read(bGUINametags);
 	pBitStream->Read(bHeadMovement);
-	pBitStream->Read(iMaxPlayers);
+	pBitStream->Read(uiMaxPlayers);
 
 	pBitStream->Read(ucHour);
 	pBitStream->Read(ucMinute);
@@ -132,16 +132,19 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	CGame::SetNameTags(bGUINametags);
 	CGame::SetHeadMovement(bHeadMovement);
 	g_pNetworkManager->SetHostName(sHostName);
-	g_pNetworkManager->SetMaxPlayers(iMaxPlayers);
+	g_pNetworkManager->SetMaxPlayers(uiMaxPlayers);
 	g_pPlayerManager->SetLocalPlayer(playerId, g_pLocalPlayer);
 	g_pLocalPlayer->SetName(g_strNick);
-	g_pLocalPlayer->SetColor(color);
+	g_pLocalPlayer->SetColor(uiColor);
 	Scripting::SetNoResprays(!bPayAndSpray);
 	Scripting::DisablePlayerLockon(0, !bAutoAim);
 	CGame::GetWeather()->SetWeather((eWeather)(ucWeather - 1));
 	g_pTime->SetMinuteDuration(uiMinuteDuration);
 	g_pTime->SetTime(ucHour, ucMinute);
 	g_pNetworkManager->SetJoinedServer(true);
+
+	// Set the disconnect button visible
+	g_pMainMenu->SetDisconnectButtonVisible(true);
 
 	CGame::SetInputState(true);
 	CGame::SetState(GAME_STATE_INGAME);
@@ -213,19 +216,16 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// Read the rotation (if we have it)
 	CVector3 vecRotation;
-
 	if(pBitStream->ReadBit())
 		pBitStream->Read(vecRotation);
 
 	// Read the turn speed vector (if we have it)
 	CVector3 vecTurnSpeed;
-
 	if(pBitStream->ReadBit())
 		pBitStream->Read(vecTurnSpeed);
 
 	// Read the move speed vector (if we have it)
 	CVector3 vecMoveSpeed;
-
 	if(pBitStream->ReadBit())
 		pBitStream->Read(vecMoveSpeed);
 
@@ -251,7 +251,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	// Read the horn duration
 	int iHornDuration;
 	pBitStream->Read(iHornDuration);
-
+	
 	// Read the siren state flag
 	bool bSirenState = pBitStream->ReadBit();
 
@@ -264,6 +264,8 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// Read the engine state
 	bool bEngineStatus = pBitStream->ReadBit();
+
+	// Read if our lights are on
 	bool bLights = pBitStream->ReadBit();
 
 	// Read the door angles
@@ -275,10 +277,14 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	bool bWindow[4];
 	for(int i = 0; i <= 3; i++)
 		pBitStream->Read(bWindow[i]);
-
+	
 	// Read if taxilight is turned on
 	bool bTaxiLight;
 	pBitStream->Read(bTaxiLight);
+
+	// Read if gps state is turned on
+	bool bGPS;
+	pBitStream->Read(bGPS);
 
 	// Read the variation
 	unsigned char ucVariation = 0;
@@ -287,6 +293,12 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// Create the new vehicle
 	CNetworkVehicle * pVehicle = new CNetworkVehicle(g_pModelManager->VehicleIdToModelHash(iModelId));
+
+	// Set the vehicle spawn position
+	pVehicle->SetSpawnPosition(vecPosition);
+
+	// Set the vehicle spawn rotation
+	pVehicle->SetSpawnRotation(vecRotation);
 
 	// Add the vehicle to the vehicle manager
 	g_pVehicleManager->Add(vehicleId, pVehicle);
@@ -325,11 +337,11 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	// Sound horn if needed
 	pVehicle->SoundHorn(iHornDuration);
 
-	// Set the vehicle siren state
-	pVehicle->SetSirenState(bSirenState);
-
 	// Set the locked state
 	pVehicle->SetDoorLockState(dwLockState);
+
+	// Set the vehicle siren state
+	pVehicle->SetSirenState(bSirenState);
 
 	// Set the variation
 	pVehicle->SetVariation(ucVariation);
@@ -339,6 +351,8 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	
 	// Set the lights
 	pVehicle->SetLightsState(bLights);
+
+	// Set the taxilights
 	pVehicle->SetTaxiLightsState(bTaxiLight);
 
 	// Set the petrol tank health
@@ -660,14 +674,13 @@ void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSende
 	if(!pBitStream)
 		return;
 
-	EntityId actorId;
-	CVector3 vecPosition;
-	int iModelId;
+	EntityId actorId, vehicleId;
+	CVector3 vecPosition, vecDrivePosition, vecDriveRotation, vecDriveFinalPosition;
+	int iModelId, iSeat;
 	float fHeading;
 	String name;
-	bool togglename;
 	unsigned int color;
-	bool frozen, helmet, bBlip;
+	bool togglename, frozen, helmet, bBlip, bDriveStop;
 
 	while(pBitStream->Read(actorId))
 	{
@@ -677,12 +690,18 @@ void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSende
 		pBitStream->Read(name);
 		pBitStream->Read(togglename);
 		pBitStream->Read(color);
-		CLogFile::Printf("Got color: 0x%X", color);
 		pBitStream->Read(frozen);
 		pBitStream->Read(helmet);
 		pBitStream->Read(bBlip);
+		pBitStream->Read(bDriveStop);
+		pBitStream->Read(vecDrivePosition);
+		pBitStream->Read(vecDriveRotation);
+		pBitStream->Read(vecDriveFinalPosition);
+		pBitStream->Read(vehicleId);
+		pBitStream->Read(iSeat);
 
 		g_pActorManager->Create(actorId, iModelId, vecPosition, fHeading, name, togglename, color, frozen, helmet, bBlip);
+		//g_pActorManager->DriveToPoint(actorId, vehicleId, vecDrivePosition, vecDriveRotation, vecDriveFinalPosition, bDriveStop);
 	}
 }
 
@@ -890,11 +909,20 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 		}
 		else
 		{
+			/* Serverside
+				bsSend.Write(m_iModelId);
+				bsSend.Write(m_bHelmet);
+				bsSend.Write(m_vecPosition);
+				bsSend.Write(m_fHeading);
+			Serverside end */
+
 			int iModelId;
+			bool bHelmet;
 			CVector3 vecSpawnPos;
 			float fHeading;
+
 			EntityId vehicleId;
-			bool bHelmet;
+
 			pBitStream->Read(iModelId);
 			pBitStream->Read(bHelmet);
 			pBitStream->Read(vecSpawnPos);
@@ -1460,9 +1488,9 @@ void CClientRPCHandler::ScriptingTogglePayAndSpray(CBitStream * pBitStream, CPla
 	if(!pBitStream)
 		return;
 
-	bool toggle;
-	pBitStream->Read(toggle);
-	Scripting::SetNoResprays(!toggle);
+	bool bToggle;
+	pBitStream->Read(bToggle);
+	Scripting::SetNoResprays(!bToggle);
 }
 
 void CClientRPCHandler::ScriptingToggleAutoAim(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1471,9 +1499,9 @@ void CClientRPCHandler::ScriptingToggleAutoAim(CBitStream * pBitStream, CPlayerS
 	if(!pBitStream)
 		return;
 
-	bool toggle;
-	pBitStream->Read(toggle);
-	Scripting::DisablePlayerLockon(0, !toggle);
+	bool bToggle;
+	pBitStream->Read(bToggle);
+	Scripting::DisablePlayerLockon(0, !bToggle);
 }
 
 void CClientRPCHandler::ScriptingGivePlayerWeapon(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2498,7 +2526,7 @@ void CClientRPCHandler::ScriptingSetVehicleComponents(CBitStream * pBitStream, C
 	pBitStream->Read(vehicleId);
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
-	if(pVehicle != NULL)
+	if(pVehicle)
 	{
 		// Read the component values
 		for(unsigned char i = 0; i < 9; ++ i)
@@ -2520,7 +2548,7 @@ void CClientRPCHandler::ScriptingSetVehicleVariation(CBitStream * pBitStream, CP
 	pBitStream->Read(vehicleId);
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
-	if(pVehicle != NULL)
+	if(pVehicle)
 	{
 		// Read the variation
 		unsigned char ucVariation;
@@ -2837,11 +2865,11 @@ void CClientRPCHandler::ScriptingPlayGameAudio(CBitStream * pBitStream, CPlayerS
 	if(!pBitStream)
 		return;
 	
-	String szMusic;
-	pBitStream->Read(szMusic);
+	String strMusic;
+	pBitStream->Read(strMusic);
 
 	// TODO, try to call it with params(szMusic,NULL, SND_FILENAME | SND_ASYNC)
-	// Scripting::TriggerGameSound(szMusic.Get());
+	//Scripting::TriggerGameSound(/*strMusic.Get()*/);
 }
 
 void CClientRPCHandler::ScriptingRequestAnims(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2947,6 +2975,22 @@ void CClientRPCHandler::ScriptingSetVehicleFollowMode(CBitStream * pBitStream, C
 
 	if(!g_pLocalPlayer->IsOnFoot())
 		Scripting::SetFollowVehicleCamSubmode(iMode);
+}
+
+void CClientRPCHandler::ScriptingSetVehicleFollowOffset(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	pBitStream->Read(vehicleId);
+
+	CVector3 vecPos;
+	pBitStream->Read(vecPos);
+
+	if(g_pVehicleManager->Exists(vehicleId))
+		Scripting::SetFollowVehicleCamOffset(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(), vecPos.fX, vecPos.fY, vecPos.fZ);
 }
 
 void CClientRPCHandler::ScriptingSetAmmoInClip(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
@@ -3075,14 +3119,203 @@ void CClientRPCHandler::ScriptingSetVehicleGPSState(CBitStream *pBitStream, CPla
 
 	EntityId vehicleId;
 	bool bState = false;
-	pBitStream->ReadCompressed(vehicleId);
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(bState);
+
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	if(pVehicle)
+		pVehicle->SetVehicleGPSState(bState);
+}
+
+void CClientRPCHandler::ScriptingSetVehicleAlarm(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	int	iDuration;
+
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(iDuration);
+
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	if(pVehicle)
+		pVehicle->GetGameVehicle()->SetAlarmDuration(iDuration);
+}
+
+void CClientRPCHandler::ScriptingSetVehiclePetrolTankHealth(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	float fPetrol;
+
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(fPetrol);
+
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	if(pVehicle)
+	{
+		pVehicle->SetPetrolTankHealth(fPetrol);
+	}
+}
+
+void CClientRPCHandler::ScriptingSetVehicleTyreState(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	int	iTyre;
+	bool bState;
+
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(iTyre);
 	pBitStream->Read(bState);
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 	if(pVehicle)
 	{
-		pVehicle->SetVehicleGPSState(bState);
+		//TODO
 	}
+}
+
+void CClientRPCHandler::ScriptingSetVehicleWindowState(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	int	iWindow;
+	bool bState;
+
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(iWindow);
+	pBitStream->Read(bState);
+
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	if(pVehicle)
+	{
+		//TODO
+	}
+}
+
+void CClientRPCHandler::ScriptingSetPlayerUseMobilePhone(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId playerId;
+	bool bUse;
+
+	pBitStream->Read(playerId);
+	pBitStream->Read(bUse);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+//	if(pPlayer && !pPlayer->IsLocalPlayer())
+//		pPlayer->UseMobilePhone(bUse);
+	if(pPlayer && pPlayer->IsLocalPlayer())
+		Scripting::TaskUseMobilePhone(g_pLocalPlayer->GetScriptingHandle(),bUse);
+}
+
+void CClientRPCHandler::ScriptingStopActorDriving(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId actorId;
+	pBitStream->Read(actorId);
+
+	g_pActorManager->DriveToPoint(actorId,-1,CVector3(),CVector3(),CVector3(),false);
+}
+
+void CClientRPCHandler::ScriptingActorDriveToCoords(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId actorId;
+	pBitStream->Read(actorId);
+
+	CVector3 vecPos;
+	pBitStream->Read(vecPos);
+
+	if(g_pActorManager->DoesExist(actorId))
+		g_pActorManager->DriveToPoint(actorId,g_pActorManager->GetVehicleId(actorId),g_pActorManager->GetPosition(actorId),CVector3(),vecPos,true);
+}
+void CClientRPCHandler::ScriptingMarkVehicleAsActorVehicle(CBitStream * pBitStream, CPlayerSocket *pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	pBitStream->Read(vehicleId);
+	
+	bool bToggle;
+	pBitStream->Read(bToggle);
+
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	if(pVehicle)
+		pVehicle->MarkAsActorVehicle(bToggle);
+}
+
+void CClientRPCHandler::ScriptingForcePlayerSpeech(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId playerId;
+	String strVoice;
+	String strText;
+	pBitStream->Read(playerId);
+	pBitStream->Read(strVoice);
+	pBitStream->Read(strText);
+
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer && pPlayer->IsSpawned() && !pPlayer->IsLocalPlayer())
+		Scripting::SayAmbientSpeechWithVoice(pPlayer->GetScriptingHandle(), strText.Get(), strVoice.Get(), 1, 1, 0);
+	else if(pPlayer && pPlayer->IsSpawned() && pPlayer->IsLocalPlayer())
+		Scripting::SayAmbientSpeechWithVoice(g_pLocalPlayer->GetScriptingHandle(), strText.Get(), strVoice.Get(), 1, 1, 0);
+}
+
+void CClientRPCHandler::ScriptingForceActorSpeech(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId actorId;
+	String strVoice;
+	String strText;
+	pBitStream->Read(actorId);
+	pBitStream->Read(strVoice);
+	pBitStream->Read(strText);
+
+	if(g_pActorManager->DoesExist(actorId))
+		Scripting::SayAmbientSpeechWithVoice(g_pActorManager->GetScriptingHandle(actorId), strText.Get(), strVoice.Get(), 1, 1, 0);
+}
+
+void CClientRPCHandler::ScriptingLetPlayerDriveAutomatic(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId playerId, vehicleId;
+	CVector3 vecPos;
+	float fSpeed;
+	int iDrivingStyle;
+
+	pBitStream->Read(playerId);
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(vecPos);
+	pBitStream->Read(fSpeed);
+	pBitStream->Read(iDrivingStyle);
+
+	if(playerId == g_pLocalPlayer->GetPlayerId() && g_pLocalPlayer->GetVehicle()->GetVehicleId() == vehicleId)
+		Scripting::TaskCarDriveToCoord(g_pLocalPlayer->GetScriptingHandle(),g_pLocalPlayer->GetVehicle()->GetScriptingHandle(),vecPos.fX,vecPos.fY,vecPos.fZ, fSpeed, iDrivingStyle, 1, iDrivingStyle, 5.0f, -1);
 }
 
 void CClientRPCHandler::Register()
@@ -3224,12 +3457,23 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingAttachCam, ScriptingAttachCam);
 	AddFunction(RPC_ScriptingDisplayHudNotification, ScriptingDisplayHudNotification);
 	AddFunction(RPC_ScriptingSetVehicleFollowMode, ScriptingSetVehicleFollowMode);
+	AddFunction(RPC_ScriptingSetVehicleFollowOffset, ScriptingSetVehicleFollowOffset);
 	AddFunction(RPC_ScriptingSetAmmoInClip, ScriptingSetAmmoInClip);
 	AddFunction(RPC_ScriptingSetAmmo, ScriptingSetAmmo);
 	AddFunction(RPC_ScriptingCreatePlayerBlip, ScriptingCreatePlayerBlip);
 	AddFunction(RPC_ScriptingRemovePlayerBlip, ScriptingRemovePlayerBlip);
 	AddFunction(RPC_ScriptingChangePlayerBlip, ScriptingChangePlayerBlip);
 	AddFunction(RPC_ScriptingSetVehicleGPSState, ScriptingSetVehicleGPSState);
+	AddFunction(RPC_ScriptingSetVehicleAlarm, ScriptingSetVehicleAlarm);
+	AddFunction(RPC_ScriptingSetVehicleTryeState, ScriptingSetVehicleTyreState);
+	AddFunction(RPC_ScriptingSetVehicleWindowState, ScriptingSetVehicleWindowState);
+	AddFunction(RPC_ScriptingSetPlayerUseMobilePhone, ScriptingSetPlayerUseMobilePhone);
+	AddFunction(RPC_ScriptingStopActorDriving, ScriptingStopActorDriving);
+	AddFunction(RPC_ScriptingActorDriveToCoords, ScriptingActorDriveToCoords);
+	AddFunction(RPC_ScriptingMarkVehicleAsActorVehicle, ScriptingMarkVehicleAsActorVehicle);
+	AddFunction(RPC_ScriptingActorSaySpeech, ScriptingForceActorSpeech);
+	AddFunction(RPC_ScriptingPlayerSaySpeech, ScriptingForcePlayerSpeech);
+	AddFunction(RPC_ScriptingLetPlayerDriveAutomatic, ScriptingLetPlayerDriveAutomatic);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3371,10 +3615,21 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingAttachCam);
 	RemoveFunction(RPC_ScriptingDisplayHudNotification);
 	RemoveFunction(RPC_ScriptingSetVehicleFollowMode);
+	RemoveFunction(RPC_ScriptingSetVehicleFollowOffset);
 	RemoveFunction(RPC_ScriptingSetAmmoInClip);
 	RemoveFunction(RPC_ScriptingSetAmmo);
 	RemoveFunction(RPC_ScriptingCreatePlayerBlip);
 	RemoveFunction(RPC_ScriptingRemovePlayerBlip);
 	RemoveFunction(RPC_ScriptingChangePlayerBlip);
 	RemoveFunction(RPC_ScriptingSetVehicleGPSState);
+	RemoveFunction(RPC_ScriptingSetVehicleWindowState);
+	RemoveFunction(RPC_ScriptingSetVehicleTryeState);
+	RemoveFunction(RPC_ScriptingSetVehicleAlarm);
+	RemoveFunction(RPC_ScriptingSetPlayerUseMobilePhone);
+	RemoveFunction(RPC_ScriptingStopActorDriving);
+	RemoveFunction(RPC_ScriptingActorDriveToCoords);
+	RemoveFunction(RPC_ScriptingMarkVehicleAsActorVehicle);
+	RemoveFunction(RPC_ScriptingPlayerSaySpeech);
+	RemoveFunction(RPC_ScriptingActorSaySpeech);
+	RemoveFunction(RPC_ScriptingLetPlayerDriveAutomatic);
 }

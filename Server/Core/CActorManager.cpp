@@ -12,6 +12,7 @@
 #include "CNetworkManager.h"
 #include "CEvents.h"
 #include "CModuleManager.h"
+#include "CVehicle.h"
 #include "CVehicleManager.h"
 
 extern CNetworkManager * g_pNetworkManager;
@@ -22,7 +23,10 @@ extern CVehicleManager * g_pVehicleManager;
 CActorManager::CActorManager()
 {
 	for(EntityId x = 0; x < MAX_ACTORS; x++)
+	{
 		m_bActive[x] = false;
+		m_Actors[x].bDrivingAutomatic = false;
+	}
 }
 
 CActorManager::~CActorManager()
@@ -48,6 +52,11 @@ EntityId CActorManager::Create(int iModelId, CVector3 vecPosition, float fHeadin
 			m_Actors[x].bFrozen = false;
 			m_Actors[x].bHelmet = false;
 			m_Actors[x].bBlip = true;
+			m_Actors[x].bDrivingAutomatic = false;
+			m_Actors[x].vecDrivePos = CVector3();
+			m_Actors[x].vecDriveFinalPos = CVector3();
+			m_Actors[x].vehicleId = -1;
+			m_Actors[x].iSeat = -1;
 
 			CBitStream bsSend;
 			bsSend.Write(x);
@@ -60,6 +69,12 @@ EntityId CActorManager::Create(int iModelId, CVector3 vecPosition, float fHeadin
 			bsSend.Write(m_Actors[x].bFrozen);
 			bsSend.Write(m_Actors[x].bHelmet);
 			bsSend.Write(m_Actors[x].bBlip);
+			bsSend.Write(m_Actors[x].bDrivingAutomatic);
+			bsSend.Write(m_Actors[x].vecDrivePos);
+			bsSend.Write(m_Actors[x].vecDriveRot);
+			bsSend.Write(m_Actors[x].vecDriveFinalPos);
+			bsSend.Write(m_Actors[x].vehicleId);
+			bsSend.Write(m_Actors[x].iSeat);
 
 			g_pNetworkManager->RPC(RPC_NewActor, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 			m_Actors[x].iModelId = iModelId;
@@ -85,6 +100,10 @@ void CActorManager::Delete(EntityId actorId)
 	CSquirrelArguments pArguments;
 	pArguments.push(actorId);
 	g_pEvents->Call("actorDelete", &pArguments);
+
+	//TODO remove the player
+	//if(m_Actors[actorId].bDrivingAutomatic)
+		
 
 	CBitStream bsSend;
 	bsSend.Write(actorId);
@@ -182,10 +201,27 @@ void CActorManager::HandleClientJoin(EntityId playerId)
 				bsSend.Write(m_Actors[x].bFrozen);
 				bsSend.Write(m_Actors[x].bHelmet);
 				bsSend.Write(m_Actors[x].bBlip);
+				bsSend.Write(m_Actors[x].bDrivingAutomatic);
+				bsSend.Write(m_Actors[x].vecDrivePos);
+				bsSend.Write(m_Actors[x].vecDriveRot);
+				bsSend.Write(m_Actors[x].vecDriveFinalPos);
+				bsSend.Write(m_Actors[x].vehicleId);
+				bsSend.Write(m_Actors[x].iSeat);
 			}
 		}
-
 		g_pNetworkManager->RPC(RPC_NewActor, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
+		for(EntityId x = 0; x < MAX_ACTORS; x++)
+		{
+			if(m_bActive[x] && m_Actors[x].bDrivingAutomatic)
+			{
+				bsSend.Reset();
+
+				bsSend.Write(x);
+				bsSend.Write(m_Actors[x].vecDriveFinalPos);
+				g_pNetworkManager->RPC(RPC_ScriptingActorDriveToCoords, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			}
+		}
 	}
 }
 
@@ -220,19 +256,6 @@ bool CActorManager::ToggleBlip(EntityId actorId, bool bShow)
 	return 1;
 }
 
-EntityId CActorManager::GetActorCount()
-{
-	EntityId actorCount = 0;
-
-	for(EntityId x = 0; x < MAX_ACTORS; x++)
-	{
-		if(m_bActive[x])
-			actorCount++;
-	}
-
-	return actorCount;
-}
-
 bool CActorManager::ToggleFrozen(EntityId actorId, bool bFrozen)
 {
 	m_Actors[actorId].bFrozen = bFrozen;
@@ -262,10 +285,12 @@ void CActorManager::WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iS
 			return;
 
 		// Check if we have a valid seat
-		if(iSeatid < 0 || iSeatid > 4)
+		if(iSeatid < 0 || iSeatid > 3)
 			return;
 
 		m_Actors[actorId].bStateincar = true;
+		m_Actors[actorId].vehicleId = vehicleId;
+		m_Actors[actorId].iSeat = iSeatid;
 
 		CBitStream bsSend;
 		bsSend.Write(actorId);
@@ -288,4 +313,48 @@ void CActorManager::RemoveFromVehicle(EntityId actorId)
 			g_pNetworkManager->RPC(RPC_ScriptingRemoveActorFromVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 		}
 	}
+}
+
+bool CActorManager::UpdateDrivePos(EntityId actorId, CVector3 vecDrivePos, CVector3 vecDriveRot, bool bStop)
+{
+	if(m_bActive[actorId])
+	{
+		if(!bStop)
+		{
+			m_Actors[actorId].vecDrivePos = vecDrivePos;
+			m_Actors[actorId].vecDriveRot = vecDriveRot;
+			CVehicle * pVehicle = g_pVehicleManager->GetAt(m_Actors[actorId].vehicleId);
+			if(pVehicle)
+			{
+				pVehicle->SetPositionSave(vecDrivePos);
+				pVehicle->SetRotationSave(vecDriveRot);
+			}
+			m_Actors[actorId].bDrivingAutomatic = true;
+			return true;
+		}
+		else if(bStop)
+		{
+			m_Actors[actorId].bDrivingAutomatic = false;
+			CBitStream bsSend;
+			bsSend.Write(actorId);
+			g_pNetworkManager->RPC(RPC_ScriptingStopActorDriving, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+			return true;
+		}
+		return true;
+	}
+	else
+		return false;
+}
+
+EntityId CActorManager::GetActorCount()
+{
+	EntityId actorCount = 0;
+
+	for(EntityId x = 0; x < MAX_ACTORS; x++)
+	{
+		if(m_bActive[x])
+			actorCount++;
+	}
+
+	return actorCount;
 }

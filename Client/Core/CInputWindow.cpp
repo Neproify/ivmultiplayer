@@ -42,7 +42,7 @@ CInputWindow::CInputWindow()
 		m_pEditBox->setText("");
 		m_pEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0f, 75.0f), CEGUI::UDim(0.0f, ((20.0f * MAX_DISPLAYED_MESSAGES) + 30.0f))));
 		m_pEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.25f, 0), CEGUI::UDim(0.03375f, 0)));
-		m_pEditBox->setFont(g_pGUI->GetFont("tahoma-bold",10U));
+		m_pEditBox->setFont(g_pGUI->GetFont(CVAR_GET_STRING("chatfont"),CVAR_GET_INTEGER("chatsize")));
 		m_pEditBox->setVisible(false);
 
 		m_pEditBoxImage = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
@@ -66,7 +66,7 @@ void CInputWindow::Draw()
 {
 	if(m_bEnabled && g_pGUI)
 	{
-		CEGUI::Font * pFont = g_pGUI->GetFont("tahoma-bold", 10);
+		CEGUI::Font * pFont = g_pGUI->GetFont(CVAR_GET_STRING("chatfont"),CVAR_GET_INTEGER("chatsize"));
 
 		if(pFont)
 		{
@@ -80,7 +80,7 @@ void CInputWindow::Draw()
 				usAlphaColor = CVAR_GET_INTEGER("chatbga") + 55;
 			m_ulChatLineBgColor = D3DCOLOR_ARGB(usAlphaColor,CVAR_GET_INTEGER("chatbgr"),
 												CVAR_GET_INTEGER("chatbgg"),CVAR_GET_INTEGER("chatbgb"));
-			g_pGraphics->DrawRect(5 , 35 + MAX_DISPLAYED_MESSAGES * 20 , 500 , 25 , m_ulChatLineBgColor);
+			g_pGraphics->DrawRect(5 , 35 + MAX_DISPLAYED_MESSAGES * 20 , 450 , 25 , m_ulChatLineBgColor);
 		}
 	}
 }
@@ -160,8 +160,13 @@ void CInputWindow::ProcessInput()
 {
 	if(strlen(GetChatBoxText().C_String()) > 0 && IsEnabled())
 	{
-		sprintf(m_szInput,"%s",GetChatBoxText().C_String());
-
+		if(strlen(GetChatBoxText()) < 125)
+			sprintf(m_szInput,"%s",GetChatBoxText().C_String());
+		else
+		{
+			g_pChatWindow->AddInfoMessage("INFO: Text input too long(Got %d(max. 128))",strlen(GetChatBoxText()));
+			return;
+		}
 		if(m_szInput[0] == COMMAND_CHAR)
 		{
 			// Command entered
@@ -242,6 +247,13 @@ void CInputWindow::Enable()
 	g_pGUI->SetCursorVisible(true);
 	CGame::SetInputState(false);
 
+	// Disable it again
+	m_pEditBox->setVisible(false);
+	m_pEditBox->setEnabled(false);
+	m_pEditBoxImage->setVisible(false);
+	m_pEditBox->deactivate();
+
+	// Enable it now
 	m_pEditBox->setVisible(true);
 	m_pEditBox->setEnabled(true);
 	m_pEditBoxImage->setVisible(true);
@@ -290,11 +302,17 @@ void CInputWindow::RecallUp()
 {
 	if(m_iCurrentHistory < MAX_RECALLS && ((m_iTotalHistory - 1) > m_iCurrentHistory))
 	{
-		if(m_iCurrentHistory == -1)
-			m_pEditBox->setText(m_szInput);
+		m_pEditBox->setEnabled(true);
 
 		m_iCurrentHistory++;
 		m_pEditBox->setText(m_szHistory[m_iCurrentHistory]);
+		m_pEditBox->activate();
+
+		for(unsigned int i = 0; i < (strlen(m_szHistory[m_iCurrentHistory])*2);  i++)
+		{
+			keybd_event(VK_RIGHT,0,0,0);
+			keybd_event(VK_RIGHT,0,0,0);
+		}
 	}
 }
 
@@ -304,10 +322,29 @@ void CInputWindow::RecallDown()
 	{
 		m_iCurrentHistory--;
 
+		m_pEditBox->setEnabled(true);
+
 		if(m_iCurrentHistory == -1)
+		{
 			m_pEditBox->setText(m_szCurrent);
+			m_pEditBox->activate();
+			for(unsigned int i = 0; i < strlen(m_szCurrent)*2; i++)
+			{
+				keybd_event(VK_RIGHT,0,0,0);
+				keybd_event(VK_RIGHT,0,0,0);
+			}
+		}
 		else
+		{
 			m_pEditBox->setText(m_szHistory[m_iCurrentHistory]);
+			m_pEditBox->activate();
+
+			for(unsigned int i = 0; i < (strlen(m_szHistory[m_iCurrentHistory])*2); i++)
+			{
+				keybd_event(VK_RIGHT,0,0,0);
+				keybd_event(VK_RIGHT,0,0,0);
+			}
+		}
 	}
 }
 

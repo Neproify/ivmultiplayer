@@ -57,7 +57,8 @@ unsigned int COffsets::FUNC_CMatrix__ConvertFromQuaternion = 0;
 unsigned int COffsets::FUNC_CQuaternion__ConvertFromMatrix = 0;
 
 // Vehicle
-unsigned int COffsets::FUNC_CVehicle__SetEngineOn = 0;
+unsigned int COffsets::FUNC_CVehicle__TurnEngineOn = 0;
+unsigned int COffsets::FUNC_CVehicle__TurnEngineOff = 0;
 unsigned int COffsets::FUNC_CVehicle__RefreshColours = 0;
 
 // Misc
@@ -257,8 +258,14 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CQuaternion__ConvertFromMatrix             = (uiBase + 0x506DB0);
 
 			// Vehicle
-			FUNC_CVehicle__SetEngineOn                      = (uiBase + 0x9D3600);
+			FUNC_CVehicle__TurnEngineOn						= (uiBase + 0x9D3600);
+			FUNC_CVehicle__TurnEngineOff                    = (uiBase + 0x9C6710);
 			FUNC_CVehicle__RefreshColours                   = (uiBase + 0x9C52E0);
+
+			// Indicators
+			PATCH_CVehicle__HazzardLightsOn                 = (uiBase +  0x9D1D53);
+			FUNC_CVehicle__DrawIndicator                    = (uiBase +  0x9CD0F0);
+			RETURN_CVehicle__DrawIndicator                  = (uiBase +  0x9CD0F6);
 
 			// Misc
 			VAR_CurrentWantedLevel                          = (uiBase + 0x118F0DC); // Poor Naming (Could be some member of CWanted)
@@ -352,11 +359,6 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CPhysical__GetMoveSpeed                    = (uiBase +  0xA477F0);
 			FUNC_CPhysical__SetTurnSpeed                    = (uiBase +  0xA47840);
 			FUNC_CPhysical__GetTurnSpeed                    = (uiBase +  0xA478E0);
-
-			// Indicators
-			PATCH_CVehicle__HazzardLightsOn                 = (uiBase +  0x9D1D53);
-			FUNC_CVehicle__DrawIndicator                    = (uiBase +  0x9CD0F0);
-			RETURN_CVehicle__DrawIndicator                  = (uiBase +  0x9CD0F6);
 
 			// Streaming
 			VAR_ResourceTypeWdrIndex                        = (uiBase + 0x15F73A0);

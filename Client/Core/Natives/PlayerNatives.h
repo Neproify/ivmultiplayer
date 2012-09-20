@@ -44,6 +44,7 @@ private:
 	static SQInteger IsDucking(SQVM * pVM);
 	static SQInteger IsJackingAVehicle(SQVM * pVM);
 	static SQInteger GetWeaponSlot(SQVM * pVM);
+	static SQInteger SetDoorLockState(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

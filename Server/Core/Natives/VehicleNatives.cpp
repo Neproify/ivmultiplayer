@@ -69,6 +69,8 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("repairVehicleWheels", RepairWheels, 1, "i");
 	pScriptingManager->RegisterFunction("setVehicleGpsState", SetGpsState, 2, "ib");
 	pScriptingManager->RegisterFunction("getVehicleGpsState", GetGpsState, 1, "i");
+	pScriptingManager->RegisterFunction("setVehicleAlarm", SetAlarm, 2, "ii");
+	pScriptingManager->RegisterFunction("markVehicleAsActorVehicle", MarkVehicle, 2, "ib");
 }
 
 // createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4)
@@ -831,14 +833,14 @@ SQInteger CVehicleNatives::GetComponents(SQVM * pVM)
 SQInteger CVehicleNatives::SetVariation(SQVM * pVM)
 {
 	EntityId vehicleId;
-	sq_getentity(pVM, 2, &vehicleId);
+	sq_getentity(pVM, -2, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
 		SQInteger iVariation;
-		sq_getinteger(pVM, 3, &iVariation);
+		sq_getinteger(pVM, -1, &iVariation);
 		pVehicle->SetVariation((unsigned char)iVariation);
 
 		sq_pushbool(pVM, true);
@@ -1076,6 +1078,50 @@ SQInteger CVehicleNatives::GetGpsState(SQVM *pVM)
 	if(pVehicle)
 	{
 		sq_pushbool(pVM, pVehicle->GetVehicleGPSState());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setVehicleAlarm(vehicleid, alarmduration)
+SQInteger CVehicleNatives::SetAlarm(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM,-2, &vehicleId);
+
+	SQInteger iDuration;
+	sq_getinteger(pVM, -1, &iDuration);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	if(pVehicle)
+	{
+		pVehicle->SetAlarm((int)iDuration);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+
+// setVehicleAlarm(vehicleid, alarmduration)
+SQInteger CVehicleNatives::MarkVehicle(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM,-2, &vehicleId);
+
+	SQBool bToggle;
+	sq_getbool(pVM, -1, &bToggle);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	if(pVehicle)
+	{
+		bool bSwitch = (bToggle != 0);
+		pVehicle->MarkVehicle(bSwitch);
+		sq_pushbool(pVM, true);
 		return 1;
 	}
 

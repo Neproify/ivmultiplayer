@@ -30,7 +30,7 @@ CMutex::CMutex()
 CMutex::~CMutex()
 {
 	// Delete the mutex
-#ifdef _WIN32
+#ifdef WIN32
 #ifdef USE_CRITICAL_SECTION
 	DeleteCriticalSection(&m_criticalSection);
 #else

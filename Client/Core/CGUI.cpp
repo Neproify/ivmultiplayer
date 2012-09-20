@@ -251,8 +251,11 @@ void CGUI::Render()
 			m_pSystem->renderGUI();
 
 		// Process our mouse events
-		if(CGame::IsFocused() && m_pInput && m_pInputMouse)
+		if(CGame::IsFocused())
 		{
+			if(!m_pInput || !m_pInputMouse)
+				return;
+
 			if(m_pCursor->isVisible())
 			{
 				// If we have lost the input device re-acquire it

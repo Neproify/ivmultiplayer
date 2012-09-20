@@ -253,6 +253,7 @@
     <ClInclude Include="..\..\Shared\Game\CControlState.h" />
     <ClInclude Include="..\..\Shared\Game\CTime.h" />
     <ClInclude Include="..\..\Shared\Game\CTrafficLights.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -355,6 +356,12 @@
     <ClCompile Include="..\..\Shared\Game\CControlState.cpp" />
     <ClCompile Include="..\..\Shared\Game\CTime.cpp" />
     <ClCompile Include="..\..\Shared\Game\CTrafficLights.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Server.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Logo\icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

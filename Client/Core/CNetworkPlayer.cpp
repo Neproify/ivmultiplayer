@@ -57,6 +57,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	m_bPlayerBlipCreated = false;
 	m_uiPlayerBlipHandle = NULL;
 	m_bHelmet = false;
+	m_bUseMobilePhone = false;
 
 	if(IsLocalPlayer())
 	{
@@ -279,6 +280,8 @@ bool CNetworkPlayer::Create()
 
 void CNetworkPlayer::Init()
 {
+	// Set again model
+	//SetModel(m_pModelInfo->GetHash());
 }
 
 void CNetworkPlayer::Destroy()
@@ -660,6 +663,8 @@ unsigned int CNetworkPlayer::GetScriptingHandle()
 
 void CNetworkPlayer::SetModel(DWORD dwModelHash)
 {
+	CLogFile::Printf("SETMODEL %p | PlayerId: %d",dwModelHash,m_playerId);
+
 	// Get the model index from the model hash
 	int iModelIndex = CGame::GetStreaming()->GetModelIndexFromHash(dwModelHash);
 
@@ -835,10 +840,50 @@ void CNetworkPlayer::GetPosition(CVector3& vecPosition)
 
 void CNetworkPlayer::SetCurrentHeading(float fHeading)
 {
+        if(IsSpawned())
+        {
+                m_pPlayerPed->SetCurrentHeading(fHeading);
+                SetDesiredHeading(fHeading);
+        }
+}
+
+void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
+{
 	if(IsSpawned())
 	{
-		m_pPlayerPed->SetCurrentHeading(fHeading);
-		SetDesiredHeading(fHeading);
+		// Check if the player has already the same pos
+		if(GetCurrentHeading() == fHeading)
+			return;
+
+		// Check if the player isn't moving
+		CVector3 vecMoveSpeed; m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
+		if(vecMoveSpeed.Length() < 2.5f)
+		{
+			m_pPlayerPed->SetDesiredHeading(fHeading);
+			m_pPlayerPed->SetCurrentHeading(fHeading);
+		}
+		else if(!m_currentControlState.IsSprinting())
+		{
+			m_pPlayerPed->SetCurrentHeading(fHeading);
+			Sleep(10);
+			m_pPlayerPed->SetCurrentHeading(fHeading);
+		}
+		else
+		{
+			float fHeadingFinal;
+			if(fHeading > GetCurrentHeading())
+				fHeadingFinal = fHeading-GetCurrentHeading();
+			else if(GetCurrentHeading() > fHeading)
+				fHeadingFinal = GetCurrentHeading()-fHeading;
+
+			for(int i = 0; i < 10; i++)
+			{
+				if(fHeading > GetCurrentHeading())
+					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
+				else if(GetCurrentHeading() > fHeading)
+					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
+			}
+		}
 	}
 }
 
@@ -1344,7 +1389,6 @@ unsigned int CNetworkPlayer::GetInterior()
 		Scripting::GetKeyForCharInRoom(GetScriptingHandle(), (Scripting::eInteriorRoomKey *)&uiInterior);
 		return uiInterior;
 	}
-
 	return 0;
 }
 
@@ -1767,6 +1811,19 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 
 			for(BYTE i = 0; i < pClosestVehicle->GetMaxPassengers(); i++)
 			{
+
+				// Take a look at: char __cdecl sub_C4F190(int a1, int a2), idk o.O(FRi), where'S the ped or the ped's pos?
+				//int iDoor = 0;
+				//int iChar = (int)"vehicleClosestDoor";
+				//DWORD dwFunc = (CGame::GetBase()+0x5B1C30);
+				//_asm
+				//{
+				//	push 0
+				//	push iChar
+				//	mov ecx, pClosestVehicle
+				//	call dwFunc
+				//	mov al, iDoor
+				//}
 				// Does this passenger seat contain a passenger?
 				if(!pClosestVehicle->GetPassenger(i))
 				{
@@ -2342,12 +2399,20 @@ bool CNetworkPlayer::IsOnScreen()
 	return false;
 }
 
-void CNetworkPlayer::SetHelmet(bool helmet)
+void CNetworkPlayer::SetHelmet(bool bHelmet)
 {
-	if(helmet)
+	if(bHelmet)
 		Scripting::GivePedHelmet(GetScriptingHandle());
-	if(!helmet)
+	if(!bHelmet)
 		Scripting::RemovePedHelmet(GetScriptingHandle(),true);
 
-	m_bHelmet = helmet;
+	m_bHelmet = bHelmet;
+}
+
+void CNetworkPlayer::UseMobilePhone(bool bUse)
+{
+	if(IsSpawned())
+		Scripting::TaskUseMobilePhone(GetScriptingHandle(),bUse);
+
+	m_bUseMobilePhone = bUse;
 }
