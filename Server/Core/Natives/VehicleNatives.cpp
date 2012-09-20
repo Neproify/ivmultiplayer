@@ -912,7 +912,7 @@ SQInteger CVehicleNatives::SwitchTaxiLights(SQVM *pVM)
 	sq_getentity(pVM,-2,&vehicleId);
 
 	SQBool check;
-	sq_getbool(pVM,-1,&check);
+	sq_getbool(pVM, -1, &check);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
