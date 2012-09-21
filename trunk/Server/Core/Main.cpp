@@ -405,12 +405,13 @@ int main(int argc, char ** argv)
 		// Print message to console.
 		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 #endif
-	//----------------------------------------------------------
+
+#ifdef WIN32
 	CLogFile::Print("");
 	CLogFile::Print("====================================================================");
-#ifdef WIN32
 	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
 #else
+	CLogFile::Print("");
 	CLogFile::Print("====================================================================");
 #endif
 	CLogFile::Print(" " VERSION_IDENTIFIER " " OS_STRING " Server");
@@ -615,7 +616,6 @@ int main(int argc, char ** argv)
 	#ifdef WIN32
 		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
 		CLogFile::Printf("Successfully loaded %d resources (%d failed).", iResourcesLoaded, iFailedResources);
-		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
 	#else
 		CLogFile::Printf("Successfully loaded %d resources (%d failed).", iResourcesLoaded, iFailedResources);
