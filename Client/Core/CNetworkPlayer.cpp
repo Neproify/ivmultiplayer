@@ -1878,6 +1878,7 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			return;
 
 		// Is the vehicle streamed in?
+		CLogFile::Printf("[DEBUG] Try to enter vehicle %d with door lock state %d",pVehicle->GetVehicleId(),pVehicle->GetDoorLockState());
 		if(pVehicle->IsStreamedIn() && pVehicle->GetDoorLockState() == 0)
 		{
 			// Create the enter vehicle task

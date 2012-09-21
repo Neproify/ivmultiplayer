@@ -106,7 +106,7 @@ typedef unsigned short EntityId;
 #endif
 
 // Mod version string
-#define MOD_VERSION_STRING "0.1 RC2 DEV Snapshot #1"
+#define MOD_VERSION_STRING "0.1 RC2 DEV"
 
 // Query port offset
 #define QUERY_PORT_OFFSET 137
@@ -118,7 +118,7 @@ typedef unsigned short EntityId;
 #define MASTERLIST_TIMEOUT 0
 #else if COMPILE_MODE == COMPILE_MODE_RELEASE
 #define MASTERLIST_ADDRESS "www.master.iv-multiplayer.com"
-#define MASTERLIST_VERSION "01RC1"
+#define MASTERLIST_VERSION "01RC2DEV"
 #define MASTERLIST_TIMEOUT 50000
 #endif
 
@@ -252,11 +252,11 @@ struct SmallSyncData
 
 struct ActorSyncData
 {
-	EntityId actorId;	// actorid
-	EntityId vehicleId;	// vehicleid
-	CVector3 vecPos;	// vehicle position
-	CVector3 vecRot;	// vehicle rotation
-	bool	 bDriving;	// driving(yes/no)
+	EntityId	actorId;	// actorid
+	EntityId	vehicleId;	// vehicleid
+	CVector3	vecPos;		// vehicle position
+	CVector3	vecRot;		// vehicle rotation
+	bool		bDriving;	// driving(yes/no)
 };
 
 struct EMPTYVEHICLESYNCPACKET
