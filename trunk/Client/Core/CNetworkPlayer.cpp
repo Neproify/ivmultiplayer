@@ -1335,6 +1335,9 @@ void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 
 	// Get the aim target
 	GetShotTarget(aimSyncData->vecShotTarget);
+
+	// Get the look at pos
+	g_pCamera->GetLookAt(aimSyncData->vecLookAt);
 }
 
 void CNetworkPlayer::AddToWorld()

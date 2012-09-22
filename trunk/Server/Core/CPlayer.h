@@ -121,6 +121,6 @@ public:
 	void           SetClothes(unsigned char ucBodyPart, unsigned char ucClothes);
 	unsigned char  GetClothes(unsigned char ucBodyPart);
 	void		   UseMobilePhone(bool bUse) { m_bMobilePhoneUse = bUse; }
-	void		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot);
+	void		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShotm, CVector3 vecLookAt);
 	void		   UpdateHeadMoveSync(CVector3 vecHead);
 };

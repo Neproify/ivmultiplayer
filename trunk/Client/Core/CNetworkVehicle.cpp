@@ -64,6 +64,7 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_bGpsState = false;
 	m_bActorVehicle = false;
 	m_bFirstStreamIn = false;
+	m_bActive = false;
 }
 
 CNetworkVehicle::~CNetworkVehicle()
@@ -81,6 +82,24 @@ CNetworkVehicle::~CNetworkVehicle()
 
 	// Tell the streamer to delete us
 	OnDelete();
+}
+
+bool CNetworkVehicle::IsSpawned()
+{
+	if(m_pVehicle != NULL)
+	{
+		if(m_pVehicle->GetEntity() != NULL)
+		{
+			if(!m_bActive)
+				return false;
+			else
+				return true;
+		}
+		else
+			return false;
+	}
+	else
+		return false;
 }
 
 bool CNetworkVehicle::IsOccupied()
@@ -225,6 +244,8 @@ bool CNetworkVehicle::Create()
 
 		// Try fix floating bug
 		FixCarFloating();
+
+		m_bActive = true;
 		return true;
 	}
 
@@ -281,6 +302,8 @@ void CNetworkVehicle::Destroy()
 
 		// Delete the vehicle instance
 		SAFE_DELETE(m_pVehicle);
+
+		m_bActive = false;
 	}
 }
 

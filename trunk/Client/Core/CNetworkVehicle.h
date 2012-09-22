@@ -65,6 +65,7 @@ private:
 	bool			 m_bGpsState;
 	bool			 m_bActorVehicle;
 	bool			 m_bFirstStreamIn;
+	bool			 m_bActive;
 
 	bool             Create();
 	void             Destroy();
@@ -81,7 +82,7 @@ public:
 	CIVVehicle *     GetGameVehicle() { return m_pVehicle; }
 	CIVModelInfo   * GetModelInfo() { return m_pModelInfo; }
 
-	bool             IsSpawned() { return (m_pVehicle != NULL); }
+	bool             IsSpawned();
 	bool             IsOccupied();
 
 	void			 SetSpawnPosition(CVector3 vecPos) { m_vecSpawnPosition = vecPos; }

@@ -890,16 +890,12 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 	if(!pBitStream)
 		return;
 
-	/* Ignore this for now, as the client will recieve PlayerSpawn RPCs while connecting.
-	if(!g_pNetworkManager->HasJoinedGame())
-		return; */
-
 	EntityId playerId;
 	pBitStream->ReadCompressed(playerId);
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
-	// Is the player valid?
-	if(pPlayer)
+	// Is the player valid and active?
+	if(pPlayer && g_pPlayerManager->IsActive(pPlayer->GetPlayerId()))
 	{
 		// Is it the local player?
 		if(pPlayer->IsLocalPlayer())
@@ -928,13 +924,20 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pBitStream->Read(vecSpawnPos);
 			pBitStream->Read(fHeading);
 
+			// Reset health to 200(IV Health + 100), otherwise player is "dead"
+			pPlayer->SetHealth(200);
+
 			// If the player is already spawned(connected) -> clear die task
-			if(pPlayer->IsSpawned())
-				pPlayer->ClearDieTask();
+			pPlayer->ClearDieTask();
+			
+			// Remove the player to reset all animations and readd him
+			pPlayer->RemoveFromWorld();
+			Sleep(10); // wait some ms
+			pPlayer->AddToWorld();
 
 			// Reset health to 200(IV Health + 100), otherwise player is "dead"
-			if(pPlayer->IsSpawned())
-				pPlayer->SetHealth(200);
+			pPlayer->SetHealth(200);
+			pPlayer->ClearDieTask();
 
 			// Spawn player
 			g_pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
@@ -1054,10 +1057,12 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 			bool helmet = m_bHelmet;
 			pPlayer->SetHelmet(helmet);
 
-			pRemotePlayer->StoreOnFootSync(&syncPacket);
-
+			// Store aimdata before updating foot stuff, otherwise the hitbox has moved
 			if(bHasAimSyncData)
 				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
+
+			pRemotePlayer->StoreOnFootSync(&syncPacket);
+
 		}
 	}
 }
@@ -1096,10 +1101,12 @@ void CClientRPCHandler::InVehicleSync(CBitStream * pBitStream, CPlayerSocket * p
 			// Set the Helmet
 			bool helmet = m_bHelmet;
 			pPlayer->SetHelmet(helmet);
-			pRemotePlayer->StoreInVehicleSync(vehicleId, &syncPacket);
 
+			// Store aimdata before updating foot stuff, otherwise the hitbox has moved
 			if(bHasAimSyncData)
 				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
+
+			pRemotePlayer->StoreInVehicleSync(vehicleId, &syncPacket);
 		}
 	}
 }
@@ -1137,10 +1144,12 @@ void CClientRPCHandler::PassengerSync(CBitStream * pBitStream, CPlayerSocket * p
 			// Set the Helmet
 			bool helmet = m_bHelmet;
 			pPlayer->SetHelmet(helmet);
-			pRemotePlayer->StorePassengerSync(vehicleId, &syncPacket);
 
+			// Store aimdata before updating foot stuff, otherwise the hitbox has moved
 			if(bHasAimSyncData)
 				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
+
+			pRemotePlayer->StorePassengerSync(vehicleId, &syncPacket);
 		}
 	}
 }
@@ -1167,10 +1176,11 @@ void CClientRPCHandler::SmallSync(CBitStream * pBitStream, CPlayerSocket * pSend
 		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(pPlayer);
 		if(pRemotePlayer)
 		{
-			pRemotePlayer->StoreSmallSync(&syncPacket);
-
+			// Store aimdata before updating foot stuff, otherwise the hitbox has moved
 			if(bHasAimSyncData)
 				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
+
+			pRemotePlayer->StoreSmallSync(&syncPacket);
 		}
 	}
 }
