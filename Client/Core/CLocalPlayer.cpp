@@ -655,31 +655,34 @@ void CLocalPlayer::SendEmptyVehicleSync()
 	CBitStream bsSend;
 	int uiOccupants = 0;
 
-	for(EntityId iD = 0; iD < g_pVehicleManager->GetCount(); iD++)
+	if(IsSpawned() && g_pVehicleManager && g_pNetworkManager->IsConnected())
 	{
-		if(g_pVehicleManager->Exists(iD))
+		for(EntityId iD = 0; iD < g_pVehicleManager->GetCount(); iD++)
 		{
-			if(g_pVehicleManager->Get(iD)->IsSpawned() && g_pVehicleManager->Get(iD)->IsStreamedIn())
+			if(g_pVehicleManager->Exists(iD))
 			{
-				// Reset stuff
-				uiOccupants = 0;
-				bsSend.Reset();
+				if(g_pVehicleManager->Get(iD)->IsSpawned() && g_pVehicleManager->Get(iD)->IsStreamedIn())
+				{
+					// Reset stuff
+					uiOccupants = 0;
+					bsSend.Reset();
 
-				for(BYTE i = 0; i < g_pVehicleManager->Get(iD)->GetMaxPassengers(); i++)
-				{
-					// Does this passenger seat contain a passenger?
-					if(g_pVehicleManager->Get(iD)->GetPassenger(i))
+					for(BYTE i = 0; i < g_pVehicleManager->Get(iD)->GetMaxPassengers(); i++)
 					{
-						uiOccupants = 1;
-						break;
+						// Does this passenger seat contain a passenger?
+						if(g_pVehicleManager->Get(iD)->GetPassenger(i))
+						{
+							uiOccupants = 1;
+							break;
+						}
 					}
-				}
-				if(uiOccupants == 0)
-				{
-					g_pVehicleManager->Get(iD)->StoreEmptySync(&syncPacket);
+					if(uiOccupants == 0)
+					{
+						g_pVehicleManager->Get(iD)->StoreEmptySync(&syncPacket);
 			
-					bsSend.Write((char *)&syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
-					g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+						bsSend.Write((char *)&syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
+						g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+					}
 				}
 			}
 		}

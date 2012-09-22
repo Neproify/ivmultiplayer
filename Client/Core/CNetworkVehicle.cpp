@@ -84,6 +84,7 @@ CNetworkVehicle::~CNetworkVehicle()
 	OnDelete();
 }
 
+/*
 bool CNetworkVehicle::IsSpawned()
 {
 	if(m_pVehicle != NULL)
@@ -100,7 +101,7 @@ bool CNetworkVehicle::IsSpawned()
 	}
 	else
 		return false;
-}
+}*/
 
 bool CNetworkVehicle::IsOccupied()
 {
@@ -1070,11 +1071,16 @@ void CNetworkVehicle::ResetInterpolation()
 	RemoveTargetRotation();
 }
 
+void CNetworkVehicle::UpdateInterior(unsigned int uiInterior)
+{
+	SetInterior(uiInterior);
+}
+
 void CNetworkVehicle::SetInterior(unsigned int uiInterior)
 {
 	// TODO: Fix this (disables physics for cars when you enter & leave an interior - you can't drive nor close the door/push them) 
-	/*if(IsSpawned() && uiInterior != GetInterior() && g_pLocalPlayer->GetVehicle()->GetVehicleId() != m_vehicleId)
-		Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);*/
+	if(IsSpawned() && uiInterior != GetInterior() && g_pLocalPlayer->GetVehicle()->GetVehicleId() != m_vehicleId)
+		Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
 }
 
 unsigned int CNetworkVehicle::GetInterior()
