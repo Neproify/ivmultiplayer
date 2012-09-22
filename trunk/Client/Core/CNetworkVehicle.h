@@ -82,7 +82,7 @@ public:
 	CIVVehicle *     GetGameVehicle() { return m_pVehicle; }
 	CIVModelInfo   * GetModelInfo() { return m_pModelInfo; }
 
-	bool             IsSpawned();
+	bool             IsSpawned() { return (m_pVehicle != NULL); }
 	bool             IsOccupied();
 
 	void			 SetSpawnPosition(CVector3 vecPos) { m_vecSpawnPosition = vecPos; }
@@ -148,6 +148,8 @@ public:
 
 	void             Interpolate();
 	void             ResetInterpolation();
+
+	void			 UpdateInterior(unsigned int uiInterior);
 
 	void             Pulse();
 	void             UpdateTargetPosition();
