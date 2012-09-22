@@ -16,10 +16,12 @@
 #include "Scripting.h"
 #include "CLocalPlayer.h"
 #include "CGame.h"
+#include "CPlayerManager.h"
 
 extern CChatWindow * g_pChatWindow;
 extern CVehicleManager * g_pVehicleManager;
 extern CLocalPlayer * g_pLocalPlayer;
+extern CPlayerManager * g_pPlayerManager;
 
 CRemotePlayer::CRemotePlayer()
 {
@@ -68,7 +70,7 @@ void CRemotePlayer::Init()
 {
 	if(IsSpawned())
 	{
-		ToggleRagdoll(true);
+		ToggleRagdoll(false);
 		SetColor(GetColor());
 		Scripting::SetPedDiesWhenInjured(GetScriptingHandle(), false);
 		Scripting::SetCharInvincible(GetScriptingHandle(), true);
@@ -87,6 +89,10 @@ void CRemotePlayer::Init()
 
 void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 {
+	// Check if the player isn't avaiable(disconnect etc)
+	if(!g_pPlayerManager->IsActive(GetPlayerId()))
+		return;
+	
 	// If we are in a vehicle remove ourselves from it
 	if(IsInVehicle())
 		RemoveFromVehicle();
@@ -163,6 +169,10 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 
 void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * syncPacket)
 {
+	// Check if the player isn't avaiable(disconnect etc)
+	if(!g_pPlayerManager->IsActive(GetPlayerId()))
+		return;
+
 	// Get the vehicle
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
@@ -193,10 +203,10 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		SetControlState(&syncPacket->controlState);
 
 		// Set their vehicles target position
-		pVehicle->SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
+		pVehicle->SetTargetPosition(syncPacket->vecPos, TICK_RATE/**2*/);
 
 		// Set their vehicles target rotation
-		pVehicle->SetTargetRotation(syncPacket->vecRotation, TICK_RATE*2);
+		pVehicle->SetTargetRotation(syncPacket->vecRotation, TICK_RATE/**2*/);
 		
 		// Check if we have no bike(otherwise -> shake shake, shake shake shake IT! :P)
 		if(pVehicle->GetModelInfo()->GetIndex() < 105 || pVehicle->GetModelInfo()->GetIndex() > 111)
@@ -300,6 +310,10 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 
 void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * syncPacket)
 {
+	// Check if the player isn't avaiable(disconnect etc)
+	if(!g_pPlayerManager->IsActive(GetPlayerId()))
+		return;
+
 	// Get the vehicle
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
@@ -346,6 +360,10 @@ void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * s
 
 void CRemotePlayer::StoreSmallSync(SmallSyncData * syncPacket)
 {
+	// Check if the player isn't avaiable(disconnect etc)
+	if(!g_pPlayerManager->IsActive(GetPlayerId()))
+		return;
+
 	// Set their control state
 	SetControlState(&syncPacket->controlState);
 

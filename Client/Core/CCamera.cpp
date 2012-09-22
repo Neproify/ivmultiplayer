@@ -13,6 +13,7 @@
 #include <CLogFile.h>
 #include "Scripting.h"
 #include "CLocalPlayer.h"
+#include <Math/CMath.h>
 
 extern CLocalPlayer * g_pLocalPlayer;
 
@@ -143,7 +144,7 @@ void CCamera::SetLookAt(const CVector3& vecLookAt)
 	// Load the world at the look at
 	CGame::GetStreaming()->LoadWorldAtPosition(vecLookAt);
 
-	// Set the script cam look at | Fix native!
+	// Set the script cam look at | Or we have to use the hook code?(CGame)
 	Scripting::PointCamAtCoord(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ);
 }
 
@@ -162,7 +163,10 @@ void CCamera::GetLookAt(CVector3& vecLookAt)
 	vecCamLookAt.fY = vecCamPosition.fY + /*floatmul(*/vecCamForward.fY/*, fScale)*/;
 	vecCamLookAt.fZ = vecCamPosition.fZ + /*floatmul(*/vecCamForward.fZ/*, fScale)*/;
 
-	float fScale = 10.0f;
+	// Calculate fScale
+	CVector3 vecFinalCamLookAt = Math::GetOffsetDegrees(vecCamPosition,vecCamForward);
+	float fScale = (vecFinalCamLookAt.Length()/2);
+
 	vecCamLookAt.fX = vecCamPosition.fX + (vecCamForward.fX * fScale);
 	vecCamLookAt.fY = vecCamPosition.fY + (vecCamForward.fY * fScale);
 	vecCamLookAt.fZ = vecCamPosition.fZ + (vecCamForward.fZ * fScale);

@@ -268,16 +268,24 @@ bool CPlayerManager::Remove(EntityId playerId)
 	}
 
 	m_bActive[playerId] = false;
-	m_pPlayers[playerId]->Destroy();
-	m_pPlayers[playerId]->Teleport(CVector3(0.0f, 0.0f, -20.0f));
 
-	CNetworkPlayer * pPlayer = GetAt(playerId);
+	// Now the player won't be synced anymore, now we can delete him
+
+	// Teleport him away so we can't see him anymore
+	m_pPlayers[playerId]->Teleport(CVector3(0.0f, 0.0f, -20.0f));
+	
+	// Destroy him now...
+	m_pPlayers[playerId]->Destroy();
+
+	// Enable that if we have to destroy stuff  in cremoteplayer
+	/*CNetworkPlayer * pPlayer = GetAt(playerId);
 	if(pPlayer && !pPlayer->IsLocalPlayer())
 	{
 		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
 		if(pRemotePlayer)
 			pRemotePlayer->Destroy();
-	}
+	}*/
+
 	//SAFE_DELETE(m_pPlayers[playerId]);
 	return true;
 }
@@ -299,17 +307,11 @@ void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos
 	CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(m_pPlayers[playerId]);
 	pRemotePlayer->Spawn(iModelId, vecSpawnPos, fSpawnHeading, true);
 
-	// Enable this when set skin at spawn isn't working..
-	/*
-	while(!pRemotePlayer->IsSpawned())
-	{
-		//Wait
-		Sleep(5);
-	}
-
-	if(m_pPlayers[playerId]->IsSpawned() && m_pPlayers[playerId]->GetGamePlayerPed() != NULL)
-		m_pPlayers[playerId]->SetModel(SkinIdToModelHash(iModelId));
-	*/
+	/*if(pRemotePlayer->GetGamePlayerPed() != NULL && pRemotePlayer->GetModelInfo() != NULL) {
+		if( ModelHashToSkinId(pRemotePlayer->GetModelInfo()->GetHash()) != iModelId) {
+			pRemotePlayer->SetModel(SkinIdToModelHash(iModelId));
+		}
+	}*/
 
 	if(g_pEvents)
 	{

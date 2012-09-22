@@ -283,6 +283,7 @@ struct AimSyncData
 	CVector3 vecAimTarget;		// aim target
 	CVector3 vecShotSource;		// shot source
 	CVector3 vecShotTarget;		// shot target
+	CVector3 vecLookAt;			// look at position
 };
 
 // Refuse Reasons

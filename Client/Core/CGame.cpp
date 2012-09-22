@@ -179,11 +179,11 @@ void CGame::Initialize()
 
 	if(Patch())
 	{
-// DOES this native have any function, ida says nope
-#ifdef DEBUG
-		Scripting::DebugOn();
-		CLogFile::Printf("Applied GTAIV DEBUG mode");
-#endif
+		// DOES this native have any function, ida says nope
+		#ifdef DEBUG
+			Scripting::DebugOn();
+			CLogFile::Printf("Applied GTAIV DEBUG mode");
+		#endif
 
 		CLogFile::Printf("Applied patches");
 		InstallKeySyncHooks();
@@ -205,7 +205,7 @@ void CGame::Initialize()
 	}
 
 	// Replace "Loading .." with "IV:MP is loading...", some user say that the label sometimes is shown
-	Scripting::SetMsgForLoadingScreen("IV:MP is loading....");
+	//Scripting::SetMsgForLoadingScreen("IV:MP is loading....");
 
 	SetInputState(true);
 	SetState(GAME_STATE_NONE);
