@@ -25,8 +25,8 @@
 // Vehicle functions
 #include "Natives/VehicleNatives.h"
 
-// GUI functions
-#include "Natives/GUINatives.h"
-
 // Audio functions
 #include "Natives/AudioNatives.h"
+
+// GUI functions
+#include "Natives/GUINatives.h"

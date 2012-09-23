@@ -7,11 +7,13 @@
 //
 //==============================================================================
 
+#include "CD3D9Webkit.hpp"
 #include "CClientScriptGUIManager.h"
 #include "CGUI.h"
 #include <Common.h>
 
 extern CGUI * g_pGUI;
+extern CD3D9WebKit * g_pWebkit;
 
 CClientScriptGUIManager::CClientScriptGUIManager()
 {
@@ -50,6 +52,13 @@ void CClientScriptGUIManager::Delete(CEGUI::Window * pWindow)
 		// Is this the element we are looking for?
 		if(pElement && pElement->pWindow == pWindow)
 		{
+			// Check if this window present in d3d9webkit
+			CD3D9WebView * pView = g_pWebkit->GetView(pWindow);
+			if(pView)
+			{
+				g_pWebkit->DestroyView(pView);
+			}
+
 			// Remove the GUI window
 			g_pGUI->RemoveGUIWindow(pWindow);
 

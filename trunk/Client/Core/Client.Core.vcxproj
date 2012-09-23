@@ -122,8 +122,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AimSync.h" />
-    <ClInclude Include="AnimGroups.h" />
     <ClInclude Include="CD3D9Webkit.hpp" />
+    <ClInclude Include="AnimGroups.h" />
     <ClInclude Include="CDebugView.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="Input.h" />
@@ -302,6 +302,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AimSync.cpp" />
+    <ClCompile Include="CD3D9Webkit.cpp" />
     <ClCompile Include="CDebugView.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Input.cpp" />
