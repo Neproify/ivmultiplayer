@@ -86,6 +86,21 @@ _BEGIN_CLASS(GUIImage)
 _MEMBER_FUNCTION(GUIImage, constructor, 1, "s")
 _END_CLASS_BASE(GUIImage, GUIElement)
 
+// GUIWebView
+_BEGIN_CLASS(GUIWebView)
+_MEMBER_FUNCTION(GUIWebView, constructor, 3, "iis")
+_MEMBER_FUNCTION(GUIWebView, setURI, 1, "s")
+_MEMBER_FUNCTION(GUIWebView, evaluateJavaScript, 1, "s")
+_MEMBER_FUNCTION(GUIWebView, sendSignal, 1, "s")
+_MEMBER_FUNCTION(GUIWebView, setHTML, 1, "s")
+_MEMBER_FUNCTION(GUIWebView, setElementText, 2, "ss")
+_MEMBER_FUNCTION(GUIWebView, getLoadInfo, 0, NULL)
+_MEMBER_FUNCTION(GUIWebView, clickElement, 1, "s")
+_MEMBER_FUNCTION(GUIWebView, setSize, 2, "ii")
+_MEMBER_FUNCTION(GUIWebView, registerJavaScriptMethod, 1, "s")
+_MEMBER_FUNCTION(GUIWebView, draw, 4, "iiii")
+_END_CLASS_BASE(GUIWebView, GUIElement)
+
 // Audio
 _BEGIN_CLASS(Audio)
 _MEMBER_FUNCTION(Audio, constructor, 3, "bbs")
@@ -101,6 +116,7 @@ _MEMBER_FUNCTION(Audio, setPosition, 4, "ffff")
 _MEMBER_FUNCTION(Audio, clearPosition, 0, NULL)
 _MEMBER_FUNCTION(Audio, usePositionSystem, 1, "b")
 _END_CLASS(Audio)
+
 
 CClientScriptManager::CClientScriptManager()
 {
@@ -157,6 +173,10 @@ CClientScriptManager::CClientScriptManager()
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIImage));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIProgressBar));
 	m_pScripting->RegisterClass(&_CLASS_DECL(Audio));
+
+	#ifdef IVMP_WEBKIT
+		m_pScripting->RegisterClass(&_CLASS_DECL(GUIWebView));
+	#endif
 }
 
 CClientScriptManager::~CClientScriptManager()

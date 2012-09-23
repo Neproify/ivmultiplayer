@@ -15,6 +15,7 @@
 #include "CModelManager.h"
 #include "SharedUtility.h"
 #include "CFPSCounter.h"
+#include "CD3D9Webkit.hpp"
 
 extern CInputWindow * g_pInputWindow;
 extern CChatWindow * g_pChatWindow;
@@ -23,7 +24,8 @@ extern CNetworkManager * g_pNetworkManager;
 extern CPlayerManager * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
 extern CModelManager * g_pModelManager;
-extern CFPSCounter * g_pFPSCounter;;
+extern CFPSCounter * g_pFPSCounter;
+extern CD3D9WebKit * g_pWebkit;
 
 void QuitCommand(char * szParams)
 {
@@ -35,7 +37,7 @@ void QuitCommand(char * szParams)
 	SAFE_DELETE(g_pNetworkManager);
 
 	// Exit
-	ExitProcess(0);
+	TerminateProcess(GetCurrentProcess(), 0);
 }
 
 void QuickQuitCommand(char * szParams)

@@ -2470,19 +2470,19 @@ SQInteger CPlayerNatives::DriveAutomatic(SQVM * pVM)
 	}
 
 	// Check if we are in your vehicle
-	if(g_pVehicleManager->GetAt(vehicleId)->GetDriver()->GetPlayerId() != playerId)
+	if(g_pVehicleManager->GetAt(vehicleId)->GetDriver())
 	{
-		CLogFile::Print("Failed to activate automatic vehicle drive(given player is not as driver in given vehicle)");
-		sq_pushbool(pVM,false);
-		return false;
-	}
-
-	// Check if we have a valid player
-	if(!g_pPlayerManager->DoesExist(playerId))
-	{
-		CLogFile::Print("Failed to activate automatic vehicle drive(wrong player(not valid))");
-		sq_pushbool(pVM,false);
-		return false;
+		if(g_pVehicleManager->GetAt(vehicleId)->GetDriver()->GetPlayerId() == playerId)
+		{
+			CLogFile::Print("Failed to activate automatic vehicle drive(given player is not as driver in given vehicle)");
+			sq_pushbool(pVM,false);
+			return false;
+		}
+		else {
+			CLogFile::Print("Failed to activate automatic vehicle drive(no driver found)");
+			sq_pushbool(pVM,false);
+			return false;
+		}
 	}
 	
 	CBitStream bsSend;

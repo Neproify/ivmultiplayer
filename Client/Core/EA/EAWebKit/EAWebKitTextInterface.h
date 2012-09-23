@@ -272,18 +272,18 @@ namespace EA
         // For storing text effect attributes
         struct TextEffectData
         {
-            Effect  type;
+            Effect  eatype;
             int   x;            // Multi use. Can bue used as an x offset param
             int   y;            // Multi use.  Can be used for a y offset param
             int   blur;         // 0-20 mostly, beyond that just seems to give little result. 
             Color c;            // Effect color
             Color cBase;        // Pen color
             
-            TextEffectData() : type(kEffectNone), x(0), y(0), blur(0), c(0), cBase(0) {}
+            TextEffectData() : eatype(kEffectNone), x(0), y(0), blur(0), c(0), cBase(0) {}
 
             bool operator==(const TextEffectData& other) const
             {
-               return type == other.type && x == other.x && y == other.y
+               return eatype == other.eatype && x == other.x && y == other.y
                   && blur == other.blur && c == other.c && cBase == other.cBase;
             }
         };
