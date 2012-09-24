@@ -567,6 +567,102 @@ void CIVVehicle::GetDeformation(CVector3& vecPos)
 	}
 }
 
-// Set Lights(?)
-// WORD or BYTE?
-//*(BYTE *)(pVehicle + 0x1112) ^= ((char)iState ^*(BYTE *)(pVehicle + 0x1112) & 3;
+void CIVVehicle::SetCarCanBeDamaged(bool bDamage)
+{
+    IVVehicle * pVehicle = GetVehicle();
+    if(pVehicle)
+    {
+        DWORD byteFlagDamage = *(DWORD *)(pVehicle + 0x118); // 280 (flag?)
+        if(bDamage)
+            *(DWORD *)byteFlagDamage &= 0x400u;
+        else
+            *(DWORD *)byteFlagDamage |= 0xFFFFFBFFu;
+    }
+}
+
+void CIVVehicle::RemoveCarWindow(int iWindow)
+{
+    IVVehicle * pVehicle = GetVehicle();
+    if(pVehicle)
+    {
+        DWORD dwFunc = (CGame::GetBase() + 0x9C6500);
+        _asm
+        {
+            push iWindow
+            mov ecx, pVehicle
+            call dwFunc
+        }
+    }
+}
+
+void CIVVehicle::SetLightsState(int iState) // 0(on),1(aways off),2(always on) // doesn't work - i know why wait
+{
+    IVVehicle * pVehicle = GetVehicle();
+    if(pVehicle)
+        *(WORD *)(pVehicle + 0x1112) ^= ((char)iState ^ *(WORD *)(pVehicle + 0x1112)) & 3; // 4370
+}
+
+int CIVVehicle::GetLightsState()
+{
+    IVVehicle * pVehicle = GetVehicle();
+    if(pVehicle)
+    {
+        return (*(WORD  *)(pVehicle + 0x1112)); // 4370(flag?)
+    }
+    return 0;
+}
+
+void CIVVehicle::RemoveVehicleWindow(Scripting::eVehicleWindow window)
+{
+        IVVehicle *pVehicle = GetVehicle();
+        if(pVehicle)
+        {
+                DWORD CVehicle__RemoveVehicleWindow = (CGame::GetBase() + 0x9C6500);
+                _asm
+                {
+                        push window
+                        mov ecx, pVehicle
+                        call CVehicle__RemoveVehicleWindow
+                }
+        }
+}
+
+bool CIVVehicle::IsCarInWater()
+{
+    IVVehicle *pVehicle = GetVehicle();
+    
+    bool bInWater = false;
+    if(pVehicle)
+    {
+        if( *(int *)(pVehicle + 0x1354) == 2 )
+        {
+            bInWater = *(BYTE *)(pVehicle + 0x1360) & 1;   
+        } else {
+                        if((*(BYTE *)(pVehicle + 0x118) & 1) || ((*(DWORD *)(pVehicle + 0x6C) != NULL) && *(BYTE *)(pVehicle + 0x141)))
+                                bInWater = true;
+                }
+    }
+    return  bInWater;
+}
+
+void CIVVehicle::SetCarCanBurstTyres(bool bState)
+{
+    IVVehicle *pVehicle = GetVehicle();
+    if(pVehicle)
+    {
+                if(bState)
+                        *(BYTE *)(pVehicle + 0xF67) &= 0xEFu;
+                else
+                        *(BYTE *)(pVehicle + 0xF67) |= 0x10u;
+        }
+}
+
+bool CIVVehicle::GetCarCanBurstTyres()
+{
+    IVVehicle *pVehicle = GetVehicle();
+    if(pVehicle)
+    {
+                return (*(BYTE *)(pVehicle + 0xF67) & 0xEFu);
+        }
+        return false;
+}

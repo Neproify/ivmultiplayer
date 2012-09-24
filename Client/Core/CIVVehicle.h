@@ -11,6 +11,7 @@
 
 #include "CIVPhysical.h"
 #include "CIVPed.h"
+#include "ScriptingEnums.h"
 
 // CVehicle + 0x194 = CVehicle::Fix
 
@@ -154,4 +155,13 @@ public:
 	bool		GetGPSState();
 	void		BurstCarTyre(int iTyre);
 	void		GetDeformation(CVector3& vecPos);
+
+	void		SetCarCanBeDamaged(bool bDamage);
+	void		RemoveCarWindow(int iWindow);
+	void		SetLightsState(int iState);
+	int			GetLightsState();
+	void		RemoveVehicleWindow(Scripting::eVehicleWindow window);
+	bool		IsCarInWater();
+	void		SetCarCanBurstTyres(bool bState);
+	bool		GetCarCanBurstTyres();
 };
