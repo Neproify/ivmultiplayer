@@ -78,5 +78,11 @@ function onKeyPress(key, status)
 			showscoreboard = false;
 		}
 	}
+	
+	// engine start code...
+	if(key == "y" && status == "down")
+	{
+		triggerServerEvent("switchEngine");
+	}
 }
 addEvent("keyPress", onKeyPress);

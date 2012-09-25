@@ -753,8 +753,8 @@ void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 	if(IsSpawned() && IsStreamedIn())
 	{
 		emptyVehicleSync->vehicleId = GetVehicleId();
-		GetPosition(emptyVehicleSync->vecPosition);
-		GetRotation(emptyVehicleSync->vecRotation);
+		/*GetPosition(emptyVehicleSync->vecPosition);
+		GetRotation(emptyVehicleSync->vecRotation);*/
 		emptyVehicleSync->uiHealth = GetHealth();
 		emptyVehicleSync->fPetrolHealth = GetPetrolTankHealth();
 		emptyVehicleSync->bLights = GetLightsState();
@@ -762,11 +762,10 @@ void CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 		emptyVehicleSync->bSirenState = GetSirenState();
 		emptyVehicleSync->bEngineStatus = GetEngineState();
 		emptyVehicleSync->fDirtLevel = GetDirtLevel();
-		GetTurnSpeed(emptyVehicleSync->vecTurnSpeed);
-		GetMoveSpeed(emptyVehicleSync->vecMoveSpeed);
+		/*GetTurnSpeed(emptyVehicleSync->vecTurnSpeed);
+		GetMoveSpeed(emptyVehicleSync->vecMoveSpeed);*/
 
-		CVector3 vecPos;
-		GetPosition(vecPos);
+		CVector3 vecPos; GetPosition(vecPos);
 		if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f || vecPos.fZ < -1.0f)
 		{
 			if(Scripting::IsCarDead(GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && vecPos.fZ < -1.0f))
