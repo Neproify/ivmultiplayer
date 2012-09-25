@@ -59,7 +59,7 @@
 #include "CFireManager.h"
 
 #ifdef IVMP_WEBKIT
-	#include "CD3D9Webkit.hpp"
+	//#include "CD3D9Webkit.hpp"
 #endif
 
 IDirect3DDevice9     * g_pDevice = NULL;
@@ -95,8 +95,8 @@ CClientTaskManager   * g_pClientTaskManager = NULL;
 CFireManager		 * g_pFireManager = NULL;
 
 #ifdef IVMP_WEBKIT
-	CD3D9WebKit * g_pWebkit;
-	CD3D9WebView * g_pWebView;
+	//CD3D9WebKit * g_pWebkit;
+	//CD3D9WebView * g_pWebView;
 #endif
 
 bool		   g_bGameLoaded = false;
@@ -453,13 +453,14 @@ void Direct3DRender()
 		g_pGUI->Render();
 
 	// If our WebKit class exists render it
+	/*	
 	#ifdef IVMP_WEBKIT
-	if(g_pWebkit)
-	{
-		g_pWebkit->RenderAll();
-	}
+		if(g_pWebkit)
+		{
+			g_pWebkit->RenderAll();
+		}
 	#endif
-
+	*/
 	// If our main menu exists process it
 	if(g_pMainMenu)
 		g_pMainMenu->Process();
@@ -693,9 +694,10 @@ void Direct3DReset()
 			g_pVersionIdentifier->setAlpha(0.6f);
 			g_pVersionIdentifier->setVisible(true);
 
-			#ifdef IVMP_WEBKIT
+			/*#ifdef IVMP_WEBKIT
 				g_pWebkit = new CD3D9WebKit();
 			#endif
+			*/
 
 			// TODO: Make the default stuff (Chat window, main menu, e.t.c) a xml layout so it
 			// can be edited by users
