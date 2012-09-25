@@ -2470,28 +2470,26 @@ SQInteger CPlayerNatives::DriveAutomatic(SQVM * pVM)
 	}
 
 	// Check if we are in your vehicle
-	if(g_pVehicleManager->GetAt(vehicleId)->GetDriver())
+	if(g_pVehicleManager->GetAt(vehicleId)->GetDriver() != NULL)
 	{
-		if(g_pVehicleManager->GetAt(vehicleId)->GetDriver()->GetPlayerId() == playerId)
+		if(g_pVehicleManager->GetAt(vehicleId)->GetDriver()->GetPlayerId() != playerId)
 		{
 			CLogFile::Print("Failed to activate automatic vehicle drive(given player is not as driver in given vehicle)");
 			sq_pushbool(pVM,false);
 			return false;
 		}
 		else {
-			CLogFile::Print("Failed to activate automatic vehicle drive(no driver found)");
-			sq_pushbool(pVM,false);
-			return false;
+			CBitStream bsSend;
+			bsSend.Write(playerId);
+			bsSend.Write(vehicleId);
+			bsSend.Write(vecPos);
+			bsSend.Write(fSpeed);
+			bsSend.Write((int)iDrivingStyle);
+			g_pNetworkManager->RPC(RPC_ScriptingLetPlayerDriveAutomatic, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			sq_pushbool(pVM, true);
+			return 1;
 		}
 	}
-	
-	CBitStream bsSend;
-	bsSend.Write(playerId);
-	bsSend.Write(vehicleId);
-	bsSend.Write(vecPos);
-	bsSend.Write(fSpeed);
-	bsSend.Write((int)iDrivingStyle);
-	g_pNetworkManager->RPC(RPC_ScriptingLetPlayerDriveAutomatic, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-	sq_pushbool(pVM, true);
+	sq_pushbool(pVM, false);
 	return 1;
 }

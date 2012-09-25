@@ -22,7 +22,7 @@
 #include <SharedUtility.h>
 #include "../CClientScriptManager.h"
 #include <CEvents.h>
-#include "../CD3D9Webkit.hpp"
+//#include "../CD3D9Webkit.hpp"
 
 extern CPlayerManager * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
@@ -33,7 +33,7 @@ extern CGraphics * g_pGraphics;
 extern CScriptingManager * g_pScriptingManager;
 extern CClientScriptManager * g_pClientScriptManager;
 extern CEvents * g_pEvents;
-extern CD3D9WebKit * g_pWebkit;
+//extern CD3D9WebKit * g_pWebkit;
 
 bool OnButtonClick(const CEGUI::EventArgs &eventArgs)
 {
@@ -710,6 +710,8 @@ _MEMBER_FUNCTION_IMPL(GUIProgressBar, setValue)
 	return 1;
 }
 
+/*
+
 // GUIWebView
 _MEMBER_FUNCTION_IMPL(GUIWebView, constructor)
 {
@@ -942,3 +944,5 @@ _MEMBER_FUNCTION_IMPL(GUIWebView, draw)
 	sq_pushbool(pVM, true);
 	return 1;
 }
+
+*/

@@ -518,6 +518,15 @@ void _declspec(naked) CameraPointAtCoord(CVector3 * vecLookAt)
 	}
 }
 
+void _declspec(naked) CTaskSimpleStartVehicle__Process()
+{
+	_asm
+	{
+		xor al, al
+		retn 4
+	}
+}
+
 bool CGame::Patch()
 {
 	// Unprotect .text and .rdata memory and leave it unprotected
@@ -525,6 +534,7 @@ bool CGame::Patch()
 
 	if(COffsets::GetVersion() == GAME_VERSION_7)
 	{
+		/* OTHER FUNCTIONS */
 		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random amient animations)
 		// NOTE: This also disables ambient head movements and maybe some other stuff we actually want
 		*(DWORD *)(GetBase() + 0x9849F0) = 0x900004C2;
@@ -538,27 +548,11 @@ bool CGame::Patch()
 		// Hook GetLocalPlayerPed to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x817F40), (DWORD)GetLocalPlayerPed_Hook);
 
-		// Skip main menu
-		//CPatcher::InstallJmpPatch( (GetBase() + 0x402B3C), (GetBase() + 0x402C07));
-
-		// Hook GetPlayerPedFromPlayerInfo to use our own function
-		//CPatcher::InstallJmpPatch((GetBase() + 0x8788D0), (DWORD)GetPlayerPedFromPlayerInfo_Hook);
-
 		// Hook CTask::~CTask to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0xA288D0), (DWORD)CTask__Destructor_Hook);
 
 		// Hook CEpisodes::IsEpisodeAvaliable to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x814810), (DWORD)CEpisodes__IsEpisodeAvaliable_Hook);
-
-		// Force IsDLCReady to always return 0
-		// jenksta: This caused startup issues
-		//*(DWORD *)(GetBase() + 0x407320) = 90C3C032; // xor al, al; retn; nop
-
-		// Disable call to CreateWebBrowser
-		//CPatcher::InstallNopPatch((GetBase() + 0x42E91A), 5);
-
-		// Disable call to CreateSocialWebBrowser
-		//CPatcher::InstallNopPatch((GetBase() + 0x41F68E), 5);
 
 		// Disable vehicle entries
 		*(DWORD *)(GetBase() + 0x9B1ED0) = 0x0CC2C033;
@@ -571,32 +565,14 @@ bool CGame::Patch()
 		*(BYTE *)(GetBase() + 0x10F1390) = 0; // byteInternetConnectionState
 		*(DWORD *)(GetBase() + 0x7AF1A0) = 0x90C3C032; // xor al, al; retn; nop
 
-		// Disable the 'Loading...' text when the screen is faded
-		// jenksta: Disabled this to see if it fixes some issues
-		//CPatcher::InstallNopPatch((CGame::GetBase() + 0x7BC874), 5);
-		//CPatcher::InstallJmpPatch(0x422CA7, (GetBase() + 0x422CAE));
-
-		// Disable loading tune
-		//CPatcher::InstallNopPatch(0x422A92, 10);
-
-		// Don't let the game pause (Possibly use the gfwl multiplayer menu)
-		//Scripting::DisablePauseMenu(true);
-
 		// Don't load startup.sco
-		// N:IV
-		//*(BYTE *)(GetBase() + 0x809A81) = 0xEB;
-		//*(BYTE *)(GetBase() + 0x809A82) = 0x61;
-		// IV:MP
 		*(BYTE *)(GetBase() + 0x809A8A) = 0x75;
 
 		// Always start a new game
-		// TODO: Change, this is messy
-		//*(BYTE *)(g_pClient->GetBaseAddress() + 0x5B0311) = 0xEB; // jmp
-		//*(BYTE *)(g_pClient->GetBaseAddress() + 0x5B0312) = 0xAE; // +AE
-		// 0x5B0311 = 0xEB // jmp
-		// 0x5B0312 = 0xAE // +AE
 		CPatcher::InstallJmpPatch((GetBase() + 0x5B0311), (GetBase() + 0x5B03BF));
+		/* OTHER FUNCTIONS END */
 
+		/* GAME FUNCTIONS */
 		// Disable parked cars
 		CPatcher::InstallRetnPatch(GetBase() + 0xB3EDF0);
 
@@ -614,15 +590,44 @@ bool CGame::Patch()
 		// Disable fake cars
 		CPatcher::InstallRetnPatch(GetBase() + 0x9055D0);
 
-		// Overwrite the ESP Check in the func responsible for loading load screens
-		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
-
 		// Disable sleep
 		*(DWORD *)(GetBase() + 0x401835) = 1;
 
 		// Hook for pointcamatcoord
 		//CPatcher::InstallJmpPatch((GetBase() + 0xAFE840), (DWORD)CameraPointAtCoord);
 
+		// Disable auto vehicle start when player enter to it
+		CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (DWORD)CTaskSimpleStartVehicle__Process);
+
+		// Loadingscreen stuff(not needed yet)
+		//CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
+		//*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
+		/*CPatcher::InstallJmpPatch((GetBase() + 0x422CA7), (GetBase() + 0x422CAE));*/
+
+		// Fix vehicle crash
+		CPatcher::InstallJmpPatch((GetBase() + 0xCBA1F0), (GetBase() + 0xCBA230));
+		
+		// Disalbe vehicle engine noise
+		//CPatcher::InstallJmpPatch((GetBase() + 0xCEF9E0), (GetBase() + 0xCEFA1B));
+
+        // Disable auto vehicle start when player enter to it
+		//CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (GetBase() + /*0xA9F2F1*/0xA9F5D5));
+
+		// Fix player crash(sometimes)
+		//CPatcher::InstallJmpPatch((GetBase() + 0xB98400), (GetBase() + 0xB9845A));
+
+        // Increase pools and playerinfo size
+        //VPool *pPedPool = *(IVPool **)(GetBase() + COffsets::VAR_PedPool);
+		//pPedPool->m_dwEntrySize = (DWORD)100; // (Default 32, Our 100)
+		//*(DWORD **)(GetBase() + 0x11A7008) = *(DWORD **)100; // IVPlayerInfo ** (Default 32, Our 100)
+
+		// Make the game think that all stuff is already loaded
+		// TODO: int __cdecl sub_424140(char a1) and reverse stuff so we can skip the loadingscreen
+		// NOTE: Problem is now that modules and other stuff is loaded while starting the game
+		//*(DWORD *)(GetBase() + 0x18A8F48)[*(DWORD *)100 * *(DWORD *)(GetBase() + 0x18A8258)] = 0;
+		/* GAME FUNCTIONS END */
+
+		/* ERROR REPORTING */
 		// Don't initialize error reporting
 		CPatcher::InstallRetnPatch(GetBase() + 0xD356D0);
 
@@ -661,41 +666,11 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC180) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC190) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
-
-		// Loadingscreen stuff(not needed yet)
-		//CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
-		//*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
-		/*CPatcher::InstallJmpPatch((GetBase() + 0x422CA7), (GetBase() + 0x422CAE));*/
-
-		// Fix vehicle crash
-		//CPatcher::InstallNopPatch((GetBase() + 0x43B511), 6);
-		//CPatcher::InstallNopPatch((GetBase() + 0x862B7A), 6);
-		//CPatcher::InstallNopPatch((GetBase() + 0x862BDC), 6);
-		//CPatcher::InstallNopPatch((GetBase() + 0xCBA1F1), 6);
-		CPatcher::InstallJmpPatch((GetBase() + 0xCBA1F0), (GetBase() + 0xCBA230));
 		
-		// Disalbe vehicle engine noise
-		//CPatcher::InstallJmpPatch((GetBase() + 0xCEF9E0), (GetBase() + 0xCEFA1B));
+		// Overwrite the ESP Check in the func responsible for loading load screens
+		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
 
-        // Disable auto vehicle start when player enter to it
-		CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (GetBase() + /*0xA9F2F1*/0xA9F5D5));
-		//CPatcher::InstallNopPatch((GetBase() + 0x4DA1EC), 4);
-		//CPatcher::InstallJmpPatch((GetBase() + 0x439482), (GetBase() + 0x4394BC));
-		//CPatcher::InstallJmpPatch((GetBase() + 0x454E22), (GetBase() + 0x454E77)); // Not Sure
-		//CPatcher::InstallJmpPatch((GetBase() + 0x4A1600), (GetBase() + 0x4A163E));
-
-		// Fix player crash(sometimes)
-		//CPatcher::InstallJmpPatch((GetBase() + 0xB98400), (GetBase() + 0xB9845A));
-
-        // Increase pools and playerinfo size
-        //VPool *pPedPool = *(IVPool **)(GetBase() + COffsets::VAR_PedPool);
-		//pPedPool->m_dwEntrySize = (DWORD)100; // (Default 32, Our 100)
-		//*(DWORD **)(GetBase() + 0x11A7008) = *(DWORD **)100; // IVPlayerInfo ** (Default 32, Our 100)
-
-		// Make the game think that all stuff is already loaded
-		// TODO: int __cdecl sub_424140(char a1) and reverse stuff so we can skip the loadingscreen
-		// NOTE: Problem is now that modules and other stuff is loaded while starting the game
-		//*(DWORD *)(GetBase() + 0x18A8F48)[*(DWORD *)100 * *(DWORD *)(GetBase() + 0x18A8258)] = 0;
+		/* ERROR REPORTING END */
 		return true;
 	}
 
