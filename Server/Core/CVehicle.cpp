@@ -706,7 +706,7 @@ void CVehicle::StoreEmptyVehicle(EMPTYVEHICLESYNCPACKET * syncPacket)
 		SetHealth(syncPacket->uiHealth);
 
 	// Only when the vehicle stands still -> update stuff
-	if(syncPacket->vecMoveSpeed.Length() == 0)
+	/*if(syncPacket->vecMoveSpeed.Length() == 0)
 	{
 		CVector3 vecPos; GetPosition(vecPos);
 		if((vecPos-syncPacket->vecPosition).Length() > 5.0f || (vecPos-syncPacket->vecPosition).Length() < -5.0f)
@@ -723,7 +723,7 @@ void CVehicle::StoreEmptyVehicle(EMPTYVEHICLESYNCPACKET * syncPacket)
 		CVector3 vecMoveSpeed; GetMoveSpeed(vecMoveSpeed);
 		if((vecMoveSpeed-syncPacket->vecMoveSpeed).Length() > 5.0f || (vecMoveSpeed-syncPacket->vecMoveSpeed).Length() < -5.0f)
 			SetMoveSpeed(syncPacket->vecMoveSpeed);
-	}
+	}*/
 
 	/*for(unsigned int ui = 0; ui <= 3; ui++)
 	{

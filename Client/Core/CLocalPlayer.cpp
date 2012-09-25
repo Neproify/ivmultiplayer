@@ -226,7 +226,7 @@ void CLocalPlayer::Pulse()
 						}
 					}
 					// Send our empty vehicle sync
-					//SendEmptyVehicleSync();
+					SendEmptyVehicleSync();
 				}
 				else
 				{

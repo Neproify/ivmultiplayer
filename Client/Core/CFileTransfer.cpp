@@ -316,6 +316,10 @@ void CFileTransfer::Process()
 						// Check if we had already our first spawn
 						if(g_pLocalPlayer->GetFirstSpawn())
 							g_pClientScriptManager->Load(m_pDownloadFile->strName);
+
+						// If we're spawned and had our spawn, hide the download image stuff because we're already connected and the files we're refreshed serverside
+						if(g_pLocalPlayer->GetFirstSpawn() && g_pLocalPlayer->IsSpawned())
+							SetDownloadImageVisible(false);
 					}
 
 					// Remove the download file from the file list

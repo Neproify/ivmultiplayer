@@ -776,12 +776,12 @@ function onVehicleDamage(vehicleid,oldhealth,oldpetrol,newhealth,newpetrol)
 }
 addEvent("vehicleDamage",onVehicleDamage);
 
-function onPlayerShot(playerid,x,y,z,shot)
+function onPlayerShot(playerid,x,y,z,xl,yl,zl,shot)
 {
-	//if(shot)
-	//	log(format("WEP: %d SHOT(%f, %f, %f)",playerid,x,y,z));
-	//else
-	//	log(format("WEP: %d AIM(%f, %f, %f)",playerid,x,y,z));
+	if(shot)
+		log(format("WEP: %d SHOT(%f, %f, %f)|LOOKAT(%f, %f, %f)",playerid,x,y,z,xl,yl,zl));
+	else
+		log(format("WEP: %d AIM(%f, %f, %f)|LOOKAT(%f, %f, %f)",playerid,x,y,z,xl,yl,zl));
 }
 addEvent("playerShot",onPlayerShot);
 
@@ -809,3 +809,21 @@ function onVehicleRequest(playerid,vehicleid,seat)
 	return 1;
 }
 addEvent("vehicleEntryRequest", onVehicleRequest);
+
+function onSwitchEngine(playerid)
+{
+	if(!isPlayerOnFoot(playerid) && getPlayerSeatId(playerid) == 0)
+	{
+		local enginestate = getVehicleEngineState(getPlayerVehicleId(playerid));
+		setVehicleEngineState(getPlayerVehicleId(playerid),!enginestate);
+		sendPlayerMessage(playerid,"Switched Engine",0xFFFFFFAA);
+	}
+}		
+addEvent("switchEngine", onSwitchEngine);
+function onVehicleEntryComplete( playerid, vehicleid, seatid )
+{
+	if(seatid == 0){
+		sendPlayerMessage(playerid,"Press Y to turn the engine on/off",0xFFFFFFAA);
+	}
+}
+addEvent("vehicleEntryComplete", onVehicleEntryComplete);
