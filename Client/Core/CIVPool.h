@@ -12,6 +12,8 @@
 
 #include "CGame.h"
 #include "COffsets.h"
+#include <Patcher/CPatcher.h>
+#include <CLogFile.h>
 
 // From OpenLC by listener
 class IVPool
@@ -44,9 +46,6 @@ public:
 	CIVPool(IVPool * pPool)
 	{
 		m_pPool = pPool;
-
-		// TRy this?
-		//m_pPool->m_dwEntrySize = (DWORD)48;
 	}
 
 	~CIVPool()
