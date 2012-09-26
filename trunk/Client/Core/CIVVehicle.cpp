@@ -650,11 +650,11 @@ void CIVVehicle::SetCarCanBurstTyres(bool bState)
     IVVehicle *pVehicle = GetVehicle();
     if(pVehicle)
     {
-                if(bState)
-                        *(BYTE *)(pVehicle + 0xF67) &= 0xEFu;
-                else
-                        *(BYTE *)(pVehicle + 0xF67) |= 0x10u;
-        }
+            if(bState)
+                    *(BYTE *)(pVehicle + 0xF67) &= 0xEFu;
+            else
+                    *(BYTE *)(pVehicle + 0xF67) |= 0x10u;
+    }
 }
 
 bool CIVVehicle::GetCarCanBurstTyres()
@@ -663,6 +663,6 @@ bool CIVVehicle::GetCarCanBurstTyres()
     if(pVehicle)
     {
                 return (*(BYTE *)(pVehicle + 0xF67) & 0xEFu);
-        }
-        return false;
+    }
+    return false;
 }

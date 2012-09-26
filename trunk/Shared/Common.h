@@ -24,8 +24,6 @@
 // Linux stuff
 #ifdef _LINUX
 #include <Linux.h>
-#define SQInteger (int)SQInteger
-#define SQBool	  (bool)SQBool)
 #endif
 
 // Compile modes

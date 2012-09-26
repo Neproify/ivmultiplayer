@@ -38,7 +38,6 @@ extern "C" {
 #endif
 
 #ifdef _SQ64
-
 #ifdef _MSC_VER
 typedef __int64 SQInteger;
 typedef unsigned __int64 SQUnsignedInteger;

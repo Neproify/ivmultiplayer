@@ -617,9 +617,9 @@ bool CGame::Patch()
 		//CPatcher::InstallJmpPatch((GetBase() + 0xB98400), (GetBase() + 0xB9845A));
 
         // Increase pools and playerinfo size
-        //VPool *pPedPool = *(IVPool **)(GetBase() + COffsets::VAR_PedPool);
-		//pPedPool->m_dwEntrySize = (DWORD)100; // (Default 32, Our 100)
-		//*(DWORD **)(GetBase() + 0x11A7008) = *(DWORD **)100; // IVPlayerInfo ** (Default 32, Our 100)
+        // IVPool *pPedPool = *(IVPool **)(GetBase() + COffsets::VAR_PedPool);
+		// pPedPool->m_dwEntrySize = (DWORD)100; // (Default 32, Our 100)
+		// *(DWORD **)(GetBase() + 0x11A7008) = *(DWORD **)100; // IVPlayerInfo ** (Default 32, Our 100)
 
 		// Make the game think that all stuff is already loaded
 		// TODO: int __cdecl sub_424140(char a1) and reverse stuff so we can skip the loadingscreen
