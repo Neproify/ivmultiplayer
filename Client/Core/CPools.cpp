@@ -42,6 +42,25 @@ void CPools::Initialize()
 	m_pVehiclePool = new CIVPool<IVVehicle>(*(IVPool **)COffsets::VAR_VehiclePool);
 	m_pTaskPool = new CIVPool<IVTask>(*(IVPool **)COffsets::VAR_TaskPool);
 	m_pCamPool = new CIVPool<IVCam>(*(IVPool **)COffsets::VAR_CamPool);
+
+	// Increase Pedpool
+	CLogFile::Print("====================================================================");
+	CLogFile::Printf("[START]PedPool: x%p | dwEntrySize: x%p",m_pPedPool,m_pPedPool->GetPool()->m_dwEntrySize);
+	CLogFile::Printf("[START]VehiclePool: x%p | dwEntrySize: x%p",m_pVehiclePool,m_pVehiclePool->GetPool()->m_dwEntrySize);
+	DWORD dwSize;
+	for(int i = 0; i < 1/*2*/; i++) {
+		dwSize = m_pPedPool->GetPool()->m_dwEntrySize*2;
+		m_pPedPool->SetPoolEntrySize(dwSize);
+
+		dwSize = m_pVehiclePool->GetPool()->m_dwEntrySize*2;
+		m_pVehiclePool->SetPoolEntrySize(dwSize);
+
+		CLogFile::Printf("[%d]PedPool: x%p | dwEntrySize: x%p | dwUsed: x%p",i,m_pPedPool,m_pPedPool->GetPool()->m_dwEntrySize,m_pPedPool->GetPool()->m_dwUsed);
+		CLogFile::Printf("[%d]VehiclePool : x%p | dwEntrySize: x%p | dwUsed: x%p",i,m_pVehiclePool,m_pVehiclePool->GetPool()->m_dwEntrySize, m_pVehiclePool->GetPool()->m_dwUsed);
+	}
+	CLogFile::Printf("[END]PedPool: x%p | dwEntrySize: x%p",m_pPedPool,m_pPedPool->GetPool()->m_dwEntrySize);
+	CLogFile::Printf("[END]VehiclePool: x%p | dwEntrySize: x%p",m_pVehiclePool,m_pVehiclePool->GetPool()->m_dwEntrySize);
+	CLogFile::Print("====================================================================");
 }
 
 IVPlayerInfo * CPools::GetPlayerInfoFromIndex(unsigned int uiIndex)

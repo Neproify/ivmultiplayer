@@ -356,6 +356,10 @@ function onPlayerCommand(playerid, command)
 		setActorName(actor,"JeNkStAX");
 		toggleActorNametag(actor,true);
 		forceAnimationAtActor(actor,"amb@smoking_spliff","create_spliff");
+		
+		//
+		local actorcount = getActorCount();
+		sendPlayerMessage(playerid,"Actorcount: "+actorcount,0xFFFFFFAA);
 	}
 	if(cmd[0] == "/toghelmet1")
 	{
