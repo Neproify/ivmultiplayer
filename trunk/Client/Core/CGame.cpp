@@ -620,6 +620,12 @@ bool CGame::Patch()
         // IVPool *pPedPool = *(IVPool **)(GetBase() + COffsets::VAR_PedPool);
 		// pPedPool->m_dwEntrySize = (DWORD)100; // (Default 32, Our 100)
 		// *(DWORD **)(GetBase() + 0x11A7008) = *(DWORD **)100; // IVPlayerInfo ** (Default 32, Our 100)
+		
+		// Increase player info array size
+		CPatcher::Unprotect((GetBase() + 0x11A7008),4);
+		DWORD dwPlayerInfoArraySize = *(DWORD *)(GetBase() + 0x11A7008);
+		dwPlayerInfoArraySize = dwPlayerInfoArraySize*4;
+		*(DWORD *)(GetBase() + 0x11A7008) = dwPlayerInfoArraySize;
 
 		// Make the game think that all stuff is already loaded
 		// TODO: int __cdecl sub_424140(char a1) and reverse stuff so we can skip the loadingscreen

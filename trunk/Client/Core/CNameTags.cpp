@@ -86,9 +86,9 @@ void CNameTags::Draw()
 					// Check the cam position with the world position(fix desync)
 					if(((vecLookAt - vecWorldPosition).Length() * 1.35) < ((vecLocalPlayerPosition - vecWorldPosition).Length()))
 						continue;
-
+					
 					// set the position to the newest
-					vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.15f); // must be added, otherwise wrong pos
+					vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.25f); // must be added, otherwise wrong pos
 
 					// set the name
 					String strNameTag("(%d) %s",i, pPlayer->GetName().Get());
