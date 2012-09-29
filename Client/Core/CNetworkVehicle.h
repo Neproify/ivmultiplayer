@@ -149,7 +149,7 @@ public:
 	void             Interpolate();
 	void             ResetInterpolation();
 
-	void			 UpdateInterior(unsigned int uiInterior);
+	void			 UpdateInterior();
 
 	void             Pulse();
 	void             UpdateTargetPosition();

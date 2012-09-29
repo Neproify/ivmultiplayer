@@ -104,7 +104,7 @@ void CStreamableEntity::OnDelete()
 CStreamer::CStreamer()
 {
 	// Set the streaming limits (Adjust if needed)
-	m_uiStreamingLimits[STREAM_ENTITY_VEHICLE] = 64; // no more than vehicle pool size
+	m_uiStreamingLimits[STREAM_ENTITY_VEHICLE] = 256; // no more than vehicle pool size
 	m_uiStreamingLimits[STREAM_ENTITY_PICKUP] = 128; // no more than pickup pool size
 	m_uiStreamingLimits[STREAM_ENTITY_OBJECT] = 512; // no more than object pool size
 	m_uiStreamingLimits[STREAM_ENTITY_CHECKPOINT] = 64; // no more than INTERNAL_CHECKPOINT_LIMIT
