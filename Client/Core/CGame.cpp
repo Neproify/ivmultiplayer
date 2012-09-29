@@ -627,6 +627,24 @@ bool CGame::Patch()
 		dwPlayerInfoArraySize = dwPlayerInfoArraySize*4;
 		*(DWORD *)(GetBase() + 0x11A7008) = dwPlayerInfoArraySize;
 
+		/*CPatcher::Unprotect((GetBase() + 0x11A7008),4);
+		const DWORD size_11A7008 = 72;
+		DWORD dword_11A7008[72];
+		_asm 
+		{
+			mov eax, dword ptr 0x11A7008
+			mov edx, dword_11A7008
+			COPY_LOOP:
+			mov ebx, [eax] 
+			mov [eax], edx
+			mov [edx], ebx
+			inc eax
+			inc edx
+			loop COPY_LOOP
+		}
+		CPatcher::InstallJmpPatch((CGame::GetBase() + 0x11A7008),(DWORD)dword_11A7008);
+		*/
+
 		// Make the game think that all stuff is already loaded
 		// TODO: int __cdecl sub_424140(char a1) and reverse stuff so we can skip the loadingscreen
 		// NOTE: Problem is now that modules and other stuff is loaded while starting the game
