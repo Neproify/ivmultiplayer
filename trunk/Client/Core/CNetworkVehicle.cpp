@@ -439,6 +439,12 @@ void CNetworkVehicle::StreamOut()
 	// Save the engine state
 	m_bEngineStatus = GetEngineState();
 
+	// Save the vehicle basic health
+	m_uiHealth= GetHealth();
+
+	// Save the petrol tank health
+	m_fPetrolTankHealth = GetPetrolTankHealth();
+
 	// Destroy the vehicle
 	Destroy();
 }
@@ -968,6 +974,9 @@ void CNetworkVehicle::Interpolate()
 
 		// Update our target rotation
 		UpdateTargetRotation();
+		
+		// Update our interior
+		UpdateInterior();
 	}
 	else
 	{
@@ -1070,14 +1079,29 @@ void CNetworkVehicle::ResetInterpolation()
 	RemoveTargetRotation();
 }
 
-void CNetworkVehicle::UpdateInterior(unsigned int uiInterior)
+void CNetworkVehicle::UpdateInterior()
 {
-	SetInterior(uiInterior);
+	CNetworkPlayer * pPlayer = GetDriver();
+	if(pPlayer && pPlayer->IsSpawned())
+	{
+		unsigned int uiInterior = pPlayer->GetInterior();
+		if(g_pLocalPlayer->GetInterior() == uiInterior) {
+			SetInterior(uiInterior);
+		}
+		else if(g_pLocalPlayer->GetInterior() != uiInterior) {
+			SetInterior(g_pLocalPlayer->GetInterior());
+		}
+	}
+	else if(GetDriver() == NULL)
+	{
+		unsigned int uiInterior = GetInterior();
+		SetInterior(uiInterior);
+	}
+
 }
 
 void CNetworkVehicle::SetInterior(unsigned int uiInterior)
 {
-	// TODO: Fix this (disables physics for cars when you enter & leave an interior - you can't drive nor close the door/push them) 
 	if(IsSpawned() && uiInterior != GetInterior() && g_pLocalPlayer->GetVehicle()->GetVehicleId() != m_vehicleId)
 		Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
 }
