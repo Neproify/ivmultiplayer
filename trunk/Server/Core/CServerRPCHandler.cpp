@@ -115,7 +115,7 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 	bsNametags.Write(CVAR_GET_BOOL("guinametags"));
 	g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 
-		// Setup the player
+	// Setup the player
 	g_pPlayerManager->Add(playerId, strName);
 	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
@@ -145,7 +145,6 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 
 	// Let the actor manager handle the client join
 	g_pActorManager->HandleClientJoin(playerId);
-
 
 	// Construct the reply bit stream
 	bsSend.Write(playerId);

@@ -663,7 +663,7 @@ unsigned int CNetworkPlayer::GetScriptingHandle()
 
 void CNetworkPlayer::SetModel(DWORD dwModelHash)
 {
-	CLogFile::Printf("SETMODEL %p | PlayerId: %d",dwModelHash,m_playerId);
+	CLogFile::PrintDebugf("SETMODEL %p | PlayerId: %d",dwModelHash,m_playerId);
 
 	// Get the model index from the model hash
 	int iModelIndex = CGame::GetStreaming()->GetModelIndexFromHash(dwModelHash);
@@ -2045,8 +2045,20 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 		// Reset vehicle entry/exit
 		ResetVehicleEnterExit();
 		m_pVehicle = pVehicle;
+		m_pVehicle->SetDamageable(true);
 		m_byteVehicleSeatId = byteSeatId;
 		pVehicle->SetOccupant(byteSeatId, this);
+							
+		// Is this a network vehicle?
+		if(m_pVehicle->IsNetworkVehicle())
+		{
+			// Send the network rpc
+			CBitStream bitStream;
+			bitStream.Write((BYTE)VEHICLE_ENTRY_COMPLETE);
+			bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
+			bitStream.Write(m_byteVehicleSeatId);
+			g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+		}
 	}
 }
 
