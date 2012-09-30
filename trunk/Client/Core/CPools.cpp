@@ -42,6 +42,7 @@ void CPools::Initialize()
 	m_pVehiclePool = new CIVPool<IVVehicle>(*(IVPool **)COffsets::VAR_VehiclePool);
 	m_pTaskPool = new CIVPool<IVTask>(*(IVPool **)COffsets::VAR_TaskPool);
 	m_pCamPool = new CIVPool<IVCam>(*(IVPool **)COffsets::VAR_CamPool);
+	//m_pTrainPool = new CIVPool<IVTrain>(*(IVPool **)COffsets::VAR_TrainPool);
 
 	// Increase Pedpool
 	CLogFile::Print("====================================================================");

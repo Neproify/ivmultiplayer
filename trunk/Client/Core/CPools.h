@@ -16,6 +16,7 @@
 #include "CIVPlayerInfo.h"
 #include "CIVCam.h"
 #include "CIVCheckpoint.h"
+#include "CIVTrain.h"
 
 // Player info array size
 #define PLAYER_INFO_ARRAY_SIZE 32
@@ -41,6 +42,7 @@ private:
 	//#define VAR_EventPool_7 0x152F4B4 // Size: 300
 	CIVPool<IVCam>     * m_pCamPool;
 	//#define VAR_TaskInfoPool_7 0x1618040
+	CIVPool<IVTrain>	* m_pTrainPool;
 
 	// Custom checkpoint array
 	IVCheckpoint         m_checkpoints[CHECKPOINT_ARRAY_SIZE];
