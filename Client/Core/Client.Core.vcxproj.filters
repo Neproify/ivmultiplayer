@@ -720,6 +720,9 @@
     <ClInclude Include="CIVTrain.h">
       <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
+    <ClInclude Include="CTrains.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">
@@ -1165,6 +1168,9 @@
     </ClCompile>
     <ClCompile Include="CIVTrain.cpp">
       <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CTrains.cpp">
+      <Filter>Source Files\Game</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

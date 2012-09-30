@@ -127,6 +127,7 @@
     <ClInclude Include="CDebugView.h" />
     <ClInclude Include="CIVTrain.h" />
     <ClInclude Include="Commands.h" />
+    <ClInclude Include="CTrains.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="CChatWindow.h" />
     <ClInclude Include="CCredits.h" />
@@ -306,6 +307,7 @@
     <ClCompile Include="CDebugView.cpp" />
     <ClCompile Include="CIVTrain.cpp" />
     <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="CTrains.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="CDirect3D9Proxy.cpp" />

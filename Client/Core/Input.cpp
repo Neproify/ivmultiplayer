@@ -29,6 +29,7 @@
 #include "CPlayerManager.h"
 #include "CActorManager.h"
 #include "CVehicleManager.h"
+#include "CIVTrain.h"
 
 WNDPROC           m_wWndProc = NULL;
 std::list<String> pressedKeys;
@@ -262,6 +263,12 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			}
 		}
 
+		if(uMsg == WM_KEYUP && wParam == VK_F1)
+		{
+			//CIVTrain * g_PTrain = new CIVTrain();
+			g_pChatWindow->AddInfoMessage("Train printed!");
+		}
+
 		if(uMsg == WM_KEYUP && wParam == VK_F2)
 		{
 			/*CVector3 vecPos; g_pLocalPlayer->GetPosition(vecPos);
@@ -350,7 +357,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			CLogFile::Printf("AT 0x15BDA30: 0x(%p)",t9);
 
 			DWORD dwBase = *(DWORD *)(CGame::GetBase() + 0x15BE4C8);
-			DWORD dwHandle = *(DWORD *)(CGame::GetBase() + (dwBase + 258));
+			DWORD dwHandle = *(DWORD *)(CGame::GetBase() + (dwBase + 0x4));
 			CLogFile::Printf("Tack Bronx2: %d",dwHandle);
 
 			unsigned int uiHandle = g_pVehicleManager->Get(7)->GetScriptingHandle();

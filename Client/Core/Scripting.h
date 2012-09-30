@@ -681,6 +681,7 @@ namespace Scripting
 	static const char *GetStationName(unsigned int train, eTrainStation station) { return NativeInvoke::Invoke<const char *>(NATIVE_GET_STATION_NAME, train, station); }
 	static void MarkMissionTrainAsNoLongerNeeded(unsigned int train) { NativeInvoke::Invoke<unsigned int>(NATIVE_MARK_MISSION_TRAIN_AS_NO_LONGER_NEEDED, train); }
 	static void MarkMissionTrainsAsNoLongerNeeded() { NativeInvoke::Invoke<unsigned int>(NATIVE_MARK_MISSION_TRAINS_AS_NO_LONGER_NEEDED); }
+	static void SetTrainCuriseSpeed(unsigned int train, float fSpeed) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_TRAIN_CRUISE_SPEED, train, fSpeed); }
 
 	// unsigned int
 	static void AddObjectToInteriorRoomByKey(unsigned int obj, eInteriorRoomKey roomKey) { NativeInvoke::Invoke<unsigned int>(NATIVE_ADD_OBJECT_TO_INTERIOR_ROOM_BY_KEY, obj, roomKey); }

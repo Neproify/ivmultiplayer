@@ -587,6 +587,9 @@ bool CGame::Patch()
 		// Disable vehicle generation
 		//CPatcher::InstallJmpPatch((GetBase() + 0x438D00),(GetBase() + 0x438D62));
 
+		// Disable train generation
+		//CPatcher::InstallJmpPatch((GetBase() + 0x94A700),(GetBase() + 0x94A9F4));
+		
 		// Patch vehicles(our own vehicle generator(for trains etc)) and other world stuff 
 		CLogFile::Print("Patching 0x438D00 Address 1");
 		DWORD dwPatchAddress = (GetBase() + 0x841DD0);
@@ -608,6 +611,9 @@ bool CGame::Patch()
 		//_asm call dwPatchAddress;
 		PatchWorldAndTrain();
 
+		//DWORD dwTrainCreate = (CGame::GetBase() + 0x94A700);
+		//_asm call dwTrainCreate;
+		
 		/*
 		// Disable vehicle entries
 		*(DWORD *)(GetBase() + 0x9B1ED0) = 0x0CC2C033;
@@ -619,7 +625,6 @@ bool CGame::Patch()
 		// Disable random peds and vehicles
 		CPatcher::InstallNopPatch((GetBase() + 0x8ACD64), 5);
 		*/
-
 		// Disable scenario peds
 		*(BYTE *)(GetBase() + 0x9F72C0) = 0xB8; // mov eax,
 		*(DWORD *)(GetBase() + 0x9F72C1) = 0x0; // 0
