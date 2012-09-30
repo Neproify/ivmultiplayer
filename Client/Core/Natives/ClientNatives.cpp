@@ -61,6 +61,7 @@ void RegisterClientNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getActorPosition", sq_getActorCoordinates, 1, "i");
 	pScriptingManager->RegisterFunction("tuneRadio", sq_tuneRadio, 2, "bi");
 	pScriptingManager->RegisterFunction("triggerServerEvent", sq_triggerServerEvent, -1, NULL);
+	pScriptingManager->RegisterFunction("getGameLanguage", sq_getGameLanguage, -1, NULL);
 }
 
 // addChatMessage(string)
@@ -489,5 +490,32 @@ int sq_tuneRadio(SQVM * pVM)
 		Scripting::SetMobilePhoneRadioState(0);
 	}
 	sq_pushbool(pVM,true);
+	return 1;
+}
+
+int sq_getGameLanguage(SQVM * pVM)
+{
+	int iLanguage = Scripting::GetCurrentLanguage();
+	String strLanguage;
+
+	switch(iLanguage)
+	{
+	case 0:
+		strLanguage = "AMERICAN";
+	case 1:
+		strLanguage = "FRENCH";
+	case 2:
+		strLanguage = "GERMAN";
+	case 3:
+		strLanguage = "ITALIAN";
+	case 4:
+		strLanguage = "SPANISH";
+	case 5:
+		strLanguage = "RUSSIAN";
+	default:
+		strLanguage = "UNKOWN";
+	}
+
+	sq_pushstring(pVM,strLanguage.Get(),-1);
 	return 1;
 }

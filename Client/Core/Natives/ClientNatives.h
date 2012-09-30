@@ -46,3 +46,4 @@ SQUIRREL_FUNCTION(setRadarZoom);
 SQUIRREL_FUNCTION(getActorCoordinates);
 SQUIRREL_FUNCTION(drawLightWithRange);
 SQUIRREL_FUNCTION(tuneRadio);
+SQUIRREL_FUNCTION(getGameLanguage);
