@@ -661,7 +661,7 @@ bool CIVVehicle::GetCarCanBurstTyres()
 {
     IVVehicle *pVehicle = GetVehicle();
     if(pVehicle)
-		return (*(BYTE *)(pVehicle + 0xF67) & 0xEFu);
+		return ((*(BYTE *)(pVehicle + 0xF67) & 0xEFu) != NULL);
 
     return false;
 }

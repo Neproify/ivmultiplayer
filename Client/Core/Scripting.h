@@ -996,7 +996,7 @@ namespace Scripting
 	// Sound
 	static eSound GetSoundId() { return NativeInvoke::Invoke<eSound>(NATIVE_GET_SOUND_ID); }
 	static bool HasSoundFinished(eSound sound) { return NativeInvoke::Invoke<bool>(NATIVE_HAS_SOUND_FINISHED, sound); }
-	static void PlayAudioEvent(char *name) { NativeInvoke::Invoke<unsigned int>(NATIVE_PLAY_AUDIO_EVENT, name); }
+	static void PlayAudioEvent(const char *name) { NativeInvoke::Invoke<unsigned int>(NATIVE_PLAY_AUDIO_EVENT, name); }
 	static void PlaySoundFrontend(eSound sound, char *soundName) { NativeInvoke::Invoke<unsigned int>(NATIVE_PLAY_SOUND_FRONTEND, sound, soundName); }
 	static void SetVariableOnSound(eSound sound, char *varname, float value) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_VARIABLE_ON_SOUND, sound, varname, value); }
 	static void StopSound(eSound sound) { NativeInvoke::Invoke<unsigned int>(NATIVE_STOP_SOUND, sound); }

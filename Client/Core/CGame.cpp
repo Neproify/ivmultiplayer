@@ -207,6 +207,18 @@ void CGame::Initialize()
 	// Replace "Loading .." with "IV:MP is loading...", some user say that the label sometimes is shown
 	//Scripting::SetMsgForLoadingScreen("IV:MP is loading....");
 
+	Scripting::RequestScript("trainHelper");
+	while(!Scripting::HasScriptLoaded("trainHelper")) {
+		Sleep(10);
+	}
+	Scripting::StartNewScript("trainHelper", 1024);
+
+	Scripting::RequestScript("carwash");
+	while(!Scripting::HasScriptLoaded("carwash")) {
+		Sleep(10);
+	}
+	Scripting::StartNewScript("carwash", 1024);
+
 	SetInputState(true);
 	SetState(GAME_STATE_NONE);
 
@@ -554,13 +566,6 @@ bool CGame::Patch()
 		// Hook CEpisodes::IsEpisodeAvaliable to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x814810), (DWORD)CEpisodes__IsEpisodeAvaliable_Hook);
 
-		// Disable vehicle entries
-		*(DWORD *)(GetBase() + 0x9B1ED0) = 0x0CC2C033;
-		*(BYTE *)(GetBase() + 0x9B1ED4) = 0x00;
-
-		// Disable vehicle exits
-		*(BYTE *)(GetBase() + 0x9BBBFC) = 0xEB;
-
 		// Make the game think we are not connected to the internet
 		*(BYTE *)(GetBase() + 0x10F1390) = 0; // byteInternetConnectionState
 		*(DWORD *)(GetBase() + 0x7AF1A0) = 0x90C3C032; // xor al, al; retn; nop
@@ -574,13 +579,46 @@ bool CGame::Patch()
 
 		/* GAME FUNCTIONS */
 		// Disable parked cars
-		CPatcher::InstallRetnPatch(GetBase() + 0xB3EDF0);
+		//CPatcher::InstallRetnPatch(GetBase() + 0xB3EDF0);
 
 		// Disable emergency services and garbage trucks
-		CPatcher::InstallNopPatch((GetBase() + 0x4215CF), 5);
+		//CPatcher::InstallNopPatch((GetBase() + 0x4215CF/*4215D4*/), 5);
+
+		// Disable vehicle generation
+		//CPatcher::InstallJmpPatch((GetBase() + 0x438D00),(GetBase() + 0x438D62));
+
+		// Patch vehicles(our own vehicle generator(for trains etc)) and other world stuff 
+		CLogFile::Print("Patching 0x438D00 Address 1");
+		DWORD dwPatchAddress = (GetBase() + 0x841DD0);
+		_asm call dwPatchAddress;
+		CLogFile::Print("Patching 0x438D00 Address 2");
+		dwPatchAddress = (GetBase() + 0x817F40);
+		_asm call dwPatchAddress;
+		CLogFile::Print("Patching 0x438D00 Address 3");
+		dwPatchAddress = (GetBase() + 0x94C4F0);
+		_asm call dwPatchAddress;
+		CLogFile::Print("Patching 0x438D00 Address 4");
+		//dwPatchAddress = (GetBase() + 0xA1C290); // Seems vehicle create (generator) function "AMBIENT_JET_TAXI" "AMBIENT_JET" etc etc...
+		//_asm call dwPatchAddress;
+		CLogFile::Print("Patching 0x438D00 Address 5");
+		dwPatchAddress = (GetBase() + 0x8BE200);
+		_asm call dwPatchAddress;
+		CLogFile::Print("Patching 0x438D00 Address 6");
+		//dwPatchAddress = (GetBase() + 0x439200); // Seems any important vehicle register function
+		//_asm call dwPatchAddress;
+		PatchWorldAndTrain();
+
+		/*
+		// Disable vehicle entries
+		*(DWORD *)(GetBase() + 0x9B1ED0) = 0x0CC2C033;
+		*(BYTE *)(GetBase() + 0x9B1ED4) = 0x00;
+
+		// Disable vehicle exits
+		*(BYTE *)(GetBase() + 0x9BBBFC) = 0xEB;
 
 		// Disable random peds and vehicles
 		CPatcher::InstallNopPatch((GetBase() + 0x8ACD64), 5);
+		*/
 
 		// Disable scenario peds
 		*(BYTE *)(GetBase() + 0x9F72C0) = 0xB8; // mov eax,
@@ -615,11 +653,6 @@ bool CGame::Patch()
 
 		// Fix player crash(sometimes)
 		//CPatcher::InstallJmpPatch((GetBase() + 0xB98400), (GetBase() + 0xB9845A));
-
-        // Increase pools and playerinfo size
-        // IVPool *pPedPool = *(IVPool **)(GetBase() + COffsets::VAR_PedPool);
-		// pPedPool->m_dwEntrySize = (DWORD)100; // (Default 32, Our 100)
-		// *(DWORD **)(GetBase() + 0x11A7008) = *(DWORD **)100; // IVPlayerInfo ** (Default 32, Our 100)
 		
 		// Increase player info array size
 		CPatcher::Unprotect((GetBase() + 0x11A7008),4);
@@ -627,6 +660,7 @@ bool CGame::Patch()
 		dwPlayerInfoArraySize = dwPlayerInfoArraySize*4;
 		*(DWORD *)(GetBase() + 0x11A7008) = dwPlayerInfoArraySize;
 
+		// Testcode for playerinfoarray size..
 		/*CPatcher::Unprotect((GetBase() + 0x11A7008),4);
 		const DWORD size_11A7008 = 72;
 		DWORD dword_11A7008[72];
@@ -1279,4 +1313,247 @@ DWORD CGame::GetNativeAddress(DWORD dwNative)
 		return dwNativeFunc;
 
 	return -1;
+}
+
+void CGame::PatchWorldAndTrain() 
+{
+	DWORD dwCallAddress;
+
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  1");
+	//dwCallAddress = (CGame::GetBase() + 0x9FF8E0); // Unkown
+	//_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  2");
+	dwCallAddress = (CGame::GetBase() + 0xA3C4D0);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  3");
+	dwCallAddress = (CGame::GetBase() + 0x9FFBE0);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  4");
+	//dwCallAddress = (CGame::GetBase() + 0x8FEEA0); // Seems to be a script
+	//_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  5");
+	//dwCallAddress = (CGame::GetBase() + 0x81FBD0); // Seems to be a script
+	//_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  6");
+	//dwCallAddress = (CGame::GetBase() + 0x8ACD50); // Seems to be a script
+	//_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  7");
+	dwCallAddress = (CGame::GetBase() + 0x85D730);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  8");
+	dwCallAddress = (CGame::GetBase() + 0x870900);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  9");
+	dwCallAddress = (CGame::GetBase() + 0x7B7F70);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  10");
+
+	dwCallAddress = (CGame::GetBase() + 0x902200);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  11");
+	//dwCallAddress = (CGame::GetBase() + 0x96C750); // Unkown
+	//_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  12");
+	dwCallAddress = (CGame::GetBase() + 0x444440);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  13");
+	dwCallAddress = (CGame::GetBase() + 0x90A890);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  14");
+	dwCallAddress = (CGame::GetBase() + 0x425940);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  15");
+
+	dwCallAddress = (CGame::GetBase() + 0x8D9FC0);
+	DWORD dwCallAddAddress = (CGame::GetBase() + 0x13501E8);
+	_asm
+	{
+		mov ecx, dwCallAddAddress
+		call dwCallAddress
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  16");
+
+	dwCallAddress = (CGame::GetBase() + 0x809F60);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  17");
+	dwCallAddress = (CGame::GetBase() + 0x8184F0);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  18");
+
+	// NO VEHICLE CREATION YET!!
+	
+	dwCallAddress = (CGame::GetBase() + 0x7B4700);
+	dwCallAddAddress = (CGame::GetBase() + 0x10F47E0);
+	DWORD dwCallSecondAddAddress = (CGame::GetBase() + 0x10D0170);
+	DWORD dwCallThirdAddAddress = (CGame::GetBase() + 0x10E1984);
+	DWORD dwCallFourthAddAddress = (CGame::GetBase() + 0xF0E4A0);
+	DWORD dwCallFinalAddress = (CGame::GetBase() + 0x427000);
+	short shFirst = (CGame::GetBase() + 0x421672);
+	WORD dwTemp;
+
+	//NOTE: Assembler VS 2010 doesn't recognize jnz and jn... 
+	/*
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.1");
+	_asm
+	{
+		mov ecx, dwCallAddAddress
+		call dwCallAddress
+		or esi, 0FFFFFFFFh
+		cmp dwCallSecondAddAddress, 1
+		mov edi, 12h
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.2");
+	_asm
+	{
+		pushf
+		pop ax
+		and ax, 0x100
+		mov [dwTemp], ax
+		push ax
+		popf
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.3");
+	if(!dwTemp) 
+	{
+		CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.3-JUMP");
+		_asm jmp shFirst; 
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.4");
+	_asm 
+	{ 
+		cmp dwCallThirdAddAddress, esi
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.5");
+	_asm
+	{
+		pushf
+		pop ax
+		and ax, 0x100
+		mov [dwTemp], ax
+		push ax
+		popf
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.6");
+	if(!dwTemp) 
+	{
+		CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.6-JUMP");
+		_asm jmp shFirst; 
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.7");
+	_asm 
+	{ 
+		cmp dwCallFourthAddAddress, edi 
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.8");
+	_asm
+	{
+		pushf
+		pop ax
+		and ax, 0x100
+		mov [dwTemp], ax
+		push ax
+		popf
+	}
+	if(!dwTemp) 
+	{
+		CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.8-JUMP");
+		_asm jmp shFirst; 
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.9");
+	_asm call dwCallFinalAddress;
+
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  19.COMPLETE");
+	*/
+	dwCallAddress = (CGame::GetBase() + 0x7A8F20);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  20");
+	/*dwCallAddress = (CGame::GetBase() + 0x88F3C0); // Seems to be a script
+	dwCallAddAddress = (CGame::GetBase() + 0xF21A68);
+	_asm 
+	{
+		mov ecx, dwCallAddAddress	
+		call dwCallAddress
+	}*/
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  21");
+	//dwCallAddress = (CGame::GetBase() + 0x7CBFF0);
+	//_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  22");
+	dwCallAddress = (CGame::GetBase() + 0x828670);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  23");
+	dwCallAddress = (CGame::GetBase() + 0x8240E0);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  24");
+	/*dwCallAddress = (CGame::GetBase() + 0x7B3BE0); // Seems to be a script
+	dwCallAddAddress = (CGame::GetBase() + 0x10F47E0);
+	_asm 
+	{
+		mov ecx, dwCallAddAddress	
+		call dwCallAddress
+	}*/
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  25");
+	dwCallAddress = (CGame::GetBase() + 0x81B490);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  26");
+	dwCallAddress = (CGame::GetBase() + 0x9209D0);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  27");
+	dwCallAddress = (CGame::GetBase() + 0x4431C0);
+	dwCallAddAddress = (CGame::GetBase() + 0x10F47F8);
+	_asm 
+	{
+		mov ecx, dwCallAddAddress
+		push ecx
+		call dwCallAddress
+		add esp, 4
+	}
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  28");
+	dwCallAddress = (CGame::GetBase() + 0x865BA0);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  29");
+	dwCallAddress = (CGame::GetBase() + 0x8AE530);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  30");
+	//dwCallAddress = (CGame::GetBase() + 0x8DF1A0); // Seems to be a script
+	//_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  31");
+	dwCallAddress = (CGame::GetBase() + 0x8C16E0);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  32");
+	dwCallAddress = (CGame::GetBase() + 0x945120);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  33");
+	dwCallAddress = (CGame::GetBase() + 0x93F420);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  34");
+	dwCallAddress = (CGame::GetBase() + 0x948BE0);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  35");
+	dwCallAddress = (CGame::GetBase() + 0x8691C0);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  36");
+	dwCallAddress = (CGame::GetBase() + 0x889D60);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  37");
+	/*dwCallAddress = (CGame::GetBase() + 0x884180); // Seems to be a script
+	dwCallAddAddress = (CGame::GetBase() + 0x11E8F0C);
+	_asm 
+	{
+		mov ecx, dwCallAddAddress
+		call dwCallAddress
+	}*/
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  38");
+	/*dwCallAddress = (CGame::GetBase() + 0x91EDB0); // Unkown
+	dwCallAddAddress = (CGame::GetBase() + 0x152F770);
+	_asm 
+	{
+		mov ecx, dwCallAddAddress
+		call dwCallAddress
+	}*/
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  39");
+	dwCallAddress = (CGame::GetBase() + 0x93F400);
+	_asm call dwCallAddress;
+	CLogFile::Print("PATCH TRAIN/WORLD ADDITION  40");
+
+	// NO VEHICLE CREATION YET!!
 }

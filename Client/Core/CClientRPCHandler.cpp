@@ -2878,8 +2878,7 @@ void CClientRPCHandler::ScriptingPlayGameAudio(CBitStream * pBitStream, CPlayerS
 	String strMusic;
 	pBitStream->Read(strMusic);
 
-	// TODO, try to call it with params(szMusic,NULL, SND_FILENAME | SND_ASYNC)
-	//Scripting::TriggerGameSound(/*strMusic.Get()*/);
+	Scripting::PlayAudioEvent(strMusic.Get());
 }
 
 void CClientRPCHandler::ScriptingRequestAnims(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

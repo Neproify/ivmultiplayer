@@ -28,6 +28,7 @@
 #include "CGame.h"
 #include "CPlayerManager.h"
 #include "CActorManager.h"
+#include "CVehicleManager.h"
 
 WNDPROC           m_wWndProc = NULL;
 std::list<String> pressedKeys;
@@ -43,6 +44,7 @@ extern CNetworkManager	 * g_pNetworkManager;
 extern CGame			 * g_pGame;
 extern CPlayerManager	 * g_pPlayerManager;
 extern CActorManager	 * g_pActorManager;
+extern CVehicleManager * g_pVehicleManager;
 
 String GetKeyNameByCode(DWORD dwCode)
 {
@@ -260,13 +262,101 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			}
 		}
 
-		/*if(uMsg == WM_KEYUP && wParam == VK_F2)
+		if(uMsg == WM_KEYUP && wParam == VK_F2)
 		{
-			CVector3 vecPos; g_pLocalPlayer->GetPosition(vecPos);
+			/*CVector3 vecPos; g_pLocalPlayer->GetPosition(vecPos);
 			unsigned int uiObjectHandle;
 			Scripting::CreateObject((Scripting::eModel)2999442604, vecPos.fX,vecPos.fY,vecPos.fZ,&uiObjectHandle,true);
-			Scripting::TaskHoldObject(g_pLocalPlayer->GetScriptingHandle(),uiObjectHandle);
-		}*/
+			Scripting::TaskHoldObject(g_pLocalPlayer->GetScriptingHandle(),uiObjectHandle);*/
+
+			CLogFile::Printf("TRACK QUEEN");
+            DWORD t1 = *(DWORD *)(CGame::GetBase() + 0x15BE4BC);
+            DWORD t2 = *(DWORD *)(CGame::GetBase() + 0x15BE48C);
+            DWORD t3 = *(DWORD *)(CGame::GetBase() + 0x15BD4D8);
+            DWORD t4 = *(DWORD *)(CGame::GetBase() + 0x15BD908);
+            DWORD t5 = *(DWORD *)(CGame::GetBase() + 0x15BE4F0);
+            DWORD t6 = *(DWORD *)(CGame::GetBase() + 0x15BDD00);
+            BYTE t7 = *(BYTE *)(CGame::GetBase() + 0x15BD3E8);
+            DWORD t8 = *(DWORD *)(CGame::GetBase() + 0x15BE0C8);
+            DWORD t9 = *(DWORD *)(CGame::GetBase() + 0x15BD940);
+			CLogFile::Printf("AT 0x15BE4BC: 0x(%p)",t1);
+			CLogFile::Printf("AT 0x15BE48C: 0x(%p)",t2);
+			CLogFile::Printf("AT 0x15BD4D8: 0x(%p)",t3);
+			CLogFile::Printf("AT 0x15BD908: 0x(%p)",t4);
+			CLogFile::Printf("AT 0x15BE4F0: 0x(%p)",t5);
+			CLogFile::Printf("AT 0x15BDD00: 0x(%p)",t6);
+			CLogFile::Printf("AT 0x15BD3E8: 0x(%p)",t7);
+			CLogFile::Printf("AT 0x15BE0C8: 0x(%p)",t8);
+			CLogFile::Printf("AT 0x15BD940: 0x(%p)",t9);
+
+			CLogFile::Printf("TRACK QUEEN2");
+            t1 = *(DWORD *)(CGame::GetBase() + 0x15BE4C0);
+            t2 = *(DWORD *)(CGame::GetBase() + 0x15BE490);
+			t3 = *(DWORD *)(CGame::GetBase() + 0x15BD4DC);
+            t4 = *(DWORD *)(CGame::GetBase() + 0x15BD90C);
+            t5 = *(DWORD *)(CGame::GetBase() + 0x15BE630);
+            t6 = *(DWORD *)(CGame::GetBase() + 0x15BDD50);
+            t7 = *(BYTE *)(CGame::GetBase() + 0x15BD3FC);
+            t8 = *(DWORD *)(CGame::GetBase() + 0x15BE118);
+            t9 = *(DWORD *)(CGame::GetBase() + 0x15BD990);
+			CLogFile::Printf("AT 0x15BE4C0: 0x(%p)",t1);
+			CLogFile::Printf("AT 0x15BE490: 0x(%p)",t2);
+			CLogFile::Printf("AT 0x15BD4DC: 0x(%p)",t3);
+			CLogFile::Printf("AT 0x15BD90C: 0x(%p)",t4);
+			CLogFile::Printf("AT 0x15BE630: 0x(%p)",t5);
+			CLogFile::Printf("AT 0x15BDD00: 0x(%p)",t6);
+			CLogFile::Printf("AT 0x15BDD50: 0x(%p)",t7);
+			CLogFile::Printf("AT 0x15BE118: 0x(%p)",t8);
+			CLogFile::Printf("AT 0x15BD990: 0x(%p)",t9);
+
+			CLogFile::Printf("TRACK BRONX");
+            t1 = *(DWORD *)(CGame::GetBase() + 0x15BE4C4);
+            t2 = *(DWORD *)(CGame::GetBase() + 0x15BE494);
+            t3 = *(DWORD *)(CGame::GetBase() + 0x15BD4E0);
+            t4 = *(DWORD *)(CGame::GetBase() + 0x15BD910);
+            t5 = *(DWORD *)(CGame::GetBase() + 0x15BE770);
+            t6 = *(DWORD *)(CGame::GetBase() + 0x15BDDA0);
+            t7 = *(BYTE *)(CGame::GetBase() + 0x15BD410);
+            t8 = *(DWORD *)(CGame::GetBase() + 0x15BE168);
+            t9 = *(DWORD *)(CGame::GetBase() + 0x15BD9E0);
+			CLogFile::Printf("AT 0x15BE4C4: 0x(%p)",t1);
+			CLogFile::Printf("AT 0x15BE494: 0x(%p)",t2);
+			CLogFile::Printf("AT 0x15BD4E0: 0x(%p)",t3);
+			CLogFile::Printf("AT 0x15BD910: 0x(%p)",t4);
+			CLogFile::Printf("AT 0x15BE770: 0x(%p)",t5);
+			CLogFile::Printf("AT 0x15BDDA0: 0x(%p)",t6);
+			CLogFile::Printf("AT 0x15BD410: 0x(%p)",t7);
+			CLogFile::Printf("AT 0x15BE168: 0x(%p)",t8);
+			CLogFile::Printf("AT 0x15BD9E0: 0x(%p)",t9);
+
+			CLogFile::Printf("TRACK BRONX2");
+            t1 = *(DWORD *)(CGame::GetBase() + 0x15BE4C8);
+            t2 = *(DWORD *)(CGame::GetBase() + 0x15BE498);
+			t3 = *(DWORD *)(CGame::GetBase() + 0x15BD4E4);
+            t4 = *(DWORD *)(CGame::GetBase() + 0x15BD914);
+            t5 = *(DWORD *)(CGame::GetBase() + 0x15BE8B0);
+            t6 = *(DWORD *)(CGame::GetBase() + 0x15BDDF0);
+            t7 = *(BYTE *)(CGame::GetBase() + 0x15BD424);
+            t8 = *(DWORD *)(CGame::GetBase() + 0x15BE1B8);
+            t9 = *(DWORD *)(CGame::GetBase() + 0x15BDA30);
+			CLogFile::Printf("AT 0x15BE4C8: 0x(%p)",t1);
+			CLogFile::Printf("AT 0x15BE498: 0x(%p)",t2);
+			CLogFile::Printf("AT 0x15BD4E4: 0x(%p)",t3);
+			CLogFile::Printf("AT 0x15BD914: 0x(%p)",t4);
+			CLogFile::Printf("AT 0x15BE8B0: 0x(%p)",t5);
+			CLogFile::Printf("AT 0x15BDDF0: 0x(%p)",t6);
+			CLogFile::Printf("AT 0x15BD424: 0x(%p)",t7);
+			CLogFile::Printf("AT 0x15BE1B8: 0x(%p)",t8);
+			CLogFile::Printf("AT 0x15BDA30: 0x(%p)",t9);
+
+			DWORD dwBase = *(DWORD *)(CGame::GetBase() + 0x15BE4C8);
+			DWORD dwHandle = *(DWORD *)(CGame::GetBase() + (dwBase + 258));
+			CLogFile::Printf("Tack Bronx2: %d",dwHandle);
+
+			unsigned int uiHandle = g_pVehicleManager->Get(7)->GetScriptingHandle();
+			CLogFile::Printf("Normale Vehicle Handle: %p(%d)",uiHandle,uiHandle);
+
+		}
 
 		// Is this a F2 key up?
 		//if(uMsg == WM_KEYUP && wParam == VK_F2)

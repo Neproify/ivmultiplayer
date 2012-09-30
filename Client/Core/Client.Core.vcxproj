@@ -125,6 +125,7 @@
     <ClInclude Include="CD3D9Webkit.hpp" />
     <ClInclude Include="AnimGroups.h" />
     <ClInclude Include="CDebugView.h" />
+    <ClInclude Include="CIVTrain.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="CChatWindow.h" />
@@ -303,6 +304,7 @@
   <ItemGroup>
     <ClCompile Include="AimSync.cpp" />
     <ClCompile Include="CDebugView.cpp" />
+    <ClCompile Include="CIVTrain.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
