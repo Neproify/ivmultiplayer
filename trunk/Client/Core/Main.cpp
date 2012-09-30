@@ -382,7 +382,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			CLogFile::Close();
 
 			// Uninstall the XLive hook
-			CXLiveHook::Uninstall(); // TODO fix uninstall patch stuff
+			//CXLiveHook::Uninstall(); // Not needed
 		}
 		break;
 	}

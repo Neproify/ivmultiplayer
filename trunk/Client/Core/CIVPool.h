@@ -49,6 +49,9 @@ public:
 
 		// Unprotect all pool members
 		CPatcher::Unprotect((DWORD)m_pPool,28);
+
+		// Reunprotect dwentrysize
+		CPatcher::Unprotect((DWORD)m_pPool->m_dwEntrySize,4);
 	}
 
 	~CIVPool()

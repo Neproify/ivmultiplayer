@@ -254,7 +254,7 @@ function onPlayerCommand(playerid, command)
 	}
 	if(cmd[0] == "/sound")
 	{
-		triggerPlayerGameSound(playerid,"armor.wav");
+		triggerPlayerGameSound(playerid,"MOBILE_PHONE_SMS_RECIEVE");
 	}
 	if(cmd[0] == "/gps")
 	{

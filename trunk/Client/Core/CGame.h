@@ -123,4 +123,5 @@ public:
 	static bool			   IsGameLoaded() { return m_bGameLoaded; }
 	static DWORD		   GetNativeAddress(DWORD dwNative);
 	static String		   GetAnimationGroup();
+	static void			   PatchWorldAndTrain();
 };
