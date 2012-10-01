@@ -284,6 +284,30 @@ void UnprotectMemory()
 	}
 }
 
+DWORD dwJmp;
+DWORD dwTestHandle;
+
+void _declspec(naked) IVTrain__Constructor()
+{
+	_asm 
+	{		
+		mov dwTestHandle, ecx
+		pushad
+	}
+
+	CLogFile::Printf("Train-Handle(0x%x)", dwTestHandle);
+	dwJmp = (CGame::GetBase() + 0x949BA6);
+
+	_asm
+	{
+		popad
+		push ebp
+		mov ebp, esp
+		and esp, 0FFFFFFF0h
+		jmp dwJmp
+	}
+}
+
 IVTask * ___pTask = NULL;
 
 void _declspec(naked) CTask__Destructor_Hook()
@@ -565,6 +589,8 @@ bool CGame::Patch()
 
 		// Hook CEpisodes::IsEpisodeAvaliable to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x814810), (DWORD)CEpisodes__IsEpisodeAvaliable_Hook);
+
+		CPatcher::InstallJmpPatch((GetBase() + 0x949BA0), (DWORD)IVTrain__Constructor);
 
 		// Make the game think we are not connected to the internet
 		*(BYTE *)(GetBase() + 0x10F1390) = 0; // byteInternetConnectionState

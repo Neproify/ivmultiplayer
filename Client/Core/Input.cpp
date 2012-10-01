@@ -30,6 +30,8 @@
 #include "CActorManager.h"
 #include "CVehicleManager.h"
 #include "CIVTrain.h"
+#include "Patcher/CPatcher.h"
+#include "CGraphics.h"
 
 WNDPROC           m_wWndProc = NULL;
 std::list<String> pressedKeys;
@@ -45,7 +47,8 @@ extern CNetworkManager	 * g_pNetworkManager;
 extern CGame			 * g_pGame;
 extern CPlayerManager	 * g_pPlayerManager;
 extern CActorManager	 * g_pActorManager;
-extern CVehicleManager * g_pVehicleManager;
+extern CVehicleManager   * g_pVehicleManager;
+extern CGraphics		 * g_pGraphics;
 
 String GetKeyNameByCode(DWORD dwCode)
 {
@@ -267,6 +270,29 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		{
 			//CIVTrain * g_PTrain = new CIVTrain();
 			g_pChatWindow->AddInfoMessage("Train printed!");
+		}
+
+		if(uMsg == WM_KEYUP && wParam == VK_F4)
+		{
+			DWORD dwPointer;
+			//dwPointer = *(DWORD*)((DWORD)GetModuleHandle("d3d9.dll")+0x165A40);
+			//CPatcher::Unprotect((CGame::GetBase() + 0x1716C2C),5);
+			//D3DXMATRIX dwMatrix = *(D3DXMATRIX*)(CGame::GetBase() + (/*dwPointer*/0x1716C2C + 0x9A0));
+			//CLogFile::Printf("MATRIX %x(%p)",dwMatrix,dwMatrix);
+			//CLogFile::Printf("MATRIX (%f,%f,%f,%f,%f)",dwMatrix._11,dwMatrix._12,dwMatrix._13,dwMatrix._14,dwMatrix._21);
+
+			/*CVector3 vecPos = g_pActorManager->GetPosition(1);
+			CVector3 vecScreen;
+			g_pGraphics->GetScreenPositionFromWorldPosition(vecPos, &vecScreen);
+			CLogFile::Printf("Coords: %f, %f, %f",vecScreen.fX,vecScreen.fY,vecScreen.fZ);*/
+			// Get the player position + add z coord
+			CVector3 vecWorldPosition = g_pActorManager->GetPosition(0);
+			vecWorldPosition.fZ += 1.0f;
+
+			// Check if he's on the screen
+			CVector3 vecScreen;
+			g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition,&vecScreen);
+			g_pChatWindow->AddInfoMessage("Z: %f",vecScreen.fZ);
 		}
 
 		if(uMsg == WM_KEYUP && wParam == VK_F2)
