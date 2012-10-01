@@ -17,6 +17,7 @@
 #include "CCamera.h"
 #include "CChatWindow.h"
 #include <Common.h>
+#include "CLogFile.h"
 
 extern CGUI           * g_pGUI;
 extern CLocalPlayer   * g_pLocalPlayer;
@@ -153,6 +154,7 @@ void CNameTags::Draw()
 					
 				// Convert the position to a screen position
 				CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
+
 
 				// Is this player not within our view range?
 				if((vecLocalPlayerPosition - vecWorldPosition).Length() > 60.0f)

@@ -203,7 +203,8 @@ void CGraphics::GetScreenPositionFromWorldPosition(CVector3 vecWorld, CVector3 *
 	D3DVIEWPORT9 viewport;
 	D3DXVECTOR3 vec;
 
-	memcpy(gameMatrix,*(D3DXMATRIX *)((CGame::GetBase()+0xE93650)/* + 0x23C*/),sizeof(D3DXMATRIX));
+	D3DXMATRIX dwMatrix = *(D3DXMATRIX*)(CGame::GetBase() + (/*dwPointer*/0x1716C2C + 0x9A0));
+	memcpy(gameMatrix,dwMatrix,sizeof(D3DXMATRIX));
 	D3DXMatrixTranspose( &gameMatrix, &gameMatrix );
 	m_pDevice->GetViewport(&viewport);
 	D3DXVec3TransformCoord( &vec, &D3DXVECTOR3( vecWorld.fX, vecWorld.fY, vecWorld.fZ ), &gameMatrix );
