@@ -383,7 +383,11 @@ int main(int argc, char ** argv)
 
 	// Open the settings file
 	if(!CSettings::Open(SharedUtility::GetAbsolutePath("settings.xml"), false, false))
+	{
+		CLogFile::Print("Failed to open settings.xml, server will shut down in 3 seconds..");
+		Sleep(3000);
 		return 0;
+	}
 
 	// Parse the command line
 	CSettings::ParseCommandLine(argc, argv);

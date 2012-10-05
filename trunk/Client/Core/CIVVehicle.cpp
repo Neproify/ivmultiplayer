@@ -10,6 +10,7 @@
 #include "CIVVehicle.h"
 #include "COffsets.h"
 #include "CPools.h"
+#include "Scripting.h"
 
 CIVVehicle::CIVVehicle() : CIVPhysical()
 {
