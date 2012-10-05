@@ -64,7 +64,7 @@ bool CPlayerManager::DoesExist(EntityId playerId)
 void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 {
 	if(DoesExist(playerId))
-		Remove(playerId, 0);
+		Remove(playerId, 3);
 
 	m_pPlayers[playerId] = new CPlayer(playerId, sPlayerName);
 
@@ -101,15 +101,19 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 		strReason = "Disconnected";
 	else if(byteReason == 1)
 		strReason = "Lost Connection";
+	else if(byteReason == 3)
+		strReason = "Classremove";
 
 	CLogFile::Printf("[Quit] %s (%d) left the server (%s).", m_pPlayers[playerId]->GetName().Get(), playerId, strReason.Get());
 
 	// Only works on windows, if we have linux don't use it!
-#ifdef WIN32
+#ifdef _WIN32
 	SAFE_DELETE( m_pPlayers[playerId] ); // maybe use delete[] m_pPlayer[playerId] at linux?
+#else
+	m_pPlayers[playerId] = NULL; // Reset
+	delete m_pPlayers[playerId]; // Remove
 #endif
 
-	m_pPlayers[playerId] = NULL;
 	m_bActive[playerId] = false;
 	return true;
 }

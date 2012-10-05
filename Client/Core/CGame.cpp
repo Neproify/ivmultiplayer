@@ -36,6 +36,15 @@
 #include "CMainMenu.h"
 #include "AnimGroups.h"
 
+// Enable on of them if we wanna/don't want trains
+#ifdef IVMP_TRAINS
+#undef IVMP_TRAINS
+#endif
+
+/*#ifndef IVMP_TRAINS
+#define IVMP_TRAINS
+#endif*/
+
 extern CChatWindow        * g_pChatWindow;
 extern CInputWindow       * g_pInputWindow;
 extern CClientTaskManager * g_pClientTaskManager;
@@ -352,6 +361,37 @@ it_not:
 	}
 }
 
+DWORD dwJmp2;
+DWORD dwAddress2;
+DWORD dwModel;
+DWORD dwModelArray = 0x15F73B0;
+int iVehType = 0;
+
+void _declspec(naked) CVehicleFactory__CreateVehicle()
+{
+        _asm
+        {
+                mov eax, [esp]         
+                mov dwAddress2, eax
+                mov edx, [esp + 4] // get the model
+                mov edx, dwModelArray[edx * 4]
+                mov dwModel, edx
+                pushad
+        }
+        CLogFile::Printf("model (0x%x) - (0x%x)", dwModel, dwAddress2);
+        //iVehType = *(int *)(dwModel + 0x6C);
+        //CLogFile::Printf("type %d", iVehType);
+        dwJmp2 = (CGame::GetBase() + 0x443D66);
+        _asm
+        {
+                popad
+                push ebp
+                push edi
+                mov edi, [esp + 4]
+                jmp dwJmp2
+        }
+}
+
 unsigned int          uiPlayerInfoIndex = 0;
 IVPlayerInfo        * pReturnedPlayerInfo = NULL;
 unsigned int          uiReturnedIndex = 0;
@@ -604,12 +644,26 @@ bool CGame::Patch()
 		/* OTHER FUNCTIONS END */
 
 		/* GAME FUNCTIONS */
+#ifdef IVMP_TRAINS
+		// Hook for CVehicleFactory__CreateVehicle
+		CPatcher::InstallJmpPatch((GetBase() + 0x443D60), (DWORD)CVehicleFactory__CreateVehicle);
+#else
 		// Disable parked cars
-		//CPatcher::InstallRetnPatch(GetBase() + 0xB3EDF0);
+		CPatcher::InstallRetnPatch(GetBase() + 0xB3EDF0);
 
 		// Disable emergency services and garbage trucks
-		//CPatcher::InstallNopPatch((GetBase() + 0x4215CF/*4215D4*/), 5);
+		CPatcher::InstallNopPatch((GetBase() + 0x4215CF/*4215D4*/), 5);
 
+		// Disable vehicle entries
+		*(DWORD *)(GetBase() + 0x9B1ED0) = 0x0CC2C033;
+		*(BYTE *)(GetBase() + 0x9B1ED4) = 0x00;
+
+		// Disable vehicle exits
+		*(BYTE *)(GetBase() + 0x9BBBFC) = 0xEB;
+
+		// Disable random peds and vehicles
+		CPatcher::InstallNopPatch((GetBase() + 0x8ACD64), 5);
+#endif
 		// Disable vehicle generation
 		//CPatcher::InstallJmpPatch((GetBase() + 0x438D00),(GetBase() + 0x438D62));
 
@@ -636,21 +690,9 @@ bool CGame::Patch()
 		//dwPatchAddress = (GetBase() + 0x439200); // Seems any important vehicle register function
 		//_asm call dwPatchAddress;
 		PatchWorldAndTrain();
-
 		//DWORD dwTrainCreate = (CGame::GetBase() + 0x94A700);
 		//_asm call dwTrainCreate;
 		
-		/*
-		// Disable vehicle entries
-		*(DWORD *)(GetBase() + 0x9B1ED0) = 0x0CC2C033;
-		*(BYTE *)(GetBase() + 0x9B1ED4) = 0x00;
-
-		// Disable vehicle exits
-		*(BYTE *)(GetBase() + 0x9BBBFC) = 0xEB;
-
-		// Disable random peds and vehicles
-		CPatcher::InstallNopPatch((GetBase() + 0x8ACD64), 5);
-		*/
 		// Disable scenario peds
 		*(BYTE *)(GetBase() + 0x9F72C0) = 0xB8; // mov eax,
 		*(DWORD *)(GetBase() + 0x9F72C1) = 0x0; // 0
