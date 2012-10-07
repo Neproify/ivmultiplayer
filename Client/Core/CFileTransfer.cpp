@@ -345,6 +345,19 @@ void CFileTransfer::Process()
 					strMessage.AppendF("Failed to download %s %s (Checksum mismatch)", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get());
 					g_pMainMenu->ShowMessageBox(strMessage.Get(),"Download failed",true,false, false);
 
+					// Hide message stuff
+					String strText = "";
+					// Set stuff & check if we have our gui stuff
+					if(m_pFileImage && m_pFileText)
+					{
+						// Set the filename
+						m_pFileText->setText(strText.Get());
+
+						// Set the image and text visible
+						m_pFileText->setVisible(false);
+						m_pFileImage->setVisible(false);
+					}
+
 					// Reset all transfers
 					Reset();
 
@@ -358,6 +371,19 @@ void CFileTransfer::Process()
 				String strMessage; 
 				strMessage.AppendF("Failed to download %s %s (%s)", m_pDownloadFile->strType.Get(), m_pDownloadFile->strName.Get(), m_httpClient.GetLastErrorString().Get());
 				g_pMainMenu->ShowMessageBox(strMessage.Get(),"Download failed",true,false, false);
+
+				// Hide message stuff
+				String strText = "";
+				// Set stuff & check if we have our gui stuff
+				if(m_pFileImage && m_pFileText)
+				{
+					// Set the filename
+					m_pFileText->setText(strText.Get());
+
+					// Set the image and text visible
+					m_pFileText->setVisible(false);
+					m_pFileImage->setVisible(false);
+				}
 
 				// Reset all transfers
 				Reset();

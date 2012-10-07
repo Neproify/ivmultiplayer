@@ -771,6 +771,7 @@ addEvent("playerDeath", onPlayerDeath);
 function onWebRequest(uri, remote_ip, remote_method)
 {
 	log(format("Web request: %s [%s] [%s]", uri, remote_ip, remote_method));
+	return "yes";
 }
 addEvent("webRequest", onWebRequest);
 

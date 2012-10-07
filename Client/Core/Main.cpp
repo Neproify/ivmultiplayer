@@ -774,7 +774,6 @@ CNetworkPlayer * pPlayer = NULL;
 #include "CRemotePlayer.h"
 CRemotePlayer * pClonePlayer = NULL;
 
-
 void GameScriptProcess()
 {
 	// Do we need to reset the game?

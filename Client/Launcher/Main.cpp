@@ -120,8 +120,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			if(!SharedUtility::_TerminateProcess("LaunchGTAIV.exe"))
 			{
-				ShowMessageBox("LaunchGTAIV.exe could not be terminated. Cannot launch IV: Multiplayer.");
-				return 1;
+				// Wait until we've successfully terminated the process
+				Sleep(3000);
+				if(SharedUtility::IsProcessRunning("LaunchGTAIV.exe"))
+				{
+					if(!SharedUtility::_TerminateProcess("LaunchGTAIV.exe"))
+					{
+						ShowMessageBox("LaunchGTAIV.exe could not be terminated. Cannot launch IV: Multiplayer.");
+						return 1;
+					}
+				}
 			}
 		}
 		else
