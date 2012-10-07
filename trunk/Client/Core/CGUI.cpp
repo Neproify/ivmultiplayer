@@ -145,7 +145,7 @@ bool CGUI::Initialize()
 			parser->setProperty("SchemaDefaultResourceGroup", "schemas");
 
 		// Clearing this queue actually makes sure it's created
-		m_pRenderer->getDefaultRenderingRoot().clearGeometry(CEGUI::RQ_OVERLAY);
+		//m_pRenderer->getDefaultRenderingRoot().clearGeometry(CEGUI::RQ_OVERLAY);
 
 		// Load the gui scheme
 		m_pScheme = &CEGUI::SchemeManager::getSingleton().create(STYLE_SCHEME);
