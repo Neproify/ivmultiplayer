@@ -47,22 +47,15 @@ void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn, co
 		args.push(request_info->request_method);
 		CSquirrelArgument ret = g_pEvents->Call("webRequest", &args);
 
-		// Do we have a string returned?
-		if(ret.GetType() == OT_STRING)
-		{
-			// Output the string to the web client
-			const char * out = ret.GetString();
-			mg_printf(conn, out);
-
-			// Unlock the web mutex
-			g_webMutex.Unlock();
-
-			// Handled
-			return (void *)"yes";
-		}
+		// Output the string to the web client
+		const char * out = "yes";
+		mg_printf(conn, out);
 
 		// Unlock the web mutex
 		g_webMutex.Unlock();
+
+		// Handled
+		//return (void *)"yes";
 	}
 
 	// Not handled

@@ -75,7 +75,6 @@ void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket
 	g_pMainMenu->ResetNetworkStats();
 	g_pMainMenu->ShowMessageBox("Lost connection to the server!", "Timeout", true, true, false);
 	g_pMainMenu->SetDisconnectButtonVisible(false);
-
 }
 
 void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
