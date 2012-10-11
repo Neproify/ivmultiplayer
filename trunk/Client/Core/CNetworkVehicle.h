@@ -66,6 +66,7 @@ private:
 	bool			 m_bActorVehicle;
 	bool			 m_bFirstStreamIn;
 	bool			 m_bActive;
+	unsigned int	 m_uiInterior;
 
 	bool             Create();
 	void             Destroy();
@@ -149,7 +150,7 @@ public:
 	void             Interpolate();
 	void             ResetInterpolation();
 
-	void			 UpdateInterior();
+	void			 UpdateInterior(bool bHasDriver = false);
 
 	void             Pulse();
 	void             UpdateTargetPosition();

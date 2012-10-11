@@ -108,10 +108,9 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 
 	// Only works on windows, if we have linux don't use it!
 #ifdef _WIN32
-	SAFE_DELETE( m_pPlayers[playerId] ); // maybe use delete[] m_pPlayer[playerId] at linux?
+	SAFE_DELETE( m_pPlayers[playerId] );
 #else
-	m_pPlayers[playerId] = NULL; // Reset
-	delete m_pPlayers[playerId]; // Remove
+	SAFE_DELETE_ARRAY( m_pPlayers[playerId] ); 
 #endif
 
 	m_bActive[playerId] = false;

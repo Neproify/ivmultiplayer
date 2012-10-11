@@ -1630,3 +1630,16 @@ void CGame::PatchWorldAndTrain()
 
 	// NO VEHICLE CREATION YET!!
 }
+
+unsigned int CGame::GetHashFromString(const char *szString)
+{
+	DWORD dwAddress = (CGame::GetBase() + 0x5A8290);
+	unsigned int uiHash;
+	_asm
+	{
+		mov eax, szString
+		call dwAddress
+		mov uiHash, eax
+	}
+	return uiHash;
+}
