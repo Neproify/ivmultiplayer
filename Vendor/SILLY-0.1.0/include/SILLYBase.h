@@ -36,7 +36,7 @@
 #include "SILLYOptions.h"
 #endif
 
-#if defined(_WIN32) || defined(__WIN32__)
+/*#if defined(_WIN32) || defined(__WIN32__)
 #   undef SILLY_OPT_INLINE // No inlining 
 #   undef SILLY_BE // Little Endian 
 #   ifdef SILLY_EXPORTS
@@ -44,9 +44,9 @@
 #   else
 #       define SILLY_EXPORT __declspec(dllimport)
 #   endif
-#else
+#else*/
 #   define SILLY_EXPORT
-#endif
+/*#endif*/
 
 // Start of section namespace SILLY 
 namespace SILLY
