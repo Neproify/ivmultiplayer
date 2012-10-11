@@ -62,6 +62,7 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_bWindow[3] = false;
 	m_bLights = false;
 	m_bGpsState = false;
+	m_uiInterior = -1;
 	m_bActorVehicle = false;
 	m_bFirstStreamIn = false;
 	m_bActive = false;
@@ -1114,8 +1115,10 @@ void CNetworkVehicle::UpdateInterior(bool bHasDriver)
 
 void CNetworkVehicle::SetInterior(unsigned int uiInterior)
 {
-	if(IsSpawned() && uiInterior != GetInterior() && g_pLocalPlayer->GetVehicle()->GetVehicleId() != m_vehicleId)
+	if(IsSpawned() && uiInterior != GetInterior() && g_pLocalPlayer->GetVehicle()->GetVehicleId() != m_vehicleId) {
 		Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
+		m_uiInterior = uiInterior;
+	}
 }
 
 unsigned int CNetworkVehicle::GetInterior()
