@@ -124,4 +124,5 @@ public:
 	static DWORD		   GetNativeAddress(DWORD dwNative);
 	static String		   GetAnimationGroup();
 	static void			   PatchWorldAndTrain();
+	static unsigned int	   GetHashFromString(const char * szString);		   
 };

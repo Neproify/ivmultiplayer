@@ -974,12 +974,15 @@ void CNetworkVehicle::Interpolate()
 
 		// Update our target rotation
 		UpdateTargetRotation();
-		
+
 		// Update our interior
-		UpdateInterior();
+		UpdateInterior(true);
 	}
 	else
 	{
+		// Update our interior
+		UpdateInterior(false);
+
 		// Remove our target position
 		RemoveTargetPosition();
 
@@ -1079,25 +1082,34 @@ void CNetworkVehicle::ResetInterpolation()
 	RemoveTargetRotation();
 }
 
-void CNetworkVehicle::UpdateInterior()
+void CNetworkVehicle::UpdateInterior(bool bHasDriver)
 {
-	CNetworkPlayer * pPlayer = GetDriver();
-	if(pPlayer && pPlayer->IsSpawned())
+	if(!bHasDriver)
 	{
-		unsigned int uiInterior = pPlayer->GetInterior();
-		if(g_pLocalPlayer->GetInterior() == uiInterior) {
+		if(GetInterior() != m_uiInterior) {
+			unsigned int uiInterior = GetInterior();
 			SetInterior(uiInterior);
 		}
-		else if(g_pLocalPlayer->GetInterior() != uiInterior) {
-			SetInterior(g_pLocalPlayer->GetInterior());
+	}
+	else
+	{
+		CNetworkPlayer * pPlayer = GetDriver();
+		if(pPlayer && pPlayer->IsSpawned())
+		{
+			unsigned int uiInterior = pPlayer->GetInterior();
+			if(g_pLocalPlayer->GetInterior() == uiInterior) {
+				SetInterior(uiInterior);
+			}
+			else if(g_pLocalPlayer->GetInterior() != uiInterior) {
+				SetInterior(g_pLocalPlayer->GetInterior());
+			}
+		}
+		else if(GetDriver() == NULL)
+		{
+			unsigned int uiInterior = GetInterior();
+			SetInterior(uiInterior);
 		}
 	}
-	else if(GetDriver() == NULL)
-	{
-		unsigned int uiInterior = GetInterior();
-		SetInterior(uiInterior);
-	}
-
 }
 
 void CNetworkVehicle::SetInterior(unsigned int uiInterior)
