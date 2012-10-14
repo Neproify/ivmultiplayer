@@ -268,6 +268,15 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
 		/*if(uMsg == WM_KEYUP && wParam == VK_F4)
 		{
+			CLogFile::Printf("Test1 0x%p(%x)",(g_pVehicleManager->Get(2)->GetScriptingHandle() + 0x1130),(g_pVehicleManager->Get(2)->GetScriptingHandle() + 0x1130));
+
+			IVVehicle *  pVehicle = g_pVehicleManager->Get(2)->GetGameVehicle()->GetVehicle();
+			DWORD dwTest = *(DWORD *)(pVehicle + 0x1130);
+			CLogFile::Printf("Testvar 0x%p(%x)",dwTest);
+		}
+		*/
+		/*if(uMsg == WM_KEYUP && wParam == VK_F4)
+		{
 			DWORD dwPointer;
 			//dwPointer = *(DWORD*)((DWORD)GetModuleHandle("d3d9.dll")+0x165A40);
 			//CPatcher::Unprotect((CGame::GetBase() + 0x1716C2C),5);

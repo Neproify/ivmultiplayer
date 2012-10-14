@@ -1811,23 +1811,9 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 		{
 			// Loop through all passenger seats
 			BYTE byteTestSeatId = 0;
-
+			CLogFile::Printf("GetClosestVehicleSet %d(%d)",byteTestSeatId,pClosestVehicle->GetMaxPassengers());
 			for(BYTE i = 0; i < pClosestVehicle->GetMaxPassengers(); i++)
 			{
-
-				// Take a look at: char __cdecl sub_C4F190(int a1, int a2), idk o.O(FRi), where'S the ped or the ped's pos?
-				//int iDoor = 0;
-				//int iChar = (int)"vehicleClosestDoor";
-				//DWORD dwFunc = (CGame::GetBase()+0x5B1C30);
-				//_asm
-				//{
-				//	push 0
-				//	push iChar
-				//	mov ecx, pClosestVehicle
-				//	call dwFunc
-				//	mov al, iDoor
-				//}
-				// Does this passenger seat contain a passenger?
 				if(!pClosestVehicle->GetPassenger(i))
 				{
 					byteTestSeatId = (i + 1);
@@ -2054,6 +2040,7 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 		{
 			// Send the network rpc
 			CBitStream bitStream;
+			bitStream.WriteCompressed(GetPlayerId());
 			bitStream.Write((BYTE)VEHICLE_ENTRY_COMPLETE);
 			bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
 			bitStream.Write(m_byteVehicleSeatId);
@@ -2111,6 +2098,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 					{
 						// Request the vehicle exit
 						CBitStream bitStream;
+						bitStream.WriteCompressed(GetPlayerId());
 						bitStream.Write((BYTE)VEHICLE_EXIT_REQUEST);
 						bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
 						g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
@@ -2192,6 +2180,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 							{
 								// Request the vehicle entry
 								CBitStream bsSend;
+								bsSend.WriteCompressed(GetPlayerId());
 								bsSend.Write((BYTE)VEHICLE_ENTRY_REQUEST);
 								bsSend.WriteCompressed(pVehicle->GetVehicleId());
 								bsSend.Write(byteSeatId);
@@ -2242,6 +2231,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 					{
 						// Send the network rpc
 						CBitStream bitStream;
+						bitStream.WriteCompressed(GetPlayerId());
 						bitStream.Write((BYTE)VEHICLE_ENTRY_COMPLETE);
 						bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
 						bitStream.Write(m_byteVehicleSeatId);
@@ -2277,6 +2267,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 
 							// Send the network rpc
 							CBitStream bitStream;
+							bitStream.WriteCompressed(GetPlayerId());
 							bitStream.Write((BYTE)VEHICLE_ENTRY_CANCELLED);
 							bitStream.WriteCompressed(m_vehicleEnterExit.pVehicle->GetVehicleId());
 							bitStream.Write(m_byteVehicleSeatId);
@@ -2323,6 +2314,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 					{
 						// Send the network rpc
 						CBitStream bitStream;
+						bitStream.WriteCompressed(GetPlayerId());
 						bitStream.Write((BYTE)VEHICLE_EXIT_COMPLETE);
 						bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
 						g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
@@ -2363,6 +2355,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 					{
 						// Send the network rpc
 						CBitStream bitStream;
+						bitStream.WriteCompressed(GetPlayerId());
 						bitStream.Write((BYTE)VEHICLE_EXIT_FORCEFUL);
 						bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
 						g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);

@@ -95,6 +95,9 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 	m_pPlayers[playerId]->SetState(STATE_TYPE_DISCONNECT);
 	m_pPlayers[playerId]->DeleteForWorld();
 
+	// Mark player as false
+	m_bActive[playerId] = false;
+
 	String strReason = "None";
 
 	if(byteReason == 0)
@@ -112,8 +115,6 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 #else
 	SAFE_DELETE_ARRAY( m_pPlayers[playerId] ); 
 #endif
-
-	m_bActive[playerId] = false;
 	return true;
 }
 

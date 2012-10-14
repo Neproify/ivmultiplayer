@@ -827,6 +827,8 @@ function onSwitchEngine(playerid)
 addEvent("switchEngine", onSwitchEngine);
 function onVehicleEntryComplete( playerid, vehicleid, seatid )
 {
+	log("| Player:"+playerid+"| vehhicleid:"+vehicleid+"| seatid:"+seatid+" |");
+	
 	if(seatid == 0){
 		sendPlayerMessage(playerid,"Press Y to turn the engine on/off",0xFFFFFFAA);
 	}

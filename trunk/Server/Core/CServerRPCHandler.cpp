@@ -542,8 +542,16 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 	if(!pBitStream)
 		return;
 
+	EntityId playerId;
+	if(!pBitStream->ReadCompressed(playerId))
+		return;
+
+	// Check the host
+	if(playerId != pSenderSocket->GetPlayerId())
+		return;
+
 	// Get the player pointer
-	CPlayer * pPlayer = g_pPlayerManager->GetAt(pSenderSocket->playerId);
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
 	// Is the player pointer valid?
 	if(pPlayer)
@@ -581,14 +589,14 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 
 			// Get the reply
 			CSquirrelArguments arguments;
-			arguments.push(pSenderSocket->playerId);
+			arguments.push(playerId);
 			arguments.push(vehicleId);
 			arguments.push(byteSeatId);
 			if(g_pEvents->Call("vehicleEntryRequest", &arguments).GetInteger() == 1)
 			{
 				// Reply to the vehicle entry request
 				CBitStream bitStream;
-				bitStream.WriteCompressed(pSenderSocket->playerId);
+				bitStream.WriteCompressed(playerId);
 				bitStream.WriteBit(true); // or just Write1()?
 
 				bitStream.Write((BYTE)VEHICLE_ENTRY_RETURN);
@@ -611,13 +619,13 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 
 			// Call the event
 			CSquirrelArguments arguments;
-			arguments.push(pSenderSocket->playerId);
+			arguments.push(playerId);
 			arguments.push(vehicleId);
 			arguments.push(byteSeatId);
 			g_pEvents->Call("vehicleEntryCancelled", &arguments);
 
 			CBitStream bitStream;
-			bitStream.WriteCompressed(pSenderSocket->playerId);
+			bitStream.WriteCompressed(playerId);
 			bitStream.WriteBit(true);
 			bitStream.Write((BYTE)VEHICLE_ENTRY_CANCELLED);
 			bitStream.Write(vehicleId);
@@ -637,7 +645,7 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 
 			// Call the event
 			CSquirrelArguments arguments;
-			arguments.push(pSenderSocket->playerId);
+			arguments.push(playerId);
 			arguments.push(vehicleId);
 			arguments.push(byteSeatId);
 			g_pEvents->Call("vehicleEntryComplete", &arguments);
@@ -657,14 +665,14 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 		{
 			// Get the reply
 			CSquirrelArguments arguments;
-			arguments.push(pSenderSocket->playerId);
+			arguments.push(playerId);
 			arguments.push(vehicleId);
 			arguments.push(pPlayer->GetVehicleSeatId());
 			bool bReply = (g_pEvents->Call("vehicleExitRequest", &arguments).GetInteger() == 1);
 
 			// Reply to the vehicle exit request
 			CBitStream bitStream;
-			bitStream.WriteCompressed(pSenderSocket->playerId);
+			bitStream.WriteCompressed(playerId);
 			bitStream.WriteBit(bReply);
 
 			// Was the reply ok?
@@ -683,7 +691,7 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 		{
 			// Call the event
 			CSquirrelArguments arguments;
-			arguments.push(pSenderSocket->playerId);
+			arguments.push(playerId);
 			arguments.push(vehicleId);
 			arguments.push(pPlayer->GetVehicleSeatId());
 			g_pEvents->Call("vehicleExitComplete", &arguments);
@@ -703,7 +711,7 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 		{
 			// Call the event
 			CSquirrelArguments arguments;
-			arguments.push(pSenderSocket->playerId);
+			arguments.push(playerId);
 			arguments.push(vehicleId);
 			arguments.push(pPlayer->GetVehicleSeatId());
 			g_pEvents->Call("vehicleForcefulExit", &arguments);
@@ -956,7 +964,6 @@ void CServerRPCHandler::RequestActorUpdate(CBitStream * pBitStream, CPlayerSocke
 	EntityId actorId;
 	pBitStream->Read(actorId);
 
-	CLogFile::Print("REQUEST ACTOR");
 	if(pPlayer)
 	{
 		CBitStream bsSend;
