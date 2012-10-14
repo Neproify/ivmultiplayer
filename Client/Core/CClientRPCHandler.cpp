@@ -1099,8 +1099,8 @@ void CClientRPCHandler::InVehicleSync(CBitStream * pBitStream, CPlayerSocket * p
 		if(pRemotePlayer)
 		{
 			// Set the Helmet
-			bool helmet = m_bHelmet;
-			pPlayer->SetHelmet(helmet);
+			bool bHelmet = m_bHelmet;
+			pPlayer->SetHelmet(bHelmet);
 
 			// Store aimdata before updating foot stuff, otherwise the hitbox has moved
 			if(bHasAimSyncData)

@@ -646,7 +646,7 @@ bool CGame::Patch()
 		/* GAME FUNCTIONS */
 #ifdef IVMP_TRAINS
 		// Hook for CVehicleFactory__CreateVehicle
-		CPatcher::InstallJmpPatch((GetBase() + 0x443D60), (DWORD)CVehicleFactory__CreateVehicle);
+		// CPatcher::InstallJmpPatch((GetBase() + 0x443D60), (DWORD)CVehicleFactory__CreateVehicle);
 #else
 		// Disable parked cars
 		CPatcher::InstallRetnPatch(GetBase() + 0xB3EDF0);
@@ -717,6 +717,9 @@ bool CGame::Patch()
 
 		// Fix vehicle crash
 		CPatcher::InstallJmpPatch((GetBase() + 0xCBA1F0), (GetBase() + 0xCBA230));
+
+		// Fix player crash #1
+		//CPatcher::InstallJmpPatch((GetBase() + 0x7BC110), (GetBase() + 0x7BC286));
 		
 		// Disalbe vehicle engine noise
 		//CPatcher::InstallJmpPatch((GetBase() + 0xCEF9E0), (GetBase() + 0xCEFA1B));
@@ -728,10 +731,10 @@ bool CGame::Patch()
 		//CPatcher::InstallJmpPatch((GetBase() + 0xB98400), (GetBase() + 0xB9845A));
 		
 		// Increase player info array size
-		CPatcher::Unprotect((GetBase() + 0x11A7008),4);
+		/*CPatcher::Unprotect((GetBase() + 0x11A7008),4);
 		DWORD dwPlayerInfoArraySize = *(DWORD *)(GetBase() + 0x11A7008);
 		dwPlayerInfoArraySize = dwPlayerInfoArraySize*4;
-		*(DWORD *)(GetBase() + 0x11A7008) = dwPlayerInfoArraySize;
+		*(DWORD *)(GetBase() + 0x11A7008) = dwPlayerInfoArraySize;*/
 
 		// Testcode for playerinfoarray size..
 		/*CPatcher::Unprotect((GetBase() + 0x11A7008),4);

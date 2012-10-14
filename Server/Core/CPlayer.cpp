@@ -307,6 +307,7 @@ void CPlayer::StoreInVehicleSync(CVehicle * pVehicle, InVehicleSyncData * syncPa
 
 	// Set the control state
 	SetControlState(&syncPacket->controlState);
+	//CLogFile::PrintDebugf("Controlstates(%d): %d,%d,%d,%d",m_playerId, syncPacket->controlState.ucInVehicleMove[0],syncPacket->controlState.ucInVehicleMove[1],syncPacket->controlState.ucInVehicleMove[2],syncPacket->controlState.ucInVehicleMove[3]);
 
 	// Set the position to the vehicle position
 	m_vecPosition = syncPacket->vecPos;

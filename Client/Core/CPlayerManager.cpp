@@ -270,12 +270,14 @@ bool CPlayerManager::Remove(EntityId playerId)
 	m_bActive[playerId] = false;
 
 	// Now the player won't be synced anymore, now we can delete him
+	// --
 
 	// Teleport him away so we can't see him anymore
 	m_pPlayers[playerId]->Teleport(CVector3(0.0f, 0.0f, -20.0f));
 	
 	// Destroy him now...
 	m_pPlayers[playerId]->Destroy();
+	m_bCreated[playerId] = false;
 
 	// Enable that if we have to destroy stuff  in cremoteplayer
 	/*CNetworkPlayer * pPlayer = GetAt(playerId);
@@ -284,9 +286,11 @@ bool CPlayerManager::Remove(EntityId playerId)
 		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
 		if(pRemotePlayer)
 			pRemotePlayer->Destroy();
+
+		SAFE_DELETE(pRemotePlayer);
 	}*/
 
-	//SAFE_DELETE(m_pPlayers[playerId]);
+	SAFE_DELETE(m_pPlayers[playerId]); // Handles CRemotePlayer Class...
 	return true;
 }
 

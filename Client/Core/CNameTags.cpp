@@ -48,6 +48,10 @@ void CNameTags::Draw()
 	if(!m_bEnabled)
 		return;
 
+	// Have we our graphics and device class?
+	if(g_pGraphics && g_pGraphics->GetDevice())
+		return;
+
 	if(g_pPlayerManager && g_pCamera && g_pLocalPlayer && g_pLocalPlayer->IsSpawned() && g_pGame->GetNameTags())
 	{
 		// Get the local player position
@@ -155,7 +159,6 @@ void CNameTags::Draw()
 				// Convert the position to a screen position
 				CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
 
-
 				// Is this player not within our view range?
 				if((vecLocalPlayerPosition - vecWorldPosition).Length() > 60.0f)
 					continue;
@@ -170,8 +173,15 @@ void CNameTags::Draw()
 				float fHealthWidth = Math::Clamp< float >( 0, (b_i_p + m_fHealth), 100 );
 				float fArmourWidth = Math::Clamp< float >( 0, (b_i_p + m_fArmour), 100 );
 
+				// Check health and armour(otherwise if < 0 -> crash)
+				if(m_fHealth < 0)
+					m_fHealth = 0.0f;
+
+				if(m_fArmour < 0)
+					m_fArmour = 0.0f;
+
 				// set the position to the newest
-				vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.15f); // must be added, otherwise wrong pos
+				vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.30f); // must be added, otherwise wrong pos
 
 				// Draw boxes
 				if(pPlayer->GetArmour() > 2.0)

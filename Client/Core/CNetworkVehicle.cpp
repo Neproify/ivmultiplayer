@@ -1088,36 +1088,42 @@ void CNetworkVehicle::UpdateInterior(bool bHasDriver)
 	if(!bHasDriver)
 	{
 		if(GetInterior() != m_uiInterior) {
-			unsigned int uiInterior = GetInterior();
-			SetInterior(uiInterior);
+			SetInterior(GetInterior());
 		}
 	}
-	else
+	else if(bHasDriver)
 	{
 		CNetworkPlayer * pPlayer = GetDriver();
 		if(pPlayer && pPlayer->IsSpawned())
 		{
 			unsigned int uiInterior = pPlayer->GetInterior();
-			if(g_pLocalPlayer->GetInterior() == uiInterior) {
+			if(GetInterior() == uiInterior) {
 				SetInterior(uiInterior);
 			}
-			else if(g_pLocalPlayer->GetInterior() != uiInterior) {
-				SetInterior(g_pLocalPlayer->GetInterior());
+			else if(GetInterior() != uiInterior) {
+				SetInterior(pPlayer->GetInterior());
 			}
-		}
-		else if(GetDriver() == NULL)
-		{
-			unsigned int uiInterior = GetInterior();
-			SetInterior(uiInterior);
 		}
 	}
 }
 
 void CNetworkVehicle::SetInterior(unsigned int uiInterior)
 {
-	if(IsSpawned() && uiInterior != GetInterior() && g_pLocalPlayer->GetVehicle()->GetVehicleId() != m_vehicleId) {
-		Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
-		m_uiInterior = uiInterior;
+	//CLogFile::Printf("(%d)Interior - %d,%d",GetVehicleId(), GetInterior(), m_uiInterior);
+
+	// Check stuff before continue setting interior..
+	if( !IsSpawned() || !g_pLocalPlayer || !m_pVehicle )
+		return;
+	
+	if( IsSpawned() && m_uiInterior != GetInterior()) {
+		if(g_pLocalPlayer->GetVehicle() == NULL){
+			Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
+			m_uiInterior = uiInterior;
+		}
+		else if(g_pLocalPlayer->GetVehicle()->GetVehicleId() != GetVehicleId()) {
+			Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
+			m_uiInterior = uiInterior;
+		}
 	}
 }
 
