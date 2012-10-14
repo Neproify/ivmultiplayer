@@ -49,7 +49,7 @@ void CNameTags::Draw()
 		return;
 
 	// Have we our graphics and device class?
-	if(g_pGraphics && g_pGraphics->GetDevice())
+	if(!g_pGraphics || !g_pGraphics->GetDevice())
 		return;
 
 	if(g_pPlayerManager && g_pCamera && g_pLocalPlayer && g_pLocalPlayer->IsSpawned() && g_pGame->GetNameTags())
@@ -181,7 +181,7 @@ void CNameTags::Draw()
 					m_fArmour = 0.0f;
 
 				// set the position to the newest
-				vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.30f); // must be added, otherwise wrong pos
+				vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.15f); // must be added, otherwise wrong pos
 
 				// Draw boxes
 				if(pPlayer->GetArmour() > 2.0)
@@ -252,7 +252,7 @@ void CNameTags::Draw()
 					CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
 
 					// Is this player not within our view range?
-					if((vecLocalPlayerPosition - vecWorldPosition).Length() > 30.0f)
+					if((vecLocalPlayerPosition - vecWorldPosition).Length() > 15.0f)
 						continue;
 
 					// Check the cam position with the world position(fix desync)
@@ -264,6 +264,13 @@ void CNameTags::Draw()
 					float m_fArmour = ( h_b_w * ((float)g_pActorManager->GetArmour(i) / 100) );
 					float fHealthWidth = Math::Clamp< float >( 0, (b_i_p + m_fHealth), 100 );
 					float fArmourWidth = Math::Clamp< float >( 0, (b_i_p + m_fArmour), 100 );
+
+					// Check health and armour(otherwise if < 0 -> crash)
+					if(m_fHealth < 0)
+						m_fHealth = 0.0f;
+
+					if(m_fArmour < 0)
+						m_fArmour = 0.0f;
 
 					// set the position to the newest
 					vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.15f); // must be added, otherwise wrong pos
