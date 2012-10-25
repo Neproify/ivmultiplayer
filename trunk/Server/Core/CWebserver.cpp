@@ -45,7 +45,7 @@ void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn)
 		args.push(request_info->uri);
 		args.push(szIpAddress);
 		args.push(request_info->request_method);
-		CSquirrelArgument ret = g_pEvents->Call("webRequest", &args);
+		g_pEvents->Call("webRequest", &args);
 
 		// Output the string to the web client
 		const char * out = "yes";
