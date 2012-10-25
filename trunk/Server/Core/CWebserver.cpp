@@ -27,13 +27,13 @@
 extern CEvents * g_pEvents;
 CMutex           g_webMutex;
 
-void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn, const mg_request_info * request_info)
+void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn)
 {
 	if(event == MG_NEW_REQUEST)
 	{
 		// Lock the web mutex
 		g_webMutex.Lock();
-
+		const mg_request_info* request_info = mg_get_request_info(conn);
 		// Get the ip address
 		in_addr sa;
 		memset(&sa, 0, sizeof(in_addr));
@@ -86,7 +86,7 @@ CWebServer::CWebServer(unsigned short usHTTPPort)
 		options[6] = NULL;
 
 		// Start the mongoose context
-		m_pMongooseContext = mg_start(MongooseEventHandler, (const char **)options);
+		m_pMongooseContext = mg_start(MongooseEventHandler, 0, (const char **)options);
 
 		// Free the options
 		for(int i = 0; i < 6; i++)
