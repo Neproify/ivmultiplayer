@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2010 Sergey Lyubka
+// Copyright (c) 2004-2012 Sergey Lyubka
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,9 @@
 #ifndef MONGOOSE_HEADER_INCLUDED
 #define  MONGOOSE_HEADER_INCLUDED
 
+#include <stdio.h>
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -34,12 +37,10 @@ struct mg_request_info {
   char *request_method;  // "GET", "POST", etc
   char *uri;             // URL-decoded URI
   char *http_version;    // E.g. "1.0", "1.1"
-  char *query_string;    // \0 - terminated
-  char *remote_user;     // Authenticated user
-  char *log_message;     // Mongoose error log message
+  char *query_string;    // URL part after '?' (not including '?') or NULL
+  char *remote_user;     // Authenticated user, or NULL if no auth used
   long remote_ip;        // Client's IP address
   int remote_port;       // Client's port
-  int status_code;       // HTTP reply status code
   int is_ssl;            // 1 if SSL-ed, 0 if not
   int num_headers;       // Number of headers
   struct mg_header {
@@ -48,35 +49,40 @@ struct mg_request_info {
   } http_headers[64];    // Maximum 64 headers
 };
 
+
 // Various events on which user-defined function is called by Mongoose.
 enum mg_event {
-  MG_NEW_REQUEST,   // New HTTP request has arrived from the client
-  MG_HTTP_ERROR,    // HTTP error must be returned to the client
-  MG_EVENT_LOG,     // Mongoose logs an event, request_info.log_message
-  MG_INIT_SSL,      // Mongoose initializes SSL. Instead of mg_connection *,
-                    // SSL context is passed to the callback function.
+  MG_NEW_REQUEST,       // New HTTP request has arrived from the client
+  MG_REQUEST_COMPLETE,  // Mongoose has finished handling the request
+  MG_HTTP_ERROR,        // HTTP error must be returned to the client
+  MG_EVENT_LOG,         // Mongoose logs an event, request_info.log_message
+  MG_INIT_SSL,          // SSL initialization, sent before certificate setup
+  MG_WEBSOCKET_CONNECT, // Sent on HTTP connect, before websocket handshake.
+                        // If user callback returns NULL, then mongoose proceeds
+                        // with handshake, otherwise it closes the connection.
+  MG_WEBSOCKET_READY,   // Handshake has been successfully completed.
+  MG_WEBSOCKET_MESSAGE, // Incoming message from the client
+  MG_WEBSOCKET_CLOSE,   // Client has closed the connection
 };
 
+
 // Prototype for the user-defined function. Mongoose calls this function
-// on every event mentioned above.
+// on every MG_* event.
 //
 // Parameters:
 //   event: which event has been triggered.
 //   conn: opaque connection handler. Could be used to read, write data to the
-//         client, etc. See functions below that accept "mg_connection *".
-//   request_info: Information about HTTP request.
+//         client, etc. See functions below that have "mg_connection *" arg.
 //
 // Return:
 //   If handler returns non-NULL, that means that handler has processed the
 //   request by sending appropriate HTTP reply to the client. Mongoose treats
 //   the request as served.
-//   If callback returns NULL, that means that callback has not processed
+//   If handler returns NULL, that means that handler has not processed
 //   the request. Handler must not send any data to the client in this case.
 //   Mongoose proceeds with request handling as if nothing happened.
-typedef void * (*mg_callback_t)(enum mg_event event,
-                                struct mg_connection *conn,
-                                const struct mg_request_info *request_info);
-  
+typedef void *(*mg_callback_t)(enum mg_event event, struct mg_connection *conn);
+
 
 // Start web server.
 //
@@ -85,20 +91,26 @@ typedef void * (*mg_callback_t)(enum mg_event event,
 //   options: NULL terminated list of option_name, option_value pairs that
 //            specify Mongoose configuration parameters.
 //
+// Side-effects: on UNIX, ignores SIGCHLD and SIGPIPE signals. If custom
+//    processing is required for these, signal handlers must be set up
+//    after calling mg_start().
+//
+//
 // Example:
 //   const char *options[] = {
 //     "document_root", "/var/www",
 //     "listening_ports", "80,443s",
 //     NULL
 //   };
-//   struct mg_context *ctx = mg_start(&my_func, options);
+//   struct mg_context *ctx = mg_start(&my_func, NULL, options);
 //
 // Please refer to http://code.google.com/p/mongoose/wiki/MongooseManual
 // for the list of valid option and their possible values.
 //
 // Return:
 //   web server context, or NULL on error.
-struct mg_context *mg_start(mg_callback_t callback, const char **options);
+struct mg_context *mg_start(mg_callback_t callback, void *user_data,
+                            const char **options);
 
 
 // Stop the web server.
@@ -136,20 +148,59 @@ const char **mg_get_valid_option_names(void);
 //
 // Return:
 //   1 on success, 0 on error.
-int mg_modify_passwords_file(struct mg_context *ctx, 
-    const char *passwords_file_name, const char *user, const char *password);
+int mg_modify_passwords_file(const char *passwords_file_name,
+                             const char *domain,
+                             const char *user,
+                             const char *password);
+
+
+// Return information associated with the request.
+// These functions always succeed.
+const struct mg_request_info *mg_get_request_info(const struct mg_connection *);
+void *mg_get_user_data(struct mg_connection *);
+const char *mg_get_log_message(const struct mg_connection *);
+int mg_get_reply_status_code(const struct mg_connection *);
+void *mg_get_ssl_context(const struct mg_connection *);
+
 
 // Send data to the client.
+// Return:
+//  0   when the connection has been closed
+//  -1  on error
+//  number of bytes written on success
 int mg_write(struct mg_connection *, const void *buf, size_t len);
 
 
 // Send data to the browser using printf() semantics.
 //
 // Works exactly like mg_write(), but allows to do message formatting.
-// Note that mg_printf() uses internal buffer of size IO_BUF_SIZE
-// (8 Kb by default) as temporary message storage for formatting. Do not
-// print data that is bigger than that, otherwise it will be truncated.
-int mg_printf(struct mg_connection *, const char *fmt, ...);
+// Below are the macros for enabling compiler-specific checks for
+// printf-like arguments.
+
+#undef PRINTF_FORMAT_STRING
+#if _MSC_VER >= 1400
+#include <sal.h>
+#if _MSC_VER > 1400
+#define PRINTF_FORMAT_STRING(s) _Printf_format_string_ s
+#else
+#define PRINTF_FORMAT_STRING(s) __format_string s
+#endif
+#else
+#define PRINTF_FORMAT_STRING(s) s
+#endif
+
+#ifdef __GNUC__
+#define PRINTF_ARGS(x, y) __attribute__((format(printf, x, y)))
+#else
+#define PRINTF_ARGS(x, y)
+#endif
+
+int mg_printf(struct mg_connection *,
+              PRINTF_FORMAT_STRING(const char *fmt), ...) PRINTF_ARGS(2, 3);
+
+
+// Send contents of the entire file together with HTTP headers.
+void mg_send_file(struct mg_connection *conn, const char *path);
 
 
 // Read data from the remote end, return number of bytes read.
@@ -176,12 +227,14 @@ const char *mg_get_header(const struct mg_connection *, const char *name);
 //
 // Return:
 //   On success, length of the decoded variable.
-//   On error, -1 (variable not found, or destination buffer is too small).
+//   On error:
+//      -1 (variable not found, or destination buffer is too small).
+//      -2 (destination buffer is NULL or zero length).
 //
-// Destination buffer is guaranteed to be '\0' - terminated. In case of
-// failure, dst[0] == '\0'.
+// Destination buffer is guaranteed to be '\0' - terminated if it is not
+// NULL or zero length. In case of failure, dst[0] == '\0'.
 int mg_get_var(const char *data, size_t data_len,
-    const char *var_name, char *buf, size_t buf_len);
+               const char *var_name, char *buf, size_t buf_len);
 
 // Fetch value of certain cookie variable into the destination buffer.
 //
@@ -195,7 +248,44 @@ int mg_get_var(const char *data, size_t data_len,
 //   requested parameter is not found, or destination buffer is too small
 //   to hold the value).
 int mg_get_cookie(const struct mg_connection *,
-    const char *cookie_name, char *buf, size_t buf_len);
+                  const char *cookie_name, char *buf, size_t buf_len);
+
+
+// Connect to the remote web server.
+// Return:
+//   On success, valid pointer to the new connection
+//   On error, NULL
+struct mg_connection *mg_connect(struct mg_context *ctx,
+                                 const char *host, int port, int use_ssl);
+
+
+// Close the connection opened by mg_connect().
+void mg_close_connection(struct mg_connection *conn);
+
+
+// Download given URL to a given file.
+//   url: URL to download
+//   path: file name where to save the data
+//   request_info: pointer to a structure that will hold parsed reply headers
+//   buf, bul_len: a buffer for the reply headers
+// Return:
+//   On error, NULL
+//   On success, opened file stream to the downloaded contents. The stream
+//   is positioned to the end of the file. It is the user's responsibility
+//   to fclose() the opened file stream.
+FILE *mg_fetch(struct mg_context *ctx, const char *url, const char *path,
+               char *buf, size_t buf_len, struct mg_request_info *request_info);
+
+
+// Convenience function -- create detached thread.
+// Return: 0 on success, non-0 on error.
+typedef void * (*mg_thread_func_t)(void *);
+int mg_start_thread(mg_thread_func_t f, void *p);
+
+
+// Return builtin mime type for the given file name.
+// For unrecognized extensions, "text/plain" is returned.
+const char *mg_get_builtin_mime_type(const char *file_name);
 
 
 // Return Mongoose version.
@@ -204,11 +294,11 @@ const char *mg_version(void);
 
 // MD5 hash given strings.
 // Buffer 'buf' must be 33 bytes long. Varargs is a NULL terminated list of
-// asciiz strings. When function returns, buf will contain human-readable
+// ASCIIz strings. When function returns, buf will contain human-readable
 // MD5 hash. Example:
 //   char buf[33];
 //   mg_md5(buf, "aa", "bb", NULL);
-void mg_md5(char *buf, ...);
+void mg_md5(char buf[33], ...);
 
 
 #ifdef __cplusplus
