@@ -47,7 +47,8 @@ const String MouseCursor::EventNamespace("MouseCursor");
 *************************************************************************/
 // singleton instance pointer
 template<> MouseCursor* Singleton<MouseCursor>::ms_Singleton	= 0;
-
+bool MouseCursor::s_initialPositionSet = false;
+Point MouseCursor::s_initialPosition(0.0f, 0.0f);
 
 /*************************************************************************
 	Event name constants
@@ -59,24 +60,27 @@ const String MouseCursor::EventImageChanged( "ImageChanged" );
 	constructor
 *************************************************************************/
 MouseCursor::MouseCursor(void) :
-    d_geometry(&System::getSingleton().getRenderer()->createGeometryBuffer())
+    d_cursorImage(0),
+    d_position(0.0f, 0.0f),
+    d_visible(true),
+    d_geometry(&System::getSingleton().getRenderer()->createGeometryBuffer()),
+    d_customSize(0.0f, 0.0f),
+    d_customOffset(0.0f, 0.0f),
+    d_cachedGeometryValid(false)
 {
     const Rect screenArea(Vector2(0, 0),
                           System::getSingleton().getRenderer()->getDisplaySize());
     d_geometry->setClippingRegion(screenArea);
 
-	// mouse defaults to middle of the constrained area
-	d_position.d_x = screenArea.getWidth() / 2;
-	d_position.d_y = screenArea.getHeight() / 2;
-
 	// default constraint is to whole screen
 	setConstraintArea(&screenArea);
 
-	// mouse defaults to visible
-	d_visible = true;
-
-	// no default image though
-	d_cursorImage = 0;
+    if (s_initialPositionSet)
+        setPosition(s_initialPosition);
+    else
+    	// mouse defaults to middle of the constrained area
+        setPosition(Point(screenArea.getWidth() / 2,
+                          screenArea.getHeight() / 2));
 
     char addr_buff[32];
     sprintf(addr_buff, "(%p)", static_cast<void*>(this));
@@ -108,12 +112,7 @@ void MouseCursor::setImage(const Image* image)
         return;
 
 	d_cursorImage = image;
-
-    if (image)
-    {
-        d_geometry->reset();
-        image->draw(*d_geometry, Vector2(0, 0), 0);
-    }
+    d_cachedGeometryValid = false;
 
 	MouseCursorEventArgs args(this);
 	args.image = image;
@@ -135,8 +134,13 @@ void MouseCursor::setImage(const String& imageset, const String& image_name)
 *************************************************************************/
 void MouseCursor::draw(void) const
 {
-    if (d_visible && d_cursorImage)
-        d_geometry->draw();
+    if (!d_visible || !d_cursorImage)
+        return;
+
+    if (!d_cachedGeometryValid)
+        cacheGeometry();
+
+    d_geometry->draw();
 }
 
 
@@ -272,16 +276,68 @@ void MouseCursor::notifyDisplaySizeChanged(const Size& new_size)
     const Rect screenArea(Vector2(0, 0), new_size);
     d_geometry->setClippingRegion(screenArea);
 
-    // redraw image back into buffer to regenerate geometry at (maybe) new size
-    if (d_cursorImage)
+    // invalidate to regenerate geometry at (maybe) new size
+    d_cachedGeometryValid = false;
+}
+
+//----------------------------------------------------------------------------//
+void MouseCursor::setExplicitRenderSize(const Size& size)
+{
+    d_customSize = size;
+    d_cachedGeometryValid = false;
+}
+
+//----------------------------------------------------------------------------//
+const Size& MouseCursor::getExplicitRenderSize() const
+{
+    return d_customSize;
+}
+
+//----------------------------------------------------------------------------//
+void MouseCursor::cacheGeometry() const
+{
+    d_cachedGeometryValid = true;
+    d_geometry->reset();
+
+    // if no image, nothing more to do.
+    if (!d_cursorImage)
+        return;
+
+    if (d_customSize.d_width != 0.0f || d_customSize.d_height != 0.0f)
     {
-        d_geometry->reset();
+        calculateCustomOffset();
+        d_cursorImage->draw(*d_geometry, d_customOffset, d_customSize, 0);
+    }
+    else
+    {
         d_cursorImage->draw(*d_geometry, Vector2(0, 0), 0);
     }
 }
 
 //----------------------------------------------------------------------------//
+void MouseCursor::calculateCustomOffset() const
+{
+    const Size sz(d_cursorImage->getSize());
+    const Point offset(d_cursorImage->getOffsets());
 
+    d_customOffset.d_x =
+        d_customSize.d_width / sz.d_width * offset.d_x - offset.d_x;
+    d_customOffset.d_y =
+        d_customSize.d_height / sz.d_height * offset.d_y - offset.d_y;
+}
+
+//----------------------------------------------------------------------------//
+void MouseCursor::setInitialMousePosition(const Point& position)
+{
+    s_initialPosition = position; 
+    s_initialPositionSet = true;
+}
+
+//----------------------------------------------------------------------------//
+void MouseCursor::invalidate()
+{
+    d_cachedGeometryValid = false;
+}
 
 //////////////////////////////////////////////////////////////////////////
 /*************************************************************************

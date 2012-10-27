@@ -7,7 +7,8 @@
 #undef CEGUI_BUILD_SUFFIX
 
 /* Set this to the default ImageCodec to be used (CoronaImageCodec,
-   DevILImageCodec FreeImageImageCode, SILLYImageCodec, TGAImageCodec). */
+   DevILImageCodec FreeImageImageCode, SILLYImageCodec, TGAImageCodec,
+   STBImageCodec). */
 #undef CEGUI_DEFAULT_IMAGE_CODEC
 
 /* Set this to the default XMLParser to be used (XercesParser, ExpatParser,
@@ -22,6 +23,9 @@
 
 /* Define to enable freetype 2 font support in CEGUI */
 #undef CEGUI_HAS_FREETYPE
+
+/* Defined when the resource provider with minizip support is built. */
+#undef CEGUI_HAS_MINIZIP_RESOURCE_PROVIDER
 
 /* Define to enable PCRE regular expression support in CEGUI */
 #undef CEGUI_HAS_PCRE_REGEX
@@ -56,6 +60,9 @@
 /* Set this to the name of the tinyxml.h file */
 #undef CEGUI_TINYXML_H
 
+/* Set this if your tiny xml version is 2.6 or higher */
+#undef CEGUI_TINYXML_HAS_2_6_API
+
 /* Set this to the name of the tinyxml namespace */
 #undef CEGUI_TINYXML_NAMESPACE
 
@@ -73,6 +80,9 @@
 
 /* Define to 1 if you have the `atexit' function. */
 #undef HAVE_ATEXIT
+
+/* define if the Boost::Python library is available */
+#undef HAVE_BOOST_PYTHON
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -115,6 +125,9 @@
 
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #undef HAVE_PTRDIFF_T
+
+/* Define to 1 if you have the <Python.h> header file. */
+#undef HAVE_PYTHON_H
 
 /* Define to 1 if you have the `regcomp' function. */
 #undef HAVE_REGCOMP
@@ -177,6 +190,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* zlib is available */
+#undef HAVE_ZLIB
+
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
 
@@ -198,6 +214,9 @@
 
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION

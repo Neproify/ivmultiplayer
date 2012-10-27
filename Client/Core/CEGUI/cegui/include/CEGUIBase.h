@@ -66,19 +66,19 @@
 
 // Detect macros for min / max and undefine (with a warning where possible)
 #if defined(max)
-/*#   if defined(_MSC_VER)
+#   if defined(_MSC_VER)
 #       pragma message("Macro definition of max detected - undefining")
 #   elif defined (__GNUC__)
 #       warning ("Macro definition of max detected - undefining")
-#   endif*/
+#   endif
 #   undef max
 #endif
 #if defined(min)
-/*#   if defined(_MSC_VER)
+#   if defined(_MSC_VER)
 #       pragma message("Macro definition of min detected - undefining")
 #   elif defined (__GNUC__)
 #       warning ("Macro definition of min detected - undefining")
-#   endif*/
+#   endif
 #   undef min
 #endif
 
@@ -103,6 +103,27 @@
 #else
 #    define ceguimin	std::min
 #    define ceguimax	std::max
+#endif
+
+// CEGUI's Exception macros
+// This provides a mechanism to override how exception handling is used.  Note
+// that in general this facility _should not be used_.  Attempts to use this
+// to disable exceptions to 'make things easier' are doomed to failure.  CEGUI
+// becomes less robust without exceptions (because they are used internally by
+// CEGUI).  In addition, overriding the exception mechanism will also cause
+// memory leaks in various places.  This is your only warning about such things,
+// if you decide to continue anyway you hereby waive any right to complain :-p
+#ifndef CEGUI_TRY
+#   define CEGUI_TRY try
+#endif
+#ifndef CEGUI_CATCH
+#   define CEGUI_CATCH(e) catch (e)
+#endif
+#ifndef CEGUI_THROW
+#   define CEGUI_THROW(e) throw e
+#endif
+#ifndef CEGUI_RETHROW
+#   define CEGUI_RETHROW throw
 #endif
 
 /*************************************************************************

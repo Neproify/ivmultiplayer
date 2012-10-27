@@ -171,7 +171,7 @@ size_t Font::getCharAtPixel(const String& text, size_t start_char, float pixel,
 
     return char_count;
 }
-#include "windows.h"
+
 //----------------------------------------------------------------------------//
 void Font::drawText(GeometryBuffer& buffer, const String& text,
                     const Vector2& position, const Rect* clip_rect,
@@ -183,19 +183,8 @@ void Font::drawText(GeometryBuffer& buffer, const String& text,
 
     for (size_t c = 0; c < text.length(); ++c)
     {
-
-		// we need temp input string of unsigned char
-		unsigned char ucANSI[2] = { (unsigned char) text[c], 0 };
-
-		// also we need temp output string of wchar_t
-		WCHAR *wUNICODE;
-		wUNICODE = new WCHAR[1];
-
-		// converting ANSI temp string to UNICODE temp string
-		MultiByteToWideChar( CP_THREAD_ACP, 0, (LPCSTR) ucANSI, -1, wUNICODE, 1 ); // can be CP_ACP too
-        
-		const FontGlyph* glyph;
-        if ((glyph = getGlyphData((unsigned long) wUNICODE[0]))) // NB: assignment
+        const FontGlyph* glyph;
+        if ((glyph = getGlyphData(text[c]))) // NB: assignment
         {
             const Image* const img = glyph->getImage();
             glyph_pos.d_y =
@@ -207,7 +196,6 @@ void Font::drawText(GeometryBuffer& buffer, const String& text,
             if (text[c] == ' ')
                 glyph_pos.d_x += space_extra;
         }
-		delete wUNICODE;
     }
 }
 

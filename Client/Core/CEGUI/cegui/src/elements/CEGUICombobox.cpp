@@ -630,6 +630,8 @@ void Combobox::onHorzScrollbarModeChanged(WindowEventArgs& e)
 *************************************************************************/
 void Combobox::onDropListDisplayed(WindowEventArgs& e)
 {
+    System::getSingleton().updateWindowContainingMouse();
+    getPushButton()->setPushedState(true);
 	fireEvent(EventDropListDisplayed, e, EventNamespace);
 }
 
@@ -639,6 +641,8 @@ void Combobox::onDropListDisplayed(WindowEventArgs& e)
 *************************************************************************/
 void Combobox::onDroplistRemoved(WindowEventArgs& e)
 {
+    System::getSingleton().updateWindowContainingMouse();
+    getPushButton()->setPushedState(false);
 	fireEvent(EventDropListRemoved, e, EventNamespace);
 }
 
@@ -736,13 +740,11 @@ bool Combobox::droplist_SelectionAcceptedHandler(const EventArgs& e)
 		}
 
 		editbox->setCaratIndex(0);
+		editbox->activate();
 
 		// fire off an event of our own
 		WindowEventArgs args(this);
 		onListSelectionAccepted(args);
-
-		// finally, activate the edit box
-		editbox->activate();
 	}
 
 	return true;

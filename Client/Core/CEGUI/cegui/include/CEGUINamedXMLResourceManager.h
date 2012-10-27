@@ -58,11 +58,26 @@ class CEGUIEXPORT ResourceEventSet : public EventSet
 public:
     //! Namespace name for all resource managers
     static const String EventNamespace;
-    //! Name of event fired when a resource is created by this manager.
+    /** Name of event fired when a resource is created by this manager.
+     * Handlers are passed a const ResourceEventArgs reference with
+     * ResourceEventArgs::resourceType String set to the type of resource that
+     * the event is related to, and ResourceEventArgs::resourceName String set
+     * to the name of the resource that the event is related to.
+     */
     static const String EventResourceCreated;
-    //! Name of event fired when a resource is destroyed by this manager.
+    /** Name of event fired when a resource is destroyed by this manager.
+     * Handlers are passed a const ResourceEventArgs reference with
+     * ResourceEventArgs::resourceType String set to the type of resource that
+     * the event is related to, and ResourceEventArgs::resourceName String set
+     * to the name of the resource that the event is related to.
+     */
     static const String EventResourceDestroyed;
-    //! Name of event fired when a resource is replaced by this manager.
+    /** Name of event fired when a resource is replaced by this manager.
+     * Handlers are passed a const ResourceEventArgs reference with
+     * ResourceEventArgs::resourceType String set to the type of resource that
+     * the event is related to, and ResourceEventArgs::resourceName String set
+     * to the name of the resource that the event is related to.
+     */
     static const String EventResourceReplaced;
 };
 
@@ -259,9 +274,9 @@ T& NamedXMLResourceManager<T, U>::get(const String& object_name) const
     typename ObjectRegistry::const_iterator i(d_objects.find(object_name));
 
     if (i == d_objects.end())
-        throw UnknownObjectException("NamedXMLResourceManager::get: "
+        CEGUI_THROW(UnknownObjectException("NamedXMLResourceManager::get: "
             "No object of type '" + d_resourceType + "' named '" + object_name +
-            "' is present in the collection.");
+            "' is present in the collection."));
 
     return *i->second;
 }
@@ -325,16 +340,16 @@ T& NamedXMLResourceManager<T, U>::doExistingObjectAction(
 
         case XREA_THROW:
             delete object;
-            throw AlreadyExistsException(
+            CEGUI_THROW(AlreadyExistsException(
                 "NamedXMLResourceManager::checkExistingObjectAction: "
                 "an object of type '" + d_resourceType + "' named '" +
-                object_name + "' already exists in the collection.");
+                object_name + "' already exists in the collection."));
 
         default:
             delete object;
-            throw InvalidRequestException(
+            CEGUI_THROW(InvalidRequestException(
                 "NamedXMLResourceManager::checkExistingObjectAction: "
-                "Invalid CEGUI::XMLResourceExistsAction was specified.");
+                "Invalid CEGUI::XMLResourceExistsAction was specified."));
         }
     }
     else

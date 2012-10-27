@@ -4,7 +4,7 @@
     author:     Paul D Turner (parts based on code by Rajko Stojadinovic)
 *************************************************************************/
 /***************************************************************************
- *   Copyright (C) 2004 - 2009 Paul D Turner & The CEGUI Development Team
+ *   Copyright (C) 2004 - 2010 Paul D Turner & The CEGUI Development Team
  *
  *   Permission is hereby granted, free of charge, to any person obtaining
  *   a copy of this software and associated documentation files (the
@@ -33,6 +33,8 @@
 #include "CEGUIDirect3D10Texture.h"
 #include "CEGUIRenderingRoot.h"
 #include "CEGUIExceptions.h"
+#include "CEGUISystem.h"
+#include "CEGUIDefaultResourceProvider.h"
 #include <algorithm>
 
 #include "CEGUIDirect3D10RendererShader.txt"
@@ -44,6 +46,40 @@ namespace CEGUI
 String Direct3D10Renderer::d_rendererID(
 "CEGUI::Direct3D10Renderer - Official Direct3D 10 based 2nd generation renderer"
 " module.");
+
+//----------------------------------------------------------------------------//
+Direct3D10Renderer& Direct3D10Renderer::bootstrapSystem(ID3D10Device* device)
+{
+    if (System::getSingletonPtr())
+        CEGUI_THROW(InvalidRequestException(
+            "Direct3D10Renderer::bootstrapSystem: CEGUI::System object is "
+            "already initialised."));
+
+    Direct3D10Renderer& renderer(create(device));
+    DefaultResourceProvider* rp = new CEGUI::DefaultResourceProvider();
+    System::create(renderer, rp);
+
+    return renderer;
+}
+
+//----------------------------------------------------------------------------//
+void Direct3D10Renderer::destroySystem()
+{
+    System* sys;
+    if (!(sys = System::getSingletonPtr()))
+        CEGUI_THROW(InvalidRequestException(
+            "Direct3D10Renderer::destroySystem: CEGUI::System object is not "
+            "created or was already destroyed."));
+
+    Direct3D10Renderer* renderer =
+        static_cast<Direct3D10Renderer*>(sys->getRenderer());
+    DefaultResourceProvider* rp =
+        static_cast<DefaultResourceProvider*>(sys->getResourceProvider());
+
+    System::destroy();
+    delete rp;
+    destroy(*renderer);
+}
 
 //----------------------------------------------------------------------------//
 Direct3D10Renderer& Direct3D10Renderer::create(ID3D10Device* device)
@@ -227,7 +263,8 @@ Direct3D10Renderer::Direct3D10Renderer(ID3D10Device* device) :
     d_defaultTarget(0),
     d_defaultRoot(0),
     d_effect(0),
-    d_technique(0),
+    d_normalTechnique(0),
+    d_premultipliedTechnique(0),
     d_inputLayout(0),
     d_boundTextureVariable(0),
     d_worldMatrixVariable(0),
@@ -242,11 +279,14 @@ Direct3D10Renderer::Direct3D10Renderer(ID3D10Device* device) :
         std::string msg(static_cast<const char*>(errors->GetBufferPointer()),
                         errors->GetBufferSize());
         errors->Release();
-        throw RendererException(msg);
+        CEGUI_THROW(RendererException(msg));
     }
 
-    // extract the rendering technique
-    d_technique = d_effect->GetTechniqueByName("CEGUIRendering");
+    // extract the rendering techniques
+    d_normalTechnique =
+            d_effect->GetTechniqueByName("BM_NORMAL_Rendering");
+    d_premultipliedTechnique =
+            d_effect->GetTechniqueByName("BM_RTT_PREMULTIPLIED_Rendering");
 
     // Get the variables from the shader we need to be able to access
     d_boundTextureVariable =
@@ -267,17 +307,18 @@ Direct3D10Renderer::Direct3D10Renderer(ID3D10Device* device) :
     const UINT element_count = sizeof(vertex_layout) / sizeof(vertex_layout[0]);
 
     D3D10_PASS_DESC pass_desc;
-    if (FAILED(d_technique->GetPassByIndex(0)->GetDesc(&pass_desc)))
-        throw RendererException("Direct3D10Renderer: failed to obtain technique "
-                                "description for pass 0.");
+    if (FAILED(d_normalTechnique->GetPassByIndex(0)->GetDesc(&pass_desc)))
+        CEGUI_THROW(RendererException(
+            "Direct3D10Renderer: failed to obtain technique "
+            "description for pass 0."));
 
     if (FAILED(d_device->CreateInputLayout(vertex_layout, element_count,
                                             pass_desc.pIAInputSignature,
                                             pass_desc.IAInputSignatureSize,
                                             &d_inputLayout)))
     {
-        throw RendererException("Direct3D10Renderer: failed to create D3D 10 "
-                                "input layout.");
+        CEGUI_THROW(RendererException(
+            "Direct3D10Renderer: failed to create D3D 10 input layout."));
     }
 
     d_defaultTarget = new Direct3D10ViewportTarget(*this);
@@ -311,8 +352,9 @@ Size Direct3D10Renderer::getViewportSize()
     d_device->RSGetViewports(&vp_count, &vp);
 
     if (vp_count != 1)
-        throw RendererException("Direct3D10Renderer::getViewportSize: Unable "
-            "to access required view port information from IDirect3DDevice10.");
+        CEGUI_THROW(RendererException(
+            "Direct3D10Renderer::getViewportSize: Unable "
+            "to access required view port information from IDirect3DDevice10."));
     else
         return Size(static_cast<float>(vp.Width),
                     static_cast<float>(vp.Height));
@@ -325,9 +367,12 @@ ID3D10Device& Direct3D10Renderer::getDirect3DDevice() const
 }
 
 //----------------------------------------------------------------------------//
-void Direct3D10Renderer::bindTechniquePass()
+void Direct3D10Renderer::bindTechniquePass(const BlendMode mode)
 {
-    d_technique->GetPassByIndex(0)->Apply(0);
+    if (mode == BM_RTT_PREMULTIPLIED)
+        d_premultipliedTechnique->GetPassByIndex(0)->Apply(0);
+    else
+        d_normalTechnique->GetPassByIndex(0)->Apply(0);
 }
 
 //----------------------------------------------------------------------------//

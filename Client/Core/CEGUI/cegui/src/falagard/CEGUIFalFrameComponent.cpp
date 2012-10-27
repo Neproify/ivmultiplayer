@@ -32,6 +32,7 @@
 #include "CEGUIImagesetManager.h"
 #include "CEGUIImageset.h"
 #include <iostream>
+#include <cstdlib>
 
 // Start of CEGUI namespace section
 namespace CEGUI
@@ -82,11 +83,11 @@ namespace CEGUI
     {
         assert(part < FIC_FRAME_IMAGE_COUNT);
 
-        try
+        CEGUI_TRY
         {
             d_frameImages[part] = &ImagesetManager::getSingleton().get(imageset).getImage(image);
         }
-        catch (UnknownObjectException&)
+        CEGUI_CATCH (UnknownObjectException&)
         {
             d_frameImages[part] = 0;
         }
@@ -151,7 +152,7 @@ namespace CEGUI
             }
 
             // draw this element.
-            d_frameImages[FIC_TOP_LEFT_CORNER]->draw(srcWindow.getGeometryBuffer(), finalRect, 0, imageColours);
+            d_frameImages[FIC_TOP_LEFT_CORNER]->draw(srcWindow.getGeometryBuffer(), finalRect, clipper, imageColours);
         }
 
         // top-right image
@@ -182,7 +183,7 @@ namespace CEGUI
             }
 
             // draw this element.
-            d_frameImages[FIC_TOP_RIGHT_CORNER]->draw(srcWindow.getGeometryBuffer(), finalRect, 0, imageColours);
+            d_frameImages[FIC_TOP_RIGHT_CORNER]->draw(srcWindow.getGeometryBuffer(), finalRect, clipper, imageColours);
         }
 
         // bottom-left image
@@ -213,7 +214,7 @@ namespace CEGUI
             }
 
             // draw this element.
-            d_frameImages[FIC_BOTTOM_LEFT_CORNER]->draw(srcWindow.getGeometryBuffer(), finalRect, 0, imageColours);
+            d_frameImages[FIC_BOTTOM_LEFT_CORNER]->draw(srcWindow.getGeometryBuffer(), finalRect, clipper, imageColours);
         }
 
         // bottom-right image
@@ -243,7 +244,7 @@ namespace CEGUI
             }
 
             // draw this element.
-            d_frameImages[FIC_BOTTOM_RIGHT_CORNER]->draw(srcWindow.getGeometryBuffer(), finalRect, 0, imageColours);
+            d_frameImages[FIC_BOTTOM_RIGHT_CORNER]->draw(srcWindow.getGeometryBuffer(), finalRect, clipper, imageColours);
         }
 
         // top image
@@ -272,7 +273,7 @@ namespace CEGUI
             }
 
             // draw this element.
-            d_frameImages[FIC_TOP_EDGE]->draw(srcWindow.getGeometryBuffer(), finalRect, 0, imageColours);
+            d_frameImages[FIC_TOP_EDGE]->draw(srcWindow.getGeometryBuffer(), finalRect, clipper, imageColours);
         }
 
         // bottom image
@@ -301,7 +302,7 @@ namespace CEGUI
             }
 
             // draw this element.
-            d_frameImages[FIC_BOTTOM_EDGE]->draw(srcWindow.getGeometryBuffer(), finalRect, 0, imageColours);
+            d_frameImages[FIC_BOTTOM_EDGE]->draw(srcWindow.getGeometryBuffer(), finalRect, clipper, imageColours);
         }
 
         // left image
@@ -330,7 +331,7 @@ namespace CEGUI
             }
 
             // draw this element.
-            d_frameImages[FIC_LEFT_EDGE]->draw(srcWindow.getGeometryBuffer(), finalRect, 0, imageColours);
+            d_frameImages[FIC_LEFT_EDGE]->draw(srcWindow.getGeometryBuffer(), finalRect, clipper, imageColours);
         }
 
         // right image
@@ -359,7 +360,7 @@ namespace CEGUI
             }
 
             // draw this element.
-            d_frameImages[FIC_RIGHT_EDGE]->draw(srcWindow.getGeometryBuffer(), finalRect, 0, imageColours);
+            d_frameImages[FIC_RIGHT_EDGE]->draw(srcWindow.getGeometryBuffer(), finalRect, clipper, imageColours);
         }
 
         if (d_frameImages[FIC_BACKGROUND])
@@ -404,7 +405,8 @@ namespace CEGUI
 
             case HF_TILED:
                 xpos = destRect.d_left;
-                horzTiles = (uint)((destRect.getWidth() + (imgSz.d_width - 1)) / imgSz.d_width);
+                horzTiles = std::abs(static_cast<int>(
+                    (destRect.getWidth() + (imgSz.d_width - 1)) / imgSz.d_width));
                 break;
 
             case HF_LEFT_ALIGNED:
@@ -423,7 +425,7 @@ namespace CEGUI
                 break;
 
             default:
-                throw InvalidRequestException("FrameComponent::doBackgroundRender - An unknown HorizontalFormatting value was specified.");
+                CEGUI_THROW(InvalidRequestException("FrameComponent::doBackgroundRender - An unknown HorizontalFormatting value was specified."));
         }
 
         // calculate initial y co-ordinate and vertical tile count according to formatting options
@@ -437,7 +439,8 @@ namespace CEGUI
 
             case VF_TILED:
                 ypos = destRect.d_top;
-                vertTiles = (uint)((destRect.getHeight() + (imgSz.d_height - 1)) / imgSz.d_height);
+                vertTiles = std::abs(static_cast<int>(
+                    (destRect.getHeight() + (imgSz.d_height - 1)) / imgSz.d_height));
                 break;
 
             case VF_TOP_ALIGNED:
@@ -456,7 +459,7 @@ namespace CEGUI
                 break;
 
             default:
-                throw InvalidRequestException("FrameComponent::doBackgroundRender - An unknown VerticalFormatting value was specified.");
+                CEGUI_THROW(InvalidRequestException("FrameComponent::doBackgroundRender - An unknown VerticalFormatting value was specified."));
         }
 
         // perform final rendering (actually is now a caching of the images which will be drawn)

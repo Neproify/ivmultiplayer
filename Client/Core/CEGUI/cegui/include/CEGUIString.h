@@ -31,9 +31,9 @@
 #define _CEGUIString_h_
 
 #include "CEGUIBase.h"
-#include <string>
 #include <string.h>
 #include <stdexcept>
+#include <cstddef>
 
 // Start of CEGUI namespace section
 namespace CEGUI
@@ -62,7 +62,7 @@ public:
 	*************************************************************************/
 	typedef		utf32			value_type;					//!< Basic 'code point' type used for String (utf32)
 	typedef		size_t			size_type;					//!< Unsigned type used for size values and indices
-	typedef		ptrdiff_t		difference_type;			//!< Signed type used for differences
+	typedef		std::ptrdiff_t	difference_type;			//!< Signed type used for differences
 	typedef		utf32&			reference;					//!< Type used for utf32 code point references
 	typedef		const utf32&	const_reference;			//!< Type used for constant utf32 code point references
 	typedef		utf32*			pointer;					//!< Type used for utf32 code point pointers
@@ -88,245 +88,222 @@ public:
 	/*************************************************************************
 		Iterator Classes
 	*************************************************************************/
-	/*!
-	\brief
-		Constant forward iterator class for String objects
-	*/
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-	class const_iterator : public std::iterator<std::random_access_iterator_tag, utf32>
-#else
-	class const_iterator : public std::iterator<std::random_access_iterator_tag, utf32, std::ptrdiff_t, const utf32*, const utf32&>
-#endif
-	{
+    //! regular iterator for String.
+    class iterator : public std::iterator<std::random_access_iterator_tag, utf32>
+    {
+    public:
+        iterator() : d_ptr(0) {}
+        explicit iterator(utf32* const ptr) : d_ptr(ptr) {}
 
-	public:
-		//////////////////////////////////////////////////////////////////////////
-		// data
-		//////////////////////////////////////////////////////////////////////////
-		const utf32*	d_ptr;
+        utf32& operator*() const
+        {
+            return *d_ptr;
+        }
 
+        utf32* operator->() const
+        {
+            return &**this;
+        }
 
-		//////////////////////////////////////////////////////////////////////////
-		// Methods
-		//////////////////////////////////////////////////////////////////////////
-		const_iterator(void)
-		{
-			d_ptr = 0;
-		}
-		const_iterator(const_pointer ptr)
-		{
-			d_ptr = ptr;
-		}
+        String::iterator& operator++()
+        {
+            ++d_ptr;
+            return *this;
+        }
 
-		const_reference	operator*() const
-		{
-			return *d_ptr;
-		}
+        String::iterator operator++(int)
+        {
+            String::iterator temp = *this;
+            ++*this;
+            return temp;
+        }
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-#	pragma warning (push)
-#	pragma warning (disable : 4284)
-#endif
-		const_pointer	operator->() const
-		{
-			return &**this;
-		}
+        String::iterator& operator--()
+        {
+            --d_ptr;
+            return *this;
+        }
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-#	pragma warning (pop)
-#endif
+        String::iterator operator--(int)
+        {
+            String::iterator temp = *this;
+            --*this;
+            return temp;
+        }
 
-		const_iterator&	operator++()
-		{
-			++d_ptr;
-			return *this;
-		}
+        String::iterator& operator+=(difference_type offset)
+        {
+            d_ptr += offset;
+            return *this;
+        }
 
-		const_iterator	operator++(int)
-		{
-			const_iterator temp = *this;
-			++*this;
-			return temp;
-		}
+        String::iterator operator+(difference_type offset) const
+        {
+            String::iterator temp = *this;
+            return temp += offset;
+        }
 
-		const_iterator&	operator--()
-		{
-			--d_ptr;
-			return *this;
-		}
+        String::iterator& operator-=(difference_type offset)
+        {
+            return *this += -offset;
+        }
 
-		const_iterator	operator--(int)
-		{
-			const_iterator temp = *this;
-			--*this;
-			return temp;
-		}
+        String::iterator operator-(difference_type offset) const
+        {
+            String::iterator temp = *this;
+            return temp -= offset;
+        }
 
-		const_iterator& operator+=(difference_type offset)
-		{
-			d_ptr += offset;
-			return *this;
-		}
+        utf32& operator[](difference_type offset) const
+        {
+            return *(*this + offset);
+        }
 
-		const_iterator operator+(difference_type offset) const
-		{
-			const_iterator temp = *this;
-			return temp += offset;
-		}
+        friend difference_type operator-(const String::iterator& lhs,
+                                         const String::iterator& rhs)
+            { return lhs.d_ptr - rhs.d_ptr; }
 
-		const_iterator& operator-=(difference_type offset)
-		{
-			return *this += -offset;
-		}
+        friend String::iterator operator+(difference_type offset, const String::iterator& iter)
+            { return iter + offset; }
 
-		const_iterator operator-(difference_type offset) const
-		{
-			const_iterator temp = *this;
-			return temp -= offset;
-		}
+        friend bool operator==(const String::iterator& lhs,
+                               const String::iterator& rhs)
+            { return lhs.d_ptr == rhs.d_ptr; }
 
-		difference_type operator-(const const_iterator& iter) const
-		{
-			return d_ptr - iter.d_ptr;
-		}
+        friend bool operator!=(const String::iterator& lhs,
+                               const String::iterator& rhs)
+            { return lhs.d_ptr != rhs.d_ptr; }
 
-		const_reference operator[](difference_type offset) const
-		{
-			return *(*this + offset);
-		}
+        friend bool operator<(const String::iterator& lhs,
+                              const String::iterator& rhs)
+            { return lhs.d_ptr < rhs.d_ptr; }
 
-		bool operator==(const const_iterator& iter) const
-		{
-			return d_ptr == iter.d_ptr;
-		}
+        friend bool operator>(const String::iterator& lhs,
+                              const String::iterator& rhs)
+            { return lhs.d_ptr > rhs.d_ptr; }
 
-		bool operator!=(const const_iterator& iter) const
-		{
-			return !(*this == iter);
-		}
+        friend bool operator<=(const String::iterator& lhs,
+                               const String::iterator& rhs)
+            { return lhs.d_ptr <= rhs.d_ptr; }
 
-		bool operator<(const const_iterator& iter) const
-		{
-			return d_ptr < iter.d_ptr;
-		}
+        friend bool operator>=(const String::iterator& lhs,
+                               const String::iterator& rhs)
+            { return lhs.d_ptr >= rhs.d_ptr; }
 
-		bool operator>(const const_iterator& iter) const
-		{
-			return (!(iter < *this));
-		}
+        utf32* d_ptr;
+    };
 
-		bool operator<=(const const_iterator& iter) const
-		{
-			return (!(iter < *this));
-		}
+    //! const iterator for String.
+    class const_iterator : public std::iterator<std::random_access_iterator_tag, const utf32>
+    {
+    public:
+        const_iterator() : d_ptr(0) {}
+        explicit const_iterator(const utf32* const ptr) : d_ptr(ptr) {}
+        const_iterator(const String::iterator& iter) : d_ptr(iter.d_ptr) {}
 
-		bool operator>=(const const_iterator& iter) const
-		{
-			return (!(*this < iter));
-		}
+        const utf32& operator*() const
+        {
+            return *d_ptr;
+        }
 
-		friend const_iterator operator+(difference_type offset, const const_iterator& iter)
-		{
-			return iter + offset;
-		}
+        const utf32* operator->() const
+        {
+            return &**this;
+        }
 
-	};
+        String::const_iterator& operator++()
+        {
+            ++d_ptr;
+            return *this;
+        }
 
-	/*!
-	\brief
-		Forward iterator class for String objects
-	*/
-	class iterator : public const_iterator
-	{
-	public:
-		iterator(void) {}
-		iterator(pointer ptr) : const_iterator(ptr) {}
+        String::const_iterator operator++(int)
+        {
+            String::const_iterator temp = *this;
+            ++*this;
+            return temp;
+        }
 
+        String::const_iterator& operator--()
+        {
+            --d_ptr;
+            return *this;
+        }
 
-		reference operator*() const
-		{
-			return ((reference)**(const_iterator *)this);
-		}
+        String::const_iterator operator--(int)
+        {
+            String::const_iterator temp = *this;
+            --*this;
+            return temp;
+        }
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-#	pragma warning (push)
-#	pragma warning (disable : 4284)
-#endif
+        String::const_iterator& operator+=(difference_type offset)
+        {
+            d_ptr += offset;
+            return *this;
+        }
 
-		pointer operator->() const
-		{
-			return &**this;
-		}
+        String::const_iterator operator+(difference_type offset) const
+        {
+            String::const_iterator temp = *this;
+            return temp += offset;
+        }
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-#	pragma warning (pop)
-#endif
+        String::const_iterator& operator-=(difference_type offset)
+        {
+            return *this += -offset;
+        }
 
-		iterator& operator++()
-		{
-			++this->d_ptr;
-			return *this;
-		}
+        String::const_iterator operator-(difference_type offset) const
+        {
+            String::const_iterator temp = *this;
+            return temp -= offset;
+        }
 
-		iterator operator++(int)
-		{
-			iterator temp = *this;
-			++*this;
-			return temp;
-		}
+        const utf32& operator[](difference_type offset) const
+        {
+            return *(*this + offset);
+        }
 
-		iterator& operator--()
-		{
-			--this->d_ptr;
-			return *this;
-		}
+        String::const_iterator& operator=(const String::iterator& iter)
+        {
+            d_ptr = iter.d_ptr;
+            return *this;
+        }
 
-		iterator operator--(int)
-		{
-			iterator temp = *this;
-			--*this;
-			return temp;
-		}
+        friend String::const_iterator operator+(difference_type offset, const String::const_iterator& iter)
+            { return iter + offset; }
 
-		iterator& operator+=(difference_type offset)
-		{
-			this->d_ptr += offset;
-			return *this;
-		}
+        friend difference_type operator-(const String::const_iterator& lhs,
+                                         const String::const_iterator& rhs)
+            { return lhs.d_ptr - rhs.d_ptr; }
 
-		iterator operator+(difference_type offset) const
-		{
-			iterator temp = *this;
-			return temp + offset;
-		}
+        friend bool operator==(const String::const_iterator& lhs,
+                               const String::const_iterator& rhs)
+            { return lhs.d_ptr == rhs.d_ptr; }
 
-		iterator& operator-=(difference_type offset)
-		{
-			return *this += -offset;
-		}
+        friend bool operator!=(const String::const_iterator& lhs,
+                               const String::const_iterator& rhs)
+            { return lhs.d_ptr != rhs.d_ptr; }
 
-		iterator operator-(difference_type offset) const
-		{
-			iterator temp = *this;
-			return temp -= offset;
-		}
+        friend bool operator<(const String::const_iterator& lhs,
+                              const String::const_iterator& rhs)
+            { return lhs.d_ptr < rhs.d_ptr; }
 
-		difference_type operator-(const const_iterator& iter) const
-		{
-			return ((const_iterator)*this - iter);
-		}
+        friend bool operator>(const String::const_iterator& lhs,
+                              const String::const_iterator& rhs)
+            { return lhs.d_ptr > rhs.d_ptr; }
 
-		reference operator[](difference_type offset) const
-		{
-			return *(*this + offset);
-		}
+        friend bool operator<=(const String::const_iterator& lhs,
+                               const String::const_iterator& rhs)
+            { return lhs.d_ptr <= rhs.d_ptr; }
 
-		friend iterator operator+(difference_type offset, const iterator& iter)
-		{
-			return iter + offset;
-		}
+        friend bool operator>=(const String::const_iterator& lhs,
+                               const String::const_iterator& rhs)
+            { return lhs.d_ptr >= rhs.d_ptr; }
 
-	};
+        const utf32* d_ptr;
+    };
 
 	/*!
 	\brief
@@ -780,7 +757,7 @@ public:
 	int		compare(size_type idx, size_type len, const String& str, size_type str_idx = 0, size_type str_len = npos) const
 	{
 		if ((d_cplength < idx) || (str.d_cplength < str_idx))
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if ((len == npos) || (idx + len > d_cplength))
 			len = d_cplength - idx;
@@ -855,10 +832,10 @@ public:
 	int		compare(size_type idx, size_type len, const std::string& std_str, size_type str_idx = 0, size_type str_len = npos) const
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (std_str.size() < str_idx)
-			throw std::out_of_range("Index is out of range for std::string");
+			CEGUI_THROW(std::out_of_range("Index is out of range for std::string"));
 
 		if ((len == npos) || (idx + len > d_cplength))
 			len = d_cplength - idx;
@@ -969,10 +946,10 @@ public:
 	int		compare(size_type idx, size_type len, const utf8* utf8_str, size_type str_cplen) const
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (str_cplen == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		if ((len == npos) || (idx + len > d_cplength))
 			len = d_cplength - idx;
@@ -1063,10 +1040,10 @@ public:
 	int		compare(size_type idx, size_type len, const char* chars, size_type chars_len) const
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (chars_len == npos)
-			throw std::length_error("Length for char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for char array can not be 'npos'"));
 
 		if ((len == npos) || (idx + len > d_cplength))
 			len = d_cplength - idx;
@@ -1133,7 +1110,7 @@ public:
 	reference	at(size_type idx)
 	{
 		if (d_cplength <= idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		return ptr()[idx];
 	}
@@ -1153,7 +1130,7 @@ public:
 	const_reference	at(size_type idx) const
 	{
 		if (d_cplength <= idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		return ptr()[idx];
 	}
@@ -1241,7 +1218,7 @@ public:
 	size_type	copy(utf8* buf, size_type len = npos, size_type idx = 0) const
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (len == npos)
 			len = d_cplength;
@@ -1273,7 +1250,7 @@ public:
 		using namespace std;
 
 		if (d_cplength < idx)
-			throw out_of_range("Index was out of range for CEGUI::String object");
+			CEGUI_THROW(out_of_range("Index was out of range for CEGUI::String object"));
 
 		size_type	maxlen = d_cplength - idx;
 
@@ -1319,7 +1296,7 @@ public:
 	String&	assign(const String& str, size_type str_idx = 0, size_type str_num = npos)
 	{
 		if (str.d_cplength < str_idx)
-			throw std::out_of_range("Index was out of range for CEGUI::String object");
+			CEGUI_THROW(std::out_of_range("Index was out of range for CEGUI::String object"));
 
 		if ((str_num == npos) || (str_num > str.d_cplength - str_idx))
 			str_num = str.d_cplength - str_idx;
@@ -1378,7 +1355,7 @@ public:
 	String&	assign(const std::string& std_str, size_type str_idx = 0, size_type str_num = npos)
 	{
 		if (std_str.size() < str_idx)
-			throw std::out_of_range("Index was out of range for std::string object");
+			CEGUI_THROW(std::out_of_range("Index was out of range for std::string object"));
 
 		if ((str_num == npos) || (str_num > (size_type)std_str.size() - str_idx))
 			str_num = (size_type)std_str.size() - str_idx;
@@ -1464,7 +1441,7 @@ public:
 	String&	assign(const utf8* utf8_str, size_type str_num)
 	{
 		if (str_num == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		size_type enc_sze = encoded_size(utf8_str, str_num);
 
@@ -1507,7 +1484,7 @@ public:
 	String&	assign(size_type num, utf32 code_point)
 	{
 		if (num == npos)
-			throw std::length_error("Code point count can not be 'npos'");
+			CEGUI_THROW(std::length_error("Code point count can not be 'npos'"));
 
 		grow(num);
 		setlen(num);
@@ -1664,7 +1641,7 @@ public:
 	String& append(const String& str, size_type str_idx = 0, size_type str_num = npos)
 	{
 		if (str.d_cplength < str_idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if ((str_num == npos) || (str_num > str.d_cplength - str_idx))
 			str_num = str.d_cplength - str_idx;
@@ -1723,7 +1700,7 @@ public:
 	String& append(const std::string& std_str, size_type str_idx = 0, size_type str_num = npos)
 	{
 		if (std_str.size() < str_idx)
-			throw std::out_of_range("Index is out of range for std::string");
+			CEGUI_THROW(std::out_of_range("Index is out of range for std::string"));
 
 		if ((str_num == npos) || (str_num > (size_type)std_str.size() - str_idx))
 			str_num = (size_type)std_str.size() - str_idx;
@@ -1812,7 +1789,7 @@ public:
 	String& append(const utf8* utf8_str, size_type len)
 	{
 		if (len == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		size_type encsz = encoded_size(utf8_str, len);
 		size_type newsz = d_cplength + encsz;
@@ -1860,7 +1837,7 @@ public:
 	String& append(size_type num, utf32 code_point)
 	{
 		if (num == npos)
-			throw std::length_error("Code point count can not be 'npos'");
+			CEGUI_THROW(std::length_error("Code point count can not be 'npos'"));
 
 		size_type newsz = d_cplength + num;
 		grow(newsz);
@@ -1967,7 +1944,7 @@ public:
 	String& append(const char* chars, size_type chars_len)
 	{
 		if (chars_len == npos)
-			throw std::length_error("Length for char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for char array can not be 'npos'"));
 
 		size_type newsz = d_cplength + chars_len;
 
@@ -2033,7 +2010,7 @@ public:
 	String& insert(size_type idx, const String& str, size_type str_idx, size_type str_num)
 	{
 		if ((d_cplength < idx) || (str.d_cplength < str_idx))
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if ((str_num == npos) || (str_num > str.d_cplength - str_idx))
 			str_num = str.d_cplength - str_idx;
@@ -2101,10 +2078,10 @@ public:
 	String& insert(size_type idx, const std::string& std_str, size_type str_idx, size_type str_num)
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (std_str.size() < str_idx)
-			throw std::out_of_range("Index is out of range for std::string");
+			CEGUI_THROW(std::out_of_range("Index is out of range for std::string"));
 
 		if ((str_num == npos) || (str_num > (size_type)std_str.size() - str_idx))
 			str_num = (size_type)std_str.size() - str_idx;
@@ -2179,10 +2156,10 @@ public:
 	String& insert(size_type idx, const utf8* utf8_str, size_type len)
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (len == npos)
-			throw std::length_error("Length of utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length of utf8 encoded string can not be 'npos'"));
 
 		size_type encsz = encoded_size(utf8_str, len);
 		size_type newsz = d_cplength + encsz;
@@ -2217,10 +2194,10 @@ public:
 	String& insert(size_type idx, size_type num, utf32 code_point)
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (num == npos)
-			throw std::length_error("Code point count can not be 'npos'");
+			CEGUI_THROW(std::length_error("Code point count can not be 'npos'"));
 
 		size_type newsz = d_cplength + num;
 		grow(newsz);
@@ -2349,10 +2326,10 @@ public:
 	String& insert(size_type idx, const char* chars, size_type chars_len)
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (chars_len == npos)
-			throw std::length_error("Length of char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length of char array can not be 'npos'"));
 
 		size_type newsz = d_cplength + chars_len;
 
@@ -2431,10 +2408,14 @@ public:
 
 	\exception std::out_of_range	Thrown if \a idx is invalid for this String.
 	*/
-	String& erase(size_type idx, size_type len = npos)
+	String& erase(size_type idx, size_type len)
 	{
-		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range foe CEGUI::String");
+        // cover the no-op case.
+        if (len == 0)
+            return *this;
+
+		if (d_cplength <= idx)
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (len == npos)
 			len = d_cplength - idx;
@@ -2608,7 +2589,7 @@ public:
 	String& replace(size_type idx, size_type len, const String& str, size_type str_idx, size_type str_num)
 	{
 		if ((d_cplength < idx) || (str.d_cplength < str_idx))
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (((str_idx + str_num) > str.d_cplength) || (str_num == npos))
 			str_num = str.d_cplength - str_idx;
@@ -2720,10 +2701,10 @@ public:
 	String& replace(size_type idx, size_type len, const std::string& std_str, size_type str_idx, size_type str_num)
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (std_str.size() < str_idx)
-			throw std::out_of_range("Index is out of range for std::string");
+			CEGUI_THROW(std::out_of_range("Index is out of range for std::string"));
 
 		if (((str_idx + str_num) > std_str.size()) || (str_num == npos))
 			str_num = (size_type)std_str.size() - str_idx;
@@ -2842,10 +2823,10 @@ public:
 	String& replace(size_type idx, size_type len, const utf8* utf8_str, size_type str_len)
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (str_len == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		if (((len + idx) > d_cplength) || (len == npos))
 			len = d_cplength - idx;
@@ -2924,10 +2905,10 @@ public:
 	String& replace(size_type idx, size_type len, size_type num, utf32 code_point)
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (num == npos)
-			throw std::length_error("Code point count can not be 'npos'");
+			CEGUI_THROW(std::length_error("Code point count can not be 'npos'"));
 
 		if (((len + idx) > d_cplength) || (len == npos))
 			len = d_cplength - idx;
@@ -3005,7 +2986,7 @@ public:
 	*/
 	String& replace(iterator iter_beg, iterator iter_end, const_iterator iter_newBeg, const_iterator iter_newEnd)
 	{
-		if (iter_beg == iter_end)
+		if (iter_newBeg == iter_newEnd)
 		{
 			erase(safe_iter_dif(iter_beg, begin()), safe_iter_dif(iter_end, iter_beg));
 		}
@@ -3110,10 +3091,10 @@ public:
 	String& replace(size_type idx, size_type len, const char* chars, size_type chars_len)
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for CEGUI::String"));
 
 		if (chars_len == npos)
-			throw std::length_error("Length for the char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for the char array can not be 'npos'"));
 
 		if (((len + idx) > d_cplength) || (len == npos))
 			len = d_cplength - idx;
@@ -3475,7 +3456,7 @@ public:
 	size_type	find(const utf8* utf8_str, size_type idx, size_type str_len) const
 	{
 		if (str_len == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		size_type sze = encoded_size(utf8_str, str_len);
 
@@ -3526,7 +3507,7 @@ public:
 	size_type	rfind(const utf8* utf8_str, size_type idx, size_type str_len) const
 	{
 		if (str_len == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		size_type sze = encoded_size(utf8_str, str_len);
 
@@ -3617,7 +3598,7 @@ public:
 	size_type	find(const char* chars, size_type idx, size_type chars_len) const
 	{
 		if (chars_len == npos)
-			throw std::length_error("Length for char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for char array can not be 'npos'"));
 
 		if ((chars_len == 0) && (idx < d_cplength))
 			return idx;
@@ -3661,7 +3642,7 @@ public:
 	size_type	rfind(const char* chars, size_type idx, size_type chars_len) const
 	{
 		if (chars_len == npos)
-			throw std::length_error("Length for char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for char array can not be 'npos'"));
 
 		if (chars_len == 0)
 			return (idx < d_cplength) ? idx : d_cplength;
@@ -3907,7 +3888,7 @@ public:
 	size_type	find_first_of(const utf8* utf8_str, size_type idx, size_type str_len) const
 	{
 		if (str_len == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		if (idx < d_cplength)
 		{
@@ -3955,7 +3936,7 @@ public:
 	size_type	find_first_not_of(const utf8* utf8_str, size_type idx, size_type str_len) const
 	{
 		if (str_len == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		if (idx < d_cplength)
 		{
@@ -4094,7 +4075,7 @@ public:
 	size_type	find_first_of(const char* chars, size_type idx, size_type chars_len) const
 	{
 		if (chars_len == npos)
-			throw std::length_error("Length for char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for char array can not be 'npos'"));
 
 		if (idx < d_cplength)
 		{
@@ -4135,7 +4116,7 @@ public:
 	size_type	find_first_not_of(const char* chars, size_type idx, size_type chars_len) const
 	{
 		if (chars_len == npos)
-			throw std::length_error("Length for char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for char array can not be 'npos'"));
 
 		if (idx < d_cplength)
 		{
@@ -4389,7 +4370,7 @@ public:
 	size_type	find_last_of(const utf8* utf8_str, size_type idx, size_type str_len) const
 	{
 		if (str_len == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		if (d_cplength > 0)
 		{
@@ -4440,7 +4421,7 @@ public:
 	size_type	find_last_not_of(const utf8* utf8_str, size_type idx, size_type str_len) const
 	{
 		if (str_len == npos)
-			throw std::length_error("Length for utf8 encoded string can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for utf8 encoded string can not be 'npos'"));
 
 		if (d_cplength > 0)
 		{
@@ -4583,7 +4564,7 @@ public:
 	size_type	find_last_of(const char* chars, size_type idx, size_type chars_len) const
 	{
 		if (chars_len == npos)
-			throw std::length_error("Length for char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for char array can not be 'npos'"));
 
 		if (d_cplength > 0)
 		{
@@ -4627,7 +4608,7 @@ public:
 	size_type	find_last_not_of(const char* chars, size_type idx, size_type chars_len) const
 	{
 		if (chars_len == npos)
-			throw std::length_error("Length for char array can not be 'npos'");
+			CEGUI_THROW(std::length_error("Length for char array can not be 'npos'"));
 
 		if (d_cplength > 0)
 		{
@@ -4670,7 +4651,7 @@ public:
 	String	substr(size_type idx = 0, size_type len = npos) const
 	{
 		if (d_cplength < idx)
-			throw std::out_of_range("Index is out of range for this CEGUI::String");
+			CEGUI_THROW(std::out_of_range("Index is out of range for this CEGUI::String"));
 
 		return String(*this, idx, len);
 	}
@@ -4973,26 +4954,31 @@ private:
 		{
 			tcp = *buf++;
 			++count;
+			size_type size = 0;
 
 			if (tcp < 0x80)
 			{
 			}
 			else if (tcp < 0xE0)
 			{
-				--len;
+				size = 1;
 				++buf;
 			}
 			else if (tcp < 0xF0)
 			{
-				len -= 2;
+				size = 2;
 				buf += 2;
 			}
 			else
 			{
-				len -= 2;
+				size = 3;
 				buf += 3;
 			}
 
+			if (len >= size)
+				len -= size;
+			else 
+				break;
 		}
 
 		return count;

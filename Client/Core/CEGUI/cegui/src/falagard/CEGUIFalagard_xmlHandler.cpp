@@ -37,6 +37,7 @@
 #include "falagard/CEGUIFalXMLEnumHelper.h"
 #include "CEGUIXMLAttributes.h"
 #include "CEGUILogger.h"
+#include "CEGUIAnimation_xmlHandler.h"
 #include <sstream>
 
 // Start of CEGUI namespace section
@@ -75,6 +76,7 @@ namespace CEGUI
     const String Falagard_xmlHandler::NamedAreaElement("NamedArea");
     const String Falagard_xmlHandler::PropertyDefinitionElement("PropertyDefinition");
     const String Falagard_xmlHandler::PropertyLinkDefinitionElement("PropertyLinkDefinition");
+    const String Falagard_xmlHandler::PropertyLinkTargetElement("PropertyLinkTarget");
     const String Falagard_xmlHandler::DimOperatorElement("DimOperator");
     const String Falagard_xmlHandler::VertFormatPropertyElement("VertFormatProperty");
     const String Falagard_xmlHandler::HorzFormatPropertyElement("HorzFormatProperty");
@@ -113,6 +115,10 @@ namespace CEGUI
     const String Falagard_xmlHandler::TargetPropertyAttribute("targetProperty");
     const String Falagard_xmlHandler::ControlPropertyAttribute("controlProperty");
     const String Falagard_xmlHandler::ColourAttribute("colour");
+    const String Falagard_xmlHandler::PropertyAttribute("property");
+    const String Falagard_xmlHandler::ControlValueAttribute("controlValue");
+    const String Falagard_xmlHandler::ControlWidgetAttribute("controlWidget");
+    const String Falagard_xmlHandler::HelpStringAttribute("help");
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -129,7 +135,8 @@ namespace CEGUI
         d_area(0),
         d_textcomponent(0),
         d_namedArea(0),
-        d_framecomponent(0)
+        d_framecomponent(0),
+        d_propertyLink(0)
     {
         // register element start handlers
         registerElementStartHandler(FalagardElement, &Falagard_xmlHandler::elementFalagardStart);
@@ -171,6 +178,8 @@ namespace CEGUI
         registerElementStartHandler(TextPropertyElement, &Falagard_xmlHandler::elementTextPropertyStart);
         registerElementStartHandler(FontPropertyElement, &Falagard_xmlHandler::elementFontPropertyStart);
         registerElementStartHandler(ColourElement, &Falagard_xmlHandler::elementColourStart);
+        registerElementStartHandler(PropertyLinkTargetElement, &Falagard_xmlHandler::elementPropertyLinkTargetStart);
+        registerElementStartHandler(AnimationDefinitionHandler::ElementName, &Falagard_xmlHandler::elementAnimationDefinitionStart);
 
         // register element end handlers
         registerElementEndHandler(FalagardElement, &Falagard_xmlHandler::elementFalagardEnd);
@@ -191,6 +200,7 @@ namespace CEGUI
         registerElementEndHandler(FontDimElement, &Falagard_xmlHandler::elementAnyDimEnd);
         registerElementEndHandler(PropertyDimElement, &Falagard_xmlHandler::elementAnyDimEnd);
         registerElementEndHandler(NamedAreaElement, &Falagard_xmlHandler::elementNamedAreaEnd);
+        registerElementEndHandler(PropertyLinkDefinitionElement, &Falagard_xmlHandler::elementPropertyLinkDefinitionEnd);
     }
 
     Falagard_xmlHandler::~Falagard_xmlHandler()
@@ -199,7 +209,7 @@ namespace CEGUI
     /*************************************************************************
         Handle an opening XML element tag.
     *************************************************************************/
-    void Falagard_xmlHandler::elementStart(const String& element, const XMLAttributes& attributes)
+    void Falagard_xmlHandler::elementStartLocal(const String& element, const XMLAttributes& attributes)
     {
         // find registered handler for this element.
         ElementStartHandlerMap::const_iterator iter = d_startHandlersMap.find(element);
@@ -220,7 +230,7 @@ namespace CEGUI
     /*************************************************************************
         Handle a closing XML element tag
     *************************************************************************/
-    void Falagard_xmlHandler::elementEnd(const String& element)
+    void Falagard_xmlHandler::elementEndLocal(const String& element)
     {
         // find registered handler for this element.
         ElementEndHandlerMap::const_iterator iter = d_endHandlersMap.find(element);
@@ -270,7 +280,7 @@ namespace CEGUI
                 d_area->d_bottom_or_height = dim;
                 break;
             default:
-                throw InvalidRequestException("Falagard::xmlHandler::assignAreaDimension - Invalid DimensionType specified for area component.");
+                CEGUI_THROW(InvalidRequestException("Falagard::xmlHandler::assignAreaDimension - Invalid DimensionType specified for area component."));
             }
         }
     }
@@ -388,7 +398,9 @@ namespace CEGUI
         d_section =
             new SectionSpecification(owner.empty() ? d_widgetlook->getName() : owner,
                                      attributes.getValueAsString(SectionNameAttribute),
-                                     attributes.getValueAsString(ControlPropertyAttribute));
+                                     attributes.getValueAsString(ControlPropertyAttribute),
+                                     attributes.getValueAsString(ControlValueAttribute),
+                                     attributes.getValueAsString(ControlWidgetAttribute));
 
         CEGUI_LOGINSANE("---------> Layer references imagery section '" + d_section->getSectionName() + "'.");
     }
@@ -733,6 +745,9 @@ namespace CEGUI
         PropertyDefinition prop(
             attributes.getValueAsString(NameAttribute),
             attributes.getValueAsString(InitialValueAttribute),
+            attributes.getValueAsString(HelpStringAttribute,
+                                        "Falagard custom property definition - "
+                                        "gets/sets a named user string."),
             attributes.getValueAsBool(RedrawOnWriteAttribute, false),
             attributes.getValueAsBool(LayoutOnWriteAttribute, false)
         );
@@ -748,22 +763,28 @@ namespace CEGUI
     void Falagard_xmlHandler::elementPropertyLinkDefinitionStart(const XMLAttributes& attributes)
     {
         assert(d_widgetlook);
+        assert(d_propertyLink == 0);
 
-        PropertyLinkDefinition prop(
+        const String widget(attributes.getValueAsString(WidgetAttribute));
+        const String target(attributes.getValueAsString(TargetPropertyAttribute));
+
+        d_propertyLink = new PropertyLinkDefinition(
             attributes.getValueAsString(NameAttribute),
-            attributes.getValueAsString(WidgetAttribute),
-            attributes.getValueAsString(TargetPropertyAttribute),
+            widget,
+            target,
             attributes.getValueAsString(InitialValueAttribute),
             attributes.getValueAsBool(RedrawOnWriteAttribute, false),
             attributes.getValueAsBool(LayoutOnWriteAttribute, false)
         );
 
-        CEGUI_LOGINSANE("-----> Adding PropertyLinkDefiniton. Name: " + prop.getName() +
-                        " Target widget: " + attributes.getValueAsString(WidgetAttribute) +
-                        " Target property: " + attributes.getValueAsString(TargetPropertyAttribute) +
-                        " Default Value: " + attributes.getValueAsString(InitialValueAttribute));
+        CEGUI_LOGINSANE("-----> Adding PropertyLinkDefiniton. Name: " +
+                        d_propertyLink->getName());
 
-        d_widgetlook->addPropertyLinkDefinition(prop);
+        if (!widget.empty() || !target.empty())
+        {
+            CEGUI_LOGINSANE("-------> Adding link target to property: " + target +
+                        " on widget: " + widget);
+        }
     }
 
     /*************************************************************************
@@ -1069,6 +1090,51 @@ namespace CEGUI
             // release the dim we popped.
             delete currDim;
         }
+    }
+
+    void Falagard_xmlHandler::elementPropertyLinkDefinitionEnd()
+    {
+        assert(d_propertyLink);
+        d_widgetlook->addPropertyLinkDefinition(*d_propertyLink);
+
+        CEGUI_LOGINSANE("<----- End of PropertyLinkDefiniton. Name: " +
+                        d_propertyLink->getName());
+
+        delete d_propertyLink;
+        d_propertyLink = 0;
+    }
+
+    void Falagard_xmlHandler::elementPropertyLinkTargetStart(const XMLAttributes& attributes)
+    {
+        assert(d_propertyLink);
+
+        const String w(attributes.getValueAsString(WidgetAttribute));
+        const String p(attributes.getValueAsString(PropertyAttribute));
+        
+        if (!w.empty() || !p.empty())
+        {
+            d_propertyLink->addLinkTarget(w, p);
+            CEGUI_LOGINSANE("-------> Adding link target to property: " + p +
+                        " on widget: " + w);
+        }
+    }
+
+    void Falagard_xmlHandler::elementAnimationDefinitionStart(
+                                            const XMLAttributes& attributes)
+    {
+        assert(d_widgetlook != 0);
+
+        String anim_name_prefix(d_widgetlook->getName());
+        anim_name_prefix.append("/");
+
+        d_chainedHandler = new AnimationDefinitionHandler(
+            attributes, anim_name_prefix);
+
+        // This is a little bit of abuse here, ideally we would get the name
+        // somewhere else.
+        d_widgetlook->addAnimationName(
+            anim_name_prefix +
+            attributes.getValueAsString("name"));
     }
 
 

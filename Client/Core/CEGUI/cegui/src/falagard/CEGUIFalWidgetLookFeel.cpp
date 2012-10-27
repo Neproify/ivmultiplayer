@@ -29,7 +29,10 @@
 #include "CEGUIExceptions.h"
 #include "CEGUILogger.h"
 #include "CEGUIWindowManager.h"
+#include "CEGUIAnimationManager.h"
+#include "CEGUIAnimationInstance.h"
 #include <iostream>
+#include <algorithm>
 
 // Start of CEGUI namespace section
 namespace CEGUI
@@ -38,13 +41,14 @@ namespace CEGUI
         d_lookName(name)
     {}
 
+
     const StateImagery& WidgetLookFeel::getStateImagery(const CEGUI::String& state) const
     {
         StateList::const_iterator imagery = d_stateImagery.find(state);
 
         if (imagery == d_stateImagery.end())
         {
-            throw UnknownObjectException("WidgetLookFeel::getStateImagery - unknown state '" + state + "' in look '" + d_lookName + "'.");
+            CEGUI_THROW(UnknownObjectException("WidgetLookFeel::getStateImagery - unknown state '" + state + "' in look '" + d_lookName + "'."));
         }
 
         return (*imagery).second;
@@ -57,7 +61,7 @@ namespace CEGUI
 
         if (imgSect == d_imagerySections.end())
         {
-            throw UnknownObjectException("WidgetLookFeel::getImagerySection - unknown imagery section '" + section +  "' in look '" + d_lookName + "'.");
+            CEGUI_THROW(UnknownObjectException("WidgetLookFeel::getImagerySection - unknown imagery section '" + section +  "' in look '" + d_lookName + "'."));
         }
 
         return (*imgSect).second;
@@ -126,19 +130,17 @@ namespace CEGUI
     *************************************************************************/
     void WidgetLookFeel::initialiseWidget(Window& widget) const
     {
-        // add required child widgets
-        for(WidgetList::const_iterator curr = d_childWidgets.begin(); curr != d_childWidgets.end(); ++curr)
-        {
-            (*curr).create(widget);
-        }
-
         // add new property definitions
         for(PropertyDefinitionList::iterator propdef = d_propertyDefinitions.begin(); propdef != d_propertyDefinitions.end(); ++propdef)
         {
             // add the property to the window
             widget.addProperty(&(*propdef));
-            // write default value to get things set up properly
-            widget.setProperty((*propdef).getName(), (*propdef).getDefault(&widget));
+        }
+
+        // add required child widgets
+        for(WidgetList::const_iterator curr = d_childWidgets.begin(); curr != d_childWidgets.end(); ++curr)
+        {
+            (*curr).create(widget);
         }
 
         // add new property link definitions
@@ -146,8 +148,6 @@ namespace CEGUI
         {
             // add the property to the window
             widget.addProperty(&(*linkdef));
-            // write default value to get things set up properly
-            widget.setProperty((*linkdef).getName(), (*linkdef).getDefault(&widget));
         }
 
         // apply properties to the parent window
@@ -155,6 +155,17 @@ namespace CEGUI
         {
             (*prop).apply(widget);
         }
+
+        // create animation instances
+        for (AnimationList::const_iterator anim = d_animations.begin(); anim != d_animations.end(); ++anim)
+        {
+            AnimationInstance* instance =
+                AnimationManager::getSingleton().instantiateAnimation(*anim);
+
+            d_animationInstances.insert(std::make_pair(&widget, instance));
+            instance->setTargetWindow(&widget);
+        }
+
 
     }
 
@@ -165,10 +176,10 @@ namespace CEGUI
     {
         if (widget.getLookNFeel() != getName())
         {
-            throw InvalidRequestException(
+            CEGUI_THROW(InvalidRequestException(
                 "WidgetLookFeel::cleanUpWidget - The window '"
                 + widget.getName() +
-                "' does not have this look'n'feel assigned");
+                "' does not have this look'n'feel assigned"));
         }
 
         // remove added child widgets
@@ -189,6 +200,14 @@ namespace CEGUI
         {
             // remove the property from the window
             widget.removeProperty((*linkdef).getName());
+        }
+
+        // clean up animation instances assoicated wit the window.
+        AnimationInstanceMap::iterator anim;
+        while ((anim = d_animationInstances.find(&widget)) != d_animationInstances.end())
+        {
+            AnimationManager::getSingleton().destroyAnimationInstance(anim->second);
+            d_animationInstances.erase(anim);
         }
     }
 
@@ -219,7 +238,7 @@ namespace CEGUI
 
         if (area == d_namedAreas.end())
         {
-            throw UnknownObjectException("WidgetLookFeel::getNamedArea - unknown named area: '" + name +  "' in look '" + d_lookName + "'.");
+            CEGUI_THROW(UnknownObjectException("WidgetLookFeel::getNamedArea - unknown named area: '" + name +  "' in look '" + d_lookName + "'."));
         }
 
         return (*area).second;
@@ -343,5 +362,16 @@ namespace CEGUI
         }
         return 0;
     }
+
+    void WidgetLookFeel::addAnimationName(const String& anim_name)
+    {
+        AnimationList::iterator it = std::find(d_animations.begin(),
+                                               d_animations.end(),
+                                               anim_name);
+
+        if (it == d_animations.end())
+            d_animations.push_back(anim_name);
+    }
+
 
 } // End of  CEGUI namespace section

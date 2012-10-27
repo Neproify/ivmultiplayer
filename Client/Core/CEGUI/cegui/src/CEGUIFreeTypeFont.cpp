@@ -70,9 +70,11 @@ FreeTypeFont::FreeTypeFont(const String& font_name, const float point_size,
                            const bool anti_aliased, const String& font_filename,
                            const String& resource_group, const bool auto_scaled,
                            const float native_horz_res,
-                           const float native_vert_res) :
+                           const float native_vert_res,
+                           const float specific_line_spacing) :
     Font(font_name, Font_xmlHandler::FontTypeFreeType, font_filename,
          resource_group, auto_scaled, native_horz_res, native_vert_res),
+    d_specificLineSpacing(specific_line_spacing),
     d_ptSize(point_size),
     d_antiAliased(anti_aliased),
     d_fontFace(0)
@@ -85,7 +87,7 @@ FreeTypeFont::FreeTypeFont(const String& font_name, const float point_size,
     updateFont();
 
     char tmp[50];
-    snprintf(tmp, sizeof(tmp), "Succsessfully loaded %d glyphs",
+    snprintf(tmp, sizeof(tmp), "Successfully loaded %d glyphs",
              static_cast<int>(d_cp_map.size()));
     Logger::getSingleton().logEvent(tmp, Informative);
 }
@@ -280,7 +282,6 @@ void FreeTypeFont::rasterise(utf32 start_codepoint, utf32 end_codepoint) const
         }
 
         // Copy our memory buffer into the texture and free it
-#pragma warning(disable:4244)
         is.getTexture()->loadFromMemory(mem_buffer, Size(texsize, texsize), Texture::PF_RGBA);
         delete [] mem_buffer;
 
@@ -319,9 +320,9 @@ void FreeTypeFont::drawGlyphToBuffer(argb_t *buffer, uint buf_width) const
             break;
 
         default:
-            throw InvalidRequestException("Font::drawGlyphToBuffer: "
+            CEGUI_THROW(InvalidRequestException("Font::drawGlyphToBuffer: "
                 "The glyph could not be drawn because the pixel mode is "
-                "unsupported.");
+                "unsupported."));
             break;
         }
 
@@ -361,21 +362,20 @@ void FreeTypeFont::updateFont()
     if ((error = FT_New_Memory_Face(ft_lib, d_fontData.getDataPtr(),
                            static_cast<FT_Long>(d_fontData.getSize()), 0,
                            &d_fontFace)) != 0)
-        throw GenericException("FreeTypeFont::updateFont: Failed to create "
-            "face from font file '" + d_filename + "' error was: " +
-            ((error < FT_Err_Max) ? ft_errors[error] : "unknown error"));
+        CEGUI_THROW(GenericException("FreeTypeFont::updateFont: Failed to "
+            "create face from font file '" + d_filename + "' error was: " +
+            ((error < FT_Err_Max) ? ft_errors[error] : "unknown error")));
 
     // check that default Unicode character map is available
     if (!d_fontFace->charmap)
     {
         FT_Done_Face(d_fontFace);
         d_fontFace = 0;
-        throw GenericException("FreeTypeFont::updateFont: "
+        CEGUI_THROW(GenericException("FreeTypeFont::updateFont: "
             "The font '" + d_name + "' does not have a Unicode charmap, and "
-            "cannot be used.");
+            "cannot be used."));
     }
 
-#pragma warning(disable:4244)
     uint horzdpi = System::getSingleton().getRenderer()->getDisplayDPI().d_x;
     uint vertdpi = System::getSingleton().getRenderer()->getDisplayDPI().d_y;
 
@@ -410,7 +410,7 @@ void FreeTypeFont::updateFont()
         {
             char size [20];
             snprintf(size, sizeof(size), "%g", d_ptSize);
-            throw GenericException("FreeTypeFont::load - The font '" + d_name + "' cannot be rasterised at a size of " + size + " points, and cannot be used.");
+            CEGUI_THROW(GenericException("FreeTypeFont::load - The font '" + d_name + "' cannot be rasterised at a size of " + size + " points, and cannot be used."));
         }
     }
 
@@ -427,6 +427,11 @@ void FreeTypeFont::updateFont()
         d_ascender = d_fontFace->size->metrics.ascender * float(FT_POS_COEF);
         d_descender = d_fontFace->size->metrics.descender * float(FT_POS_COEF);
         d_height = d_fontFace->size->metrics.height * float(FT_POS_COEF);
+    }
+
+    if (d_specificLineSpacing > 0.0f)
+    {
+        d_height = d_specificLineSpacing;
     }
 
     // Create an empty FontGlyph structure for every glyph of the font
@@ -462,6 +467,10 @@ void FreeTypeFont::writeXMLToStream_impl(XMLSerializer& xml_stream) const
                          PropertyHelper::floatToString(d_ptSize));
     if (!d_antiAliased)
         xml_stream.attribute(Font_xmlHandler::FontAntiAliasedAttribute, "False");
+
+    if (d_specificLineSpacing > 0.0f)
+        xml_stream.attribute(Font_xmlHandler::FontLineSpacingAttribute,
+                             PropertyHelper::floatToString(d_specificLineSpacing));
 }
 
 //----------------------------------------------------------------------------//

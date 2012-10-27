@@ -78,8 +78,8 @@ namespace CEGUI
         registerProperty(&d_horzFormattingProperty);
         registerProperty(&d_vertScrollbarProperty);
         registerProperty(&d_horzScrollbarProperty);
-        registerProperty(&d_horzExtentProperty);
-        registerProperty(&d_vertExtentProperty);
+        registerProperty(&d_horzExtentProperty, true);
+        registerProperty(&d_vertExtentProperty, true);
     }
 
 //----------------------------------------------------------------------------//
@@ -235,10 +235,6 @@ namespace CEGUI
     *************************************************************************/
     Size FalagardStaticText::getDocumentSize(const Rect& renderArea) const
     {
-        // we need a formatted string to really measure anything
-        if (!d_formattedRenderedString)
-            return Size(0, 0);
-
         if (!d_formatValid)
             updateFormatting(renderArea.getSize());
 

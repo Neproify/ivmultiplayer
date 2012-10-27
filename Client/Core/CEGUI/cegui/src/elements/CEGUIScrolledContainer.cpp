@@ -50,6 +50,7 @@ ScrolledContainer::ScrolledContainer(const String& type, const String& name) :
     d_autosizePane(true)
 {
     addScrolledContainerProperties();
+    setMouseInputPropagationEnabled(true);
 }
 
 //----------------------------------------------------------------------------//
@@ -170,22 +171,17 @@ bool ScrolledContainer::handleChildMoved(const EventArgs&)
 //----------------------------------------------------------------------------//
 Rect ScrolledContainer::getUnclippedInnerRect_impl(void) const
 {
-    if (!d_parent)
-        return Window::getUnclippedInnerRect_impl();
-    else
-        return Rect(getUnclippedOuterRect().getPosition(),
-                    d_parent->getUnclippedInnerRect().getSize());
+    return d_parent ?
+        d_parent->getUnclippedInnerRect() :
+        Window::getUnclippedInnerRect_impl();
 }
 
 //----------------------------------------------------------------------------//
 Rect ScrolledContainer::getInnerRectClipper_impl() const
 {
-    if (!d_parent)
-        return Window::getInnerRectClipper_impl();
-    else
-        return (d_surface && d_surface->isRenderingWindow()) ?
-                    Window::getUnclippedInnerRect_impl() :
-                    d_parent->getInnerRectClipper();
+    return d_parent ?
+        d_parent->getInnerRectClipper() :
+        Window::getInnerRectClipper_impl();
 }
 
 //----------------------------------------------------------------------------//
@@ -193,6 +189,22 @@ Rect ScrolledContainer::getHitTestRect_impl() const
 {
     return d_parent ? d_parent->getHitTestRect() :
                       Window::getHitTestRect_impl();
+}
+
+//----------------------------------------------------------------------------//
+Rect ScrolledContainer::getNonClientChildWindowContentArea_impl() const
+{
+    if (!d_parent)
+        return Window::getNonClientChildWindowContentArea_impl();
+    else
+        return Rect(getUnclippedOuterRect().getPosition(),
+                    d_parent->getUnclippedInnerRect().getSize());
+}
+
+//----------------------------------------------------------------------------//
+Rect ScrolledContainer::getClientChildWindowContentArea_impl() const
+{
+    return getNonClientChildWindowContentArea_impl();
 }
 
 //----------------------------------------------------------------------------//
@@ -229,9 +241,12 @@ void ScrolledContainer::onChildRemoved(WindowEventArgs& e)
         d_eventConnections.erase(conn);
     }
 
-    // perform notification.
-    WindowEventArgs args(this);
-    onContentChanged(args);
+    // perform notification only if we're not currently being destroyed
+    if (!d_destructionStarted)
+    {
+        WindowEventArgs args(this);
+        onContentChanged(args);
+    }
 }
 
 //----------------------------------------------------------------------------//

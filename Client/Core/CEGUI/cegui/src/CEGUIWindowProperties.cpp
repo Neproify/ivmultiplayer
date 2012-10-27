@@ -84,7 +84,7 @@ String Font::get(const PropertyReceiver* receiver) const
 
 void Font::set(PropertyReceiver* receiver, const String& value)
 {
-	try
+	CEGUI_TRY
 	{
 		if (value.empty())
 		{
@@ -95,7 +95,7 @@ void Font::set(PropertyReceiver* receiver, const String& value)
 			static_cast<Window*>(receiver)->setFont(value);
 		}
 	}
-	catch (UnknownObjectException&)
+	CEGUI_CATCH (UnknownObjectException&)
 	{ }
 }
 
@@ -708,6 +708,66 @@ void TextParsingEnabled::set(PropertyReceiver* receiver, const String& value)
 {
     static_cast<Window*>(receiver)->
         setTextParsingEnabled(PropertyHelper::stringToBool(value));
+}
+
+//----------------------------------------------------------------------------//
+String Margin::get(const PropertyReceiver* receiver) const
+{
+	return PropertyHelper::uboxToString(
+        static_cast<const Window*>(receiver)->getMargin());
+}
+
+//----------------------------------------------------------------------------//
+void Margin::set(PropertyReceiver* receiver, const String& value)
+{
+	static_cast<Window*>(receiver)->
+        setMargin(PropertyHelper::stringToUBox(value));
+}
+
+//----------------------------------------------------------------------------//
+String UpdateMode::get(const PropertyReceiver* receiver) const
+{
+    switch(static_cast<const Window*>(receiver)->getUpdateMode())
+    {
+        case WUM_ALWAYS:
+            return String("Always");
+
+        case WUM_NEVER:
+            return String("Never");
+
+        default:
+            return String("Visible");
+    }
+}
+
+//----------------------------------------------------------------------------//
+void UpdateMode::set(PropertyReceiver* receiver, const String& value)
+{
+    CEGUI::WindowUpdateMode m;
+
+    if (value == "Always")
+        m = WUM_ALWAYS;
+    else if (value == "Never")
+        m = WUM_NEVER;
+    else
+        m = WUM_VISIBLE;
+    
+    static_cast<Window*>(receiver)->setUpdateMode(m);
+}
+
+//----------------------------------------------------------------------------//
+String MouseInputPropagationEnabled::get(const PropertyReceiver* receiver) const
+{
+    return PropertyHelper::boolToString(static_cast<const Window*>(receiver)->
+        isMouseInputPropagationEnabled());
+}
+
+//----------------------------------------------------------------------------//
+void MouseInputPropagationEnabled::set(PropertyReceiver* receiver,
+                                       const String& value)
+{
+    static_cast<Window*>(receiver)->
+        setMouseInputPropagationEnabled(PropertyHelper::stringToBool(value));
 }
 
 //----------------------------------------------------------------------------//

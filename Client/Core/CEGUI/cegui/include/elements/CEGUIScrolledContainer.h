@@ -53,9 +53,17 @@ public:
     static const String WidgetTypeName;
     //! Namespace for global events
     static const String EventNamespace;
-    //! Event fired whenever some child changes.
+    /** Event fired whenever some child changes.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the ScrolledContainer for which a child
+     * window has changed.
+     */
     static const String EventContentChanged;
-    //! Event fired when the autosize setting changes.
+    /** Event fired when the autosize setting changes.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the ScrolledContainer whose auto size
+     * setting has been changed.
+     */
     static const String EventAutoSizeSettingChanged;
 
     //! Constructor for ScrolledContainer objects.
@@ -183,6 +191,9 @@ protected:
     // overridden from Window.
     void drawSelf(const RenderingContext&) {};
     Rect getInnerRectClipper_impl() const;
+    Rect getNonClientChildWindowContentArea_impl() const;
+    Rect getClientChildWindowContentArea_impl() const;
+
     Rect getHitTestRect_impl() const;
     void onChildAdded(WindowEventArgs& e);
     void onChildRemoved(WindowEventArgs& e);

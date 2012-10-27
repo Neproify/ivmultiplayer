@@ -1255,6 +1255,100 @@ public:
     void    set(PropertyReceiver* receiver, const String& value);
 };
 
+/*!
+\brief
+    Property to access window margin.
+
+    This property offers access to the margin property. This property controls
+	the margins of the window when it's inserted into a layout container.
+	When the window isn't in a layout container, margin doesn't have any effect.
+
+    \par Usage:
+        - Name: Margin
+        - Format: "{top:{[tops],[topo]},left:{[lefts],[lefto]},bottom:{[bottoms],[bottomo]},right:{[rights],[righto]}}".
+
+    \par Where [Text] is:
+		- [tops] is top scale
+        - [topo] is top offset
+		- [lefts] is left scale
+        - [lefto] is left offset
+		- [bottoms] is bottom scale
+        - [bottomo] is bottom offset
+		- [rights] is right scale
+        - [righto] is right offset
+*/
+class Margin : public Property
+{
+public:
+    Margin() : Property(
+        "Margin",
+		"Property to get/set margin for the Window. Value format:"
+        "{top:{[tops],[topo]},left:{[lefts],[lefto]},bottom:{[bottoms],[bottomo]},right:{[rights],[righto]}}.",
+        "{top:{0,0},left:{0,0},bottom:{0,0},right:{0,0}}")
+    {}
+
+    String  get(const PropertyReceiver* receiver) const;
+    void    set(PropertyReceiver* receiver, const String& value);
+};
+
+/*!
+\brief
+    Property to access the update mode setting for the window.
+
+    \par Usage:
+        - Name: UpdateMode
+        - Format: "[text]".
+
+    \par Where [Text] is:
+        - "Always" to indicate the update function should always be called.
+        - "Never" to indicate the update function should never be called.
+        - "Visible" to indicate the update function should only be called when
+          the window is visible (i.e. State of Visible property set to True).
+*/
+class UpdateMode : public Property
+{
+    public:
+        UpdateMode() : Property(
+        "UpdateMode",
+        "Property to get/set the window update mode setting.  "
+        "Value is one of \"Always\", \"Never\" or \"Visible\".",
+        "Visible")
+        {}
+
+        String get(const PropertyReceiver* receiver) const;
+        void set(PropertyReceiver* receiver, const String& value);
+};
+
+/*!
+\brief
+    Property to access the setting that controls whether mouse input not handled
+    directly by the window will be propagated back to the parent window.
+
+    \par Usage:
+        - Name: MouseInputPropagationEnabled
+        - Format: "[text]".
+
+    \par Where [Text] is:
+        - "True" to indicate that unhandled mouse input should be propagated to
+          the Window's parent.
+        - "False" to indicate that unhandled mouse input should not be
+          propagated to the window's parent.
+*/
+class MouseInputPropagationEnabled : public Property
+{
+public:
+    MouseInputPropagationEnabled() : Property(
+        "MouseInputPropagationEnabled",
+        "Property to get/set whether unhandled mouse inputs should be "
+        "propagated back to the Window's parent.  "
+        "Value is either \"True\" or \"False\".",
+        "False")
+    {}
+
+    String  get(const PropertyReceiver* receiver) const;
+    void    set(PropertyReceiver* receiver, const String& value);
+};
+
 } // End of  WindowProperties namespace section
 
 

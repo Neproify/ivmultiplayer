@@ -54,6 +54,15 @@ namespace CEGUI
         */
         TextComponent();
 
+        //! Destructor
+        ~TextComponent();
+
+        //! Copy constructor
+        TextComponent(const TextComponent& obj);
+
+        //! Assignment
+        TextComponent& operator=(const TextComponent& other);
+
         /*!
         \brief
             Return the text object that will be rendered by this TextComponent.
@@ -225,6 +234,12 @@ namespace CEGUI
             Nothing.
         */
         void setFontPropertySource(const String& property);
+
+        //! return the horizontal pixel extent of the formatted rendered string.
+        float getHorizontalTextExtent() const;
+
+        //! return the vertical pixel extent of the formatted rendered string.
+        float getVerticalTextExtent() const;
 
     protected:
         // implemets abstract from base

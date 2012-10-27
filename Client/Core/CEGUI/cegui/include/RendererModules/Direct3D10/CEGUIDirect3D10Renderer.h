@@ -4,7 +4,7 @@
     author:     Paul D Turner (parts based on code by Rajko Stojadinovic)
 *************************************************************************/
 /***************************************************************************
- *   Copyright (C) 2004 - 2009 Paul D Turner & The CEGUI Development Team
+ *   Copyright (C) 2004 - 2010 Paul D Turner & The CEGUI Development Team
  *
  *   Permission is hereby granted, free of charge, to any person obtaining
  *   a copy of this software and associated documentation files (the
@@ -70,6 +70,42 @@ class D3D10_GUIRENDERER_API Direct3D10Renderer : public Renderer
 public:
     /*!
     \brief
+        Convenience function that creates the required objects to initialise the
+        CEGUI system.
+
+        This will create and initialise the following objects for you:
+        - CEGUI::Direct3D10Renderer
+        - CEGUI::DefaultResourceProvider
+        - CEGUI::System
+
+    \param device
+        Pointer to the ID3D10Device interface that is to be used for CEGUI
+        rendering operations.
+
+    \return
+        Reference to the CEGUI::Direct3D10Renderer object that was created.
+    */
+    static Direct3D10Renderer& bootstrapSystem(ID3D10Device* device);
+
+    /*!
+    \brief
+        Convenience function to cleanup the CEGUI system and related objects
+        that were created by calling the bootstrapSystem function.
+
+        This function will destroy the following objects for you:
+        - CEGUI::System
+        - CEGUI::DefaultResourceProvider
+        - CEGUI::Direct3D10Renderer
+
+    \note
+        If you did not initialise CEGUI by calling the bootstrapSystem function,
+        you should \e not call this, but rather delete any objects you created
+        manually.
+    */
+    static void destroySystem();
+
+    /*!
+    \brief
         Create an Direct3D10Renderer object.
     */
     static Direct3D10Renderer& create(ID3D10Device* device);
@@ -87,7 +123,7 @@ public:
     ID3D10Device& getDirect3DDevice() const;
 
     //! low-level function that binds the technique pass ready for use
-    void bindTechniquePass();
+    void bindTechniquePass(const BlendMode mode);
     //! low-level function to set the texture shader resource view to be used.
     void setCurrentTextureShaderResource(ID3D10ShaderResourceView* srv); 
     //! low-level function to set the projection matrix to be used.
@@ -152,8 +188,10 @@ protected:
     TextureList d_textures;
     //! Effect (shader) used when rendering.
     ID3D10Effect* d_effect;
-    //! The rendering technique extratced from the shader effect.
-    ID3D10EffectTechnique* d_technique;
+    //! Rendering technique that supplies BM_NORMAL type rendering
+    ID3D10EffectTechnique* d_normalTechnique;
+    //! Rendering technique that supplies BM_RTT_PREMULTIPLIED type rendering
+    ID3D10EffectTechnique* d_premultipliedTechnique;
     //! D3D10 input layout describing the vertex format we use.
     ID3D10InputLayout* d_inputLayout;
     //! Variable to access current texture (actually shader resource view)
