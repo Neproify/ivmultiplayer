@@ -24,18 +24,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\cegui\src\ImageCodecModules\SILLYImageCodec\CEGUISILLYImageCodec.cpp">
+    <ClCompile Include="..\..\cegui\src\ImageCodecModules\SILLYImageCodec\CEGUISILLYImageCodec.cpp">
       <Filter>cegui\src\ImageCodecModules\SILLYImageCodec</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\cegui\src\ImageCodecModules\SILLYImageCodec\CEGUISILLYImageCodecModule.cpp">
+    <ClCompile Include="..\..\cegui\src\ImageCodecModules\SILLYImageCodec\CEGUISILLYImageCodecModule.cpp">
       <Filter>cegui\src\ImageCodecModules\SILLYImageCodec</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\cegui\include\ImageCodecModules\SILLYImageCodec\CEGUISILLYImageCodec.h">
+    <ClInclude Include="..\..\cegui\include\ImageCodecModules\SILLYImageCodec\CEGUISILLYImageCodec.h">
       <Filter>cegui\include\ImageCodecModules\SILLYImageCodec</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\cegui\include\ImageCodecModules\SILLYImageCodec\CEGUISILLYImageCodecModule.h">
+    <ClInclude Include="..\..\cegui\include\ImageCodecModules\SILLYImageCodec\CEGUISILLYImageCodecModule.h">
       <Filter>cegui\include\ImageCodecModules\SILLYImageCodec</Filter>
     </ClInclude>
   </ItemGroup>

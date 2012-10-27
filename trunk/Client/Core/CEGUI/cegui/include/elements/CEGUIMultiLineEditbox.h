@@ -89,14 +89,58 @@ public:
 		Constants
 	*************************************************************************/
 	// event names
-	static const String EventReadOnlyModeChanged;			//!< The read-only mode for the edit box has been changed.
-	static const String EventWordWrapModeChanged;			//!< The word wrap mode of the text box has been changed.
-	static const String EventMaximumTextLengthChanged;	//!< The maximum allowable string length has been changed.
-	static const String EventCaratMoved;					//!< The text carat (insert point) has changed.
-	static const String EventTextSelectionChanged;		//!< The current text selection has changed.
-	static const String EventEditboxFull;					//!< The number of characters in the edit box has reached the current maximum.
-	static const String EventVertScrollbarModeChanged;	//!< Event triggered when the vertical scroll bar 'force' setting changes.
-	static const String EventHorzScrollbarModeChanged;	//!< Event triggered when the horizontal scroll bar 'force' setting changes.
+    /** Event fired when the read-only mode for the edit box has been changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the MultiLineEditbox whose read-only mode
+     * was changed.
+     */
+	static const String EventReadOnlyModeChanged;
+    /** Event fired when the word wrap mode of the edit box has been changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the MultiLineEditbox whose word wrap
+     * mode was changed.
+     */
+	static const String EventWordWrapModeChanged;
+    /** Event fired when the maximum allowable string length for the edit box
+     * has been changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the MultiLineEditbox whose maximum string
+     * length was changed.
+     */
+	static const String EventMaximumTextLengthChanged;
+    /** Event fired when the text caret / current insertion position is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the MultiLineEditbox whose caret position
+     * has changed.
+     */
+	static const String EventCaratMoved;
+    /** Event fired when the current text selection for the edit box is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the MultiLineEditbox whose text selection
+     * was changed.
+     */
+	static const String EventTextSelectionChanged;
+    /** Event fired when the number of characters in the edit box reaches the
+     * current maximum length.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the MultiLineEditbox whose text length
+     * has reached the set maximum allowable length for the edit box.
+     */
+	static const String EventEditboxFull;
+    /** Event fired when the mode setting that forces the display of the
+     * vertical scroll bar for the edit box is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the MultiLineEditbox whose vertical
+     * scrollbar mode has been changed.
+     */
+	static const String EventVertScrollbarModeChanged;
+    /** Event fired when the mode setting that forces the display of the
+     * horizontal scroll bar for the edit box is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the MultiLineEditbox whose horizontal
+     * scrollbar mode has been changed.
+     */
+	static const String EventHorzScrollbarModeChanged;
 
     /*************************************************************************
         Child Widget name suffix constants
@@ -415,9 +459,20 @@ protected:
 	/*!
 	\brief
 		Format the text into lines as needed by the current formatting options.
+    \deprecated
+        This is deprecated in favour of the version taking a boolean.
 	*/
 	void	formatText(void);
 
+    /*!
+    \brief
+        Format the text into lines as dictated by the formatting options.
+
+    \param update_scrollbars 
+        - true if scrollbar configuration should be performed.
+        - false if scrollbar configuration should not be performed.
+    */
+    void formatText(const bool update_scrollbars);
 
 	/*!
 	\brief
@@ -600,6 +655,9 @@ protected:
 	   Internal handler that is triggered when the user interacts with the scrollbars.
     */
     bool handle_scrollChange(const EventArgs& args);
+
+    // handler triggered when vertical scrollbar is shown or hidden
+    bool handle_vertScrollbarVisibilityChanged(const EventArgs&);
 
     // validate window renderer
     virtual bool validateWindowRenderer(const String& name) const

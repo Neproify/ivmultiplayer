@@ -49,10 +49,13 @@
 #   include "config.h"
 #endif
 
+// Declare a function to return a WindowRendererModule as extern when
+// statically linking.
 #if defined(CEGUI_STATIC)
-#	if defined(CEGUI_FALAGARD_RENDERER)
-#		include "WindowRendererSets/Falagard/FalModule.h"
-#	endif
+extern "C"
+{
+CEGUI::WindowRendererModule& getWindowRendererModule();
+}
 #endif
 
 
@@ -183,10 +186,10 @@ void Scheme::loadXMLImagesets()
         if (realname != (*pos).name)
         {
             ismgr.destroy(iset);
-            throw InvalidRequestException("Scheme::loadResources: "
+            CEGUI_THROW(InvalidRequestException("Scheme::loadResources: "
                 "The Imageset created by file '" + (*pos).filename +
                 "' is named '" + realname + "', not '" + (*pos).name +
-                "' as required by Scheme '" + d_name + "'.");
+                "' as required by Scheme '" + d_name + "'."));
         }
     }
 }
@@ -242,10 +245,10 @@ void Scheme::loadFonts()
         if (realname != (*pos).name)
         {
             fntmgr.destroy(font);
-            throw InvalidRequestException("Scheme::loadResources: "
+            CEGUI_THROW(InvalidRequestException("Scheme::loadResources: "
                 "The Font created by file '" + (*pos).filename +
                 "' is named '" + realname + "', not '" + (*pos).name +
-                "' as required by Scheme '" + d_name + "'.");
+                "' as required by Scheme '" + d_name + "'."));
         }
     }
 }
@@ -325,10 +328,10 @@ void Scheme::loadWindowRendererFactories()
                         getSymbolAddress("getWindowRendererModule"));
 
             if (!getWRModuleFunc)
-                throw InvalidRequestException(
+                CEGUI_THROW(InvalidRequestException(
                     "Scheme::loadWindowRendererFactories: Required function "
                     "export 'WindowRendererModule& getWindowRendererModule()' "
-                    "was not found in module '" + (*cmod).name + "'.");
+                    "was not found in module '" + (*cmod).name + "'."));
 
             // get the WindowRendererModule object for this module.
             (*cmod).wrModule = &getWRModuleFunc();
@@ -423,7 +426,11 @@ void Scheme::loadFalagardMappings()
         }
 
         // create a new mapping entry
-        wfmgr.addFalagardWindowMapping((*falagard).windowName, (*falagard).targetName, (*falagard).lookName, (*falagard).rendererName);
+        wfmgr.addFalagardWindowMapping((*falagard).windowName,
+                                       (*falagard).targetName,
+                                       (*falagard).lookName,
+                                       (*falagard).rendererName,
+                                       (*falagard).effectName);
     }
 }
 
@@ -785,10 +792,11 @@ bool Scheme::areFalagardMappingsLoaded() const
         // if the mapping exists
         if (!iter.isAtEnd())
         {
-            // if the current target and looks match
+            // if the current target, effect and looks match
             if ((iter.getCurrentValue().d_baseType == (*falagard).targetName) &&
                 (iter.getCurrentValue().d_rendererType == (*falagard).rendererName) &&
-                (iter.getCurrentValue().d_lookName == (*falagard).lookName))
+                (iter.getCurrentValue().d_lookName == (*falagard).lookName) &&
+                (iter.getCurrentValue().d_effectName == (*falagard).effectName))
             {
                 // assume this mapping is ours and skip to next
                 continue;

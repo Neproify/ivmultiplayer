@@ -29,6 +29,7 @@
 #define _CEGUIFont_xmlHandler_h_
 
 #include "CEGUIXMLHandler.h"
+#include "CEGUIString.h"
 
 // Start of CEGUI namespace section
 namespace CEGUI
@@ -57,6 +58,8 @@ public:
     static const String FontNativeHorzResAttribute;
     //! Attribute name that stores the vertical native resolution.
     static const String FontNativeVertResAttribute;
+    //! Attribute name that stores the line height that we'll report for this font.
+    static const String FontLineSpacingAttribute;
     //! Attribute name that stores the font point size.
     static const String FontSizeAttribute;
     //! Attribute name that stores the font anti-aliasing setting.

@@ -41,7 +41,7 @@ SILLYImageCodec::SILLYImageCodec()
 {
     d_supportedFormat = "tga jpg png";
     if (! SILLY::SILLYInit())
-        throw GenericException("SILLYImageCodec::SILLYImageCodec - Unable to initialize SILLY library");
+        CEGUI_THROW(GenericException("SILLYImageCodec::SILLYImageCodec - Unable to initialize SILLY library"));
 
 }
 
@@ -84,7 +84,6 @@ Texture* SILLYImageCodec::load(const RawDataContainer& data, Texture* result)
         return 0;
     }
 
-#pragma warning(disable:4244)
     result->loadFromMemory(img.getPixelsDataPtr(),
                            Size(img.getWidth(), img.getHeight()), cefmt);
     return result;

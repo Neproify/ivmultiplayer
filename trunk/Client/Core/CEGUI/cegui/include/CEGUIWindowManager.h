@@ -68,9 +68,15 @@ public:
     static const String GeneratedWindowNameBase;      //!< Base name to use for generated window names.
     //! Namespace for global events.
     static const String EventNamespace;
-    //! Event fired when a new Window object is created.
+    /** Event fired when a new Window object is created.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window that has just been created.
+     */
     static const String EventWindowCreated;
-    //! Event fired when a Window object is destroyed.
+    /** Event fired when a Window object is destroyed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window that has been destroyed.
+     */
     static const String EventWindowDestroyed;
 
 	/*!
@@ -189,18 +195,6 @@ public:
 	\exception UnknownObjectException	No Window object with a name matching \a name was found.
 	*/
 	Window*	getWindow(const String& name) const;
-
-	/*!
-	\brief
-	Examines the list of Window objects to see if one exists with the given name
-
-	\param name
-	String holding the name of the Window object to look for.
-
-	\return
-	true if a Window object was found with a name matching \a name.  false if no matching Window object was found.
-	*/
-	bool	isWindowPresent(Window* window);
 
 
 	/*!
@@ -323,6 +317,47 @@ public:
 
     /*!
     \brief
+        Save a full XML window layout, starting at the given Window, to a file
+        with the given file name.
+
+    \param window
+        String holding the name of the Window object to become the root of the
+        layout.
+
+    \param filename
+        The name of the file to which the XML will be written.  Note that this
+        does not use any part of the ResourceProvider system, but rather will
+        write directly to disk.  If this is not desirable, you should prefer the
+        OutStream based writeWindowLayoutToStream functions.
+
+    \param writeParent
+        If the starting window has a parent window, specifies whether to write
+        the parent name into the Parent attribute of the GUILayout XML element.
+    */
+    void saveWindowLayout(const String& window, const String& filename, const bool writeParent = false) const;
+
+    /*!
+    \brief
+        Save a full XML window layout, starting at the given Window, to a file
+        with the given file name.
+
+    \param window
+        Window object to become the root of the layout.
+
+    \param filename
+        The name of the file to which the XML will be written.  Note that this
+        does not use any part of the ResourceProvider system, but rather will
+        write directly to disk.  If this is not desirable, you should prefer the
+        OutStream based writeWindowLayoutToStream functions.
+
+    \param writeParent
+        If the starting window has a parent window, specifies whether to write
+        the parent name into the Parent attribute of the GUILayout XML element.
+    */
+    void saveWindowLayout(const Window& window, const String& filename, const bool writeParent = false) const;
+
+    /*!
+    \brief
         Rename a window.
 
     \param window
@@ -435,6 +470,9 @@ private:
         Implementation method to generate a unique name to use for a window.
     */
     String generateUniqueWindowName();
+
+    //! function to set up RenderEffect on a window
+    void initialiseRenderEffect(Window* wnd, const String& effect) const;
 
 	/*************************************************************************
 		Implementation Constants

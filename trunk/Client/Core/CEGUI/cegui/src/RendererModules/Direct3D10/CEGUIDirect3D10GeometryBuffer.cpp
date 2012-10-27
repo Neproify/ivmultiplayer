@@ -1,6 +1,6 @@
 /***********************************************************************
     filename:   CEGUIDirect3D10GeometryBuffer.cpp
-    created:    Sat Mar 7 2009
+    created:    Sat Mar 7 2010
     author:     Paul D Turner (parts based on code by Rajko Stojadinovic)
 *************************************************************************/
 /***************************************************************************
@@ -43,6 +43,7 @@ Direct3D10GeometryBuffer::Direct3D10GeometryBuffer(Direct3D10Renderer& owner) :
     d_vertexBuffer(0),
     d_bufferSize(0),
     d_bufferSynched(false),
+    d_clipRect(0, 0, 0, 0),
     d_translation(0, 0, 0),
     d_rotation(0, 0, 0),
     d_pivot(0, 0, 0),
@@ -98,7 +99,7 @@ void Direct3D10GeometryBuffer::draw() const
             d_owner.setCurrentTextureShaderResource(
                     const_cast<ID3D10ShaderResourceView*>((*i).first));
             // Draw this batch
-            d_owner.bindTechniquePass();
+            d_owner.bindTechniquePass(d_blendMode);
             d_device.Draw((*i).second, pos);
             pos += (*i).second;
         }
@@ -133,7 +134,10 @@ void Direct3D10GeometryBuffer::setPivot(const Vector3& p)
 //----------------------------------------------------------------------------//
 void Direct3D10GeometryBuffer::setClippingRegion(const Rect& region)
 {
-    d_clipRect = region;
+    d_clipRect.d_top    = ceguimax(0.0f, PixelAligned(region.d_top));
+    d_clipRect.d_bottom = ceguimax(0.0f, PixelAligned(region.d_bottom));
+    d_clipRect.d_left   = ceguimax(0.0f, PixelAligned(region.d_left));
+    d_clipRect.d_right  = ceguimax(0.0f, PixelAligned(region.d_right));
 }
 
 //----------------------------------------------------------------------------//
@@ -263,9 +267,9 @@ void Direct3D10GeometryBuffer::syncHardwareBuffer() const
     {
         void* buff;
         if (FAILED(d_vertexBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, &buff)))
-            throw RendererException(
+            CEGUI_THROW(RendererException(
                 "Direct3D10GeometryBuffer::syncHardwareBuffer: "
-                "failed to map buffer.");
+                "failed to map buffer."));
 
         std::memcpy(buff, &d_vertices[0], sizeof(D3DVertex) * vertex_count);
         d_vertexBuffer->Unmap();
@@ -285,8 +289,9 @@ void Direct3D10GeometryBuffer::allocateVertexBuffer(const size_t count) const
     buffer_desc.MiscFlags      = 0;
 
     if (FAILED(d_device.CreateBuffer(&buffer_desc, 0, &d_vertexBuffer)))
-        throw RendererException("Direct3D10GeometryBuffer::allocateVertexBuffer:"
-                                " failed to allocate vertex buffer.");
+        CEGUI_THROW(RendererException(
+            "Direct3D10GeometryBuffer::allocateVertexBuffer:"
+            " failed to allocate vertex buffer."));
 
     d_bufferSize = count;
 }

@@ -134,7 +134,7 @@ void FrameWindow::initialiseComponents(void)
 *************************************************************************/
 bool FrameWindow::isTitleBarEnabled(void) const
 {
-    return !getTitlebar()->isDisabled();
+    return !getTitlebar()->isDisabled(true);
 }
 
 
@@ -143,7 +143,7 @@ bool FrameWindow::isTitleBarEnabled(void) const
 *************************************************************************/
 bool FrameWindow::isCloseButtonEnabled(void) const
 {
-    return !getCloseButton()->isDisabled();
+    return !getCloseButton()->isDisabled(true);
 }
 
 
@@ -533,9 +533,10 @@ void FrameWindow::setCursorForPoint(const Point& pt) const
 *************************************************************************/
 void FrameWindow::onRollupToggled(WindowEventArgs& e)
 {
-    invalidate();
+    invalidate(true);
     notifyClippingChanged();
-    notifyScreenAreaChanged(true);
+    WindowEventArgs size_args(e);
+    onSized(size_args);
 
 	fireEvent(EventRollupToggled, e, EventNamespace);
 }

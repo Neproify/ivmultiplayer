@@ -435,7 +435,6 @@ bool ScrollablePane::handleAutoSizePaneChanged(const EventArgs&)
     // just forward event to client.
     WindowEventArgs args(this);
     fireEvent(EventAutoSizeSettingChanged, args, EventNamespace);
-#pragma warning(disable:4800)
     return args.handled;
 }
 
@@ -562,8 +561,8 @@ ScrolledContainer* ScrollablePane::getScrolledContainer() const
 Rect ScrollablePane::getViewableArea() const
 {
     if (!d_windowRenderer)
-        throw InvalidRequestException("ScrollablePane::getViewableArea: "
-            "This function must be implemented by the window renderer module");
+        CEGUI_THROW(InvalidRequestException("ScrollablePane::getViewableArea: "
+            "This function must be implemented by the window renderer module"));
     
     ScrollablePaneWindowRenderer* wr =
         static_cast<ScrollablePaneWindowRenderer*>(d_windowRenderer);

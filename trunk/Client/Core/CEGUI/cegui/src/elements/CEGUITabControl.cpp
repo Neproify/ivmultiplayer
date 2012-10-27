@@ -170,7 +170,7 @@ size_t TabControl::getSelectedTabIndex() const
         if (d_tabButtonVector [i]->isSelected ())
             return i;
 
-	throw UnknownObjectException("TabControl::getSelectedTabIndex - Current tab not in list?");
+	CEGUI_THROW(UnknownObjectException("TabControl::getSelectedTabIndex - Current tab not in list?"));
 }
 
 /*************************************************************************
@@ -326,7 +326,7 @@ TabButton* TabControl::getButtonForTabContents(Window* wnd) const
         if (d_tabButtonVector [i]->getTargetWindow () == wnd)
             return d_tabButtonVector [i];
 
-	throw UnknownObjectException("TabControl::getButtonForTabContents - The Window object is not a tab contents.");
+	CEGUI_THROW(UnknownObjectException("TabControl::getButtonForTabContents - The Window object is not a tab contents."));
 }
 /*************************************************************************
 Remove tab button
@@ -356,8 +356,7 @@ String TabControl::makeButtonName(Window* wnd)
     // Create the button name as "'auto' parent + 'auto' button + tab name"
     String buttonName = getTabButtonPane()->getName();
     buttonName.append(TabButtonNameSuffix);
-    size_t pathEndPos = wnd->getName().find_last_of("/");
-    buttonName.append(wnd->getName().substr(pathEndPos == String::npos ? 0 : pathEndPos + 1));
+    buttonName.append(wnd->getName());
     return buttonName;
 }
 /*************************************************************************
@@ -591,7 +590,7 @@ void TabControl::performChildWindowLayout()
         --i;
         float xmax = d_tabButtonVector [i]->getXPosition ().d_offset +
             d_tabButtonVector [i]->getPixelSize ().d_width;
-        float width = tabContentPane->getPixelSize ().d_width;
+        float width = tabButtonPane->getPixelSize ().d_width;
 
         // If right button margin exceeds right window margin,
         // or leftmost button is at offset 0, finish
@@ -689,7 +688,7 @@ TabButton* TabControl::createTabButton(const String& name) const
     else
     {
         //return createTabButton_impl(name);
-        throw InvalidRequestException("TabControl::createTabButton - This function must be implemented by the window renderer module");
+        CEGUI_THROW(InvalidRequestException("TabControl::createTabButton - This function must be implemented by the window renderer module"));
     }
 }
 

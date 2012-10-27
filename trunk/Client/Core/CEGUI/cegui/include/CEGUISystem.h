@@ -6,7 +6,7 @@
 	purpose:	Defines interface for main GUI system class
 *************************************************************************/
 /***************************************************************************
- *   Copyright (C) 2004 - 2009 Paul D Turner & The CEGUI Development Team
+ *   Copyright (C) 2004 - 2011 Paul D Turner & The CEGUI Development Team
  *
  *   Permission is hereby granted, free of charge, to any person obtaining
  *   a copy of this software and associated documentation files (the
@@ -74,16 +74,45 @@ public:
 	static const Size		DefaultMultiClickAreaSize;		//!< Default allowable mouse movement for multi-click event generation.
 
 	// event names
-	static const String EventGUISheetChanged;				//!< Name of event fired whenever the GUI sheet is changed.
-	static const String EventSingleClickTimeoutChanged;	//!< Name of event fired when the single-click timeout is changed.
-	static const String EventMultiClickTimeoutChanged;	//!< Name of event fired when the multi-click timeout is changed.
-	static const String EventMultiClickAreaSizeChanged;	//!< Name of event fired when the size of the multi-click tolerance area is changed.
-	static const String EventDefaultFontChanged;			//!< Name of event fired when the default font changes.
-	static const String EventDefaultMouseCursorChanged;	//!< Name of event fired when the default mouse cursor changes.
-	static const String EventMouseMoveScalingChanged;		//!< Name of event fired when the mouse move scaling factor changes.
-    //! Name of event fired for display size changes (as notified by client).
+    /** Event fired whenever the GUI sheet is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the @e old GUI sheet (the new one is
+     * obtained by querying System).
+     */
+	static const String EventGUISheetChanged;
+    /** Event fired when the single-click timeout is changed.
+     * Handlers are passed a const reference to a generic EventArgs struct.
+     */
+	static const String EventSingleClickTimeoutChanged;
+    /** Event fired when the multi-click timeout is changed.
+     * Handlers are passed a const reference to a generic EventArgs struct.
+     */
+	static const String EventMultiClickTimeoutChanged;
+    /** Event fired when the size of the multi-click tolerance area is changed.
+     * Handlers are passed a const reference to a generic EventArgs struct.
+     */
+	static const String EventMultiClickAreaSizeChanged;
+    /** Event fired when the default font changes.
+     * Handlers are passed a const reference to a generic EventArgs struct.
+     */
+	static const String EventDefaultFontChanged;
+    /** Event fired when the default mouse cursor changes.
+     * Handlers are passed a const reference to a generic EventArgs struct.
+     */
+	static const String EventDefaultMouseCursorChanged;
+    /** Event fired when the mouse move scaling factor changes.
+     * Handlers are passed a const reference to a generic EventArgs struct.
+     */
+	static const String EventMouseMoveScalingChanged;
+    /** Event fired for display size changes (as notified by client code).
+     * Handlers are passed a const DisplayEventArgs reference with
+     * DisplayEventArgs::size set to the pixel size that was notifiied to the
+     * system.
+     */
     static const String EventDisplaySizeChanged;
-    //! Name of event fired when global custom RenderedStringParser is set.
+    /** Event fired when global custom RenderedStringParser is set.
+     * Handlers are passed a const reference to a generic EventArgs struct.
+     */
     static const String EventRenderedStringParserChanged;
 
 	/*************************************************************************
@@ -638,8 +667,7 @@ public:
         Pointer to the current system default tooltip.  May return 0 if
         no system default tooltip is available.
      */
-    Tooltip* getDefaultTooltip(void) const  { return d_defaultTooltip; }
-
+    Tooltip* getDefaultTooltip(void) const;
 
 	/*!
 	\brief
@@ -818,6 +846,18 @@ public:
         window itself will use the systems BasicRenderedStringParser. 
     */
     void setDefaultCustomRenderedStringParser(RenderedStringParser* parser);
+
+    /*!
+    \brief
+        Invalidate all imagery and geometry caches for CEGUI managed elements.
+
+        This function will invalidate the caches used for both imagery and
+        geometry for all content that is managed by the core CEGUI manager
+        objects, causing a full and total redraw of that content.  This
+        includes Window object's cached geometry, rendering surfaces and
+        rendering windows and the mouse pointer geometry.
+    */
+    void invalidateAllCachedRendering();
 
 	/*************************************************************************
 		Input injection interface
@@ -1188,6 +1228,21 @@ private:
     //! Set the CEGUI version string that gets output to the log.
     void initialiseVersionString();
 
+    //! invalidate all windows and any rendering surfaces they may be using.
+    void invalidateAllWindows();
+
+    //! return common ancestor of two windows.
+    Window* getCommonAncestor(Window* w1, Window* w2);
+
+    //! call some function for a chain of windows: (top, bottom]
+    void notifyMouseTransition(Window* top, Window* bottom,
+                               void (Window::*func)(MouseEventArgs&),
+                               MouseEventArgs& args);
+    //! create a window of type d_defaultTooltipType for use as the Tooltip
+    void createSystemOwnedDefaultTooltipWindow() const;
+    //! destroy the default tooltip window if the system owns it.
+    void destroySystemOwnedDefaultTooltipWindow();
+
 	/*************************************************************************
 		Handlers for System events
 	*************************************************************************/
@@ -1284,8 +1339,12 @@ private:
     bool        d_ourXmlParser;     //!< true when we created the xml parser.
     DynamicModule* d_parserModule;  //! pointer to parser module.
 
-    Tooltip* d_defaultTooltip;      //!< System default tooltip object.
-    bool     d_weOwnTooltip;        //!< true if System created the custom Tooltip.
+    //! System default tooltip object.
+    mutable Tooltip* d_defaultTooltip;
+    //! true if System created d_defaultTooltip.
+    mutable bool d_weOwnTooltip;
+    //! type of window to create as d_defaultTooltip
+    String d_defaultTooltipType;
 
     static String   d_defaultXMLParserName; //!< Holds name of default XMLParser
 

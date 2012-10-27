@@ -86,11 +86,35 @@ namespace CEGUI
         *************************************************************************/
         static const String WidgetTypeName;                 //!< Window factory name
         static const String EventNamespace;                 //!< Namespace for global events
-        static const String EventHoverTimeChanged;          //!< Event fired when the hover timeout gets changed.
-        static const String EventDisplayTimeChanged;        //!< Event fired when the display timeout gets changed.
-        static const String EventFadeTimeChanged;           //!< Event fired when the fade timeout gets changed.
-        static const String EventTooltipActive;             //!< Event fired when the tooltip is about to get activated.
-        static const String EventTooltipInactive;           //!< Event fired when the tooltip has been deactivated.
+        /** Event fired when the hover timeout for the tool tip gets changed.
+         * Handlers are passed a const WindowEventArgs reference with
+         * WindowEventArgs::window set to the Tooltip whose hover timeout has
+         * been changed.
+         */
+        static const String EventHoverTimeChanged;
+        /** Event fired when the display timeout for the tool tip gets changed.
+         * Handlers are passed a const WindowEventArgs reference with
+         * WindowEventArgs::window set to the Tooltip whose display timeout has
+         * been changed.
+         */
+        static const String EventDisplayTimeChanged;
+        /** Event fired when the fade timeout for the tooltip gets changed.
+         * Handlers are passed a const WindowEventArgs reference with
+         * WindowEventArgs::window set to the Tooltip whose fade timeout has
+         * been changed.
+         */
+        static const String EventFadeTimeChanged;
+        /** Event fired when the tooltip is about to get activated.
+         * Handlers are passed a const WindowEventArgs reference with
+         * WindowEventArgs::window set to the Tooltip that is about to become
+         * active.
+         */
+        static const String EventTooltipActive;
+        /** Event fired when the tooltip has been deactivated.
+         * Handlers are passed a const WindowEventArgs reference with
+         * WindowEventArgs::window set to the Tooltip that has become inactive.
+         */
+        static const String EventTooltipInactive;
 
         /************************************************************************
             Object Construction and Destruction
@@ -383,6 +407,8 @@ namespace CEGUI
         float       d_hoverTime;    //!< tool-tip hover time (seconds mouse must stay stationary before tip shows).
         float       d_displayTime;  //!< tool-tip display time (seconds that tip is showsn for).
         float       d_fadeTime;     //!< tool-tip fade time (seconds it takes for tip to fade in and/or out).
+        //! are in positionSelf function? (to avoid infinite recursion issues)
+        bool d_inPositionSelf;
 
     private:
         /*************************************************************************

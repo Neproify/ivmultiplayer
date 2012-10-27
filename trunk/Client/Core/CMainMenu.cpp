@@ -1090,6 +1090,9 @@ void CMainMenu::OnResetDevice()
 	m_serverBrowser.pWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-300), CEGUI::UDim(0, fHeight/2-225)));
 	m_pQuickConnectWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-260), CEGUI::UDim(0, fHeight/2-195)));
 	m_pSettingsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-260), CEGUI::UDim(0, fHeight/2-190)));
+	//SetServerBrowserWindowVisible(false);
+	//SetQuickConnectWindowVisible(false);
+	//SetSettingsWindowVisible(false);
 	SetVisible(true);
 }
 

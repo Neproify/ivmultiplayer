@@ -57,6 +57,7 @@ const String Scheme_xmlHandler::LookNFeelAttribute("LookNFeel");
 const String Scheme_xmlHandler::WindowRendererSetElement("WindowRendererSet");
 const String Scheme_xmlHandler::WindowRendererFactoryElement("WindowRendererFactory");
 const String Scheme_xmlHandler::WindowRendererAttribute("Renderer");
+const String Scheme_xmlHandler::RenderEffectAttribute("RenderEffect");
 
 //----------------------------------------------------------------------------//
 Scheme_xmlHandler::Scheme_xmlHandler(const String& filename,
@@ -81,8 +82,8 @@ Scheme_xmlHandler::~Scheme_xmlHandler()
 const String& Scheme_xmlHandler::getObjectName() const
 {
     if (!d_scheme)
-        throw InvalidRequestException("Scheme_xmlHandler::getName: "
-            "Attempt to access null object.");
+        CEGUI_THROW(InvalidRequestException("Scheme_xmlHandler::getName: "
+            "Attempt to access null object."));
 
     return d_scheme->getName();
 }
@@ -91,8 +92,8 @@ const String& Scheme_xmlHandler::getObjectName() const
 Scheme& Scheme_xmlHandler::getObject() const
 {
     if (!d_scheme)
-        throw InvalidRequestException("Scheme_xmlHandler::getObject: "
-            "Attempt to access null object.");
+        CEGUI_THROW(InvalidRequestException("Scheme_xmlHandler::getObject: "
+            "Attempt to access null object."));
 
     d_objectRead = true;
     return *d_scheme;
@@ -249,6 +250,7 @@ void Scheme_xmlHandler::elementFalagardMappingStart(
     fmap.targetName = attributes.getValueAsString(TargetTypeAttribute);
     fmap.lookName   = attributes.getValueAsString(LookNFeelAttribute);
     fmap.rendererName = attributes.getValueAsString(WindowRendererAttribute);
+    fmap.effectName = attributes.getValueAsString(RenderEffectAttribute);
 
     d_scheme->d_falagardMappings.push_back(fmap);
 }
@@ -267,8 +269,9 @@ void Scheme_xmlHandler::elementLookNFeelStart(const XMLAttributes& attributes)
 void Scheme_xmlHandler::elementGUISchemeEnd()
 {
     if (!d_scheme)
-        throw InvalidRequestException("Scheme_xmlHandler::elementGUISchemeEnd: "
-            "Attempt to access null object.");
+        CEGUI_THROW(InvalidRequestException(
+            "Scheme_xmlHandler::elementGUISchemeEnd: "
+            "Attempt to access null object."));
 
     char addr_buff[32];
     sprintf(addr_buff, "(%p)", static_cast<void*>(d_scheme));

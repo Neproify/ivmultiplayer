@@ -37,7 +37,6 @@ namespace SpinnerProperties
 {
     String CurrentValue::get(const PropertyReceiver* receiver) const
     {
-#pragma warning(disable:4244)
         return PropertyHelper::floatToString(static_cast<const Spinner*>(receiver)->getCurrentValue());
     }
 
@@ -50,7 +49,6 @@ namespace SpinnerProperties
 
     String StepSize::get(const PropertyReceiver* receiver) const
     {
-#pragma warning(disable:4244)
         return PropertyHelper::floatToString(static_cast<const Spinner*>(receiver)->getStepSize());
     }
 
@@ -63,7 +61,6 @@ namespace SpinnerProperties
 
     String MinimumValue::get(const PropertyReceiver* receiver) const
     {
-#pragma warning(disable:4244)
         return PropertyHelper::floatToString(static_cast<const Spinner*>(receiver)->getMinimumValue());
     }
 
@@ -76,7 +73,6 @@ namespace SpinnerProperties
 
     String MaximumValue::get(const PropertyReceiver* receiver) const
     {
-#pragma warning(disable:4244)
         return PropertyHelper::floatToString(static_cast<const Spinner*>(receiver)->getMaximumValue());
     }
 

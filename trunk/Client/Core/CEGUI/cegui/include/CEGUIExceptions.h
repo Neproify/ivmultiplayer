@@ -34,14 +34,6 @@
 #include "CEGUIString.h"
 #include <exception>
 
-#undef _FILE_
-#undef _LINE_
-#define _FILE_ __FILE__
-#define _LINE_ __LINE__
-// TODO: Enable this for release
-//#define _FILE_ ""
-//#define _LINE_ 0
-
 // Start of CEGUI namespace section
 namespace CEGUI
 {
@@ -179,17 +171,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define GenericException(message)  \
-    GenericException(message, _FILE_, _LINE_)
+    GenericException(message, __FILE__, __LINE__)
 
 //----------------------------------------------------------------------------//
 
@@ -232,17 +224,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define UnknownObjectException(message)  \
-    UnknownObjectException(message, _FILE_, _LINE_)
+    UnknownObjectException(message, __FILE__, __LINE__)
 
 //----------------------------------------------------------------------------//
 
@@ -285,17 +277,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define InvalidRequestException(message)  \
-    InvalidRequestException(message, _FILE_, _LINE_)
+    InvalidRequestException(message, __FILE__, __LINE__)
 
 //----------------------------------------------------------------------------//
 
@@ -338,17 +330,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define FileIOException(message)  \
-    FileIOException(message, _FILE_, _LINE_)
+    FileIOException(message, __FILE__, __LINE__)
 
 //----------------------------------------------------------------------------//
 
@@ -391,17 +383,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define RendererException(message)  \
-    RendererException(message, _FILE_, _LINE_)
+    RendererException(message, __FILE__, __LINE__)
 
 //----------------------------------------------------------------------------//
 
@@ -449,17 +441,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define AlreadyExistsException(message)  \
-    AlreadyExistsException(message, _FILE_, _LINE_)
+    AlreadyExistsException(message, __FILE__, __LINE__)
 
 //----------------------------------------------------------------------------//
 
@@ -502,17 +494,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define MemoryException(message)  \
-    MemoryException(message, _FILE_, _LINE_)
+    MemoryException(message, __FILE__, __LINE__)
 
 //----------------------------------------------------------------------------//
 
@@ -555,17 +547,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define NullObjectException(message)  \
-    NullObjectException(message, _FILE_, _LINE_)
+    NullObjectException(message, __FILE__, __LINE__)
 
 //----------------------------------------------------------------------------//
 
@@ -612,17 +604,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define ObjectInUseException(message)  \
-    ObjectInUseException(message, _FILE_, _LINE_)
+    ObjectInUseException(message, __FILE__, __LINE__)
 
 //----------------------------------------------------------------------------//
 
@@ -665,17 +657,17 @@ public:
 \remarks
     There's a bug in Visual Studio 7.1
     (see http://support.microsoft.com/kb/199057/en) and lower which leads to
-    incorrect _LINE_ macro expansion if used inside a function and compiled
+    incorrect __LINE__ macro expansion if used inside a function and compiled
     with "Program Database for Edit & Continue" (/ZI) where instead of a
     constant expressing line number you'll get the following:
-    (_LINE_Var+constant).  The workaround consists in using compiler option
+    (__LINE__Var+constant).  The workaround consists in using compiler option
     "Program Database" (/Zi) instead --> Project Properties\C/C++\General\Debug
     Information Format\Program Database (/Zi).  Visual Studio 2005 corrects the
     problem. Premake files were modified to contemplate this for VS2002 and
     VS2003.
 */
 #define ScriptException(message)  \
-    ScriptException(message, _FILE_, _LINE_)
+    ScriptException(message, __FILE__, __LINE__)
 
 
 //----------------------------------------------------------------------------//

@@ -6,7 +6,7 @@
     purpose:    Defines abstract base class for Window objects
 *************************************************************************/
 /***************************************************************************
- *   Copyright (C) 2004 - 2006 Paul D Turner & The CEGUI Development Team
+ *   Copyright (C) 2004 - 2011 Paul D Turner & The CEGUI Development Team
  *
  *   Permission is hereby granted, free of charge, to any person obtaining
  *   a copy of this software and associated documentation files (the
@@ -106,6 +106,24 @@ enum HorizontalAlignment
 
 /*!
 \brief
+    Enumerated type used for specifying Window::update mode to be used.  Note
+    that the setting specified will also have an effect on child window
+    content; for WUM_NEVER and WUM_VISIBLE, if the parent's update function is
+    not called, then no child window will have it's update function called
+    either - even if it specifies WUM_ALWAYS as it's WindowUpdateMode.
+*/
+enum WindowUpdateMode
+{
+    //! Always call the Window::update function for this window.
+    WUM_ALWAYS,
+    //! Never call the Window::update function for this window.
+    WUM_NEVER,
+    //! Only call the Window::update function for this window if it is visible.
+    WUM_VISIBLE
+};
+
+/*!
+\brief
     An abstract base class providing common functionality and specifying the
     required interface for derived classes.
 
@@ -127,103 +145,326 @@ public:
     static const String EventNamespace;
 
     // generated internally by Window
-    //! Signal the time based update of window.
+    /** Event fired as part of the time based update of the window.
+     * Handlers are passed a const UpdateEventArgs reference.
+     */
     static const String EventWindowUpdated;
-    //! Parent of this Window has been re-sized.
+    /** Event fired when the parent of this Window has been re-sized.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window pointing to the <em>parent window</em> that
+     * was resized, not the window whose parent was resized.
+     */
     static const String EventParentSized;
-    //! Window size has changed
+    /** Event fired when the Window size has changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose size was changed.
+     */
     static const String EventSized;
-    //! Window position has changed
+    /** Event fired when the Window position has changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose position was changed.
+     */
     static const String EventMoved;
-    //! Text string for the Window has changed
+    /** Event fired when the text string for the Window has changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose text was changed.
+     */
     static const String EventTextChanged;
-    //!Font object for the Window has been changed
+    /** Event fired when the Font object for the Window has been changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose font was changed.
+     */
     static const String EventFontChanged;
-    //! Alpha blend value for the Window has changed
+    /** Event fired when the Alpha blend value for the Window has changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose alpha value was changed.
+     */
     static const String EventAlphaChanged;
-    //! Client assigned ID code for the Window has changed
+    /** Event fired when the client assigned ID for the Window has changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose ID was changed.
+     */
     static const String EventIDChanged;
-    //! Window has been activated (has input focus)
+    /** Event fired when the Window has been activated and has input focus.
+     * Handlers are passed a const ActivationEventArgs reference with
+     * WindowEventArgs::window set to the Window that is gaining activation and
+     * ActivationEventArgs::otherWindow set to the Window that is losing
+     * activation (may be 0).
+     */
     static const String EventActivated;
-    //! Window has been deactivated (loses input focus)
+    /** Event fired when the Window has been deactivated, losing input focus.
+     * Handlers are passed a const ActivationEventArgs reference with
+     * WindowEventArgs::window set to the Window that is losing activation and
+     * ActivationEventArgs::otherWindow set to the Window that is gaining
+     * activation (may be 0).
+     */
     static const String EventDeactivated;
-    //! Window has been made visible
+    /** Event fired when the Window is shown (made visible).
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window that was shown.
+     */
     static const String EventShown;
-    //! Window has been hidden from view
+    /** Event fired when the Window is made hidden.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window that was hidden.
+     */
     static const String EventHidden;
-    //! Window has been enabled (interaction is possible)
+    /** Event fired when the Window is enabled so interaction is possible.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window that was enabled.
+     */
     static const String EventEnabled;
-    //! Window has been disabled (interaction is no longer possible)
+    /** Event fired when the Window is disabled and interaction is no longer
+     * possible.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window that was disabled.
+     */
     static const String EventDisabled;
-    //! Clipping by parent mode has been modified
+    /** Event fired when the Window clipping mode is modified.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose clipping mode was
+     * changed.
+     */
     static const String EventClippedByParentChanged;
-    //! Destruction by parent mode has been modified
+    /** Event fired when the Window destruction mode is modified.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose destruction mode was
+     * changed.
+     */
     static const String EventDestroyedByParentChanged;
-    //! Alpha inherited from parent mode has been modified.
+    /** Event fired when the Window mode controlling inherited alpha is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose alpha inheritence mode
+     * was changed.
+     */
     static const String EventInheritsAlphaChanged;
-    //! Always on top mode has been modified
+    /** Event fired when the always on top setting for the Window is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose always on top setting
+     * was changed.
+     */
     static const String EventAlwaysOnTopChanged;
-    //! Window has captured all inputs
+    /** Event fired when the Window gains capture of mouse inputs.
+     * Handlers are passed a cont WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window that has captured mouse inputs.
+     */
     static const String EventInputCaptureGained;
-    //! Window has lost it's capture on inputs
+    /** Event fired when the Window loses capture of mouse inputs.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to either:
+     * - the Window that has lost capture of mouse inputs if that event was
+     *   caused by the window itself releasing the capture.
+     * - the Window that is @gaining capture of mouse inputs if that is the
+     *   cause of the previous window with capture losing that capture.
+     */
     static const String EventInputCaptureLost;
-    //! Rendering of the Window has started
+    /** Event fired when rendering of the Window has started.  In this context
+     * 'rendering' is the population of the GeometryBuffer with geometry for the
+     * window, not the actual rendering of that GeometryBuffer content to the 
+     * display.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose rendering has started.
+     */
     static const String EventRenderingStarted;
-    //! Rendering for the Window has finished
+    /** Event fired when rendering of the Window has ended.  In this context
+     * 'rendering' is the population of the GeometryBuffer with geometry for the
+     * window, not the actual rendering of that GeometryBuffer content to the 
+     * display.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose rendering has ended.
+     */
     static const String EventRenderingEnded;
-    //! A child Window has been added
+    /** Event fired when a child Window has been added.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the child window that was added.
+     */
     static const String EventChildAdded;
-    //! A child window has been removed
+    /** Event fired when a child window has been removed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the child window that was removed.
+     */
     static const String EventChildRemoved;
-    //! Destruction of the Window is about to begin.
+    /** Event fired when destruction of the Window is about to begin.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window that is about to be destroyed.
+     */
     static const String EventDestructionStarted;
-    //! The z-order of the window has changed
+    /** Event fired when the z-order of the window has changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose z order position has
+     * changed.
+     */
     static const String EventZOrderChanged;
-    //! A DragContainer has been dragged over this window.
+    /** Event fired when a DragContainer is dragged in to the window's area.
+     * Handlers are passed a const DragDropEventArgs reference with
+     * WindowEventArgs::window set to the window over which a DragContainer has
+     * been dragged (the receiving window) and DragDropEventArgs::dragDropItem
+     * set to the DragContainer that was dragged in to the receiving window's
+     * area.
+     */
     static const String EventDragDropItemEnters;
-    //! A DragContainer has left this window.
+    /** Event fired when a DragContainer is dragged out of the window's area.
+     * Handlers are passed a const DragDropEventArgs reference with
+     * WindowEventArgs::window set to the window over which a DragContainer has
+     * been dragged out of (the receiving window) and
+     * DragDropEventArgs::dragDropItem set to the DragContainer that was dragged
+     * out of the receiving window's area.
+     */
     static const String EventDragDropItemLeaves;
-    //! A DragContainer was dropped on this Window.
+    /** Event fired when a DragContainer is dropped within the window's area.
+     * Handlers are passed a const DragDropEventArgs reference with
+     * WindowEventArgs::window set to the window over which a DragContainer was
+     * dropped (the receiving window) and DragDropEventArgs::dragDropItem set to
+     * the DragContainer that was dropped within the receiving window's area.
+     */
     static const String EventDragDropItemDropped;
-    //! The vertical alignment of the window has changed.
+    /** Event fired when the vertical alignment for the window is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the window whose vertical alignment
+     * setting was changed.
+     */
     static const String EventVerticalAlignmentChanged;
-    //! The vertical alignment of the window has changed.
+    /** Event fired when the horizontal alignment for the window is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the window whose horizontal alignment
+     * setting was changed.
+     */
     static const String EventHorizontalAlignmentChanged;
-    //! The a new window renderer was attached.
+    /** Event fired when a WindowRenderer object is attached to the window.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the window that had the WindowRenderer
+     * attached to it.
+     */
     static const String EventWindowRendererAttached;
-    //! The currently assigned window renderer was detached.
+    /** Event fired when a WindowRenderer object is detached from the window.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the window that had the WindowRenderer
+     * detached from it.
+     */
     static const String EventWindowRendererDetached;
-    //! Window rotation factor(s) changed
+    /** Event fired whrn the rotation factor(s) for the window are changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose rotation was changed.
+     */
     static const String EventRotated;
-    //! Window non-client setting was changed
+    /** Event fired when the non-client setting for the Window is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose non-client setting was
+     * changed.
+     */
     static const String EventNonClientChanged;
-    //! Window text parsing setting was changed
+    /** Event fired when the Window's setting controlling parsing of it's text
+     * string is changed.
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose text parsing setting was
+     * changed.
+     */
     static const String EventTextParsingChanged;
+    /** Event fired when the Window's margin has changed (any of the four margins)
+     * Handlers are passed a const WindowEventArgs reference with
+     * WindowEventArgs::window set to the Window whose margin was
+     * changed.
+     */
+    static const String EventMarginChanged;
 
     // generated externally (inputs)
-    //! Mouse cursor has entered the Window.
+    /** Event fired when the mouse cursor has entered the Window's area.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     */
+    static const String EventMouseEntersArea;
+    /** Event fired when themouse cursor has left the Window's area.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     */
+    static const String EventMouseLeavesArea;
+    /** Event fired when the mouse cursor enters the Window's area.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     *\note This event is fired if - and only if - the mouse cursor is actually
+     * over some part of this Window's surface area, and will not fire for
+     * example if the location of the mouse is over some child window (even
+     * though the mouse is technically also within the area of this Window).
+     * For an alternative version of this event see the
+     * Window::EventMouseEntersArea event.
+     */
     static const String EventMouseEnters;
-    //! Mouse cursor has left the Window.
+    /** Event fired when the mouse cursor is no longer over the Window's surface
+     * area.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     *\note This event will fire whenever the mouse is no longer actually over
+     * some part of this Window's surface area, for example if the mouse is
+     * moved over some child window (even though technically the mouse has not
+     * actually 'left' this Window's area).  For an alternative version of this
+     * event see the Window::EventMouseLeavesArea event.
+     */
     static const String EventMouseLeaves;
-    //! Mouse cursor was moved within the area of the Window.
+    /** Event fired when the mouse cursor moves within the area of the Window.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     */
     static const String EventMouseMove;
-    //! Mouse wheel was scrolled within the Window.
+    /** Event fired when the mouse wheel is scrolled when the mouse cursor is
+     * within the Window's area.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     */
     static const String EventMouseWheel;
-    //! A mouse button was pressed down within the Window.
+    /** Event fired when a mouse button is pressed down within the Window.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     */
     static const String EventMouseButtonDown;
-    //! A mouse button was released within the Window.
+    /** Event fired when a mouse button is released within the Window.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     */
     static const String EventMouseButtonUp;
-    //! A mouse button was clicked (down then up) within the Window.
+    /** Event fired when a mouse button is clicked - that is, pressed down and
+     * released within a specific time interval - while the mouse cursor is
+     * within the Window's area.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     */
     static const String EventMouseClick;
-    //! A mouse button was double-clicked within the Window.
+    /** Event fired when a mouse button is double-clicked while the mouse cursor
+     * is within the Window's area.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     */
     static const String EventMouseDoubleClick;
-    //! A mouse button was triple-clicked within the Window.
+    /** Event fired when a mouse button is triple-clicked while the mouse cursor
+     * is within the Window's area.
+     * Handlers are passed a const MouseEventArgs reference with all fields
+     * valid.
+     */
     static const String EventMouseTripleClick;
-    //! A key on the keyboard was pressed.
+    /** Event fired when a key on the keyboard was pressed down while the window
+     * had input focus.
+     * Handlers are passed a const KeyEventArgs reference with
+     * WindowEventArgs::window set to the Window receiving the key press,
+     * KeyEventArgs::scancode set to the Key::Scan value of the key that was
+     * pressed, and KeyEventArgs::sysKeys set to the combination of ::SystemKey
+     * values active when the key was pressed.
+     */
     static const String EventKeyDown;
-    //! A key on the keyboard was released.
+    /** Event fired when a key on the keyboard was released while the window
+     * had input focus.
+     * Handlers are passed a const KeyEventArgs reference with
+     * WindowEventArgs::window set to the Window receiving the key release,
+     * KeyEventArgs::scancode set to the Key::Scan value of the key that was
+     * released, and KeyEventArgs::sysKeys set to the combination of ::SystemKey
+     * values active when the key was released.
+     */
     static const String EventKeyUp;
-    //! A text character was typed on the keyboard.
+    /** Event fired when the Window receives a character key input event.
+     * Handlers are passed a const KeyEventArgs reference with
+     * WindowEventArgs::window set to the Window receiving the character input,
+     * KeyEventArgs::codepoint set to the Unicode UTF32 / UCS-4 value for the
+     * input, and KeyEventArgs::sysKeys set to the combination of ::SystemKey
+     * values active when the character input was received.
+     */
     static const String EventCharacterKey;
 
     /*************************************************************************
@@ -763,6 +1004,27 @@ public:
 
     /*!
     \brief
+        Return a Rect that describes the area that is used to position
+        and - for scale values - size child content attached to this Window.
+
+        By and large the area returned here will be the same as the unclipped
+        inner rect (for client content) or the unclipped outer rect (for non
+        client content), although certain advanced uses will require
+        alternative Rects to be returned.
+
+    \note
+        The behaviour of this function is modified by overriding the
+        protected Window::getClientChildWindowContentArea_impl and/or
+        Window::getNonClientChildWindowContentArea_impl functions.
+
+    \param non_client
+        - true to return the non-client child content area.
+        - false to return the client child content area (default).
+    */
+    Rect getChildWindowContentArea(const bool non_client = false) const;
+
+    /*!
+    \brief
         Return a Rect object that describes, unclipped, the inner rectangle for
         this window.  The inner rectangle is typically an area that excludes
         some frame or other rendering that should not be touched by subsequent
@@ -946,16 +1208,16 @@ public:
         This is distinguished from the is/setRiseOnClickEnabled setting in that
         if rise on click is disabled it only affects the users ability to affect
         the z order of the Window by clicking the mouse; is still possible to
-        programatically alter the Window z-order by calling the moveToFront or
-        moveToBack member functions.  Whereas if z ordering is disabled the
-        functions moveToFront and moveToBack are also precluded from affecting
+        programatically alter the Window z-order by calling the moveToFront,
+        moveToBack, moveInFront and moveBehind member functions.  Whereas if z
+        ordering is disabled those functions are also precluded from affecting
         the Window z position.
 
     \return
         - true if z-order changes are enabled for this window.
-          moveToFront/moveToBack work normally as expected.
+          moveToFront, moveToBack, moveInFront and moveBehind work normally.
         - false: z-order changes are disabled for this window.
-          moveToFront/moveToBack are ignored for this window.
+          moveToFront, moveToBack, moveInFront and moveBehind are ignored.
     */
     bool isZOrderingEnabled(void) const;
 
@@ -1079,9 +1341,9 @@ public:
         This is distinguished from the is/setZOrderingEnabled setting in that
         if rise on click is disabled it only affects the users ability to affect
         the z order of the Window by clicking the mouse; is still possible to
-        programatically alter the Window z-order by calling the moveToFront or
-        moveToBack member functions.  Whereas if z ordering is disabled the
-        functions moveToFront and moveToBack are also precluded from affecting
+        programatically alter the Window z-order by calling the moveToFront,
+        moveToBack, moveInFront and moveBehind member functions.  Whereas if z
+        ordering is disabled those functions are also precluded from affecting
         the Window z position.
 
     \return
@@ -1748,6 +2010,37 @@ public:
 
     /*!
     \brief
+        Move this window immediately above it's sibling \a window in the z order.
+
+        No action will be taken under the following conditions:
+        - \a window is 0.
+        - \a window is not a sibling of this window.
+        - \a window and this window have different AlwaysOnTop settings.
+        - z ordering is disabled for this window.
+
+    \param window
+        The sibling window that this window will be moved in front of.
+    */
+    void moveInFront(const Window* const window);
+
+    /*!
+    \brief
+        Move this window immediately behind it's sibling \a window in the z
+        order.
+
+        No action will be taken under the following conditions:
+        - \a window is 0.
+        - \a window is not a sibling of this window.
+        - \a window and this window have different AlwaysOnTop settings.
+        - z ordering is disabled for this window.
+
+    \param window
+        The sibling window that this window will be moved behind.
+    */
+    void moveBehind(const Window* const window);
+
+    /*!
+    \brief
         Captures input to this window
 
     \return
@@ -1863,7 +2156,7 @@ public:
     \return
         Nothing.
     */
-    void setMouseCursor(const Image* image)     {d_mouseCursor = image;}
+    void setMouseCursor(const Image* image);
 
     /*!
     \brief
@@ -1875,8 +2168,7 @@ public:
     \return
         Nothing.
     */
-    void setMouseCursor(MouseCursorImage image)
-    {d_mouseCursor = (const Image*)image;}
+    void setMouseCursor(MouseCursorImage image);
 
     /*!
     \brief
@@ -1923,16 +2215,16 @@ public:
         This is distinguished from the is/setRiseOnClickEnabled setting in that
         if rise on click is disabled it only affects the users ability to affect
         the z order of the Window by clicking the mouse; is still possible to
-        programatically alter the Window z-order by calling the moveToFront or
-        moveToBack member functions.  Whereas if z ordering is disabled the
-        functions moveToFront and moveToBack are also precluded from affecting
+        programatically alter the Window z-order by calling the moveToFront,
+        moveToBack, moveInFront and moveBehind member functions.  Whereas if z
+        ordering is disabled those functions are also precluded from affecting
         the Window z position.
 
     \param setting
         - true if z-order changes are enabled for this window.
-          moveToFront/moveToBack work normally as expected.
+          moveToFront, moveToBack, moveInFront and moveBehind work normally.
         - false: z-order changes are disabled for this window.
-          moveToFront/moveToBack are ignored for this window.
+          moveToFront, moveToBack, moveInFront and moveBehind are ignored.
 
     \return
         Nothing.
@@ -2117,9 +2409,9 @@ public:
         This is distinguished from the is/setZOrderingEnabled setting in that
         if rise on click is disabled it only affects the users ability to affect
         the z order of the Window by clicking the mouse; is still possible to
-        programatically alter the Window z-order by calling the moveToFront or
-        moveToBack member functions.  Whereas if z ordering is disabled the
-        functions moveToFront and moveToBack are also precluded from affecting
+        programatically alter the Window z-order by calling the moveToFront,
+        moveToBack, moveInFront and moveBehind member functions.  Whereas if z
+        ordering is disabled those functions are also precluded from affecting
         the Window z position.
 
     \param setting
@@ -2623,7 +2915,7 @@ public:
     \return
         Nothing.
     */
-    void update(float elapsed);
+    virtual void update(float elapsed);
 
     /*!
     \brief
@@ -2849,12 +3141,154 @@ public:
     //! set whether text parsing is enabled for this window.
     void setTextParsingEnabled(const bool setting);
 
+    //! set margin
+    virtual void setMargin(const UBox& margin);
+    //! retrieves currently set margin
+    const UBox& getMargin() const;
+
     //! return Vector2 \a pos after being fully unprojected for this Window.
     Vector2 getUnprojectedPosition(const Vector2& pos) const;
 
     //! return the pointer to the BiDiVisualMapping for this window, if any.
     const BiDiVisualMapping* getBiDiVisualMapping() const
         {return d_bidiVisualMapping;}
+
+    //! Add the named property to the XML ban list for this window.
+    void banPropertyFromXML(const String& property_name);
+
+    //! Remove the named property from the XML ban list for this window.
+    void unbanPropertyFromXML(const String& property_name);
+
+    //! Return whether the named property is banned from XML
+    bool isPropertyBannedFromXML(const String& property_name) const;
+
+    //! Add the given property to the XML ban list for this window.
+    void banPropertyFromXML(const Property* property);
+
+    //! Remove the given property from the XML ban list for this window.
+    void unbanPropertyFromXML(const Property* property);
+
+    //! Return whether the given property is banned from XML
+    bool isPropertyBannedFromXML(const Property* property) const;
+
+    /*!
+    \brief
+        Set the window update mode.  This mode controls the behaviour of the
+        Window::update member function such that updates are processed for
+        this window (and therefore it's child content) according to the set
+        mode.
+
+    \note
+        Disabling updates can have negative effects on the behaviour of CEGUI
+        windows and widgets; updates should be disabled selectively and
+        cautiously - if you are unsure of what you are doing, leave the mode
+        set to WUM_ALWAYS.
+    
+    \param mode
+        One of the WindowUpdateMode enumerated values indicating the mode to
+        set for this Window.
+    */
+    void setUpdateMode(const WindowUpdateMode mode);
+
+    /*!
+    \brief
+        Return the current window update mode that is set for this Window.
+        This mode controls the behaviour of the Window::update member function
+        such that updates are processed for this window (and therefore it's
+        child content) according to the set mode.
+
+    \note
+        Disabling updates can have negative effects on the behaviour of CEGUI
+        windows and widgets; updates should be disabled selectively and
+        cautiously - if you are unsure of what you are doing, leave the mode
+        set to WUM_ALWAYS.
+    
+    \return
+        One of the WindowUpdateMode enumerated values indicating the current
+        mode set for this Window.
+    */
+    WindowUpdateMode getUpdateMode() const;
+
+    /*!
+    \brief
+        Set whether mouse input that is not directly handled by this Window
+        (including it's event subscribers) should be propagated back to the
+        Window's parent.
+
+    \param enabled
+        - true if unhandled mouse input should be propagated to the parent.
+        - false if unhandled mouse input should not be propagated.
+    */
+    void setMouseInputPropagationEnabled(const bool enabled);
+
+    /*!
+    \brief
+        Return whether mouse input that is not directly handled by this Window
+        (including it's event subscribers) should be propagated back to the
+        Window's parent.
+
+    \return
+        - true if unhandled mouse input will be propagated to the parent.
+        - false if unhandled mouse input will not be propagated.
+    */
+    bool isMouseInputPropagationEnabled() const;
+
+    /*!
+    \brief
+        Clones this Window and returns the result
+
+    \param 
+        newName new name of the cloned window
+
+    \param
+        deepCopy if true, even children are copied (the old name prefix will
+        be replaced with new name prefix)
+
+    \return
+        the cloned Window
+    */
+    Window* clone(const String& newName, const bool deepCopy = true) const;
+
+    //! copies this widget's properties to given target widget
+    virtual void clonePropertiesTo(Window& target) const;
+    //! copies this widget's child widgets to given target widget
+    virtual void cloneChildWidgetsTo(Window& target) const;
+
+    /*!
+    \brief
+        Return the (visual) z index of the window on it's parent.
+        
+        The z index is a number that indicates the order that windows will be
+        drawn (but is not a 'z co-ordinate', as such).  Higher numbers are in
+        front of lower numbers.
+
+        The number returned will not be stable, and generally should be used to
+        compare with the z index of sibling windows (and only sibling windows)
+        to discover the current z ordering of those windows.
+    */
+    size_t getZIndex() const;
+
+    /*!
+    \brief
+        Return whether /a this Window is in front of the given window.
+
+    \note
+        Here 'in front' just means that one window is drawn after the other, it
+        is not meant to imply that the windows are overlapping nor that one
+        window is obscured by the other.
+    */
+    bool isInFront(const Window& wnd) const;
+
+    /*!
+    \brief
+        Return whether /a this Window is behind the given window.
+
+    \note
+        Here 'behind' just means that one window is drawn before the other, it
+        is not meant to imply that the windows are overlapping nor that one
+        window is obscured by the other.
+    */
+    bool isBehind(const Window& wnd) const;
 
 protected:
     // friend classes for construction / initialisation purposes (for now)
@@ -3148,7 +3582,7 @@ protected:
     \param e
         MouseEventArgs object.  All fields are valid.
     */
-    virtual void onMouseEnters(MouseEventArgs& e);
+    virtual void onMouseEntersArea(MouseEventArgs& e);
 
     /*!
     \brief
@@ -3156,6 +3590,38 @@ protected:
 
     \param e
         MouseEventArgs object.  All fields are valid.
+    */
+    virtual void onMouseLeavesArea(MouseEventArgs& e);
+
+    /*!
+    \brief
+        Handler called when the mouse cursor has entered this window's area and
+        is actually over some part of this windows surface and not, for
+        instance over a child window - even though technically in those cases
+        the mouse is also within this Window's area, the handler will not be
+        called.
+
+    \param e
+        MouseEventArgs object.  All fields are valid.
+
+    \see
+        Window::onMouseEntersArea
+    */
+    virtual void onMouseEnters(MouseEventArgs& e);
+
+    /*!
+    \brief
+        Handler called when the mouse cursor is no longer over this window's
+        surface area.  This will be called when the mouse is not over a part
+        of this Window's actual surface - even though technically the mouse is
+        still within the Window's area, for example if the mouse moves over a
+        child window.
+
+    \param e
+        MouseEventArgs object.  All fields are valid.
+
+    \see
+        Window::onMouseLeavesArea
     */
     virtual void onMouseLeaves(MouseEventArgs& e);
 
@@ -3385,6 +3851,8 @@ protected:
     */
     virtual void onTextParsingChanged(WindowEventArgs& e);
 
+    virtual void onMarginChanged(WindowEventArgs& e);
+
     /*************************************************************************
         Implementation Functions
     *************************************************************************/
@@ -3493,18 +3961,6 @@ protected:
         False if not.
     */
     virtual bool validateWindowRenderer(const String& name) const;
-
-    /*!
-    \brief
-        Adds a property to the XML ban list
-    */
-    void banPropertyFromXML(const Property* property);
-
-    /*!
-    \brief
-        Returns whether a property is banned from XML
-    */
-    bool isPropertyBannedFromXML(const Property* property) const;
 
     /*!
     \brief
@@ -3669,6 +4125,14 @@ protected:
     //! helper to return whether the inner rect size has changed
     bool isInnerRectSizeChanged() const;
 
+    /*!
+    \brief
+        Helper function to return the ancestor Window of /a wnd that is attached
+        as a child to a window that is also an ancestor of /a this.  Returns 0
+        if /a wnd and /a this are not part of the same hierachy.
+     */
+    const Window* getWindowAttachedToCommonAncestor(const Window& wnd) const;
+
     //! Default implementation of function to return Window outer rect area.
     virtual Rect getUnclippedOuterRect_impl() const;
     //! Default implementation of function to return Window outer clipper area.
@@ -3677,10 +4141,25 @@ protected:
     virtual Rect getInnerRectClipper_impl() const;
     //! Default implementation of function to return Window hit-test area.
     virtual Rect getHitTestRect_impl() const;
+    //! Default implementation of function to return non-client content area
+    virtual Rect getNonClientChildWindowContentArea_impl() const;
+    //! Default implementation of function to return client content area
+    virtual Rect getClientChildWindowContentArea_impl() const;
 
     virtual int writePropertiesXML(XMLSerializer& xml_stream) const;
     virtual int writeChildWindowsXML(XMLSerializer& xml_stream) const;
     virtual bool writeAutoChildWindowXML(XMLSerializer& xml_stream) const;
+
+    // constrain given UVector2 to window's min size, return if size changed.
+    bool constrainUVector2ToMinSize(const Size& base_sz, UVector2& sz);
+    // constrain given UVector2 to window's max size, return if size changed.
+    bool constrainUVector2ToMaxSize(const Size& base_sz, UVector2& sz);
+    
+    void markAllCachedRectsInvalid();
+    //! calculate constrained pixel size of the window (outer rect)
+    void calculatePixelSize();
+    //! helper to fire events based on changes to area rect
+    void fireAreaChangeEvents(const bool moved, const bool sized);
 
     /*************************************************************************
         Properties for Window base class
@@ -3729,6 +4208,9 @@ protected:
     static  WindowProperties::ZRotation d_zRotationProperty;
     static  WindowProperties::NonClient d_nonClientProperty;
     static  WindowProperties::TextParsingEnabled d_textParsingEnabledProperty;
+    static  WindowProperties::Margin d_marginProperty;
+    static  WindowProperties::UpdateMode d_updateModeProperty;
+    static  WindowProperties::MouseInputPropagationEnabled d_mouseInputPropagationProperty;
 
     /*************************************************************************
         Implementation Data
@@ -3825,6 +4307,9 @@ protected:
     //! true if use of parser other than d_defaultStringParser is enabled
     bool d_textParsingEnabled;
 
+	//! Margin, only used when the Window is inside LayoutContainer class
+    UBox d_margin;
+
     //! User ID assigned to this Window
     uint d_ID;
     //! Holds pointer to some user assigned data.
@@ -3905,6 +4390,12 @@ protected:
     mutable bool d_innerRectClipperValid;
     mutable bool d_hitTestRectValid;
 
+    //! The mode to use for calling Window::update
+    WindowUpdateMode d_updateMode;
+    //! specifies whether mouse inputs should be propagated to parent(s)
+    bool d_propagateMouseInputs;
+
+
 private:
     /*************************************************************************
         May not copy or assign Window objects
@@ -3921,3 +4412,4 @@ private:
 #endif
 
 #endif  // end of guard _CEGUIWindow_h_
+

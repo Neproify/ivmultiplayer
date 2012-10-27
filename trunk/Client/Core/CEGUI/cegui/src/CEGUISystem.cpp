@@ -39,6 +39,8 @@
 #include "CEGUITplWindowFactory.h"
 #include "CEGUIWindowManager.h"
 #include "CEGUISchemeManager.h"
+#include "CEGUIRenderEffectManager.h"
+#include "CEGUIAnimationManager.h"
 #include "CEGUIMouseCursor.h"
 #include "CEGUIWindow.h"
 #include "CEGUIImageset.h"
@@ -62,30 +64,18 @@
 #include <ctime>
 #include <clocale>
 
-//This block includes the proper headers when static linking
+// declare create / destroy functions used for XMLParser and ImageCodec
+// modules as extern when static linking
 #if defined(CEGUI_STATIC)
-    // XML Parser
-	#ifdef CEGUI_WITH_EXPAT
-		#include "XMLParserModules/ExpatParser/CEGUIExpatParserModule.h"
-	#elif CEGUI_WITH_TINYXML
-		#include "XMLParserModules/TinyXMLParser/CEGUITinyXMLParserModule.h"
-	#elif CEGUI_WITH_XERCES
-		#include "XMLParserModules/XercesParser/CEGUIXercesParserModule.h"
-	#endif
-    // Image codec
-    #if defined(CEGUI_CODEC_SILLY)
-        #include "ImageCodecModules/SILLYImageCodec/CEGUISILLYImageCodecModule.h"
-    #elif defined(CEGUI_CODEC_TGA)
-        #include "ImageCodecModules/TGAImageCodec/CEGUITGAImageCodecModule.h"
-    #elif defined(CEGUI_CODEC_CORONA)
-        #include "ImageCodecModules/CoronaImageCodec/CEGUICoronaImageCodecModule.h"
-    #elif defined(CEGUI_CODEC_DEVIL)
-        #include "ImageCodecModules/DevILImageCodec/CEGUIDevILImageCodecModule.h"
-    #elif defined(CEGUI_CODEC_FREEIMAGE)
-        #include "ImageCodecModules/FreeImageImageCodec/CEGUIFreeImageImageCodecModule.h"
-    #else //Make Silly the default
-        #include "ImageCodecModules/SILLYImageCodec/CEGUISILLYImageCodecModule.h"
-    #endif
+extern "C"
+{
+// XML Parser
+CEGUI::XMLParser* createParser(void);
+void destroyParser(CEGUI::XMLParser* parser);
+// Image codec
+CEGUI::ImageCodec* createImageCodec(void);
+void destroyImageCodec(CEGUI::ImageCodec* imageCodec);
+}
 #endif
 
 #define S_(X) #X
@@ -120,7 +110,7 @@ double SimpleTimer::currentTime()
     return timeGetTime() / 1000.0;
 }
 
-#elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
+#elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__)  || defined(__HAIKU__)
 #include <sys/time.h>
 double SimpleTimer::currentTime()
 {
@@ -259,18 +249,18 @@ System::System(Renderer& renderer,
     Config_xmlHandler config;
     if (!configFile.empty())
     {
-        try
+        CEGUI_TRY
         {
             d_xmlParser->parseXMLFile(config, configFile,
                                       config.CEGUIConfigSchemaName,
                                       "");
         }
-        catch(...)
+        CEGUI_CATCH(...)
         {
             // cleanup XML stuff
             d_xmlParser->cleanup();
             delete d_xmlParser;
-            throw;
+            CEGUI_RETHROW;
         }
     }
 
@@ -344,11 +334,11 @@ System::~System(void)
 	// execute shut-down script
 	if (!d_termScriptName.empty())
 	{
-		try
+		CEGUI_TRY
 		{
 			executeScriptFile(d_termScriptName);
 		}
-		catch (...) {}  // catch all exceptions and continue system shutdown
+		CEGUI_CATCH (...) {}  // catch all exceptions and continue system shutdown
 
 	}
 
@@ -492,8 +482,11 @@ void System::setDefaultFont(Font* font)
 *************************************************************************/
 void System::setDefaultMouseCursor(const Image* image)
 {
+    const Image* const default_cursor =
+        reinterpret_cast<const Image*>(DefaultMouseCursor);
+
     // the default, default, is for nothing!
-    if (image == (const Image*)DefaultMouseCursor)
+    if (image == default_cursor)
         image = 0;
 
     // if mouse cursor is set to the current default we *may* need to
@@ -506,7 +499,8 @@ void System::setDefaultMouseCursor(const Image* image)
     if (MouseCursor::getSingleton().getImage() == d_defaultMouseCursor)
     {
         // does the window containing the mouse use the default cursor?
-        if ((d_wndWithMouse) && (0 == d_wndWithMouse->getMouseCursor(false)))
+        if ((d_wndWithMouse) &&
+            (default_cursor == d_wndWithMouse->getMouseCursor(false)))
         {
             // default cursor is active, update the image immediately
             MouseCursor::getSingleton().setImage(image);
@@ -578,18 +572,18 @@ void System::executeScriptFile(const String& filename, const String& resourceGro
 {
 	if (d_scriptModule)
 	{
-		try
+		CEGUI_TRY
 		{
 			d_scriptModule->executeScriptFile(filename, resourceGroup);
 		}
         // Forward script exceptions with line number and file info
-        catch(ScriptException& e)
+        CEGUI_CATCH(ScriptException& e)
         {
-            throw e;
+            CEGUI_THROW(e);
         }
-		catch(...)
+		CEGUI_CATCH(...)
 		{
-			throw GenericException("System::executeScriptFile - An exception was thrown during the execution of the script file.");
+			CEGUI_THROW(GenericException("System::executeScriptFile - An exception was thrown during the execution of the script file."));
 		}
 
 	}
@@ -609,18 +603,18 @@ int	System::executeScriptGlobal(const String& function_name) const
 {
 	if (d_scriptModule)
 	{
-		try
+		CEGUI_TRY
 		{
 			return d_scriptModule->executeScriptGlobal(function_name);
 		}
         // Forward script exceptions with line number and file info
-        catch(ScriptException& e)
+        CEGUI_CATCH(ScriptException& e)
         {
-            throw e;
+            CEGUI_THROW(e);
         }
-		catch(...)
+		CEGUI_CATCH(...)
 		{
-			throw GenericException("System::executeScriptGlobal - An exception was thrown during execution of the scripted function.");
+			CEGUI_THROW(GenericException("System::executeScriptGlobal - An exception was thrown during execution of the scripted function."));
 		}
 
 	}
@@ -641,18 +635,18 @@ void System::executeScriptString(const String& str) const
 {
     if (d_scriptModule)
     {
-        try
+        CEGUI_TRY
         {
             d_scriptModule->executeString(str);
         }
         // Forward script exceptions with line number and file info
-        catch(ScriptException& e)
+        CEGUI_CATCH(ScriptException& e)
         {
-            throw e;
+            CEGUI_THROW(e);
         }
-        catch(...)
+        CEGUI_CATCH(...)
         {
-            throw GenericException("System::executeScriptString - An exception was thrown during execution of the script code.");
+            CEGUI_THROW(GenericException("System::executeScriptString - An exception was thrown during execution of the script code."));
         }
 
     }
@@ -848,10 +842,16 @@ bool System::injectMouseButtonUp(MouseButton button)
     if (!ma.window)
         return false;
 
+    // store original window becase we re-use the event args.
+    Window* const tgt_wnd = ma.window;
+
     // send 'up' input to the window
     ma.window->onMouseButtonUp(ma);
     // store whether the 'up' part was handled so we may reuse the EventArgs
     const uint upHandled = ma.handled;
+
+    // restore target window (because Window::on* may have propagated input)
+    ma.window = tgt_wnd;
 
     // send MouseClicked event if the requirements for that were met
     if (d_generateMouseClickEvents &&
@@ -991,6 +991,8 @@ bool System::injectMousePosition(float x_pos, float y_pos)
 *************************************************************************/
 bool System::injectTimePulse(float timeElapsed)
 {
+    AnimationManager::getSingleton().stepInstances(timeElapsed);
+
     // if no visible active sheet, input can't be handled
     if (!d_activeSheet || !d_activeSheet->isVisible())
         return false;
@@ -1101,7 +1103,7 @@ SystemKey System::mouseButtonToSyskey(MouseButton btn) const
 		return X2Mouse;
 
 	default:
-		throw InvalidRequestException("System::mouseButtonToSyskey - the parameter 'btn' is not a valid MouseButton value.");
+		CEGUI_THROW(InvalidRequestException("System::mouseButtonToSyskey - the parameter 'btn' is not a valid MouseButton value."));
 	}
 }
 
@@ -1337,12 +1339,9 @@ void System::notifyDisplaySizeChanged(const Size& new_size)
 	{
 		WindowEventArgs args(0);
 		d_activeSheet->onParentSized(args);
+    }
 
-        // regardless of what is done above, invalidate all windows.  This is
-        // required since geometry can be wrong with referenced textures no
-        // longer existing due to auto-scaling effect (mainly affects fonts).
-        d_activeSheet->invalidate(true);
-	}
+    invalidateAllWindows();
 
     // Fire event
     DisplayEventArgs args(new_size);
@@ -1376,16 +1375,17 @@ void System::notifyWindowDestroyed(const Window* window)
 		d_modalTarget = 0;
 	}
 
+    if (d_defaultTooltip == window)
+    {
+        d_defaultTooltip = 0;
+        d_weOwnTooltip = false;
+    }
 }
 
 void System::setDefaultTooltip(Tooltip* tooltip)
 {
-    // destroy current custom tooltip if one exists and we created it
-    if (d_defaultTooltip && d_weOwnTooltip)
-        WindowManager::getSingleton().destroyWindow(d_defaultTooltip);
+    destroySystemOwnedDefaultTooltipWindow();
 
-    // set new custom tooltip
-    d_weOwnTooltip = false;
     d_defaultTooltip = tooltip;
 
     if (d_defaultTooltip)
@@ -1394,30 +1394,48 @@ void System::setDefaultTooltip(Tooltip* tooltip)
 
 void System::setDefaultTooltip(const String& tooltipType)
 {
-    // destroy current tooltip if one exists and we created it
-    if (d_defaultTooltip && d_weOwnTooltip)
-        WindowManager::getSingleton().destroyWindow(d_defaultTooltip);
+    destroySystemOwnedDefaultTooltipWindow();
 
-    if (tooltipType.empty())
+    d_defaultTooltipType = tooltipType;
+}
+
+//----------------------------------------------------------------------------//
+void System::createSystemOwnedDefaultTooltipWindow() const
+{
+    WindowManager& winmgr(WindowManager::getSingleton());
+
+    if (!winmgr.isLocked())
     {
-        d_defaultTooltip = 0;
-        d_weOwnTooltip = false;
-    }
-    else
-    {
-        try
-        {
-            d_defaultTooltip = static_cast<Tooltip*>(WindowManager::getSingleton().createWindow(tooltipType, "CEGUI::System::default__auto_tooltip__"));
-            d_weOwnTooltip = true;
-            d_defaultTooltip->setWritingXMLAllowed(false);
-        }
-        catch(UnknownObjectException x)
-        {
-            d_defaultTooltip = 0;
-            d_weOwnTooltip = false;
-        }
+        d_defaultTooltip = static_cast<Tooltip*>(
+            winmgr.createWindow(d_defaultTooltipType,
+                                "CEGUI::System::default__auto_tooltip__"));
+        d_defaultTooltip->setWritingXMLAllowed(false);
+        d_weOwnTooltip = true;
     }
 }
+
+//----------------------------------------------------------------------------//
+void System::destroySystemOwnedDefaultTooltipWindow()
+{
+    if (d_defaultTooltip && d_weOwnTooltip)
+    {
+        WindowManager::getSingleton().destroyWindow(d_defaultTooltip);
+        d_defaultTooltip = 0;
+    }
+
+    d_weOwnTooltip = false;
+}
+
+//----------------------------------------------------------------------------//
+Tooltip* System::getDefaultTooltip(void) const
+{
+    if (!d_defaultTooltip && !d_defaultTooltipType.empty())
+        createSystemOwnedDefaultTooltipWindow();
+
+    return d_defaultTooltip;
+}
+
+//----------------------------------------------------------------------------//
 
 void System::outputLogHeader()
 {
@@ -1479,6 +1497,9 @@ void System::addStandardWindowFactories()
     WindowFactoryManager::addFactory< TplWindowFactory<ItemListbox> >();
     WindowFactoryManager::addFactory< TplWindowFactory<GroupBox> >();
     WindowFactoryManager::addFactory< TplWindowFactory<Tree> >();
+    WindowFactoryManager::addFactory< TplWindowFactory<HorizontalLayoutContainer> >();
+    WindowFactoryManager::addFactory< TplWindowFactory<VerticalLayoutContainer> >();
+    WindowFactoryManager::addFactory< TplWindowFactory<GridLayoutContainer> >();
 }
 
 void System::createSingletons()
@@ -1491,8 +1512,10 @@ void System::createSingletons()
     new SchemeManager();
     new MouseCursor();
     new GlobalEventSet();
+    new AnimationManager();
     new WidgetLookManager();
     new WindowRendererManager();
+    new RenderEffectManager();
 }
 
 void System::destroySingletons()
@@ -1502,6 +1525,8 @@ void System::destroySingletons()
     delete  WindowFactoryManager::getSingletonPtr();
     delete  WidgetLookManager::getSingletonPtr();
     delete  WindowRendererManager::getSingletonPtr();
+    delete  AnimationManager::getSingletonPtr();
+    delete  RenderEffectManager::getSingletonPtr();
     delete  FontManager::getSingletonPtr();
     delete  MouseCursor::getSingletonPtr();
     delete  ImagesetManager::getSingletonPtr();
@@ -1629,6 +1654,49 @@ bool System::mouseMoveInjection_impl(MouseEventArgs& ma)
 }
 
 //----------------------------------------------------------------------------//
+Window* System::getCommonAncestor(Window* w1, Window* w2)
+{
+    if (!w2)
+        return w2;
+
+    if (w1 == w2)
+        return w1;
+
+    // make sure w1 is always further up
+    if (w1 && w1->isAncestor(w2))
+        return w2;
+
+    while (w1)
+    {
+        if (w2->isAncestor(w1))
+            break;
+
+        w1 = w1->getParent();
+    }
+
+    return w1;
+}
+
+//----------------------------------------------------------------------------//
+void System::notifyMouseTransition(Window* top, Window* bottom,
+                                   void (Window::*func)(MouseEventArgs&),
+                                   MouseEventArgs& args)
+{
+    if (top == bottom)
+        return;
+    
+    Window* const parent = bottom->getParent();
+
+    if (parent && parent != top)
+        notifyMouseTransition(top, parent, func, args);
+
+    args.handled = 0;
+    args.window = bottom;
+
+    (bottom->*func)(args);
+}
+
+//----------------------------------------------------------------------------//
 bool System::updateWindowContainingMouse()
 {
     MouseEventArgs ma(0);
@@ -1664,6 +1732,15 @@ bool System::updateWindowContainingMouse()
         ma.position = d_wndWithMouse->getUnprojectedPosition(mouse_pos);
         d_wndWithMouse->onMouseEnters(ma);
     }
+
+    // do the 'area' version of the events
+    Window* root = getCommonAncestor(oldWindow, d_wndWithMouse);
+
+    if (oldWindow)
+        notifyMouseTransition(root, oldWindow, &Window::onMouseLeavesArea, ma);
+
+    if (d_wndWithMouse)
+        notifyMouseTransition(root, d_wndWithMouse, &Window::onMouseEntersArea, ma);
 
     return true;
 }
@@ -1930,5 +2007,31 @@ bool System::injectMouseButtonTripleClick(const MouseButton button)
 }
 
 //----------------------------------------------------------------------------//
+void System::invalidateAllCachedRendering()
+{
+    invalidateAllWindows();
+    MouseCursor::getSingleton().invalidate();
+}
+
+//----------------------------------------------------------------------------//
+void System::invalidateAllWindows()
+{
+    WindowManager::WindowIterator wi(
+        WindowManager::getSingleton().getIterator());
+
+    for ( ; !wi.isAtEnd(); ++wi)
+    {
+        Window* const wnd(wi.getCurrentValue());
+        // invalidate window itself
+        wnd->invalidate();
+        // if window has rendering window surface, invalidate it's geometry
+        RenderingSurface* rs;
+        if ((rs = wnd->getRenderingSurface()) && rs->isRenderingWindow())
+            static_cast<RenderingWindow*>(rs)->invalidateGeometry();
+    }
+}
+
+//----------------------------------------------------------------------------//
 
 } // End of  CEGUI namespace section
+
