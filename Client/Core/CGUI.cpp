@@ -687,7 +687,7 @@ void CGUI::RemoveGUIWindow(CEGUI::Window * pWindow)
 	if(m_bInitialized)
 	{
 		// Make sure the window exists
-		if(m_pWindowManager->isWindowPresent(pWindow))
+		if(m_pWindowManager->isWindowPresent(pWindow->getName()))
 		{
 			// Remove the window from the parent window
 			pWindow->getParent()->removeChildWindow(pWindow);
