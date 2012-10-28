@@ -256,8 +256,7 @@ void Direct3D9Renderer::beginRendering()
     d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 
     // put alpha blend operations into a known state
-    d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-    d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	setupRenderingBlendMode(BM_NORMAL, true);
 
     // set view matrix back to identity.
     d_device->SetTransform(D3DTS_VIEW, &s_identityMatrix);
@@ -462,6 +461,8 @@ void Direct3D9Renderer::setupRenderingBlendMode(const BlendMode mode,
         return;
 
     d_activeBlendMode = mode;
+
+	return;
 
     if (d_activeBlendMode == BM_RTT_PREMULTIPLIED)
     {
