@@ -641,11 +641,20 @@ _MEMBER_FUNCTION_IMPL(GUIImage, constructor)
 	const char * filename;
 	sq_getstring(pVM, -1, &filename);
 
+	// check file size
+	// hack
+	FILE* pFile = fopen ( filename, "rb" );
+	fseek(pFile, 0L, SEEK_END);
+	int len = ftell(pFile);
+	if(len == 0) {
+		return 1;
+	}
 	String szName = g_pGUI->GetUniqueName();
 
 	// Try to load the image
 	try
 	{
+
 		CEGUI::ImagesetManager::getSingleton().createFromImageFile(szName.C_String(), filename, "resources");
 		CGUIStaticImage * pImage = g_pGUI->CreateGUIStaticImage(CEGUI::String(szName.C_String()));
 		
