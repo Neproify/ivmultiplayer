@@ -23,7 +23,7 @@
 #include <SharedUtility.h>
 #include "CLogFile.h"
 // OS Independent Defines
-#define MAX_BUFFER 8192
+#define MAX_BUFFER 16384
 #define DEFAULT_PORT 80
 #define DEFAULT_USER_AGENT "IV: Multiplayer/1.0"
 #define DEFAULT_REFERER "http://iv-multiplayer.com"
