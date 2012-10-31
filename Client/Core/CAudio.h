@@ -55,6 +55,9 @@ private:
 	static CLibrary		*	m_pLibrary;
 	static bool				m_bActive;
 public:
+	CAudioManager::CAudioManager();
+	CAudioManager::~CAudioManager();
+
 	static std::list<CAudio *> m_Audio;
 	static void Init();
 	static void AddToList ( CAudio *pAudio );
@@ -62,4 +65,5 @@ public:
 	static void SetAllVolume ( float fVolume );
 	static void RestoreAllVolume ( );
 	static void Process ( );
+	static void ProcessThread( );
 };

@@ -1363,7 +1363,7 @@ void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 	pBitStream->Read(vecAim.fY);
 	pBitStream->Read(vecAim.fZ);
 
-	if(g_pPlayerManager->DoesExist(playerId))
+	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->GetAt(playerId)->IsSpawned())
 		Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(playerId)->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, TICK_RATE, 0);
 }
 
@@ -2259,12 +2259,20 @@ void CClientRPCHandler::ScriptingShowCheckpointForPlayer(CBitStream * pBitStream
 
 	// Read the checkpoint id
 	EntityId checkpointId;
+	CVector3 vecPosition;
+	CVector3 vecTargetPosition;
+
 	pBitStream->Read(checkpointId);
+	pBitStream->Read(vecPosition);
+	pBitStream->Read(vecTargetPosition);
 
 	// Set the checkpoint to visible
 	CCheckpoint* pCheckpoint = g_pCheckpointManager->Get(checkpointId);
-	if(pCheckpoint)
+	if(pCheckpoint) {
 		pCheckpoint->Show();
+		pCheckpoint->SetPosition(vecPosition);
+		pCheckpoint->SetTargetPosition(vecTargetPosition);
+	}
 }
 
 void CClientRPCHandler::ScriptingHideCheckpointForPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

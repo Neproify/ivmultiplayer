@@ -74,6 +74,8 @@ void CCheckpoint::ShowForPlayer(EntityId playerId)
 {
 	CBitStream bsSend;
 	bsSend.Write(m_checkpointId);
+	bsSend.Write(m_vecPosition);
+	bsSend.Write(m_vecTargetPosition);
 	g_pNetworkManager->RPC(RPC_ScriptingShowCheckpointForPlayer, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 }
 

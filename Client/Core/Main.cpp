@@ -57,6 +57,8 @@
 #include "CScreenShot.h"
 #include "CAudio.h"
 #include "CFireManager.h"
+#include <Threading/CThread.h>
+#include <Threading/CMutex.h>
 
 #ifdef IVMP_WEBKIT
 	//#include "CD3D9Webkit.hpp"
@@ -639,6 +641,18 @@ void Direct3DRender()
 					
 							pVehicle->GetPosition(vecWorldPosition); 
 							CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
+
+							//if(g_pGraphics)
+							//{
+							//	CVector3 vecScreen;
+							//	g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition, &vecScreen);
+						
+							//	if( vecScreen.fZ < 0 )
+							//		return;
+							//}
+							//else
+							//	return;
+							
 							int health = pVehicle->GetHealth();
 							int model = pVehicle->GetEngineState();
 							float petrol = pVehicle->GetPetrolTankHealth();
@@ -988,4 +1002,15 @@ void InternalResetGame(bool bAutoConnect)
 		g_pNetworkManager->Connect();
 
 	CLogFile::Printf("Sucessfully (re)initialized game for multiplayer activities");
+}
+
+void AudioThreadProcess(CThread * pCreator)
+{
+	/*while(pCreator->GetUserData<bool>())
+	{
+		CAudioManager::ProcessThread();
+		Sleep(10);
+	}
+	Sleep(10);
+	*/
 }

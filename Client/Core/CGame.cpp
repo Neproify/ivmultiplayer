@@ -1230,17 +1230,50 @@ void CGame::RemoveInitialLoadingScreens()
 
 void CGame::GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition)
 {
+	// Addresses
+	/*
+	DWORD dwAddress = (CGame::GetBase() + 0x62F1C0);
+	DWORD dwAddress2 = (CGame::GetBase() + 0xAFEA30);
+
+	// Result handlers
+	bool iResult;
+
+	// Screen pos's
+	float *fX;
+	float *fY;
+
+	_asm 
+	{
+			push 2
+			call dwAddress2
+			mov iResult, al
+	}
+
+	_asm
+	{
+			push fY
+			push fX
+			push pWorldPosition
+			call dwAddress
+			mov iOnScreen, al		;get on screen?
+	}
+	*/
+	
 	DWORD dwAddress = (CGame::GetBase() + 0xAFF3A0);
     CVector3 * pWorldPosition = &vecWorldPosition;
     Vector2 * pScreenPosition = &vecScreenPosition;
     _asm
     {
             push pScreenPosition
-            push 2 ; game viewport id
+            push 2					;game viewport id
             push pWorldPosition
             call dwAddress
+			;mov iOnScreen, al		;get on screen?
     }
+	
 
+	
+	//CLogFile::Printf("[W2S]WORLD(%f,%f,%f),SCREEN(%f,%f), BOOLOnSCREEN(%d,%d)",vecWorldPosition.fX,vecWorldPosition.fY,vecWorldPosition.fZ,fX,fY,iOnScreen,iResult);
 }
 
 void CGame::CreateExplosion(CVector3& vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound, bool bInvisible, float fCameraShake)
@@ -1465,7 +1498,7 @@ void CGame::PatchWorldAndTrain()
 	DWORD dwCallFourthAddAddress = (CGame::GetBase() + 0xF0E4A0);
 	DWORD dwCallFinalAddress = (CGame::GetBase() + 0x427000);
 	short shFirst = (CGame::GetBase() + 0x421672);
-	WORD dwTemp;
+	//WORD dwTemp;
 
 	//NOTE: Assembler VS 2010 doesn't recognize jnz and jn... 
 	/*
