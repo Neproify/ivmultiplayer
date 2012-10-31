@@ -15,6 +15,10 @@
 #include "CLogFile.h"
 #include "CLocalPlayer.h"
 #include "CChatWindow.h"
+#include <Threading/CThread.h>
+#include <Threading/CMutex.h>
+
+//void AudioThreadProcess(CThread * pCreator);
 
 extern CLocalPlayer *g_pLocalPlayer;
 extern CChatWindow * g_pChatWindow;
@@ -220,6 +224,10 @@ void CAudio::Process ( )
 
 void CAudioManager::Init( )
 {
+	//CThread	m_pThread;
+	//m_pThread.SetUserData<bool>(true);
+	//m_pThread.Start(AudioThreadProcess);
+
 	m_pLibrary = new CLibrary();
 }
 
@@ -251,5 +259,25 @@ void CAudioManager::RestoreAllVolume ( )
 void CAudioManager::Process ( )
 {
 	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
-		(*iter)->Process ( );
+			(*iter)->Process ( );
+}
+
+void CAudioManager::ProcessThread()
+{
+	for(std::list<CAudio *>::iterator iter = m_Audio.begin(); iter != m_Audio.end(); iter++)
+	{
+		if((*iter)->GetChannel() == -1)
+		{
+			if((*iter)->IsUrlUsed())
+			{
+				DWORD dwChannel = BASS_StreamCreateURL((const char*)(*iter)->GetSoundfile(),0,BASS_STREAM_BLOCK|BASS_STREAM_STATUS|BASS_STREAM_AUTOFREE,0,0);
+				(*iter)->SetChannel(dwChannel);
+			}
+			else
+			{
+				DWORD dwChannel = BASS_StreamCreateFile(FALSE, (const char*)(*iter)->GetSoundfile(), 0, 0, BASS_SAMPLE_LOOP);
+				(*iter)->SetChannel(dwChannel);
+			}
+		}
+	}
 }

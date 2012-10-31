@@ -215,4 +215,27 @@ void CGraphics::GetScreenPositionFromWorldPosition(CVector3 vecWorld, CVector3 *
 
 	// If Z > 1.0f = not on the screen
 	vecScreen->fZ = viewport.MinZ + vec.z * (viewport.MaxZ - viewport.MinZ);
+	
+	// Taken from MTA
+	/*
+    // Get the static view matrix as D3DXMATRIX
+    D3DXMATRIX m = *(D3DXMATRIX *)(CGame::GetBase() + (0x1716C2C + 0x9A0));
+
+    // Get the static virtual screen (x,y)-sizes
+	D3DVIEWPORT9 viewport;
+	m_pDevice->GetViewport(&viewport);
+
+	DWORD dwLenX = viewport.Width;
+    DWORD dwLenY = viewport.Height;
+
+    // Do a transformation
+    vecScreen->fX = (vecWorld.fZ * m._31) + (vecWorld.fY * m._21) + (vecWorld.fX * m._11) +	m._41;
+    vecScreen->fY = (vecWorld.fZ * m._32) + (vecWorld.fY * m._22) + (vecWorld.fX * m._12) + m._42;
+    vecScreen->fZ = (vecWorld.fZ * m._33) + (vecWorld.fY * m._23) + (vecWorld.fX * m._13) + m._43;
+
+    // Get the correct screen coordinates
+    float fRecip = 1.0f / vecScreen->fZ;
+    vecScreen->fX *= fRecip * (dwLenX);
+    vecScreen->fY *= fRecip * (dwLenY);
+	*/
 }

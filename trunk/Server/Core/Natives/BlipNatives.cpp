@@ -339,6 +339,12 @@ SQInteger CBlipNatives::SetName(SQVM * pVM)
 	if(sq_gettop(pVM) >= 4 && sq_gettype(pVM,4) == OT_INTEGER)
 		sq_getentity(pVM, 4, &playerId);
 
+	if(strlen(szName) > 16) {
+		CLogFile::Printf("Failed to set blip(%d) name \"%s\"(size: %d/16)",blipId,szName,strlen(szName));
+		sq_pushbool(pVM,false);
+		return 1;
+	}
+
 	if(playerId != INVALID_ENTITY_ID)
 	{
 		if(g_pPlayerManager->DoesExist(playerId))

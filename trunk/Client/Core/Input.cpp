@@ -275,28 +275,28 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			CLogFile::Printf("Testvar 0x%p(%x)",dwTest);
 		}
 		*/
-		/*if(uMsg == WM_KEYUP && wParam == VK_F4)
-		{
-			DWORD dwPointer;
-			//dwPointer = *(DWORD*)((DWORD)GetModuleHandle("d3d9.dll")+0x165A40);
-			//CPatcher::Unprotect((CGame::GetBase() + 0x1716C2C),5);
-			//D3DXMATRIX dwMatrix = *(D3DXMATRIX*)(CGame::GetBase() + (/*0x1716C2C + 0x9A0));
-			//CLogFile::Printf("MATRIX %x(%p)",dwMatrix,dwMatrix);
-			//CLogFile::Printf("MATRIX (%f,%f,%f,%f,%f)",dwMatrix._11,dwMatrix._12,dwMatrix._13,dwMatrix._14,dwMatrix._21);
+		//if(uMsg == WM_KEYUP && wParam == VK_F4)
+		//{
+		//	DWORD dwPointer;
+		//	//dwPointer = *(DWORD*)((DWORD)GetModuleHandle("d3d9.dll")+0x165A40);
+		//	//CPatcher::Unprotect((CGame::GetBase() + 0x1716C2C),5);
+		//	//D3DXMATRIX dwMatrix = *(D3DXMATRIX*)(CGame::GetBase() + (/*0x1716C2C + 0x9A0));
+		//	//CLogFile::Printf("MATRIX %x(%p)",dwMatrix,dwMatrix);
+		//	//CLogFile::Printf("MATRIX (%f,%f,%f,%f,%f)",dwMatrix._11,dwMatrix._12,dwMatrix._13,dwMatrix._14,dwMatrix._21);
 
-			//CVector3 vecPos = g_pActorManager->GetPosition(1);
-			//CVector3 vecScreen;
-			//g_pGraphics->GetScreenPositionFromWorldPosition(vecPos, &vecScreen);
-			//CLogFile::Printf("Coords: %f, %f, %f",vecScreen.fX,vecScreen.fY,vecScreen.fZ);
-			// Get the player position + add z coord
-			CVector3 vecWorldPosition = g_pActorManager->GetPosition(0);
-			vecWorldPosition.fZ += 1.0f;
+		//	//CVector3 vecPos = g_pActorManager->GetPosition(1);
+		//	//CVector3 vecScreen;
+		//	//g_pGraphics->GetScreenPositionFromWorldPosition(vecPos, &vecScreen);
+		//	//CLogFile::Printf("Coords: %f, %f, %f",vecScreen.fX,vecScreen.fY,vecScreen.fZ);
+		//	// Get the player position + add z coord
+		//	CVector3 vecWorldPosition = g_pActorManager->GetPosition(0);
+		//	//vecWorldPosition.fZ += 1.0f;
 
-			// Check if he's on the screen
-			CVector3 vecScreen;
-			g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition,&vecScreen);
-			g_pChatWindow->AddInfoMessage("Z: %f",vecScreen.fZ);
-		}*/
+		//	// Check if he's on the screen
+		//	CVector3 vecScreen;
+		//	g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition,&vecScreen);
+		//	g_pChatWindow->AddInfoMessage("Z: %f",vecScreen.fZ);
+		//}
 
 		/*if(uMsg == WM_KEYUP && wParam == VK_F2)
 		{
