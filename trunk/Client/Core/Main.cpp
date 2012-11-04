@@ -974,7 +974,7 @@ void InternalResetGame(bool bAutoConnect)
 	CLogFile::Printf("Created/Reseted camera instance");
 
 	g_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
-	g_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT));
+	//g_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT));
 	CLogFile::Printf("Reset camera stuff");
 
 	// Set the time and weather after the camera set, one of the camera stuff changes the time and the weather
