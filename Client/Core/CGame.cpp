@@ -216,7 +216,7 @@ void CGame::Initialize()
 	// Replace "Loading .." with "IV:MP is loading...", some user say that the label sometimes is shown
 	//Scripting::SetMsgForLoadingScreen("IV:MP is loading....");
 
-	Scripting::RequestScript("trainHelper");
+	/*Scripting::RequestScript("trainHelper");
 	while(!Scripting::HasScriptLoaded("trainHelper")) {
 		Sleep(10);
 	}
@@ -226,7 +226,7 @@ void CGame::Initialize()
 	while(!Scripting::HasScriptLoaded("carwash")) {
 		Sleep(10);
 	}
-	Scripting::StartNewScript("carwash", 1024);
+	Scripting::StartNewScript("carwash", 1024);*/
 
 	SetInputState(true);
 	SetState(GAME_STATE_NONE);
