@@ -137,7 +137,7 @@ CModule::CModule(const char * szName)
 	strcpy(szModuleName, szName);
 
 	if(m_ModuleFunctions.pfnInitModule(szModuleName))
-		CLogFile::Printf("Loaded module '%s'", szModuleName);
+		CLogFile::Printf("%s module loaded", szModuleName);
 }
 
 CModule::~CModule()

@@ -38,6 +38,7 @@ namespace Modules
 		virtual bool ToggleHelmet(EntityId actorId, bool helmet) = 0;
 		virtual bool WarpIntoVehicle(EntityId actorId, int vehicleid, int seatid) = 0;
 		virtual bool RemoveFromVehicle(EntityId actorId) = 0;
+		virtual bool DriveToCoordinates(EntityId actorId, CVector3 vecDriveTo, CVector3 vecDriveRot, bool bStop) = 0;
 		virtual void DeleteAll() = 0;
 		virtual bool ForceAnim(EntityId actorId, const char * szGroup, const char * szAnim) = 0;
 	};
