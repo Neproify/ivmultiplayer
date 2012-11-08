@@ -459,14 +459,7 @@ SQInteger CActorNatives::DriveToCoordinates(SQVM * pVM)
 
 	if(g_pActorManager->DoesExist(actorId))
 	{
-		if(g_pActorManager->UpdateDrivePos(actorId,vecPos,CVector3(),false))
-		{
-			CBitStream bsSend;
-			bsSend.Write(actorId);
-			bsSend.Write(vecPos);
-			g_pNetworkManager->RPC(RPC_ScriptingActorDriveToCoords, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
-		}
-		else
+		if(!g_pActorManager->UpdateDrivePos(actorId,vecPos, false))
 			CLogFile::Printf("Failed to set actor's %d state to driving(not in a vehicle!)",actorId);
 	}
 	return 1;

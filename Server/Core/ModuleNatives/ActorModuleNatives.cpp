@@ -252,6 +252,16 @@ namespace Modules
 		return false;
 	}
 
+	//driveActorToCoordinates(actorId, x, y, z)
+	bool CActorModuleNatives::DriveToCoordinates(EntityId actorId, CVector3 vecDriveTo, CVector3 vecDriveRot, bool bStop)
+	{
+		if(g_pActorManager->DoesExist(actorId))
+		{			
+			return g_pActorManager->DriveToCoordinates(actorId, vecDriveTo, vecDriveRot, bStop);
+		}
+		return false;
+	}
+
 	void CActorModuleNatives::DeleteAll()
 	{
 		for(EntityId x = 0; x < MAX_ACTORS; x++)

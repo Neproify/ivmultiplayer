@@ -948,7 +948,8 @@ void CServerRPCHandler::SyncActor(CBitStream * pBitStream, CPlayerSocket * pSend
 		if(!pBitStream->Read((char *)&syncPacket, sizeof(ActorSyncData)))
 			return;
 
-		g_pActorManager->UpdateDrivePos(syncPacket.actorId,syncPacket.vecPos,syncPacket.vecRot, syncPacket.bDriving);
+		if(syncPacket.bDriving)
+			g_pActorManager->UpdateDrivePos(syncPacket.actorId,syncPacket.vecPos, syncPacket.bDriving);
 	}
 }
 
