@@ -23,7 +23,7 @@
 #include <SharedUtility.h>
 #include "CLogFile.h"
 // OS Independent Defines
-#define MAX_BUFFER 16384
+#define MAX_BUFFER 8192
 #define DEFAULT_PORT 80
 #define DEFAULT_USER_AGENT "IV: Multiplayer/1.0"
 #define DEFAULT_REFERER "http://iv-multiplayer.com"
@@ -278,7 +278,7 @@ bool CHttpClient::Post(bool bHasResponse, String strPath, String strData, String
 				  "\r\n" \
 				  "%s", 
 				  strPath.Get(), m_strHost.Get(), m_strUserAgent.Get(), 
-				  m_strReferer.Get(), strContentType.Get(), strData.GetLength(), 
+				  m_strReferer.Get(), strContentType.Get(), strData.GetLength(),
 				  strData.Get());
 
 	// Send the POST command
@@ -306,21 +306,176 @@ bool CHttpClient::Post(bool bHasResponse, String strPath, String strData, String
 	return true;
 	
 }
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
+
+struct mg_request_info {
+  char *request_method;  // "GET", "POST", etc
+  char *uri;             // URL-decoded URI
+  char *http_version;    // E.g. "1.0", "1.1"
+  char *query_string;    // URL part after '?' (not including '?') or NULL
+  char *remote_user;     // Authenticated user, or NULL if no auth used
+  long remote_ip;        // Client's IP address
+  int remote_port;       // Client's port
+  int is_ssl;            // 1 if SSL-ed, 0 if not
+  int num_headers;       // Number of headers
+  struct mg_header {
+    char *name;          // HTTP header name
+    char *value;         // HTTP header value
+  } http_headers[64];    // Maximum 64 headers
+};
+
+static char *skip_quoted(char **buf, const char *delimiters,
+                         const char *whitespace, char quotechar) {
+  char *p, *begin_word, *end_word, *end_whitespace;
+
+  begin_word = *buf;
+  end_word = begin_word + strcspn(begin_word, delimiters);
+
+  // Check for quotechar
+  if (end_word > begin_word) {
+    p = end_word - 1;
+    while (*p == quotechar) {
+      // If there is anything beyond end_word, copy it
+      if (*end_word == '\0') {
+        *p = '\0';
+        break;
+      } else {
+        size_t end_off = strcspn(end_word + 1, delimiters);
+        memmove (p, end_word, end_off + 1);
+        p += end_off; // p must correspond to end_word - 1
+        end_word += end_off + 1;
+      }
+    }
+    for (p++; p < end_word; p++) {
+      *p = '\0';
+    }
+  }
+
+  if (*end_word == '\0') {
+    *buf = end_word;
+  } else {
+    end_whitespace = end_word + 1 + strspn(end_word + 1, whitespace);
+
+    for (p = end_word; p < end_whitespace; p++) {
+      *p = '\0';
+    }
+
+    *buf = end_whitespace;
+  }
+
+  return begin_word;
+}
+
+// Simplified version of skip_quoted without quote char
+// and whitespace == delimiters
+static char *skip(char **buf, const char *delimiters) {
+  return skip_quoted(buf, delimiters, delimiters, 0);
+}
+
+// Check whether full request is buffered. Return:
+//   -1  if request is malformed
+//    0  if request is not yet fully buffered
+//   >0  actual request length, including last \r\n\r\n
+static int get_request_len(const char *buf, int buflen) {
+  const char *s, *e;
+  int len = 0;
+
+  for (s = buf, e = s + buflen - 1; len <= 0 && s < e; s++)
+    // Control characters are not allowed but >=128 is.
+    if (!isprint(* (const unsigned char *) s) && *s != '\r' &&
+        *s != '\n' && * (const unsigned char *) s < 128) {
+      len = -1;
+      break; // [i_a] abort scan as soon as one malformed character is found; don't let subsequent \r\n\r\n win us over anyhow
+    } else if (s[0] == '\n' && s[1] == '\n') {
+      len = (int) (s - buf) + 2;
+    } else if (s[0] == '\n' && &s[1] < e &&
+        s[1] == '\r' && s[2] == '\n') {
+      len = (int) (s - buf) + 3;
+    }
+
+  return len;
+}
+
+// Parse HTTP headers from the given buffer, advance buffer to the point
+// where parsing stopped.
+static void parse_http_headers(char **buf, struct mg_request_info *ri) {
+  int i;
+
+  for (i = 0; i < (int) ARRAY_SIZE(ri->http_headers); i++) {
+    ri->http_headers[i].name = skip_quoted(buf, ":", " ", 0);
+    ri->http_headers[i].value = skip(buf, "\r\n");
+    if (ri->http_headers[i].name[0] == '\0')
+      break;
+    ri->num_headers = i + 1;
+  }
+}
+
+static int is_valid_http_method(const char *method) {
+  return !strcmp(method, "GET") || !strcmp(method, "POST") ||
+    !strcmp(method, "HEAD") || !strcmp(method, "CONNECT") ||
+    !strcmp(method, "PUT") || !strcmp(method, "DELETE") ||
+    !strcmp(method, "OPTIONS") || !strcmp(method, "PROPFIND");
+}
+
+// Parse HTTP request, fill in mg_request_info structure.
+// This function modifies the buffer by NUL-terminating
+// HTTP request components, header names and header values.
+static int parse_http_message(char *buf, int len, struct mg_request_info *ri) {
+  int request_length = get_request_len(buf, len);
+  if (request_length > 0) {
+    // Reset attributes. DO NOT TOUCH is_ssl, remote_ip, remote_port
+    ri->remote_user = ri->request_method = ri->uri = ri->http_version = NULL;
+    ri->num_headers = 0;
+
+    buf[request_length - 1] = '\0';
+
+    // RFC says that all initial whitespaces should be ingored
+    while (*buf != '\0' && isspace(* (unsigned char *) buf)) {
+      buf++;
+    }
+    ri->request_method = skip(&buf, " ");
+    ri->uri = skip(&buf, " ");
+    ri->http_version = skip(&buf, "\r\n");
+    parse_http_headers(&buf, ri);
+  }
+  return request_length;
+}
+
+static int parse_http_request(char *buf, int len, struct mg_request_info *ri) {
+  int result = parse_http_message(buf, len, ri);
+  if (result > 0 &&
+      is_valid_http_method(ri->request_method) &&
+      !strncmp(ri->http_version, "HTTP/", 5)) {
+    ri->http_version += 5;   // Skip "HTTP/"
+  } else {
+    result = -1;
+  }
+  return result;
+}
+
+static int parse_http_response(char *buf, int len, struct mg_request_info *ri) {
+  int result = parse_http_message(buf, len, ri);
+  return result > 0 && !strncmp(ri->request_method, "HTTP/", 5) ? result : -1;
+}
 
 bool CHttpClient::ParseHeaders(String& strBuffer, int& iBufferSize)
 {
 	// Find the header size, testing code, but should work
+	mg_request_info info;
+	
+	char* buf = new char[iBufferSize];
+	memcpy(buf, strBuffer.C_String(), iBufferSize);
+	parse_http_response(buf, strBuffer.GetLength(), &info);
+	
+	String buf_header;
 	int iHeaderSize = 0;
-	for(int i = 0; i < iBufferSize; i++)
+	for(int i = 0; i < info.num_headers; ++i)
 	{
-		if(strBuffer.GetChar(i) == '\r' && strBuffer.GetChar(i+1) == '\n' &&
-			strBuffer.GetChar(i+2) == '\r' && strBuffer.GetChar(i+3) == '\n')
-		{
-			iHeaderSize = i + 4;
-			break;
-		}
+		buf_header.AppendF("%s: %s\r\n", info.http_headers[i].name, info.http_headers[i].value);
 	}
 
+	iHeaderSize = buf_header.GetLength();
+	iHeaderSize += strlen(info.request_method) + strlen(info.uri) + strlen(info.http_version) + strlen("\r\n\r\n\r\n");
 	iBufferSize -= iHeaderSize;
 	strBuffer.Erase(0, iHeaderSize);
 	m_headerMap["HeaderSize"] = iHeaderSize;
@@ -501,8 +656,9 @@ void CHttpClient::Process()
 					// Call the receive handler if we have one
 					bool bAppendData = true;
 
-					if(m_pfnReceiveHandler)
+					if(m_pfnReceiveHandler) {
 						bAppendData = m_pfnReceiveHandler(szBuffer + iSkipBytes, iBytesRecieved, m_pReceiveHandlerUserData);
+					}
 
 					// Append the buffer to the data if needed
 					if(bAppendData)

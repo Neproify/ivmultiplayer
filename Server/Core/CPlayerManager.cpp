@@ -113,7 +113,7 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 #ifdef _WIN32
 	SAFE_DELETE( m_pPlayers[playerId] );
 #else
-	SAFE_DELETE_ARRAY( m_pPlayers[playerId] ); 
+	SAFE_DELETE( m_pPlayers[playerId] ); 
 #endif
 	return true;
 }
