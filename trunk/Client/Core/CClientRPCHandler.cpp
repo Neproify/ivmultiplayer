@@ -1046,7 +1046,7 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && !pPlayer->IsLocalPlayer())
+	if(pPlayer && !pPlayer->IsLocalPlayer() && pPlayer->IsSpawned())
 	{
 		pPlayer->SetPing(usPing);
 		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
@@ -1091,7 +1091,7 @@ void CClientRPCHandler::InVehicleSync(CBitStream * pBitStream, CPlayerSocket * p
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && !pPlayer->IsLocalPlayer())
+	if(pPlayer && !pPlayer->IsLocalPlayer() && pPlayer->IsSpawned())
 	{
 		pPlayer->SetPing(usPing);
 		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
@@ -1134,7 +1134,7 @@ void CClientRPCHandler::PassengerSync(CBitStream * pBitStream, CPlayerSocket * p
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && !pPlayer->IsLocalPlayer())
+	if(pPlayer && !pPlayer->IsLocalPlayer() && pPlayer->IsSpawned())
 	{
 		pPlayer->SetPing(usPing);
 		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
@@ -1171,7 +1171,7 @@ void CClientRPCHandler::SmallSync(CBitStream * pBitStream, CPlayerSocket * pSend
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && !pPlayer->IsLocalPlayer())
+	if(pPlayer && !pPlayer->IsLocalPlayer() && pPlayer->IsSpawned())
 	{
 		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(pPlayer);
 		if(pRemotePlayer)

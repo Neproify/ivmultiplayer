@@ -106,6 +106,8 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 		ShowMessageBox("Successfully disconnected from server ...","Disconnect",true,true,false);
 		InternalResetGame(false);
 		SetDisconnectButtonVisible(false);
+
+		//m_pBackground->setAlpha(0.1f);
 	}
 	return true;
 }
