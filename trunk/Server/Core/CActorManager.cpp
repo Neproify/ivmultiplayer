@@ -317,7 +317,7 @@ void CActorManager::RemoveFromVehicle(EntityId actorId)
 
 bool CActorManager::DriveToCoordinates(EntityId actorId, CVector3 vecDriveTo, CVector3 vecDriveRot, bool bStop)
 {
-	if(m_Actors[actorId].bDrivingAutomatic == true && !UpdateDrivePos(actorId,vecDriveTo,true))
+	if(m_Actors[actorId].bDrivingAutomatic == true && !UpdateDrivePos(actorId, vecDriveTo, vecDriveRot, true))
 		return false;
 
 	CBitStream bsSend;
@@ -329,7 +329,7 @@ bool CActorManager::DriveToCoordinates(EntityId actorId, CVector3 vecDriveTo, CV
 	return false;
 }
 
-bool CActorManager::UpdateDrivePos(EntityId actorId, CVector3 vecDrivePos, bool bStop)
+bool CActorManager::UpdateDrivePos(EntityId actorId, CVector3 vecDrivePos,CVector3 vecDriveRot, bool bStop)
 {
 	if(m_bActive[actorId])
 	{

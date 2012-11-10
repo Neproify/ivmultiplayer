@@ -40,7 +40,11 @@ void NatTypeDetectionClient::DetectNATType(SystemAddress _serverAddress)
 		SocketLayer::GetSystemAddress(sockets[0]->s, &sockAddr);
 		char str[64];
 		sockAddr.ToString(false,str);
-		c2=CreateNonblockingBoundSocket(str);
+		c2=CreateNonblockingBoundSocket(str
+#ifdef __native_client__
+			, sockets[0]->chromeInstance
+#endif
+			);
 		c2Port=SocketLayer::GetLocalPort(c2);
 	}
 
@@ -56,7 +60,7 @@ void NatTypeDetectionClient::DetectNATType(SystemAddress _serverAddress)
 void NatTypeDetectionClient::OnCompletion(NATTypeDetectionResult result)
 {
 	Packet *p = AllocatePacketUnified(sizeof(MessageID)+sizeof(unsigned char)*2);
-	printf("Returning nat detection result to the user\n");
+	//printf("Returning nat detection result to the user\n");
 	p->data[0]=ID_NAT_TYPE_DETECTION_RESULT;
 	p->systemAddress=serverAddress;
 	p->systemAddress.systemIndex=(SystemIndex)-1;

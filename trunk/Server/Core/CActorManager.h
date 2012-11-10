@@ -64,7 +64,7 @@ public:
 	void		RemoveFromVehicle(EntityId actorId);
 	bool		DoesExist(EntityId actorId);
 	bool		DriveToCoordinates(EntityId actorId, CVector3 vecDriveTo, CVector3 vecDriveRot, bool bStop);
-	bool		UpdateDrivePos(EntityId actorId, CVector3 vecDrivePos,  bool bStopDriving);
+	bool		UpdateDrivePos(EntityId actorId, CVector3 vecDrivePos, CVector3 vecDriveRot, bool bStopDriving);
 	EntityId	GetVehicle(EntityId actorId) { return m_Actors[actorId].vehicleId; }
 	EntityId	GetActorCount();
 };

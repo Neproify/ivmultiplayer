@@ -74,9 +74,9 @@ public:
 	void DeallocWideChar(WCHAR * w);
 #endif
 	
-	///String class find replacement
-	///Searches the string for the content specified in stringToFind and returns the position of the first occurrence in the string.
-	///Search only includes characters on or after position pos, ignoring any possible occurrences in previous locations.
+	/// String class find replacement
+	/// Searches the string for the content specified in stringToFind and returns the position of the first occurrence in the string.
+	/// Search only includes characters on or after position pos, ignoring any possible occurrences in previous locations.
 	/// \param[in] stringToFind The string to find inside of this object's string
 	/// \param[in] pos The position in the string to start the search
 	/// \return Returns the position of the first occurrence in the string.
@@ -121,6 +121,7 @@ public:
 
 	/// Returns the length of the string
 	size_t GetLength(void) const;
+	size_t GetLengthUTF8(void) const;
 
 	/// Replace character(s) in starting at index, for count, with c
 	void Replace(unsigned index, unsigned count, unsigned char c);
@@ -132,7 +133,8 @@ public:
 	void SetChar( unsigned index, RakNet::RakString s );
 
 	/// Make sure string is no longer than \a length
-	void Truncate(unsigned length);
+	void Truncate(unsigned int length);
+	void TruncateUTF8(unsigned int length);
 
 	// Gets the substring starting at index for count characters
 	RakString SubStr(unsigned int index, unsigned int count) const;
@@ -144,6 +146,9 @@ public:
 	void TerminateAtFirstCharacter(char c);
 	/// Set the last instance of c with a NULL terminator
 	void TerminateAtLastCharacter(char c);
+
+	/// Returns how many occurances there are of \a c in the string
+	int GetCharacterCount(char c);
 	
 	/// Remove all instances of c
 	void RemoveCharacter(char c);
@@ -161,6 +166,9 @@ public:
 
 	/// Compare strings (case sensitive)
 	int StrCmp(const RakString &rhs) const;
+
+	/// Compare strings (case sensitive), up to num characters
+	int StrNCmp(const RakString &rhs, size_t num) const;
 
 	/// Compare strings (not case sensitive)
 	int StrICmp(const RakString &rhs) const;
@@ -194,6 +202,21 @@ public:
 
 	/// Scan for quote, double quote, and backslash and prepend with backslash
 	RakNet::RakString& SQLEscape(void);
+
+	/// Format as a POST command that can be sent to a webserver
+	/// \param[in] uri For example, jenkinssoftware.com/raknet/DirectoryServer.php?query=download&downloadPassword=a
+	/// \param[in] contentType For example, application/x-www-form-urlencoded
+	/// \param[in] port Port you plan to send to. Use 80 if you don't know.
+	/// \param[in] body Body of the post
+	/// \return Formatted string
+	static RakNet::RakString FormatForPOST(RakString &uri, RakString &contentType, unsigned int port, RakString &body);
+
+	/// Format as a GET comand that can be sent to a webserver
+	/// \param[in] uri For example, jenkinssoftware.com/raknet/DirectoryServer.php?query=download&downloadPassword=a
+	/// \param[in] contentType For example, application/x-www-form-urlencoded
+	/// \param[in] port Port you plan to send to. Use 80 if you don't know.
+	/// \return Formatted string
+	static RakNet::RakString FormatForGET(RakString &uri, unsigned int port);
 
 	/// Fix to be a file path, ending with /
 	RakNet::RakString& MakeFilePath(void);

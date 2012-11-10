@@ -451,7 +451,7 @@ void CloudServer::OnReleaseRequest(Packet *packet)
 
 	for (unsigned int filterIndex=0; filterIndex < queryFilters.Size(); filterIndex++)
 	{
-		if (queryFilters[filterIndex]->OnReleaseRequest(packet->guid, packet->systemAddress, cloudKeys))
+		if (queryFilters[filterIndex]->OnReleaseRequest(packet->guid, packet->systemAddress, cloudKeys)==false)
 			return;
 	}
 

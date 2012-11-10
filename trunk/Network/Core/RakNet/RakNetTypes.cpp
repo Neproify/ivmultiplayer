@@ -75,9 +75,20 @@ bool RakNet::NonNumericHostString( const char *host )
 	return true;
 }
 
-SocketDescriptor::SocketDescriptor() {port=0; hostAddress[0]=0; remotePortRakNetWasStartedOn_PS3_PSP2=0; extraSocketOptions=0; socketFamily=AF_INET;}
+SocketDescriptor::SocketDescriptor() {
+#ifdef __native_client__
+	blockingSocket=false;
+#else
+	blockingSocket=true;
+#endif
+	port=0; hostAddress[0]=0; remotePortRakNetWasStartedOn_PS3_PSP2=0; extraSocketOptions=0; socketFamily=AF_INET;}
 SocketDescriptor::SocketDescriptor(unsigned short _port, const char *_hostAddress)
 {
+	#ifdef __native_client__
+		blockingSocket=false;
+	#else
+		blockingSocket=true;
+	#endif
 	remotePortRakNetWasStartedOn_PS3_PSP2=0;
 	port=_port;
 	if (_hostAddress)
@@ -614,7 +625,7 @@ bool SystemAddress::FromString(const char *str, char portDelineator, int ipVersi
 // 		}
 // 		else
 // 		{
-			address.addr4.sin_family=AF_INET4;
+			address.addr4.sin_family=AF_INET;
 			memcpy(&address.addr4, (struct sockaddr_in *)servinfo->ai_addr,sizeof(struct sockaddr_in));
 //		}
 	}
@@ -651,7 +662,10 @@ bool SystemAddress::FromStringExplicitPort(const char *str, unsigned short port,
 {
 	bool b = FromString(str,(char) 0,ipVersion);
 	if (b==false)
+	{
+		*this=UNASSIGNED_SYSTEM_ADDRESS;
 		return false;
+	}
 	address.addr4.sin_port=htons(port);
 	debugPort=ntohs(address.addr4.sin_port);
 	return true;
@@ -696,10 +710,10 @@ void RakNetGUID::ToString(char *dest) const
 {
 	if (*this==UNASSIGNED_RAKNET_GUID)
 		strcpy(dest, "UNASSIGNED_RAKNET_GUID");
-
-	//sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
-	sprintf(dest, "%" PRINTF_64_BIT_MODIFIER "u", (long long unsigned int) g);
-	// sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
+	else
+		//sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
+		sprintf(dest, "%" PRINTF_64_BIT_MODIFIER "u", (long long unsigned int) g);
+		// sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
 }
 bool RakNetGUID::FromString(const char *source)
 {

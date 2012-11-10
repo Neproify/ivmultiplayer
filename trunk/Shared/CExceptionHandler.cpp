@@ -224,7 +224,7 @@ void CExceptionHandler::ExceptionHandler(int iSignal)
 #ifndef WIN32
 	exit(0);
 #else
-	ExitProcess(0);
+	SharedUtility::_TerminateProcess("GTAIV.exe");
 
 	return EXCEPTION_EXECUTE_HANDLER;	
 #endif

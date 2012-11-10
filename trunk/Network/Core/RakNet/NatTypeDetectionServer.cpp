@@ -27,19 +27,39 @@ NatTypeDetectionServer::~NatTypeDetectionServer()
 void NatTypeDetectionServer::Startup(
 									 const char *nonRakNetIP2,
 									 const char *nonRakNetIP3,
-									 const char *nonRakNetIP4)
+									 const char *nonRakNetIP4
+#ifdef __native_client__
+									 ,_PP_Instance_ chromeInstance
+#endif
+									 )
 {
 	DataStructures::List<RakNetSmartPtr<RakNetSocket> > sockets;
 	rakPeerInterface->GetSockets(sockets);
 	char str[64];
 	sockets[0]->boundAddress.ToString(false,str);
+#ifdef __native_client__
+	s1p2=CreateNonblockingBoundSocket(str, chromeInstance);
+#else
 	s1p2=CreateNonblockingBoundSocket(str);
+#endif
 	s1p2Port=SocketLayer::GetLocalPort(s1p2);
+#ifdef __native_client__
+	s2p3=CreateNonblockingBoundSocket(nonRakNetIP2,chromeInstance);
+#else
 	s2p3=CreateNonblockingBoundSocket(nonRakNetIP2);
+#endif
 	s2p3Port=SocketLayer::GetLocalPort(s2p3);
+#ifdef __native_client__
+	s3p4=CreateNonblockingBoundSocket(nonRakNetIP3,chromeInstance);
+#else
 	s3p4=CreateNonblockingBoundSocket(nonRakNetIP3);
+#endif
 	s3p4Port=SocketLayer::GetLocalPort(s3p4);
+#ifdef __native_client__
+	s4p5=CreateNonblockingBoundSocket(nonRakNetIP4,chromeInstance);
+#else
 	s4p5=CreateNonblockingBoundSocket(nonRakNetIP4);
+#endif
 	s4p5Port=SocketLayer::GetLocalPort(s4p5);
 	strcpy(s3p4Address, nonRakNetIP3);
 }

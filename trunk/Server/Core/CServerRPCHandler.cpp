@@ -949,7 +949,7 @@ void CServerRPCHandler::SyncActor(CBitStream * pBitStream, CPlayerSocket * pSend
 			return;
 
 		if(syncPacket.bDriving)
-			g_pActorManager->UpdateDrivePos(syncPacket.actorId,syncPacket.vecPos, syncPacket.bDriving);
+			g_pActorManager->UpdateDrivePos(syncPacket.actorId, syncPacket.vecPos, syncPacket.vecRot, syncPacket.bDriving);
 	}
 }
 

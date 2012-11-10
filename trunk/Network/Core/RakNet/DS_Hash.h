@@ -24,7 +24,7 @@ namespace DataStructures
 		unsigned int primaryIndex;
 		unsigned int secondaryIndex;
 		bool IsInvalid(void) const {return primaryIndex==(unsigned int) -1;}
-		void SetInvalid(void) {primaryIndex=(unsigned int) -1;}
+		void SetInvalid(void) {primaryIndex=(unsigned int) -1; secondaryIndex=(unsigned int) -1;}
 	};
 
 	/// \brief Using a string as a identifier for a node, store an allocated pointer to that node
