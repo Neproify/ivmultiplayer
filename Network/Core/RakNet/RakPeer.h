@@ -391,11 +391,11 @@ public:
 	void GetOfflinePingResponse( char **data, unsigned int *length );
 	
 	//--------------------------------------------------------------------------------------------Network Functions - Functions dealing with the network in general--------------------------------------------------------------------------------------------
-	/// \brief Returns the unique address identifier that represents you or another system on the the network and is based on your local IP / port.
+	/// \brief Returns the unique address identifier that represents you or another system on the the network
 	/// \note Not supported by the XBOX
-	/// \param[in] systemAddress Use UNASSIGNED_SYSTEM_ADDRESS to get your behind-LAN address. Use a connected system to get their behind-LAN address
+	/// \param[in] systemAddress Use UNASSIGNED_SYSTEM_ADDRESS to get your behind-LAN address. Use a connected system to get their behind-LAN address. This does not return the port.
 	/// \param[in] index When you have multiple internal IDs, which index to return? Currently limited to MAXIMUM_NUMBER_OF_INTERNAL_IDS (so the maximum value of this variable is MAXIMUM_NUMBER_OF_INTERNAL_IDS-1)
-	/// \return Identifier of your system internally, which may not be how other systems see if you if you are behind a NAT or proxy
+	/// \return Identifier of your system internally, which may not be how other systems see if you if you are behind a NAT or proxy.
 	SystemAddress GetInternalID( const SystemAddress systemAddress=UNASSIGNED_SYSTEM_ADDRESS, const int index=0 ) const;
 
 	/// \brief Returns the unique address identifier that represents the target on the the network and is based on the target's external IP / port.
@@ -403,7 +403,7 @@ public:
 	SystemAddress GetExternalID( const SystemAddress target ) const;
 
 	/// Return my own GUID
-	const RakNetGUID GetMyGUID(void);
+	const RakNetGUID GetMyGUID(void) const;
 
 	/// Return the address bound to a socket at the specified index
 	SystemAddress GetMyBoundAddress(const int socketIndex=0);
@@ -506,12 +506,14 @@ public:
 	void SendTTL( const char* host, unsigned short remotePort, int ttl, unsigned connectionSocketIndex=0 );
 
 	// -------------------------------------------------------------------------------------------- Plugin Functions--------------------------------------------------------------------------------------------
-	/// \brief Attatches a Plugin interface to an instance of the base class (RakPeer or PacketizedTCP) to run code automatically on message receipt in the Receive call.
+	/// \brief Attaches a Plugin interface to an instance of the base class (RakPeer or PacketizedTCP) to run code automatically on message receipt in the Receive call.
+	/// If the plugin returns false from PluginInterface::UsesReliabilityLayer(), which is the case for all plugins except PacketLogger, you can call AttachPlugin() and DetachPlugin() for this plugin while RakPeer is active.
 	/// \param[in] messageHandler Pointer to the plugin to attach.
 	void AttachPlugin( PluginInterface2 *plugin );
 
 	/// \brief Detaches a Plugin interface from the instance of the base class (RakPeer or PacketizedTCP) it is attached to.
 	///	\details This method disables the plugin code from running automatically on base class's updates or message receipt.
+	/// If the plugin returns false from PluginInterface::UsesReliabilityLayer(), which is the case for all plugins except PacketLogger, you can call AttachPlugin() and DetachPlugin() for this plugin while RakPeer is active.
 	/// \param[in] messageHandler Pointer to a plugin to detach.
 	void DetachPlugin( PluginInterface2 *messageHandler );
 
@@ -588,11 +590,34 @@ public:
 	/// \brief Returns the network statistics of the system at the given index in the remoteSystemList.
 	///	\return True if the index is less than the maximum number of peers allowed and the system is active. False otherwise.
 	bool GetStatistics( const int index, RakNetStatistics *rns );
+	/// \brief Returns the list of systems, and statistics for each of those systems
+	/// Each system has one entry in each of the lists, in the same order
+	/// \param[out] addresses SystemAddress for each connected system
+	/// \param[out] guids RakNetGUID for each connected system
+	/// \param[out] statistics Calculated RakNetStatistics for each connected system
+	virtual void GetStatisticsList(DataStructures::List<SystemAddress> &addresses, DataStructures::List<RakNetGUID> &guids, DataStructures::List<RakNetStatistics> &statistics);
 
 	/// \Returns how many messages are waiting when you call Receive()
 	virtual unsigned int GetReceiveBufferSize(void);
 
 	// --------------------------------------------------------------------------------------------EVERYTHING AFTER THIS COMMENT IS FOR INTERNAL USE ONLY--------------------------------------------------------------------------------------------
+
+
+	/// \internal
+	// Call manually if RAKPEER_USER_THREADED==1 at least every 30 milliseconds.
+	// updateBitStream should be:
+	// 	BitStream updateBitStream( MAXIMUM_MTU_SIZE
+	// #if LIBCAT_SECURITY==1
+	//	+ cat::AuthenticatedEncryption::OVERHEAD_BYTES
+	// #endif
+	// );
+	bool RunUpdateCycle( BitStream &updateBitStream );
+
+	/// \internal
+	// Call manually if RAKPEER_USER_THREADED==1 at least every 30 milliseconds.
+	// Call in a loop until returns false if the socket is non-blocking
+	// remotePortRakNetWasStartedOn_PS3 and extraSocketOptions are from SocketDescriptor when the socket was created
+	bool RunRecvFromOnce( SOCKET s, unsigned short remotePortRakNetWasStartedOn_PS3, unsigned int extraSocketOptions );
 
 	/// \internal
 	bool SendOutOfBand(const char *host, unsigned short remotePort, const char *data, BitSize_t dataLength, unsigned connectionSocketIndex=0 );
@@ -642,6 +667,9 @@ public:
 		enum ConnectMode {NO_ACTION, DISCONNECT_ASAP, DISCONNECT_ASAP_SILENTLY, DISCONNECT_ON_NO_ACK, REQUESTED_CONNECTION, HANDLING_CONNECTION_REQUEST, UNVERIFIED_SENDER, CONNECTED} connectMode;
 	};
 
+	// DS_APR
+	void ProcessChromePacket(SOCKET s, const char *buffer, int dataSize, const SystemAddress& recvFromAddress, RakNet::TimeUS timeRead);
+	// /DS_APR
 protected:
 
 	friend RAK_THREAD_DECLARATION(UpdateNetworkLoop);
@@ -806,12 +834,12 @@ protected:
 
 	//DataStructures::List<DataStructures::List<MemoryBlock>* > automaticVariableSynchronizationList;
 	DataStructures::List<BanStruct*> banList;
-	DataStructures::List<PluginInterface2*> messageHandlerList;
+	// Threadsafe, and not thread safe
+	DataStructures::List<PluginInterface2*> pluginListTS, pluginListNTS;
 
 	DataStructures::Queue<RequestedConnectionStruct*> requestedConnectionQueue;
 	SimpleMutex requestedConnectionQueueMutex;
 
-	bool RunUpdateCycle( RakNet::TimeUS timeNS, RakNet::Time timeMS, BitStream &updateBitStream );
 	// void RunMutexedUpdateCycle(void);
 
 	struct BufferedCommandStruct
@@ -955,6 +983,7 @@ protected:
 	uint32_t sendReceiptSerial;
 	void ResetSendReceipt(void);
 	void OnConnectedPong(RakNet::Time sendPingTime, RakNet::Time sendPongTime, RemoteSystemStruct *remoteSystem);
+	void CallPluginCallbacks(DataStructures::List<PluginInterface2*> &pluginList, Packet *packet);
 
 #if LIBCAT_SECURITY==1
 	// Encryption and security

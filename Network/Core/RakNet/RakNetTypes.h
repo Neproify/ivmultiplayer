@@ -39,7 +39,7 @@ enum StartupResult
 	SOCKET_FAILED_TEST_SEND,
 	PORT_CANNOT_BE_ZERO,
 	FAILED_TO_CREATE_NETWORK_THREAD,
-	STARTUP_OTHER_FAILURE,
+	STARTUP_OTHER_FAILURE
 };
 
 
@@ -69,7 +69,7 @@ enum ConnectionState
 	/// No longer connected
 	IS_DISCONNECTED,
 	/// Was never connected, or else was disconnected long enough ago that the entry has been discarded
-	IS_NOT_CONNECTED,
+	IS_NOT_CONNECTED
 };
 
 /// Given a number of bits, return how many bytes are needed to represent that.
@@ -161,6 +161,12 @@ struct RAK_DLL_EXPORT SocketDescriptor
 
 
 	unsigned short remotePortRakNetWasStartedOn_PS3_PSP2;
+
+	// Required for Google chrome
+	_PP_Instance_ chromeInstance;
+
+	// Set to true to use a blocking socket (default, do not change unless you have a reason to)
+	bool blockingSocket;
 
 	/// XBOX only: set IPPROTO_VDP if you want to use VDP. If enabled, this socket does not support broadcast to 255.255.255.255
 	unsigned int extraSocketOptions;

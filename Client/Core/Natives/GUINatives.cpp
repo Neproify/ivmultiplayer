@@ -643,12 +643,14 @@ _MEMBER_FUNCTION_IMPL(GUIImage, constructor)
 
 	// check file size
 	// hack
-	FILE* pFile = fopen ( filename, "rb" );
+	FILE* pFile = fopen(filename, "rb");
 	fseek(pFile, 0L, SEEK_END);
 	int len = ftell(pFile);
 	if(len == 0) {
+		fclose(pFile);
 		return 1;
 	}
+	fclose(pFile);
 	String szName = g_pGUI->GetUniqueName();
 
 	// Try to load the image

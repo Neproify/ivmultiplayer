@@ -9,11 +9,16 @@
 #include "SocketLayer.h"
 #include "RakAssert.h"
 #include "RakNetTypes.h"
+#include "RakPeer.h"
 #include "GetTime.h"
 #include "LinuxStrings.h"
 #include "SocketDefines.h"
 
 using namespace RakNet;
+
+#if defined(__native_client__)
+using namespace pp;
+#endif
 
 #if USE_SLIDING_WINDOW_CONGESTION_CONTROL!=1
 #include "CCRakNetUDT.h"
@@ -80,6 +85,60 @@ namespace RakNet
 #include <stdio.h>
 #endif
 
+#ifdef __native_client__
+
+namespace RakNet
+{
+
+// Native Client only allows one SendTo call to be in-flight at once, so if a
+// send is still in progress and we haven't gotten a callback yet, we queue up
+// up to one packet in the socket implementation to be sent immediately as soon
+// as the next callback comes in.
+struct SocketImpl
+{
+	SocketImpl();
+	~SocketImpl();
+
+	// Chrome socket resource
+	PP_Resource s;
+
+	// Flag indicating if a SendTo is currently in progress
+	bool sendInProgress;
+
+	// Data for next queued packet to send, if nextSendSize > 0
+	char nextSendBuffer[MAXIMUM_MTU_SIZE];
+
+	// Size of next queued packet to send, or 0 if no queued packet
+	int nextSendSize;
+
+	// Destination address of queued packet
+	PP_NetAddress_Private nextSendAddr;
+};
+
+SocketImpl::SocketImpl()
+{
+	s = 0;
+	sendInProgress = false;
+	nextSendSize = 0;
+}
+
+SocketImpl::~SocketImpl()
+{
+	if(s != 0)
+		((PPB_UDPSocket_Private_0_3*) pp::Module::Get()->GetBrowserInterface(PPB_UDPSOCKET_PRIVATE_INTERFACE_0_3))->Close(s);
+}
+
+void CloseSocket(SOCKET s)
+{
+	RakNet::OP_DELETE(s, _FILE_AND_LINE_);
+}
+
+}  // namespace RakNet
+
+#endif  // __native_client__
+
+
+
 // http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#ip4to6
 // http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#getaddrinfo
 
@@ -97,12 +156,19 @@ void PrepareAddrInfoHints(addrinfo *hints)
 
 bool SocketLayer::IsPortInUse_Old(unsigned short port, const char *hostAddress)
 {
+#ifdef __native_client__
+	return false;
+#else
 	SOCKET listenSocket;
 	sockaddr_in listenerSocketAddress;
 	memset(&listenerSocketAddress,0,sizeof(sockaddr_in));
 	// Listen on our designated Port#
 	listenerSocketAddress.sin_port = htons( port );
+
+
+
 	listenSocket = socket__( AF_INET, SOCK_DGRAM, 0 );
+
 	if ( listenSocket == (SOCKET) -1 )
 		return true;
 	// bind our name to the socket
@@ -138,6 +204,7 @@ bool SocketLayer::IsPortInUse_Old(unsigned short port, const char *hostAddress)
 	// 	#endif
 	return ret <= -1;
 
+#endif
 }
 bool SocketLayer::IsSocketFamilySupported(const char *hostAddress, unsigned short socketFamily)
 {
@@ -259,7 +326,8 @@ void SocketLayer::SetDoNotFragment( SOCKET listenSocket, int opt, int IPPROTO )
 
 void SocketLayer::SetNonBlocking( SOCKET listenSocket)
 {
-#ifdef _WIN32
+#ifdef __native_client__
+#elif defined(_WIN32)
 	unsigned long nonBlocking = 1;
 	ioctlsocket__( listenSocket, FIONBIO, &nonBlocking );
 
@@ -271,8 +339,11 @@ void SocketLayer::SetNonBlocking( SOCKET listenSocket)
 #endif
 }
 
-void SocketLayer::SetSocketOptions( SOCKET listenSocket)
+void SocketLayer::SetSocketOptions( SOCKET listenSocket, bool blockingSocket)
 {
+#ifdef __native_client__
+	(void) listenSocket;
+#else
 	int sock_opt = 1;
 	// // On Vista, can get WSAEACCESS (10013)
 	/*
@@ -310,17 +381,18 @@ void SocketLayer::SetSocketOptions( SOCKET listenSocket)
 	setsockopt__(listenSocket, SOL_SOCKET, SO_SNDBUF, ( char * ) & sock_opt, sizeof ( sock_opt ) );
 
 
-	/*
-	#ifdef _WIN32
+	if (blockingSocket==false)
+	{
+#ifdef _WIN32
 		unsigned long nonblocking = 1;
 		ioctlsocket__( listenSocket, FIONBIO, &nonblocking );
-	#elif defined(_PS3) || defined(__PS3__) || defined(SN_TARGET_PS3) || defined(SN_TARGET_PSP2)
-		sock_opt=1;
-		setsockopt__(listenSocket, SOL_SOCKET, SO_NBIO, ( char * ) & sock_opt, sizeof ( sock_opt ) );
-	#else
+
+
+
+#else
 		fcntl( listenSocket, F_SETFL, O_NONBLOCK );
-	#endif
-	*/
+#endif
+	}
 
 	// TODO - teston ipv6
 
@@ -348,6 +420,8 @@ void SocketLayer::SetSocketOptions( SOCKET listenSocket)
 #endif
 
 	}
+
+#endif
 }
 SOCKET SocketLayer::CreateBoundSocket_PS3Lobby( unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned short socketFamily )
 {
@@ -435,7 +509,7 @@ SOCKET SocketLayer::CreateBoundSocket_PS3Lobby( unsigned short port, bool blocki
 
 
 
-	return 0;
+	return INVALID_SOCKET;
 
 }
 SOCKET SocketLayer::CreateBoundSocket_PSP2( unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned short socketFamily )
@@ -526,9 +600,201 @@ SOCKET SocketLayer::CreateBoundSocket_PSP2( unsigned short port, bool blockingSo
 	return 0;
 
 }
-SOCKET SocketLayer::CreateBoundSocket_Old( unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned int sleepOn10048, unsigned int extraSocketOptions )
+#ifdef __native_client__
+struct SocketAndBuffer
 {
-	(void) blockingSocket;
+	RakPeer *peer;
+	SOCKET chromeSocket;
+	char buffer[MAXIMUM_MTU_SIZE];
+	int32_t dataSize;
+	SystemAddress recvFromAddress;
+	RakNet::TimeUS timeRead;
+	SocketAndBuffer *next;
+} *sabHead=0, *sabLast=0;
+void onRecvFrom(void* pData, int32_t dataSize);
+void ChromeRecvFrom(SocketAndBuffer *sab)
+{	
+	PP_CompletionCallback cc = PP_MakeCompletionCallback(onRecvFrom, sab);
+	((PPB_UDPSocket_Private_0_3*) Module::Get()->GetBrowserInterface(PPB_UDPSOCKET_PRIVATE_INTERFACE_0_3))->RecvFrom(sab->chromeSocket->s, sab->buffer, MAXIMUM_MTU_SIZE, cc);
+}
+
+void onSendTo(void* pData, int32_t dataSize)
+{
+	if(dataSize <= 0)
+		RAKNET_DEBUG_PRINTF("onSendTo: send failed with error %d\n", dataSize);
+
+	// If the send was aborted due to the socket being destroyed, don't touch
+	// the socket pointer since it might have been deallocated
+	if(dataSize == PP_ERROR_ABORTED)
+		return;
+
+	// If another send was queued up, send it now for minimum latency
+	SocketImpl *s = (SocketImpl *)pData;
+	if (s->nextSendSize > 0)
+	{
+		int bufSize = s->nextSendSize;
+		s->nextSendSize = 0;
+		PP_CompletionCallback cc = PP_MakeCompletionCallback(onSendTo, s);
+		((PPB_UDPSocket_Private_0_3*) Module::Get()->GetBrowserInterface(PPB_UDPSOCKET_PRIVATE_INTERFACE_0_3))->SendTo(s->s, s->nextSendBuffer, bufSize, &s->nextSendAddr, cc);
+	}
+	else
+	{
+		s->sendInProgress = false;
+	}
+}
+void onRecvFrom(void* pData, int32_t dataSize)
+{
+	SocketAndBuffer *sab = (SocketAndBuffer *) pData;
+
+	//any error codes will be given to us in the dataSize value; see pp_errors.h for a list of errors
+	if(dataSize <=0 || !pData )
+	{
+		// This value indicates failure due to an asynchronous operation being
+		// interrupted. The most common cause of this error code is destroying
+		// a resource that still has a callback pending. All callbacks are
+		// guaranteed to execute, so any callbacks pending on a destroyed
+		// resource will be issued with PP_ERROR_ABORTED.
+		if(dataSize==PP_ERROR_ABORTED)
+		{
+			RAKNET_DEBUG_PRINTF("onRecvFrom error PP_ERROR_ABORTED, killing recvfrom loop\n");
+			RakNet::OP_DELETE(sab, _FILE_AND_LINE_);
+		}
+		else
+		{
+			RAKNET_DEBUG_PRINTF("onRecvFrom error %d\n", dataSize);
+
+			// Reissue call
+			PP_CompletionCallback cc = PP_MakeCompletionCallback(onRecvFrom, sab);
+			((PPB_UDPSocket_Private_0_3*) Module::Get()->GetBrowserInterface(PPB_UDPSOCKET_PRIVATE_INTERFACE_0_3))->RecvFrom(sab->chromeSocket->s, sab->buffer, MAXIMUM_MTU_SIZE, cc);
+		}
+
+		return;
+	}
+
+	sab->dataSize=dataSize;
+	sab->timeRead=RakNet::GetTimeUS();
+	PP_NetAddress_Private addr;
+	bool ok=false;
+	if(((PPB_UDPSocket_Private_0_3*) Module::Get()->GetBrowserInterface(PPB_UDPSOCKET_PRIVATE_INTERFACE_0_3))->GetRecvFromAddress(sab->chromeSocket->s, &addr) == PP_TRUE)
+	{
+		PP_NetAddressFamily_Private family = NetAddressPrivate::GetFamily(addr);
+		if (family == PP_NETADDRESSFAMILY_IPV4)
+		{
+			ok = NetAddressPrivate::GetAddress(addr, &sab->recvFromAddress.address.addr4.sin_addr, sizeof(in_addr));
+		}
+#if RAKNET_SUPPORT_IPV6==1
+		else
+		{
+			ok = NetAddressPrivate::GetAddress(addr, &sab->recvFromAddress.address.addr6.sin6_addr, sizeof(in6_addr));
+		}
+#endif
+	}
+
+	if(ok)
+	{
+		sab->recvFromAddress.SetPort(pp::NetAddressPrivate::GetPort(addr));
+
+		if(sab->peer)
+		{
+			sab->peer->ProcessChromePacket(sab->chromeSocket, sab->buffer, sab->dataSize, sab->recvFromAddress, sab->timeRead);
+		}
+		else
+		{
+			// Add sab to linked list to read out
+			if (sabHead==0)
+				sabHead=sab;
+			else
+				sabLast->next=sab;
+			sabLast=sab;
+		}
+	}
+
+	// Call again
+	ChromeRecvFrom(sab);
+}
+struct ChromeSocketContainer
+{
+	RakPeer *peer;
+	SOCKET s;
+};
+void onSocketBound(void* pData, int32_t dataSize)
+{
+	RAKNET_DEBUG_PRINTF("onSocketBound ==> %d\n", dataSize);
+
+	//any error codes will be given to us in the dataSize value
+	if(dataSize < 0)
+	{
+		fprintf(stderr,"onSocketBound exiting, dataSize = %d\n", dataSize);
+		return;
+	}
+
+	ChromeSocketContainer *csc = (ChromeSocketContainer *)pData;
+	// Call recvfrom the first time
+	SocketAndBuffer *sab = RakNet::OP_NEW<SocketAndBuffer>(_FILE_AND_LINE_);
+	sab->peer=csc->peer;
+	sab->chromeSocket=csc->s;
+	sab->next=0;
+	ChromeRecvFrom(sab);
+	RakNet::OP_DELETE(csc, _FILE_AND_LINE_);
+}
+SOCKET CreateChromeSocket(RakPeer *peer, unsigned short port, const char *forceHostAddress, _PP_Instance_ chromeInstance, bool is_ipv6)
+{
+	if(Module::Get()->GetBrowserInterface(PPB_UDPSOCKET_PRIVATE_INTERFACE_0_3))
+	{
+		SOCKET s = RakNet::OP_NEW<SocketImpl>(_FILE_AND_LINE_);
+		s->s = ((PPB_UDPSocket_Private_0_3*) Module::Get()->GetBrowserInterface(PPB_UDPSOCKET_PRIVATE_INTERFACE_0_3))->Create(chromeInstance);
+		RAKNET_DEBUG_PRINTF("CreateChromeSocket(%d,%s,0x%08x,%d) ==> 0x%08x\n", port, forceHostAddress?forceHostAddress:"(null)",chromeInstance,is_ipv6, s->s);
+		PP_NetAddress_Private client_addr;
+		uint8_t ipv6[16], ipv4[4];
+		if (forceHostAddress)
+		{
+			unsigned int ipIdx=0;
+			char * pch;
+			pch = strtok ((char*) forceHostAddress,".");
+			if (is_ipv6)
+			{
+				while (pch != NULL && ipIdx<16)
+				{
+					ipv6[ipIdx++]=atoi(pch);
+					pch = strtok (NULL, ".");
+				}
+				NetAddressPrivate::CreateFromIPv6Address(ipv6,0,port,&client_addr);
+			}
+			else
+			{
+				while (pch != NULL && ipIdx<4)
+				{
+					ipv4[ipIdx++]=atoi(pch);
+					pch = strtok (NULL, ".");
+				}
+				NetAddressPrivate::CreateFromIPv4Address(ipv4,port,&client_addr);
+			}
+		}
+		else
+		{
+			NetAddressPrivate::GetAnyAddress(is_ipv6, &client_addr);
+			NetAddressPrivate::ReplacePort(client_addr, port, &client_addr);
+		}
+		ChromeSocketContainer *csc = RakNet::OP_NEW<ChromeSocketContainer>(_FILE_AND_LINE_);
+		csc->peer=peer;
+		csc->s=s;
+		RAKNET_DEBUG_PRINTF("attempting to bind to %s\n", NetAddressPrivate::Describe(client_addr, true).c_str());
+		PP_CompletionCallback cc = PP_MakeCompletionCallback(onSocketBound, csc);
+		((PPB_UDPSocket_Private_0_3*) Module::Get()->GetBrowserInterface(PPB_UDPSOCKET_PRIVATE_INTERFACE_0_3))->Bind(s->s, &client_addr, cc);
+		return s;
+	}
+	return INVALID_SOCKET;
+}
+#endif
+
+// void onSocketBound(void* pData, int32_t dataSize)
+SOCKET SocketLayer::CreateBoundSocket_Old( RakPeer *peer, unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned int sleepOn10048, unsigned int extraSocketOptions, _PP_Instance_ chromeInstance )
+{
+#ifdef __native_client__
+	return CreateChromeSocket(peer,port,forceHostAddress,chromeInstance,false);
+#else
+	(void) peer;
+	(void) chromeInstance;
 
 	int ret;
 	SOCKET listenSocket;
@@ -537,7 +803,11 @@ SOCKET SocketLayer::CreateBoundSocket_Old( unsigned short port, bool blockingSoc
 	// Listen on our designated Port#
 	listenerSocketAddress.sin_port = htons( port );
 
+//#if defined(SN_TARGET_PSP2)
+//	listenSocket = socket__( AF_INET, SCE_NET_SOCK_DGRAM_P2P, extraSocketOptions );
+//#else
 	listenSocket = socket__( AF_INET, SOCK_DGRAM, extraSocketOptions );
+//#endif
 
 	if ( listenSocket == (SOCKET) -1 )
 	{
@@ -558,7 +828,7 @@ SOCKET SocketLayer::CreateBoundSocket_Old( unsigned short port, bool blockingSoc
 		return (SOCKET) -1;
 	}
 
-	SetSocketOptions(listenSocket);
+	SetSocketOptions(listenSocket, blockingSocket);
 
 	// Fill in the rest of the address structure
 	listenerSocketAddress.sin_family = AF_INET;
@@ -612,7 +882,7 @@ SOCKET SocketLayer::CreateBoundSocket_Old( unsigned short port, bool blockingSoc
 			listenSocket = socket__( AF_INET, SOCK_DGRAM, 0 );
 			if ( listenSocket == (SOCKET) -1 )
 				return false;
-			SetSocketOptions(listenSocket);
+			SetSocketOptions(listenSocket, blockingSocket);
 
 			// Fill in the rest of the address structure
 			listenerSocketAddress.sin_family = AF_INET;
@@ -680,16 +950,28 @@ SOCKET SocketLayer::CreateBoundSocket_Old( unsigned short port, bool blockingSoc
 	}
 
 	return listenSocket;
+
+
+#endif
 }
-SOCKET SocketLayer::CreateBoundSocket( unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned int sleepOn10048, unsigned int extraSocketOptions, unsigned short socketFamily )
+SOCKET SocketLayer::CreateBoundSocket( RakPeer *peer, unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned int sleepOn10048, unsigned int extraSocketOptions, unsigned short socketFamily, _PP_Instance_ chromeInstance )
 {
+	(void) peer;
 	(void) blockingSocket;
 	(void) extraSocketOptions;
 	(void) socketFamily;
+	(void) chromeInstance;
 
 #if RAKNET_SUPPORT_IPV6!=1
-	return CreateBoundSocket_Old(port,blockingSocket,forceHostAddress,sleepOn10048,extraSocketOptions);
+	return CreateBoundSocket_Old(peer,port,blockingSocket,forceHostAddress,sleepOn10048,extraSocketOptions, chromeInstance);
 #else
+
+#ifdef __native_client__
+	return CreateChromeSocket(peer,port,forceHostAddress,chromeInstance,true);
+#else
+	(void) blockingSocket;
+#endif
+
 
 #ifdef _WIN32
 	// Vista has a bug where it returns WSAEADDRINUSE (10048) if you create, shutdown, then rebind the socket port unless you wait a while first.
@@ -734,7 +1016,7 @@ SOCKET SocketLayer::CreateBoundSocket( unsigned short port, bool blockingSocket,
 
 				freeaddrinfo(servinfo); // free the linked-list
 				
-				SetSocketOptions(listenSocket);
+				SetSocketOptions(listenSocket, blockingSocket);
 				return listenSocket;
 			}
 		}
@@ -788,11 +1070,11 @@ SOCKET SocketLayer::CreateBoundSocket( unsigned short port, bool blockingSocket,
 
 #endif
 
-	return (SOCKET) -1;
+	return INVALID_SOCKET;
 }
 const char* SocketLayer::DomainNameToIP_Old( const char *domainName )
 {
-	struct in_addr addr;
+	static struct in_addr addr;
 	memset(&addr,0,sizeof(in_addr));
 
 
@@ -933,15 +1215,23 @@ const char* SocketLayer::DomainNameToIP( const char *domainName )
 
 void SocketLayer::Write( const SOCKET writeSocket, const char* data, const int length )
 {
+#ifdef __native_client__
+#else
+
 #ifdef _DEBUG
 	RakAssert( writeSocket != (SOCKET) -1 );
 #endif
 
 	send__( writeSocket, data, length, 0 );
+#endif
 }
 void SocketLayer::RecvFromBlocking_Old( const SOCKET s, RakPeer *rakPeer, unsigned short remotePortRakNetWasStartedOn_PS3, unsigned int extraSocketOptions, char *dataOut, int *bytesReadOut, SystemAddress *systemAddressOut, RakNet::TimeUS *timeRead )
 {
 	(void) rakPeer;
+	(void) remotePortRakNetWasStartedOn_PS3;
+	(void) extraSocketOptions;
+
+#ifndef __native_client__
 
 	sockaddr* sockAddrPtr;
 	socklen_t sockLen;
@@ -950,9 +1240,6 @@ void SocketLayer::RecvFromBlocking_Old( const SOCKET s, RakPeer *rakPeer, unsign
 	memset(&sa,0,sizeof(sockaddr_in));
 	int dataOutSize;
 	const int flag=0;
-
-	(void) remotePortRakNetWasStartedOn_PS3;
-	(void) extraSocketOptions;
 
 
 
@@ -1012,10 +1299,31 @@ void SocketLayer::RecvFromBlocking_Old( const SOCKET s, RakPeer *rakPeer, unsign
 		systemAddressOut->SetPortNetworkOrder( sa.sin_port );
 		systemAddressOut->address.addr4.sin_addr.s_addr=sa.sin_addr.s_addr;
 	}
+
+#endif // __native_client__
 }
 
 void SocketLayer::RecvFromBlocking( const SOCKET s, RakPeer *rakPeer, unsigned short remotePortRakNetWasStartedOn_PS3, unsigned int extraSocketOptions, char *dataOut, int *bytesReadOut, SystemAddress *systemAddressOut, RakNet::TimeUS *timeRead )
 {
+#ifdef __native_client__
+	if (sabHead)
+	{
+		// Actually nonblocking in this case
+		*bytesReadOut = sabHead->dataSize;
+		memcpy(dataOut, sabHead->buffer, sabHead->dataSize);
+		*systemAddressOut=sabHead->recvFromAddress;
+		*timeRead = sabHead->timeRead;
+		SocketAndBuffer *sabNext=sabHead->next;
+		RakNet::OP_DELETE(sabHead, _FILE_AND_LINE_);
+		sabHead=sabNext;
+	}
+	else
+	{
+		*bytesReadOut=0;
+	}
+	return;
+#endif
+
 #if RAKNET_SUPPORT_IPV6!=1
 	RecvFromBlocking_Old(s,rakPeer,remotePortRakNetWasStartedOn_PS3,extraSocketOptions,dataOut,bytesReadOut,systemAddressOut,timeRead);
 #else
@@ -1198,6 +1506,38 @@ int SocketLayer::SendTo_360( SOCKET s, const char *data, int length, const char 
 }
 int SocketLayer::SendTo_PC( SOCKET s, const char *data, int length, const SystemAddress &systemAddress, const char *file, const long line )
 {
+#ifdef __native_client__
+	// Assuming data does not have to remain valid until callback called
+	PP_NetAddress_Private client_addr;
+#if RAKNET_SUPPORT_IPV6==1
+	NetAddressPrivate::CreateFromIPv6Address(systemAddress.address.addr6.sin6_addr.u.Byte,0,systemAddress.GetPort(),&client_addr);
+#else
+	NetAddressPrivate::CreateFromIPv4Address((const uint8_t*) &systemAddress.address.addr4.sin_addr,systemAddress.GetPort(),&client_addr);
+#endif
+
+	// Native Client only allows one in-flight SendTo call at once, so send the
+	// data now if possible, otherwise queue up up to 1 packet's worth
+	if (!s->sendInProgress)
+	{
+		s->sendInProgress = true;
+		PP_CompletionCallback cc = PP_MakeCompletionCallback(onSendTo, s);
+		return ((PPB_UDPSocket_Private_0_3*) Module::Get()->GetBrowserInterface(PPB_UDPSOCKET_PRIVATE_INTERFACE_0_3))->SendTo(s->s, data, length, &client_addr, cc);
+	}
+	else if (s->nextSendSize == 0)
+	{
+		// Queue up the packet to be sent when the current send completes
+		RakAssert(length <= MAXIMUM_MTU_SIZE);
+		memcpy(s->nextSendBuffer, data, length);
+		s->nextSendSize = length;
+		s->nextSendAddr = client_addr;
+		return 0;
+	}
+	else
+	{
+		// Send in progress and no room in queue
+		return -1;
+	}
+#else
 	// TODO
 	// http://www.linuxquestions.org/questions/linux-software-2/ipv6-linux-sendto-problems-519485/
 
@@ -1252,6 +1592,7 @@ int SocketLayer::SendTo_PC( SOCKET s, const char *data, int length, const System
 	}
 	while ( len == 0 );
 	return len;
+#endif  // __native_client__
 }
 
 #ifdef _MSC_VER
@@ -1275,7 +1616,7 @@ int SocketLayer::SendTo( SOCKET s, const char *data, int length, SystemAddress &
 		return 1;
 	}
 
-	if ( s == (SOCKET) -1 )
+	if ( s == INVALID_SOCKET )
 	{
 		return -1;
 	}
@@ -1348,7 +1689,7 @@ int SocketLayer::SendToTTL( SOCKET s, const char *data, int length, SystemAddres
 	if (slo)
 		return slo->RakNetSendTo(s,data,length,systemAddress);
 
-
+#if   !defined(__native_client__)
 	int oldTTL;
 	socklen_t opLen=sizeof(oldTTL);
 	// Get the current TTL
@@ -1392,9 +1733,9 @@ int SocketLayer::SendToTTL( SOCKET s, const char *data, int length, SystemAddres
 	setsockopt__(s, systemAddress.GetIPPROTO(), IP_TTL, ( char * ) & oldTTL, opLen );
 
 	return res;
-
-
-
+#else
+	return 0;
+#endif
 }
 
 
@@ -1564,6 +1905,8 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(SOCKET inSock, RakNet::Ra
 
 void GetMyIP_Win32( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
 {
+	int idx=0;
+	idx=0;
 	char ac[ 80 ];
 	if ( gethostname( ac, sizeof( ac ) ) == -1 )
 	{
@@ -1588,7 +1931,6 @@ void GetMyIP_Win32( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
 	PrepareAddrInfoHints(&hints);
 	getaddrinfo(ac, "", &hints, &servinfo);
 
-	int idx;
 	for (idx=0, aip = servinfo; aip != NULL && idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; aip = aip->ai_next, idx++)
 	{
 		if (aip->ai_family == AF_INET)
@@ -1624,7 +1966,6 @@ void GetMyIP_Win32( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
 	#endif
 		return ;
 	}
-	int idx;
 	for ( idx = 0; idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; ++idx )
 	{
 		if (phe->h_addr_list[ idx ] == 0)
@@ -1633,8 +1974,7 @@ void GetMyIP_Win32( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
 		memcpy(&addresses[idx].address.addr4.sin_addr,phe->h_addr_list[ idx ],sizeof(struct in_addr));
 
 	}
-#endif
-
+#endif // else RAKNET_SUPPORT_IPV6==1
 
 	while (idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS)
 	{
@@ -1642,59 +1982,7 @@ void GetMyIP_Win32( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
 		idx++;
 	}
 }
-// #else
-/*
-void GetMyIP_Linux( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
-{
-	struct ifaddrs *ifaddr, *ifa;
-	int family, s;
-	char host[NI_MAXHOST];
-	struct in_addr linux_in_addr;
 
-	if (getifaddrs(&ifaddr) == -1) {
-		printf( "Error getting interface list\n");
-	}
-
-	int idx = 0;
-	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-		if (!ifa->ifa_addr) continue;
-		family = ifa->ifa_addr->sa_family;
-
-		if (family == AF_INET) {
-			s = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in), host, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
-			if (s != 0) {
-		//		printf ("getnameinfo() failed: %s\n", gai_strerror(s));
-			}
-			else if (strcmp(host,"127.0.0.1")!=0)
-			{
-				if (inet_aton(host, &addresses[idx].address.addr4.sin_addr)!=0)
-					idx++;
-			}
-		}
-#if RAKNET_SUPPORT_IPV6==1
-		else
-		{
-			s = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in6), host, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
-			if (s != 0) {
-		//		printf ("getnameinfo() failed: %s\n", gai_strerror(s));
-			}
-			else if (strcmp(host,"::1")!=0)
-			{
-				if (inet_pton(family, host, &addresses[idx].address.addr6.sin6_addr)!=0)
-					idx++;
-			}
-		}
-#endif
-	}
-
-	for ( ; idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; ++idx )
-	{
-		addresses[idx]=UNASSIGNED_SYSTEM_ADDRESS;
-	}
-
-	freeifaddrs(ifaddr);
-}
-*/
 
 
 
@@ -1721,6 +2009,9 @@ unsigned short SocketLayer::GetLocalPort(SOCKET s)
 }
 void SocketLayer::GetSystemAddress_Old ( SOCKET s, SystemAddress *systemAddressOut )
 {
+#if defined(__native_client__)
+	*systemAddressOut = UNASSIGNED_SYSTEM_ADDRESS;
+#else
 	sockaddr_in sa;
 	memset(&sa,0,sizeof(sockaddr_in));
 	socklen_t len = sizeof(sa);
@@ -1744,6 +2035,7 @@ void SocketLayer::GetSystemAddress_Old ( SOCKET s, SystemAddress *systemAddressO
 
 	systemAddressOut->SetPortNetworkOrder(sa.sin_port);
 	systemAddressOut->address.addr4.sin_addr.s_addr=sa.sin_addr.s_addr;
+#endif
 }
 void SocketLayer::GetSystemAddress ( SOCKET s, SystemAddress *systemAddressOut )
 {
@@ -1756,7 +2048,7 @@ void SocketLayer::GetSystemAddress ( SOCKET s, SystemAddress *systemAddressOut )
 
 	if (getsockname__(s, (struct sockaddr *)&ss, &slen)!=0)
 	{
-#if defined(_WIN32) &&  defined(_DEBUG)
+ #if defined(_WIN32) &&  defined(_DEBUG)
 		DWORD dwIOError = GetLastError();
 		LPVOID messageBuffer;
 		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -1767,7 +2059,7 @@ void SocketLayer::GetSystemAddress ( SOCKET s, SystemAddress *systemAddressOut )
 
 		//Free the buffer.
 		LocalFree( messageBuffer );
-#endif
+	#endif
 		systemAddressOut->FromString(0);
 		return;
 	}

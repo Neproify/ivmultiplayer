@@ -9,7 +9,7 @@
 
 #pragma once
 
-#define INTERNAL_PACKET_END 131
+#define INTERNAL_PACKET_END 133
 
 enum ePacketIdentfiers
 {

@@ -75,7 +75,7 @@ public:
 	/// For both ID_READY_EVENT_SET and ID_READY_EVENT_UNSET, eventId is encoded in bytes 1 through 1+sizeof(int)
 	/// \param[in] eventId A user-defined identifier to wait on. This can be a sequence counter, an event identifier, or anything else you want.
 	/// \param[in] isReady True to signal we are ready to proceed with this event, false to unsignal
-	/// \return True on success. False (failure) on unknown eventId
+	/// \return False if event status is ID_READY_EVENT_FORCE_ALL_SET, or if we are setting to a status we are already in (no change). Otherwise true
 	bool SetEvent(int eventId, bool isReady);
 
 	/// When systems can call SetEvent() with isReady==false, it is possible for one system to return true from IsEventCompleted() while the other systems return false
@@ -83,7 +83,7 @@ public:
 	/// If your game has the situation where some action should be taken on all systems when IsEventCompleted() is true for any system, then call ForceCompletion() when the action begins.
 	/// This will force all systems to return true from IsEventCompleted().
 	/// \param[in] eventId A user-defined identifier to immediately set as completed
-	bool ForceCompletion(int eventId);
+	void ForceCompletion(int eventId);
 
 	/// Deletes an event.  We will no longer wait for this event, and any systems that we know have set the event will be forgotten.
 	/// Call this to clear memory when events are completed and you know you will never need them again.
@@ -130,7 +130,7 @@ public:
 	/// \note If the event completion process has already started, you cannot add more systems, as this would cause the completion process to fail
 	/// \param[in] eventId A user-defined number previously passed to SetEvent that has not yet completed
 	/// \param[in] addressArray An address to wait for event replies from.  Pass UNASSIGNED_SYSTEM_ADDRESS for all currently connected systems. Until all systems in this list have called SetEvent with this ID and true, and have this system in the list, we won't get ID_READY_EVENT_COMPLETE
-	/// \return True on success, false on unknown eventId (this should be considered an error), or if the completion process has already started.
+	/// \return True on success, false on unknown eventId (this should be considered an error)
 	bool AddToWaitList(int eventId, SystemAddress address);
 	
 	/// Removes systems from the wait list, which should have been previously added with AddToWaitList

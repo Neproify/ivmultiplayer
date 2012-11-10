@@ -819,7 +819,7 @@ void Router2::OnQueryForwardingReply(Packet *packet)
 	RakNetGUID endpointGuid;
 	bs.Read(endpointGuid);
 	// Find endpointGuid among stored requests
-	bool canForward;
+	bool canForward=false;
 	bs.Read(canForward);
 
 
@@ -964,7 +964,7 @@ void Router2::OnRequestForwarding(Packet *packet)
 	}
 
 	unsigned short forwardingPort=0;
-	SOCKET forwardingSocket=0;
+	SOCKET forwardingSocket=INVALID_SOCKET;
 	SystemAddress endpointSystemAddress = rakPeerInterface->GetSystemAddressFromGuid(endpointGuid);
 	UDPForwarderResult result = udpForwarder->StartForwarding(
 		packet->systemAddress, endpointSystemAddress, 30000, 0, socketFamily,

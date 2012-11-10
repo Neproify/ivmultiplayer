@@ -459,7 +459,7 @@ SQInteger CActorNatives::DriveToCoordinates(SQVM * pVM)
 
 	if(g_pActorManager->DoesExist(actorId))
 	{
-		if(!g_pActorManager->UpdateDrivePos(actorId,vecPos, false))
+		if(!g_pActorManager->UpdateDrivePos(actorId, vecPos, CVector3(), false))
 			CLogFile::Printf("Failed to set actor's %d state to driving(not in a vehicle!)",actorId);
 	}
 	return 1;

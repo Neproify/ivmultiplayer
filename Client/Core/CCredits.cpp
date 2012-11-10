@@ -23,6 +23,7 @@ CreditText creditsItems[] =
 	{4000, "tahoma-bold", 40, "Sam \"jenksta\" Jenkins"},
 	{4000, "tahoma-bold", 40, "Sebastian \"Sebihunter\" Mühlbauer"},
 	{4000, "tahoma-bold", 40, "Martin \"@FRi\" Konrad"},
+	{4000, "tahoma-bold", 40, "Alexander \"XForce\" Güttler"},
 	{4000, "tahoma-bold", 40, "MaVe"},
 	{4000, "tahoma-bold", 40, "Marcus \"mabako\" Bauer"},
 	{4000, "tahoma-bold", 40, "Vladislav \"adamix\" Grishin"},

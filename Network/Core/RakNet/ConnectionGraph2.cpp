@@ -8,7 +8,7 @@
 
 using namespace RakNet;
 
-STATIC_FACTORY_DEFINITIONS(ConnectionGraph2,ConnectionGraph2);
+STATIC_FACTORY_DEFINITIONS(ConnectionGraph2,ConnectionGraph2)
 
 int RakNet::ConnectionGraph2::RemoteSystemComp( const RakNetGUID &key, RemoteSystem * const &data )
 {

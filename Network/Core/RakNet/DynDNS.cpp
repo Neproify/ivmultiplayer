@@ -30,7 +30,7 @@ DynDnsResult resultTable[13] =
 	{"Invalid hostname format", "notfqdn", RC_NOT_FQDN},
 	{"Serious error", "numhost", RC_NUM_HOST},
 	{"This host exists, but does not belong to you", "!yours", RC_NOT_YOURS},
-	{"911", "911", RC_911},
+	{"911", "911", RC_911}
 };
 DynDNS::DynDNS()
 {
@@ -139,7 +139,7 @@ void DynDNS::Update(void)
 			if (result!=0)
 			{
 				result+=strlen("Connection: close");
-				while (*result && (*result=='\r') || (*result=='\n') || (*result==' ') )
+				while (*result && ((*result=='\r') || (*result=='\n') || (*result==' ')) )
 					result++;
 				for (i=0; i < 13; i++)
 				{

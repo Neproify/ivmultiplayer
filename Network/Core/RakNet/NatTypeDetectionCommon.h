@@ -6,6 +6,10 @@
 #ifndef __NAT_TYPE_DETECTION_COMMON_H
 #define __NAT_TYPE_DETECTION_COMMON_H
 
+#include "NativeFeatureIncludes.h"
+
+#if _RAKNET_SUPPORT_NatTypeDetectionServer==1 || _RAKNET_SUPPORT_NatTypeDetectionClient==1
+
 #include "SocketIncludes.h"
 #include "RakNetTypes.h"
 
@@ -47,10 +51,16 @@ namespace RakNet
 	RAK_DLL_EXPORT const char * NATTypeDetectionResultToStringFriendly(NATTypeDetectionResult type);
 
 	/// \internal
-	SOCKET RAK_DLL_EXPORT CreateNonblockingBoundSocket(const char *bindAddr);
+	SOCKET RAK_DLL_EXPORT CreateNonblockingBoundSocket(const char *bindAddr
+#ifdef __native_client__
+		,_PP_Instance_ chromeInstance
+#endif
+		);
 
 	/// \internal
 	int NatTypeRecvFrom(char *data, SOCKET socket, SystemAddress &sender);
 }
+
+#endif // #if _RAKNET_SUPPORT_NatTypeDetectionServer==1 || _RAKNET_SUPPORT_NatTypeDetectionClient==1
 
 #endif

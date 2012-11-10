@@ -475,7 +475,7 @@ bool CHttpClient::ParseHeaders(String& strBuffer, int& iBufferSize)
 	}
 
 	iHeaderSize = buf_header.GetLength();
-	iHeaderSize += strlen(info.request_method) + strlen(info.uri) + strlen(info.http_version) + strlen("\r\n\r\n\r\n");
+	iHeaderSize += (info.request_method != NULL ? strlen(info.request_method) : 0) + (info.uri != NULL ? strlen(info.uri) : 0) + (info.http_version != NULL ? strlen(info.http_version) : 0) + strlen("\r\n\r\n\r\n");
 	iBufferSize -= iHeaderSize;
 	strBuffer.Erase(0, iHeaderSize);
 	m_headerMap["HeaderSize"] = iHeaderSize;

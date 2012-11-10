@@ -66,7 +66,7 @@ void PacketizedTCP::Send( const char *data, unsigned length, const SystemAddress
 }
 bool PacketizedTCP::SendList( const char **data, const int *lengths, const int numParameters, const SystemAddress &systemAddress, bool broadcast )
 {
-	if (isStarted==false)
+	if (isStarted.GetValue()==0)
 		return false;
 	if (data==0)
 		return false;
