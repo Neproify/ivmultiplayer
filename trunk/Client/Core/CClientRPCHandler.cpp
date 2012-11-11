@@ -1023,6 +1023,11 @@ void CClientRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSoc
 		g_pChatWindow->AddChatMessage(playerId, sChat);
 }
 
+void CClientRPCHandler::LocalPingSync(CBitStream* pBitStream, CPlayerSocket * pSenderSocket)
+{
+
+}
+
 void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -1342,9 +1347,10 @@ void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 		else if(byteEnterExitVehicleType == VEHICLE_EXIT_RETURN)
 		{
 			CLogFile::Printf("VehicleExit(%d, %d)", playerId, vehicleId);
-
-			// Exit the vehicle
-			pPlayer->ExitVehicle(EXIT_VEHICLE_NORMAL);
+			if(g_pPlayerManager->IsActive(pPlayer->GetPlayerId())) {
+				// Exit the vehicle
+				pPlayer->ExitVehicle(EXIT_VEHICLE_NORMAL);
+			}
 		}
 	}
 }
@@ -3368,6 +3374,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_DeleteFile, DeleteFile);
 	AddFunction(RPC_NewPickup, NewPickup);
 	AddFunction(RPC_DeletePickup, DeletePickup);
+	AddFunction(RPC_LocalPingSync, LocalPingSync);
 
 	// Scripting
 	AddFunction(RPC_ScriptingSetPlayerHealth, ScriptingSetPlayerHealth);

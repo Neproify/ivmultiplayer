@@ -21,6 +21,7 @@ private:
 	bool				m_bPassenger;
 	BYTE				m_byteSeatId;
 	bool				m_helmet;
+	unsigned int		m_uiBlipId;
 	bool				m_bAnimating;
 	String				m_strAnimGroup;
 	String				m_strAnimSpec;
@@ -30,7 +31,7 @@ public:
 	CRemotePlayer();
 	~CRemotePlayer();	
 
-	bool         Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate = false);
+	bool         Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate = false);
 	void         Destroy();
 	void         Kill();
 	void         Init();

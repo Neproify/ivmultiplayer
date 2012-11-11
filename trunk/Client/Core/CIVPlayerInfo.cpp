@@ -71,41 +71,13 @@ void CIVPlayerInfo::SetPlayerInfo(IVPlayerInfo * pPlayerInfo)
 			mov ecx, pPlayerInfo
 			call dwFunc
 		}
-
-		/*
-		DWORD dwOldAddress = (CGame::GetBase() + 0x920CA0);
-		_asm
-		{
-			mov ecx, pPlayerInfo
-			call dwOldAddress
-		}
-		*/
-
-		/*
+		/*dwFunc = (CGame::GetBase() + 0x878AE0);
 		DWORD dwUnknown = (DWORD)(pPlayerInfo + 0x60);
-		*(DWORD *)(dwUnknown + 0x390) = 0;
-
-		DWORD dwAsm = (DWORD)(pPlayerInfo + 0x388);
-		DWORD dwAsmAddress = (CGame::GetBase() + 0x4475F0);
 		_asm
 		{
-			push dwAsm
-			call dwAsmAddress
-		}
-
-		dwAsm = (DWORD)(pPlayerInfo + 0x384);
-		dwAsmAddress = (CGame::GetBase() + 0x4475F0);
-		bool bReturn = false;
-		_asm
-		{
-			push dwAsm
-			call dwAsmAdress
-			mov bReturn, al
-		}
-
-		// if bReturn = false = failed?!
-		*/
-
+			push dwUnknown
+			call dwFunc
+		}*/
 		CGame::Free(pPlayerInfo);
 	}
 

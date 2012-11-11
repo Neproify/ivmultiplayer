@@ -166,7 +166,7 @@ void CFileTransfer::SetServerInformation(String strAddress, unsigned short usPor
 		m_pFileText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/(float)2.75),  CEGUI::UDim(0, fHeight/2-(fHeight/4))));
 		m_pFileText->setProperty("FrameEnabled", "false");
 		m_pFileText->setProperty("BackgroundEnabled", "false");
-		m_pFileText->setFont(g_pGUI->GetFont("BebasNeue",28U));
+		m_pFileText->setFont(g_pGUI->GetFont("tahoma",28U));
 		m_pFileText->setVisible(false);
 	}
 }
