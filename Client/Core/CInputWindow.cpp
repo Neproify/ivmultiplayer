@@ -307,6 +307,7 @@ void CInputWindow::RecallUp()
 		m_iCurrentHistory++;
 		m_pEditBox->setText(m_szHistory[m_iCurrentHistory]);
 		m_pEditBox->activate();
+		((CEGUI::Editbox*)m_pEditBox)->setCaratIndex(strlen(m_szHistory[m_iCurrentHistory]));
 
 		for(unsigned int i = 0; i < (strlen(m_szHistory[m_iCurrentHistory])*2);  i++)
 		{
