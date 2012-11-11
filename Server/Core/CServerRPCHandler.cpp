@@ -975,6 +975,13 @@ void CServerRPCHandler::RequestActorUpdate(CBitStream * pBitStream, CPlayerSocke
 		g_pNetworkManager->RPC(RPC_ScriptingActorDriveToCoords, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	}
 }
+
+void CServerRPCHandler::LocalPingSync(CBitStream* pBitStream, CPlayerSocket* pSenderSocket)
+{
+
+}
+
+
 void CServerRPCHandler::Register()
 {
 	AddFunction(RPC_PlayerConnect, PlayerConnect);
@@ -996,6 +1003,7 @@ void CServerRPCHandler::Register()
 	AddFunction(RPC_ScriptingVehicleDeath, VehicleDeath);
 	AddFunction(RPC_SyncActor, SyncActor);
 	AddFunction(RPC_RequestActorUpdate, RequestActorUpdate);
+	AddFunction(RPC_LocalPingSync, LocalPingSync);
 }
 
 void CServerRPCHandler::Unregister()

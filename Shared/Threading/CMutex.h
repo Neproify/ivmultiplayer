@@ -14,7 +14,7 @@
 #endif
 #include <CString.h>
 
-#define USE_CRITICAL_SECTION
+//#define USE_CRITICAL_SECTION
 
 class CMutex
 {

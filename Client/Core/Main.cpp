@@ -268,13 +268,18 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			{
 				CLogFile::Printf("Failed to initialize the network module!\n");
 				ExitProcess(0);
+			} else {
+				CLogFile::Printf("Successfully loaded network module\n");
 			}
 
 			// Initialize the file transfer
 			g_pFileTransfer = new CFileTransfer();
-
+			CLogFile::Printf("FileTransfer\n");
 			// Initialize audio manager
+			CLogFile::Printf("Audio Manager Init\n");
 			CAudioManager::Init();
+			CLogFile::Printf("Autio Manager Initialized\n");
+
 		}
 		break;
 	case DLL_PROCESS_DETACH:

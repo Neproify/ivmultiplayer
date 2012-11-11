@@ -239,7 +239,9 @@ void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 	}
 
 	if(!m_pPlayers[playerId])
+	{
 		m_pPlayers[playerId] = new CRemotePlayer();
+	}
 
 	m_pPlayers[playerId]->SetPlayerId(playerId);
 	m_pPlayers[playerId]->SetName(sPlayerName);
@@ -255,6 +257,8 @@ void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 
 bool CPlayerManager::Remove(EntityId playerId)
 {
+	CLogFile::Printf("CPlayerManager::Remove");
+
 	if(!DoesExist(playerId))
 	{
 		CLogFile::Printf("Tried to remove inexistent player (%d).", playerId);
@@ -263,34 +267,15 @@ bool CPlayerManager::Remove(EntityId playerId)
 
 	if(m_pPlayers[playerId]->IsLocalPlayer())
 	{
-		CLogFile::Printf("Tried to remove local player (%d).", playerId);
+		CLogFile::Printf(__FILE__,__LINE__,"Tried to remove local player (%d).", playerId);
 		return false;
 	}
 
 	m_bActive[playerId] = false;
-
-	// Now the player won't be synced anymore, now we can delete him
-	// --
-
-	// Teleport him away so we can't see him anymore
-	m_pPlayers[playerId]->Teleport(CVector3(0.0f, 0.0f, -20.0f));
-	
-	// Destroy him now...
 	m_pPlayers[playerId]->Destroy();
-	m_bCreated[playerId] = false;
-
-	// Enable that if we have to destroy stuff  in cremoteplayer
-	/*CNetworkPlayer * pPlayer = GetAt(playerId);
-	if(pPlayer && !pPlayer->IsLocalPlayer())
-	{
-		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
-		if(pRemotePlayer)
-			pRemotePlayer->Destroy();
-
-		SAFE_DELETE(pRemotePlayer);
-	}*/
-
-	SAFE_DELETE(m_pPlayers[playerId]); // Handles CRemotePlayer Class...
+	m_pPlayers[playerId]->Teleport(CVector3(0.0f, 0.0f, -20.0f));
+	//delete m_pPlayers[playerId];
+	//m_pPlayers[playerId] = NULL;
 	return true;
 }
 
@@ -302,20 +287,21 @@ void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos
 	if(m_pPlayers[playerId]->IsLocalPlayer())
 		return;
 
+	/*if(m_pPlayers[playerId]->GetAt()->IsSpawned())
+	{
+		CLogFile::Printf("Tried to spawn already spawned player (%d).", playerId);
+		return;
+	}*/
+
 	if(!m_bCreated[playerId])
 	{
 		m_pPlayers[playerId]->Create();
 		m_bCreated[playerId] = true;
 	}
 
+	m_pPlayers[playerId]->SetModel(SkinIdToModelHash(iModelId));
 	CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(m_pPlayers[playerId]);
-	pRemotePlayer->Spawn(iModelId, vecSpawnPos, fSpawnHeading, true);
-
-	/*if(pRemotePlayer->GetGamePlayerPed() != NULL && pRemotePlayer->GetModelInfo() != NULL) {
-		if( ModelHashToSkinId(pRemotePlayer->GetModelInfo()->GetHash()) != iModelId) {
-			pRemotePlayer->SetModel(SkinIdToModelHash(iModelId));
-		}
-	}*/
+	pRemotePlayer->Spawn(vecSpawnPos, fSpawnHeading, true);
 
 	if(g_pEvents)
 	{
