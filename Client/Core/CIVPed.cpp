@@ -10,6 +10,7 @@
 #include "CIVPed.h"
 #include "CGame.h"
 #include "COffsets.h"
+#include <CLogFile.h>
 
 CIVPed::CIVPed() : CIVPhysical()
 {
@@ -30,6 +31,9 @@ CIVPed::~CIVPed()
 
 void CIVPed::SetPed(IVPed * pPed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	SetPhysical(pPed);
 
 	// Delete the ped task manager if we have one
@@ -51,11 +55,17 @@ void CIVPed::SetPed(IVPed * pPed)
 
 IVPed * CIVPed::GetPed()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	return (IVPed *)GetPhysical();
 }
 
 void CIVPed::SetType(ePedType type)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -64,6 +74,9 @@ void CIVPed::SetType(ePedType type)
 
 ePedType CIVPed::GetType()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -74,6 +87,9 @@ ePedType CIVPed::GetType()
 
 void CIVPed::SetPlayerInfo(IVPlayerInfo * pPlayerInfo)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -82,6 +98,9 @@ void CIVPed::SetPlayerInfo(IVPlayerInfo * pPlayerInfo)
 
 IVPlayerInfo * CIVPed::GetPlayerInfo()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -92,6 +111,9 @@ IVPlayerInfo * CIVPed::GetPlayerInfo()
 
 bool CIVPed::IsInVehicle()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -102,6 +124,9 @@ bool CIVPed::IsInVehicle()
 
 void CIVPed::SetCurrentHeading(float fCurrentHeading)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -110,6 +135,9 @@ void CIVPed::SetCurrentHeading(float fCurrentHeading)
 
 float CIVPed::GetCurrentHeading()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -120,6 +148,9 @@ float CIVPed::GetCurrentHeading()
 
 void CIVPed::SetDesiredHeading(float fDesiredHeading)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -128,6 +159,9 @@ void CIVPed::SetDesiredHeading(float fDesiredHeading)
 
 float CIVPed::GetDesiredHeading()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -138,6 +172,9 @@ float CIVPed::GetDesiredHeading()
 
 void CIVPed::SetCurrentVehicle(IVVehicle * pVehicle)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -146,6 +183,9 @@ void CIVPed::SetCurrentVehicle(IVVehicle * pVehicle)
 
 IVVehicle * CIVPed::GetCurrentVehicle()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -156,6 +196,9 @@ IVVehicle * CIVPed::GetCurrentVehicle()
 
 void CIVPed::SetDucking(bool bDucking, int iUnknown)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -172,6 +215,9 @@ void CIVPed::SetDucking(bool bDucking, int iUnknown)
 
 bool CIVPed::IsDucking()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -191,6 +237,9 @@ bool CIVPed::IsDucking()
 
 void CIVPed::SetRagdoll(bool bRagdoll)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)
@@ -223,6 +272,9 @@ void CIVPed::SetRagdoll(bool bRagdoll)
 
 bool CIVPed::IsRagdoll()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pPed = GetPed();
 
 	if(pPed)

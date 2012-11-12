@@ -1046,24 +1046,25 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && !pPlayer->IsLocalPlayer() && pPlayer->IsSpawned())
+	if(pPlayer && pPlayer->IsSpawned())
 	{
-		pPlayer->SetPing(usPing);
-		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
+		if(!pPlayer->IsLocalPlayer()) {
+			pPlayer->SetPing(usPing);
+			CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
+			if(pRemotePlayer)
+			{
+				// Set the Helmet
+				bool helmet = m_bHelmet;
+				pPlayer->SetHelmet(helmet);
 
-		if(pRemotePlayer)
-		{
-			// Set the Helmet
-			bool helmet = m_bHelmet;
-			pPlayer->SetHelmet(helmet);
+				// Store aimdata before updating foot stuff, otherwise the hitbox has moved
+				if(bHasAimSyncData)
+					pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 
-			// Store aimdata before updating foot stuff, otherwise the hitbox has moved
-			if(bHasAimSyncData)
-				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
-
-			pRemotePlayer->StoreOnFootSync(&syncPacket);
-
+				pRemotePlayer->StoreOnFootSync(&syncPacket);
+			}
 		}
+		else { if(g_pLocalPlayer->GetPlayerId() == pPlayer->GetPlayerId()) { g_pLocalPlayer->SetPing(usPing); } }
 	}
 }
 
@@ -1091,22 +1092,24 @@ void CClientRPCHandler::InVehicleSync(CBitStream * pBitStream, CPlayerSocket * p
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && !pPlayer->IsLocalPlayer() && pPlayer->IsSpawned())
+	if(pPlayer && pPlayer->IsSpawned())
 	{
 		pPlayer->SetPing(usPing);
-		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
+		if(!pPlayer->IsLocalPlayer()) {
+			CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
 
-		if(pRemotePlayer)
-		{
-			// Set the Helmet
-			bool bHelmet = m_bHelmet;
-			pPlayer->SetHelmet(bHelmet);
+			if(pRemotePlayer)
+			{
+				// Set the Helmet
+				bool bHelmet = m_bHelmet;
+				pPlayer->SetHelmet(bHelmet);
 
-			// Store aimdata before updating foot stuff, otherwise the hitbox has moved
-			if(bHasAimSyncData)
-				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
+				// Store aimdata before updating foot stuff, otherwise the hitbox has moved
+				if(bHasAimSyncData)
+					pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 
-			pRemotePlayer->StoreInVehicleSync(vehicleId, &syncPacket);
+				pRemotePlayer->StoreInVehicleSync(vehicleId, &syncPacket);
+			}
 		}
 	}
 }
@@ -1134,23 +1137,27 @@ void CClientRPCHandler::PassengerSync(CBitStream * pBitStream, CPlayerSocket * p
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && !pPlayer->IsLocalPlayer() && pPlayer->IsSpawned())
+	if(pPlayer && pPlayer->IsSpawned())
 	{
-		pPlayer->SetPing(usPing);
-		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
+		
+		if(!pPlayer->IsLocalPlayer()) {
+			pPlayer->SetPing(usPing);
+			CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
 
-		if(pRemotePlayer)
-		{
-			// Set the Helmet
-			bool helmet = m_bHelmet;
-			pPlayer->SetHelmet(helmet);
+			if(pRemotePlayer)
+			{
+				// Set the Helmet
+				bool helmet = m_bHelmet;
+				pPlayer->SetHelmet(helmet);
 
-			// Store aimdata before updating foot stuff, otherwise the hitbox has moved
-			if(bHasAimSyncData)
-				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
+				// Store aimdata before updating foot stuff, otherwise the hitbox has moved
+				if(bHasAimSyncData)
+					pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 
-			pRemotePlayer->StorePassengerSync(vehicleId, &syncPacket);
+				pRemotePlayer->StorePassengerSync(vehicleId, &syncPacket);
+			}
 		}
+		else { if(g_pLocalPlayer->GetPlayerId() == pPlayer->GetPlayerId()) { g_pLocalPlayer->SetPing(usPing); } }
 	}
 }
 
@@ -1171,16 +1178,19 @@ void CClientRPCHandler::SmallSync(CBitStream * pBitStream, CPlayerSocket * pSend
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && !pPlayer->IsLocalPlayer() && pPlayer->IsSpawned())
+	if(pPlayer && pPlayer->IsSpawned())
 	{
-		CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(pPlayer);
-		if(pRemotePlayer)
-		{
-			// Store aimdata before updating foot stuff, otherwise the hitbox has moved
-			if(bHasAimSyncData)
-				pRemotePlayer->SetAimSyncData(&aimSyncPacket);
+		// Todo: Local player stuff...
+		if(!pPlayer->IsLocalPlayer()) {
+			CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(pPlayer);
+			if(pRemotePlayer)
+			{
+				// Store aimdata before updating foot stuff, otherwise the hitbox has moved
+				if(bHasAimSyncData)
+					pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 
-			pRemotePlayer->StoreSmallSync(&syncPacket);
+				pRemotePlayer->StoreSmallSync(&syncPacket);
+			}
 		}
 	}
 }

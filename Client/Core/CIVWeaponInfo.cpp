@@ -8,6 +8,7 @@
 //==============================================================================
 
 #include "CIVWeaponInfo.h"
+#include <CLogFile.h>
 
 CIVWeaponInfo::CIVWeaponInfo()
 {
@@ -22,5 +23,4 @@ CIVWeaponInfo::CIVWeaponInfo(eWeaponType weaponType, IVWeaponInfo * pWeaponInfo)
 
 CIVWeaponInfo::~CIVWeaponInfo()
 {
-
 }

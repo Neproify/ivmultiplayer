@@ -9,9 +9,13 @@
 
 #include "CIVWorld.h"
 #include "COffsets.h"
+#include <CLogFile.h>
 
 void CIVWorld::AddEntity(CIVEntity * pEntity)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVEntity * pGameEntity = pEntity->GetEntity();
 	_asm
 	{
@@ -24,6 +28,9 @@ void CIVWorld::AddEntity(CIVEntity * pEntity)
 
 void CIVWorld::RemoveEntity(CIVEntity * pEntity)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVEntity * pGameEntity = pEntity->GetEntity();
 	_asm
 	{

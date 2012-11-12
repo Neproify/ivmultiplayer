@@ -9,34 +9,41 @@
 
 #include "CIVPhysical.h"
 #include "CGame.h"
+#include <CLogFile.h>
 
 CIVPhysical::CIVPhysical() : CIVDynamicEntity()
 {
-
 }
 
 CIVPhysical::CIVPhysical(IVPhysical * pPhysical) : CIVDynamicEntity(pPhysical)
 {
-
 }
 
 CIVPhysical::~CIVPhysical()
 {
-	
 }
 
 void CIVPhysical::SetPhysical(IVPhysical * pPhysical)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	SetDynamicEntity(pPhysical);
 }
 
 IVPhysical * CIVPhysical::GetPhysical()
 {
+#ifdef EXT_LOG
+	//CLogFile::Printf(__FUNCSIG__);
+#endif
 	return (IVPhysical *)GetDynamicEntity();
 }
 
 void CIVPhysical::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
@@ -54,6 +61,9 @@ void CIVPhysical::SetMoveSpeed(const CVector3& vecMoveSpeed)
 
 void CIVPhysical::GetMoveSpeed(CVector3& vecMoveSpeed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
@@ -71,6 +81,9 @@ void CIVPhysical::GetMoveSpeed(CVector3& vecMoveSpeed)
 
 void CIVPhysical::SetTurnSpeed(const CVector3& vecTurnSpeed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
@@ -88,6 +101,9 @@ void CIVPhysical::SetTurnSpeed(const CVector3& vecTurnSpeed)
 
 void CIVPhysical::GetTurnSpeed(CVector3& vecTurnSpeed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
@@ -105,6 +121,9 @@ void CIVPhysical::GetTurnSpeed(CVector3& vecTurnSpeed)
 
 void CIVPhysical::SetLastDamageEntity(IVEntity * pLastDamageEntity)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
@@ -113,6 +132,9 @@ void CIVPhysical::SetLastDamageEntity(IVEntity * pLastDamageEntity)
 
 IVEntity * CIVPhysical::GetLastDamageEntity()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
@@ -123,6 +145,9 @@ IVEntity * CIVPhysical::GetLastDamageEntity()
 
 void CIVPhysical::SetHealth(float fHealth)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
@@ -140,6 +165,9 @@ void CIVPhysical::SetHealth(float fHealth)
 
 float CIVPhysical::GetHealth()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 	float fHealth = 0.0f;
 

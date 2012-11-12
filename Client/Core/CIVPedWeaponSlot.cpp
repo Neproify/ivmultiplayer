@@ -10,6 +10,7 @@
 #include "CIVPedWeaponSlot.h"
 #include "CIVPedWeapons.h"
 #include "CGame.h"
+#include <CLogFile.h>
 
 CIVPedWeaponSlot::CIVPedWeaponSlot(IVPedWeaponSlot * pWeapon, CIVPedWeapons * pPedWeapons)
 {
@@ -19,6 +20,9 @@ CIVPedWeaponSlot::CIVPedWeaponSlot(IVPedWeaponSlot * pWeapon, CIVPedWeapons * pP
 
 eWeaponType CIVPedWeaponSlot::GetType()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPedWeaponSlot)
 		return m_pPedWeaponSlot->m_type;
 
@@ -27,6 +31,9 @@ eWeaponType CIVPedWeaponSlot::GetType()
 
 void CIVPedWeaponSlot::SetAmmo(DWORD dwAmmo)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPedWeaponSlot)
 	{
 		if(dwAmmo > 25000)
@@ -38,6 +45,9 @@ void CIVPedWeaponSlot::SetAmmo(DWORD dwAmmo)
 
 DWORD CIVPedWeaponSlot::GetAmmo()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPedWeaponSlot)
 	{
 		DWORD dwAmmo;
@@ -50,6 +60,9 @@ DWORD CIVPedWeaponSlot::GetAmmo()
 
 void CIVPedWeaponSlot::Remove()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPedWeaponSlot)
 	{
 		if(m_pPedWeaponSlot->bytePad1)
@@ -78,6 +91,9 @@ void CIVPedWeaponSlot::Remove()
 
 void CIVPedWeaponSlot::SetCurrent()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPedWeaponSlot)
 		m_pPedWeapons->SetCurrentWeapon(m_pPedWeaponSlot->m_type);
 }

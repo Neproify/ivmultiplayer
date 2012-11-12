@@ -27,11 +27,13 @@ CIVModelInfo::CIVModelInfo(int iModelIndex)
 
 CIVModelInfo::~CIVModelInfo()
 {
-
 }
 
 IVBaseModelInfo * CIVModelInfo::GetModelInfo()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_iModelIndex >= 0 && m_iModelIndex < NUM_ModelInfos)
 		return *(IVBaseModelInfo **)((CGame::GetBase() + ARRAY_ModelInfos) + (m_iModelIndex * 4));
 
@@ -40,11 +42,17 @@ IVBaseModelInfo * CIVModelInfo::GetModelInfo()
 
 void CIVModelInfo::SetIndex(int iModelIndex)
 {
+#ifdef EXT_LOG
+	//CLogFile::Printf(__FUNCSIG__);
+#endif
 	m_iModelIndex = iModelIndex;
 }
 
 BYTE CIVModelInfo::GetType()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(pModelInfo)
@@ -65,6 +73,9 @@ BYTE CIVModelInfo::GetType()
 
 bool CIVModelInfo::IsLoaded()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(IsValid())
 		return CGame::GetStreaming()->HasResourceLoaded(RESOURCE_TYPE_WDR, m_iModelIndex);
 
@@ -73,6 +84,9 @@ bool CIVModelInfo::IsLoaded()
 
 void CIVModelInfo::Load(bool bWaitForLoad)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Is the model invalid?
 	if(!IsValid())
 		return;
@@ -98,6 +112,9 @@ void CIVModelInfo::Load(bool bWaitForLoad)
 
 void CIVModelInfo::Unload()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Is the model invalid?
 	if(!IsValid())
 		return;
@@ -112,6 +129,9 @@ void CIVModelInfo::Unload()
 
 DWORD CIVModelInfo::GetHash()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(pModelInfo)
@@ -122,6 +142,9 @@ DWORD CIVModelInfo::GetHash()
 
 void CIVModelInfo::AddReference(bool bWaitForLoad)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	//IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	//if(pModelInfo)
@@ -148,6 +171,9 @@ void CIVModelInfo::AddReference(bool bWaitForLoad)
 
 void CIVModelInfo::RemoveReference()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	//IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	//if(pModelInfo)
@@ -177,6 +203,9 @@ void CIVModelInfo::RemoveReference()
 
 DWORD CIVModelInfo::GetReferenceCount()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Is the model invalid?
 	if(!IsValid())
 		return 0;
@@ -192,6 +221,9 @@ DWORD CIVModelInfo::GetReferenceCount()
 
 WORD CIVModelInfo::GetAnimIndex()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(pModelInfo)
@@ -202,6 +234,9 @@ WORD CIVModelInfo::GetAnimIndex()
 
 bool CIVModelInfo::IsAutomobile()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(IsVehicle() && pModelInfo)
@@ -212,6 +247,9 @@ bool CIVModelInfo::IsAutomobile()
 
 bool CIVModelInfo::IsBike()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(IsVehicle() && pModelInfo)
@@ -222,6 +260,9 @@ bool CIVModelInfo::IsBike()
 
 bool CIVModelInfo::IsBoat()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(IsVehicle() && pModelInfo)
@@ -232,6 +273,9 @@ bool CIVModelInfo::IsBoat()
 
 bool CIVModelInfo::IsTrain()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(IsVehicle() && pModelInfo)
@@ -242,6 +286,9 @@ bool CIVModelInfo::IsTrain()
 
 bool CIVModelInfo::IsHeli()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(IsVehicle() && pModelInfo)
@@ -252,6 +299,9 @@ bool CIVModelInfo::IsHeli()
 
 bool CIVModelInfo::IsPlane()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(IsVehicle() && pModelInfo)

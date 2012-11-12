@@ -8,6 +8,7 @@
 //==============================================================================
 
 #include "CIVCam.h"
+#include <CLogFile.h>
 
 CIVCam::CIVCam()
 {
@@ -21,17 +22,22 @@ CIVCam::CIVCam(IVCam * pCam)
 
 CIVCam::~CIVCam()
 {
-
 }
 
 void CIVCam::SetPosition(const CVector3& vecPosition)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pCam)
 		memcpy(&m_pCam->m_data1.m_matMatrix.vecPosition, &vecPosition, sizeof(CVector3));
 }
 
 void CIVCam::GetPosition(CVector3& vecPosition)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pCam)
 		memcpy(&vecPosition, &m_pCam->m_data1.m_matMatrix.vecPosition, sizeof(CVector3));
 }

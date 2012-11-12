@@ -12,6 +12,7 @@
 #include "CClientTaskManager.h"
 #include "CGame.h"
 #include "COffsets.h"
+#include <CLogFile.h>
 
 extern CClientTaskManager * g_pClientTaskManager;
 
@@ -23,6 +24,9 @@ CIVPedTaskManager::CIVPedTaskManager(IVPedTaskManager * pPedTaskManager, CIVPed 
 
 void CIVPedTaskManager::SetTask(CIVTask * pTask, int iType, bool bForceNewTask)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{
@@ -45,6 +49,9 @@ void CIVPedTaskManager::SetTask(CIVTask * pTask, int iType, bool bForceNewTask)
 
 void CIVPedTaskManager::RemoveTask(int iType)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{
@@ -60,6 +67,9 @@ void CIVPedTaskManager::RemoveTask(int iType)
 
 CIVTask * CIVPedTaskManager::GetTask(int iType)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{
@@ -73,6 +83,9 @@ CIVTask * CIVPedTaskManager::GetTask(int iType)
 
 void CIVPedTaskManager::SetTaskSecondary(CIVTask * pTask, int iType)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{
@@ -94,6 +107,9 @@ void CIVPedTaskManager::SetTaskSecondary(CIVTask * pTask, int iType)
 
 void CIVPedTaskManager::RemoveTaskSecondary(int iType)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{
@@ -105,6 +121,9 @@ void CIVPedTaskManager::RemoveTaskSecondary(int iType)
 
 CIVTask * CIVPedTaskManager::GetTaskSecondary(int iType)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{
@@ -118,6 +137,9 @@ CIVTask * CIVPedTaskManager::GetTaskSecondary(int iType)
 
 void CIVPedTaskManager::SetTaskMovement(CIVTask * pTask, int iType)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{
@@ -139,6 +161,9 @@ void CIVPedTaskManager::SetTaskMovement(CIVTask * pTask, int iType)
 
 void CIVPedTaskManager::RemoveTaskMovment(int iType)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{
@@ -150,6 +175,9 @@ void CIVPedTaskManager::RemoveTaskMovment(int iType)
 
 CIVTask * CIVPedTaskManager::GetTaskMovement(int iType)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{
@@ -163,6 +191,9 @@ CIVTask * CIVPedTaskManager::GetTaskMovement(int iType)
 
 void CIVPedTaskManager::ClearTasks(int iAbortPriority)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid ped task manager pointer?
 	if(m_pPedTaskManager)
 	{

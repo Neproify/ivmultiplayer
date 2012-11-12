@@ -11,6 +11,7 @@
 #include "CIVPed.h"
 #include "CGame.h"
 #include "COffsets.h"
+#include <CLogFile.h>
 
 CIVPedWeapons::CIVPedWeapons(IVPedWeapons * pPedWeapons, CIVPed * pPed)
 {
@@ -33,6 +34,9 @@ CIVPedWeapons::~CIVPedWeapons()
 
 eWeaponSlot CIVPedWeapons::GetCurrentWeaponSlot()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPedWeapons)
 		return (eWeaponSlot)m_pPedWeapons->m_byteCurrentWeaponSlot;
 
@@ -41,6 +45,9 @@ eWeaponSlot CIVPedWeapons::GetCurrentWeaponSlot()
 
 void CIVPedWeapons::SetCurrentWeapon(eWeaponType weapon, bool bUnknown)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPedWeapons)
 	{
 		CIVWeaponInfo * pWeaponInfo = CGame::GetWeaponInfo(weapon);
@@ -88,6 +95,9 @@ void CIVPedWeapons::SetCurrentWeapon(eWeaponType weapon, bool bUnknown)
 
 CIVPedWeaponSlot * CIVPedWeapons::GetCurrentWeapon()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPedWeapons)
 		return m_pWeapons[m_pPedWeapons->m_byteCurrentWeaponSlot];
 
@@ -96,6 +106,9 @@ CIVPedWeaponSlot * CIVPedWeapons::GetCurrentWeapon()
 
 eWeaponType CIVPedWeapons::GetCurrentWeaponType()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// NOTE: Current weapon type is
 	// *(DWORD *)(pPedWeapons + 12 * (*(DWORD *)(pPed + 0x2C8) + 5))
 	if(m_pPedWeapons)
@@ -106,6 +119,9 @@ eWeaponType CIVPedWeapons::GetCurrentWeaponType()
 
 void CIVPedWeapons::RemoveWeapon(eWeaponType weapon, int iUnknown)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pGamePed = m_pPed->GetPed();
 	IVPedWeapons * pPedWeapons = m_pPedWeapons;
 	_asm
@@ -120,6 +136,9 @@ void CIVPedWeapons::RemoveWeapon(eWeaponType weapon, int iUnknown)
 
 void CIVPedWeapons::RemoveAllWeapons()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVPed * pGamePed = m_pPed->GetPed();
 	IVPedWeapons * pPedWeapons = m_pPedWeapons;
 	_asm

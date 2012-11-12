@@ -27,6 +27,7 @@ private:
 	bool				m_bDisableVehicleInfo;
 	CControlState		m_lastControlStateSent;
 	bool				m_bFirstSpawn;
+	unsigned short		m_uiPing;
 	/*bool			    m_bAnimating;
 	char*				m_strAnimGroup;
 	char*				m_strAnimSpec;*/
@@ -56,5 +57,6 @@ public:
 	void		   SetVehicleInfos(bool bInfo) { m_bDisableVehicleInfo = bInfo; }
 	void		   SendEmptyVehicleSync();
 	bool		   GetFirstSpawn() { return m_bFirstSpawn; }
+	void		   SetPing(unsigned short uiPing) { m_uiPing = uiPing; }
 	/*void		   SetAnimation(const char * strGroup, const char * strAnim);*/
 };

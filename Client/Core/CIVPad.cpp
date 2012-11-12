@@ -9,6 +9,7 @@
 
 #include "CIVPad.h"
 #include "COffsets.h"
+#include <CLogFile.h>
 
 // Helper macros for the ToControlState function
 #define SET_ANALOG_KEY(key, analog) \
@@ -90,16 +91,25 @@ CIVPad::~CIVPad()
 
 void CIVPad::SetPad(IVPad * pPad)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	m_pPad = pPad;
 }
 
 IVPad * CIVPad::GetPad()
 {
+#ifdef EXT_LOG
+	//CLogFile::Printf(__FUNCSIG__);
+#endif
 	return m_pPad;
 }
 
 void CIVPad::ToControlState(CControlState& controlState, bool bCurrent)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we not have a valid pad?
 	if(!m_pPad)
 		return;
@@ -137,6 +147,9 @@ void CIVPad::ToControlState(CControlState& controlState, bool bCurrent)
 
 void CIVPad::FromControlState(CControlState controlState, bool bCurrent)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we not have a valid pad?
 	if(!m_pPad)
 		return;
@@ -174,36 +187,54 @@ void CIVPad::FromControlState(CControlState controlState, bool bCurrent)
 
 void CIVPad::SetCurrentClientControlState(CControlState controlState)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPad)
 		FromControlState(controlState, true);
 }
 
 void CIVPad::GetCurrentClientControlState(CControlState& controlState)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPad)
 		ToControlState(controlState, true);
 }
 
 void CIVPad::SetLastClientControlState(CControlState controlState)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPad)
 		FromControlState(controlState, false);
 }
 
 void CIVPad::GetLastClientControlState(CControlState& controlState)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPad)
 		ToControlState(controlState, false);
 }
 
 void CIVPad::SetIsUsingController(bool bIsUsingController)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPad)
 		m_pPad->m_bIsUsingController = bIsUsingController;
 }
 
 bool CIVPad::GetIsUsingController()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPad)
 		return m_pPad->m_bIsUsingController;
 
@@ -212,12 +243,18 @@ bool CIVPad::GetIsUsingController()
 
 void CIVPad::SetLastUpdateTime(DWORD dwLastUpdateTime)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPad)
 		m_pPad->m_dwLastUpdateTime = dwLastUpdateTime;
 }
 
 DWORD CIVPad::GetLastUpdateTime()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPad)
 		return m_pPad->m_dwLastUpdateTime;
 

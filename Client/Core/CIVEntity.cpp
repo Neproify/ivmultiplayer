@@ -10,6 +10,7 @@
 #include "CIVEntity.h"
 #include "COffsets.h"
 #include "CGame.h"
+#include <CLogFile.h>
 
 CIVEntity::CIVEntity()
 {
@@ -23,21 +24,29 @@ CIVEntity::CIVEntity(IVEntity * pEntity)
 
 CIVEntity::~CIVEntity()
 {
-
 }
 
 void CIVEntity::SetEntity(IVEntity * pEntity)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	m_pEntity = pEntity;
 }
 
 IVEntity * CIVEntity::GetEntity()
 {
+#ifdef EXT_LOG
+	//CLogFile::Printf(__FUNCSIG__);
+#endif
 	return m_pEntity;
 }
 
 void CIVEntity::SetMatrix(const Matrix& matMatrix)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity && m_pEntity->m_pMatrix)
 	{
 		memcpy(&m_pEntity->m_pMatrix->vecRight, &matMatrix.vecRight, sizeof(CVector3));
@@ -49,6 +58,9 @@ void CIVEntity::SetMatrix(const Matrix& matMatrix)
 
 void CIVEntity::GetMatrix(Matrix& matMatrix)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity && m_pEntity->m_pMatrix)
 	{
 		memcpy(&matMatrix.vecRight, &m_pEntity->m_pMatrix->vecRight, sizeof(CVector3));
@@ -60,6 +72,9 @@ void CIVEntity::GetMatrix(Matrix& matMatrix)
 
 void CIVEntity::SetPosition(const CVector3& vecPosition)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity)
 	{
 		if(m_pEntity->m_pMatrix)
@@ -71,6 +86,9 @@ void CIVEntity::SetPosition(const CVector3& vecPosition)
 
 void CIVEntity::GetPosition(CVector3& vecPosition)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity)
 	{
 		if(m_pEntity->m_pMatrix)
@@ -82,30 +100,45 @@ void CIVEntity::GetPosition(CVector3& vecPosition)
 
 void CIVEntity::SetRoll(const CVector3& vecRoll)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity && m_pEntity->m_pMatrix)
 		memcpy(&m_pEntity->m_pMatrix->vecRight, &vecRoll, sizeof(CVector3));
 }
 
 void CIVEntity::GetRoll(CVector3& vecRoll)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity && m_pEntity->m_pMatrix)
 		memcpy(&vecRoll, &m_pEntity->m_pMatrix->vecRight, sizeof(CVector3));
 }
 
 void CIVEntity::SetDirection(const CVector3& vecDirection)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity && m_pEntity->m_pMatrix)
 		memcpy(&m_pEntity->m_pMatrix->vecForward, &vecDirection, sizeof(CVector3));
 }
 
 void CIVEntity::GetDirection(CVector3& vecDirection)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity && m_pEntity->m_pMatrix)
 		memcpy(&vecDirection, &m_pEntity->m_pMatrix->vecForward, sizeof(CVector3));
 }
 
 void CIVEntity::SetModelIndex(WORD wModelIndex)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity)
 	{
 		DWORD dwFunc = m_pEntity->m_VFTable->SetModelIndex;
@@ -121,6 +154,9 @@ void CIVEntity::SetModelIndex(WORD wModelIndex)
 
 WORD CIVEntity::GetModelIndex()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity)
 		return m_pEntity->m_wModelIndex;
 
@@ -129,12 +165,18 @@ WORD CIVEntity::GetModelIndex()
 
 void CIVEntity::SetAlpha(BYTE byteAlpha)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity)
 		m_pEntity->m_byteAlpha = byteAlpha;
 }
 
 BYTE CIVEntity::GetAlpha()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity)
 		return m_pEntity->m_byteAlpha;
 
@@ -143,6 +185,9 @@ BYTE CIVEntity::GetAlpha()
 
 bool CIVEntity::IsTouchingEntity(CIVEntity * pTouchingEntity)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity)
 	{
 		IVEntity * pGameEntity = m_pEntity;
@@ -163,12 +208,18 @@ bool CIVEntity::IsTouchingEntity(CIVEntity * pTouchingEntity)
 
 void  CIVEntity::AddToWorld()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity)
 		CGame::GetWorld()->AddEntity(this);
 }
 
 void CIVEntity::RemoveFromWorld()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pEntity)
 		CGame::GetWorld()->RemoveEntity(this);
 }

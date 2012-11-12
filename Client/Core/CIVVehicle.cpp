@@ -11,34 +11,41 @@
 #include "COffsets.h"
 #include "CPools.h"
 #include "Scripting.h"
+#include <CLogFile.h>
 
 CIVVehicle::CIVVehicle() : CIVPhysical()
 {
-
 }
 
 CIVVehicle::CIVVehicle(IVVehicle * pVehicle) : CIVPhysical(pVehicle)
 {
-
 }
 
 CIVVehicle::~CIVVehicle()
 {
-	
 }
 
 void CIVVehicle::SetVehicle(IVVehicle * pVehicle)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	SetPhysical(pVehicle);
 }
 
 IVVehicle * CIVVehicle::GetVehicle()
 {
+#ifdef EXT_LOG
+	//CLogFile::Printf(__FUNCSIG__);
+#endif
 	return (IVVehicle *)GetPhysical();
 }
 
 void CIVVehicle::SetAlarmDuration(WORD wDuration)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -48,6 +55,9 @@ void CIVVehicle::SetAlarmDuration(WORD wDuration)
 
 WORD CIVVehicle::GetAlarmDuration()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -59,6 +69,9 @@ WORD CIVVehicle::GetAlarmDuration()
 
 void CIVVehicle::SetDriver(IVPed * pPed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -68,6 +81,9 @@ void CIVVehicle::SetDriver(IVPed * pPed)
 
 IVPed * CIVVehicle::GetDriver()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -79,6 +95,9 @@ IVPed * CIVVehicle::GetDriver()
 
 void CIVVehicle::SetPassenger(BYTE bytePassengerSeatId, IVPed * pPassenger)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -91,6 +110,9 @@ void CIVVehicle::SetPassenger(BYTE bytePassengerSeatId, IVPed * pPassenger)
 
 IVPed * CIVVehicle::GetPassenger(BYTE bytePassengerSeatId)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -105,6 +127,9 @@ IVPed * CIVVehicle::GetPassenger(BYTE bytePassengerSeatId)
 
 void CIVVehicle::SetColors(unsigned char ucColor1, unsigned char ucColor2, unsigned char ucColor3, unsigned char ucColor4)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -124,6 +149,9 @@ void CIVVehicle::SetColors(unsigned char ucColor1, unsigned char ucColor2, unsig
 }
 void CIVVehicle::GetColors(unsigned char * ucColor1, unsigned char * ucColor2, unsigned char * ucColor3, unsigned char * ucColor4)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -138,6 +166,9 @@ void CIVVehicle::GetColors(unsigned char * ucColor1, unsigned char * ucColor2, u
 
 void CIVVehicle::SetMaxPassengers(BYTE byteMaxPassengers)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -147,6 +178,9 @@ void CIVVehicle::SetMaxPassengers(BYTE byteMaxPassengers)
 
 BYTE CIVVehicle::GetMaxPasssengers()
 {
+#ifdef EXT_LOG
+	//CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -158,6 +192,9 @@ BYTE CIVVehicle::GetMaxPasssengers()
 
 bool CIVVehicle::HasSiren()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -172,6 +209,9 @@ bool CIVVehicle::HasSiren()
 
 void CIVVehicle::SetSirenState(bool bStatus)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -186,6 +226,9 @@ void CIVVehicle::SetSirenState(bool bStatus)
 
 bool CIVVehicle::GetSirenState()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -205,6 +248,9 @@ bool CIVVehicle::GetSirenState()
 
 void CIVVehicle::SetGasPedal(float fGasPedal)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -214,6 +260,9 @@ void CIVVehicle::SetGasPedal(float fGasPedal)
 
 float CIVVehicle::GetGasPedal()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -225,6 +274,9 @@ float CIVVehicle::GetGasPedal()
 
 void CIVVehicle::SetBrakePedal(float fBrakePedal)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -234,6 +286,9 @@ void CIVVehicle::SetBrakePedal(float fBrakePedal)
 
 float CIVVehicle::GetBrakePedal()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -245,6 +300,9 @@ float CIVVehicle::GetBrakePedal()
 
 void CIVVehicle::SetSteerBias(float fSteerBias)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -254,6 +312,9 @@ void CIVVehicle::SetSteerBias(float fSteerBias)
 
 float CIVVehicle::GetSteerBias()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -265,6 +326,9 @@ float CIVVehicle::GetSteerBias()
 
 void CIVVehicle::SetSteeringAngle(float fSteeringAngle)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -274,6 +338,9 @@ void CIVVehicle::SetSteeringAngle(float fSteeringAngle)
 
 float CIVVehicle::GetSteeringAngle()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -285,6 +352,9 @@ float CIVVehicle::GetSteeringAngle()
 
 void CIVVehicle::SetEngineHealth(float fEngineHealth)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -294,6 +364,9 @@ void CIVVehicle::SetEngineHealth(float fEngineHealth)
 
 float CIVVehicle::GetEngineHealth()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -305,6 +378,9 @@ float CIVVehicle::GetEngineHealth()
 
 void CIVVehicle::SetDirtLevel(float fDirtLevel)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -314,6 +390,9 @@ void CIVVehicle::SetDirtLevel(float fDirtLevel)
 
 float CIVVehicle::GetDirtLevel()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -325,6 +404,9 @@ float CIVVehicle::GetDirtLevel()
 
 void CIVVehicle::SetPetrolTankHealth(float fPetrolTankHealth)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -334,6 +416,9 @@ void CIVVehicle::SetPetrolTankHealth(float fPetrolTankHealth)
 
 float CIVVehicle::GetPetrolTankHealth()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -345,6 +430,9 @@ float CIVVehicle::GetPetrolTankHealth()
 
 void CIVVehicle::SetDoorLockState(DWORD dwDoorLockState)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -354,6 +442,9 @@ void CIVVehicle::SetDoorLockState(DWORD dwDoorLockState)
 
 DWORD CIVVehicle::GetDoorLockState()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -365,6 +456,9 @@ DWORD CIVVehicle::GetDoorLockState()
 
 void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -395,6 +489,9 @@ void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
 
 bool CIVVehicle::GetEngineStatus()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -406,6 +503,9 @@ bool CIVVehicle::GetEngineStatus()
 
 void CIVVehicle::SoundHorn(int iDuration)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -415,6 +515,9 @@ void CIVVehicle::SoundHorn(int iDuration)
 
 void CIVVehicle::SetComponentState(int iComponent, bool bState)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -438,6 +541,9 @@ void CIVVehicle::SetComponentState(int iComponent, bool bState)
 
 BYTE CIVVehicle::GetTextureVariationCount()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -449,6 +555,9 @@ BYTE CIVVehicle::GetTextureVariationCount()
 
 void CIVVehicle::SetTextureVariation(int iVariation)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -480,6 +589,9 @@ void CIVVehicle::SetTextureVariation(int iVariation)
 
 int CIVVehicle::GetTextureVariation()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -501,6 +613,9 @@ int CIVVehicle::GetTextureVariation()
 
 void CIVVehicle::SetCanBeVisiblyDamaged(bool bState)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -515,6 +630,9 @@ void CIVVehicle::SetCanBeVisiblyDamaged(bool bState)
 
 bool CIVVehicle::CanBeVisiblyDamaged()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
 
@@ -526,6 +644,9 @@ bool CIVVehicle::CanBeVisiblyDamaged()
 
 void CIVVehicle::SetGPSState(bool bState)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVVehicle * pVehicle = GetVehicle();
 	if(pVehicle)
 	{
@@ -535,6 +656,9 @@ void CIVVehicle::SetGPSState(bool bState)
 
 bool CIVVehicle::GetGPSState()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVVehicle * pVehicle = GetVehicle();
 	if(pVehicle)
 	{
@@ -546,6 +670,9 @@ bool CIVVehicle::GetGPSState()
 //TODO: Add Get? *(DWORD *)(pVehicle + 0xFD0); // 4048
 void CIVVehicle::BurstCarTyre(int iTyre)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVVehicle * pVehicle = GetVehicle();
 	if(pVehicle)
 	{
@@ -561,6 +688,9 @@ void CIVVehicle::BurstCarTyre(int iTyre)
 
 void CIVVehicle::GetDeformation(CVector3& vecPos)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVVehicle * pVehicle = GetVehicle();
 	if(pVehicle)
 	{
@@ -570,6 +700,9 @@ void CIVVehicle::GetDeformation(CVector3& vecPos)
 
 void CIVVehicle::SetCarCanBeDamaged(bool bDamage)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
     IVVehicle * pVehicle = GetVehicle();
     if(pVehicle)
     {
@@ -583,6 +716,9 @@ void CIVVehicle::SetCarCanBeDamaged(bool bDamage)
 
 void CIVVehicle::RemoveCarWindow(int iWindow)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
     IVVehicle * pVehicle = GetVehicle();
     if(pVehicle)
     {
@@ -598,6 +734,9 @@ void CIVVehicle::RemoveCarWindow(int iWindow)
 
 void CIVVehicle::SetLightsState(int iState) // 0(on),1(aways off),2(always on) // doesn't work - i know why wait
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
     IVVehicle * pVehicle = GetVehicle();
     if(pVehicle)
         *(WORD *)(pVehicle + 0x1112) ^= ((char)iState ^ *(WORD *)(pVehicle + 0x1112)) & 3; // 4370
@@ -605,6 +744,9 @@ void CIVVehicle::SetLightsState(int iState) // 0(on),1(aways off),2(always on) /
 
 int CIVVehicle::GetLightsState()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
     IVVehicle * pVehicle = GetVehicle();
     if(pVehicle)
     {
@@ -615,6 +757,9 @@ int CIVVehicle::GetLightsState()
 
 void CIVVehicle::RemoveVehicleWindow(Scripting::eVehicleWindow window)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
         IVVehicle *pVehicle = GetVehicle();
         if(pVehicle)
         {
@@ -630,6 +775,9 @@ void CIVVehicle::RemoveVehicleWindow(Scripting::eVehicleWindow window)
 
 bool CIVVehicle::IsCarInWater()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
     IVVehicle *pVehicle = GetVehicle();
     
     bool bInWater = false;
@@ -648,6 +796,9 @@ bool CIVVehicle::IsCarInWater()
 
 void CIVVehicle::SetCarCanBurstTyres(bool bState)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
     IVVehicle *pVehicle = GetVehicle();
     if(pVehicle)
     {
@@ -660,6 +811,9 @@ void CIVVehicle::SetCarCanBurstTyres(bool bState)
 
 bool CIVVehicle::GetCarCanBurstTyres()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
     IVVehicle *pVehicle = GetVehicle();
     if(pVehicle)
 		return ((*(BYTE *)(pVehicle + 0xF67) & 0xEFu) != NULL);
