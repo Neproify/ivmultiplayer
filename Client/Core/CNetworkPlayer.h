@@ -67,7 +67,7 @@ private:
 		BYTE              byteSeatId;
 		bool              bExiting;
 		bool              bRequesting;
-	}				m_vehicleEnterExit;
+	}                 m_vehicleEnterExit;
 	bool              m_bHealthLocked;
 	unsigned int      m_uiLockedHealth;
 	bool              m_bArmourLocked;
@@ -127,26 +127,36 @@ public:
 	void                     SetModel(DWORD dwModelHash);
 
 	void                     Teleport(const CVector3& vecPosition, bool bResetInterpolation = true);
+
 	void                     SetPosition(const CVector3& vecPosition, bool bResetInterpolation = true);
 	void                     GetPosition(CVector3& vecPosition);
+
 	void                     SetCurrentHeading(float fHeading);
 	float                    GetCurrentHeading();
+
 	void					 SetCurrentSyncHeading(float fHeading);
+
 	void                     SetDesiredHeading(float fHeading);
 	float                    GetDesiredHeading();
+
 	void                     SetMoveSpeed(const CVector3& vecMoveSpeed);
 	void                     GetMoveSpeed(CVector3& vecMoveSpeed);
+
 	void                     SetTurnSpeed(const CVector3& vecTurnSpeed);
 	void                     GetTurnSpeed(CVector3& vecTurnSpeed);
+
 	void					 GiveHelmet();
 	void					 RemoveHelmet();
+
 	void					 SetHelmet(bool helmet);
 	void                     SetHealth(unsigned int uiHealth);
 	void                     LockHealth(unsigned int uiHealth);
 	unsigned int             GetHealth();
+
 	void                     SetArmour(unsigned int uiArmour);
 	void                     LockArmour(unsigned int uiArmour);
 	unsigned int             GetArmour();
+
 	void                     GiveWeapon(unsigned int uiWeaponId, unsigned int uiAmmo);
 	void                     RemoveWeapon(unsigned int uiWeaponId);
 	void                     RemoveAllWeapons();
@@ -158,13 +168,16 @@ public:
 	unsigned int             GetAmmoInClip(unsigned int uiWeaponId);
 	void                     SetAmmoInClip(unsigned int uiAmmoInClip);
 	unsigned int             GetMaxAmmoInClip(unsigned int uiWeaponId);
+
 	void                     GiveMoney(int iAmount);
 	void                     SetMoney(int iAmount);
 	void                     ResetMoney();
 	int                      GetMoney();
+
 	void                     SetControlState(CControlState * controlState);
 	void                     GetPreviousControlState(CControlState * controlState);
 	void                     GetControlState(CControlState * controlState);
+
 	void                     SetAimTarget(const CVector3& vecAimTarget);
 	void                     GetAimTarget(CVector3& vecAimTarget);
 	void                     SetShotSource(const CVector3& vecShotSource);
@@ -173,24 +186,35 @@ public:
 	void                     GetShotTarget(CVector3& vecShotTarget);
 	void                     SetAimSyncData(AimSyncData * aimSyncData);
 	void                     GetAimSyncData(AimSyncData * aimSyncData);
+
 	void                     AddToWorld();
 	void                     RemoveFromWorld(bool bStopMoving = true);
+
 	void                     SetInterior(unsigned int uiInterior);
 	unsigned int             GetInterior();
+
 	void                     UpdateTargetPosition();
+
 	void                     Interpolate();
-	void                     SetTargetPosition(const CVector3& vecPosition, unsigned long ulDelay);
-	void                     RemoveTargetPosition();
 	void                     ResetInterpolation();
+
+	void                     SetTargetPosition(const CVector3& vecPosition, unsigned long ulDelay);
+
+	void                     RemoveTargetPosition();
+
 	bool                     HasTargetPosition() { return (m_interp.pos.ulFinishTime != 0); }
+
 	virtual void             SetColor(unsigned int uiColor);
 	unsigned int             GetColor();
+
 	void                     SetClothes(unsigned char ucBodyPart, unsigned char ucClothes);
 	unsigned char            GetClothes(unsigned char ucBodyPart);
+
 	void                     SetDucking(bool bDucking);
 	bool                     IsDucking();
+
 	void                     SetCameraBehind();
-	virtual void             Pulse();
+	virtual void             Pulse(); 
 
 	// 
 	bool                     IsGettingInToAVehicle();

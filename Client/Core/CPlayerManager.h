@@ -35,8 +35,10 @@ public:
 	void             Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos, float fSpawnHeading);
 	void             Pulse();
 	void             SetLocalPlayer(EntityId playerId, CNetworkPlayer * pPlayer);
+
 	bool             DoesExist(EntityId playerId);
 	bool			 IsActive(EntityId playerId) { return m_bActive[playerId]; }
+
 	CNetworkPlayer * GetAt(EntityId playerId);
 	CNetworkPlayer * GetFrom(IVPed * pIVPed);
 };

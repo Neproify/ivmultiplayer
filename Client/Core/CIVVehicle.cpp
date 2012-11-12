@@ -367,25 +367,28 @@ void CIVVehicle::SetEngineStatus(bool bStatus, bool bUnknown)
 {
 	// Do we have a valid vehicle pointer?
 	IVVehicle * pVehicle = GetVehicle();
-#define FUNC_CVehicle__SetEngineOn (CGame::GetBase() + 0x9D3600)
+
 	if(pVehicle)
 	{
 		if(bStatus)
 		{
-			DWORD dwFunc = FUNC_CVehicle__SetEngineOn;
-            _asm
-            {
-				push bUnknown
-                mov ecx, pVehicle
-                call dwFunc
-            }
+			bool bUnknownTrue = true;
+			DWORD CVehicle__TurnOnEngine = (CGame::GetBase() + 0x9D3600);
+			_asm
+			{
+				push bUnknownTrue
+				mov ecx, pVehicle
+				call CVehicle__TurnOnEngine
+			}
 		}
 		else
 		{
-			pVehicle->m_byteFlags1 &= 0xE7;
-			*(BYTE *)(pVehicle + 0x1344) = 0;
-			// jenksta: this is incorrect, the native takes 3 parameters, not 2
-			//Scripting::SetCarEngineOn(CGame::GetPools()->GetVehiclePool()->HandleOf(pVehicle), false);
+			DWORD CVehicle__TurnOffEngine = (CGame::GetBase() + 0x9C6710);
+			_asm
+			{
+				mov ecx, pVehicle
+				call CVehicle__TurnOffEngine
+			}
 		}
 	}
 }
@@ -396,8 +399,7 @@ bool CIVVehicle::GetEngineStatus()
 	IVVehicle * pVehicle = GetVehicle();
 
 	if(pVehicle)
-		// not working, need way to detect engine
-		return ( *(BYTE *)( pVehicle + 0x1344 ) == 1 );
+		return *(bool *)( pVehicle + 0x1344 );
 
 	return false;
 }

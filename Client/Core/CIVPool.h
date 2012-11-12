@@ -60,6 +60,7 @@ public:
 	}
 
 	void	SetPoolEntrySize(DWORD dwSize) { m_pPool->m_dwEntrySize = dwSize; }
+
 	void     SetPool(IVPool * pPool) { m_pPool = pPool; }
 	IVPool * GetPool() { return m_pPool; }
 

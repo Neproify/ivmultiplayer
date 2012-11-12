@@ -17,13 +17,11 @@
 #include <SharedUtility.h>
 #include "CPools.h"
 #include "CNetworkManager.h"
-#include "CVehicleManager.h"
 
 extern CPlayerManager * g_pPlayerManager;
 extern CModelManager * g_pModelManager;
 extern CLocalPlayer * g_pLocalPlayer;
 extern CNetworkManager * g_pNetworkManager;
-extern CVehicleManager * g_pVehicleManager;
 
 CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	: CStreamableEntity(STREAM_ENTITY_VEHICLE, 200.0f)
@@ -661,9 +659,6 @@ void CNetworkVehicle::SetHealth(unsigned int uiHealth)
 unsigned int CNetworkVehicle::GetHealth()
 {
 	// Are we spawned?
-	if(!m_bActive) {
-		return 0;
-	}
 	if(IsSpawned())
 		return (unsigned int)m_pVehicle->GetEngineHealth();
 

@@ -33,7 +33,6 @@ private:
 	static void VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void SyncActor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void RequestActorUpdate(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-	static void LocalPingSync(CBitStream* pBitStream, CPlayerSocket* pSenderSocket);
 
 public:
 	void        Register();

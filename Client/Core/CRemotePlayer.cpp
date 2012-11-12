@@ -26,7 +26,6 @@ extern CPlayerManager * g_pPlayerManager;
 CRemotePlayer::CRemotePlayer()
 {
 	m_vehicleId = INVALID_ENTITY_ID;
-	m_uiBlipId = NULL;
 	m_stateType = STATE_TYPE_DISCONNECT;
 	m_bPassenger = false;
 	m_pLastSyncData = NULL;
@@ -37,7 +36,7 @@ CRemotePlayer::~CRemotePlayer()
 	Destroy();
 }
 
-bool CRemotePlayer::Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate)
+bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate)
 {
 	if(!bDontRecreate)
 	{
@@ -56,14 +55,7 @@ bool CRemotePlayer::Spawn(CVector3 vecSpawnPos, float fSpawnHeading, bool bDontR
 
 void CRemotePlayer::Destroy()
 {
-	//CNetworkPlayer::Destroy();
 
-	// remove the blip
-	if(m_uiBlipId != NULL)
-	{
-		Scripting::RemoveBlip(m_uiBlipId);
-		m_uiBlipId = NULL;
-	}
 }
 
 void CRemotePlayer::Kill()
@@ -78,15 +70,11 @@ void CRemotePlayer::Init()
 {
 	if(IsSpawned())
 	{
-		Scripting::SetDontActivateRagdollFromPlayerImpact(GetScriptingHandle(), true);
-		Scripting::AddBlipForChar(GetScriptingHandle(), &m_uiBlipId);
-		Scripting::ChangeBlipSprite(m_uiBlipId, Scripting::BLIP_OBJECTIVE);
-		Scripting::ChangeBlipScale(m_uiBlipId, 0.5);
-		Scripting::ChangeBlipNameFromAscii(m_uiBlipId, GetName());
 		ToggleRagdoll(false);
 		SetColor(GetColor());
 		Scripting::SetPedDiesWhenInjured(GetScriptingHandle(), false);
 		Scripting::SetCharInvincible(GetScriptingHandle(), true);
+
 		if(!CGame::GetNameTags())
 			Scripting::GivePedFakeNetworkName(GetScriptingHandle(),GetName().Get(),GetColor(),GetColor(),GetColor(),GetColor());
 
@@ -94,6 +82,7 @@ void CRemotePlayer::Init()
 		//Scripting::SetAnimGroupForChar(m_pedIndex, "move_player");
 		//Scripting::SetCharGestureGroup(m_pedIndex, "GESTURES@MALE");
 		Scripting::BlockCharHeadIk(GetScriptingHandle(), true);
+
 		m_stateType = STATE_TYPE_SPAWN;
 	}
 }
@@ -103,6 +92,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	// Check if the player isn't avaiable(disconnect etc)
 	if(!g_pPlayerManager->IsActive(GetPlayerId()))
 		return;
+	
 	// If we are in a vehicle remove ourselves from it
 	if(IsInVehicle())
 		RemoveFromVehicle();
@@ -110,8 +100,14 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	// Set our control state
 	SetControlState(&syncPacket->controlState);
 
+	// If we have new sync data -> continue otherwise we don't need to update it
+	/*if(m_pLastSyncData != syncPacket)
+		m_pLastSyncData = syncPacket;
+	else
+		return;*/
+
 	// Set our position
-	SetTargetPosition(syncPacket->vecPos, TICK_RATE);
+	SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
 
 	// Set our heading
 	SetCurrentHeading(syncPacket->fHeading);
@@ -121,6 +117,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 
 	// Set our turn speed
 	SetTurnSpeed(syncPacket->vecTurnSpeed);
+
 	// Set our ducking state
 	SetDucking(syncPacket->bDuckState);
 
@@ -129,6 +126,25 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 
 	// Lock our armour
 	LockArmour((syncPacket->uHealthArmour << 16) >> 16);
+
+	// Set our anim stuff
+	//if(syncPacket->bAnim)
+	//{
+	//	m_strAnimGroup = syncPacket->szAnimGroup;
+	//	m_strAnimSpec = syncPacket->szAnimSpecific;
+
+	//	// check if we're not animating and the animation isn't finished(1.0)
+	//	if(!m_bAnimating && syncPacket->fAnimTime < 1.0f)
+	//	{
+	//		m_bAnimating = true;
+	//		Scripting::TaskPlayAnim(GetScriptingHandle(),m_strAnimSpec.C_String(),m_strAnimGroup.C_String(),8.0f,0,0,0,0,-1);
+	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),m_strAnimGroup.C_String(),m_strAnimSpec.C_String(),syncPacket->fAnimTime);
+	//	}
+	//	else if(m_bAnimating)
+	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),m_strAnimGroup.C_String(),m_strAnimSpec.C_String(),syncPacket->fAnimTime);
+	//}
+	//else
+	//	m_bAnimating = false;
 
 	// Get our new weapon and ammo
 	unsigned int uiWeapon = (syncPacket->uWeaponInfo >> 20);
@@ -156,6 +172,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 	// Check if the player isn't avaiable(disconnect etc)
 	if(!g_pPlayerManager->IsActive(GetPlayerId()))
 		return;
+
 	// Get the vehicle
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
@@ -186,10 +203,11 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		SetControlState(&syncPacket->controlState);
 
 		// Set their vehicles target position
-		pVehicle->SetTargetPosition(syncPacket->vecPos, TICK_RATE);
+		pVehicle->SetTargetPosition(syncPacket->vecPos, TICK_RATE/**2*/);
 
 		// Set their vehicles target rotation
-		pVehicle->SetTargetRotation(syncPacket->vecRotation, TICK_RATE);
+		pVehicle->SetTargetRotation(syncPacket->vecRotation, TICK_RATE/**2*/);
+		
 		// Check if we have no bike(otherwise -> shake shake, shake shake shake IT! :P)
 		if(pVehicle->GetModelInfo()->GetIndex() < 105 || pVehicle->GetModelInfo()->GetIndex() > 111)
 		{
@@ -199,6 +217,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 
 		// Set their vehicles move speed
 		pVehicle->SetMoveSpeed(syncPacket->vecMoveSpeed);
+
 		// Set their vehicles health
 		pVehicle->SetHealth(syncPacket->uiHealth);
 		pVehicle->SetPetrolTankHealth(syncPacket->fPetrolHealth);
@@ -224,15 +243,21 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 			else
 				continue;
 		}
+
 		// Set their vehicles siren state
 		if(pVehicle->GetSirenState() != syncPacket->bSirenState)
 			pVehicle->SetSirenState(syncPacket->bSirenState);
+		/*
+		// Set their windows
+		for(int i = 0; i <= 3; i++)
+			pVehicle->SetWindowState(i, syncPacket->bWindow[i]);
 
-		// Set their vehicles turn speed
-		pVehicle->SetTurnSpeed(syncPacket->vecTurnSpeed);
-
-		// Set their vehicles move speed
-		pVehicle->SetMoveSpeed(syncPacket->vecMoveSpeed);
+		// Set their typres
+		for(int i = 0; i <= 5; i++)
+		{
+			if(syncPacket->bTyre[i])
+				Scripting::BurstCarTyre(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i);
+		}*/
 
 		// Set their vehicles dirt level
 		if(pVehicle->GetDirtLevel() != syncPacket->fDirtLevel)
@@ -245,6 +270,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		// Set their lights
 		if(pVehicle->GetLightsState() != syncPacket->bLights)
 			pVehicle->SetLightsState(syncPacket->bLights);
+
 		// Lock our health
 		LockHealth(syncPacket->uPlayerHealthArmour >> 16);
 
@@ -268,6 +294,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 			// Set our ammo
 			SetAmmo(uiWeapon, uiAmmo);
 		}
+
 	}
 	else if(pVehicle && !(pVehicle->IsStreamedIn()))
 	{
@@ -286,6 +313,7 @@ void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * s
 	// Check if the player isn't avaiable(disconnect etc)
 	if(!g_pPlayerManager->IsActive(GetPlayerId()))
 		return;
+
 	// Get the vehicle
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 
@@ -335,6 +363,7 @@ void CRemotePlayer::StoreSmallSync(SmallSyncData * syncPacket)
 	// Check if the player isn't avaiable(disconnect etc)
 	if(!g_pPlayerManager->IsActive(GetPlayerId()))
 		return;
+
 	// Set their control state
 	SetControlState(&syncPacket->controlState);
 
@@ -363,9 +392,6 @@ void CRemotePlayer::StoreSmallSync(SmallSyncData * syncPacket)
 void CRemotePlayer::SetColor(unsigned int uiColor)
 {
 	CNetworkPlayer::SetColor(uiColor);
-
-	if(m_uiBlipId != NULL)
-		Scripting::ChangeBlipColour(m_uiBlipId, uiColor);
 
 	if(!CGame::GetNameTags())
 	{
