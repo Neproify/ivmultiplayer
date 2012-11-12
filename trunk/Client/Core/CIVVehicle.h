@@ -23,6 +23,13 @@ enum eVehicleSeat
 	SEAT_BACK_RIGHT
 };
 
+class IVDamageManager
+{
+public:
+	PAD(IVDamageManager, pad0, 0x4); //04
+	CVector3 vecDamage; 			 
+};
+
 class IVVehicle : public IVPhysical
 {
 public:
@@ -73,17 +80,20 @@ public:
 	PAD(IVVehicle, pad15, 0x4);   // 111C-1120
 	BYTE m_byteSirenHealth[8];    // 1120-1128
 	float m_fPetrolTankHealth;    // 1128-112C
-	PAD(IVVehicle, pad16, 0xC4);  // 112C-11F0
+	PAD(IVVehicle, pad16, 0xC4); // 112C-11F0
+	//PAD(IVVehicle, pad16, 0x88);  // 112C-11B4
+	//IVDamageManager *m_pDamageManager; // 11B4-11B8
+	//PAD(IVVehicle, pad17, 0x38);  // 11B8-11F0
 	BYTE m_byteSirenOn[8];        // 11F0-11F8
-	// 0x1130 - Damage Manager?
-	PAD(IVVehicle, pad17, 0xEC);  // 11F8-12E4
+	// 0x1130 - Unknown
+	PAD(IVVehicle, pad18, 0xEC);  // 11F8-12E4
 	DWORD m_dwTimeOfCreation;     // 12E4-12E8
-	PAD(IVVehicle, pad18, 0x38);  // 12E8-1320
+	PAD(IVVehicle, pad19, 0x38);  // 12E8-1320
 	DWORD m_dwDoorLockState;      // 1320-1324 // 0 - Unlocked, 1+ - Locked
-	PAD(IVVehicle, pad19, 0x18);  // 1324-133C
+	PAD(IVVehicle, pad20, 0x18);  // 1324-133C
 	// 0x1330 - float m_fLightMultiplier;
 	DWORD m_dwHorn;               // 133C-1340
-	PAD(IVVehicle, pad20, 0xD90); // 1340-20D0
+	PAD(IVVehicle, pad21, 0xD90); // 1340-20D0
 	// 0x14C4 - BYTE m_byteUnknownFlags; // 8 - Not Damaged Upside Down, 64 - Firing Water Cannon
 	// 0x14E8 - float m_fWaterCannonOrientation;
 	// 0x14EC - float m_fWaterCannonElevation;

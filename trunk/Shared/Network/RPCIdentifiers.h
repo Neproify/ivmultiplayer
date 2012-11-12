@@ -180,6 +180,5 @@ enum eRPCIdentfiers
 	RPC_ScriptingMarkVehicleAsActorVehicle,
 	RPC_ScriptingPlayerSaySpeech,
 	RPC_ScriptingActorSaySpeech,
-	RPC_ScriptingLetPlayerDriveAutomatic,
-	RPC_LocalPingSync
+	RPC_ScriptingLetPlayerDriveAutomatic
 };

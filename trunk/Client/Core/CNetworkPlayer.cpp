@@ -23,9 +23,6 @@
 #include "CModelManager.h"
 #include "CChatWindow.h"
 
-#define SET_KEY(to, from, flag) to = IS_BIT_SET(from, flag) ? 255 : 0
-#define GET_KEY(to, flag, from) if(from == 255) SET_BIT(to, flag)
-
 extern CNetworkManager * g_pNetworkManager;
 extern CVehicleManager * g_pVehicleManager;
 extern CPlayerManager  * g_pPlayerManager;
@@ -35,12 +32,6 @@ extern CStreamer       * g_pStreamer;
 extern CModelManager   * g_pModelManager;
 extern bool              m_bControlsDisabled;
 extern CChatWindow     * g_pChatWindow;
-
-extern CNetworkManager    * g_pNetworkManager;
-extern CVehicleManager    * g_pVehicleManager;
-extern CPlayerManager     * g_pPlayerManager;
-extern CLocalPlayer       * g_pLocalPlayer;
-extern bool                 m_bControlsDisabled;
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 {
@@ -84,6 +75,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 
 		// Add our model info reference
 		m_pModelInfo->AddReference(false);
+
 		// Flag ourselves as spawned
 		m_bSpawned = true;
 	}
@@ -102,18 +94,8 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 
 CNetworkPlayer::~CNetworkPlayer()
 {
-	// Are we not the local player?
-	if(!IsLocalPlayer())
-	{
-		// Destroy the player ped
-		Destroy();
-	}
-
-	// Delete our player ped instance
-	SAFE_DELETE(m_pPlayerPed);
-
-	// Delete our player info instance
-	SAFE_DELETE(m_pPlayerInfo);
+	// Destroy ourselves
+	Destroy();
 }
 
 bool CNetworkPlayer::Create()
@@ -278,7 +260,7 @@ bool CNetworkPlayer::Create()
 #endif
 
 	// Flag as spawned
-	SetSpawned(true);
+	m_bSpawned = true;
 
 	// Set health
 	SetHealth(200);
@@ -292,53 +274,117 @@ bool CNetworkPlayer::Create()
 	// Reset interpolation
 	ResetInterpolation();
 
+	//CLogFile::Printf("Done: PlayerNumber: %d, ScriptingHandle: %d", m_byteGamePlayerNumber, GetScriptingHandle());
 	return true;
 }
 
 void CNetworkPlayer::Init()
 {
+	// Set again model
+	//SetModel(m_pModelInfo->GetHash());
 }
 
 void CNetworkPlayer::Destroy()
 {
-	// Are we spawned and not the local player?
-	if(IsSpawned() && !IsLocalPlayer())
+	// Are we not the local player?
+	if(!IsLocalPlayer())
 	{
-		// Remove from world
-		CGame::GetWorld()->RemoveEntity((CIVEntity*)m_pPlayerPed->GetEntity());
-
-		// Call destructor
-		DWORD dwFunc = m_pPlayerPed->GetEntity()->m_VFTable->ScalarDeletingDestructor;
-		IVPed * pPlayerPed = m_pPlayerPed->GetPed();
-		_asm
+		// Are we spawned?
+		if(IsSpawned())
 		{
-			push 1
-			mov ecx, pPlayerPed
-			call dwFunc
+			// Remove from world
+			/*CGame::RemoveEntityFromWorld(m_pPlayerPed->GetEntity());
+
+			// Call destructor
+			DWORD dwFunc = m_pPlayerPed->GetEntity()->m_VFTable->ScalarDeletingDestructor;
+			IVPed * pPlayerPed = m_pPlayerPed->GetPed();
+			_asm
+			{
+				push 1
+				mov ecx, pPlayerPed
+				call dwFunc
+			}
+
+			// Remove our model info reference
+			m_pModelInfo->RemoveReference();
+
+			// Delete our player ped instance
+			SAFE_DELETE(m_pPlayerPed);
+
+			// Delete our player info instance
+			SAFE_DELETE(m_pPlayerInfo);
+
+			// Do we have a valid player number?
+			if(m_byteGamePlayerNumber != INVALID_PLAYER_PED)
+			{
+				// Reset game player info pointer
+				CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
+
+				// Invalidate the player number
+				m_byteGamePlayerNumber = INVALID_PLAYER_PED;
+			}*/
+			// Get the player ped pointer
+			IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
+
+			IVPedIntelligence * pPedIntelligence = pPlayerPed->m_pPedIntelligence;
+	#define FUNC_ShutdownPedIntelligence 0x9C4DF0
+			DWORD dwFunc = (CGame::GetBase() + FUNC_ShutdownPedIntelligence);
+			_asm
+			{
+				push 0
+				mov ecx, pPedIntelligence
+				call dwFunc
+			}
+
+			*(DWORD *)(pPlayerPed + 0x260) &= 0xFFFFFFFE;
+
+			// Remove the player ped from the world
+			m_pPlayerPed->RemoveFromWorld();
+
+			// Delete the player ped
+			// We use the CPed destructor and not the CPlayerPed destructor because the CPlayerPed destructor
+			// messes with our player info (which we handle manually)
+			//dwFunc = m_pPlayerPed->GetPlayerPed()->m_VFTable->ScalarDeletingDestructor;
+	#define FUNC_CPed__ScalarDeletingDestructor 0x8ACAC0
+			dwFunc = (CGame::GetBase() + FUNC_CPed__ScalarDeletingDestructor);
+			_asm
+			{
+				push 1
+				mov ecx, pPlayerPed
+				call dwFunc
+			}
+			// Remove our model info reference
+			m_pModelInfo->RemoveReference();
 		}
-
-		// Remove our model info reference
-		m_pModelInfo->RemoveReference();
-
-		// Delete our player ped instance
-		SAFE_DELETE(m_pPlayerPed);
-
-		// Delete our player info instance
-		SAFE_DELETE(m_pPlayerInfo);
-
-		// Do we have a valid player number?
-		if(m_byteGamePlayerNumber != INVALID_PLAYER_PED)
-		{
-			// Reset game player info pointer
-			CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
-
-			// Invalidate the player number
-			m_byteGamePlayerNumber = INVALID_PLAYER_PED;
-		}
-
-		// Flag ourselves as despawned
-		SetSpawned(false);
 	}
+
+	// Do we have a context data instance
+	if(m_pContextData)
+	{
+		// Delete the context data instance
+		CContextDataManager::DestroyContextData(m_pContextData);
+
+		// Set the context data pointer to NULL
+		m_pContextData = NULL;
+	}
+	// Delete the player ped instance
+	SAFE_DELETE(m_pPlayerPed);
+
+	// Delete our player info instance
+	SAFE_DELETE(m_pPlayerInfo);
+
+	// Are we not the local player ped and do we have a valid player number?
+	if(!IsLocalPlayer() && m_byteGamePlayerNumber != INVALID_PLAYER_PED)
+	{
+		// Reset game player info pointer
+		CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
+
+		// Invalidate the player number
+		m_byteGamePlayerNumber = INVALID_PLAYER_PED;
+	}
+
+	// Flag ourselves as despawned
+	m_bSpawned = false;
 }
 
 void CNetworkPlayer::Kill(bool bInstantly)
@@ -349,6 +395,8 @@ void CNetworkPlayer::Kill(bool bInstantly)
 		// Are we getting killed instantly?
 		if(bInstantly)
 		{
+			/* Only use complex die
+
 			// Create the dead task
 			// if this doesn't work vary last 2 params (1, 0 : 0, 1 : 1, 1 : 0, 0)
 			CIVTaskSimpleDead * pTask = new CIVTaskSimpleDead(CGame::GetTime(), 1, 0);
@@ -359,6 +407,8 @@ void CNetworkPlayer::Kill(bool bInstantly)
 				// Set it as the ped task
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
 			}
+			
+			*/
 		}
 		else // We are not getting killed instantly
 		{
@@ -378,7 +428,6 @@ void CNetworkPlayer::Kill(bool bInstantly)
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 			}
 		}
-
 		// Set the health and armour to 0
 		SetHealth(0);
 		SetArmour(0);
@@ -415,13 +464,15 @@ bool CNetworkPlayer::IsDead()
 {
 	if(IsSpawned())
 	{
-		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
+		// jenksta: HACK: code below never seems to trigger so use IsDying instead
+		return IsDying();
+		/*CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 
 		if(pTask)
 		{
 			if(pTask->GetType() == TASK_SIMPLE_DEAD)
 				return true;
-		}
+		}*/
 	}
 
 	return false;
@@ -437,7 +488,6 @@ IVEntity * CNetworkPlayer::GetLastDamageEntity()
 
 bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId, EntityId * weaponId)
 {
-	// TODO: Include kill weapon
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -553,14 +603,29 @@ void CNetworkPlayer::InternalPutInVehicle(CNetworkVehicle * pVehicle, BYTE byteS
 	// Are we spawned and not in a vehicle?
 	if(IsSpawned() && !InternalIsInVehicle())
 	{
-		// Is the seat the driver seat?
+		// Get the door
+		int iDoor = -2;
+
 		if(byteSeatId == 0)
-			Scripting::WarpCharIntoCar(GetScriptingHandle(), pVehicle->GetScriptingHandle());
-		else
+			iDoor = 0;
+		else if(byteSeatId == 1)
+			iDoor = 2;
+		else if(byteSeatId == 2)
+			iDoor = 1;
+		else if(byteSeatId == 3)
+			iDoor = 3;
+
+		// Create the car set ped in vehicle task
+		CIVTaskSimpleCarSetPedInVehicle * pTask = new CIVTaskSimpleCarSetPedInVehicle(pVehicle->GetGameVehicle(), iDoor, 0, 0);
+
+		// Did the task create successfully?
+		if(pTask)
 		{
-			// Is the passenger seat valid?
-			if(byteSeatId <= pVehicle->GetMaxPassengers())
-				Scripting::WarpCharIntoCarAsPassenger(GetScriptingHandle(), pVehicle->GetScriptingHandle(), (byteSeatId - 1));
+			// Process the ped
+			pTask->ProcessPed(m_pPlayerPed);
+
+			// Destroy the task
+			pTask->Destroy();
 		}
 	}
 }
@@ -570,13 +635,21 @@ void CNetworkPlayer::InternalRemoveFromVehicle()
 	// Are we spawned and in a vehicle?
 	if(IsSpawned() && m_pVehicle)
 	{
-		// FIXUPDATE
-		// This is hacky
-		// Find a task to set a ped out of a vehicle (like sa)
-		// Warp ourselves out of the vehicle
-		CVector3 vecPos;
-		m_pVehicle->GetPosition(vecPos);
-		Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecPos.fX, vecPos.fY, (vecPos.fZ + 1.0f));
+		// Set the vehicle can be damaged to false before the task out is called, because when the client crashs, the vehicle is still damage able
+		m_pVehicle->SetDamageable(false);
+
+		// Create the car set ped out task
+		CIVTaskSimpleCarSetPedOut * pTask = new CIVTaskSimpleCarSetPedOut(m_pVehicle->GetGameVehicle(), 0xF, 0, 1);
+
+		// Did the task create successfully?
+		if(pTask)
+		{
+			// Process the ped
+			pTask->ProcessPed(m_pPlayerPed);
+
+			// Destroy the task
+			pTask->Destroy();
+		}
 	}
 }
 
@@ -590,6 +663,8 @@ unsigned int CNetworkPlayer::GetScriptingHandle()
 
 void CNetworkPlayer::SetModel(DWORD dwModelHash)
 {
+	CLogFile::PrintDebugf("SETMODEL %p | PlayerId: %d",dwModelHash,m_playerId);
+
 	// Get the model index from the model hash
 	int iModelIndex = CGame::GetStreaming()->GetModelIndexFromHash(dwModelHash);
 
@@ -629,10 +704,26 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			// TODO: Use StreamIn/Out for this for remote players, and for local players use this and restore all info like in StreamIn/Out
 			// or perhaps make StreamIn/Out only get/set info and not create/destroy player if its the local player that way we can use it
 			// for local and remote players
+			unsigned int uiHealth = GetHealth();
+			unsigned int uiArmour = GetArmour();
+			float fHeading = GetCurrentHeading();
 			unsigned int uiInterior = GetInterior();
+			unsigned int uiWeap[13], uiAmmo[13], uiUnknown[13];
+			unsigned int uiCurrWeap = GetCurrentWeapon();
+			unsigned int uiAmmoInClip = GetAmmoInClip(uiCurrWeap);
+			for(unsigned int ui = 1; ui < 12; ++ui)
+				GetWeaponInSlot(ui, uiWeap[ui], uiAmmo[ui], uiUnknown[ui]);
 			Scripting::ChangePlayerModel(m_byteGamePlayerNumber, (Scripting::eModel)dwModelHash);
 			m_pPlayerPed->SetPed(m_pPlayerInfo->GetPlayerPed());
+			SetHealth(uiHealth);
+			SetArmour(uiArmour);
+			SetCurrentHeading(fHeading);
 			SetInterior(uiInterior);
+			for(unsigned int ui = 1; ui < 12; ++ui)
+				GiveWeapon(uiWeap[ui], uiAmmo[ui]);
+			SetAmmo(uiCurrWeap, GetAmmo(uiCurrWeap)-uiAmmoInClip+GetMaxAmmoInClip(uiCurrWeap));
+			SetCurrentWeapon(uiCurrWeap);
+			SetAmmoInClip(uiAmmoInClip);
 		}
 		// End hacky code that needs to be changed
 
@@ -882,6 +973,7 @@ unsigned int CNetworkPlayer::GetHealth()
 		return uiHealth;
 	}
 
+	// Not spawned
 	return 0;
 }
 
@@ -921,6 +1013,7 @@ unsigned int CNetworkPlayer::GetArmour()
 		return uiArmour;
 	}
 
+	// Not spawned
 	return 0;
 }
 
@@ -983,12 +1076,14 @@ void CNetworkPlayer::SetAmmo(unsigned int uiWeaponId, unsigned int uiAmmo)
 			Scripting::SetCharAmmo(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo);
 	}
 }
+
 unsigned int CNetworkPlayer::GetAmmo(unsigned int uiWeaponId)
 {
 	if(IsSpawned())
 	{
 		// TODO: Create a function for SetAmmoInClip
 		//SetAmmoInClip()
+		// TODO: Fix, IVPedWeapons::m_byteCurrentWeaponSlot isn't right
 		/*CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
 
 		if(pWeapon)
@@ -1041,6 +1136,7 @@ unsigned int CNetworkPlayer::GetMaxAmmoInClip(unsigned int uiWeapon)
 	}
 	return 0;
 }
+
 void CNetworkPlayer::GiveMoney(int iAmount)
 {
 	if(IsSpawned())
@@ -1213,6 +1309,7 @@ void CNetworkPlayer::GetShotTarget(CVector3& vecShotTarget)
 			return;
 		}
 	}
+
 	vecShotTarget = m_vecShotTarget;
 }
 
@@ -1295,7 +1392,6 @@ unsigned int CNetworkPlayer::GetInterior()
 		Scripting::GetKeyForCharInRoom(GetScriptingHandle(), (Scripting::eInteriorRoomKey *)&uiInterior);
 		return uiInterior;
 	}
-
 	return 0;
 }
 
@@ -1462,7 +1558,6 @@ bool CNetworkPlayer::IsDucking()
 
 void CNetworkPlayer::SetCameraBehind()
 {
-	// TODO: Move this to CCamera class (CCamera::SetBehindPlayer(CNetworkPlayer * pPlayer))
 	if(IsSpawned())
 		g_pCamera->SetBehindPed(m_pPlayerPed);
 }
@@ -1489,6 +1584,7 @@ void CNetworkPlayer::Pulse()
 		// If our armour is locked set our armour
 		if(m_bArmourLocked)
 			SetArmour(m_uiLockedArmour);
+
 		// Process vehicle entry/exit
 		ProcessVehicleEntryExit();
 
@@ -1541,6 +1637,7 @@ void CNetworkPlayer::SetName(String strName)
 		Scripting::RemoveFakeNetworkNameFromPed(GetScriptingHandle());
 		Scripting::GivePedFakeNetworkName(GetScriptingHandle(),m_strName.C_String(),m_uiColor,m_uiColor,m_uiColor,m_uiColor); 
 	}
+
 	if(m_pPlayerInfo)
 		m_pPlayerInfo->SetName(strName.GetData());
 }
@@ -1620,7 +1717,6 @@ bool CNetworkPlayer::ClearVehicleEntryTask()
 			if(pTask->GetType() == TASK_COMPLEX_NEW_GET_IN_VEHICLE)
 			{
 				m_pPlayerPed->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_PRIMARY);
-				pTask->Destroy();
 				return true;
 			}
 		}
@@ -1640,7 +1736,6 @@ bool CNetworkPlayer::ClearVehicleExitTask()
 			if(pTask->GetType() == TASK_COMPLEX_NEW_EXIT_VEHICLE)
 			{
 				m_pPlayerPed->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_PRIMARY);
-				pTask->Destroy();
 				return true;
 			}
 		}
@@ -1660,7 +1755,6 @@ bool CNetworkPlayer::ClearDieTask()
 			if(pTask->GetType() == TASK_COMPLEX_DIE)
 			{
 				m_pPlayerPed->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
-				pTask->Destroy();
 				return true;
 			}
 		}
@@ -1668,6 +1762,7 @@ bool CNetworkPlayer::ClearDieTask()
 
 	return false;
 }
+
 
 bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehicle, BYTE &byteSeatId)
 {
@@ -1719,7 +1814,6 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 			CLogFile::Printf("GetClosestVehicleSet %d(%d)",byteTestSeatId,pClosestVehicle->GetMaxPassengers());
 			for(BYTE i = 0; i < pClosestVehicle->GetMaxPassengers(); i++)
 			{
-				// Does this passenger seat contain a passenger?
 				if(!pClosestVehicle->GetPassenger(i))
 				{
 					byteTestSeatId = (i + 1);
@@ -1748,40 +1842,11 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 	return false;
 }
 
-// From 0x9C6DB0
-// Looks like vehicles never have more than 4 doors?
-BYTE GetDoorFromSeat(BYTE byteSeatId)
-{
-	BYTE byteDoorId;
-
-	switch(byteSeatId)
-	{
-	case 0:
-		byteDoorId = 2;
-		break;
-	case 1:
-		byteDoorId = 1;
-		break;
-	case 2:
-		byteDoorId = 3;
-		break;
-	default:
-		byteDoorId = 0;
-		break;
-	}
-
-	return byteDoorId;
-}
-
-int iProcessFrames = 0;
-
 void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d)", pVehicle, byteSeatId);
-
 		// Is the vehicle invalid?
 		if(!pVehicle)
 			return;
@@ -1797,60 +1862,47 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			}
 		}
 
-		CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 2", pVehicle, byteSeatId);
-
 		// Are we already in a vehicle?
 		if(IsInVehicle())
 			return;
 
-		CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 3", pVehicle, byteSeatId);
-
-		/*BYTE byteDoorId = GetDoorFromSeat(byteSeatId);
-		int iUnknown2 = 0;
-
-		//if(byteSeatId != 0)
-		//	iUnknown2 = 0x200000;
-
-		// Create the enter vehicle task
-		CIVTaskComplexNewGetInVehicle * pTask = new CIVTaskComplexNewGetInVehicle(m_pVehicle->GetGameVehicle(), byteDoorId, 27, iUnknown2, 0.0f);
-
-		// Did the task create successfully?
-		if(pTask)
-		{
-			// Set it as the ped task
-			pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
-		}*/
-
 		// Is the vehicle streamed in?
-		if(pVehicle->IsStreamedIn())
+		CLogFile::Printf("[DEBUG] Try to enter vehicle %d with door lock state %d",pVehicle->GetVehicleId(),pVehicle->GetDoorLockState());
+		if(pVehicle->IsStreamedIn() && pVehicle->GetDoorLockState() == 0)
 		{
-			// Are we entering as the driver?
-			if(byteSeatId == 0)
-			{
-				// Start the enter car as driver task
-				Scripting::TaskEnterCarAsDriver(GetScriptingHandle(), pVehicle->GetScriptingHandle(), -2);
-			}
-			else
-			{
-				// Start the enter car as passenger task
-				Scripting::TaskEnterCarAsPassenger(GetScriptingHandle(), pVehicle->GetScriptingHandle(), -2, (byteSeatId - 1));
-			}
+			// Create the enter vehicle task
+			int iUnknown = -4;
 
-			CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 4", pVehicle, byteSeatId);
+			if(byteSeatId == 0)
+				iUnknown = -7;
+			else if(byteSeatId == 1)
+				iUnknown = 2;
+			else if(byteSeatId == 2)
+				iUnknown = 1;
+			else if(byteSeatId == 3)
+				iUnknown = 3;
+
+			unsigned int uiUnknown = 0;
+
+			if(byteSeatId > 0)
+				uiUnknown = 0x200000;
+
+			CIVTaskComplexNewGetInVehicle * pTask = new CIVTaskComplexNewGetInVehicle(pVehicle->GetGameVehicle(), iUnknown, 27, uiUnknown, -2.0f);
+
+			// Did the task create successfully?
+			if(pTask)
+			{
+				// Set it as the ped task
+				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
+			}
 
 			// Mark ourselves as entering a vehicle and store our vehicle and seat
 			m_vehicleEnterExit.bEntering = true;
 			m_vehicleEnterExit.pVehicle = pVehicle;
 			m_vehicleEnterExit.byteSeatId = byteSeatId;
 
-			CLogFile::Printf("CClientPlayer::EnterVehicle(0x%p, %d) 5", pVehicle, byteSeatId);
-
 			// Reset interpolation
 			ResetInterpolation();
-
-			// see ProcessVehicleEntryExit
-			if(IsLocalPlayer())
-				iProcessFrames = 1;
 		}
 	}
 }
@@ -1863,8 +1915,45 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 		// Are we in a vehicle?
 		if(m_pVehicle)
 		{
-			// Create the exit vehicle task
-			CIVTaskComplexNewExitVehicle * pTask = new CIVTaskComplexNewExitVehicle(m_pVehicle->GetGameVehicle(), 0xF, 0, 0);
+			/* iExitMode values - 0xF - Get out animation (used when exiting a non-moving vehicle)
+			                    - 0x9C4 - Get out animation (used when smb jacks your vehicle).
+			                    - 0x40B - Dive out animation (used in trucks).
+			                    - 0x100E - Dive out animation (used in the other vehicles). */
+
+			// Simulate the way GTA IV handles vehicle exits.
+			CVector3 vecMoveSpeed;
+			int modelId;
+			int iExitMode = 0xF; 
+
+			m_pVehicle->GetMoveSpeed(vecMoveSpeed);
+			modelId = g_pModelManager->ModelHashToVehicleId(m_pVehicle->GetModelInfo()->GetHash());
+
+			if(exitmode == EXIT_VEHICLE_NORMAL)
+			{
+				if(vecMoveSpeed.fX < -10 || vecMoveSpeed.fX > 10 || vecMoveSpeed.fY < -10 || vecMoveSpeed.fY > 10)
+				{
+					switch(modelId)
+					{
+						case 2: case 4: case 5: case 7: case 8: case 10: case 11:
+						case 31: case 32: case 49: case 50: case 51: case 52:
+						case 53: case 55: case 56: case 60: case 66: case 73:
+						 case 85: case 86: case 94: case 104:
+							iExitMode = 0x40B;
+						break;
+
+						default:
+						{
+							if(modelId != 12 && modelId < 166)
+								iExitMode = 0x100E;
+						}
+					}
+				}
+			}
+			else
+				iExitMode = 0x9C4;
+
+			// Create the vehicle exit task.
+			CIVTaskComplexNewExitVehicle * pTask = new CIVTaskComplexNewExitVehicle(m_pVehicle->GetGameVehicle(), iExitMode, 0, 0);
 
 			// Did the task create successfully?
 			if(pTask)
@@ -1886,6 +1975,21 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 			}
 		}
 
+		if((int)m_pVehicle->GetHealth() < 0 || (float)m_pVehicle->GetPetrolTankHealth() < 0.0f)
+		{
+			m_bVehicleDeathCheck = true;
+			if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()))
+			{
+				CBitStream bsDeath;
+				bsDeath.Write(m_pVehicle->GetVehicleId());
+				g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+				m_bVehicleDeathCheck = false;
+			}
+		}
+
+		// Reset Driver
+		m_pVehicle->SetDriver(NULL);
+
 		// Reset interpolation
 		ResetInterpolation();
 	}
@@ -1893,15 +1997,12 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 
 void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
-	CLogFile::Printf("CNetworkPlayer::PutInVehicle - 1");
 	// Are we spawned?
 	if(IsSpawned())
 	{
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 2");
 		// Is the vehicle invalid?
 		if(!pVehicle)
 			return;
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 3");
 
 		// Is the vehicle not spawned?
 		if(!pVehicle->IsStreamedIn())
@@ -1909,54 +2010,23 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			// Are we the local player?
 			if(IsLocalPlayer())
 			{
-				CLogFile::Printf("CNetworkPlayer::PutInVehicle - 4");
 				// Force the vehicle to stream in
 				g_pStreamer->ForceStreamIn(pVehicle);
-				CLogFile::Printf("CNetworkPlayer::PutInVehicle - 5");
 			}
 			else
 				return;
 		}
 
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 8");
-
 		// Are we already in a vehicle?
 		if(IsInVehicle())
 		{
-			CLogFile::Printf("CNetworkPlayer::PutInVehicle - 9");
 			// Remove ourselves from our current vehicle
 			RemoveFromVehicle();
-			CLogFile::Printf("CNetworkPlayer::PutInVehicle - 10");
 		}
-
-		/*
-		v3 = CPool__AtHandle(g_pPedPool, a1);
-		v2 = CPool__AtHandle(g_pVehiclePool, a2);
-		if ( *(_DWORD *)(v3 + 0x24) & 0x8000000 )
-		{
-		CWorld__RemoveEntity(v3, 0);
-		sub_9E6830(v3, v2, 0);
-		CWorld__AddEntity(v3, 0);
-		}
-		result = *(_DWORD *)(v3 + 0x6C);
-		if ( !result || !*(_BYTE *)(result + 0xE) )
-		{
-		ShutdownPedIntelligence(*(void **)(v3 + 0x224), 0);
-		v5 = GetDoorFromSeat(-1);
-		CTaskSimpleCarSetPedInVehicle__CTaskSimpleCarSetPedInVehicle(&v6, v2, v5, 0, 0);
-		sub_AA07C0(v3);
-		result = CTaskSimpleCarSetPedInVehicle___CTaskSimpleCarSetPedInVehicle(&v6);
-		}
-		return result;
-		*/
-
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 11");
 
 		// Internally put ourselves into the vehicle
 		if(pVehicle->IsStreamedIn())
 			InternalPutInVehicle(pVehicle, byteSeatId);
-
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 12");
 
 		// Reset vehicle entry/exit
 		ResetVehicleEnterExit();
@@ -1964,7 +2034,7 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 		m_pVehicle->SetDamageable(true);
 		m_byteVehicleSeatId = byteSeatId;
 		pVehicle->SetOccupant(byteSeatId, this);
-		CLogFile::Printf("CNetworkPlayer::PutInVehicle - 13");
+							
 		// Is this a network vehicle?
 		if(m_pVehicle->IsNetworkVehicle())
 		{
@@ -2068,6 +2138,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 				else
 					CLogFile::Printf("HandleVehicleEntryKey(%d)", m_playerId);
 
+
 				// Are we not already requesting a vehicle entry or exit?
 				if(!m_vehicleEnterExit.bRequesting)
 				{
@@ -2093,9 +2164,9 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 						if(bFound && pVehicle && pVehicle->IsSpawned())
 						{
 							if(IsLocalPlayer())
-								CLogFile::Printf("HandleVehicleEntry(LocalPlayer, %d, %d)", pVehicle->GetVehicleId(), byteSeatId);
+								CLogFile::Printf("HandleVehicleEntry(LocalPlayer, %d, %d, %d)", pVehicle->GetVehicleId(), byteSeatId, pVehicle->GetDoorLockState());
 							else
-								CLogFile::Printf("HandleVehicleEntry(%d, %d, %d)", m_playerId, pVehicle->GetVehicleId(), byteSeatId);
+								CLogFile::Printf("HandleVehicleEntry(%d, %d, %d, %d)", m_playerId, pVehicle->GetVehicleId(), byteSeatId, pVehicle->GetDoorLockState());
 
 							if(pVehicle->GetDoorLockState() > 0)
 							{
@@ -2103,6 +2174,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 								m_vehicleEnterExit.bEntering = false;
 								return;
 							}
+
 							// Is this a network vehicle?
 							if(pVehicle->IsNetworkVehicle())
 							{
@@ -2134,24 +2206,6 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 
 void CNetworkPlayer::ProcessVehicleEntryExit()
 {
-	// this hack is needed to make vehicle entry work for network vehicles
-	// (due to the fact when you call task natives the task doesn't apply till 
-	// next frame) once we apply vehicle entry/exit tasks properly, this can 
-	// be removed
-	// note: not safe for more than one player at a time
-	if(IsLocalPlayer())
-	{
-		if(iProcessFrames > 0)
-		{
-			iProcessFrames++;
-
-			if(iProcessFrames == 4)
-				iProcessFrames = 0;
-			else
-				return;
-		}
-	}
-
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -2317,8 +2371,6 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 						CLogFile::Printf("VehicleForcefulExit(LocalPlayer)");
 					else
 						CLogFile::Printf("VehicleForcefulExit(%d)", m_playerId);
-
-					this->ClearVehicleExitTask();
 				}
 			}
 		}
@@ -2346,6 +2398,7 @@ void CNetworkPlayer::ToggleRagdoll(bool bToggle)
 	if(IsSpawned())
 		m_pPlayerPed->SetRagdoll(bToggle);
 }
+
 bool CNetworkPlayer::IsOnScreen()
 {
 	// Are we spawned?

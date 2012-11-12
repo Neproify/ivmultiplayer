@@ -51,7 +51,6 @@ private:
 	static void DeleteFile(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void NewPickup(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void DeletePickup(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-	static void LocalPingSync(CBitStream* pBitStream, CPlayerSocket * pSenderSocket);
 
 	// Scripting
 	static void ScriptingSetPlayerHealth(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
@@ -60,7 +59,6 @@ private:
 	static void ScriptingSetPlayerWeather(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingTogglePayAndSpray(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingToggleAutoAim(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-
 	//static void SetPlayerDrunk(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingGivePlayerWeapon(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
