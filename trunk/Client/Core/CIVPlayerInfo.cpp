@@ -60,6 +60,9 @@ CIVPlayerInfo::~CIVPlayerInfo()
 
 void CIVPlayerInfo::SetPlayerInfo(IVPlayerInfo * pPlayerInfo)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_bCreatedByUs)
 	{
 		XLivePBufferFree(m_pPlayerInfo->m_pDisplayScore);
@@ -114,17 +117,26 @@ void CIVPlayerInfo::SetPlayerInfo(IVPlayerInfo * pPlayerInfo)
 
 IVPlayerInfo * CIVPlayerInfo::GetPlayerInfo()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	return m_pPlayerInfo;
 }
 
 void CIVPlayerInfo::SetName(char * szName)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		strncpy(m_pPlayerInfo->m_szName, szName, 20);
 }
 
 char * CIVPlayerInfo::GetName()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		return m_pPlayerInfo->m_szName;
 
@@ -133,12 +145,18 @@ char * CIVPlayerInfo::GetName()
 
 void CIVPlayerInfo::SetPlayerNumber(BYTE bytePlayerNumber)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		m_pPlayerInfo->m_bytePlayerNumber = bytePlayerNumber;
 }
 
 BYTE CIVPlayerInfo::GetPlayerNumber()
 {
+#ifdef EXT_LOG
+	//CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		return m_pPlayerInfo->m_bytePlayerNumber;
 
@@ -147,12 +165,18 @@ BYTE CIVPlayerInfo::GetPlayerNumber()
 
 void CIVPlayerInfo::SetColour(DWORD dwColour)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		m_pPlayerInfo->m_dwColour = dwColour;
 }
 
 DWORD CIVPlayerInfo::GetColour()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		m_pPlayerInfo->m_dwColour;
 
@@ -161,12 +185,18 @@ DWORD CIVPlayerInfo::GetColour()
 
 void CIVPlayerInfo::SetPlayerPed(IVPlayerPed * pPlayerPed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		m_pPlayerInfo->m_pPlayerPed = pPlayerPed;
 }
 
 IVPlayerPed * CIVPlayerInfo::GetPlayerPed()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		return m_pPlayerInfo->m_pPlayerPed;
 
@@ -175,6 +205,9 @@ IVPlayerPed * CIVPlayerInfo::GetPlayerPed()
 
 int CIVPlayerInfo::GetScore()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 	{
 		int iScore;
@@ -187,12 +220,18 @@ int CIVPlayerInfo::GetScore()
 
 void CIVPlayerInfo::SetScore(int iScore)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		XLivePBufferSetDWORD(m_pPlayerInfo->m_pScore, 0, (DWORD)iScore);
 }
 
 int CIVPlayerInfo::GetDisplayScore()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 	{
 		int iScore;
@@ -205,6 +244,9 @@ int CIVPlayerInfo::GetDisplayScore()
 
 void CIVPlayerInfo::SetDisplayScore(int iScore)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pPlayerInfo)
 		XLivePBufferSetDWORD(m_pPlayerInfo->m_pDisplayScore, 0, (DWORD)iScore);
 }

@@ -12,6 +12,7 @@
 #include "CClientTaskManager.h"
 #include <CString.h>
 #include "CPools.h"
+#include <CLogFile.h>
 
 extern CClientTaskManager * g_pClientTaskManager;
 
@@ -244,6 +245,9 @@ TaskName TaskNames[] =
 
 const char * GetTaskName(int iTaskType)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	for(int i = 0; i < ARRAY_LENGTH(TaskNames); i++)
 	{
 		if(TaskNames[i].iTaskType == iTaskType)
@@ -266,21 +270,29 @@ CIVTask::CIVTask(IVTask * pTask)
 
 CIVTask::~CIVTask()
 {
-
 }
 
 void CIVTask::SetTask(IVTask * pTask)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	m_pTask = pTask;
 }
 
 IVTask * CIVTask::GetTask()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	return m_pTask;
 }
 
 void CIVTask::Create()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(!m_pTask)
 	{
 		// Allocate the task
@@ -293,6 +305,9 @@ void CIVTask::Create()
 
 void CIVTask::Destroy()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pTask)
 	{
 		IVTask * pTask = m_pTask;
@@ -308,6 +323,9 @@ void CIVTask::Destroy()
 
 CIVTask * CIVTask::GetParent()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pTask)
 		return g_pClientTaskManager->GetClientTaskFromGameTask(m_pTask->m_pParent);
 
@@ -316,6 +334,9 @@ CIVTask * CIVTask::GetParent()
 
 CIVTask * CIVTask::Clone()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pTask)
 	{
 		IVTask * pTask = m_pTask;
@@ -335,6 +356,9 @@ CIVTask * CIVTask::Clone()
 
 bool CIVTask::IsSimple()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	bool bIsSimple = true;
 
 	if(m_pTask)
@@ -354,6 +378,9 @@ bool CIVTask::IsSimple()
 
 int CIVTask::GetType()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	int iType = TASK_TYPE_NONE;
 
 	if(m_pTask)
@@ -379,6 +406,9 @@ std::map<int, bool> taskMap;
 
 const char * CIVTask::GetName()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Get the task type
 	int iType = GetType();
 
@@ -397,6 +427,9 @@ const char * CIVTask::GetName()
 
 bool CIVTask::MakeAbortable(CIVPed * pPed, int iAbortPriority, CIVEvent * pEvent)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	bool bReturn = false;
 
 	if(m_pTask)
@@ -421,6 +454,9 @@ bool CIVTask::MakeAbortable(CIVPed * pPed, int iAbortPriority, CIVEvent * pEvent
 
 void CIVTask::SetAsPedTask(CIVPed * pPed, int iTaskPriority, bool bForceNewTask)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	if(m_pTask)
 	{
 		// Get the game task pointer
@@ -433,6 +469,9 @@ void CIVTask::SetAsPedTask(CIVPed * pPed, int iTaskPriority, bool bForceNewTask)
 
 bool CIVTaskSimple::ProcessPed(CIVPed * pPed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVTaskSimple * pTask = (IVTaskSimple *)GetTask();
 
 	if(pTask)
@@ -452,6 +491,9 @@ bool CIVTaskSimple::ProcessPed(CIVPed * pPed)
 
 CIVTask * CIVTaskComplex::GetSubTask()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVTaskComplex * pTask = (IVTaskComplex *)GetTask();
 
 	if(pTask)
@@ -462,6 +504,9 @@ CIVTask * CIVTaskComplex::GetSubTask()
 
 void CIVTaskComplex::SetSubTask(CIVTask * pSubTask)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVTaskComplex * pTask = (IVTaskComplex *)GetTask();
 
 	if(pTask)
@@ -479,6 +524,9 @@ void CIVTaskComplex::SetSubTask(CIVTask * pSubTask)
 
 CIVTask * CIVTaskComplex::CreateNextSubTask(CIVPed * pPed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVTaskComplex * pTask = (IVTaskComplex *)GetTask();
 
 	if(pTask)
@@ -501,6 +549,9 @@ CIVTask * CIVTaskComplex::CreateNextSubTask(CIVPed * pPed)
 
 CIVTask * CIVTaskComplex::CreateFirstSubTask(CIVPed * pPed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVTaskComplex * pTask = (IVTaskComplex *)GetTask();
 
 	if(pTask)
@@ -523,6 +574,9 @@ CIVTask * CIVTaskComplex::CreateFirstSubTask(CIVPed * pPed)
 
 CIVTask * CIVTaskComplex::ControlSubTask(CIVPed * pPed)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	IVTaskComplex * pTask = (IVTaskComplex *)GetTask();
 
 	if(pTask)

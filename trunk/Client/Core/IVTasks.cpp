@@ -11,11 +11,15 @@
 #include "CClientTaskManager.h"
 #include "CGame.h"
 #include "COffsets.h"
+#include <CLogFile.h>
 
 extern CClientTaskManager * g_pClientTaskManager;
 
 CIVTaskComplexNewGetInVehicle::CIVTaskComplexNewGetInVehicle(CIVVehicle * pVehicle, int a3, int a4, unsigned int a5, float a6) : CIVTaskComplex()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Create the task
 	Create();
 
@@ -36,6 +40,9 @@ CIVTaskComplexNewGetInVehicle::CIVTaskComplexNewGetInVehicle(CIVVehicle * pVehic
 
 CIVTaskComplexNewExitVehicle::CIVTaskComplexNewExitVehicle(CIVVehicle * pVehicle, int iExitMode, int a4, int a5) : CIVTaskComplex()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Create the task
 	Create();
 
@@ -55,6 +62,9 @@ CIVTaskComplexNewExitVehicle::CIVTaskComplexNewExitVehicle(CIVVehicle * pVehicle
 
 CIVTaskComplexDie::CIVTaskComplexDie(int a2, int a3, int a4, int a5, float a6, float a7, char a8) : CIVTaskComplex()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Create the task
 	Create();
 
@@ -76,6 +86,9 @@ CIVTaskComplexDie::CIVTaskComplexDie(int a2, int a3, int a4, int a5, float a6, f
 
 CIVTaskSimpleDead::CIVTaskSimpleDead(DWORD dwDeathTime, char a3, char a4) : CIVTaskSimple()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Create the task
 	Create();
 
@@ -93,6 +106,9 @@ CIVTaskSimpleDead::CIVTaskSimpleDead(DWORD dwDeathTime, char a3, char a4) : CIVT
 
 CIVTaskSimpleCarSetPedInVehicle::CIVTaskSimpleCarSetPedInVehicle(CIVVehicle * pVehicle, int a3, char a4, char a5) : CIVTaskSimple()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Create the task
 	Create();
 
@@ -112,6 +128,9 @@ CIVTaskSimpleCarSetPedInVehicle::CIVTaskSimpleCarSetPedInVehicle(CIVVehicle * pV
 
 CIVTaskSimpleCarSetPedOut::CIVTaskSimpleCarSetPedOut(CIVVehicle * pVehicle, int a3, char a4, char a5) : CIVTaskSimple()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	// Create the task
 	Create();
 

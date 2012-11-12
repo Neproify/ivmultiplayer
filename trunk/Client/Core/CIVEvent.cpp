@@ -8,6 +8,7 @@
 //==============================================================================
 
 #include "CIVEvent.h"
+#include <CLogFile.h>
 
 CIVEvent::CIVEvent()
 {
@@ -21,15 +22,20 @@ CIVEvent::CIVEvent(IVEvent * pEvent)
 
 CIVEvent::~CIVEvent()
 {
-
 }
 
 void CIVEvent::SetEvent(IVEvent * pEvent)
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	m_pEvent = pEvent;
 }
 
 IVEvent * CIVEvent::GetEvent()
 {
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
 	return m_pEvent;
 }

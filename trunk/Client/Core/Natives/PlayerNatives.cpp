@@ -654,8 +654,12 @@ SQInteger CPlayerNatives::GetPing(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(g_pLocalPlayer->GetPlayerId() == playerId) {
+		sq_pushinteger(pVM,g_pLocalPlayer->GetPing());
+		return 1;
+	}
 
+	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 	if(pPlayer)
 	{
 		sq_pushinteger(pVM, pPlayer->GetPing());
