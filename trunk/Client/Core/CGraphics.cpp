@@ -16,6 +16,10 @@
 #include <CSettings.h>
 
 extern CGUI * g_pGUI;
+const unsigned char g_szPixel [] = { 0x42, 0x4D, 0x3A, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0, 0x28, 0, 0,
+                                    0, 0x1, 0, 0, 0, 0x1, 0, 0, 0, 0x1, 0, 0x18, 0, 0, 0, 0, 0,
+                                    0x4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                    0, 0, 0, 0xFF, 0xFF, 0xFF, 0 };
 
 struct D3DVERTEX
 {
@@ -48,6 +52,12 @@ CGraphics::CGraphics(IDirect3DDevice9 * pDevice)
 {
 	m_pDevice = pDevice;
 	m_pStateBlock = NULL;
+
+	// Create Sprite..
+	D3DXCreateSprite( m_pDevice, &m_pSprite );
+
+	// Create Texture stuff
+	D3DXCreateTextureFromFileInMemory( pDevice,  g_szPixel, sizeof( g_szPixel ), &m_pPixelTexture );
 
 	OnResetDevice();
 }
@@ -110,6 +120,24 @@ void CGraphics::DrawLine(float fStartX, float fStartY, float fEndX, float fEndY,
 	m_pDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
 	m_pDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, &vertex[0], sizeof(D3DVERTEX));
 	End();
+}
+
+void CGraphics::DrawBox_2(float fLeft, float fTop, float fWidth, float fHeight, DWORD dwColorBox)
+{
+	m_pSprite->Begin( D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE );
+
+	// Generate the matrix
+	D3DXMATRIX matrix;
+	D3DXMatrixTransformation2D( &matrix, NULL, 0.0f, &D3DXVECTOR2( fWidth, fHeight ), NULL, 0.0f, &D3DXVECTOR2( fLeft, fTop ) );
+
+	// Set the sprite transform
+	m_pSprite->SetTransform( &matrix );
+
+	// Draw the box
+	m_pSprite->Draw( m_pPixelTexture, NULL, NULL, NULL, dwColorBox );
+
+	// End the sprite
+	m_pSprite->End( );
 }
 
 void CGraphics::DrawRect(float fX, float fY, float fWidth, float fHeight, unsigned long ulColor)

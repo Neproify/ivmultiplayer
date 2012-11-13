@@ -43,13 +43,13 @@
 #endif
 
 // Network module version
-#define NETWORK_MODULE_VERSION 0x06
+#define NETWORK_MODULE_VERSION 0x07
 
 // Network version - increment this when packet layouts change!
-#define NETWORK_VERSION 0x7A
+#define NETWORK_VERSION 0x7B
 
 // Tick Rate
-#define TICK_RATE 100
+#define TICK_RATE 50
 
 // Defines used for the max amount of entities we (IV:MP, not GTA) can handle
 // jenksta: although they may be streamed, shouldn't they at least have some sensible limit?
