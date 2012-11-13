@@ -57,8 +57,8 @@ public:
 	/// \param[in] port the port number 
 	/// \param[in] blockingSocket 
 	/// \return A new socket used for accepting clients 
-	static SOCKET CreateBoundSocket( RakPeer *peer, unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned int sleepOn10048, unsigned int extraSocketOptions, unsigned short socketFamily, _PP_Instance_ chromeInstance );
-	static SOCKET CreateBoundSocket_Old( RakPeer *peer, unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned int sleepOn10048, unsigned int extraSocketOptions, _PP_Instance_ chromeInstance );
+	static SOCKET CreateBoundSocket( unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned int sleepOn10048, unsigned int extraSocketOptions, unsigned short socketFamily );
+	static SOCKET CreateBoundSocket_Old( unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned int sleepOn10048, unsigned int extraSocketOptions );
 	static SOCKET CreateBoundSocket_PS3Lobby( unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned short socketFamily );
 	static SOCKET CreateBoundSocket_PSP2( unsigned short port, bool blockingSocket, const char *forceHostAddress, unsigned short socketFamily );
 
@@ -155,7 +155,7 @@ public:
 
 private:
 
-	static void SetSocketOptions( SOCKET listenSocket, bool blockingSocket);
+	static void SetSocketOptions( SOCKET listenSocket);
 	static SocketLayerOverride *slo;
 };
 

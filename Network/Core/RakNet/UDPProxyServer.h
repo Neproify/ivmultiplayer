@@ -18,6 +18,7 @@
 #define __UDP_PROXY_SERVER_H
 
 #include "Export.h"
+#include "DS_Multilist.h"
 #include "RakNetTypes.h"
 #include "PluginInterface2.h"
 #include "UDPForwarder.h"
@@ -85,11 +86,6 @@ public:
 	/// \returns false if already logged in, or logging in. Returns true otherwise
 	bool LoginToCoordinator(RakNet::RakString password, SystemAddress coordinatorAddress);
 
-	/// \brief The server IP reported to the client is the IP address from the server to the coordinator.
-	/// If the server and coordinator are on the same LAN, you need to call SetServerPublicIP() to tell the client what address to connect to
-	/// \param[in] ip IP address to report in UDPProxyClientResultHandler::OnForwardingSuccess() and UDPProxyClientResultHandler::OnForwardingNotification() as proxyIPAddress
-	void SetServerPublicIP(RakString ip);
-
 	/// Operative class that performs the forwarding
 	/// Exposed so you can call UDPForwarder::SetMaxForwardEntries() if you want to change away from the default
 	/// UDPForwarder::Startup(), UDPForwarder::Shutdown(), and UDPForwarder::Update() are called automatically by the plugin
@@ -108,12 +104,11 @@ public:
 protected:
 	void OnForwardingRequestFromCoordinatorToServer(Packet *packet);
 
-	DataStructures::OrderedList<SystemAddress, SystemAddress> loggingInCoordinators;
-	DataStructures::OrderedList<SystemAddress, SystemAddress> loggedInCoordinators;
+	DataStructures::Multilist<ML_ORDERED_LIST, SystemAddress> loggingInCoordinators;
+	DataStructures::Multilist<ML_ORDERED_LIST, SystemAddress> loggedInCoordinators;
 
 	UDPProxyServerResultHandler *resultHandler;
 	unsigned short socketFamily;
-	RakString serverPublicIp;
 
 };
 

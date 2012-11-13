@@ -61,7 +61,7 @@ bool ReadyEvent::SetEvent(int eventId, bool isReady)
 	}
 	return true;
 }
-void ReadyEvent::ForceCompletion(int eventId)
+bool ReadyEvent::ForceCompletion(int eventId)
 {
 	bool objectExists;
 	unsigned eventIndex = readyEventNodeList.GetIndexFromKey(eventId, &objectExists);
@@ -75,6 +75,8 @@ void ReadyEvent::ForceCompletion(int eventId)
 	ReadyEventNode *ren = readyEventNodeList[eventIndex];
 	ren->eventStatus=ID_READY_EVENT_FORCE_ALL_SET;
 	UpdateReadyStatus(eventIndex);
+
+	return true;
 }
 bool ReadyEvent::DeleteEvent(int eventId)
 {
@@ -393,11 +395,11 @@ bool ReadyEvent::SetEventByIndex(int eventIndex, bool isReady)
 {
 	ReadyEventNode *ren = readyEventNodeList[eventIndex];
 	if ((ren->eventStatus==ID_READY_EVENT_ALL_SET || ren->eventStatus==ID_READY_EVENT_SET) && isReady==true)
-		return false; // Success - no change
+		return true; // Success - no change
 	if (ren->eventStatus==ID_READY_EVENT_UNSET && isReady==false)
-		return false; // Success - no change
+		return true; // Success - no change
 	if (ren->eventStatus==ID_READY_EVENT_FORCE_ALL_SET)
-		return false; // Can't change
+		return true; // Can't change
 
 	if (isReady)
 		ren->eventStatus=ID_READY_EVENT_SET;

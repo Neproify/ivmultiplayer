@@ -80,10 +80,8 @@ void FLP_Printf::OnAddFilesFromDirectoryStarted(FileList *fileList, char *dir) {
 void FLP_Printf::OnDirectory(FileList *fileList, char *dir, unsigned int directoriesRemaining) {
 	(void) fileList;
 	RAKNET_DEBUG_PRINTF("Adding %s. %i remaining.\n", dir, directoriesRemaining);}	
-void FLP_Printf::OnFilePushesComplete( SystemAddress systemAddress, unsigned short setID )
+void FLP_Printf::OnFilePushesComplete( SystemAddress systemAddress )
 {
-	(void) setID;
-
 	char str[32];
 	systemAddress.ToString(true, (char*) str);
 	RAKNET_DEBUG_PRINTF("File pushes complete to %s\n", str);	
@@ -379,7 +377,7 @@ void FileList::Serialize(RakNet::BitStream *outBitStream)
 		outBitStream->WriteCompressed(fileList[i].context.fileId);
 		StringCompressor::Instance()->EncodeString(fileList[i].filename.C_String(), MAX_FILENAME_LENGTH, outBitStream);
 
-		bool writeFileData = (fileList[i].dataLengthBytes>0)==true;
+		bool writeFileData = fileList[i].dataLengthBytes>0==true;
 		outBitStream->Write(writeFileData);
 		if (writeFileData)
 		{

@@ -233,15 +233,12 @@ void* WorkerThread( void* arguments )
 
 	while (1)
 	{
-//#ifdef _WIN32
+#ifdef _WIN32
 		if (userCallback==0)
 		{
-			threadPool->quitAndIncomingDataEvents.WaitOnEvent(1000);
-		}
-// #else
-// 		if (userCallback==0)
-// 			RakSleep(30);
-// #endif
+			threadPool->quitAndIncomingDataEvents.WaitOnEvent(INFINITE);
+		}		
+#endif
 
 		threadPool->runThreadsMutex.Lock();
 		if (threadPool->runThreads==false)

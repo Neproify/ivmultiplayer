@@ -373,39 +373,6 @@ size_t RakString::GetLength(void) const
 {
 	return strlen(sharedString->c_str);
 }
-// http://porg.es/blog/counting-characters-in-utf-8-strings-is-faster
-int porges_strlen2(char *s)
-{
-	int i = 0;
-	int iBefore = 0;
-	int count = 0;
-
-	while (s[i] > 0)
-ascii:  i++;
-
-	count += i-iBefore;
-	while (s[i])
-	{
-		if (s[i] > 0)
-		{
-			iBefore = i;
-			goto ascii;
-		}
-		else
-			switch (0xF0 & s[i])
-		{
-			case 0xE0: i += 3; break;
-			case 0xF0: i += 4; break;
-			default:   i += 2; break;
-		}
-		++count;
-	}
-	return count;
-}
-size_t RakString::GetLengthUTF8(void) const
-{
-	return porges_strlen2(sharedString->c_str);
-}
 void RakString::Replace(unsigned index, unsigned count, unsigned char c)
 {
 	RakAssert(index+count < GetLength());
@@ -533,44 +500,13 @@ size_t RakString::Find(const char *stringToFind,size_t pos)
 	return (size_t) -1;
 }
 
-void RakString::TruncateUTF8(unsigned int length)
-{
-	int i = 0;
-	unsigned int count = 0;
-
-	while (sharedString->c_str[i]!=0)
-	{
-		if (count==length)
-		{
-			sharedString->c_str[i]=0;
-			return;
-		}
-		else if (sharedString->c_str[i]>0)
-		{
-			i++;
-		}
-		else
-		{
-			switch (0xF0 & sharedString->c_str[i])
-			{
-			case 0xE0: i += 3; break;
-			case 0xF0: i += 4; break;
-			default:   i += 2; break;
-			}
-		}
-
-		count++;
-	}
-}
-
-void RakString::Truncate(unsigned int length)
+void RakString::Truncate(unsigned length)
 {
 	if (length < GetLength())
 	{
 		SetChar(length, 0);
 	}
 }
-
 RakString RakString::SubStr(unsigned int index, unsigned int count) const
 {
 	size_t length = GetLength();
@@ -626,19 +562,6 @@ void RakString::TerminateAtFirstCharacter(char c)
 		}
 	}
 }
-int RakString::GetCharacterCount(char c)
-{
-	int count=0;
-	unsigned int i, len=(unsigned int) GetLength();
-	for (i=0; i < len; i++)
-	{
-		if (sharedString->c_str[i]==c)
-		{
-			++count;
-		}
-	}
-	return count;
-}
 void RakString::RemoveCharacter(char c)
 {
 	if (c==0)
@@ -656,15 +579,11 @@ void RakString::RemoveCharacter(char c)
 }
 int RakString::StrCmp(const RakString &rhs) const
 {
-	return strcmp(sharedString->c_str, rhs.C_String());
-}
-int RakString::StrNCmp(const RakString &rhs, size_t num) const
-{
-	return strncmp(sharedString->c_str, rhs.C_String(), num);
+	return strcmp(sharedString->c_str, rhs);
 }
 int RakString::StrICmp(const RakString &rhs) const
 {
-	return _stricmp(sharedString->c_str, rhs.C_String());
+	return _stricmp(sharedString->c_str, rhs);
 }
 void RakString::Printf(void)
 {
@@ -941,52 +860,6 @@ RakNet::RakString& RakString::SQLEscape(void)
 	}
 	return *this;
 }
-RakString RakString::FormatForPOST(RakString &uri, RakString &contentType, unsigned int port, RakString &body)
-{
-	RakString out;
-	RakString host;
-	RakString remotePath;
-	RakNet::RakString header;
-
-	uri.SplitURI(header, host, remotePath);
-	if (host.IsEmpty() || remotePath.IsEmpty())
-		return out;
-	
-	out.Set("POST %s HTTP/1.0\r\n"
-		"Host: %s:%i\r\n"
-		"Content-Type: %s\r\n"
-		"Content-Length: %u\r\n"
-		"\r\n"
-		"%s",
-		remotePath.C_String(),
-		host.C_String(),
-		port,
-		contentType.C_String(),
-		body.GetLength(),
-		body.C_String());
-
-	return out;
-}
-RakString RakString::FormatForGET(RakString &uri, unsigned int port)
-{
-	RakString out;
-	RakString host;
-	RakString remotePath;
-	RakNet::RakString header;
-
-	uri.SplitURI(header, host, remotePath);
-	if (host.IsEmpty() || remotePath.IsEmpty())
-		return out;
-
-	out.Set("GET %s HTTP/1.0\r\n"
-		"Host: %s:%i\r\n"
-		"\r\n",
-		remotePath.C_String(),
-		host.C_String(),
-		port);
-
-	return out;
-}
 RakNet::RakString& RakString::MakeFilePath(void)
 {
 	if (IsEmpty())
@@ -1192,12 +1065,6 @@ void RakString::Assign(const char *str)
 }
 void RakString::Assign(const char *str, va_list ap)
 {
-	if (str==0 || str[0]==0)
-	{
-		sharedString=&emptyString;
-		return;
-	}
-
 	char stackBuff[512];
 	if (_vsnprintf(stackBuff, 512, str, ap)!=-1
 #ifndef _WIN32
