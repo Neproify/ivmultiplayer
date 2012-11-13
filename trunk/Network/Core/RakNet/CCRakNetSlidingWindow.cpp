@@ -34,7 +34,7 @@ void CCRakNetSlidingWindow::Init(CCTimeType curTime, uint32_t maxDatagramPayload
 {
 	(void) curTime;
 
-	lastRtt=estimatedRTT=deviationRtt=UNSET_TIME_US;
+	RTT=UNSET_TIME_US;
 	MAXIMUM_MTU_INCLUDING_UDP_HEADER=maxDatagramPayload;
 	cwnd=maxDatagramPayload;
 	ssThresh=0.0;
@@ -149,42 +149,27 @@ bool CCRakNetSlidingWindow::OnGotPacket(DatagramSequenceNumberType datagramSeque
 	return true;
 }
 // ----------------------------------------------------------------------------------------------------------------------------
-void CCRakNetSlidingWindow::OnResend(CCTimeType curTime, RakNet::TimeUS nextActionTime)
+void CCRakNetSlidingWindow::OnResend(CCTimeType curTime)
 {
 	(void) curTime;
-	(void) nextActionTime;
 
 	if (_isContinuousSend && backoffThisBlock==false && cwnd>MAXIMUM_MTU_INCLUDING_UDP_HEADER*2)
 	{
-		// Spec says 1/2 cwnd, but it never recovers because cwnd increases too slowly
-		//ssThresh=cwnd-8.0 * (MAXIMUM_MTU_INCLUDING_UDP_HEADER*MAXIMUM_MTU_INCLUDING_UDP_HEADER/cwnd);
 		ssThresh=cwnd/2;
 		if (ssThresh<MAXIMUM_MTU_INCLUDING_UDP_HEADER)
 			ssThresh=MAXIMUM_MTU_INCLUDING_UDP_HEADER;
 		cwnd=MAXIMUM_MTU_INCLUDING_UDP_HEADER;
 
 		// Only backoff once per period
-		nextCongestionControlBlock=nextDatagramSequenceNumber;
 		backoffThisBlock=true;
-
-		// CC PRINTF
-		//printf("-- %.0f (Resend) Enter slow start.\n", cwnd);
 	}
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 void CCRakNetSlidingWindow::OnNAK(CCTimeType curTime, DatagramSequenceNumberType nakSequenceNumber)
 {
 	(void) nakSequenceNumber;
-	(void) curTime;
 
-	if (_isContinuousSend && backoffThisBlock==false)
-	{
-		// Start congestion avoidance
-		ssThresh=cwnd/2;
-
-		// CC PRINTF
-		//printf("- %.0f (NAK) Set congestion avoidance.\n", cwnd);
-	}
+	OnResend(curTime);
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 void CCRakNetSlidingWindow::OnAck(CCTimeType curTime, CCTimeType rtt, bool hasBAndAS, BytesPerMicrosecond _B, BytesPerMicrosecond _AS, double totalUserDataBytesAcked, bool isContinuousSend, DatagramSequenceNumberType sequenceNumber )
@@ -196,19 +181,7 @@ void CCRakNetSlidingWindow::OnAck(CCTimeType curTime, CCTimeType rtt, bool hasBA
 	(void) curTime;
 	(void) rtt;
 
-	lastRtt=(double) rtt;
-	if (estimatedRTT==UNSET_TIME_US)
-	{
-		estimatedRTT=(double) rtt;
-		deviationRtt=(double)rtt;
-	}
-	else
-	{
-		double d = .05;
-		double difference = rtt - estimatedRTT;
-		estimatedRTT = estimatedRTT + d * difference;
-		deviationRtt = deviationRtt + d * (abs(difference) - deviationRtt);
-	}
+	RTT=(double) rtt;
 
 	_isContinuousSend=isContinuousSend;
 
@@ -220,34 +193,39 @@ void CCRakNetSlidingWindow::OnAck(CCTimeType curTime, CCTimeType rtt, bool hasBA
 
 	if (isNewCongestionControlPeriod)
 	{
+		nextCongestionControlBlock=nextDatagramSequenceNumber;
 		backoffThisBlock=false;
 		speedUpThisBlock=false;
-		nextCongestionControlBlock=nextDatagramSequenceNumber;
 	}
 
 	if (IsInSlowStart())
 	{
-		cwnd+=MAXIMUM_MTU_INCLUDING_UDP_HEADER;
-		if (cwnd > ssThresh && ssThresh!=0)
-			cwnd = ssThresh + MAXIMUM_MTU_INCLUDING_UDP_HEADER*MAXIMUM_MTU_INCLUDING_UDP_HEADER/cwnd;
-
-		// CC PRINTF
-	//	printf("++ %.0f Slow start increase.\n", cwnd);
-
+		//	if (isNewCongestionControlPeriod)
+		{
+			// Keep the number in range to avoid overflow
+			if (cwnd<10000000)
+			{
+				cwnd*=2;
+				if (cwnd>ssThresh && ssThresh!=0)
+				{
+					cwnd=ssThresh;
+					cwnd+=MAXIMUM_MTU_INCLUDING_UDP_HEADER*MAXIMUM_MTU_INCLUDING_UDP_HEADER/cwnd;
+				}
+			}
+		}
 	}
-	else if (isNewCongestionControlPeriod)
+	else
 	{
-		cwnd+=MAXIMUM_MTU_INCLUDING_UDP_HEADER*MAXIMUM_MTU_INCLUDING_UDP_HEADER/cwnd;
-
-		// CC PRINTF
-		// printf("+ %.0f Congestion avoidance increase.\n", cwnd);
+		if (isNewCongestionControlPeriod)
+			cwnd+=MAXIMUM_MTU_INCLUDING_UDP_HEADER*MAXIMUM_MTU_INCLUDING_UDP_HEADER/cwnd;
 	}
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 void CCRakNetSlidingWindow::OnDuplicateAck( CCTimeType curTime, DatagramSequenceNumberType sequenceNumber )
 {
-	(void) curTime;
 	(void) sequenceNumber;
+
+	OnResend(curTime);
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 void CCRakNetSlidingWindow::OnSendAckGetBAndAS(CCTimeType curTime, bool *hasBAndAS, BytesPerMicrosecond *_B, BytesPerMicrosecond *_AS)
@@ -274,28 +252,26 @@ void CCRakNetSlidingWindow::OnSendNACK(CCTimeType curTime, uint32_t numBytes)
 
 }
 // ----------------------------------------------------------------------------------------------------------------------------
-CCTimeType CCRakNetSlidingWindow::GetRTOForRetransmission(unsigned char timesSent) const
+CCTimeType CCRakNetSlidingWindow::GetRTOForRetransmission(void) const
 {
-	(void) timesSent;
-
 #if CC_TIME_TYPE_BYTES==4
 	const CCTimeType maxThreshold=2000;
-	//const CCTimeType minThreshold=100;
-	const CCTimeType additionalVariance=30;
+	const CCTimeType minThreshold=100;
 #else
 	const CCTimeType maxThreshold=2000000;
-	//const CCTimeType minThreshold=100000;
-	const CCTimeType additionalVariance=30000;
+	const CCTimeType minThreshold=100000;
 #endif
 
-
-	if (estimatedRTT==UNSET_TIME_US)
+	if (RTT==UNSET_TIME_US)
+	{
 		return maxThreshold;
+	}
 
- 	//double u=1.0f;
-	double u=2.0f;
- 	double q=4.0f;
- 	return (CCTimeType) (u * estimatedRTT + q * deviationRtt) + additionalVariance;
+	if (RTT * 3 > maxThreshold)
+		return maxThreshold;
+	if (RTT * 3 < minThreshold)
+		return minThreshold;
+	return (CCTimeType) RTT * 3;
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 void CCRakNetSlidingWindow::SetMTU(uint32_t bytes)
@@ -317,9 +293,9 @@ BytesPerMicrosecond CCRakNetSlidingWindow::GetLocalReceiveRate(CCTimeType curren
 // ----------------------------------------------------------------------------------------------------------------------------
 double CCRakNetSlidingWindow::GetRTT(void) const
 {
-	if (lastRtt==UNSET_TIME_US)
+	if (RTT==UNSET_TIME_US)
 		return 0.0;
-	return lastRtt;
+	return RTT;
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 bool CCRakNetSlidingWindow::GreaterThan(DatagramSequenceNumberType a, DatagramSequenceNumberType b)
@@ -343,9 +319,9 @@ uint64_t CCRakNetSlidingWindow::GetBytesPerSecondLimitByCongestionControl(void) 
 // ----------------------------------------------------------------------------------------------------------------------------
 CCTimeType CCRakNetSlidingWindow::GetSenderRTOForACK(void) const
 {
-	if (lastRtt==UNSET_TIME_US)
+	if (RTT==UNSET_TIME_US)
 		return (CCTimeType) UNSET_TIME_US;
-	return (CCTimeType)(lastRtt + SYN);
+	return (CCTimeType)(RTT + SYN);
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 bool CCRakNetSlidingWindow::IsInSlowStart(void) const

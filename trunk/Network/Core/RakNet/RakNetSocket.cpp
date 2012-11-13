@@ -1,24 +1,18 @@
 #include "RakNetSocket.h"
 #include "SocketIncludes.h"
 #include "SocketDefines.h"
-#include "RakMemoryOverride.h"
 
 using namespace RakNet;
 
-#if defined(__native_client__)
-using namespace pp;
-#endif
-
 RakNetSocket::RakNetSocket() {
-	s = INVALID_SOCKET;
-
+	s = (unsigned int)-1;
 #if defined (_WIN32) && defined(USE_WAIT_FOR_MULTIPLE_EVENTS)
 	recvEvent=INVALID_HANDLE_VALUE;
 #endif
 }
 RakNetSocket::~RakNetSocket() 
 {
-	if ((SOCKET)s != INVALID_SOCKET)
+	if ((SOCKET)s != (SOCKET)-1)
 		closesocket__(s);
 
 #if defined (_WIN32) && defined(USE_WAIT_FOR_MULTIPLE_EVENTS)

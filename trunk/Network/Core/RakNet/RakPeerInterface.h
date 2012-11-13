@@ -44,7 +44,6 @@ public:
 	/// \brief Starts the network threads, opens the listen port.
 	/// \details You must call this before calling Connect().
 	/// \pre On the PS3, call Startup() after Client_Login()
-	/// \pre On Android, add the necessary permission to your application's androidmanifest.xml: <uses-permission android:name="android.permission.INTERNET" />
 	/// Multiple calls while already active are ignored.  To call this function again with different settings, you must first call Shutdown().
 	/// \note Call SetMaximumIncomingConnections if you want to accept incoming connections
 	/// \param[in] maxConnections The maximum number of connections between this instance of RakPeer and another instance of RakPeer. Required so the network can preallocate and for thread safety. A pure client would set this to 1.  A pure server would set it to the number of allowed clients.- A hybrid would set it to the sum of both types of connections
@@ -372,7 +371,7 @@ public:
 	virtual SystemAddress GetExternalID( const SystemAddress target ) const=0;
 
 	/// Return my own GUID
-	virtual const RakNetGUID GetMyGUID(void) const=0;
+	virtual const RakNetGUID GetMyGUID(void)=0;
 
 	/// Return the address bound to a socket at the specified index
 	virtual SystemAddress GetMyBoundAddress(const int socketIndex=0)=0;
@@ -470,15 +469,13 @@ public:
 	virtual void SendTTL( const char* host, unsigned short remotePort, int ttl, unsigned connectionSocketIndex=0 )=0;
 
 	// -------------------------------------------------------------------------------------------- Plugin Functions--------------------------------------------------------------------------------------------
-	/// \brief Attaches a Plugin interface to an instance of the base class (RakPeer or PacketizedTCP) to run code automatically on message receipt in the Receive call.
-	/// If the plugin returns false from PluginInterface::UsesReliabilityLayer(), which is the case for all plugins except PacketLogger, you can call AttachPlugin() and DetachPlugin() for this plugin while RakPeer is active.
-	/// \param[in] messageHandler Pointer to the plugin to attach.
+	/// Attatches a Plugin interface to run code automatically on message receipt in the Receive call
+	/// \note If plugins have dependencies on each other then the order does matter - for example the router plugin should go first because it might route messages for other plugins
+	/// \param[in] messageHandler Pointer to a plugin to attach
 	virtual void AttachPlugin( PluginInterface2 *plugin )=0;
 
-	/// \brief Detaches a Plugin interface from the instance of the base class (RakPeer or PacketizedTCP) it is attached to.
-	///	\details This method disables the plugin code from running automatically on base class's updates or message receipt.
-	/// If the plugin returns false from PluginInterface::UsesReliabilityLayer(), which is the case for all plugins except PacketLogger, you can call AttachPlugin() and DetachPlugin() for this plugin while RakPeer is active.
-	/// \param[in] messageHandler Pointer to a plugin to detach.
+	/// Detaches a Plugin interface to run code automatically on message receipt
+	/// \param[in] messageHandler Pointer to a plugin to detach
 	virtual void DetachPlugin( PluginInterface2 *messageHandler )=0;
 
 	// --------------------------------------------------------------------------------------------Miscellaneous Functions--------------------------------------------------------------------------------------------
@@ -549,37 +546,13 @@ public:
 	/// \return 0 on can't find the specified system.  A pointer to a set of data otherwise.
 	/// \sa RakNetStatistics.h
 	virtual RakNetStatistics * GetStatistics( const SystemAddress systemAddress, RakNetStatistics *rns=0 )=0;
-	/// \brief Returns the network statistics of the system at the given index in the remoteSystemList.
-	///	\return True if the index is less than the maximum number of peers allowed and the system is active. False otherwise.
 	virtual bool GetStatistics( const int index, RakNetStatistics *rns )=0;
-	/// \brief Returns the list of systems, and statistics for each of those systems
-	/// Each system has one entry in each of the lists, in the same order
-	/// \param[out] addresses SystemAddress for each connected system
-	/// \param[out] guids RakNetGUID for each connected system
-	/// \param[out] statistics Calculated RakNetStatistics for each connected system
-	virtual void GetStatisticsList(DataStructures::List<SystemAddress> &addresses, DataStructures::List<RakNetGUID> &guids, DataStructures::List<RakNetStatistics> &statistics)=0;
 
 	/// \Returns how many messages are waiting when you call Receive()
 	virtual unsigned int GetReceiveBufferSize(void)=0;
 
 	// --------------------------------------------------------------------------------------------EVERYTHING AFTER THIS COMMENT IS FOR INTERNAL USE ONLY--------------------------------------------------------------------------------------------
 	
-	/// \internal
-	// Call manually if RAKPEER_USER_THREADED==1 at least every 30 milliseconds.
-	// updateBitStream should be:
-	// 	BitStream updateBitStream( MAXIMUM_MTU_SIZE
-	// #if LIBCAT_SECURITY==1
-	//	+ cat::AuthenticatedEncryption::OVERHEAD_BYTES
-	// #endif
-	// );
-	virtual bool RunUpdateCycle( BitStream &updateBitStream )=0;
-
-	/// \internal
-	// Call manually if RAKPEER_USER_THREADED==1 at least every 30 milliseconds.
-	// Call in a loop until returns false if the socket is non-blocking
-	// remotePortRakNetWasStartedOn_PS3 and extraSocketOptions are from SocketDescriptor when the socket was created
-	virtual bool RunRecvFromOnce( SOCKET s, unsigned short remotePortRakNetWasStartedOn_PS3, unsigned int extraSocketOptions )=0;
-
 	/// \internal
 	virtual bool SendOutOfBand(const char *host, unsigned short remotePort, const char *data, BitSize_t dataLength, unsigned connectionSocketIndex=0 )=0;
 

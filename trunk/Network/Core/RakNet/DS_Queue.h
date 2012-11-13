@@ -35,7 +35,6 @@ namespace DataStructures
 		inline queue_type Peek( void ) const;
 		inline queue_type PeekTail( void ) const;
 		inline queue_type Pop( void );
-		inline queue_type PopTail( void );
 		// Debug: Set pointer to 0, for memory leak detection
 		inline queue_type PopDeref( void );
 		inline unsigned int Size( void ) const;
@@ -108,24 +107,6 @@ namespace DataStructures
 			return ( queue_type ) array[ allocation_size -1 ];
 
 		return ( queue_type ) array[ head -1 ];
-	}
-
-	template <class queue_type>
-	inline queue_type Queue<queue_type>::PopTail( void )
-	{
-#ifdef _DEBUG
-		RakAssert( head != tail );
-#endif
-		if (tail!=0)
-		{
-			--tail;
-			return ( queue_type ) array[ tail ];
-		}
-		else
-		{
-			tail=allocation_size-1;
-			return ( queue_type ) array[ tail ];
-		}
 	}
 
 	template <class queue_type>

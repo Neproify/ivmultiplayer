@@ -280,7 +280,6 @@ void NatPunchthroughServer::OnClosedConnection(const SystemAddress &systemAddres
 		}
 	}
 
-	/*
 	// Also remove from groupPunchthroughRequests
 	for (i=0; i < users.Size(); i++)
 	{
@@ -299,7 +298,6 @@ void NatPunchthroughServer::OnClosedConnection(const SystemAddress &systemAddres
 			users[i]->groupPunchthroughRequests.RemoveAtIndex(gprIndex);
 		}
 	}
-	*/
 }
 
 void NatPunchthroughServer::OnNewConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, bool isIncoming)

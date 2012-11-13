@@ -47,7 +47,6 @@ bool NatPunchthroughClient::OpenNAT(RakNetGUID destination, const SystemAddress 
 	SendPunchthrough(destination, facilitator);
 	return true;
 }
-/*
 bool NatPunchthroughClient::OpenNATGroup(DataStructures::List<RakNetGUID> destinationSystems, const SystemAddress &facilitator)
 {
 	ConnectionState cs = rakPeerInterface->GetConnectionState(facilitator);
@@ -67,7 +66,6 @@ bool NatPunchthroughClient::OpenNATGroup(DataStructures::List<RakNetGUID> destin
 
 	return true;
 }
-*/
 void NatPunchthroughClient::SetDebugInterface(NatPunchthroughDebugInterface *i)
 {
 	natPunchthroughDebugInterface=i;
@@ -230,7 +228,7 @@ void NatPunchthroughClient::Update(void)
 		{
 			// Failed. Tell the user
 			OnPunchthroughFailure();
-		//	UpdateGroupPunchOnNatResult(sp.facilitator, sp.targetGuid, sp.targetAddress, 1);
+			UpdateGroupPunchOnNatResult(sp.facilitator, sp.targetGuid, sp.targetAddress, 1);
 		}
 
 		if (sp.testMode==SendPing::PUNCHING_FIXED_PORT)
@@ -260,7 +258,6 @@ void NatPunchthroughClient::Update(void)
 		}
 	}
 
-	/*
 	// Remove elapsed groupRequestsInProgress
 	unsigned int i;
 	i=0;
@@ -271,7 +268,6 @@ void NatPunchthroughClient::Update(void)
 		else
 			i++;
 	}
-	*/
 }
 void NatPunchthroughClient::PushFailure(void)
 {
@@ -427,7 +423,7 @@ PluginReceiveResult NatPunchthroughClient::OnReceive(Packet *packet)
 				// Tell the user about the success
 				sp.targetAddress=packet->systemAddress;
 				PushSuccess();
-				//UpdateGroupPunchOnNatResult(sp.facilitator, sp.targetGuid, sp.targetAddress, 1);
+				UpdateGroupPunchOnNatResult(sp.facilitator, sp.targetGuid, sp.targetAddress, 1);
 				OnReadyForNextPunchthrough();
 				bool removedFromFailureQueue=RemoveFromFailureQueue();
 
@@ -480,7 +476,7 @@ PluginReceiveResult NatPunchthroughClient::OnReceive(Packet *packet)
 
 			RakNetGUID targetGuid;
 			incomingBs.Read(targetGuid);
-			//UpdateGroupPunchOnNatResult(packet->systemAddress, targetGuid, UNASSIGNED_SYSTEM_ADDRESS, 2);
+			UpdateGroupPunchOnNatResult(packet->systemAddress, targetGuid, UNASSIGNED_SYSTEM_ADDRESS, 2);
 
 			if (packet->data[0]==ID_NAT_CONNECTION_TO_TARGET_LOST ||
 				packet->data[0]==ID_NAT_TARGET_UNRESPONSIVE)
@@ -676,7 +672,6 @@ void NatPunchthroughClient::OnNewConnection(const SystemAddress &systemAddress, 
 	if (ourExternalId!=UNASSIGNED_SYSTEM_ADDRESS)
 		mostRecentNewExternalPort=ourExternalId.GetPort();
 
-	/*
 	unsigned int i;
 	i=0;
 	while (i < groupRequestsInProgress.Size())
@@ -690,7 +685,6 @@ void NatPunchthroughClient::OnNewConnection(const SystemAddress &systemAddress, 
 			i++;
 		}
 	}
-	*/
 }
 
 void NatPunchthroughClient::OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason )
@@ -717,7 +711,6 @@ void NatPunchthroughClient::OnClosedConnection(const SystemAddress &systemAddres
 		}
 	}
 
-	/*
 	unsigned int i;
 	i=0;
 	while (i < groupPunchRequests.Size())
@@ -732,7 +725,6 @@ void NatPunchthroughClient::OnClosedConnection(const SystemAddress &systemAddres
 			i++;
 		}
 	}
-	*/
 
 }
 void NatPunchthroughClient::GetUPNPPortMappings(char *externalPort, char *internalPort, const SystemAddress &natPunchthroughServerAddress)
@@ -751,7 +743,6 @@ void NatPunchthroughClient::OnFailureNotification(Packet *packet)
 	RakNetGUID senderGuid;
 	incomingBs.Read(senderGuid);
 
-	/*
 	unsigned int i;
 	i=0;
 	while (i < groupRequestsInProgress.Size())
@@ -766,7 +757,6 @@ void NatPunchthroughClient::OnFailureNotification(Packet *packet)
 			i++;
 		}
 	}
-	*/
 }
 void NatPunchthroughClient::OnGetMostRecentPort(Packet *packet)
 {
@@ -830,7 +820,6 @@ void NatPunchthroughClient::Clear(void)
 	OnReadyForNextPunchthrough();
 
 	failedAttemptList.Clear(false, _FILE_AND_LINE_);
-	/*
 	groupRequestsInProgress.Clear(false, _FILE_AND_LINE_);
 	unsigned int i;
 	for (i=0; i < groupPunchRequests.Size(); i++)
@@ -838,7 +827,6 @@ void NatPunchthroughClient::Clear(void)
 		RakNet::OP_DELETE(groupPunchRequests[i],_FILE_AND_LINE_);
 	}
 	groupPunchRequests.Clear(true, _FILE_AND_LINE_);
-	*/
 }
 PunchthroughConfiguration* NatPunchthroughClient::GetPunchthroughConfiguration(void)
 {
@@ -898,7 +886,6 @@ void NatPunchthroughClient::IncrementExternalAttemptCount(RakNet::Time time, Rak
 		sp.nextActionTime=time+pc.TIME_BETWEEN_PUNCH_ATTEMPTS_EXTERNAL-delta;
 	}
 }
-/*
 // 0=failed, 1=success, 2=ignore
 void NatPunchthroughClient::UpdateGroupPunchOnNatResult(SystemAddress facilitator, RakNetGUID targetSystem, SystemAddress targetSystemAddress, int result)
 {
@@ -978,7 +965,6 @@ void NatPunchthroughClient::UpdateGroupPunchOnNatResult(SystemAddress facilitato
 			i++;
 	}
 }
-*/
 
 #endif // _RAKNET_SUPPORT_*
 

@@ -31,7 +31,6 @@ inline RakNet::BitStream& operator>>(RakNet::BitStream& in, FileListNodeContext&
 {
 	in.Read(out.op);
 	bool success = in.Read(out.fileId);
-	(void) success;
 	assert(success);
 	return in;
 }

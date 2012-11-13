@@ -141,7 +141,7 @@
 #endif
 
 #ifndef RPC4_GLOBAL_REGISTRATION_MAX_FUNCTIONS
-#define RPC4_GLOBAL_REGISTRATION_MAX_FUNCTIONS 32
+#define RPC4_GLOBAL_REGISTRATION_MAX_FUNCTIONS 16
 #endif
 
 #ifndef RPC4_GLOBAL_REGISTRATION_MAX_FUNCTION_NAME_LENGTH
@@ -162,11 +162,6 @@
 // Has small effect on memory usage per connection. Uses about 256 bytes*INTERNAL_PACKET_PAGE_SIZE per connection
 #ifndef INTERNAL_PACKET_PAGE_SIZE
 #define INTERNAL_PACKET_PAGE_SIZE 8
-#endif
-
-// If defined to 1, the user is responsible for calling RakPeer::RunUpdateCycle and RakPeer::RunRecvfrom
-#ifndef RAKPEER_USER_THREADED
-#define RAKPEER_USER_THREADED 0
 #endif
 
 //#define USE_THREADED_SEND

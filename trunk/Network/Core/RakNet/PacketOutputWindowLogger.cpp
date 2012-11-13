@@ -32,10 +32,7 @@ void PacketOutputWindowLogger::WriteLog(const char *str)
 		str2+="\n";
 		OutputDebugString(str2.C_String());
 	#endif
-// DS_APR
-#elif defined(__native_client__)
-	fprintf(stderr, "%s\n", str);
-// /DS_APR
+	
 #endif
 }
 

@@ -1,7 +1,4 @@
 #include "NatTypeDetectionCommon.h"
-
-#if _RAKNET_SUPPORT_NatTypeDetectionServer==1 || _RAKNET_SUPPORT_NatTypeDetectionClient==1
-
 #include "SocketLayer.h"
 #include "SocketIncludes.h"
 #include "SocketDefines.h"
@@ -15,14 +12,14 @@ bool RakNet::CanConnect(NATTypeDetectionResult type1, NATTypeDetectionResult typ
 	bool connectionGraph[NAT_TYPE_COUNT][NAT_TYPE_COUNT] =
 	{
 		// None,	Full Cone,	Address Restricted,		Port Restricted,	Symmetric,	Unknown,	InProgress,	Supports_UPNP
-		{true, 		true, 		true, 					true, 				true,		false,		false,		true},		// None
-		{true, 		true, 		true, 					true, 				true,		false,		false,		true},		// Full Cone
-		{true, 		true, 		true, 					true, 				true,		false,		false,		true},		// Address restricted
-		{true, 		true, 		true, 					true, 				false,		false,		false,		true},		// Port restricted
-		{true, 		true, 		true, 					false, 				false,		false,		false,		true},		// Symmetric
+		{true, 		true, 		true, 					true, 				true,		false,		false,		false},		// None
+		{true, 		true, 		true, 					true, 				true,		false,		false,		false},		// Full Cone
+		{true, 		true, 		true, 					true, 				true,		false,		false,		false},		// Address restricted
+		{true, 		true, 		true, 					true, 				false,		false,		false,		false},		// Port restricted
+		{true, 		true, 		true, 					false, 				false,		false,		false,		false},		// Symmetric
 		{false,		false,		false,					false,				false,		false,		false,		false},		// Unknown
 		{false,		false,		false,					false,				false,		false,		false,		false},		// InProgress
-		{true,		true,		true,					true,				true,		false,		false,		true}		// Supports_UPNP
+		{false,		false,		false,					false,				false,		false,		false,		false}		// Supports_UPNP
 	};
 
 	return connectionGraph[(int) type1][(int) type2];
@@ -84,26 +81,15 @@ const char *RakNet::NATTypeDetectionResultToStringFriendly(NATTypeDetectionResul
 }
 
 
-SOCKET RakNet::CreateNonblockingBoundSocket(const char *bindAddr
-#ifdef __native_client__
-											,_PP_Instance_ chromeInstance
-#endif											
-	)
+SOCKET RakNet::CreateNonblockingBoundSocket(const char *bindAddr )
 {
-	#ifdef __native_client__
-	SOCKET s = SocketLayer::CreateBoundSocket( 0, 0, false, bindAddr, true, 0, AF_INET, chromeInstance );
-	#else
-	SOCKET s = SocketLayer::CreateBoundSocket( 0, 0, false, bindAddr, true, 0, AF_INET, 0 );
-	#endif
-
+	SOCKET s = SocketLayer::CreateBoundSocket( 0, false, bindAddr, true, 0, AF_INET );
 	#ifdef _WIN32
 		unsigned long nonblocking = 1;
 		ioctlsocket__( s, FIONBIO, &nonblocking );
 
 
 
-	#elif defined(__native_client__)
-		// Nop
 	#else
 		fcntl( s, F_SETFL, O_NONBLOCK );
 	#endif
@@ -112,9 +98,6 @@ SOCKET RakNet::CreateNonblockingBoundSocket(const char *bindAddr
 
 int RakNet::NatTypeRecvFrom(char *data, SOCKET socket, SystemAddress &sender)
 {
-#ifdef __native_client__
-	return 0;
-#else
 	sockaddr_in sa;
 	socklen_t len2;
 	const int flag=0;
@@ -130,7 +113,4 @@ int RakNet::NatTypeRecvFrom(char *data, SOCKET socket, SystemAddress &sender)
 		sender.SetPort( ntohs( sa.sin_port ) );
 	}
 	return len;
-#endif  // __native_client__
 }
-
-#endif // #if _RAKNET_SUPPORT_NatTypeDetectionServer==1 || _RAKNET_SUPPORT_NatTypeDetectionClient==1

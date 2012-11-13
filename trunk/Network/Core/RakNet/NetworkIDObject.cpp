@@ -21,7 +21,7 @@ NetworkIDObject::NetworkIDObject()
 }
 NetworkIDObject::~NetworkIDObject()
 {
-	if (networkID!=UNASSIGNED_NETWORK_ID && networkIDManager)
+	if (networkID!=UNASSIGNED_NETWORK_ID)
 		networkIDManager->StopTrackingNetworkIDObject(this);
 }
 void NetworkIDObject::SetNetworkIDManager( NetworkIDManager *manager)

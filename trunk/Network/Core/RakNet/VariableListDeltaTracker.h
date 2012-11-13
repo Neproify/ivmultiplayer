@@ -3,9 +3,6 @@
 #include "RakMemoryOverride.h"
 #include "BitStream.h"
 
-#ifndef __VARIABLE_LIST_DELTA_TRACKER
-#define __VARIABLE_LIST_DELTA_TRACKER
-
 namespace RakNet
 {
 /// Class to write a series of variables, copy the contents to memory, and return if the newly written value is different than what was last written
@@ -95,7 +92,7 @@ public:
 
 	/// Paired with a call to WriteVarToBitstream(), will read a variable if it had changed. Otherwise the values remains the same.
 	template <class VarType>
-	static bool ReadVarFromBitstream(VarType &varData, RakNet::BitStream *bitStream)
+	static bool ReadVarFromBitstream(const VarType &varData, RakNet::BitStream *bitStream)
 	{
 		bool wasWritten;
 		if (bitStream->Read(wasWritten)==false)
@@ -119,7 +116,7 @@ public:
 		VariableLastValueNode(const unsigned char *data, int _byteLength);
 		~VariableLastValueNode();
 		char *lastData;
-		unsigned int byteLength;
+		int byteLength;
 		bool isDirty;
 	};
 
@@ -132,5 +129,3 @@ protected:
 
 
 }
-
-#endif

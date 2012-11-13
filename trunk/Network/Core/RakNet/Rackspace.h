@@ -187,7 +187,7 @@ namespace RakNet
 		/// \details Create a server with a given image (harddrive contents) and flavor (hardware configuration)
 		/// Get the available images with ListImages()
 		/// Get the available flavors with ListFlavors()
-		/// It is possible to configure the server in more detail. See the XML schema at http://docs.rackspacecloud.com/servers/api/v1.0
+		/// It is possible to configure the server in more detail. See the XML schema at http://docs.rackspacecloud.com/servers/api/v1.0\
 		/// You can execute such a custom command by calling AddOperation() manually. See the implementation of CreateServer for how to do so.
 		/// The server takes a while to build. Call GetServerDetails() to get the current build status. Server id to pass to GetServerDetails() is returned in the field <server ... id="1234">
 		/// \sa http://docs.rackspacecloud.com/servers/api/v1.0/cs-devguide-20110112.pdf
