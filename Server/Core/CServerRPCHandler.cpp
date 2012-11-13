@@ -112,7 +112,7 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 
 	// Send them our nametag settings(this must be send BEFORE the players/actors are created!!!!!)
 	CBitStream bsNametags;
-	bsNametags.Write(CVAR_GET_BOOL("guinametags"));
+	bsNametags.Write(/*CVAR_GET_BOOL("guinametags")*/false);
 	g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 
 	// Setup the player
