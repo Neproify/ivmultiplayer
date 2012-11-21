@@ -138,8 +138,6 @@
     <ClInclude Include="CMainMenu.h" />
     <ClInclude Include="CNameTags.h" />
     <ClInclude Include="CScreenShot.h" />
-    <ClInclude Include="CDirect3D9Proxy.h" />
-    <ClInclude Include="CDirect3DDevice9Proxy.h" />
     <ClInclude Include="CDirectInput8Proxy.h" />
     <ClInclude Include="CDirectInputDevice8Proxy.h" />
     <ClInclude Include="CCamera.h" />
@@ -310,8 +308,6 @@
     <ClCompile Include="CTrains.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="CDirect3D9Proxy.cpp" />
-    <ClCompile Include="CDirect3DDevice9Proxy.cpp" />
     <ClCompile Include="CDirectInput8Proxy.cpp" />
     <ClCompile Include="CDirectInputDevice8Proxy.cpp" />
     <ClCompile Include="CChatWindow.cpp" />

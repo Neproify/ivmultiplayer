@@ -160,9 +160,6 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{0016c9ef-c6f5-4def-b1df-e9d535fe2bfb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Hooks\Direct3DProxy">
-      <UniqueIdentifier>{42d57e18-8493-4d36-88b8-8dfdc649d93e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Hooks\DirectInputProxy">
       <UniqueIdentifier>{1e34e49d-580c-4615-a0c5-4bb39849113a}</UniqueIdentifier>
     </Filter>
@@ -171,9 +168,6 @@
     </Filter>
     <Filter Include="Header Files\Hooks\DirectInputProxy">
       <UniqueIdentifier>{111be440-172a-4235-a892-03d3214b7a4b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Hooks\Direct3DProxy">
-      <UniqueIdentifier>{8e5729e1-efb1-4391-8bba-db45189cc83b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -209,12 +203,6 @@
     </ClInclude>
     <ClInclude Include="CScreenShot.h">
       <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="CDirect3D9Proxy.h">
-      <Filter>Header Files\Hooks\Direct3DProxy</Filter>
-    </ClInclude>
-    <ClInclude Include="CDirect3DDevice9Proxy.h">
-      <Filter>Header Files\Hooks\Direct3DProxy</Filter>
     </ClInclude>
     <ClInclude Include="CDirectInput8Proxy.h">
       <Filter>Header Files\Hooks\DirectInputProxy</Filter>
@@ -733,12 +721,6 @@
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CDirect3D9Proxy.cpp">
-      <Filter>Source Files\Hooks\Direct3DProxy</Filter>
-    </ClCompile>
-    <ClCompile Include="CDirect3DDevice9Proxy.cpp">
-      <Filter>Source Files\Hooks\Direct3DProxy</Filter>
     </ClCompile>
     <ClCompile Include="CDirectInput8Proxy.cpp">
       <Filter>Source Files\Hooks\DirectInputProxy</Filter>

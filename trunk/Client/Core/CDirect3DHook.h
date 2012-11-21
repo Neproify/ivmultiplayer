@@ -9,17 +9,27 @@
 
 #pragma once
 
-#include "CDirect3D9Proxy.h"
+
+#include <DXSDK\Include\d3d9.h>
+#include <DXSDK\Include\d3dx9.h>
+#include "detours.h"
+#pragma comment(lib, "detours.lib")
 
 class CDirect3DHook
 {
 private:
-	typedef IDirect3D9 *	   (WINAPI * Direct3DCreate9_t)(UINT);
+	typedef HRESULT (__stdcall* Reset_t)(LPDIRECT3DDEVICE9,D3DPRESENT_PARAMETERS*);
+	typedef HRESULT (__stdcall* EndScene_t)();
 
-	static Direct3DCreate9_t   m_pDirect3DCreate9;
-	static bool				   m_bHookInstalled;
+	static Reset_t				m_pReset;
+	static EndScene_t			m_pEndScene;
 
-	static IDirect3D9 * WINAPI Direct3DCreate9_Hook(UINT SDKVersion);
+	static bool					m_bHookInstalled;
+	static bool					m_bInitialized;
+
+	static HRESULT WINAPI		hkEndScene();
+	static HRESULT WINAPI		hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAMETERS* pPresentationParameters);
+	
 
 public:
 	static void Install();
