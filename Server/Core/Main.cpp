@@ -687,6 +687,10 @@ int main(int argc, char ** argv)
 	{
 		g_pNetworkManager->Process();
 
+
+		g_pVehicleManager->Process();
+
+
 		if(g_pQuery)
 			g_pQuery->Process();
 

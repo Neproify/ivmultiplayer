@@ -18,16 +18,16 @@ extern CNetworkManager * g_pNetworkManager;
 extern CLocalPlayer * g_pLocalPlayer;
 
 CCheckpoint::CCheckpoint(EntityId checkpointId, eCheckpointType type, CVector3 vecPosition, CVector3 vecTargetPosition, float fRadius)
-	: CStreamableEntity(STREAM_ENTITY_CHECKPOINT, 5.0f * fRadius + 150.0f)
+	: CStreamableEntity(STREAM_ENTITY_CHECKPOINT, 5.0f * fRadius + 150.0f),
+	m_pCheckpoint(NULL),
+	m_checkpointId(checkpointId),
+	m_eType(type),
+	m_vecPosition(vecPosition),
+	m_vecTargetPosition(vecTargetPosition),
+	m_fRadius(fRadius),
+	m_bInCheckpoint(false),
+	m_bIsVisible(true)
 {
-	m_pCheckpoint = NULL;
-	m_checkpointId = checkpointId;
-	m_eType = type;
-	m_vecPosition = vecPosition;
-	m_vecTargetPosition = vecTargetPosition;
-	m_fRadius = fRadius;
-	m_bInCheckpoint = false;
-	m_bIsVisible = true;
 }
 
 CCheckpoint::~CCheckpoint()

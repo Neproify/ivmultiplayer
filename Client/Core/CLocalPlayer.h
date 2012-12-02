@@ -28,6 +28,7 @@ private:
 	CControlState		m_lastControlStateSent;
 	bool				m_bFirstSpawn;
 	unsigned short		m_uiPing;
+	OnFootSyncData		m_oldOnFootSync;
 	/*bool			    m_bAnimating;
 	char*				m_strAnimGroup;
 	char*				m_strAnimSpec;*/

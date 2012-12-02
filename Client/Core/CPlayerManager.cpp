@@ -385,3 +385,15 @@ void CPlayerManager::SetLocalPlayer(EntityId playerId, CNetworkPlayer * pPlayer)
 	m_pPlayers[playerId] = pPlayer;
 	g_pLocalPlayer->SetPlayerId(playerId);
 }
+
+
+/*bool CPlayerManager::IsPlayerLimitReached(void)
+{
+	int count = 0;
+	for(int x = 0; x < MAX_PLAYERS; ++x) 
+	{
+		if(m_bActive[x])
+			count++;
+	}
+	return count >= MAX_PLAYERS;
+}*/

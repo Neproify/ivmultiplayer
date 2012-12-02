@@ -49,6 +49,7 @@ private:
 	CVector3	  m_vecLastAim;
 	CVector3	  m_vecLastShot;
 	CVector3	  m_vecLastHeadMove;
+	unsigned char m_ucDimension;
 
 public:
 	CPlayer(EntityId playerId, String strName);
@@ -123,4 +124,6 @@ public:
 	void		   UseMobilePhone(bool bUse) { m_bMobilePhoneUse = bUse; }
 	void		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShotm, CVector3 vecLookAt);
 	void		   UpdateHeadMoveSync(CVector3 vecHead);
+	void		   SetDimension(unsigned char ucDimension) { m_ucDimension = ucDimension; }
+	unsigned char  GetDimension() { return m_ucDimension; }
 };

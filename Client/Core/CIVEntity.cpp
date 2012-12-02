@@ -13,13 +13,13 @@
 #include <CLogFile.h>
 
 CIVEntity::CIVEntity()
+	: m_pEntity(NULL)
 {
-	m_pEntity = NULL;
 }
 
 CIVEntity::CIVEntity(IVEntity * pEntity)
+	: m_pEntity(pEntity)
 {
-	m_pEntity = pEntity;
 }
 
 CIVEntity::~CIVEntity()

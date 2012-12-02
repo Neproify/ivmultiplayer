@@ -11,13 +11,13 @@
 #include <CLogFile.h>
 
 CIVCam::CIVCam()
+	: m_pCam(NULL)
 {
-	m_pCam = NULL;
 }
 
 CIVCam::CIVCam(IVCam * pCam)
+	: m_pCam(pCam)
 {
-	m_pCam = pCam;
 }
 
 CIVCam::~CIVCam()

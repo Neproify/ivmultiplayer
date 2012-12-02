@@ -13,12 +13,13 @@
 #include <CLogFile.h>
 
 CIVPlayerInfo::CIVPlayerInfo()
+	: m_bCreatedByUs(false),
+	m_pPlayerInfo(NULL)
 {
-	m_bCreatedByUs = false;
-	m_pPlayerInfo = NULL;
 }
 
 CIVPlayerInfo::CIVPlayerInfo(BYTE bytePlayerNumber)
+	: m_bCreatedByUs(true)
 {
 	IVPlayerInfo * pPlayerInfo = (IVPlayerInfo *)CGame::Alloc(sizeof(IVPlayerInfo));
 
@@ -43,13 +44,13 @@ CIVPlayerInfo::CIVPlayerInfo(BYTE bytePlayerNumber)
 	*(DWORD *)(pPlayerInfo + 0x15D) = 0;
 	*(DWORD *)(pPlayerInfo + 0x15B) = 0;
 	*(DWORD *)(pPlayerInfo + 0x137) = 2;
-	m_bCreatedByUs = true;
+	
 	m_pPlayerInfo = pPlayerInfo;
 }
 
 CIVPlayerInfo::CIVPlayerInfo(IVPlayerInfo * pPlayerInfo)
+	: m_bCreatedByUs(false)
 {
-	m_bCreatedByUs = false;
 	SetPlayerInfo(pPlayerInfo);
 }
 

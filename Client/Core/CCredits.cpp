@@ -51,18 +51,11 @@ CreditText creditsItems[] =
 };
 
 CCredits::CCredits(CGUI * pGUI)
+	: m_pGUI(pGUI),
+	m_ulStartTime(0),
+	m_pCurrentFont(NULL),
+	m_pCurrentCreditText(NULL)
 {
-	// Set the GUI pointer
-	m_pGUI = pGUI;
-
-	// Reset the start time
-	m_ulStartTime = 0;
-
-	// Reset the current font
-	m_pCurrentFont = NULL;
-
-	// Reset the current credit text
-	m_pCurrentCreditText = NULL;
 
 	// Pre-load all needed fonts
 	// jenksta: don't think this is really needed

@@ -29,15 +29,14 @@ extern CLocalPlayer			* g_pLocalPlayer;
 #define TRANSFERBOX_HEIGHT      58
 
 CFileTransfer::CFileTransfer()
+	: m_bDownloadingFile(false),
+	m_pDownloadFile(NULL),
+	m_fDownloadFile(NULL),
+	m_pFileImage(NULL),
+	m_pFileText(NULL)
 {
 	// Set the http client receive handler
 	m_httpClient.SetReceiveHandle(ReceiveHandler, this);
-
-	m_bDownloadingFile = false;
-	m_pDownloadFile = NULL;
-	m_fDownloadFile = NULL;
-	m_pFileImage = NULL;
-	m_pFileText = NULL;
 }
 
 bool CFileTransfer::ReceiveHandler(const char * szData, unsigned int uiDataSize, void * pUserData)
@@ -166,7 +165,7 @@ void CFileTransfer::SetServerInformation(String strAddress, unsigned short usPor
 		m_pFileText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/(float)2.75),  CEGUI::UDim(0, fHeight/2-(fHeight/4))));
 		m_pFileText->setProperty("FrameEnabled", "false");
 		m_pFileText->setProperty("BackgroundEnabled", "false");
-		m_pFileText->setFont(g_pGUI->GetFont("BebasNeue",28U));
+		m_pFileText->setFont(g_pGUI->GetFont("tahoma",28U));
 		m_pFileText->setVisible(false);
 	}
 }
@@ -182,7 +181,7 @@ void CFileTransfer::AddFile(String strFileName, CFileChecksum fileChecksum, bool
 		strFolderName = "clientscripts";
 
 	// Create the file path string
-	String strFilePath(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", strFolderName.Get(), strFileName.Get()));
+	String strFilePath(SharedUtility::GetAbsolutePath("clientfiles/%s/%s", strFolderName.Get(), strFileName.Get()));
 
 	// Does the file exist?
 	if(SharedUtility::Exists(strFilePath))
@@ -298,7 +297,7 @@ void CFileTransfer::Process()
 					strFolderName = "clientscripts";
 
 				// Create the file path string
-				String strFilePath(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", strFolderName.Get(), m_pDownloadFile->strName.Get()));
+				String strFilePath(SharedUtility::GetAbsolutePath("clientfiles/%s/%s", strFolderName.Get(), m_pDownloadFile->strName.Get()));
 
 				// Create a checksum of the file
 				CFileChecksum fileChecksum;

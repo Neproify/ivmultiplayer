@@ -711,6 +711,9 @@
     <ClInclude Include="CTrains.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
+    <ClInclude Include="CCrashFixes.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">
@@ -1152,6 +1155,9 @@
       <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
     <ClCompile Include="CTrains.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CCrashFixes.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
   </ItemGroup>

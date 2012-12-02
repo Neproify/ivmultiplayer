@@ -72,28 +72,31 @@ void __declspec(naked) HandleLocalPlayerSpawn()
 		pushad
 	}
 
+	CLogFile::Printf("handle spawn local player");
 	g_pLocalPlayer->HandleSpawn();
-
+		CLogFile::Printf("handle spawn local player end");
 	_asm
 	{
 		popad
 		jmp COffsets::FUNC_SpawnPlayer
 	}
+
+	CLogFile::Printf("fkldsakldsakldsadsföjklasdjflöajsdflkjasdlfjaklsdjflö");
 }
 
-CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true)
+CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true),
+	m_bIsDead(false),
+	m_bToggleControl(true),
+	m_fSpawnAngle(0),
+	m_ulLastPureSyncTime(0),
+	m_uiLastInterior(0),
+	m_bDisableVehicleInfo(false),
+	m_bFirstSpawn(false)
 {
-	m_bIsDead = false;
-	m_bToggleControl = true;
-	memset(&m_vecSpawnPosition, 0, sizeof(CVector3));
-	m_fSpawnAngle = 0;
-	m_ulLastPureSyncTime = 0;
-	m_uiLastInterior = 0;
-	m_bDisableVehicleInfo = false;
-	m_bFirstSpawn = false;
 	//m_bAnimating = false;
 	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
-	
+	this->SetCanBeStreamedIn(false);
+	Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(), false);
 	// Patch to override spawn position and let the game call HandleSpawn
 	CPatcher::InstallCallPatch(COffsets::FUNC_GetLocalPlayerSpawnPosition, (DWORD)GetLocalPlayerSpawnPosition, 5);
 	CPatcher::InstallCallPatch(COffsets::CALL_SpawnLocalPlayer, (DWORD)HandleLocalPlayerSpawn, 5);
@@ -133,29 +136,37 @@ void CLocalPlayer::HandleSpawn()
 	if(!g_pInputWindow->IsEnabled() && !m_bControlsDisabled)
 		CGame::SetInputState(true);
 
+	CLogFile::Printf("Reset vehicle entry/exit flags");
 	// Reset vehicle entry/exit flags
 	ResetVehicleEnterExit();
 
+	CLogFile::Printf("Enable out controls");
 	// Enable our controls
 	SetPlayerControlAdvanced(true, true);
 
+	CLogFile::Printf("Enable the HUD");
 	// Enable the HUD
 	CGame::SetHudVisible(true);
 
+	CLogFile::Printf("Enable the radar");
 	// Enable the radar
 	CGame::SetRadarVisible(true);
 
+	CLogFile::Printf("Enable the area names");
 	// Enable the area names
 	CGame::SetAreaNamesEnabled(true);
 
+	CLogFile::Printf("Reset the camera");
 	// Reset the camera
 	g_pCamera->Reset();
 
+	CLogFile::Printf("Send the spawn notification to the server");
 	// Send the spawn notification to the server
 	CBitStream bsSend;
 	bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
 	g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 
+	CLogFile::Printf("Flag us as alive");
 	// Flag us as alive
 	m_bIsDead = false;
 }
@@ -271,6 +282,12 @@ void CLocalPlayer::SendOnFootSync()
 	CBitStream bsSend;
 	OnFootSyncData syncPacket;
 
+	/*GetPosition(m_oldOnFootSync.vecPos);
+	GetMoveSpeed(m_oldOnFootSync.vecMoveSpeed);
+	GetTurnSpeed(m_oldOnFootSync.vecTurnSpeed);
+	if(m_oldOnFootSync.bDuckState == IsDucking())
+		if(m_oldOnFootSync.fHeading == GetCurrentHeading())
+			if(m_oldOnFootSync.uHealthArmour == ((GetHealth() << 16) | GetArmour()))*/
 	// Get our control state
 	GetControlState(&syncPacket.controlState);
 
@@ -678,10 +695,11 @@ void CLocalPlayer::SendEmptyVehicleSync()
 					}
 					if(uiOccupants == 0)
 					{
-						g_pVehicleManager->Get(iD)->StoreEmptySync(&syncPacket);
+						if(g_pVehicleManager->Get(iD)->StoreEmptySync(&syncPacket)) {
 			
-						bsSend.Write((char *)&syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
-						g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+							bsSend.Write((char *)&syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
+							g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+						}
 					}
 				}
 			}

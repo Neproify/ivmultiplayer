@@ -46,6 +46,9 @@ private:
 	bool		  m_bTyre[6];
 	bool		  m_bGpsState;
 	bool		  m_bActorVehicle;
+	unsigned char m_ucDimension;
+	int			  m_iRespawnDelay;
+	unsigned long m_lastTimeOccupied;
 
 public:
 	CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4);
@@ -118,4 +121,10 @@ public:
 	bool		  GetVehicleGPSState();
 	void		  SetAlarm(int iDuration);
 	void		  MarkVehicle(bool bToggle);
+	void		  SetDimension(unsigned char ucDimension) { m_ucDimension = ucDimension; }
+	unsigned char GetDimension() { return m_ucDimension; }
+	void		  SetLastTimeOccupied(unsigned long lastTimeOccupied) { m_lastTimeOccupied = lastTimeOccupied; }
+	unsigned long GetLastTimeOccupied() { return m_lastTimeOccupied; }
+	void		  SetRespawnDelay(int iRespawnDelay) { m_iRespawnDelay = iRespawnDelay; }
+	int			  GetRespawnDelay() { return m_iRespawnDelay; }
 };

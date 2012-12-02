@@ -15,6 +15,8 @@
 #include <list>
 #include "CIVVehicle.h"
 
+//#define NEW_STREAMER
+
 // Type used for dimension ids
 typedef unsigned char DimensionId;
 
@@ -30,6 +32,7 @@ enum eStreamEntityType
 	STREAM_ENTITY_PICKUP,
 	STREAM_ENTITY_OBJECT,
 	STREAM_ENTITY_CHECKPOINT,
+	STREAM_ENTITY_PLAYER,
 	STREAM_ENTITY_MAX,
 };
 
@@ -38,13 +41,15 @@ class CStreamer;
 class CStreamableEntity
 {
 	friend class CStreamer;
-
+public:
+	bool              m_bIsStreamedIn;
 private:
 	float             m_fStreamingDistance;
-	bool              m_bIsStreamedIn;
+	
 	eStreamEntityType m_eType;
-	DimensionId       m_dimensionId;
+	DimensionId       m_pDimensionId;
 	bool              m_bCanBeStreamedIn;
+	unsigned short    m_usStreamReferences, m_usStreamReferencesScript;
 
 	void              StreamInInternal();
 	void              StreamOutInternal();
@@ -57,12 +62,13 @@ public:
 	bool              IsStreamedIn();
 	eStreamEntityType GetType() { return m_eType; }
 	void              SetDimension(DimensionId dimensionId);
-	DimensionId       GetDimension() { return m_dimensionId; }
+	DimensionId       GetDimension() { return m_pDimensionId; }
 	void              SetCanBeStreamedIn(bool bCanBeStreamedIn) { m_bCanBeStreamedIn = bCanBeStreamedIn; }
 	bool              CanBeStreamedIn() { return m_bCanBeStreamedIn; }
 
 	virtual void      GetStreamPosition(CVector3& vecPosition) { };
 	virtual void      UpdateInterior(unsigned int uiInterior) { };
+	unsigned long	  GetTotalStreamReferences() { return m_usStreamReferences + m_usStreamReferencesScript; }
 
 	virtual void      StreamIn() { };
 	virtual void      StreamOut() { };
@@ -75,12 +81,13 @@ class CNetworkVehicle;
 
 class CStreamer : public std::list<CStreamableEntity*>
 {
+	friend class CStreamableEntity;
 private:
-	unsigned long                  m_ulLastStreamTime;
-	DimensionId                    m_dimensionId;
-	std::list<CStreamableEntity *> m_streamedElements[STREAM_ENTITY_MAX];
-	std::list<CStreamableEntity *> m_newlyStreamedElements[STREAM_ENTITY_MAX];
-	unsigned int                   m_uiStreamingLimits[STREAM_ENTITY_MAX]; // max number of each entity type the game can handle	
+	unsigned long						m_ulLastStreamTime;
+	DimensionId							m_dimensionId;
+	std::list<CStreamableEntity *>		m_streamedElements[STREAM_ENTITY_MAX];
+	std::list<CStreamableEntity *>		m_newlyStreamedElements[STREAM_ENTITY_MAX];
+	unsigned int						m_uiStreamingLimits[STREAM_ENTITY_MAX]; // max number of each entity type the game can handle	
 
 public:
 	CStreamer();
@@ -95,5 +102,5 @@ public:
 	unsigned int                     GetStreamedInEntityCountOfType(eStreamEntityType eType);
 	unsigned int                     GetStreamedInLimitOfType(eStreamEntityType eType);
 	//CNetworkPlayer                 * GetPlayerFromGamePlayerPed(IVPlayerPed * pGamePlayerPed);
-	CNetworkVehicle                * GetVehicleFromGameVehicle(IVVehicle * pGameVehicle);
+	CNetworkVehicle					*GetVehicleFromGameVehicle(IVVehicle * pGameVehicle);
 };

@@ -38,6 +38,7 @@ public:
 
 	bool             DoesExist(EntityId playerId);
 	bool			 IsActive(EntityId playerId) { return m_bActive[playerId]; }
+	static bool		 IsPlayerLimitReached ( void );
 
 	CNetworkPlayer * GetAt(EntityId playerId);
 	CNetworkPlayer * GetFrom(IVPed * pIVPed);

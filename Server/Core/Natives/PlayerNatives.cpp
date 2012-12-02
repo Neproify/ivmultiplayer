@@ -29,19 +29,27 @@ extern CEvents * g_pEvents;
 void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 {
 	pScriptingManager->RegisterFunction("isPlayerConnected", IsConnected, 1, "i");
+
 	pScriptingManager->RegisterFunction("getPlayerName", GetName, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerName", SetName, 2, "is");
+
 	pScriptingManager->RegisterFunction("setPlayerHealth", SetHealth, 2, "ii");
 	pScriptingManager->RegisterFunction("getPlayerHealth", GetHealth, 1, "i");
+
 	pScriptingManager->RegisterFunction("setPlayerArmour", SetArmour, 2, "ii");
 	pScriptingManager->RegisterFunction("getPlayerArmour", GetArmour, 1, "i");
+
 	pScriptingManager->RegisterFunction("setPlayerCoordinates", SetCoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("getPlayerCoordinates", GetCoordinates, 1, "i");
+
 	pScriptingManager->RegisterFunction("setPlayerPosition", SetCoordinates, 4, "ifff");
 	pScriptingManager->RegisterFunction("getPlayerPosition", GetCoordinates, 1, "i");
+
+	// World stuffs
 	pScriptingManager->RegisterFunction("setPlayerTime", SetTime, 3, "iii");
 	pScriptingManager->RegisterFunction("setPlayerWeather", SetWeather, 2, "ii");
 	pScriptingManager->RegisterFunction("setPlayerGravity", SetGravity, 2, "if");
+
 	pScriptingManager->RegisterFunction("sendPlayerMessage", SendMessage, -1, NULL);
 	pScriptingManager->RegisterFunction("sendMessageToAll", SendMessageToAll, -1, NULL);
 	pScriptingManager->RegisterFunction("isPlayerInAnyVehicle", IsInAnyVehicle, 1, "i");
@@ -131,7 +139,17 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("sayPlayerSpeech", SaySpeech, 3, "iss");
 	pScriptingManager->RegisterFunction("letPlayerDriveAutomaticAtCoords", DriveAutomatic, 7, "iiffffi");
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
+	
+	//pScriptingManager->RegisterFunction("setPlayerDimension", SetDimension, 2, "ii");
+	//pScriptingManager->RegisterFunction("getPlayerDimension", GetDimension, 1, "i");
 }
+
+
+// setPlayerDimension(playerid, dimension)
+/*SQInteger CPlayerNative::SetDimension(SQVM * pVM)
+{
+
+}*/
 
 // isPlayerConnected(playerid)
 SQInteger CPlayerNatives::IsConnected(SQVM * pVM)
@@ -2491,5 +2509,47 @@ SQInteger CPlayerNatives::DriveAutomatic(SQVM * pVM)
 		}
 	}
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::SetDimension(SQVM * pVM)
+{
+	SQInteger iDimension;
+	EntityId playerId;
+
+	sq_getinteger(pVM, -1, &iDimension);
+	sq_getentity(pVM, -2, &playerId);
+	
+	CPlayer* pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer == NULL) {
+		sq_pushbool(pVM, false);
+		CLogFile::Print("SetDimension failed");
+		return false;
+	}
+
+	pPlayer->SetDimension(iDimension);
+	CBitStream bsSend;
+	bsSend.Write(playerId);
+	bsSend.Write(iDimension);
+
+	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+SQInteger CPlayerNatives::GetDimension(SQVM * pVM)
+{ 
+	EntityId playerId;
+
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetDimension());
+		return 1;
+	}
+
+	sq_pushinteger(pVM, -1);
 	return 1;
 }

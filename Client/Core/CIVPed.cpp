@@ -12,15 +12,15 @@
 #include "COffsets.h"
 #include <CLogFile.h>
 
-CIVPed::CIVPed() : CIVPhysical()
+CIVPed::CIVPed() : CIVPhysical(),
+	m_pPedTaskManager(NULL)
 {
-	m_pPedTaskManager = NULL;
 }
 
-CIVPed::CIVPed(IVPed * pPed) : CIVPhysical(pPed)
+CIVPed::CIVPed(IVPed * pPed) : CIVPhysical(pPed),
+	m_pPedTaskManager(NULL),
+	m_pPedWeapons(NULL)
 {
-	m_pPedTaskManager = NULL;
-	m_pPedWeapons = NULL;
 	SetPed(pPed);
 }
 

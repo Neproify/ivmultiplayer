@@ -15,9 +15,9 @@
 #include <CLogFile.h>
 
 CIVModelInfo::CIVModelInfo()
+	: m_iModelIndex(-1),
+	m_dwReferenceCount(0)
 {
-	m_iModelIndex = -1;
-	m_dwReferenceCount = 0;
 }
 
 CIVModelInfo::CIVModelInfo(int iModelIndex)

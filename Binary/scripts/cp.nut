@@ -11,9 +11,9 @@ local cp1;
 local actor1;
 local blipcolortest;
 
-function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4)
+function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4, respawn_delay = -1)
 {
-	local vehicleId = createVehicle_Original(model, x, y, z, rx, ry, rz, c1, c2, c3, c4);
+	local vehicleId = createVehicle_Original(model, x, y, z, rx, ry, rz, c1, c2, c3, c4, respawn_delay);
 
 	if(vehicleId != INVALID_VEHICLE_ID)
 	{
@@ -25,11 +25,11 @@ function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4)
 
 function onScriptInit()
 {
-	createVehicle(50, 1682.030884, 415.455414, 28.492632, 359.998413, 358.788818, 47.536011, 1, 1, 1, 1); // car1
-	createVehicle(27, 1667.659546, 432.233398, 28.631674, 0.607056, 351.466797, 88.324951, 0, 0, 0, 0); // car2
+	createVehicle(50, 1682.030884, 415.455414, 28.492632, 359.998413, 358.788818, 47.536011, 1, 1, 1, 1, 30000); // car1
+	createVehicle(27, 1667.659546, 432.233398, 28.631674, 0.607056, 351.466797, 88.324951, 1, 1, 1, 1); // car2
 	createVehicle(37, 1666.811768, 421.175903, 28.643723, 359.297852, 351.982788, 268.549927, 0, 0, 0, 0); // car3
 	createVehicle(40, 1657.118408, 421.462982, 28.569500, 359.828613, 352.884033, 267.583008, 0, 0, 0, 0); // car4
-	createVehicle(93, 1649.273560, 421.382935, 28.761145, 0.001465, 351.280945, 270.491577, 0, 0, 0, 0); // car5
+	createVehicle(93, 1649.273560, 421.382935, 28.761145, 0.001465, 351.280945, 270.491577, 1, 1, 1, 1); // car5
 	createVehicle(3, 1641.365967, 421.592712, 28.691023, 359.782715, 352.587891, 269.953735, 0, 0, 0, 0); // car6
 	createVehicle(95, 1631.719482, 420.940094, 28.562838, 1.065430, 352.694153, 277.920654, 0, 0, 0, 0); // car7
 	createVehicle(91, 1628.712646, 430.695221, 28.632729, 359.860657, 352.000366, 96.860474, 0, 0, 0, 0); // car8
@@ -39,6 +39,7 @@ function onScriptInit()
 	createVehicle(106, 1650.725464, 411.433807, 30.725628, 0.017944, 0.080933, 28.687622, 0, 0, 0, 0); // car12
 	createVehicle(108, 1647.794922, 411.647644, 30.763536, 359.298218, 2.161499, 335.835205, 1, 1, 1, 1); // car13
 	cp1 = createCheckpoint(3, -343.447662, 1171.119263, 14.146016, -343.447662, 1176.119263, 14.146016, 3.0);
+	getVehicleDimension(vehicles[0]);
 	//actor1 = createActor(242, -341.36, 1142.80, 14.79, 5.0);
 	log(_version_);
 	local config = getConfig();
@@ -114,7 +115,16 @@ addEvent("playerSpawn", onSpawn);
 function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
-
+	
+	
+	if(cmd[0] == "/world")
+	{
+		setPlayerDimension(playerid, 1);
+	}
+	if(cmd[0] == "/world0")
+	{
+		setPlayerDimension(playerid, 0xFF-1);
+	}
 	if(cmd[0] == "/attachObject")
 	{
 		local pos = getPlayerCoordinates(playerid);

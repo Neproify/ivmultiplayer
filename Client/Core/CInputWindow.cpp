@@ -28,11 +28,11 @@ extern bool m_bControlsDisabled;
 extern CGraphics * g_pGraphics;
 
 CInputWindow::CInputWindow()
+	: m_bEnabled(false),
+	m_iCurrentHistory(-1),
+	m_iTotalHistory(0)
 {
 	memset(m_szInput, 0, sizeof(m_szInput));
-	m_bEnabled = false;
-	m_iCurrentHistory = -1;
-	m_iTotalHistory = 0;
 	memset(m_szCurrent, 0, sizeof(m_szCurrent));
 	memset(m_szHistory, 0, sizeof(m_szHistory));
 
@@ -67,7 +67,7 @@ void CInputWindow::Draw()
 	if(m_bEnabled && g_pGUI)
 	{
 		CEGUI::Font * pFont = g_pGUI->GetFont(CVAR_GET_STRING("chatfont"),CVAR_GET_INTEGER("chatsize"));
-
+		
 		if(pFont)
 		{
 			//Draw InputLine Background

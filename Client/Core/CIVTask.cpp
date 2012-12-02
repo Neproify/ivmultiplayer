@@ -259,13 +259,13 @@ const char * GetTaskName(int iTaskType)
 }
 
 CIVTask::CIVTask()
+	: m_pTask(NULL)
 {
-	m_pTask = NULL;
 }
 
 CIVTask::CIVTask(IVTask * pTask)
+	: m_pTask(pTask)
 {
-	m_pTask = pTask;
 }
 
 CIVTask::~CIVTask()

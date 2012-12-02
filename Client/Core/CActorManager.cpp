@@ -20,6 +20,8 @@ extern CVehicleManager * g_pVehicleManager;
 extern CNetworkManager * g_pNetworkManager;
 
 CActorManager::CActorManager()
+	: bGameFocused(true), 
+	bMenuFocused(false)
 {
 	for(EntityId x = 0; x < MAX_ACTORS; x++)
 	{
@@ -27,9 +29,6 @@ CActorManager::CActorManager()
 		m_Actors[x].bRender = false;
 		m_Actors[x].bFailedEnterVehicle = false;
 	}
-
-	bGameFocused = true;
-	bMenuFocused = false;
 }
 
 CActorManager::~CActorManager()
@@ -303,7 +302,7 @@ unsigned int CActorManager::GetScriptingHandle(EntityId actorId)
 void CActorManager::ForceAnimation(EntityId actorId, const char * szGroup, const char * szAnim)
 {
 	if(m_bActive[actorId])
-		Scripting::TaskPlayAnim(GetScriptingHandle(actorId),szAnim,szGroup,float(8),0,0,0,0,5000);
+		Scripting::TaskPlayAnim(GetScriptingHandle(actorId),szAnim,szGroup,float(8),0,0,0,0,-1);
 }
 
 float CActorManager::GetHealth(EntityId actorId)

@@ -13,6 +13,7 @@
 #include <CSettings.h>
 #include "CModuleManager.h"
 #include "CEvents.h"
+#include "SharedUtility.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CScriptingManager * g_pScriptingManager;
@@ -34,7 +35,7 @@ CVehicleManager::~CVehicleManager()
 	}
 }
 
-EntityId CVehicleManager::Add(int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4)
+EntityId CVehicleManager::Add(int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4, int respawn_delay)
 {
 	for(EntityId x = 0; x < MAX_VEHICLES; x++)
 	{
@@ -45,7 +46,7 @@ EntityId CVehicleManager::Add(int iModelId, CVector3 vecSpawnPosition, CVector3 
 			if(m_pVehicles[x])
 			{
 				m_bActive[x] = true;
-
+				m_pVehicles[x]->SetRespawnDelay(respawn_delay);
 				CSquirrelArguments pArguments;
 				pArguments.push(x);
 				g_pEvents->Call("vehicleCreate", &pArguments);
@@ -60,6 +61,35 @@ EntityId CVehicleManager::Add(int iModelId, CVector3 vecSpawnPosition, CVector3 
 	return INVALID_ENTITY_ID;
 }
 
+void CVehicleManager::Process()
+{
+	for(EntityId x = 0; x < MAX_VEHICLES; x++)
+	{
+		if(m_bActive[x])
+		{
+			if(m_pVehicles[x]->GetRespawnDelay() > -1) {
+				if(m_pVehicles[x]->IsOccupied()) {
+					m_pVehicles[x]->SetLastTimeOccupied(SharedUtility::GetTime());
+					continue;
+				}
+				if(m_pVehicles[x]->GetLastTimeOccupied() == 0) {
+					m_pVehicles[x]->SetLastTimeOccupied(SharedUtility::GetTime());
+					continue;
+				}
+
+				//CLogFile::Printf("Checkrespawn ( %i + %i < %i )", m_pVehicles[x]->GetLastTimeOccupied(), m_pVehicles[x]->GetRespawnDelay(), SharedUtility::GetTime());
+				if((m_pVehicles[x]->GetLastTimeOccupied() + m_pVehicles[x]->GetRespawnDelay()) < SharedUtility::GetTime()) {
+					m_pVehicles[x]->Respawn();
+					BYTE colors[4];
+					m_pVehicles[x]->GetColors(colors[0], colors[1], colors[2], colors[3]);
+					m_pVehicles[x]->SetColors(colors[0], colors[1], colors[2], colors[3]);
+					m_pVehicles[x]->SetLastTimeOccupied(SharedUtility::GetTime());
+				}
+			}
+			
+		}
+	}
+}
 void CVehicleManager::Remove(EntityId vehicleId)
 {
 	if(!DoesExist(vehicleId))

@@ -113,6 +113,7 @@ private:
 	bool             OnQuickConnectButtonMouseEnter(const CEGUI::EventArgs &eventArgs);
 	bool             OnQuickConnectButtonMouseLeave(const CEGUI::EventArgs &eventArgs);
 	bool             OnQuickConnectButtonMouseClick(const CEGUI::EventArgs &eventArgs);
+	bool			 OnQuickConnectIPEditBoxKeyUp(const CEGUI::EventArgs &eventArgs);
 	bool             OnDisconnectButtonMouseEnter(const CEGUI::EventArgs &eventArgs);
 	bool             OnDisconnectButtonMouseLeave(const CEGUI::EventArgs &eventArgs);
 	bool             OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs);

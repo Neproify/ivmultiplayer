@@ -33,32 +33,39 @@ extern CModelManager   * g_pModelManager;
 extern bool              m_bControlsDisabled;
 extern CChatWindow     * g_pChatWindow;
 
+#define THIS_CHECK if(!this) { return; }
+#define THIS_CHECK_R(x) if(!this) { return x; }
+
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
+	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
+	m_bIsLocalPlayer(bIsLocalPlayer),
+	m_playerId(INVALID_ENTITY_ID),
+	m_pContextData(NULL),
+	m_byteGamePlayerNumber(0),
+	m_pPlayerInfo(NULL),
+	m_pModelInfo(CGame::GetModelInfo(MODEL_PLAYER_INDEX)),
+	m_bSpawned(false),
+	m_uiColor(0xFFFFFFFF),
+	m_usPing(0),
+	m_pVehicle(NULL),
+	m_byteVehicleSeatId(0),
+	m_bHealthLocked(false),
+	m_bArmourLocked(false),
+	m_bPlayerBlipCreated(false),
+	m_uiPlayerBlipHandle(NULL),
+	m_bHelmet(false),
+	m_bUseMobilePhone(false),
+	m_bUseCustomClothesOnSpawn(false)
+	
 {
-	m_bIsLocalPlayer = bIsLocalPlayer;
-	m_playerId = INVALID_ENTITY_ID;
-	m_pContextData = NULL;
-	m_byteGamePlayerNumber = 0;
-	m_pPlayerInfo = NULL;
-	m_pModelInfo = CGame::GetModelInfo(MODEL_PLAYER_INDEX);
-	m_bSpawned = false;
-	m_uiColor = 0xFFFFFFFF;
 	m_interp.pos.ulFinishTime = 0;
 	memset(&m_ucClothes, 0, sizeof(m_ucClothes));
-	m_bUseCustomClothesOnSpawn = false;
+	
 	memset(&m_previousControlState, 0, sizeof(CControlState));
 	memset(&m_currentControlState, 0, sizeof(CControlState));
-	m_usPing = 0;
-	m_pVehicle = NULL;
-	m_byteVehicleSeatId = 0;
 	ResetVehicleEnterExit();
-	m_bHealthLocked = false;
-	m_bArmourLocked = false;
-	m_bPlayerBlipCreated = false;
-	m_uiPlayerBlipHandle = NULL;
-	m_bHelmet = false;
-	m_bUseMobilePhone = false;
-
+	this->SetCanBeStreamedIn(true);
+	Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(), false);
 	if(IsLocalPlayer())
 	{
 		// Create a new player ped instance with the local player ped
@@ -100,6 +107,8 @@ CNetworkPlayer::~CNetworkPlayer()
 
 bool CNetworkPlayer::Create()
 {
+	THIS_CHECK_R(false)
+
 	// Are we already spawned or are we the local player?
 	if(IsSpawned() || IsLocalPlayer())
 		return false;
@@ -280,12 +289,14 @@ bool CNetworkPlayer::Create()
 
 void CNetworkPlayer::Init()
 {
+	THIS_CHECK
 	// Set again model
 	//SetModel(m_pModelInfo->GetHash());
 }
 
 void CNetworkPlayer::Destroy()
 {
+	THIS_CHECK
 	// Are we not the local player?
 	if(!IsLocalPlayer())
 	{
@@ -387,8 +398,28 @@ void CNetworkPlayer::Destroy()
 	m_bSpawned = false;
 }
 
+void CNetworkPlayer::StreamIn()
+{
+	CLogFile::Printf("StreamIn");
+	THIS_CHECK
+	if(Create()) {
+		SetPosition(m_vecPos);
+		SetHealth(m_uiHealth);
+	}
+}
+
+void CNetworkPlayer::StreamOut()
+{
+	CLogFile::Printf("StreamOut");
+	THIS_CHECK
+	GetPosition(m_vecPos);
+	m_uiHealth = GetHealth();
+	Destroy();
+}
+
 void CNetworkPlayer::Kill(bool bInstantly)
 {
+	THIS_CHECK
 	// Are we spawned and not already dead?
 	if(IsSpawned() && !IsDead())
 	{
@@ -446,6 +477,7 @@ void CNetworkPlayer::Kill(bool bInstantly)
 
 bool CNetworkPlayer::IsDying()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
@@ -462,6 +494,7 @@ bool CNetworkPlayer::IsDying()
 
 bool CNetworkPlayer::IsDead()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		// jenksta: HACK: code below never seems to trigger so use IsDying instead
@@ -480,6 +513,7 @@ bool CNetworkPlayer::IsDead()
 
 IVEntity * CNetworkPlayer::GetLastDamageEntity()
 {
+	THIS_CHECK_R(NULL)
 	if(IsSpawned())
 		return m_pPlayerPed->GetLastDamageEntity();
 
@@ -488,6 +522,7 @@ IVEntity * CNetworkPlayer::GetLastDamageEntity()
 
 bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId, EntityId * weaponId)
 {
+	THIS_CHECK_R(false)
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -561,6 +596,7 @@ bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId, Enti
 
 bool CNetworkPlayer::IsMoving()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		CVector3 vecMoveSpeed;
@@ -576,12 +612,14 @@ bool CNetworkPlayer::IsMoving()
 
 void CNetworkPlayer::StopMoving()
 {
+	THIS_CHECK
 	if(IsSpawned())
 		SetMoveSpeed(CVector3());
 }
 
 bool CNetworkPlayer::InternalIsInVehicle()
 {
+	THIS_CHECK_R(false)
 	// Are we spawned?
 	if(IsSpawned())
 		return (m_pPlayerPed->IsInVehicle() && m_pPlayerPed->GetCurrentVehicle());
@@ -591,6 +629,7 @@ bool CNetworkPlayer::InternalIsInVehicle()
 
 CNetworkVehicle * CNetworkPlayer::InternalGetVehicle()
 {
+	THIS_CHECK_R(NULL)
 	// Are we spawned and in a vehicle?
 	if(IsSpawned() && InternalIsInVehicle())
 		return g_pStreamer->GetVehicleFromGameVehicle(m_pPlayerPed->GetCurrentVehicle());
@@ -600,6 +639,7 @@ CNetworkVehicle * CNetworkPlayer::InternalGetVehicle()
 
 void CNetworkPlayer::InternalPutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
+	THIS_CHECK
 	// Are we spawned and not in a vehicle?
 	if(IsSpawned() && !InternalIsInVehicle())
 	{
@@ -632,6 +672,7 @@ void CNetworkPlayer::InternalPutInVehicle(CNetworkVehicle * pVehicle, BYTE byteS
 
 void CNetworkPlayer::InternalRemoveFromVehicle()
 {
+	THIS_CHECK
 	// Are we spawned and in a vehicle?
 	if(IsSpawned() && m_pVehicle)
 	{
@@ -655,6 +696,7 @@ void CNetworkPlayer::InternalRemoveFromVehicle()
 
 unsigned int CNetworkPlayer::GetScriptingHandle()
 {
+	THIS_CHECK_R(0)
 	if(IsSpawned())
 		return CGame::GetPools()->GetPedPool()->HandleOf(m_pPlayerPed->GetPed());
 
@@ -663,6 +705,7 @@ unsigned int CNetworkPlayer::GetScriptingHandle()
 
 void CNetworkPlayer::SetModel(DWORD dwModelHash)
 {
+	THIS_CHECK
 	CLogFile::PrintDebugf("SETMODEL %p | PlayerId: %d",dwModelHash,m_playerId);
 
 	// Get the model index from the model hash
@@ -753,6 +796,7 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 
 void CNetworkPlayer::Teleport(const CVector3& vecPosition, bool bResetInterpolation)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -787,6 +831,7 @@ void CNetworkPlayer::Teleport(const CVector3& vecPosition, bool bResetInterpolat
 
 void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpolation)
 {
+	THIS_CHECK
 	// FIXUPDATE
 	// This doesn't work for long distances
 
@@ -826,6 +871,7 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 
 void CNetworkPlayer::GetPosition(CVector3& vecPosition)
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		// If we are in a vehicle use our vehicles position
@@ -840,6 +886,7 @@ void CNetworkPlayer::GetPosition(CVector3& vecPosition)
 
 void CNetworkPlayer::SetCurrentHeading(float fHeading)
 {
+	THIS_CHECK
         if(IsSpawned())
         {
                 m_pPlayerPed->SetCurrentHeading(fHeading);
@@ -849,6 +896,7 @@ void CNetworkPlayer::SetCurrentHeading(float fHeading)
 
 void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		// Check if the player has already the same pos
@@ -889,6 +937,7 @@ void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 
 float CNetworkPlayer::GetCurrentHeading()
 {
+	THIS_CHECK_R(0)
 	if(IsSpawned())
 		return m_pPlayerPed->GetCurrentHeading();
 
@@ -897,12 +946,14 @@ float CNetworkPlayer::GetCurrentHeading()
 
 void CNetworkPlayer::SetDesiredHeading(float fHeading)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->SetDesiredHeading(fHeading);
 }
 
 float CNetworkPlayer::GetDesiredHeading()
 {
+	THIS_CHECK_R(0)
 	if(IsSpawned())
 		return m_pPlayerPed->GetDesiredHeading();
 
@@ -911,12 +962,14 @@ float CNetworkPlayer::GetDesiredHeading()
 
 void CNetworkPlayer::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->SetMoveSpeed(vecMoveSpeed);
 }
 
 void CNetworkPlayer::GetMoveSpeed(CVector3& vecMoveSpeed)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
 	else
@@ -925,12 +978,14 @@ void CNetworkPlayer::GetMoveSpeed(CVector3& vecMoveSpeed)
 
 void CNetworkPlayer::SetTurnSpeed(const CVector3& vecTurnSpeed)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->SetTurnSpeed(vecTurnSpeed);
 }
 
 void CNetworkPlayer::GetTurnSpeed(CVector3& vecTurnSpeed)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->GetTurnSpeed(vecTurnSpeed);
 	else
@@ -939,6 +994,7 @@ void CNetworkPlayer::GetTurnSpeed(CVector3& vecTurnSpeed)
 
 void CNetworkPlayer::SetHealth(unsigned int uiHealth)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 		Scripting::SetCharHealth(GetScriptingHandle(), uiHealth);
@@ -949,6 +1005,7 @@ void CNetworkPlayer::SetHealth(unsigned int uiHealth)
 
 void CNetworkPlayer::LockHealth(unsigned int uiHealth)
 {
+	THIS_CHECK
 	// Set our health
 	SetHealth(uiHealth);
 
@@ -961,6 +1018,7 @@ void CNetworkPlayer::LockHealth(unsigned int uiHealth)
 
 unsigned int CNetworkPlayer::GetHealth()
 {
+	THIS_CHECK_R(0)
 	// If our health is locked return our locked health
 	if(m_bHealthLocked)
 		return m_uiLockedHealth;
@@ -979,6 +1037,7 @@ unsigned int CNetworkPlayer::GetHealth()
 
 void CNetworkPlayer::SetArmour(unsigned int uiArmour)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 		Scripting::AddArmourToChar(GetScriptingHandle(), (uiArmour - GetArmour()));
@@ -989,6 +1048,7 @@ void CNetworkPlayer::SetArmour(unsigned int uiArmour)
 
 void CNetworkPlayer::LockArmour(unsigned int uiArmour)
 {
+	THIS_CHECK
 	// Set our armour
 	SetArmour(uiArmour);
 
@@ -1001,6 +1061,7 @@ void CNetworkPlayer::LockArmour(unsigned int uiArmour)
 
 unsigned int CNetworkPlayer::GetArmour()
 {
+	THIS_CHECK_R(0)
 	// If our armour is locked return our locked armour
 	if(m_bArmourLocked)
 		return m_uiLockedArmour;
@@ -1019,30 +1080,35 @@ unsigned int CNetworkPlayer::GetArmour()
 
 void CNetworkPlayer::GiveWeapon(unsigned int uiWeaponId, unsigned int uiAmmo)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		Scripting::GiveWeaponToChar(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo, true);
 }
 
 void CNetworkPlayer::RemoveWeapon(unsigned int uiWeaponId)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->GetPedWeapons()->RemoveWeapon((eWeaponType)uiWeaponId);
 }
 
 void CNetworkPlayer::RemoveAllWeapons()
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->GetPedWeapons()->RemoveAllWeapons();
 }
 
 void CNetworkPlayer::SetCurrentWeapon(unsigned int uiWeaponId)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->GetPedWeapons()->SetCurrentWeapon((eWeaponType)uiWeaponId);
 }
 
 unsigned int CNetworkPlayer::GetCurrentWeapon()
 {
+	THIS_CHECK_R(0)
 	if(IsSpawned())
 	{
 		// TODO: Fix, IVPedWeapons::m_byteCurrentWeaponSlot isn't right
@@ -1060,6 +1126,7 @@ unsigned int CNetworkPlayer::GetCurrentWeapon()
 
 void CNetworkPlayer::SetAmmo(unsigned int uiWeaponId, unsigned int uiAmmo)
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		// TODO: Fix, IVPedWeapons::m_byteCurrentWeaponSlot isn't right
@@ -1079,6 +1146,7 @@ void CNetworkPlayer::SetAmmo(unsigned int uiWeaponId, unsigned int uiAmmo)
 
 unsigned int CNetworkPlayer::GetAmmo(unsigned int uiWeaponId)
 {
+	THIS_CHECK_R(0)
 	if(IsSpawned())
 	{
 		// TODO: Create a function for SetAmmoInClip
@@ -1098,12 +1166,14 @@ unsigned int CNetworkPlayer::GetAmmo(unsigned int uiWeaponId)
 
 void CNetworkPlayer::GetWeaponInSlot(unsigned int uiWeaponSlot, unsigned int &uiWeaponId, unsigned int &uiAmmo, unsigned int &uiUnknown)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		Scripting::GetCharWeaponInSlot(GetScriptingHandle(), (Scripting::eWeaponSlot)uiWeaponSlot, (Scripting::eWeapon *)&uiWeaponId, &uiAmmo, &uiUnknown);
 }
 
 unsigned int CNetworkPlayer::GetAmmoInClip(unsigned int uiWeapon)
 {
+	THIS_CHECK_R(0)
 	if(IsSpawned())
 	{
 		unsigned int uiAmmoInClip;
@@ -1115,6 +1185,7 @@ unsigned int CNetworkPlayer::GetAmmoInClip(unsigned int uiWeapon)
 
 void CNetworkPlayer::SetAmmoInClip(unsigned int uiAmmoInClip)
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		unsigned int uiWeapon = GetCurrentWeapon();
@@ -1128,6 +1199,7 @@ void CNetworkPlayer::SetAmmoInClip(unsigned int uiAmmoInClip)
 
 unsigned int CNetworkPlayer::GetMaxAmmoInClip(unsigned int uiWeapon)
 {
+	THIS_CHECK_R(0)
 	if(IsSpawned())
 	{
 		unsigned int uiMaxAmmoInClip;
@@ -1139,6 +1211,7 @@ unsigned int CNetworkPlayer::GetMaxAmmoInClip(unsigned int uiWeapon)
 
 void CNetworkPlayer::GiveMoney(int iAmount)
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		// this shows +/-$12345
@@ -1152,6 +1225,7 @@ void CNetworkPlayer::GiveMoney(int iAmount)
 
 void CNetworkPlayer::SetMoney(int iAmount)
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		m_pPlayerInfo->SetScore(iAmount);
@@ -1166,6 +1240,7 @@ void CNetworkPlayer::SetMoney(int iAmount)
 
 void CNetworkPlayer::ResetMoney()
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		m_pPlayerInfo->SetScore(0);
@@ -1175,6 +1250,7 @@ void CNetworkPlayer::ResetMoney()
 
 int CNetworkPlayer::GetMoney()
 {
+	THIS_CHECK_R(0)
 	if(IsSpawned())
 		return m_pPlayerInfo->GetScore();
 
@@ -1183,6 +1259,7 @@ int CNetworkPlayer::GetMoney()
 
 void CNetworkPlayer::SetControlState(CControlState * controlState)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1216,18 +1293,21 @@ void CNetworkPlayer::SetControlState(CControlState * controlState)
 
 void CNetworkPlayer::GetPreviousControlState(CControlState * controlState)
 {
+	THIS_CHECK
 	// Copy the previous control state to the control state
 	memcpy(controlState, &m_previousControlState, sizeof(CControlState));
 }
 
 void CNetworkPlayer::GetControlState(CControlState * controlState)
 {
+	THIS_CHECK
 	// Copy the current control state to the control state
 	memcpy(controlState, &m_currentControlState, sizeof(CControlState));
 }
 
 void CNetworkPlayer::SetAimTarget(const CVector3& vecAimTarget)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1241,6 +1321,7 @@ void CNetworkPlayer::SetAimTarget(const CVector3& vecAimTarget)
 
 void CNetworkPlayer::GetAimTarget(CVector3& vecAimTarget)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1257,6 +1338,7 @@ void CNetworkPlayer::GetAimTarget(CVector3& vecAimTarget)
 
 void CNetworkPlayer::SetShotSource(const CVector3& vecShotSource)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1270,6 +1352,7 @@ void CNetworkPlayer::SetShotSource(const CVector3& vecShotSource)
 
 void CNetworkPlayer::GetShotSource(CVector3& vecShotSource)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1286,6 +1369,7 @@ void CNetworkPlayer::GetShotSource(CVector3& vecShotSource)
 
 void CNetworkPlayer::SetShotTarget(const CVector3& vecShotTarget)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1299,6 +1383,7 @@ void CNetworkPlayer::SetShotTarget(const CVector3& vecShotTarget)
 
 void CNetworkPlayer::GetShotTarget(CVector3& vecShotTarget)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1315,6 +1400,7 @@ void CNetworkPlayer::GetShotTarget(CVector3& vecShotTarget)
 
 void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 {
+	THIS_CHECK
 	// Set the aim target
 	SetAimTarget(aimSyncData->vecAimTarget);
 
@@ -1327,6 +1413,7 @@ void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 
 void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 {
+	THIS_CHECK
 	// Get the aim target
 	GetAimTarget(aimSyncData->vecAimTarget);
 
@@ -1342,12 +1429,14 @@ void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 
 void CNetworkPlayer::AddToWorld()
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->AddToWorld();
 }
 
 void CNetworkPlayer::RemoveFromWorld(bool bStopMoving)
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		// Stop the player from moving to avoid some weird bugs
@@ -1360,6 +1449,7 @@ void CNetworkPlayer::RemoveFromWorld(bool bStopMoving)
 
 void CNetworkPlayer::GiveHelmet()
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		Scripting::GivePedHelmet(GetScriptingHandle());
@@ -1369,6 +1459,7 @@ void CNetworkPlayer::GiveHelmet()
 
 void CNetworkPlayer::RemoveHelmet()
 {
+	THIS_CHECK
 	if(IsSpawned())
 	{
 		Scripting::RemovePedHelmet(GetScriptingHandle(),true);
@@ -1379,6 +1470,7 @@ void CNetworkPlayer::RemoveHelmet()
 // TODO: Don't use natives for this
 void CNetworkPlayer::SetInterior(unsigned int uiInterior)
 {
+	THIS_CHECK
 	if(IsSpawned() && GetInterior() != uiInterior)
 		Scripting::SetRoomForCharByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
 }
@@ -1386,6 +1478,7 @@ void CNetworkPlayer::SetInterior(unsigned int uiInterior)
 // TODO: Don't use natives for this
 unsigned int CNetworkPlayer::GetInterior()
 {
+	THIS_CHECK_R(0)
 	if(IsSpawned())
 	{
 		unsigned int uiInterior;
@@ -1397,6 +1490,7 @@ unsigned int CNetworkPlayer::GetInterior()
 
 void CNetworkPlayer::UpdateTargetPosition()
 {
+	THIS_CHECK
 	if(HasTargetPosition())
 	{
 		unsigned long ulCurrentTime = SharedUtility::GetTime();
@@ -1441,6 +1535,7 @@ void CNetworkPlayer::UpdateTargetPosition()
 
 void CNetworkPlayer::Interpolate()
 {
+	THIS_CHECK
 	// Are we not getting in/out of a vehicle?
 	if(true)
 		UpdateTargetPosition();
@@ -1448,6 +1543,7 @@ void CNetworkPlayer::Interpolate()
 
 void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned long ulDelay)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1476,16 +1572,19 @@ void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned lon
 
 void CNetworkPlayer::RemoveTargetPosition()
 {
+	THIS_CHECK
 	m_interp.pos.ulFinishTime = 0;
 }
 
 void CNetworkPlayer::ResetInterpolation()
 {
+	THIS_CHECK
 	RemoveTargetPosition();
 }
 
 void CNetworkPlayer::SetColor(unsigned int uiColor)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerInfo->SetColour(uiColor);
 
@@ -1494,11 +1593,13 @@ void CNetworkPlayer::SetColor(unsigned int uiColor)
 
 unsigned int CNetworkPlayer::GetColor()
 {
+	THIS_CHECK_R(0)
 	return m_uiColor;
 }
 
 void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothes)
 {
+	THIS_CHECK
 	if(ucBodyPart > 10)
 		return;
 
@@ -1536,6 +1637,7 @@ void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothe
 
 unsigned char CNetworkPlayer::GetClothes(unsigned char ucBodyPart)
 {
+	THIS_CHECK_R(0)
 	if(ucBodyPart > 10)
 		return 0;
 
@@ -1544,12 +1646,14 @@ unsigned char CNetworkPlayer::GetClothes(unsigned char ucBodyPart)
 
 void CNetworkPlayer::SetDucking(bool bDucking)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->SetDucking(bDucking);
 }
 
 bool CNetworkPlayer::IsDucking()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 		return m_pPlayerPed->IsDucking();
 
@@ -1558,12 +1662,14 @@ bool CNetworkPlayer::IsDucking()
 
 void CNetworkPlayer::SetCameraBehind()
 {
+	THIS_CHECK
 	if(IsSpawned())
 		g_pCamera->SetBehindPed(m_pPlayerPed);
 }
 
 void CNetworkPlayer::Pulse()
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1630,6 +1736,7 @@ void CNetworkPlayer::Pulse()
 
 void CNetworkPlayer::SetName(String strName)
 {
+	THIS_CHECK
 	m_strName = strName;
 
 	if(!CGame::GetNameTags())
@@ -1644,6 +1751,7 @@ void CNetworkPlayer::SetName(String strName)
 
 bool CNetworkPlayer::IsGettingInToAVehicle()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1660,6 +1768,7 @@ bool CNetworkPlayer::IsGettingInToAVehicle()
 
 bool CNetworkPlayer::IsGettingOutOfAVehicle()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1676,6 +1785,7 @@ bool CNetworkPlayer::IsGettingOutOfAVehicle()
 
 bool CNetworkPlayer::IsJackingAVehicle()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1692,6 +1802,7 @@ bool CNetworkPlayer::IsJackingAVehicle()
 
 bool CNetworkPlayer::IsGettingJackedFromVehicle()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1708,6 +1819,7 @@ bool CNetworkPlayer::IsGettingJackedFromVehicle()
 
 bool CNetworkPlayer::ClearVehicleEntryTask()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1727,6 +1839,7 @@ bool CNetworkPlayer::ClearVehicleEntryTask()
 
 bool CNetworkPlayer::ClearVehicleExitTask()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1746,6 +1859,7 @@ bool CNetworkPlayer::ClearVehicleExitTask()
 
 bool CNetworkPlayer::ClearDieTask()
 {
+	THIS_CHECK_R(false)
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
@@ -1766,6 +1880,7 @@ bool CNetworkPlayer::ClearDieTask()
 
 bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehicle, BYTE &byteSeatId)
 {
+	THIS_CHECK_R(false)
 	// TODO: Get closest vehicle door not vehicle and add door parameter
 	// Are we spawned?
 	if(IsSpawned())
@@ -1844,6 +1959,7 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 
 void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1909,6 +2025,8 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 
 void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 {
+	THIS_CHECK
+
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1988,7 +2106,9 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 		}
 
 		// Reset Driver
-		m_pVehicle->SetDriver(NULL);
+		THIS_CHECK
+			if(m_pVehicle)
+				m_pVehicle->SetDriver(NULL);
 
 		// Reset interpolation
 		ResetInterpolation();
@@ -1997,6 +2117,7 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 
 void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -2051,6 +2172,7 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 
 void CNetworkPlayer::RemoveFromVehicle()
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -2077,6 +2199,7 @@ void CNetworkPlayer::RemoveFromVehicle()
 
 void CNetworkPlayer::CheckVehicleEntryExitKey()
 {
+	THIS_CHECK
 	// Are we spawned and is input enabled and are our controls not disabled?
 	if(IsSpawned() && CGame::GetInputState() && !m_bControlsDisabled)
 	{
@@ -2206,6 +2329,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 
 void CNetworkPlayer::ProcessVehicleEntryExit()
 {
+	THIS_CHECK
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -2379,6 +2503,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 
 void CNetworkPlayer::ResetVehicleEnterExit()
 {
+	THIS_CHECK
 	// Reset the vehicle enter/exit flags
 	m_vehicleEnterExit.bEntering = false;
 	m_vehicleEnterExit.pVehicle = NULL;
@@ -2395,12 +2520,14 @@ void CNetworkPlayer::ResetVehicleEnterExit()
 
 void CNetworkPlayer::ToggleRagdoll(bool bToggle)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		m_pPlayerPed->SetRagdoll(bToggle);
 }
 
 bool CNetworkPlayer::IsOnScreen()
 {
+	THIS_CHECK_R(false)
 	// Are we spawned?
 	if(IsSpawned())
 		return /*Scripting::IsCharOnScreen(GetScriptingHandle())*/true;
@@ -2410,6 +2537,7 @@ bool CNetworkPlayer::IsOnScreen()
 
 void CNetworkPlayer::SetHelmet(bool bHelmet)
 {
+	THIS_CHECK
 	if(bHelmet)
 		Scripting::GivePedHelmet(GetScriptingHandle());
 	if(!bHelmet)
@@ -2420,6 +2548,7 @@ void CNetworkPlayer::SetHelmet(bool bHelmet)
 
 void CNetworkPlayer::UseMobilePhone(bool bUse)
 {
+	THIS_CHECK
 	if(IsSpawned())
 		Scripting::TaskUseMobilePhone(GetScriptingHandle(),bUse);
 

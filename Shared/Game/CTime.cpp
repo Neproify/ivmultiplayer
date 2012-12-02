@@ -18,12 +18,12 @@ extern CNetworkManager * g_pNetworkManager;
 #endif
 
 CTime::CTime()
+	: m_ulTimeSet(SharedUtility::GetTime()),
+	m_ucHour(12),
+	m_ucMinute(0),
+	m_ucDayOfWeek(0),
+	m_uiMinuteDuration(DEFAULT_MINUTE_DURATION)
 {
-	m_ulTimeSet = SharedUtility::GetTime();
-	m_ucHour = 12;
-	m_ucMinute = 0;
-	m_ucDayOfWeek = 0;
-	m_uiMinuteDuration = DEFAULT_MINUTE_DURATION;
 }
 
 CTime::~CTime()
