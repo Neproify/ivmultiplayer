@@ -17,9 +17,9 @@
 extern CClientTaskManager * g_pClientTaskManager;
 
 CIVPedTaskManager::CIVPedTaskManager(IVPedTaskManager * pPedTaskManager, CIVPed * pPed)
+	: m_pPedTaskManager(pPedTaskManager),
+	m_pPed(pPed)
 {
-	m_pPedTaskManager = pPedTaskManager;
-	m_pPed = pPed;
 }
 
 void CIVPedTaskManager::SetTask(CIVTask * pTask, int iType, bool bForceNewTask)

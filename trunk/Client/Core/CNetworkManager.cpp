@@ -39,28 +39,32 @@ extern CNetworkManager * g_pNetworkManager;
 extern CFileTransfer * g_pFileTransfer;
 extern CActorManager * g_pActorManager;
 
+
+bool IsPlayerLimitReached()
+{
+	return false;
+}
+
+bool IsVehicleLimitReached()
+{
+	return false;
+}
 CNetworkManager::CNetworkManager()
+	: m_pNetClient(CNetworkModule::GetNetClientInterface()),
+	m_pClientPacketHandler(new CClientPacketHandler()),
+	m_pClientRPCHandler(new CClientRPCHandler()),
+	m_bJoinedServer(false),
+	m_bJoinedGame(false)
 {
 	// Set the default host name
 	m_sHostName.Set("IV:MP");
 
-	// Create the net client instance
-	m_pNetClient = CNetworkModule::GetNetClientInterface();
-
 	// Set the net client packet handler function
 	m_pNetClient->SetPacketHandler(PacketHandler);
 
-	// Create the packet handler instance
-	m_pClientPacketHandler = new CClientPacketHandler();
-
-	// Create the rpc handler instance
-	m_pClientRPCHandler = new CClientRPCHandler();
-
-	// Flag ourselves as not joined a server or game
-	m_bJoinedServer = false;
-	m_bJoinedGame = false;
-
 	g_pChatWindow->AddInfoMessage(VERSION_IDENTIFIER_2 " Initialized");
+
+
 }
 
 CNetworkManager::~CNetworkManager()
@@ -109,7 +113,8 @@ void CNetworkManager::PacketHandler(CPacket * pPacket)
 {
 	// Get the network manager pointer
 	CNetworkManager * pNetworkManager = g_pNetworkManager;
-
+	if(!g_pNetworkManager)
+		return;
 	// Pass it to the packet handler, if that doesn't handle it, pass it to the rpc handler
 	if(!pNetworkManager->m_pClientPacketHandler->HandlePacket(pPacket) && !pNetworkManager->m_pClientRPCHandler->HandlePacket(pPacket))
 		CLogFile::PrintDebugf("Warning: Unhandled packet (Id: %d)\n", pPacket->packetId);
@@ -117,7 +122,8 @@ void CNetworkManager::PacketHandler(CPacket * pPacket)
 
 void CNetworkManager::Process()
 {
-	// If our file transfer class exists process it
+	// If our file transfer class exists process it>	Client.Core.dll!CNetworkManager::PacketHandler(CPacket * pPacket)  Zeile 106 + 0x1b Bytes	C++
+
 	if(g_pFileTransfer)
 		g_pFileTransfer->Process();
 

@@ -14,6 +14,9 @@
 #include "CString.h"
 #include "SharedUtility.h"
 #include "CLogFile.h"
+#ifndef _SERVER
+#include "..\Client\Core\CGame.h"
+#endif
 #ifdef WIN32
 #include <dbghelp.h>
 #include <tlhelp32.h>
@@ -94,7 +97,7 @@ void CExceptionHandler::WriteExceptionReport()
 
 	// Open the log file
 	FILE * fFile = fopen(strLogPath, "w");
-
+	CLogFile::Printf(strLogPath);
 	// Did the log file open successfully?
 	if(fFile)
 	{
@@ -107,8 +110,14 @@ void CExceptionHandler::WriteExceptionReport()
 			ExceptionCodeToString(ExceptionInfo->ExceptionRecord->ExceptionCode));
 
 		// Write the exception address to the log file
+#ifndef _SERVER
+		unsigned int address = (unsigned int)ExceptionInfo->ExceptionRecord->ExceptionAddress;
+		address -= CGame::GetBase();
+		address += 0x400000;
+		fprintf(fFile, "Exception address: 0x%p (0x%p) (0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, address, (address + 0x400000));
+#else
 		fprintf(fFile, "Exception address: 0x%p\n", ExceptionInfo->ExceptionRecord->ExceptionAddress);
-
+#endif
 		// Create a tool help 32 process snapshot
 		HANDLE hModuleSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
 
@@ -177,6 +186,30 @@ void CExceptionHandler::WriteExceptionReport()
 
 		// Write the unhandled exception report end notice to the log file
 		fprintf(fFile, "--------------- Unhandled Exception Report End ---------------\n");
+		
+#ifndef _SERVER
+		fprintf(fFile, "\n\n------------------------- Client Log -------------------------\n\n\n");
+		FILE * pFile;
+		String strClientLogOrgPath("%sClient.log",SharedUtility::GetAppPath());
+
+		pFile = fopen (strClientLogOrgPath.Get(), "r");
+		if (pFile != NULL)
+		{
+			fseek(pFile ,0 , SEEK_END);
+			int lSize = ftell (pFile);
+			char* buffer = (char*) malloc (sizeof(char)*lSize);
+			if (buffer == NULL) {
+				fclose(pFile);
+			} else {
+				fseek(pFile, 0, SEEK_SET);
+				size_t result = fread (buffer, 1, lSize, pFile);
+
+				fprintf(fFile, "%s\n\n", buffer);
+				fprintf(fFile, "---------------------- Client Log End -----------------------\n");
+				fclose(pFile);
+			}
+		}
+#endif
 	}
 
 	// Close the log file

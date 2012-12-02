@@ -28,13 +28,9 @@
 String strTemp;
 
 CIVPad::CIVPad()
+	: m_bCreatedByUs(true),
+	m_pPad(new IVPad)
 {
-	// Flag ourself as created by ourself
-	m_bCreatedByUs = true;
-
-	// Allocate the new pad
-	m_pPad = new IVPad;
-
 	// Call the CPad constructor
 	IVPad * pPad = m_pPad;
 	_asm
@@ -68,9 +64,10 @@ CIVPad::CIVPad()
 }
 
 CIVPad::CIVPad(IVPad * pPad)
+	: m_bCreatedByUs(false),
+	m_pPad(pPad)
 {
-	m_bCreatedByUs = false;
-	m_pPad = pPad;
+
 }
 
 CIVPad::~CIVPad()
@@ -115,7 +112,7 @@ void CIVPad::ToControlState(CControlState& controlState, bool bCurrent)
 	// Do we not have a valid pad?
 	if(!m_pPad)
 		return;
-	
+
 	// Analog keys
 	SET_ANALOG_KEY(INPUT_MOVE_LEFT,         controlState.ucOnFootMove[0]);
 	SET_ANALOG_KEY(INPUT_MOVE_RIGHT,        controlState.ucOnFootMove[1]);
@@ -145,6 +142,7 @@ void CIVPad::ToControlState(CControlState& controlState, bool bCurrent)
 	SET_BINARY_KEY(INPUT_VEH_HORN,          controlState.keys.bHorn);
 	SET_BINARY_KEY(INPUT_VEH_ATTACK,        controlState.keys.bDriveBy);
 	SET_BINARY_KEY(INPUT_VEH_ATTACK2,       controlState.keys.bHeliPrimaryFire);
+
 }
 
 void CIVPad::FromControlState(CControlState controlState, bool bCurrent)
@@ -164,6 +162,8 @@ void CIVPad::FromControlState(CControlState controlState, bool bCurrent)
 		controlState.ucInVehicleMove[1] = (unsigned char)'128';
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     controlState.ucInVehicleMove[0]);
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    controlState.ucInVehicleMove[1]);
+		GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     controlState.ucInVehicleMove[0]);
+		GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    controlState.ucInVehicleMove[1]);
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       controlState.ucInVehicleMove[2]);
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     controlState.ucInVehicleMove[3]);
 	}
@@ -173,6 +173,9 @@ void CIVPad::FromControlState(CControlState controlState, bool bCurrent)
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       controlState.ucInVehicleMove[2]);
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     controlState.ucInVehicleMove[3]);
 	}
+	
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     controlState.ucInVehicleMove[0]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    controlState.ucInVehicleMove[1]);
 
 	GET_ANALOG_KEY(INPUT_MOVE_LEFT,         controlState.ucOnFootMove[0]);
 	GET_ANALOG_KEY(INPUT_MOVE_RIGHT,        controlState.ucOnFootMove[1]);

@@ -11,13 +11,13 @@
 #include <CLogFile.h>
 
 CIVEvent::CIVEvent()
+	: m_pEvent(NULL)
 {
-	m_pEvent = NULL;
 }
 
 CIVEvent::CIVEvent(IVEvent * pEvent)
+	: m_pEvent(pEvent)
 {
-	m_pEvent = pEvent;
 }
 
 CIVEvent::~CIVEvent()

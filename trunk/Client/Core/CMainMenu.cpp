@@ -103,8 +103,9 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 		for(int i = 0; i < 10; i++)
 			g_pChatWindow->AddMessage(0xFFFFFFAA,false," ");
 
-		ShowMessageBox("Successfully disconnected from server ...","Disconnect",true,true,false);
+		ShowMessageBox("Successfully disconnected from server ...","Disconnect",true,false,false);
 		InternalResetGame(false);
+		Sleep(500);
 		SetDisconnectButtonVisible(false);
 
 		//m_pBackground->setAlpha(0.1f);
@@ -504,6 +505,38 @@ bool CMainMenu::OnServerBrowserWindowConnectButtonClick(const CEGUI::EventArgs &
 bool CMainMenu::OnQuickConnectWindowCloseClick(const CEGUI::EventArgs &eventArgs)
 {
 	SetQuickConnectWindowVisible(false);
+	return true;
+}
+
+
+bool CMainMenu::OnQuickConnectIPEditBoxKeyUp(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::KeyEventArgs& key_args = static_cast<const CEGUI::KeyEventArgs&>(eventArgs);
+	if(key_args.scancode == CEGUI::Key::Return) {
+		String strHost;
+		unsigned short usPort;
+
+		if(!GetHostAndPort(m_pQuickConnectWindowIPEditBox->getText().c_str(), strHost, usPort))
+		{
+			g_pGUI->ShowMessageBox("You must enter a valid host and port.", "Error");
+			return false;
+		}
+
+		// Get the password
+		String strPassword(m_pQuickConnectWindowPasswordEditBox->getText().c_str());
+
+		// Set the ip, port and password
+		CVAR_SET_STRING("ip", strHost);
+		CVAR_SET_INTEGER("port", usPort);
+		CVAR_SET_STRING("pass", strPassword);
+
+		// Hide the quick connect window
+		SetQuickConnectWindowVisible(false);
+
+		// Call the connect function
+		OnConnect(strHost, usPort, strPassword);
+		return true;
+	}
 	return true;
 }
 
@@ -910,6 +943,7 @@ CMainMenu::CMainMenu()
 	m_pQuickConnectWindowIPEditBox->setText(szHost);
 	m_pQuickConnectWindowIPEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pQuickConnectWindowIPEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.3f, 0)));
+	m_pQuickConnectWindowIPEditBox->subscribeEvent(CEGUI::Editbox::EventKeyUp, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectIPEditBoxKeyUp, this));
 
 	m_pQuickConnectWindowPasswordStaticText = g_pGUI->CreateGUIStaticText(m_pQuickConnectWindow);
 	m_pQuickConnectWindowPasswordStaticText->setText("Password (Blank for none)");
@@ -923,6 +957,7 @@ CMainMenu::CMainMenu()
 	m_pQuickConnectWindowPasswordEditBox->setText(g_strPassword.C_String());
 	m_pQuickConnectWindowPasswordEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pQuickConnectWindowPasswordEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.6f, 0)));
+	m_pQuickConnectWindowPasswordEditBox->subscribeEvent(CEGUI::Editbox::EventKeyUp, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectIPEditBoxKeyUp, this));
 
 	m_pQuickConnectWindowConnectButton = g_pGUI->CreateGUIButton(m_pQuickConnectWindow);
 	m_pQuickConnectWindowConnectButton->setText("Connect");

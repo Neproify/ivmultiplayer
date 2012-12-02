@@ -14,15 +14,16 @@ extern CLocalPlayer * g_pLocalPlayer;
 extern CStreamer * g_pStreamer;
 
 CPickup::CPickup(DWORD dwModelHash, unsigned char ucType, unsigned int uiValue, CVector3 vecPosition, CVector3 vecRotation)
-: CStreamableEntity(STREAM_ENTITY_PICKUP, 70.0f)
+	: CStreamableEntity(STREAM_ENTITY_PICKUP, 70.0f),
+	m_uiPickupHandle(0),
+	m_dwModelHash(dwModelHash),
+	m_ucType(ucType),
+	m_uiValue(uiValue),
+	m_vecPosition(vecPosition),
+	m_vecRotation(vecRotation)
 {
-	m_uiPickupHandle = 0;
-	m_dwModelHash = dwModelHash;
-	m_ucType = ucType;
-	m_uiValue = uiValue;
-	m_vecPosition = vecPosition;
-	m_vecRotation = vecRotation;
 }
+
 
 CPickup::~CPickup()
 {

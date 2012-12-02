@@ -67,8 +67,9 @@ private:
 	bool			 m_bFirstStreamIn;
 	bool			 m_bActive;
 	unsigned int	 m_uiInterior;
+	EMPTYVEHICLESYNCPACKET	m_oldEmptySyncData;
 
-	bool             Create();
+	bool             Create(bool bStreamIn = false);
 	void             Destroy();
 
 public:
@@ -140,7 +141,7 @@ public:
 	void             SetDirtLevel(float fDirtLevel);
 	float            GetDirtLevel();
 
-	void             StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync);
+	bool             StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync);
 	
 	void             SetDoorLockState(DWORD dwDoorLockState);
 	DWORD            GetDoorLockState();

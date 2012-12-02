@@ -22,25 +22,25 @@ bool m_bCursorChangedForMessageBox = false;
 bool m_bInputStateChangedForMessageBox = false;
 
 CGUI::CGUI(IDirect3DDevice9 * pD3DDevice)
+	: m_pD3DDevice(pD3DDevice),
+	m_pRenderer(NULL),
+	m_pSystem(NULL),
+	m_pCursor(NULL),
+	m_pWindowManager(NULL),
+	m_pDefaultWindow(NULL),
+	m_pInput(NULL),
+	m_pInputMouse(NULL),
+	m_bInitialized(false),
+	m_iCurrentId(0),
+	m_dwDoubleClickTime(GetDoubleClickTime()),
+	m_uiCurrentKyeFag(0)
 {
-	m_pD3DDevice = pD3DDevice;
-	m_pRenderer = NULL;
-	m_pSystem = NULL;
-	m_pCursor = NULL;
-	m_pWindowManager = NULL;
-	m_pDefaultWindow = NULL;
 	memset(&m_messageBox, 0, sizeof(m_messageBox));
-	m_pInput = NULL;
-	m_pInputMouse = NULL;
-	m_bInitialized = false;
 	memset(dwLastClickTime, 0, sizeof(DWORD) * 8);
 	memset(byteButtonWasClicked, 0, sizeof(BYTE) * 8);
 	memset(byteButtonClicked, 0, sizeof(BYTE) * 8);
 	memset(&m_rCursorPosition, 0, sizeof(RECT));
-	m_iCurrentId = 0;
-	m_dwDoubleClickTime = GetDoubleClickTime();
 	memset(&m_clickPosition, 0, sizeof(POINT));
-	m_uiCurrentKyeFag = 0;
 }
 
 CGUI::~CGUI()

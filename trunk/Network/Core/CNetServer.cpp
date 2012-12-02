@@ -278,6 +278,8 @@ CPacket * CNetServer::Receive()
 
 void CNetServer::DeallocatePacket(CPacket * pPacket)
 {
+	if(!this)
+		return;
 	// Check if we have a disconnection packet
 	if(pPacket->packetId == PACKET_DISCONNECTED || pPacket->packetId == PACKET_LOST_CONNECTION)
 	{

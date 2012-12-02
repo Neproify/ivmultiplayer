@@ -442,6 +442,7 @@ void CServerRPCHandler::InVehicleSync(CBitStream * pBitStream, CPlayerSocket * p
 			{
 				pPlayer->StoreInVehicleSync(pVehicle, &syncPacket, bHasAimSyncData, &aimSyncData);
 				pVehicle->StoreInVehicleSync(&syncPacket);
+				//pVehicle->SetLastTimeOccupied(SharedUtility::GetTime());
 			}
 		}
 	}

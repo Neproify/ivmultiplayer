@@ -12,15 +12,19 @@
 #include <assert.h>
 
 CBitStream::CBitStream()
+	: m_pData(m_stackData),
+	m_uiBufferSizeInBits((BUFFER_STACK_ALLOCATION_SIZE * 8)),
+	m_uiWriteOffsetInBits(0),
+	m_uiReadOffsetInBits(0),
+	m_bCopyData(true)
+
 {
-	m_pData = m_stackData;
-	m_uiBufferSizeInBits = (BUFFER_STACK_ALLOCATION_SIZE * 8);
-	m_uiWriteOffsetInBits = 0;
-	m_uiReadOffsetInBits = 0;
-	m_bCopyData = true;
 }
 
 CBitStream::CBitStream(const unsigned int uiSizeInBytes)
+	: 	m_uiWriteOffsetInBits(0),
+	m_uiReadOffsetInBits(0),
+	m_bCopyData(true)
 {
 	if(uiSizeInBytes <= BUFFER_STACK_ALLOCATION_SIZE)
 	{
@@ -32,13 +36,11 @@ CBitStream::CBitStream(const unsigned int uiSizeInBytes)
 		m_pData = (unsigned char *)malloc(uiSizeInBytes);
 		m_uiBufferSizeInBits = (uiSizeInBytes << 3);
 	}
-
-	m_uiWriteOffsetInBits = 0;
-	m_uiReadOffsetInBits = 0;		
-	m_bCopyData = true;
 }
 
 CBitStream::CBitStream(unsigned char * pBuffer, unsigned int uiSizeInBytes, bool bCopyData)
+	: 	m_uiReadOffsetInBits(0),
+		m_bCopyData(bCopyData)
 {
 	if(bCopyData)
 	{
@@ -61,8 +63,6 @@ CBitStream::CBitStream(unsigned char * pBuffer, unsigned int uiSizeInBytes, bool
 		m_pData = (unsigned char *)pBuffer;
 
 	m_uiWriteOffsetInBits = (uiSizeInBytes << 3);
-	m_uiReadOffsetInBits = 0;
-	m_bCopyData = bCopyData;
 	m_uiBufferSizeInBits = (uiSizeInBytes << 3);
 }
 

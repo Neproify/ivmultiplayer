@@ -932,7 +932,8 @@ namespace Modules
 	bool CPlayerModuleNatives::TriggerEvent(EntityId playerid, const char * szEventName, const char * szFormat, ...)
 	{
 		CBitStream bsSend;
-		bsSend.Write(String(szEventName));
+		CSquirrelArguments* arguments = new CSquirrelArguments();
+		arguments->push(String(szEventName));
 
 		int argcount = 0;
 		const char* p = szFormat;
@@ -946,24 +947,24 @@ namespace Modules
 				{
 					case 'b':
 					{
-						bsSend.Write(va_arg(ap, int) != 0);
+						arguments->push(va_arg(ap, int) != 0);
 					}
 					break;
 					case 'i':
 					{
-						bsSend.Write((int)va_arg(ap, int));
+						arguments->push((int)va_arg(ap, int));
 						break;
 					}
 					case 'f':
 					{
-						bsSend.Write((float)va_arg(ap, double));
+						arguments->push((float)va_arg(ap, double));
 						break;
 					}
 					break;
 					case 's':
 					{
 						char* sz = va_arg(ap, char*);
-						bsSend.Write(String(sz));
+						arguments->push(String(sz));
 						break;
 					}
 				}
@@ -972,6 +973,8 @@ namespace Modules
 			}
 			va_end(ap);
 		}
+		
+		arguments->serialize(&bsSend);
 		g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerid, false, PACKET_CHANNEL_SCRIPT);
 		return true;
 	}

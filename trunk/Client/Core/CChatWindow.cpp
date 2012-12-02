@@ -22,10 +22,10 @@ extern CLocalPlayer * g_pLocalPlayer;
 extern CPlayerManager * g_pPlayerManager;
 
 CChatWindow::CChatWindow()
+	: m_bEnabled(true),
+	m_iCurrentPage(1)
 {
 	memset(&m_chatMessages, 0, sizeof(m_chatMessages));
-	m_bEnabled = true;
-	m_iCurrentPage = 1;
 	InitFontAndBackground();
 }
 

@@ -16,10 +16,10 @@ extern CGUI * g_pGUI;
 extern bool g_bFPSToggle;
 
 CFPSCounter::CFPSCounter()
+	: m_ulLastTime(0),
+	m_uiCurrentFrames(0),
+	m_uiTotalFramesPerSecond(0)
 {
-	m_ulLastTime = 0;
-	m_uiCurrentFrames = 0;
-	m_uiTotalFramesPerSecond = 0;
 }
 
 CFPSCounter::~CFPSCounter()

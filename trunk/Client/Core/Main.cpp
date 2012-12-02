@@ -141,7 +141,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			CLogFile::Open("Client.log");
 
 			// Log the version
-			CLogFile::Printf(VERSION_IDENTIFIER);
+			CLogFile::Printf(VERSION_IDENTIFIER "| " __DATE__ " - " __TIME__ "");
 
 			// Open the settings file
 			CSettings::Open(SharedUtility::GetAbsolutePath("clientsettings.xml"));
@@ -413,7 +413,6 @@ void Direct3DRender()
 			g_pDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 1.0, 0);
 		}
 	}
-
 	if(g_pMainMenu && CGame::GetState() == GAME_STATE_MAIN_MENU || CGame::GetState() == GAME_STATE_IVMP_PAUSE_MENU)
 	{
 		if(!g_pMainMenu->IsVisible())
@@ -850,6 +849,11 @@ void ResetGame()
 void InternalResetGame(bool bAutoConnect)
 {
 	CLogFile::Printf("Initializing game for multiplayer activities");
+
+	// Remove local player from vehicle
+	// RootKiller: Maybe fixes reconnect bug
+	if(g_pLocalPlayer)
+		g_pLocalPlayer->RemoveFromVehicle();
 
 	// TODO: Reset functions for all of these classes or something so i don't have to delete and recreate them?
 	SAFE_DELETE(g_pModelManager);

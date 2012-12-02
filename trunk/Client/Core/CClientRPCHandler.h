@@ -176,7 +176,8 @@ private:
 	static void ScriptingForcePlayerSpeech(CBitStream * pBitStream, CPlayerSocket *pSenderSocket);
 	static void ScriptingForceActorSpeech(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingLetPlayerDriveAutomatic(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-
+	static void ScriptingSetPlayerDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetVehicleDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 public:
 	void        Register();
 	void        Unregister();

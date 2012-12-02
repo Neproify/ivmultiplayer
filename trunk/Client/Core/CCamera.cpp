@@ -18,6 +18,7 @@
 extern CLocalPlayer * g_pLocalPlayer;
 
 CCamera::CCamera()
+	: m_bScriptCamActive(false)
 {
 	// Get the game cam pointer
 	IVCam * pCam = NULL;
@@ -39,9 +40,6 @@ CCamera::CCamera()
 
 	// Create the script cam instance
 	m_pScriptCam = new CIVCam(CGame::GetPools()->GetCamPool()->AtHandle(uiScriptCam));
-
-	// Flag the script cam as inactive
-	m_bScriptCamActive = false;
 }
 
 CCamera::~CCamera()
@@ -187,7 +185,8 @@ void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer)
 	// Check if the camera should be attached to a vehicle or player
 	if(bVehicleOrPlayer)
 		Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
-	else
+	else {
 		Scripting::AttachCamToPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
-
+		Scripting::SetCamBehindPed(uiHandle);
+	}
 }

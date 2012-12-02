@@ -18,8 +18,13 @@ extern CNetworkManager * g_pNetworkManager;
 #endif
 
 CTrafficLights::CTrafficLights()
+	: 	m_ulTimeSet(SharedUtility::GetTime()),
+	m_bIsLocked(false),
+	m_eStateSet(TRAFFIC_LIGHT_STATE_GREEN_RED),
+	m_uiGreenDuration(DEFAULT_GREEN_DURATION),
+	m_uiYellowDuration(DEFAULT_YELLOW_DURATION),
+	m_uiRedDuration(DEFAULT_RED_DURATION)
 {
-	Reset();
 }
 
 void CTrafficLights::Reset()

@@ -29,6 +29,18 @@
 #define DEFAULT_REFERER "http://iv-multiplayer.com"
 
 CHttpClient::CHttpClient()
+	: m_iSocket(INVALID_SOCKET),
+	m_bConnected(false),
+	m_usPort(DEFAULT_PORT),
+	m_status(HTTP_STATUS_NONE),
+	m_lastError(HTTP_ERROR_NONE),
+	m_strUserAgent(DEFAULT_USER_AGENT),
+	m_strReferer(DEFAULT_REFERER),
+	m_uiRequestTimeout(30000),
+	m_uiRequestStart(0),
+	m_pfnReceiveHandler(NULL),
+	m_pReceiveHandlerUserData(NULL)
+
 {
 	// If windows startup winsock
 #ifdef WIN32
@@ -36,47 +48,14 @@ CHttpClient::CHttpClient()
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
 
-	// Invalidate the socket handle
-	m_iSocket = INVALID_SOCKET;
-
-	// Set the connected flag to false
-	m_bConnected = false;
-
 	// Reset the host
 	m_strHost.Clear();
-
-	// Reset the port
-	m_usPort = DEFAULT_PORT;
-
-	// Set the status to none
-	m_status = HTTP_STATUS_NONE;
 
 	// Reset the headers
 	m_headerMap.clear();
 
 	// Reset the data
 	m_strData.Clear();
-
-	// Set the last error to none
-	m_lastError = HTTP_ERROR_NONE;
-
-	// Set the default user agent
-	m_strUserAgent = DEFAULT_USER_AGENT;
-
-	// Set the default referer
-	m_strReferer = DEFAULT_REFERER;
-
-	// Set the default request timeout
-	m_uiRequestTimeout = 30000;
-
-	// Reset the request start
-	m_uiRequestStart = 0;
-
-	// Reset the receive handler
-	m_pfnReceiveHandler = NULL;
-
-	// Reset the receive handler user data
-	m_pReceiveHandlerUserData = NULL;
 }
 
 CHttpClient::~CHttpClient()

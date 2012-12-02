@@ -11,13 +11,11 @@
 #include "COffsets.h"
 
 CPools::CPools()
+	: m_pPedPool(NULL),
+	m_pVehiclePool(NULL),
+	m_pTaskPool(NULL),
+	m_pCamPool(NULL)
 {
-	// Reset the pool pointers
-	m_pPedPool = NULL;
-	m_pVehiclePool = NULL;
-	m_pTaskPool = NULL;
-	m_pCamPool = NULL;
-
 	// Clear our custom checkpoint array
 	memset(&m_checkpoints, 0, sizeof(m_checkpoints));
 

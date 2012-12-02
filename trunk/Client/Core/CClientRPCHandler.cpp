@@ -37,6 +37,7 @@
 #include "CCamera.h"
 #include "CFireManager.h"
 #include "CGame.h"
+#include "CStreamer.h"
 
 extern String                 g_strNick;
 extern String                 g_strHost;
@@ -62,6 +63,8 @@ extern CEvents              * g_pEvents;
 extern CNameTags            * g_pNameTags;
 extern CCamera              * g_pCamera;
 extern CFireManager		    * g_pFireManager;
+extern CStreamer			* g_pStreamer;
+
 
 bool m_bControlsDisabled = false;
 
@@ -293,7 +296,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// Create the new vehicle
 	CNetworkVehicle * pVehicle = new CNetworkVehicle(g_pModelManager->VehicleIdToModelHash(iModelId));
-
+	
 	// Set the vehicle spawn position
 	pVehicle->SetSpawnPosition(vecPosition);
 
@@ -942,6 +945,29 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			// Spawn player
 			g_pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
 
+			DWORD dwModelHash = SkinIdToModelHash(iModelId);
+			if(pPlayer)
+			{
+				CNetworkVehicle * pVehicle = NULL;
+				BYTE byteVehicleSeatId = -1;
+
+				if(pPlayer->IsLocalPlayer() && pPlayer->IsInVehicle())
+				{
+					pVehicle = pPlayer->GetVehicle();
+					byteVehicleSeatId = pPlayer->GetVehicleSeatId();
+				}
+
+				pPlayer->SetModel(dwModelHash);
+
+				if(pPlayer->IsLocalPlayer())
+				{
+					if(pVehicle != NULL)
+						pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
+				}
+				else
+					pPlayer->Init();
+			}
+
 			// Is there a helmet?
 			if(bHelmet)
 				pPlayer->GiveHelmet();
@@ -1254,6 +1280,7 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
 
 void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+
 	// Ensure we have a valid bitstream
 	if(!pBitStream)
 	{
@@ -2792,9 +2819,9 @@ void CClientRPCHandler::ScriptingForcePlayerAnimation(CBitStream * pBitStream, C
 
 	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 	if(pPlayer && pPlayer->IsSpawned() && !pPlayer->IsLocalPlayer())
-		Scripting::TaskPlayAnim(pPlayer->GetScriptingHandle(),strAnim.C_String(), strGroup.C_String(),(float)8,0,0,0,0,5000);
+		Scripting::TaskPlayAnim(pPlayer->GetScriptingHandle(),strAnim.C_String(), strGroup.C_String(),(float)8,0,0,0,0,-1);
 	else if(pPlayer && pPlayer->IsSpawned() && pPlayer->IsLocalPlayer())
-		Scripting::TaskPlayAnim(g_pLocalPlayer->GetScriptingHandle(),strAnim.C_String(), strGroup.C_String(),(float)8,0,0,0,0,5000);
+		Scripting::TaskPlayAnim(g_pLocalPlayer->GetScriptingHandle(),strAnim.C_String(), strGroup.C_String(),(float)8,0,0,0,0,-1);
 }
 
 void CClientRPCHandler::ScriptingForceActorAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3345,6 +3372,45 @@ void CClientRPCHandler::ScriptingLetPlayerDriveAutomatic(CBitStream * pBitStream
 		Scripting::TaskCarDriveToCoord(g_pLocalPlayer->GetScriptingHandle(),g_pLocalPlayer->GetVehicle()->GetScriptingHandle(),vecPos.fX,vecPos.fY,vecPos.fZ, fSpeed, iDrivingStyle, 1, iDrivingStyle, 5.0f, -1);
 }
 
+void CClientRPCHandler::ScriptingSetPlayerDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId playerId;
+	SQInteger Dimension;
+	
+	pBitStream->Read(playerId);
+	pBitStream->Read(Dimension);
+
+	if(playerId == g_pLocalPlayer->GetPlayerId()) {
+		//CLogFile::Printf("Set LocalPlayerDimension to (%i)", Dimension);
+		g_pLocalPlayer->SetDimension(Dimension);
+	} else if(g_pPlayerManager->GetAt(playerId) != NULL) {
+		//CLogFile::Printf("Set player(%i) dimension to (%i)",playerId, Dimension);
+		g_pPlayerManager->GetAt(playerId)->SetDimension(Dimension);
+	}
+
+	g_pStreamer->Pulse();
+}
+
+void CClientRPCHandler::ScriptingSetVehicleDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	SQInteger Dimension;
+	
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(Dimension);
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	if(pVehicle != NULL) {
+		pVehicle->SetDimension(Dimension);
+	}
+	//g_pStreamer->Pulse();
+}
+
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -3501,6 +3567,8 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingActorSaySpeech, ScriptingForceActorSpeech);
 	AddFunction(RPC_ScriptingPlayerSaySpeech, ScriptingForcePlayerSpeech);
 	AddFunction(RPC_ScriptingLetPlayerDriveAutomatic, ScriptingLetPlayerDriveAutomatic);
+	AddFunction(RPC_ScriptingSetPlayerDimension, ScriptingSetPlayerDimension);
+	AddFunction(RPC_ScriptingSetVehicleDimension, ScriptingSetVehicleDimension);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3659,4 +3727,5 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingPlayerSaySpeech);
 	RemoveFunction(RPC_ScriptingActorSaySpeech);
 	RemoveFunction(RPC_ScriptingLetPlayerDriveAutomatic);
+	RemoveFunction(RPC_ScriptingSetPlayerDimension);
 }

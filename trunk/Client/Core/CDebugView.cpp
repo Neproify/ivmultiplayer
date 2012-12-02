@@ -18,8 +18,8 @@ extern CGUI         * g_pGUI;
 extern CLocalPlayer * g_pLocalPlayer;
 
 CDebugView::CDebugView()
+	: m_fDebugTextTop(0)
 {
-	m_fDebugTextTop = 0;
 }
 
 CDebugView::~CDebugView()

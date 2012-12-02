@@ -24,11 +24,12 @@ extern CLocalPlayer * g_pLocalPlayer;
 extern CPlayerManager * g_pPlayerManager;
 
 CRemotePlayer::CRemotePlayer()
+	: m_vehicleId(INVALID_ENTITY_ID),
+	CNetworkPlayer(),
+	m_stateType(STATE_TYPE_DISCONNECT),
+	m_bPassenger(false),
+	m_pLastSyncData(NULL)
 {
-	m_vehicleId = INVALID_ENTITY_ID;
-	m_stateType = STATE_TYPE_DISCONNECT;
-	m_bPassenger = false;
-	m_pLastSyncData = NULL;
 }
 
 CRemotePlayer::~CRemotePlayer()
@@ -55,7 +56,7 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 
 void CRemotePlayer::Destroy()
 {
-
+	CNetworkPlayer::Destroy();
 }
 
 void CRemotePlayer::Kill()
@@ -72,6 +73,7 @@ void CRemotePlayer::Init()
 	{
 		ToggleRagdoll(false);
 		SetColor(GetColor());
+		Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(), false);
 		Scripting::SetPedDiesWhenInjured(GetScriptingHandle(), false);
 		Scripting::SetCharInvincible(GetScriptingHandle(), true);
 

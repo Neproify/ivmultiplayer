@@ -13,9 +13,9 @@
 #include <CLogFile.h>
 
 CIVPedWeaponSlot::CIVPedWeaponSlot(IVPedWeaponSlot * pWeapon, CIVPedWeapons * pPedWeapons)
+	: m_pPedWeaponSlot(pWeapon),
+	m_pPedWeapons(pPedWeapons)
 {
-	m_pPedWeaponSlot = pWeapon;
-	m_pPedWeapons = pPedWeapons;
 }
 
 eWeaponType CIVPedWeaponSlot::GetType()

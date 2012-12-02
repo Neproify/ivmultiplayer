@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Scripting.h"
+#include "CStreamer.h"
 #include "CIVPlayerPed.h"
 #include "CIVPlayerInfo.h"
 #include "CContextDataManager.h"
@@ -22,7 +23,7 @@ enum eExitVehicleMode
 	EXIT_VEHICLE_JACKED
 };
 
-class CNetworkPlayer
+class CNetworkPlayer : public CStreamableEntity
 {
 private:
 	EntityId          m_playerId;
@@ -75,6 +76,10 @@ private:
 	bool			  m_bPlayerBlipCreated;
 	unsigned int	  m_uiPlayerBlipHandle;
 	unsigned int	  m_iPlayerBlipSprite;
+
+	// Streaming info
+	unsigned int	  m_uiHealth;
+	CVector3		  m_vecPos;
 
 public:
 	CNetworkPlayer(bool bIsLocalPlayer = false);
@@ -189,6 +194,9 @@ public:
 
 	void                     AddToWorld();
 	void                     RemoveFromWorld(bool bStopMoving = true);
+
+	void					 StreamIn();
+	void					 StreamOut();
 
 	void                     SetInterior(unsigned int uiInterior);
 	unsigned int             GetInterior();

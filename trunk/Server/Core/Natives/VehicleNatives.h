@@ -64,6 +64,9 @@ private:
 	static SQInteger SetAlarm(SQVM * pVM);
 	static SQInteger MarkVehicle(SQVM * pVM);
 
+	static SQInteger SetDimension(SQVM * pVM);
+	static SQInteger GetDimension(SQVM * pVM);
+
 public:
 	static void      Register(CScriptingManager * pScriptingManager);
 };

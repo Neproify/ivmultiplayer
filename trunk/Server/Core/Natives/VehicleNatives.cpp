@@ -71,6 +71,9 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleGpsState", GetGpsState, 1, "i");
 	pScriptingManager->RegisterFunction("setVehicleAlarm", SetAlarm, 2, "ii");
 	pScriptingManager->RegisterFunction("markVehicleAsActorVehicle", MarkVehicle, 2, "ib");
+
+	//pScriptingManager->RegisterFunction("setVehicleDimension", SetDimension, 2, "ii");
+	//pScriptingManager->RegisterFunction("getVehicleDimension", GetDimension, 1, "i");
 }
 
 // createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4)
@@ -80,6 +83,7 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 	SQInteger iModelId;
 	CVector3 vecPosition;
 	CVector3 vecRotation;
+	SQInteger respawn_delay = -1;
 	SQInteger color1, color2, color3 = 0, color4 = 0;
 	sq_getinteger(pVM, 2, &iModelId);
 
@@ -99,9 +103,14 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 	sq_getinteger(pVM, 11, &color3);
 	sq_getinteger(pVM, 12, &color4);
 
+	if(sq_gettop(pVM) >= 13) {
+		sq_getinteger(pVM, 13, &respawn_delay);
+		//CLogFile::Printf("Set respawn_delay to (%i)", respawn_delay);
+	}
+
 	if(iModelId >= 0 && iModelId <= 125)
 	{
-		sq_pushinteger(pVM, g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4));
+		sq_pushinteger(pVM, g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4, respawn_delay));
 		return 1;
 	}
 
@@ -1126,5 +1135,50 @@ SQInteger CVehicleNatives::MarkVehicle(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+
+SQInteger CVehicleNatives::SetDimension(SQVM * pVM)
+{
+	SQInteger iDimension;
+	EntityId playerId;
+
+	sq_getinteger(pVM, -1, &iDimension);
+	sq_getentity(pVM, -2, &playerId);
+	
+	CVehicle* pVehicle = g_pVehicleManager->GetAt(playerId);
+	if(pVehicle == NULL) {
+		sq_pushbool(pVM, false);
+		CLogFile::Print("SetDimension failed");
+		return false;
+	}
+
+	pVehicle->SetDimension(iDimension);
+	CBitStream bsSend;
+	bsSend.Write(playerId);
+	bsSend.Write(iDimension);
+
+	//CLogFile::Printf("Set dimension of player(%i) to %i", (int)playerId, iDimension);
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+SQInteger CVehicleNatives::GetDimension(SQVM * pVM)
+{ 
+	EntityId vehicleId;
+
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	if(pVehicle)
+	{
+		sq_pushinteger(pVM, (SQInteger)pVehicle->GetDimension());
+		CLogFile::Printf("GetDimension %i", (SQInteger)pVehicle->GetDimension());
+		return 1;
+	}
+
+	sq_pushinteger(pVM, -1);
 	return 1;
 }

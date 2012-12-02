@@ -28,9 +28,12 @@ CVehicle::CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, 
 	m_byteSpawnColors[1] = byteColor2;
 	m_byteSpawnColors[2] = byteColor3;
 	m_byteSpawnColors[3] = byteColor4;
+	m_iRespawnDelay = -1;
 	m_bActorVehicle = false;
+	m_ucDimension = 254;
 	Reset();
 	SpawnForWorld();
+	Respawn();
 }
 
 CVehicle::~CVehicle()
@@ -111,7 +114,10 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	else
 		bsSend.Write0();
 
+	bsSend.Write(m_iRespawnDelay);
+
 	bsSend.Write((char *)m_byteColors, sizeof(m_byteColors));
+
 	bsSend.Write(m_fDirtLevel);
 
 	for(int i = 0; i < 4; ++ i)
@@ -153,6 +159,9 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(m_bActorVehicle);
 	g_pNetworkManager->RPC(RPC_ScriptingMarkVehicleAsActorVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+
+
+	SetColors(m_byteColors[0],m_byteColors[1],m_byteColors[2],m_byteColors[3]);
 }
 
 void CVehicle::DestroyForPlayer(EntityId playerId)

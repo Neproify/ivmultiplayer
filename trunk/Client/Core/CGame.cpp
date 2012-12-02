@@ -35,6 +35,7 @@
 #include "AimSync.h"
 #include "CMainMenu.h"
 #include "AnimGroups.h"
+#include "CCrashFixes.h"
 
 // Enable on of them if we wanna/don't want trains
 #ifdef IVMP_TRAINS
@@ -610,6 +611,11 @@ bool CGame::Patch()
 
 	if(COffsets::GetVersion() == GAME_VERSION_7)
 	{
+
+		Scripting::SetPedDensityMultiplier(0);
+		Scripting::SetParkedCarDensityMultiplier(0);
+		Scripting::SetRandomCarDensityMultiplier(0);
+
 		/* OTHER FUNCTIONS */
 		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random amient animations)
 		// NOTE: This also disables ambient head movements and maybe some other stuff we actually want
@@ -664,6 +670,8 @@ bool CGame::Patch()
 		// Disable random peds and vehicles
 		CPatcher::InstallNopPatch((GetBase() + 0x8ACD64), 5);
 #endif
+
+
 		// Disable vehicle generation
 		//CPatcher::InstallJmpPatch((GetBase() + 0x438D00),(GetBase() + 0x438D62));
 
@@ -672,7 +680,7 @@ bool CGame::Patch()
 		
 		// Adds a lot of world stuff which was disabled since Alpha >.<
 		PatchWorldAndTrain();
-		
+				
 		// Disable scenario peds
 		*(BYTE *)(GetBase() + 0x9F72C0) = 0xB8; // mov eax,
 		*(DWORD *)(GetBase() + 0x9F72C1) = 0x0; // 0
@@ -694,33 +702,24 @@ bool CGame::Patch()
 		//CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
 		//*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
 		/*CPatcher::InstallJmpPatch((GetBase() + 0x422CA7), (GetBase() + 0x422CAE));*/
-
-		// Fix vehicle crash
-		CPatcher::InstallJmpPatch((GetBase() + 0xCBA1F0), (GetBase() + 0xCBA230));
-
-		// Fix player crash #1
-		//CPatcher::InstallJmpPatch((GetBase() + 0x7BC110), (GetBase() + 0x7BC286));
 		
 		// Disalbe vehicle engine noise
 		//CPatcher::InstallJmpPatch((GetBase() + 0xCEF9E0), (GetBase() + 0xCEFA1B));
 
         // Disable auto vehicle start when player enter to it
 		//CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (GetBase() + /*0xA9F2F1*/0xA9F5D5));
-
-		// Fix player crash(sometimes)
-		//CPatcher::InstallJmpPatch((GetBase() + 0xB98400), (GetBase() + 0xB9845A));
 		
 		// Increase player info array size
 		/*CPatcher::Unprotect((GetBase() + 0x11A7008),4);
 		DWORD dwPlayerInfoArraySize = *(DWORD *)(GetBase() + 0x11A7008);
 		dwPlayerInfoArraySize = dwPlayerInfoArraySize*4;
 		*(DWORD *)(GetBase() + 0x11A7008) = dwPlayerInfoArraySize;*/
-
+		
 		// Testcode for playerinfoarray size..
 		/*CPatcher::Unprotect((GetBase() + 0x11A7008),4);
 		const DWORD size_11A7008 = 72;
-		DWORD dword_11A7008[72];
-		_asm 
+		DWORD dword_11A7008[72];*/
+		/*_asm 
 		{
 			mov eax, dword ptr 0x11A7008
 			mov edx, dword_11A7008
@@ -732,8 +731,8 @@ bool CGame::Patch()
 			inc edx
 			loop COPY_LOOP
 		}
-		CPatcher::InstallJmpPatch((CGame::GetBase() + 0x11A7008),(DWORD)dword_11A7008);
-		*/
+		CPatcher::InstallJmpPatch((CGame::GetBase() + 0x11A7008),(DWORD)dword_11A7008);*/
+		
 
 		// Make the game think that all stuff is already loaded
 		// TODO: int __cdecl sub_424140(char a1) and reverse stuff so we can skip the loadingscreen
@@ -785,6 +784,9 @@ bool CGame::Patch()
 		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
 
 		/* ERROR REPORTING END */
+
+		// Install crash fixes
+		CCrashFixes::Install();
 		return true;
 	}
 

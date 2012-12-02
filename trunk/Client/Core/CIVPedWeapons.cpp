@@ -14,9 +14,9 @@
 #include <CLogFile.h>
 
 CIVPedWeapons::CIVPedWeapons(IVPedWeapons * pPedWeapons, CIVPed * pPed)
+	: m_pPedWeapons(pPedWeapons),
+	m_pPed(pPed)
 {
-	m_pPedWeapons = pPedWeapons;
-	m_pPed = pPed;
 
 	for(int i = 0; i < WEAPON_SLOT_MAX; i++)
 		m_pWeapons[i] = new CIVPedWeaponSlot(&m_pPedWeapons->m_weapons[i], this);

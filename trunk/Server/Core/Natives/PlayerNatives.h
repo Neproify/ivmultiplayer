@@ -114,6 +114,9 @@ private:
 	static SQInteger SaySpeech(SQVM * pVM);
 	static SQInteger DriveAutomatic(SQVM * pVM);
 
+	static SQInteger SetDimension(SQVM * pVM);
+	static SQInteger GetDimension(SQVM * pVM);
+
 public:
 	static void      Register(CScriptingManager * pScriptingManager);
 };
