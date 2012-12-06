@@ -9,7 +9,7 @@
 	<!-- httpserver>example.com</httpserver -->
 
 	<!-- Maximum number of players the server will support (Max 32) -->
-	<maxplayers>450</maxplayers>
+	<maxplayers>48</maxplayers>
 
 	<!-- Maximum number of vehicles the server will support (Max 65534) -->
 	<maxvehicles>400</maxvehicles>
@@ -33,7 +33,7 @@
 	<frequentevents>false</frequentevents>
 
 	<!-- Toggles the network nametags from GTA IV to nametags from IV:MP(GUI) -->
-	<guinametags>true</guinametags>
+	<guinametags>false</guinametags>
 	
 	<!-- Toggles the headmovement sync -->
 	<headmovement>true</headmovement>
