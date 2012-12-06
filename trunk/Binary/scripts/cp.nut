@@ -39,7 +39,7 @@ function onScriptInit()
 	createVehicle(106, 1650.725464, 411.433807, 30.725628, 0.017944, 0.080933, 28.687622, 0, 0, 0, 0); // car12
 	createVehicle(108, 1647.794922, 411.647644, 30.763536, 359.298218, 2.161499, 335.835205, 1, 1, 1, 1); // car13
 	cp1 = createCheckpoint(3, -343.447662, 1171.119263, 14.146016, -343.447662, 1176.119263, 14.146016, 3.0);
-	getVehicleDimension(vehicles[0]);
+	//getVehicleDimension(vehicles[0]);
 	//actor1 = createActor(242, -341.36, 1142.80, 14.79, 5.0);
 	log(_version_);
 	local config = getConfig();

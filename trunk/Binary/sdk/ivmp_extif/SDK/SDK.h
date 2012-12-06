@@ -21,7 +21,9 @@ using namespace Modules;
 #define MAX_OBJECTS 0xFFFE
 #define MAX_CHECKPOINTS 0xFFFE
 #define MAX_BLIPS 1300
-#define MAX_ACTORS 72
+#ifndef MAX_ACTORS
+#define MAX_ACTORS 12
+#endif
 #define MAX_PICKUPS 0xFFFE
 #define MAX_NAME 32
 
