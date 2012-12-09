@@ -240,11 +240,12 @@ void CBlipManager::HandleClientJoin(EntityId playerId)
 				bsSend.Write(m_Blips[x].bRouteBlip);
 				bsSend.Write(m_Blips[x].bShow);
 				bsSend.Write(m_Blips[x].strName);
+				g_pNetworkManager->RPC(RPC_NewBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+				bsSend.Reset();
 			}
 		}
-
-		g_pNetworkManager->RPC(RPC_NewBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	}
+
 	if(g_pPlayerManager->GetPlayerCount() > 0)
 	{
 		CBitStream bsSend;
@@ -256,9 +257,10 @@ void CBlipManager::HandleClientJoin(EntityId playerId)
 				bsSend.Write(m_PlayerBlips[y].iSprite);
 				bsSend.Write(m_PlayerBlips[y].bShortRange);
 				bsSend.Write(m_PlayerBlips[y].bShow);
+				g_pNetworkManager->RPC(RPC_ScriptingCreatePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+				bsSend.Reset();
 			}
 		}
-		g_pNetworkManager->RPC(RPC_ScriptingCreatePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	}
 }
 

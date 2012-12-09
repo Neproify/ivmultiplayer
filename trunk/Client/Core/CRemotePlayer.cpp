@@ -77,9 +77,14 @@ void CRemotePlayer::Init()
 		Scripting::SetPedDiesWhenInjured(GetScriptingHandle(), false);
 		Scripting::SetCharInvincible(GetScriptingHandle(), true);
 
-		if(!CGame::GetNameTags())
-			Scripting::GivePedFakeNetworkName(GetScriptingHandle(),GetName().Get(),GetColor(),GetColor(),GetColor(),GetColor());
-
+		if(!CGame::GetNameTags()) {
+			char red = (GetColor() & 0xFF000000) >> 24;
+			char green = (GetColor() & 0x00FF0000) >> 16;
+			char blue = (GetColor() & 0x0000FF00) >> 8;
+			char alpha = (GetColor() & 0x000000FF);
+			Scripting::GivePedFakeNetworkName(GetScriptingHandle(),(GetName() + String(" (%i)",this->GetPlayerId())).Get(),red, green, blue, alpha);
+			//Scripting::GivePedFakeNetworkName(GetScriptingHandle(),GetName().Get(),((BYTE*)GetColor())[0],((BYTE*)GetColor())[1],((BYTE*)GetColor())[2],((BYTE*)GetColor())[3]);
+		}
 		// These two will be useful for a setPlayerUseModelAnims native
 		//Scripting::SetAnimGroupForChar(m_pedIndex, "move_player");
 		//Scripting::SetCharGestureGroup(m_pedIndex, "GESTURES@MALE");
@@ -398,7 +403,12 @@ void CRemotePlayer::SetColor(unsigned int uiColor)
 	if(!CGame::GetNameTags())
 	{
 		Scripting::RemoveFakeNetworkNameFromPed(GetScriptingHandle());
-		Scripting::GivePedFakeNetworkName(GetScriptingHandle(),GetName().Get(),uiColor,uiColor,uiColor,uiColor);
+
+		char red = (uiColor & 0xFF000000) >> 24;
+		char green = (uiColor & 0x00FF0000) >> 16;
+		char blue = (uiColor & 0x0000FF00) >> 8;
+		char alpha = (uiColor & 0x000000FF);
+		Scripting::GivePedFakeNetworkName(GetScriptingHandle(),(GetName() + String(" (%i)",this->GetPlayerId())).Get(),red, green, blue, alpha);
 	}
 
 	if(GetBlipActivity())

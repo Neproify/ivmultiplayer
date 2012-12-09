@@ -110,7 +110,8 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 
 	if(iModelId >= 0 && iModelId <= 125)
 	{
-		sq_pushinteger(pVM, g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4, respawn_delay));
+		EntityId vehicleId =  g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4, respawn_delay);
+		sq_pushinteger(pVM,vehicleId);
 		return 1;
 	}
 

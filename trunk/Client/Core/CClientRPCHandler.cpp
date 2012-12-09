@@ -371,6 +371,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// Flag the vehicle as can be streamed in
 	pVehicle->SetCanBeStreamedIn(true);
+	
 }
 
 void CClientRPCHandler::DeleteVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3093,6 +3094,7 @@ void CClientRPCHandler::ScriptingCreatePlayerBlip(CBitStream * pBitStream, CPlay
 	{
 		if(!pPlayer->GetBlipActivity() && !pPlayer->IsLocalPlayer())
 		{
+			CLogFile::Printf("Create player blip");
 			unsigned int uiHandle;
 			Scripting::AddBlipForChar(pPlayer->GetScriptingHandle(), &uiHandle);
 			Scripting::ChangeBlipSprite(uiHandle, (Scripting::eBlipSprite)iSprite);

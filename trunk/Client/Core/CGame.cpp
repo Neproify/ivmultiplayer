@@ -611,11 +611,12 @@ bool CGame::Patch()
 
 	if(COffsets::GetVersion() == GAME_VERSION_7)
 	{
+		//Scripting::SetParkedCarDensityMultiplier(0);
+		//Scripting::SetRandomCarDensityMultiplier(0);
 
 		Scripting::SetPedDensityMultiplier(0);
 		Scripting::SetParkedCarDensityMultiplier(0);
 		Scripting::SetRandomCarDensityMultiplier(0);
-
 		/* OTHER FUNCTIONS */
 		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random amient animations)
 		// NOTE: This also disables ambient head movements and maybe some other stuff we actually want
@@ -644,6 +645,15 @@ bool CGame::Patch()
 
 		// Don't load startup.sco
 		*(BYTE *)(GetBase() + 0x809A8A) = 0x75;
+		//*(BYTE *)(GetBase() + 0x8090F0) = 0x75;
+		//CPatcher::InstallRetnPatch(GetBase() + 0x8090F0);
+		//CPatcher::InstallRetnPatch(GetBase() + 0x8DF1A0);
+		//CPatcher::InstallRetnPatch(GetBase() + 0x8188C0);
+		/*
+			8184A0 // somthing with collision (do retn patch disable collision)
+		*/
+		
+
 
 		// Always start a new game
 		CPatcher::InstallJmpPatch((GetBase() + 0x5B0311), (GetBase() + 0x5B03BF));
@@ -669,6 +679,8 @@ bool CGame::Patch()
 
 		// Disable random peds and vehicles
 		CPatcher::InstallNopPatch((GetBase() + 0x8ACD64), 5);
+		CPatcher::InstallNopPatch((GetBase() + 0x421610), 5);
+		CPatcher::InstallNopPatch((GetBase() + 0x81B22E), 5); // something with vehicles prevent crashes
 #endif
 
 

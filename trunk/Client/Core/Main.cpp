@@ -990,8 +990,14 @@ void InternalResetGame(bool bAutoConnect)
 	CGame::SetTime(0,0);
 	
 	// Remove all gui stuff(images etc, after disconnect)
-	//if(g_pGUI && g_pGUI->IsInitialized())
-		//g_pGUI->OnResetDevice();
+	/*if(g_pGUI && g_pGUI->IsInitialized())
+		g_pGUI->OnResetDevice();*/
+	if(g_pGUI && g_pGUI->IsInitialized()) {
+		g_pGUI->OnResetDevice();
+		//SAFE_DELETE(g_pGUI);
+		//g_pGUI = new CGUI(g_pGraphics->GetDevice());
+		//g_pGUI->Initialize();
+	}
 
 	if(g_pLocalPlayer)
 		g_pLocalPlayer->SetControl(true);
