@@ -155,7 +155,7 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 	bsSend.Write(CVAR_GET_STRING("httpserver"));
 	bsSend.Write((unsigned short)CVAR_GET_INTEGER("httpport"));
 	bsSend.Write((unsigned char)CVAR_GET_INTEGER("weather"));
-	bsSend.Write(CVAR_GET_BOOL("guinametags"));
+	bsSend.Write(/*CVAR_GET_BOOL("guinametags")*/false);
 	bsSend.Write(CVAR_GET_BOOL("headmovement"));
 	bsSend.Write(CVAR_GET_INTEGER("maxplayers"));
 

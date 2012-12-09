@@ -64,7 +64,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	memset(&m_previousControlState, 0, sizeof(CControlState));
 	memset(&m_currentControlState, 0, sizeof(CControlState));
 	ResetVehicleEnterExit();
-	this->SetCanBeStreamedIn(true);
+	
 	Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(), false);
 	if(IsLocalPlayer())
 	{
@@ -97,11 +97,15 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 		// Set the player info instance to NULL
 		m_pPlayerInfo = NULL;
 	}
+	if(!bIsLocalPlayer) {
+		this->SetCanBeStreamedIn(true);
+	}
 }
 
 CNetworkPlayer::~CNetworkPlayer()
 {
 	// Destroy ourselves
+	OnDelete();
 	Destroy();
 }
 
@@ -1742,7 +1746,12 @@ void CNetworkPlayer::SetName(String strName)
 	if(!CGame::GetNameTags())
 	{
 		Scripting::RemoveFakeNetworkNameFromPed(GetScriptingHandle());
-		Scripting::GivePedFakeNetworkName(GetScriptingHandle(),m_strName.C_String(),m_uiColor,m_uiColor,m_uiColor,m_uiColor); 
+		char red = (GetColor() & 0xFF000000) >> 24;
+		char green = (GetColor() & 0x00FF0000) >> 16;
+		char blue = (GetColor() & 0x0000FF00) >> 8;
+		char alpha = (GetColor() & 0x000000FF);
+		Scripting::GivePedFakeNetworkName(GetScriptingHandle(),(GetName() + String(" (%i)",this->GetPlayerId())).Get(),red, green, blue, alpha);
+		//Scripting::GivePedFakeNetworkName(GetScriptingHandle(),m_strName.C_String(),m_uiColor,m_uiColor,m_uiColor,m_uiColor); 
 	}
 
 	if(m_pPlayerInfo)

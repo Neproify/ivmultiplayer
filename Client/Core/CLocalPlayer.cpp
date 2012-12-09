@@ -94,8 +94,9 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true),
 	m_bFirstSpawn(false)
 {
 	//m_bAnimating = false;
-	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
 	this->SetCanBeStreamedIn(false);
+	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
+	
 	Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(), false);
 	// Patch to override spawn position and let the game call HandleSpawn
 	CPatcher::InstallCallPatch(COffsets::FUNC_GetLocalPlayerSpawnPosition, (DWORD)GetLocalPlayerSpawnPosition, 5);

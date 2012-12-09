@@ -23,6 +23,10 @@ void CCrashFixes::Install()
 	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xB21C50), (DWORD)CRASH_FIX_B21C50);
 
 	// Fix vehicle crash
-	CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCBA1F0), (CGame::GetBase() + 0xCBA230));
+	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCBA1F0), (CGame::GetBase() + 0xCBA230));
+	////CPatcher::InstallRetnPatch((CGame::GetBase() + 0x72D6F0));
+	//CPatcher::InstallJmpPatch((CGame::GetBase()+ 0x72DFDD), (CGame::GetBase() + 0x72E3AF));
+	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0x58E3AD), (CGame::GetBase() + 0x58E3C4));
+	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x72B240), (CGame::GetBase() + 0x72B813));
 	//CPatcher::InstallRetnPatch((CGame::GetBase() + 0xB21C50));
 }
