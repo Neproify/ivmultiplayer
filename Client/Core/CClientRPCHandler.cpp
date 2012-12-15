@@ -3413,6 +3413,20 @@ void CClientRPCHandler::ScriptingSetVehicleDimension(CBitStream * pBitStream, CP
 	//g_pStreamer->Pulse();
 }
 
+
+void CClientRPCHandler::ResetVehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId playerId;
+	pBitStream->Read(playerId);
+
+	if(playerId == g_pLocalPlayer->GetPlayerId()) {
+		g_pLocalPlayer->ResetVehicleEnterExit();
+	}
+}
+
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -3571,6 +3585,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingLetPlayerDriveAutomatic, ScriptingLetPlayerDriveAutomatic);
 	AddFunction(RPC_ScriptingSetPlayerDimension, ScriptingSetPlayerDimension);
 	AddFunction(RPC_ScriptingSetVehicleDimension, ScriptingSetVehicleDimension);
+	AddFunction(RPC_ResetVehicleEnterExit, ResetVehicleEnterExit);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3730,4 +3745,5 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingActorSaySpeech);
 	RemoveFunction(RPC_ScriptingLetPlayerDriveAutomatic);
 	RemoveFunction(RPC_ScriptingSetPlayerDimension);
+	RemoveFunction(RPC_ResetVehicleEnterExit);
 }

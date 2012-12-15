@@ -585,9 +585,12 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 				return;
 
 			// Is the vehicle fully locked?
-			if(pVehicle->GetLocked() == 1)
+			if(pVehicle->GetLocked() == 1) {
+				CBitStream bitStream;
+				bitStream.Write(playerId);
+				g_pNetworkManager->RPC(RPC_ResetVehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
 				return;
-
+			}
 			// Get the reply
 			CSquirrelArguments arguments;
 			arguments.push(playerId);
@@ -607,6 +610,10 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 
 				// Set the player state
 				pPlayer->SetState(STATE_TYPE_ENTERVEHICLE);
+			} else {
+				CBitStream bitStream;
+				bitStream.Write(playerId);
+				g_pNetworkManager->RPC(RPC_ResetVehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
 			}
 		}
 		// Is this an entry cancellation?

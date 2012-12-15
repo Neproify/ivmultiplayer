@@ -182,5 +182,6 @@ enum eRPCIdentfiers
 	RPC_ScriptingActorSaySpeech,
 	RPC_ScriptingLetPlayerDriveAutomatic,
 	RPC_ScriptingSetPlayerDimension,
-	RPC_ScriptingSetVehicleDimension
+	RPC_ScriptingSetVehicleDimension,
+	RPC_ResetVehicleEnterExit
 };

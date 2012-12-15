@@ -33,7 +33,6 @@ CVehicle::CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, 
 	m_ucDimension = 254;
 	Reset();
 	SpawnForWorld();
-	Respawn();
 }
 
 CVehicle::~CVehicle()

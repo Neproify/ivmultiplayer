@@ -67,6 +67,7 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_szAnimGroup = new char[256];
 	m_bMobilePhoneUse = false;
 	m_ucDimension = 254;
+	m_bDrop = false;
 }
 
 CPlayer::~CPlayer()
