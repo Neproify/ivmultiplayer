@@ -34,7 +34,9 @@ CStreamableEntity::CStreamableEntity(eStreamEntityType eType, float fDistance)
 		}
 	}*/
 	// add it to the streamer
-	g_pStreamer->push_back(this);
+	if(eType != STREAM_ENTITY_PLAYER) {
+		g_pStreamer->push_back(this);
+	}
 }
 
 CStreamableEntity::~CStreamableEntity()
