@@ -84,6 +84,7 @@ void CDirect3DHook::Install()
 		m_pEndScene = (EndScene_t)DetourFunction((PBYTE)dwEndScene,(PBYTE)hkEndScene);
 
 		CLogFile::Printf("Hooked 'Direct3D Reset and EndScene");
+	
 
 		m_bHookInstalled = true;
 	}
@@ -98,7 +99,7 @@ void CDirect3DHook::Uninstall()
 }
 
 
-HRESULT WINAPI CDirect3DHook::hkEndScene()
+HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 {
 	if(m_bInitialized == false) {
 		HWND hFocusWindow = FindWindow(NULL,"GTAIV");
@@ -116,8 +117,9 @@ HRESULT WINAPI CDirect3DHook::hkEndScene()
 			}
 		}
 	}
+
 	Direct3DRender();
-	return m_pEndScene();
+	return m_pEndScene(pDevice);
 }
 
 HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAMETERS* pPresentationParameters)
@@ -141,7 +143,7 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 	}
 
 	HRESULT hr = m_pReset(pDevice, pPresentationParameters);
-
+	
 	if(SUCCEEDED(hr))
 	{
 		// Call our reset device function

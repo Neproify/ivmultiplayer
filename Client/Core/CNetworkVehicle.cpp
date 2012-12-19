@@ -23,8 +23,8 @@ extern CModelManager * g_pModelManager;
 extern CLocalPlayer * g_pLocalPlayer;
 extern CNetworkManager * g_pNetworkManager;
 
-#define THIS_CHECK if(!this) { return; }
-#define THIS_CHECK_R(x) if(!this) { return x; }
+#define THIS_CHECK if(!this) { CLogFile::Printf("this error"); return; }
+#define THIS_CHECK_R(x) if(!this) { CLogFile::Printf("this error"); return x; }
 
 CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	: CStreamableEntity(STREAM_ENTITY_VEHICLE, 200.0f),
@@ -1275,8 +1275,9 @@ void CNetworkVehicle::SetComponentState(unsigned char ucSlot, bool bOn)
 		m_bComponents[ucSlot] = bOn;
 
 		// Are we spawned?
-		if(IsSpawned())
+		if(IsSpawned()) {
 			m_pVehicle->SetComponentState((ucSlot + 1), bOn);
+		}
 	}
 }
 
@@ -1449,8 +1450,7 @@ void CNetworkVehicle::SetDamageable(bool bToggle)
 		if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f)
 		{
 			// TODO?
-		}
-		else
+		}		else
 		{
 			Scripting::SetCarCanBeDamaged(GetScriptingHandle(),bToggle);
 			Scripting::SetCarCanBurstTyres(GetScriptingHandle(),bToggle);
