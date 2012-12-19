@@ -94,7 +94,7 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true),
 	m_bFirstSpawn(false)
 {
 	//m_bAnimating = false;
-	this->SetCanBeStreamedIn(false);
+	
 	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
 	
 	Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(), false);

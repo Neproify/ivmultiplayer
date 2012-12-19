@@ -3386,10 +3386,8 @@ void CClientRPCHandler::ScriptingSetPlayerDimension(CBitStream * pBitStream, CPl
 	pBitStream->Read(Dimension);
 
 	if(playerId == g_pLocalPlayer->GetPlayerId()) {
-		//CLogFile::Printf("Set LocalPlayerDimension to (%i)", Dimension);
 		g_pLocalPlayer->SetDimension(Dimension);
 	} else if(g_pPlayerManager->GetAt(playerId) != NULL) {
-		//CLogFile::Printf("Set player(%i) dimension to (%i)",playerId, Dimension);
 		g_pPlayerManager->GetAt(playerId)->SetDimension(Dimension);
 	}
 

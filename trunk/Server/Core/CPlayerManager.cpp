@@ -138,8 +138,15 @@ void CPlayerManager::HandleClientJoin(EntityId playerId)
 				m_pPlayers[x]->AddForPlayer(playerId);
 				m_pPlayers[x]->SpawnForPlayer(playerId);
 
-				if(g_pBlipManager->DoesPlayerBlipExist(x))
-					g_pBlipManager->CreateForPlayer(x,g_pBlipManager->GetPlayerBlipSprite(x),g_pBlipManager->GetPlayerBlipShow(x));
+				if(g_pBlipManager->DoesPlayerBlipExist(x)) {
+					CBitStream bsSend;
+					bsSend.WriteCompressed(x);
+					bsSend.Write(g_pBlipManager->GetPlayerBlipSprite(x));
+					bsSend.Write(true);
+					bsSend.Write(g_pBlipManager->GetPlayerBlipShow(x));
+					g_pNetworkManager->RPC(RPC_ScriptingCreatePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, true);
+					bsSend.Reset();
+				}
 			}
 		}
 	}

@@ -19,7 +19,7 @@ class CDirect3DHook
 {
 private:
 	typedef HRESULT (__stdcall* Reset_t)(LPDIRECT3DDEVICE9,D3DPRESENT_PARAMETERS*);
-	typedef HRESULT (__stdcall* EndScene_t)();
+	typedef HRESULT (__stdcall* EndScene_t)(LPDIRECT3DDEVICE9);
 
 	static Reset_t				m_pReset;
 	static EndScene_t			m_pEndScene;
@@ -27,7 +27,7 @@ private:
 	static bool					m_bHookInstalled;
 	static bool					m_bInitialized;
 
-	static HRESULT WINAPI		hkEndScene();
+	static HRESULT WINAPI		hkEndScene(LPDIRECT3DDEVICE9 pDevice);
 	static HRESULT WINAPI		hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAMETERS* pPresentationParameters);
 	
 

@@ -10,11 +10,6 @@
 
 class CCrashFixes
 {
-private:
-
- static unsigned long CRASH_FIX_9CCF40_JMP;
-
- static unsigned long CRASH_FIX_8AB200_JMP;
 public:
 	static void Install();
 };

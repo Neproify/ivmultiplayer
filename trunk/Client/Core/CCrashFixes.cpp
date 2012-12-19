@@ -10,23 +10,14 @@
 #include "CCrashFixes.h"
 #include "CGame.h"
 
-
-
 void CCrashFixes::Install()
 {
-	// Fix for 72B240 crash ("Near bridge from Dukes to Bohan" #2)
-	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0x72B240), (DWORD)CRASH_FIX_72B240);
-
-	// Fix for B2B220 crash ("Near bridge from Dukes to Bohan" #1)
-	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xB2B224), (DWORD)CRASH_FIX_B2B224);
-
-	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xB21C50), (DWORD)CRASH_FIX_B21C50);
-
 	// Fix vehicle crash
-	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCBA1F0), (CGame::GetBase() + 0xCBA230));
-	////CPatcher::InstallRetnPatch((CGame::GetBase() + 0x72D6F0));
-	//CPatcher::InstallJmpPatch((CGame::GetBase()+ 0x72DFDD), (CGame::GetBase() + 0x72E3AF));
-	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0x58E3AD), (CGame::GetBase() + 0x58E3C4));
+	CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCBA1F0), (CGame::GetBase() + 0xCBA230));
+
+	// Fix some random crashes
 	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x72B240), (CGame::GetBase() + 0x72B813));
-	//CPatcher::InstallRetnPatch((CGame::GetBase() + 0xB21C50));
+
+	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x5A932D), (CGame::GetBase() + 0x5A9361));
+
 }
