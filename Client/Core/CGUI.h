@@ -183,6 +183,7 @@ public:
 	CGUIProgressBar			 * CreateGUIProgressBar(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
 	CGUIProgressBar		     * CreateGUIProgressBar(CEGUI::Window * pParentWindow = NULL);
 	void                       SetCursorVisible(bool bVisible);
+	RECT                       GetCursorPosition();
 	bool                       IsCursorVisible(bool bVisible);
 	void                       OnLostDevice();
 	void                       OnResetDevice();

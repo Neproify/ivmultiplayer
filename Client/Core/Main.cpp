@@ -856,6 +856,14 @@ void InternalResetGame(bool bAutoConnect)
 		g_pLocalPlayer->RemoveFromVehicle();
 
 	// TODO: Reset functions for all of these classes or something so i don't have to delete and recreate them?
+	if(g_pClientScriptManager && g_pClientScriptManager->GetGUIManager())
+		; //g_pClientScriptManager->GetGUIManager()->DeleteAll();
+	// FIXME: Always crashing at CClientScriptGUIManager::Delete. dunno
+	if(g_pClientScriptManager)
+		g_pClientScriptManager->RemoveAll();
+	g_pEvents->clear();
+	CLogFile::Printf("Reset clientside scripting stuff");
+
 	SAFE_DELETE(g_pModelManager);
 	g_pModelManager = new CModelManager();
 	CLogFile::Printf("Created model manager instance");
@@ -935,16 +943,8 @@ void InternalResetGame(bool bAutoConnect)
 	g_pNetworkManager->Startup(g_strHost, g_usPort, g_strPassword);
 	CLogFile::Printf("Started network manager instance");
 
-	// Remove all clientscripts
-	if(g_pClientScriptManager)
-		g_pClientScriptManager->RemoveAll();
-
 	// Reset file transfer
 	g_pFileTransfer->Reset();
-
-	// Reset all events
-	g_pEvents->clear();
-	CLogFile::Printf("Reset events instance");
 
 	g_pTime->SetDayOfWeek(2);
 	g_pTime->SetMinuteDuration(0);

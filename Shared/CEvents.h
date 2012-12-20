@@ -184,6 +184,13 @@ public:
 		return true;
 	}
 
+	bool IsEventRegistered(String eventName)
+	{		
+		// TODO: Add checking for special script also
+		CEvents::iterator iter = find(eventName);
+		return iter != end();
+	}
+
 #ifdef _SERVER
 	bool AddModuleEvent(const char* szName, EventHandler_t pfnHandler, void* pChunk = 0)
 	{

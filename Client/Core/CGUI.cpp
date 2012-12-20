@@ -896,6 +896,14 @@ void CGUI::SetCursorVisible(bool bVisible)
 	}
 }
 
+RECT CGUI::GetCursorPosition()
+{
+	if(m_bInitialized)
+		return this->m_rCursorPosition;
+
+	return RECT();
+}
+
 bool CGUI::IsCursorVisible(bool bVisible)
 {
 	if(m_bInitialized)

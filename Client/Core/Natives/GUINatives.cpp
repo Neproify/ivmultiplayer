@@ -35,29 +35,219 @@ extern CClientScriptManager * g_pClientScriptManager;
 extern CEvents * g_pEvents;
 //extern CD3D9WebKit * g_pWebkit;
 
-bool OnButtonClick(const CEGUI::EventArgs &eventArgs)
-{
-	CEGUI::Window * pWindow = static_cast<const CEGUI::WindowEventArgs&>(eventArgs).window;
-	const CEGUI::MouseEventArgs mouseEventArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
+// event guiVisibleChanged(string guiName)
+bool OnVisibleChanged(const CEGUI::EventArgs &eventArgs)
+{	
+	String eventName ("guiVisibleChanged");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+
+	const CEGUI::WindowEventArgs eArgs = static_cast<const CEGUI::WindowEventArgs&>(eventArgs);
+	CEGUI::Window * pWindow = eArgs.window;
 	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
-	CEGUI::String buttonName = pWindow->getName();
+
 	CSquirrelArguments pArguments;
-	pArguments.push(buttonName.c_str());
-	pArguments.push(0);
-	g_pEvents->Call("buttonClick", &pArguments, pScript);
+	pArguments.push(eArgs.window->getName().c_str());
+
+	g_pEvents->Call(eventName, &pArguments, pScript);
+	return true;
+}
+bool OnHidden(const CEGUI::EventArgs &eventArgs)
+{
+	return OnVisibleChanged(eventArgs);
+}
+bool OnShown(const CEGUI::EventArgs &eventArgs)
+{
+	return OnVisibleChanged(eventArgs);
+}
+
+// event guiKeyPress(string guiName, string key, string keyState)
+bool OnKeyPress(const CEGUI::KeyEventArgs &eArgs, String keyState)
+{	
+	String eventName ("guiKeyPress");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+
+	CEGUI::Window * pWindow = eArgs.window;
+	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
+	CEGUI::Key::Scan keyCode = eArgs.scancode;
+
+	CSquirrelArguments pArguments;
+	pArguments.push(eArgs.window->getName().c_str());
+	pArguments.push("FIXME key scancode to string?"); // FIXME
+	pArguments.push(keyState);
+
+	g_pEvents->Call(eventName, &pArguments, pScript);
+	return true;
+}
+bool OnKeyDown(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::KeyEventArgs eArgs = static_cast<const CEGUI::KeyEventArgs&>(eventArgs);
+	return OnKeyPress(eArgs, "down");
+}
+bool OnKeyUp(const CEGUI::EventArgs &eventArgs)
+{
+	const CEGUI::KeyEventArgs eArgs = static_cast<const CEGUI::KeyEventArgs&>(eventArgs);
+	return OnKeyPress(eArgs, "up");
+}
+
+// event editBoxTextChanged(string guiName)
+bool OnEditboxTextChanged(const CEGUI::EventArgs &eventArgs)
+{	
+	String eventName ("editBoxTextChanged");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+
+	const CEGUI::WindowEventArgs eArgs = static_cast<const CEGUI::WindowEventArgs&>(eventArgs);
+	CEGUI::Window * pWindow = eArgs.window;
+	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
+
+	CSquirrelArguments pArguments;
+	pArguments.push(eArgs.window->getName().c_str());
+
+	g_pEvents->Call(eventName, &pArguments, pScript);
 	return true;
 }
 
-bool OnWindowClose(const CEGUI::EventArgs &eventArgs)
+// event guiClick(guiName, mouseButton)
+bool OnClick(const CEGUI::EventArgs &eventArgs)
 {
+	String eventName ("guiClick");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+	
+	const CEGUI::MouseEventArgs eArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
+	CEGUI::Window * pWindow = eArgs.window;
+	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
+
+	CSquirrelArguments pArguments;
+	pArguments.push(eArgs.window->getName().c_str());
+	pArguments.push(eArgs.button);
+
+	g_pEvents->Call(eventName, &pArguments, pScript);
+	return true;
+}
+
+// event guiMouseEnter(guiName)
+bool OnMouseEnters(const CEGUI::EventArgs &eventArgs)
+{
+	String eventName ("guiMouseEnter");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+
+	const CEGUI::MouseEventArgs eArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
+	CEGUI::Window * pWindow = eArgs.window;
+	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
+	
+	CSquirrelArguments pArguments;
+	pArguments.push(pWindow->getName().c_str());
+
+	g_pEvents->Call(eventName, &pArguments, pScript);
+	return true;
+}
+
+// event guiMouseMove(guiName)
+bool OnMouseMove(const CEGUI::EventArgs &eventArgs)
+{
+	String eventName ("guiMouseMove");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+
+	const CEGUI::MouseEventArgs eArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
+	CEGUI::Window * pWindow = eArgs.window;
+	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
+	
+	CSquirrelArguments pArguments;
+	pArguments.push(pWindow->getName().c_str());
+
+	g_pEvents->Call(eventName, &pArguments, pScript);
+	return true;
+}
+
+// event guiMouseLeave(guiName)
+bool OnMouseLeaves(const CEGUI::EventArgs &eventArgs)
+{
+	String eventName ("guiMouseLeave");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+
+	const CEGUI::MouseEventArgs eArgs = static_cast<const CEGUI::MouseEventArgs&>(eventArgs);
+	CEGUI::Window * pWindow = eArgs.window;
+	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
+	
+	CSquirrelArguments pArguments;
+	pArguments.push(pWindow->getName().c_str());
+
+	g_pEvents->Call(eventName, &pArguments, pScript);
+	return true;
+}
+
+// event buttonClick(buttonName, bState)
+// TODO: remove it. We have better alternative guiClick (OnClick) for any gui element
+bool OnButtonClick(const CEGUI::EventArgs &eventArgs)
+{
+	String eventName ("buttonClick");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+
 	CEGUI::Window * pWindow = static_cast<const CEGUI::WindowEventArgs&>(eventArgs).window;
 	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
-	CEGUI::String windowName = pWindow->getName();
+
 	CSquirrelArguments pArguments;
-	pArguments.push(windowName.c_str());
-	pArguments.push(0);
-	g_pEvents->Call("windowClose", &pArguments, pScript);
+	pArguments.push(pWindow->getName().c_str());
+	pArguments.push(0);	// FIXME or what?
+
+	g_pEvents->Call(eventName, &pArguments, pScript);
 	return true;
+}
+
+// event checkBoxCheckedChanged(checkBoxName)
+bool OnCheckboxCheckStateChanged(const CEGUI::EventArgs &eventArgs)
+{
+	String eventName ("checkBoxCheckedChanged");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+
+	CEGUI::Window * pWindow = static_cast<const CEGUI::WindowEventArgs&>(eventArgs).window;
+	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
+
+	CSquirrelArguments pArguments;
+	pArguments.push(pWindow->getName().c_str());
+
+	g_pEvents->Call(eventName, &pArguments, pScript);
+	return true;
+}
+
+// event windowClose(windowName)
+bool OnWindowClose(const CEGUI::EventArgs &eventArgs)
+{
+	String eventName ("windowClose");
+	if(!g_pEvents->IsEventRegistered(eventName))
+		return false;
+
+	CEGUI::Window * pWindow = static_cast<const CEGUI::WindowEventArgs&>(eventArgs).window;
+	CSquirrel * pScript = g_pClientScriptManager->GetGUIManager()->GetScript(pWindow);
+
+	CSquirrelArguments pArguments;
+	pArguments.push(pWindow->getName().c_str());
+
+	// Event handler must return 1 to close window, otherwise, 0.
+	CSquirrelArgument pReturn = g_pEvents->Call(eventName, &pArguments, pScript);
+	if(pReturn.GetInteger())
+		pWindow->hide();
+	return true;
+}
+
+extern void SubscribeGuiEvents(CEGUI::Window * pWindow)
+{		
+	pWindow->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&OnClick));
+	pWindow->subscribeEvent(CEGUI::Window::EventMouseEnters, CEGUI::Event::Subscriber(&OnMouseEnters));
+	pWindow->subscribeEvent(CEGUI::Window::EventMouseMove, CEGUI::Event::Subscriber(&OnMouseMove));
+	pWindow->subscribeEvent(CEGUI::Window::EventMouseLeaves, CEGUI::Event::Subscriber(&OnMouseLeaves));
+	pWindow->subscribeEvent(CEGUI::Window::EventShown, CEGUI::Event::Subscriber(&OnShown));
+	pWindow->subscribeEvent(CEGUI::Window::EventHidden, CEGUI::Event::Subscriber(&OnHidden));
+	pWindow->subscribeEvent(CEGUI::Window::EventKeyDown, CEGUI::Event::Subscriber(&OnKeyDown));
+	pWindow->subscribeEvent(CEGUI::Window::EventKeyUp, CEGUI::Event::Subscriber(&OnKeyUp));
 }
 
 // Font
@@ -199,6 +389,9 @@ _MEMBER_FUNCTION_IMPL(GUIElement, constructor)
 		sq_pushbool(pVM, false);
 		return 1;
 	}
+
+	SubscribeGuiEvents(pWindow);
+
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -217,6 +410,24 @@ _MEMBER_FUNCTION_IMPL(GUIElement, setText)
 
 	pWindow->setText(text);
 	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIElement, getSize)
+{
+	CGUIFrameWindow * pWindow = sq_getinstance<CGUIFrameWindow *>(pVM);
+
+	if(pWindow)
+	{
+		CEGUI::UVector2 sz = pWindow->getSize();
+		CSquirrelArguments args;
+		args.push(sz.d_x.d_offset);
+		args.push(sz.d_y.d_offset);
+		sq_pusharg(pVM, CSquirrelArgument(args, true));
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
 
@@ -481,7 +692,10 @@ _MEMBER_FUNCTION_IMPL(GUIWindow, constructor)
 	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 	pWindow->setVisible(true);
+
+	SubscribeGuiEvents(pWindow);
 	pWindow->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked, CEGUI::Event::Subscriber(&OnWindowClose));
+
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -505,6 +719,9 @@ _MEMBER_FUNCTION_IMPL(GUIText, constructor)
 	pWindow->setProperty("BackgroundEnabled", "false");
 	pWindow->setFont(g_pGUI->GetFont("tahoma-bold"));
 	pWindow->setProperty("TextColours", "tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF");
+	
+	SubscribeGuiEvents(pWindow);
+
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -545,7 +762,10 @@ _MEMBER_FUNCTION_IMPL(GUIButton, constructor)
 	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 	pWindow->setVisible(true);
+
+	SubscribeGuiEvents(pWindow);
 	pWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&OnButtonClick));
+
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -563,7 +783,11 @@ _MEMBER_FUNCTION_IMPL(GUIEditBox, constructor)
 
 	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
-	pWindow->setVisible(true);
+	pWindow->setVisible(true);	
+
+	SubscribeGuiEvents(pWindow);
+	pWindow->subscribeEvent(CEGUI::Editbox::EventTextChanged, CEGUI::Event::Subscriber(&OnEditboxTextChanged));
+
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -580,7 +804,11 @@ _MEMBER_FUNCTION_IMPL(GUIMultiLineEditBox, constructor)
 
 	//_SET_RELEASE_HOOK(GUIElement);
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
-	pWindow->setVisible(true);
+	pWindow->setVisible(true);	
+
+	SubscribeGuiEvents(pWindow);
+	pWindow->subscribeEvent(CEGUI::Editbox::EventTextChanged, CEGUI::Event::Subscriber(&OnEditboxTextChanged));
+
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -597,8 +825,13 @@ _MEMBER_FUNCTION_IMPL(GUICheckBox, constructor)
 	}
 
 	//_SET_RELEASE_HOOK(GUIElement);
+
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
 	pWindow->setVisible(true);
+
+	SubscribeGuiEvents(pWindow);
+	pWindow->subscribeEvent(CEGUI::Checkbox::EventCheckStateChanged, CEGUI::Event::Subscriber(&OnCheckboxCheckStateChanged));
+
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -673,6 +906,9 @@ _MEMBER_FUNCTION_IMPL(GUIImage, constructor)
 
 		//_SET_RELEASE_HOOK(GUIElement);
 		g_pClientScriptManager->GetGUIManager()->Add(pImage, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
+
+		SubscribeGuiEvents(pImage);
+
 		pImage->setVisible(true);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -685,6 +921,7 @@ _MEMBER_FUNCTION_IMPL(GUIImage, constructor)
 		return 1;
 	}
 }
+
 // GUIProgressBar
 _MEMBER_FUNCTION_IMPL(GUIProgressBar, constructor)
 {
@@ -698,6 +935,9 @@ _MEMBER_FUNCTION_IMPL(GUIProgressBar, constructor)
 	g_pClientScriptManager->GetGUIManager()->Add(pWindow, g_pClientScriptManager->GetScriptingManager()->Get(pVM));
  	pWindow->setVisible(true);
  	pWindow->setProperty("CurrentProgress", "0.0");
+
+	SubscribeGuiEvents(pWindow);
+
  	sq_pushbool(pVM, true);
 	return 1;
 }
