@@ -21,6 +21,7 @@ _MEMBER_FUNCTION_IMPL(GUIFont, drawText);
 _MEMBER_FUNCTION_IMPL(GUIElement, constructor);
 _MEMBER_FUNCTION_IMPL(GUIElement, setText);
 _MEMBER_FUNCTION_IMPL(GUIElement, setSize);
+_MEMBER_FUNCTION_IMPL(GUIElement, getSize);
 _MEMBER_FUNCTION_IMPL(GUIElement, setPosition);
 _MEMBER_FUNCTION_IMPL(GUIElement, setRotation);
 _MEMBER_FUNCTION_IMPL(GUIElement, setAlpha);
