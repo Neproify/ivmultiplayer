@@ -27,6 +27,7 @@ private:
 	static void DeleteVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void NewObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void AttachObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void DetachObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void DeleteObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void NewBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void DeleteBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

@@ -161,6 +161,7 @@ enum eRPCIdentfiers
 	RPC_ScriptingForceWind,
 	RPC_ScriptingSetNametags,
 	RPC_ScriptingAttachObject,
+	RPC_ScriptingDetachObject,
 	RPC_ScriptingVehicleDeath,
 	RPC_ScriptingAttachCam,
 	RPC_ScriptingDisplayHudNotification,

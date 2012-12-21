@@ -139,19 +139,27 @@ function onPlayerCommand(playerid, command)
 	{
 		setPlayerDimension(playerid, 0xFF-1);
 	}
-	if(cmd[0] == "/attachObject")
-	{
-		local pos = getPlayerCoordinates(playerid);
-		attachObjectToPlayer(playerid,cmd[1].tointeger(),0.0,0.0,3.0,0.0,0.0,0.0);
-	}
-	if(cmd[0] == "/clothes")
+		if(cmd[0] == "/clothes")
 	{
 		setPlayerClothes(playerid, cmd[1].tointeger(), cmd[2].tointeger());
 	}
-	if(cmd[0] == "/createObject")
+	if(cmd[0] == "/attachobjecttoped")
+	{
+		attachObjectToPlayer(playerid,cmd[1].tointeger(),0.0,0.0,1.0,0.0,0.0,0.0);
+	}
+	if(cmd[0] == "/attachobjecttovehicle")
+	{
+		attachObjectToVehicle(cmd[1].tointeger(),cmd[2].tointeger(),0.0,0.0,1.0,0.0,0.0,0.0);
+	}
+	if(cmd[0] == "/detachobject")
+	{
+		detachObject(cmd[1].tointeger());
+	}
+	if(cmd[0] == "/createobject")
 	{
 		local pos = getPlayerCoordinates(playerid);
-		createObject(cmd[1].tointeger(), pos[0]+2.0, pos[1]+2.0, pos[2], 0.0, 0.0, 0.0);
+		local object = createObject(cmd[1].tointeger(), pos[0]+2.0, pos[1]+2.0, pos[2], 0.0, 0.0, 0.0);
+		sendPlayerMessage(playerid, "Object: "+object, 0xFFFFFFAA);
 	}
 	if(cmd[0] == "/toggleblip")
 	{
