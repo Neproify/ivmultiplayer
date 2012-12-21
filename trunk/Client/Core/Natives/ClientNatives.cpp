@@ -128,6 +128,7 @@ void RegisterGUINatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("guiShowMessageBox", sq_guiShowMessageBox, 2, "ss");
 	pScriptingManager->RegisterFunction("guiToggleCursor", sq_guiToggleCursor, 1, "b");
 	pScriptingManager->RegisterFunction("isCursorVisible", sq_guiIsCursorVisible, 0, NULL);
+	pScriptingManager->RegisterFunction("guiSetCursorPosition", sq_guiSetCursorPosition, 2, "ff");
 	pScriptingManager->RegisterFunction("guiGetCursorPosition", sq_guiGetCursorPosition, 0, NULL);
 	pScriptingManager->RegisterFunction("guiGetScreenSize", sq_guiGetScreenSize, 0, NULL);
 	pScriptingManager->RegisterFunction("guiDrawRectangle", sq_guiDrawRectangle,  6, "ffffib");
@@ -162,6 +163,17 @@ int sq_guiToggleCursor(SQVM * pVM)
 int sq_guiIsCursorVisible(SQVM * pVM)
 {
 	sq_pushbool(pVM, g_pGUI->IsCursorVisible(true));
+	return 1;
+}
+
+int sq_guiSetCursorPosition(SQVM * pVM)
+{
+	float posX;
+	float posY;
+	sq_getfloat(pVM, -2, &posX);
+	sq_getfloat(pVM, -1, &posY);
+
+	g_pGUI->SetCursorPosition(posX, posY);
 	return 1;
 }
 

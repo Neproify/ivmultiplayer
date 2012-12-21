@@ -21,6 +21,7 @@ SQUIRREL_FUNCTION(addChatMessage);
 SQUIRREL_FUNCTION(toggleChatWindow);
 SQUIRREL_FUNCTION(isChatWindowVisible);
 SQUIRREL_FUNCTION(guiShowMessageBox);
+SQUIRREL_FUNCTION(guiSetCursorPosition);
 SQUIRREL_FUNCTION(guiGetCursorPosition);
 SQUIRREL_FUNCTION(guiToggleCursor);
 SQUIRREL_FUNCTION(guiGetScreenSize);

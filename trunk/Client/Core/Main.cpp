@@ -856,9 +856,10 @@ void InternalResetGame(bool bAutoConnect)
 		g_pLocalPlayer->RemoveFromVehicle();
 
 	// TODO: Reset functions for all of these classes or something so i don't have to delete and recreate them?
-	if(g_pClientScriptManager && g_pClientScriptManager->GetGUIManager())
-		; //g_pClientScriptManager->GetGUIManager()->DeleteAll();
+	//if(g_pClientScriptManager && g_pClientScriptManager->GetGUIManager())
+		//g_pClientScriptManager->GetGUIManager()->DeleteAll();
 	// FIXME: Always crashing at CClientScriptGUIManager::Delete. dunno
+
 	if(g_pClientScriptManager)
 		g_pClientScriptManager->RemoveAll();
 	g_pEvents->clear();
