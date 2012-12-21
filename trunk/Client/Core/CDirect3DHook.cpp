@@ -77,7 +77,6 @@ void CDirect3DHook::Install()
 		dwReset = (DWORD)VTableStart[16];
 		dwEndScene = (DWORD)VTableStart[42];
 
-
 		m_pReset = (Reset_t)DetourFunction((PBYTE)dwReset,(PBYTE)hkReset);
 		m_pEndScene = (EndScene_t)DetourFunction((PBYTE)dwEndScene,(PBYTE)hkEndScene);
 
@@ -95,11 +94,25 @@ void CDirect3DHook::Uninstall()
 		m_bHookInstalled = false;
 	}
 }
-
+bool bReset = false;
 
 HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 {
+	__asm pushad;
 	g_pDevice = pDevice;
+	//HRESULT cooperativeStatus = g_pDevice->TestCooperativeLevel();
+	//if(cooperativeStatus == D3DERR_DEVICENOTRESET)
+	//{
+	//	CLogFile::Printf("PreD3DReset");
+	//	Direct3DInvalidate(); // i.e. pFont->OnLostDevice();
+	//	bReset = true;
+	//}
+	//else if(cooperativeStatus == D3D_OK && bReset)
+	//{
+	//	CLogFile::Printf("PostD3DReset(1)");
+	//	Direct3DReset(); // i.e. pFont->OnResetDevice();
+	//	bReset = false;
+	//}
 
 	if(m_bInitialized == false) {
 		HWND hFocusWindow = FindWindow(NULL,"GTAIV");
@@ -113,21 +126,27 @@ HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 			{
 				CLogFile::Printf("SubclassWindow");
 				m_wWndProc = SubclassWindow(hFocusWindow, WndProc_Hook);
+				Direct3DInvalidate();
+				Direct3DReset();
 				m_bInitialized = true;
 			}
 		}
 	}
-
-	Direct3DRender();
-	return m_pEndScene(pDevice);
+	if(!bReset)
+		Direct3DRender();
+	__asm popad;
+	return m_pEndScene(g_pDevice);
 }
-
+D3DPRESENT_PARAMETERS parameters;
 HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	g_pDevice = pDevice;
 
+	 _asm pushad;
+	if(g_pDevice == NULL)
+		g_pDevice = pDevice;
+	CLogFile::Printf("device (0x%p, %i)", pDevice, pDevice);
 	CLogFile::Printf("PreD3DReset");
-
+	parameters = *pPresentationParameters;
 	// Call our lost device function
 	Direct3DInvalidate();
 
@@ -142,7 +161,7 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 		SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_NOTOPMOST, 0, 0, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight, SWP_SHOWWINDOW);
 	}
 	
-	HRESULT hr = m_pReset(pDevice, pPresentationParameters);
+	HRESULT hr = m_pReset(g_pDevice, &parameters);
 
 	if(SUCCEEDED(hr))
 	{
@@ -155,6 +174,6 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 	{
 		CLogFile::Printf("PostD3DReset(0)");
 	}
-
+	__asm popad;
 	return hr;
 }

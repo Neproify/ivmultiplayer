@@ -990,15 +990,8 @@ void InternalResetGame(bool bAutoConnect)
 	g_pTime->SetTime(0, 0);
 	CGame::SetTime(0,0);
 	
-	// Remove all gui stuff(images etc, after disconnect)
-	/*if(g_pGUI && g_pGUI->IsInitialized())
-		g_pGUI->OnResetDevice();*/
-	if(g_pGUI && g_pGUI->IsInitialized()) {
-		g_pGUI->OnResetDevice();
-		//SAFE_DELETE(g_pGUI);
-		//g_pGUI = new CGUI(g_pGraphics->GetDevice());
-		//g_pGUI->Initialize();
-	}
+	// TODO: Remove all gui stuff(images etc, after disconnect)
+	// XForce: OnResetDevice causes blackscreen at maximize
 
 	if(g_pLocalPlayer)
 		g_pLocalPlayer->SetControl(true);
