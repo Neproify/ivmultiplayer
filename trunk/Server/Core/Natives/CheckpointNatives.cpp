@@ -50,7 +50,7 @@ SQInteger CCheckpointNatives::Create(SQVM * pVM)
 	sq_getvector3(pVM, -7, &vecPosition);
 	sq_getvector3(pVM, -4, &vecTargetPosition);
 	sq_getfloat(pVM, -1, &fRadius);
-	sq_pushinteger(pVM, g_pCheckpointManager->Add(iType, vecPosition, vecTargetPosition, fRadius));
+	sq_pushentity(pVM, g_pCheckpointManager->Add(iType, vecPosition, vecTargetPosition, fRadius));
 	return 1;
 }
 

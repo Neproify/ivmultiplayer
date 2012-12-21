@@ -72,16 +72,12 @@ void __declspec(naked) HandleLocalPlayerSpawn()
 		pushad
 	}
 
-	CLogFile::Printf("handle spawn local player");
 	g_pLocalPlayer->HandleSpawn();
-		CLogFile::Printf("handle spawn local player end");
 	_asm
 	{
 		popad
 		jmp COffsets::FUNC_SpawnPlayer
 	}
-
-	CLogFile::Printf("fkldsakldsakldsadsföjklasdjflöajsdflkjasdlfjaklsdjflö");
 }
 
 CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true),
@@ -96,7 +92,7 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true),
 	//m_bAnimating = false;
 	
 	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
-	
+	this->SetCanBeStreamedIn(false);
 	Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(), false);
 	// Patch to override spawn position and let the game call HandleSpawn
 	CPatcher::InstallCallPatch(COffsets::FUNC_GetLocalPlayerSpawnPosition, (DWORD)GetLocalPlayerSpawnPosition, 5);
@@ -457,20 +453,18 @@ void CLocalPlayer::SendInVehicleSync()
 				syncPacket.bTyre[i] = false;
 		}
 
-		/*
-		// TODO, get windows!(eVehicleWindow enum)
+		
 		for(int i = 0; i <= 3; i++)
 		{
 			if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)i))
 				syncPacket.bWindow[i] = true;
 		}
 
-		// TODO, detect tyres from vehicles(2,4, or 6)
 		for(int i = 0; i <= 5; i++)
 		{
 			if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i))
 				syncPacket.bTyre[i] = true;
-		}*/
+		}
 
 		// Write the in vehicle sync data to the bit stream
 		bsSend.Write((char *)&syncPacket, sizeof(InVehicleSyncData));

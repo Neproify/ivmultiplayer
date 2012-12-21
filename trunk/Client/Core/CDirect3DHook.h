@@ -2,13 +2,11 @@
 //
 // File: CDirect3DHook.h
 // Project: Client.Core
-// Author(s): jenksta
+// Author(s): jenksta, XForce
 // License: See LICENSE in root directory
 //
 //==============================================================================
-
 #pragma once
-
 
 #include <DXSDK\Include\d3d9.h>
 #include <DXSDK\Include\d3dx9.h>

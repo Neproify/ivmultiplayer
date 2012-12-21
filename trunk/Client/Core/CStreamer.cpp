@@ -24,19 +24,12 @@ CStreamableEntity::CStreamableEntity(eStreamEntityType eType, float fDistance)
 	: m_eType(eType),
 	m_fStreamingDistance(fDistance),
 	m_bIsStreamedIn(false),
-	m_pDimensionId(INVALID_DIMENSION_ID-1),
+	m_pDimensionId(0), /* INVALID_DIMENSION_ID = always streamed in */
 	m_bCanBeStreamedIn(false)
 {
-	/*if(this->GetType() == STREAM_ENTITY_PLAYER) {
-		CNetworkPlayer* pPlayer = dynamic_cast<CNetworkPlayer*>(this);
-		if(pPlayer->IsLocalPlayer()) {
-			g_pStreamer->m_dimensionId = m_pDimensionId;
-		}
-	}*/
+
 	// add it to the streamer
-	if(eType != STREAM_ENTITY_PLAYER) {
-		g_pStreamer->push_back(this);
-	}
+	g_pStreamer->push_back(this);
 }
 
 CStreamableEntity::~CStreamableEntity()
@@ -69,7 +62,6 @@ void CStreamableEntity::SetDimension(DimensionId dimensionId)
 		}
 	}
 	g_pStreamer->Pulse();
-//	g_pStreamer->ChangedDimension();
 }
 
 void CStreamableEntity::StreamInInternal()
@@ -126,7 +118,7 @@ CStreamer::CStreamer()
 void CStreamer::Reset()
 {
 	m_ulLastStreamTime = 0;
-	m_dimensionId = INVALID_DIMENSION_ID-1;
+	m_dimensionId = 0; /* INVALID_DIMENSION_ID */
 	
 	// Loop through all types
 	for(int i = 0; i < STREAM_ENTITY_MAX; ++i)
@@ -201,7 +193,7 @@ void CStreamer::Pulse()
 					float fDistance = (vecPlayerPos - vecPos).Length();
 					bInRange = (fDistance <= (*iter)->GetStreamingDistance());
 				}
-				//CLogFile::Printf("StreamedIn(%i) in range(%i) and dimension (%i/%i)",(*iter)->IsStreamedIn(), bInRange, m_dimensionId, (*iter)->GetDimension());
+	
 				if(!bInRange || (m_dimensionId != INVALID_DIMENSION_ID && (*iter)->GetDimension() != INVALID_DIMENSION_ID && (m_dimensionId != (*iter)->GetDimension())))
 				{
 					// out of range or in another dimension, but streamed in?

@@ -140,8 +140,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("letPlayerDriveAutomaticAtCoords", DriveAutomatic, 7, "iiffffi");
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 	
-	//pScriptingManager->RegisterFunction("setPlayerDimension", SetDimension, 2, "ii");
-	//pScriptingManager->RegisterFunction("getPlayerDimension", GetDimension, 1, "i");
+	pScriptingManager->RegisterFunction("setPlayerDimension", SetDimension, 2, "ii");
+	pScriptingManager->RegisterFunction("getPlayerDimension", GetDimension, 1, "i");
 }
 
 // isPlayerConnected(playerid)

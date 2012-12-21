@@ -255,6 +255,8 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 			// Try fix floating bug
 			FixCarFloating();
 
+			for(int i = 0; i < 8; i++)
+				SetComponentState(i, 1);
 			m_bActive = true;
 			return true;
 		}
@@ -291,7 +293,8 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 		// Try fix floating bug
 		FixCarFloating();
-
+		for(int i = 0; i < 8; i++)
+			SetComponentState(i, 1);
 		m_bActive = true;
 		return true;
 	}

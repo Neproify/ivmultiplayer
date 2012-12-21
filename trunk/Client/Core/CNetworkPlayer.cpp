@@ -33,8 +33,8 @@ extern CModelManager   * g_pModelManager;
 extern bool              m_bControlsDisabled;
 extern CChatWindow     * g_pChatWindow;
 
-#define THIS_CHECK if(!this) { return; }
-#define THIS_CHECK_R(x) if(!this) { return x; }
+#define THIS_CHECK if(!this) { CLogFile::Printf("this error"); return; }
+#define THIS_CHECK_R(x) if(!this) { CLogFile::Printf("this error"); return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
@@ -60,7 +60,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 {
 	m_interp.pos.ulFinishTime = 0;
 	memset(&m_ucClothes, 0, sizeof(m_ucClothes));
-	
+
 	memset(&m_previousControlState, 0, sizeof(CControlState));
 	memset(&m_currentControlState, 0, sizeof(CControlState));
 	ResetVehicleEnterExit();
@@ -97,9 +97,8 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 		// Set the player info instance to NULL
 		m_pPlayerInfo = NULL;
 	}
-	if(!bIsLocalPlayer) {
+	if(!bIsLocalPlayer)
 		this->SetCanBeStreamedIn(true);
-	}
 }
 
 CNetworkPlayer::~CNetworkPlayer()
@@ -131,6 +130,7 @@ bool CNetworkPlayer::Create()
 	int iModelIndex = m_pModelInfo->GetIndex();
 
 	// Begin new creation code
+
 	// Create player info instance
 	m_pPlayerInfo = new CIVPlayerInfo(m_byteGamePlayerNumber);
 
@@ -183,9 +183,10 @@ bool CNetworkPlayer::Create()
 		mov esi, pPlayerPed
 		call dwFunc
 	}
+	if(!pPlayerPed)
+		return false;
 
 	*(DWORD *)(pPlayerPed + 0x260) |= 1u;
-
 	// Setup the player ped intelligence
 #define FUNC_SetupPedIntelligence 0x89EC20
 	dwFunc = (CGame::GetBase() + FUNC_SetupPedIntelligence);
@@ -221,11 +222,9 @@ bool CNetworkPlayer::Create()
 	SetHelmet(m_bHelmet);
 
 	// End new creation code
-
 #if 0
 	// Save local player id
 	unsigned int uiLocalPlayerId = GetLocalPlayerId();
-
 	// Create player ped
 	DWORD dwFunc = COffsets::FUNC_CreatePlayerPed;
 	unsigned int uiPlayerId = m_byteGamePlayerNumber;
@@ -262,6 +261,7 @@ bool CNetworkPlayer::Create()
 	// Get the player ped pointer
 	m_pPlayerPed = new CIVPlayerPed(pPlayerPed);
 
+
 	// Add the player ped to the world
 	CGame::AddEntityToWorld(m_pPlayerPed->GetEntity());
 
@@ -286,7 +286,7 @@ bool CNetworkPlayer::Create()
 
 	// Reset interpolation
 	ResetInterpolation();
-
+	this->m_bIsStreamedIn = true;
 	//CLogFile::Printf("Done: PlayerNumber: %d, ScriptingHandle: %d", m_byteGamePlayerNumber, GetScriptingHandle());
 	return true;
 }
