@@ -144,13 +144,6 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	//pScriptingManager->RegisterFunction("getPlayerDimension", GetDimension, 1, "i");
 }
 
-
-// setPlayerDimension(playerid, dimension)
-/*SQInteger CPlayerNative::SetDimension(SQVM * pVM)
-{
-
-}*/
-
 // isPlayerConnected(playerid)
 SQInteger CPlayerNatives::IsConnected(SQVM * pVM)
 {

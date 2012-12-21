@@ -645,14 +645,6 @@ bool CGame::Patch()
 
 		// Don't load startup.sco
 		*(BYTE *)(GetBase() + 0x809A8A) = 0x75;
-		//*(BYTE *)(GetBase() + 0x8090F0) = 0x75;
-		//CPatcher::InstallRetnPatch(GetBase() + 0x8090F0);
-		//CPatcher::InstallRetnPatch(GetBase() + 0x8DF1A0);
-		//CPatcher::InstallRetnPatch(GetBase() + 0x8188C0);
-		/*
-			8184A0 // somthing with collision (do retn patch disable collision)
-		*/
-		
 
 
 		// Always start a new game
@@ -682,16 +674,11 @@ bool CGame::Patch()
 		CPatcher::InstallNopPatch((GetBase() + 0x421610), 5);
 		CPatcher::InstallNopPatch((GetBase() + 0x81B22E), 5); // something with vehicles prevent crashes
 #endif
-
-
 		// Disable vehicle generation
 		//CPatcher::InstallJmpPatch((GetBase() + 0x438D00),(GetBase() + 0x438D62));
 
 		// Disable train generation
 		//CPatcher::InstallJmpPatch((GetBase() + 0x94A700),(GetBase() + 0x94A9F4));
-		
-		// Adds a lot of world stuff which was disabled since Alpha >.<
-		PatchWorldAndTrain();
 				
 		// Disable scenario peds
 		*(BYTE *)(GetBase() + 0x9F72C0) = 0xB8; // mov eax,
@@ -710,6 +697,9 @@ bool CGame::Patch()
 		// Disable auto vehicle start when player enter to it
 		CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (DWORD)CTaskSimpleStartVehicle__Process);
 
+		// Adds a lot of world stuff which was disabled since Alpha >.<
+		PatchWorldAndTrain();
+
 		// Loadingscreen stuff(not needed yet)
 		//CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
 		//*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
@@ -721,31 +711,6 @@ bool CGame::Patch()
         // Disable auto vehicle start when player enter to it
 		//CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (GetBase() + /*0xA9F2F1*/0xA9F5D5));
 		
-		// Increase player info array size
-		/*CPatcher::Unprotect((GetBase() + 0x11A7008),4);
-		DWORD dwPlayerInfoArraySize = *(DWORD *)(GetBase() + 0x11A7008);
-		dwPlayerInfoArraySize = dwPlayerInfoArraySize*4;
-		*(DWORD *)(GetBase() + 0x11A7008) = dwPlayerInfoArraySize;*/
-		
-		// Testcode for playerinfoarray size..
-		/*CPatcher::Unprotect((GetBase() + 0x11A7008),4);
-		const DWORD size_11A7008 = 72;
-		DWORD dword_11A7008[72];*/
-		/*_asm 
-		{
-			mov eax, dword ptr 0x11A7008
-			mov edx, dword_11A7008
-			COPY_LOOP:
-			mov ebx, [eax] 
-			mov [eax], edx
-			mov [edx], ebx
-			inc eax
-			inc edx
-			loop COPY_LOOP
-		}
-		CPatcher::InstallJmpPatch((CGame::GetBase() + 0x11A7008),(DWORD)dword_11A7008);*/
-		
-
 		// Make the game think that all stuff is already loaded
 		// TODO: int __cdecl sub_424140(char a1) and reverse stuff so we can skip the loadingscreen
 		// NOTE: Problem is now that modules and other stuff is loaded while starting the game

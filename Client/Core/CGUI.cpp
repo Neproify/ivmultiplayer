@@ -896,6 +896,15 @@ void CGUI::SetCursorVisible(bool bVisible)
 	}
 }
 
+void CGUI::SetCursorPosition(float posX, float posY)
+{
+	if(m_bInitialized) {
+		CEGUI::Point cursorPoint;
+		cursorPoint.d_x = posX; cursorPoint.d_y = posY;
+		m_pCursor->setPosition(cursorPoint);
+	}
+}
+
 RECT CGUI::GetCursorPosition()
 {
 	if(m_bInitialized)
