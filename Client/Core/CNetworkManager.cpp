@@ -141,6 +141,9 @@ void CNetworkManager::Process()
 		}
 	}
 
+	if(!m_pNetClient)
+		return;
+
 	// Process the net client
 	m_pNetClient->Process();
 

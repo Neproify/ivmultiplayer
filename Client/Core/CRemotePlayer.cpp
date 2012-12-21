@@ -24,8 +24,8 @@ extern CLocalPlayer * g_pLocalPlayer;
 extern CPlayerManager * g_pPlayerManager;
 
 CRemotePlayer::CRemotePlayer()
-	: m_vehicleId(INVALID_ENTITY_ID),
-	CNetworkPlayer(),
+	: CNetworkPlayer(),
+	m_vehicleId(INVALID_ENTITY_ID),
 	m_stateType(STATE_TYPE_DISCONNECT),
 	m_bPassenger(false),
 	m_pLastSyncData(NULL)
@@ -46,6 +46,8 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 
 		if(!Create())
 			return false;
+		else
+			this->m_bIsStreamedIn = true;
 	}
 
 	Teleport(vecSpawnPos);

@@ -72,8 +72,8 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("setVehicleAlarm", SetAlarm, 2, "ii");
 	pScriptingManager->RegisterFunction("markVehicleAsActorVehicle", MarkVehicle, 2, "ib");
 
-	//pScriptingManager->RegisterFunction("setVehicleDimension", SetDimension, 2, "ii");
-	//pScriptingManager->RegisterFunction("getVehicleDimension", GetDimension, 1, "i");
+	pScriptingManager->RegisterFunction("setVehicleDimension", SetDimension, 2, "ii");
+	pScriptingManager->RegisterFunction("getVehicleDimension", GetDimension, 1, "i");
 }
 
 // createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4)
@@ -98,6 +98,7 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 
 	sq_getvector3(pVM, 3, &vecPosition); // 3..5
 	sq_getvector3(pVM, 6, &vecRotation); // 6..8
+
 	sq_getinteger(pVM, 9, &color1);
 	sq_getinteger(pVM, 10, &color2);
 	sq_getinteger(pVM, 11, &color3);

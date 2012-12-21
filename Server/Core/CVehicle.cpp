@@ -30,7 +30,7 @@ CVehicle::CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, 
 	m_byteSpawnColors[3] = byteColor4;
 	m_iRespawnDelay = -1;
 	m_bActorVehicle = false;
-	m_ucDimension = 254;
+	m_ucDimension = 0;
 	Reset();
 	SpawnForWorld();
 }

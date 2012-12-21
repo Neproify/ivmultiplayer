@@ -2,11 +2,10 @@
 //
 // File: CDirect3DHook.cpp
 // Project: Client.Core
-// Author(s): jenksta
+// Author(s): jenksta, XForce
 // License: See LICENSE in root directory
 //
 //==============================================================================
-
 #include "CDirect3DHook.h"
 #include "Patcher/CPatcher.h"
 #include <windowsx.h>
@@ -80,7 +79,6 @@ void CDirect3DHook::Install()
 
 
 		m_pReset = (Reset_t)DetourFunction((PBYTE)dwReset,(PBYTE)hkReset);
-
 		m_pEndScene = (EndScene_t)DetourFunction((PBYTE)dwEndScene,(PBYTE)hkEndScene);
 
 		CLogFile::Printf("Hooked 'Direct3D Reset and EndScene");
@@ -101,6 +99,8 @@ void CDirect3DHook::Uninstall()
 
 HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 {
+	g_pDevice = pDevice;
+
 	if(m_bInitialized == false) {
 		HWND hFocusWindow = FindWindow(NULL,"GTAIV");
 		if(hFocusWindow != NULL) {
@@ -124,8 +124,8 @@ HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 
 HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	if(g_pDevice == NULL)
-		g_pDevice = pDevice;
+	g_pDevice = pDevice;
+
 	CLogFile::Printf("PreD3DReset");
 
 	// Call our lost device function
@@ -141,9 +141,9 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 		SetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE, style | WS_POPUPWINDOW | WS_CAPTION | WS_THICKFRAME);
 		SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_NOTOPMOST, 0, 0, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight, SWP_SHOWWINDOW);
 	}
-
-	HRESULT hr = m_pReset(pDevice, pPresentationParameters);
 	
+	HRESULT hr = m_pReset(pDevice, pPresentationParameters);
+
 	if(SUCCEEDED(hr))
 	{
 		// Call our reset device function
