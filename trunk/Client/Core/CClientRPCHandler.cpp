@@ -3431,28 +3431,23 @@ void CClientRPCHandler::ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStr
 			return;
 
 	EntityId playerId;
-	EntityId forPlayerId;
 	bool bToggle;
 
 	pBitStream->Read(playerId);
-	pBitStream->Read(forPlayerId);
 	bToggle = pBitStream->ReadBit();
 
-	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->DoesExist(forPlayerId)) {
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(forPlayerId);
+	if(g_pPlayerManager->DoesExist(playerId)) {
+		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 		if(pPlayer && pPlayer->IsSpawned()) {
-			CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
-			if(pRemotePlayer) {
-				if(bToggle)
-					Scripting::RemoveFakeNetworkNameFromPed(pRemotePlayer->GetScriptingHandle());
-				else {
-					char red = (pRemotePlayer->GetColor() & 0xFF000000) >> 24;
-					char green = (pRemotePlayer->GetColor() & 0x00FF0000) >> 16;
-					char blue = (pRemotePlayer->GetColor() & 0x0000FF00) >> 8;
-					char alpha = (pRemotePlayer->GetColor() & 0x000000FF);
+			if(bToggle)
+				Scripting::RemoveFakeNetworkNameFromPed(pPlayer->GetScriptingHandle());
+			else {
+				char red = (pPlayer->GetColor() & 0xFF000000) >> 24;
+				char green = (pPlayer->GetColor() & 0x00FF0000) >> 16;
+				char blue = (pPlayer->GetColor() & 0x0000FF00) >> 8;
+				char alpha = (pPlayer->GetColor() & 0x000000FF);
 					
-					Scripting::GivePedFakeNetworkName(pRemotePlayer->GetScriptingHandle(), pRemotePlayer->GetName().C_String(),red,green,blue,alpha);
-				}
+				Scripting::GivePedFakeNetworkName(pPlayer->GetColor(), pPlayer->GetName().C_String(),red,green,blue,alpha);
 			}
 		}
 	}
