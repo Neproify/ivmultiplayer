@@ -33,6 +33,7 @@ void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("deleteFire", DeleteFire, 1, "i");
 	pScriptingManager->RegisterFunction("attachObjectToPlayer", AttachPed, 8, "iiffffff");
 	pScriptingManager->RegisterFunction("attachObjectToVehicle", AttachVehicle, 8, "iiffffff");
+	pScriptingManager->RegisterFunction("detachObject", DetachObject, 1, "i");
 }
 
 // createObject(modelhash, x, y, z, rx, ry, rz)
@@ -248,6 +249,19 @@ SQInteger CObjectNatives::AttachVehicle(SQVM *pVM)
 	if(g_pObjectManager->DoesExist(objectId))
 	{
 		g_pObjectManager->AttachToVehicle(objectId,vehicleId,vecPos,vecRot);
+		sq_pushbool(pVM,true);
+	}
+	sq_pushbool(pVM,false);
+	return 1;
+}
+
+SQInteger CObjectNatives::DetachObject(SQVM *pVM)
+{
+	EntityId	objectId;
+	sq_getentity(pVM, -1, &objectId);
+	if(g_pObjectManager->DoesExist(objectId) && g_pObjectManager->GetAttachState(objectId))
+	{
+		g_pObjectManager->Detach(objectId);
 		sq_pushbool(pVM,true);
 	}
 	sq_pushbool(pVM,false);

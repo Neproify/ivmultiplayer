@@ -469,6 +469,20 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 	}
 }
 
+void CClientRPCHandler::DetachObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId objectId;
+	while(pBitStream->ReadCompressed(objectId))
+	{
+		CObject * pObject = g_pObjectManager->Get(objectId);
+		if(pObject)
+			Scripting::DetachObject(g_pObjectManager->Get(objectId)->GetHandle(), true);
+	}
+}
 void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -3626,6 +3640,8 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ResetVehicleEnterExit, ResetVehicleEnterExit);
 	AddFunction(RPC_ScriptingTogglePlayerLabelForPlayer, ScriptingTogglePlayerLabelForPlayer);
 	AddFunction(RPC_ScriptingFixVehicle, ScriptingFixVehicle);
+	AddFunction(RPC_ScriptingAttachObject, AttachObject);
+	AddFunction(RPC_ScriptingDetachObject, DetachObject);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3788,4 +3804,6 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ResetVehicleEnterExit);
 	RemoveFunction(RPC_ScriptingTogglePlayerLabelForPlayer);
 	RemoveFunction(RPC_ScriptingFixVehicle);
+	RemoveFunction(RPC_ScriptingAttachObject);
+	RemoveFunction(RPC_ScriptingDetachObject);
 }

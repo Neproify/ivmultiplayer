@@ -296,3 +296,19 @@ void CObjectManager::AttachToVehicle(EntityId objectId, EntityId vehicleId,const
 		g_pNetworkManager->RPC(RPC_ScriptingAttachObject,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	}
 }
+
+void CObjectManager::Detach(EntityId objectId)
+{
+	if(DoesExist(objectId))
+	{
+		m_Objects[objectId].bAttached = false;
+		m_Objects[objectId].bVehicleAttached = false;
+		m_Objects[objectId].uiVehiclePlayerId = INVALID_ENTITY_ID;
+		m_Objects[objectId].vecAttachPosition = CVector3();
+		m_Objects[objectId].vecAttachRotation = CVector3();
+
+		CBitStream bsSend;
+		bsSend.WriteCompressed(objectId);
+		g_pNetworkManager->RPC(RPC_ScriptingDetachObject,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	}
+}
