@@ -178,10 +178,12 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetVehicleWindowState,
 	RPC_ScriptingSetPlayerUseMobilePhone,
 	RPC_ScriptingMarkVehicleAsActorVehicle,
+	RPC_ScriptingFixVehicle,
 	RPC_ScriptingPlayerSaySpeech,
 	RPC_ScriptingActorSaySpeech,
 	RPC_ScriptingLetPlayerDriveAutomatic,
 	RPC_ScriptingSetPlayerDimension,
 	RPC_ScriptingSetVehicleDimension,
-	RPC_ResetVehicleEnterExit
+	RPC_ResetVehicleEnterExit,
+	RPC_ScriptingTogglePlayerLabelForPlayer,
 };

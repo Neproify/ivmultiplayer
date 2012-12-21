@@ -3425,6 +3425,51 @@ void CClientRPCHandler::ResetVehicleEnterExit(CBitStream * pBitStream, CPlayerSo
 	}
 }
 
+void CClientRPCHandler::ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+			return;
+
+	EntityId playerId;
+	EntityId forPlayerId;
+	bool bToggle;
+
+	pBitStream->Read(playerId);
+	pBitStream->Read(forPlayerId);
+	bToggle = pBitStream->ReadBit();
+
+	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->DoesExist(forPlayerId)) {
+		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(forPlayerId);
+		if(pPlayer && pPlayer->IsSpawned()) {
+			CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
+			if(pRemotePlayer) {
+				if(bToggle)
+					Scripting::RemoveFakeNetworkNameFromPed(pRemotePlayer->GetScriptingHandle());
+				else {
+					char red = (pRemotePlayer->GetColor() & 0xFF000000) >> 24;
+					char green = (pRemotePlayer->GetColor() & 0x00FF0000) >> 16;
+					char blue = (pRemotePlayer->GetColor() & 0x0000FF00) >> 8;
+					char alpha = (pRemotePlayer->GetColor() & 0x000000FF);
+					
+					Scripting::GivePedFakeNetworkName(pRemotePlayer->GetScriptingHandle(), pRemotePlayer->GetName().C_String(),red,green,blue,alpha);
+				}
+			}
+		}
+	}
+}
+
+void CClientRPCHandler::ScriptingFixVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+			return;
+	
+	EntityId vehicleId;
+	pBitStream->Read(vehicleId);
+
+	if(g_pVehicleManager->Exists(vehicleId))
+		Scripting::FixCar(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle());
+}
+
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -3584,6 +3629,8 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingSetPlayerDimension, ScriptingSetPlayerDimension);
 	AddFunction(RPC_ScriptingSetVehicleDimension, ScriptingSetVehicleDimension);
 	AddFunction(RPC_ResetVehicleEnterExit, ResetVehicleEnterExit);
+	AddFunction(RPC_ScriptingTogglePlayerLabelForPlayer, ScriptingTogglePlayerLabelForPlayer);
+	AddFunction(RPC_ScriptingFixVehicle, ScriptingFixVehicle);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3744,4 +3791,6 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingLetPlayerDriveAutomatic);
 	RemoveFunction(RPC_ScriptingSetPlayerDimension);
 	RemoveFunction(RPC_ResetVehicleEnterExit);
+	RemoveFunction(RPC_ScriptingTogglePlayerLabelForPlayer);
+	RemoveFunction(RPC_ScriptingFixVehicle);
 }

@@ -62,6 +62,7 @@ private:
 	static SQInteger GetState(SQVM * pVM);
 	static SQInteger SetVelocity(SQVM * pVM);
 	static SQInteger GetVelocity(SQVM * pVM);
+	static SQInteger GetWantedLevel(SQVM * pVM);
 	static SQInteger SetWantedLevel(SQVM * pVM);
 	static SQInteger WarpIntoVehicle(SQVM * pVM);
 	static SQInteger RemoveFromVehicle(SQVM * pVM);
@@ -80,6 +81,7 @@ private:
 	static SQInteger GetPreviousControlState(SQVM * pVM);
 	static SQInteger GetControlState(SQVM * pVM);
 	static SQInteger TriggerEvent(SQVM * pVM);
+	static SQInteger ToggleNametagForPlayer(SQVM * pVM);
 	static SQInteger GetColor(SQVM * pVM);
 	static SQInteger SetColor(SQVM * pVM);
 	static SQInteger GetPing(SQVM * pVM);

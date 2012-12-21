@@ -268,13 +268,14 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
 		/*if(uMsg == WM_KEYUP && wParam == VK_F4)
 		{
-			CLogFile::Printf("Test1 0x%p(%x)",(g_pVehicleManager->Get(2)->GetScriptingHandle() + 0x1130),(g_pVehicleManager->Get(2)->GetScriptingHandle() + 0x1130));
+			IVVehicle *  pVehicle = g_pLocalPlayer->GetVehicle()->GetGameVehicle()->GetVehicle();
+			DWORD dwTest = *(DWORD *)(pVehicle + 0x194);
 
-			IVVehicle *  pVehicle = g_pVehicleManager->Get(2)->GetGameVehicle()->GetVehicle();
-			DWORD dwTest = *(DWORD *)(pVehicle + 0x1130);
-			CLogFile::Printf("Testvar 0x%p(%x)",dwTest);
-		}
-		*/
+			//int v1 = sub_426700((void *)VAR_VehiclePool, **(_DWORD **)(a1 + 8));
+			g_pChatWindow->AddInfoMessage("Testvar 0x%p(%x)%d",dwTest,dwTest,dwTest);
+			CLogFile::Printf("Testvar 0x%p(%x)%d",dwTest,dwTest,dwTest);
+		}*/
+		
 		//if(uMsg == WM_KEYUP && wParam == VK_F4)
 		//{
 		//	DWORD dwPointer;

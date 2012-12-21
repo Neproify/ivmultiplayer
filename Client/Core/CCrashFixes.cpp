@@ -15,6 +15,8 @@ void CCrashFixes::Install()
 	// Fix vehicle crash(Be carefull, we have to look if this function disables important vehicle stuff..) -> 8 xrefs
 	CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCBA1F0), (CGame::GetBase() + 0xCBA230));
 
+	// Deformation check
+	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xB7CC4F), (CGame::GetBase() + 0xB7CC68));
 	// Fix some random crashes(Don't disable this function!)
 	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0x72B240), (CGame::GetBase() + 0x72B813));
 

@@ -68,6 +68,7 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_bMobilePhoneUse = false;
 	m_ucDimension = 0;
 	m_bDrop = false;
+	m_iWantedLevel = 0;
 }
 
 CPlayer::~CPlayer()

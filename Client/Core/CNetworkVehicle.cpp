@@ -230,7 +230,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 			// Disable visible/"normal" damage
 			SetDamageable(false);
-			m_pVehicle->SetCanBeVisiblyDamaged(false);
+			m_pVehicle->SetCanBeVisiblyDamaged(true);
 
 			// Add the vehicle to the world
 			// Not needed as native does it for us
@@ -269,7 +269,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 		// Disable visible/"normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(false);
+		m_pVehicle->SetCanBeVisiblyDamaged(true);
 
 		// Add the vehicle to the world
 		// Not needed as native does it for us
@@ -290,6 +290,8 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 		// Set the proofs
 		Scripting::SetCarProofs(GetScriptingHandle(),false,false,false,false,false);
+
+		memset(m_bIndicatorState, 0, sizeof(m_bIndicatorState));
 
 		// Try fix floating bug
 		FixCarFloating();
