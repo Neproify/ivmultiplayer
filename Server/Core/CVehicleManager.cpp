@@ -86,7 +86,11 @@ void CVehicleManager::Process()
 					m_pVehicles[x]->SetLastTimeOccupied(SharedUtility::GetTime());
 				}
 			}
-			
+			if(m_pVehicles[x]->GetDeathTime() != 0 && m_pVehicles[x]->GetDeathTime() + 3000 <= SharedUtility::GetTime())
+			{
+				m_pVehicles[x]->SetDeathTime(0);
+				m_pVehicles[x]->Respawn();
+			}
 		}
 	}
 }

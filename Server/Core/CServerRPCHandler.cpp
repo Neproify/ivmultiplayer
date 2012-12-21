@@ -935,8 +935,7 @@ void CServerRPCHandler::VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pS
 			}
 
 		}
-		// If all is checked -> respawn it
-		pVehicle->Respawn();
+		pVehicle->SetDeathTime(SharedUtility::GetTime());
 	}
 		
 }

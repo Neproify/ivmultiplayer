@@ -49,6 +49,7 @@ private:
 	unsigned char m_ucDimension;
 	int			  m_iRespawnDelay;
 	unsigned long m_lastTimeOccupied;
+	unsigned long m_ulDeathTime;
 
 public:
 	CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4);
@@ -128,4 +129,6 @@ public:
 	unsigned long GetLastTimeOccupied() { return m_lastTimeOccupied; }
 	void		  SetRespawnDelay(int iRespawnDelay) { m_iRespawnDelay = iRespawnDelay; }
 	int			  GetRespawnDelay() { return m_iRespawnDelay; }
+	void		  SetDeathTime(unsigned long time) { m_ulDeathTime = time; }
+	unsigned long GetDeathTime() { return m_ulDeathTime; }
 };
