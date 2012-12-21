@@ -2478,7 +2478,6 @@ SQInteger CPlayerNatives::ToggleNametagForPlayer(SQVM * pVM)
 	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->DoesExist(forPlayerId))
 	{
 		CBitStream bsSend;
-		bsSend.Write(playerId);
 		bsSend.Write(forPlayerId);
 		bsSend.Write(bShow);
 		g_pNetworkManager->RPC(RPC_ScriptingTogglePlayerLabelForPlayer, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
