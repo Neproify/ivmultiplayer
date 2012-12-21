@@ -71,6 +71,7 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleGpsState", GetGpsState, 1, "i");
 	pScriptingManager->RegisterFunction("setVehicleAlarm", SetAlarm, 2, "ii");
 	pScriptingManager->RegisterFunction("markVehicleAsActorVehicle", MarkVehicle, 2, "ib");
+	pScriptingManager->RegisterFunction("repairVehicle", FixVehicle, 1, "i");
 
 	pScriptingManager->RegisterFunction("setVehicleDimension", SetDimension, 2, "ii");
 	pScriptingManager->RegisterFunction("getVehicleDimension", GetDimension, 1, "i");
@@ -1132,6 +1133,23 @@ SQInteger CVehicleNatives::MarkVehicle(SQVM * pVM)
 	{
 		bool bSwitch = (bToggle != 0);
 		pVehicle->MarkVehicle(bSwitch);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CVehicleNatives::FixVehicle(SQVM * pVM)
+{
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	if(pVehicle)
+	{
+		pVehicle->RepairVehicle();
 		sq_pushbool(pVM, true);
 		return 1;
 	}

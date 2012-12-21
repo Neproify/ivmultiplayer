@@ -85,6 +85,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerState", GetState, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerVelocity", SetVelocity, 4, "ifff");
 	pScriptingManager->RegisterFunction("getPlayerVelocity", GetVelocity, 1, "i");
+	pScriptingManager->RegisterFunction("getPlayerWantedLevel", GetWantedLevel, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerWantedLevel", SetWantedLevel, 2, "ii");
 	pScriptingManager->RegisterFunction("warpPlayerIntoVehicle", WarpIntoVehicle, -1, NULL);
 	pScriptingManager->RegisterFunction("removePlayerFromVehicle", RemoveFromVehicle, -1, NULL);
@@ -138,6 +139,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("setPlayerUseMobilePhone", SetMobilePhone, 2, "ib");
 	pScriptingManager->RegisterFunction("sayPlayerSpeech", SaySpeech, 3, "iss");
 	pScriptingManager->RegisterFunction("letPlayerDriveAutomaticAtCoords", DriveAutomatic, 7, "iiffffi");
+	pScriptingManager->RegisterFunction("togglePlayerNametagForPlayer",ToggleNametagForPlayer, 3, "iib");
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 	
 	pScriptingManager->RegisterFunction("setPlayerDimension", SetDimension, 2, "ii");
@@ -244,6 +246,22 @@ SQInteger CPlayerNatives::RemoveWeapons(SQVM * pVM)
 	return 1;
 }
 
+//getPlayerWantedLevel(playerid, wantedlevel)
+SQInteger CPlayerNatives::GetWantedLevel(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		sq_pushinteger(pVM, g_pPlayerManager->GetAt(playerId)->GetWantedLevel());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
 //setPlayerWantedLevel(playerid, wantedlevel)
 SQInteger CPlayerNatives::SetWantedLevel(SQVM * pVM)
 {
@@ -254,6 +272,7 @@ SQInteger CPlayerNatives::SetWantedLevel(SQVM * pVM)
 
 	if(g_pPlayerManager->DoesExist(playerId))
 	{
+		g_pPlayerManager->GetAt(playerId)->SetWantedLevel(iWantedLevel);
 		CBitStream bsSend;
 		bsSend.Write(iWantedLevel);
 		g_pNetworkManager->RPC(RPC_ScriptingSetWantedLevel, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
@@ -2443,6 +2462,32 @@ SQInteger CPlayerNatives::SaySpeech(SQVM * pVM)
 	}
 	sq_pushbool(pVM, false);
 	return 1;
+}
+
+SQInteger CPlayerNatives::ToggleNametagForPlayer(SQVM * pVM)
+{
+	EntityId playerId;
+	EntityId forPlayerId;
+	SQBool bToggle;
+
+	sq_getentity(pVM, -3, &playerId);
+	sq_getentity(pVM, -2, &forPlayerId);
+	sq_getbool(pVM, -1, &bToggle);
+
+	bool bShow = (bToggle != 0);
+	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->DoesExist(forPlayerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(playerId);
+		bsSend.Write(forPlayerId);
+		bsSend.Write(bShow);
+		g_pNetworkManager->RPC(RPC_ScriptingTogglePlayerLabelForPlayer, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+	
 }
 
 SQInteger CPlayerNatives::DriveAutomatic(SQVM * pVM)

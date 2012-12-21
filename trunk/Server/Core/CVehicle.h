@@ -121,6 +121,7 @@ public:
 	bool		  GetVehicleGPSState();
 	void		  SetAlarm(int iDuration);
 	void		  MarkVehicle(bool bToggle);
+	void		  RepairVehicle();
 	void		  SetDimension(unsigned char ucDimension) { m_ucDimension = ucDimension; }
 	unsigned char GetDimension() { return m_ucDimension; }
 	void		  SetLastTimeOccupied(unsigned long lastTimeOccupied) { m_lastTimeOccupied = lastTimeOccupied; }

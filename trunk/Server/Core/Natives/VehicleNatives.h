@@ -63,6 +63,7 @@ private:
 	static SQInteger GetGpsState(SQVM * pVM);
 	static SQInteger SetAlarm(SQVM * pVM);
 	static SQInteger MarkVehicle(SQVM * pVM);
+	static SQInteger FixVehicle(SQVM * pVM);
 
 	static SQInteger SetDimension(SQVM * pVM);
 	static SQInteger GetDimension(SQVM * pVM);

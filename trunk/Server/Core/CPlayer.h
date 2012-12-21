@@ -51,6 +51,7 @@ private:
 	CVector3	  m_vecLastHeadMove;
 	unsigned char m_ucDimension;
 	bool		  m_bDrop;
+	unsigned int  m_iWantedLevel;
 
 public:
 	CPlayer(EntityId playerId, String strName);
@@ -130,4 +131,7 @@ public:
 	unsigned char  GetDimension() { return m_ucDimension; }
 	void		   SetBlockWeaponDrop(bool drop) { m_bDrop = drop; }
 	bool		   GetBlockWeaponDrop() { return m_bDrop; }
+
+	void		   SetWantedLevel(int iWantedLevel) { m_iWantedLevel = iWantedLevel; }
+	int			   GetWantedLevel() { return m_iWantedLevel; }
 };

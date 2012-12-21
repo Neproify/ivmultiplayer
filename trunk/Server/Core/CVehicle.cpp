@@ -823,3 +823,10 @@ void CVehicle::MarkVehicle(bool bToggle)
 	bsSend.Write(m_bActorVehicle);
 	g_pNetworkManager->RPC(RPC_ScriptingMarkVehicleAsActorVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
+
+void CVehicle::RepairVehicle()
+{
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	g_pNetworkManager->RPC(RPC_ScriptingFixVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}

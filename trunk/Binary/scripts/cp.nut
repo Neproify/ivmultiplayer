@@ -116,7 +116,21 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 	
-	
+	if(cmd[0] == "/getwantedlevel")
+	{
+		sendPlayerMessage(playerid,"WANTEDLEVEL:"+getPlayerWantedLevel(playerid));
+	}
+	if(cmd[0] == "/togglenametag")
+	{
+		if(cmd[3].tointeger() == 1)
+			togglePlayerNametagForPlayer(cmd[1].tointeger(),cmd[2].tointeger(), true);
+		else
+			togglePlayerNametagForPlayer(cmd[1].tointeger(),cmd[2].tointeger(), false);
+	}
+	if(cmd[0] == "/repairvehicle")
+	{
+		repairVehicle(getPlayerVehicleId(playerid));
+	}
 	if(cmd[0] == "/world")
 	{
 		setPlayerDimension(playerid, 1);
