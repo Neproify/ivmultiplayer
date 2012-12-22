@@ -3478,6 +3478,77 @@ void CClientRPCHandler::ScriptingFixVehicle(CBitStream * pBitStream, CPlayerSock
 		Scripting::FixCar(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle());
 }
 
+
+void CClientRPCHandler::ScriptingMoveObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId objectId;
+	pBitStream->ReadCompressed(objectId);
+
+	CVector3 vecMoveTarget;
+	pBitStream->Read(vecMoveTarget);
+
+	float fMoveSpeed;
+	pBitStream->Read(fMoveSpeed);
+
+	CVector3 vecMoveRot;
+	vecMoveRot = CVector3();
+
+	if(pBitStream->ReadBit())
+		pBitStream->Read(vecMoveRot);
+
+	CObject *pObject = g_pObjectManager->Get(objectId);
+	if(pObject) {
+		pObject->SetMoveTarget(vecMoveTarget);
+
+		CVector3 vecStart;
+		pObject->GetPosition(vecStart);
+		pObject->SetStartPosition(vecStart);
+
+		pObject->SetMoveSpeed(fMoveSpeed);
+		pObject->SetIsMoving(true);
+
+
+		if(vecMoveRot.Length() != 0) {
+			pObject->SetMoveTargetRot(vecMoveRot);
+
+			CVector3 vecStartRot;
+			pObject->GetRotation(vecStartRot);
+			pObject->SetStartRotation(vecStartRot);
+
+			pObject->SetIsRotating(true);
+		}
+	}
+}
+
+void CClientRPCHandler::ScriptingRotateObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId objectId;
+	pBitStream->ReadCompressed(objectId);
+
+	CVector3 vecMoveRot;
+	pBitStream->Read(vecMoveRot);
+
+	float fMoveSpeed;
+	pBitStream->Read(fMoveSpeed);
+
+	CObject *pObject = g_pObjectManager->Get(objectId);
+	if(pObject) {
+		pObject->SetMoveTargetRot(vecMoveRot);
+
+		CVector3 vecStartRot;
+		pObject->GetRotation(vecStartRot);
+		pObject->SetStartRotation(vecStartRot);
+
+		pObject->SetIsRotating(true);
+	}
+}
+
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -3641,6 +3712,8 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingFixVehicle, ScriptingFixVehicle);
 	AddFunction(RPC_ScriptingAttachObject, AttachObject);
 	AddFunction(RPC_ScriptingDetachObject, DetachObject);
+	AddFunction(RPC_ScriptingMoveObject, ScriptingMoveObject);
+	AddFunction(RPC_ScriptingRotateObject, ScriptingRotateObject);
 }
 
 void CClientRPCHandler::Unregister()

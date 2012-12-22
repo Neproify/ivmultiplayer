@@ -12,7 +12,10 @@
 
 #include "CNetworkEntityManager.h"
 #include "CObject.h"
+#include <SharedUtility.h>
 
 class CObjectManager : public CNetworkEntityManager<CObject, MAX_OBJECTS>
 {
+public:
+	void Process();
 };

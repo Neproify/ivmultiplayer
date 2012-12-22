@@ -24,6 +24,13 @@ private:
 	unsigned int	uiVehiclePlayerId;
 	CVector3		vecAttachPosition;
 	CVector3		vecAttachRotation;
+	bool			m_bIsMoving;
+	bool			m_bIsRotating;
+	float			m_fMoveSpeed;
+	CVector3		m_vecMoveTarget;
+	CVector3		m_vecMoveStart;
+	CVector3		m_vecMoveTargetRot;
+	CVector3		m_vecMoveStartRot;
 
 public:
 	CObject(DWORD dwModelHash, CVector3 vecPosition, CVector3 vecRotation);
@@ -37,6 +44,24 @@ public:
 	void SetRotation(const CVector3& vecRotation);
 	void GetRotation(CVector3& vecRotation);
 	unsigned int GetHandle() { return m_uiObjectHandle; }
+
+	bool		IsMoving() { return m_bIsMoving; }
+	void		SetIsMoving(bool bMoving) { m_bIsMoving = bMoving; }
+	CVector3	GetMoveTarget() { return m_vecMoveTarget; }
+	void		SetMoveTarget(const CVector3 &vec) { m_vecMoveTarget = vec; }
+	CVector3	GetStartPosititon() { return m_vecMoveStart; }
+	void		SetStartPosition(const CVector3 &vec) { m_vecMoveStart = vec; }
+
+	bool		IsRotating() { return m_bIsMoving; }
+	void		SetIsRotating(bool bRotating) { m_bIsRotating = bRotating; }
+	CVector3	GetMoveTargetRot() { return m_vecMoveTargetRot; }
+	void		SetMoveTargetRot(const CVector3 &vecRot) { m_vecMoveTargetRot = vecRot; }
+	CVector3	GetStartRotation() { return m_vecMoveStartRot; }
+	void		SetStartRotation(const CVector3 &vec) { m_vecMoveStartRot = vec; }
+
+	float		GetMoveSpeed() { return m_fMoveSpeed; }
+	void		SetMoveSpeed(float fSpeed) { m_fMoveSpeed = fSpeed; }
+	void		MoveObject(const CVector3& vecTarget, const CVector3& vecRot, float fSpeed);
 
 	// Streaming
 	void GetStreamPosition(CVector3& vecPosition) { GetPosition(vecPosition); }

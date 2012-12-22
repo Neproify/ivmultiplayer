@@ -168,6 +168,8 @@ void CNetworkManager::Process()
 		if(g_pCheckpointManager)
 			g_pCheckpointManager->Pulse();
 
+		if(g_pObjectManager)
+			g_pObjectManager->Process();
 		// Process the audio manager
 		CAudioManager::Process();
 

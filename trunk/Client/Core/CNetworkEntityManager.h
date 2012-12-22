@@ -80,6 +80,11 @@ public:
 		return 0;
 	}
 
+	EntityId GetMax()
+	{
+		return max;
+	}
+
 	/*void Pulse()
 	{
 		// Loop through all entities

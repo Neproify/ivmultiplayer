@@ -291,7 +291,10 @@ void CNetServer::DeallocatePacket(CPacket * pPacket)
 		SAFE_DELETE(pPlayerSocket);
 
 		// Remove the player socket from the player socket list
-		m_playerSocketList.remove(pPlayerSocket);
+		if(m_playerSocketList.size() == 1)
+			m_playerSocketList.clear();
+		else
+			m_playerSocketList.remove(pPlayerSocket);
 	}
 
 	// Free the packet data

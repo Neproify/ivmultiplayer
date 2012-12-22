@@ -18,7 +18,9 @@ CObject::CObject(DWORD dwModelHash, CVector3 vecPosition, CVector3 vecRotation)
 	m_uiObjectHandle(0),
 	m_dwModelHash(dwModelHash),
 	m_vecPosition(vecPosition),
-	m_vecRotation(vecRotation)
+	m_vecRotation(vecRotation),
+	m_bIsMoving(false),
+	m_bIsRotating(false)
 {
 }
 

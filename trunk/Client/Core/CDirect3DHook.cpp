@@ -140,13 +140,10 @@ HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 D3DPRESENT_PARAMETERS parameters;
 HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-
-	 _asm pushad;
+	__asm pushad;
 	if(g_pDevice == NULL)
 		g_pDevice = pDevice;
-	CLogFile::Printf("device (0x%p, %i)", pDevice, pDevice);
 	CLogFile::Printf("PreD3DReset");
-	parameters = *pPresentationParameters;
 	// Call our lost device function
 	Direct3DInvalidate();
 
@@ -161,7 +158,7 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 		SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_NOTOPMOST, 0, 0, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight, SWP_SHOWWINDOW);
 	}
 	
-	HRESULT hr = m_pReset(g_pDevice, &parameters);
+	HRESULT hr = m_pReset(g_pDevice, pPresentationParameters);
 
 	if(SUCCEEDED(hr))
 	{
