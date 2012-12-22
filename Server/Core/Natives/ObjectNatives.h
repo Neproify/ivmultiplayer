@@ -28,6 +28,8 @@ private:
 	static SQInteger AttachVehicle(SQVM * pVM);
 	static SQInteger AttachPed(SQVM * pVM);
 	static SQInteger DetachObject(SQVM * pVM);
+	static SQInteger MoveObject(SQVM * pVM);
+	static SQInteger RotateObject(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

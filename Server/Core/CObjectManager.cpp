@@ -312,3 +312,35 @@ void CObjectManager::Detach(EntityId objectId)
 		g_pNetworkManager->RPC(RPC_ScriptingDetachObject,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	}
 }
+
+void CObjectManager::MoveObject(EntityId objectId, const CVector3& vecMoveTarget, const CVector3& vecMoveRot, float fSpeed)
+{
+	if(DoesExist(objectId))
+	{
+		CBitStream bsSend;
+		bsSend.WriteCompressed(objectId);
+		bsSend.Write(vecMoveTarget);
+		bsSend.Write(fSpeed);
+
+		if((vecMoveRot - m_Objects[objectId].vecPosition).Length() != 0) {
+			bsSend.Write1();
+			bsSend.Write(vecMoveRot);
+		} else {
+			bsSend.Write0();
+		}
+		g_pNetworkManager->RPC(RPC_ScriptingMoveObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	}
+}
+
+void CObjectManager::RotateObject(EntityId objectId, const CVector3& vecMoveRot, float fSpeed)
+{
+	if(DoesExist(objectId))
+	{
+		CBitStream bsSend;
+		bsSend.WriteCompressed(objectId);
+		bsSend.Write(vecMoveRot);
+		bsSend.Write(fSpeed);
+
+		g_pNetworkManager->RPC(RPC_ScriptingRotateObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	}
+}
