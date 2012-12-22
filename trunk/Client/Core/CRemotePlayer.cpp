@@ -259,7 +259,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		// Set their vehicles siren state
 		if(pVehicle->GetSirenState() != syncPacket->bSirenState)
 			pVehicle->SetSirenState(syncPacket->bSirenState);
-		/*
+		
 		// Set their windows
 		for(int i = 0; i <= 3; i++)
 			pVehicle->SetWindowState(i, syncPacket->bWindow[i]);
@@ -269,7 +269,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		{
 			if(syncPacket->bTyre[i])
 				Scripting::BurstCarTyre(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i);
-		}*/
+		}
 
 		// Set their vehicles dirt level
 		if(pVehicle->GetDirtLevel() != syncPacket->fDirtLevel)
