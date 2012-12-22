@@ -147,6 +147,9 @@ void CPlayerManager::HandleClientJoin(EntityId playerId)
 					g_pNetworkManager->RPC(RPC_ScriptingCreatePlayerBlip, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, true);
 					bsSend.Reset();
 				}
+				m_pPlayers[x]->SetDimension(m_pPlayers[x]->GetDimension());
+			} else if(x == playerId) {
+				m_pPlayers[x]->SetDimension(m_pPlayers[x]->GetDimension());
 			}
 		}
 	}

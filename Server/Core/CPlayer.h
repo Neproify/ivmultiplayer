@@ -127,7 +127,7 @@ public:
 	void		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShotm, CVector3 vecLookAt);
 	void		   UpdateHeadMoveSync(CVector3 vecHead);
 
-	void		   SetDimension(unsigned char ucDimension) { m_ucDimension = ucDimension; }
+	void		   SetDimension(unsigned char ucDimension);
 	unsigned char  GetDimension() { return m_ucDimension; }
 	void		   SetBlockWeaponDrop(bool drop) { m_bDrop = drop; }
 	bool		   GetBlockWeaponDrop() { return m_bDrop; }
