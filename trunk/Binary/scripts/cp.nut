@@ -48,6 +48,7 @@ function onScriptInit()
 	blipcolortest = createBlip(78,1000.0,1000.0,0.0,true);
 	setBlipColor(blipcolortest,0xE59338FF,-1);
 	setBlipName(blipcolortest, "idk");
+
 	return 1;
 }
 addEvent("scriptInit", onScriptInit);
@@ -115,7 +116,10 @@ addEvent("playerSpawn", onSpawn);
 function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
-	
+	if(cmd[0] == "/moveobject")
+	{
+		moveObject(cmd[1].tointeger(), 1727.337769, 705.455688, 25.831680, 5000.0);
+	}
 	if(cmd[0] == "/getwantedlevel")
 	{
 		sendPlayerMessage(playerid,"WANTEDLEVEL:"+getPlayerWantedLevel(playerid));
