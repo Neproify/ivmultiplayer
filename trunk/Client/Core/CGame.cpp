@@ -16,7 +16,6 @@
 #include <process.h>
 #include "CGame.h"
 #include <CLogFile.h>
-#include "Patcher/CPatcher.h"
 #include "Scripting.h"
 #include "CGUI.h"
 #include "CChatWindow.h"
@@ -1175,6 +1174,8 @@ void CGame::RemoveInitialLoadingScreens()
 			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
 		}
 	}*/
+
+	/*
 	// Legal, Legal 2, R*, R*N, GTA:IV, ...
 	for(int i = 0; i < *(int *)(COffsets::VAR_NumLoadingScreens); ++i)
 	{
@@ -1182,6 +1183,24 @@ void CGame::RemoveInitialLoadingScreens()
 
 		if(i <= 4)
 			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
+	}
+	*/
+	for( int i = 0; i < *(int *)(COffsets::VAR_NumLoadingScreens); ++i ) {
+		// Disable legal notice
+		if( i < 2 ) {
+			*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = ((i < 2) ? 0 : 0);
+			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
+		}
+
+		// Disable GTA IV logo & other loading screens
+		if(i > 3 )
+			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
+
+		/*if(i > 4) {
+			//CLogFile::Printf("%d(%x/%p/%d)",i,*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400),*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400),*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400));
+			//*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
+			//*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = 6;
+		}*/
 	}
 }
 

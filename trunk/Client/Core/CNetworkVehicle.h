@@ -50,7 +50,7 @@ private:
 	}                m_interp;
 	bool             m_bSirenState;
 	bool             m_bIndicatorState[4];
-	bool             m_bComponents[9];
+	int				 m_iComponents[9];
 	DWORD            m_dwDoorLockState;
 	unsigned long    m_ulHornDurationEnd;
 	unsigned int     m_uiHealth;
@@ -132,6 +132,9 @@ public:
 	void             SetMoveSpeed(const CVector3& vecMoveSpeed);
 	void             GetMoveSpeed(CVector3& vecMoveSpeed);
 
+	void			 SetQuaternion(float * quat);
+	void			 GetQuaternion(float * quat);
+
 	void             SetTurnSpeed(const CVector3& vecTurnSpeed);
 	void             GetTurnSpeed(CVector3& vecTurnSpeed);
 
@@ -171,8 +174,8 @@ public:
 	void             SetIndicatorState(bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight);
 	bool             GetIndicatorState(unsigned char ucSlot);
 
-	void             SetComponentState(unsigned char ucSlot, bool bOn);
-	bool             GetComponentState(unsigned char ucSlot);
+	void             SetComponentState(unsigned char ucSlot, int iComponent);
+	int              GetComponentState(unsigned char ucSlot);
 
 	void             SetVariation(unsigned char ucVariation);
 	unsigned char    GetVariation();

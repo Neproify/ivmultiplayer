@@ -212,6 +212,7 @@ namespace Scripting
 	static void StoreScore(unsigned int playerIndex, unsigned int* value) { NativeInvoke::Invoke<unsigned int>(NATIVE_STORE_SCORE, playerIndex, value); }
 	static void StoreWantedLevel(unsigned int playerIndex, unsigned int* value) { NativeInvoke::Invoke<unsigned int>(NATIVE_STORE_WANTED_LEVEL, playerIndex, value); }
 	static void RemovePlayerHelmet(unsigned int playerIndex, bool remove) { NativeInvoke::Invoke<unsigned int>(NATIVE_REMOVE_PLAYER_HELMET, playerIndex, remove); }
+	static unsigned int SlideObject(unsigned int objectIndex, float pX, float pY, float pZ, float rX, float rY, float rZ, float speed) { return NativeInvoke::Invoke<unsigned int>(NATIVE_SLIDE_OBJECT, objectIndex, pX, pY, pZ, rX, rY, rZ, speed); }
 
 	// unsigned int
 	static void SetCharDucking(unsigned int ped, bool value) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CHAR_DUCKING, ped, value); }
