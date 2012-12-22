@@ -410,7 +410,7 @@ void CLocalPlayer::SendInVehicleSync()
 		pVehicle->GetMoveSpeed(syncPacket.vecMoveSpeed);
 
 		// Get their vehicle quaternion
-		pVehicle->GetQuaternion(syncPacket.fQuaternion);
+		//pVehicle->GetQuaternion(syncPacket.fQuaternion);
 
 		// Get their vehicles engine health & petroltank health
 		syncPacket.uiHealth = pVehicle->GetHealth();

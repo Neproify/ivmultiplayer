@@ -218,10 +218,10 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		pVehicle->SetTargetRotation(syncPacket->vecRotation, TICK_RATE/**2*/);
 
 		// Set their quaternion
-		pVehicle->SetQuaternion(syncPacket->fQuaternion);
+		//pVehicle->SetQuaternion(syncPacket->fQuaternion);
 		
 		// Check if we have no bike(otherwise -> shake shake, shake shake shake IT! :P)
-		if(pVehicle->GetModelInfo()->GetIndex() < 105 || pVehicle->GetModelInfo()->GetIndex() > 111)
+		if(pVehicle->GetVehicleModelType() < 105 || pVehicle->GetVehicleModelType() > 111)
 		{
 			// Set their vehicles turn speed
 			pVehicle->SetTurnSpeed(syncPacket->vecTurnSpeed);

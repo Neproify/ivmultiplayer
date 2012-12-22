@@ -1935,11 +1935,12 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 		{
 			// Loop through all passenger seats
 			BYTE byteTestSeatId = 0;
-			CLogFile::Printf("GetClosestVehicleSet %d(%d)",byteTestSeatId,pClosestVehicle->GetMaxPassengers());
 			for(BYTE i = 0; i < pClosestVehicle->GetMaxPassengers(); i++)
 			{
-				if(!pClosestVehicle->GetPassenger(i))
+				//CLogFile::Printf("GetClosestVehicleSet %d(%d)",i,pClosestVehicle->GetMaxPassengers());
+				if(pClosestVehicle->GetPassenger(i) == NULL)
 				{
+					//CLogFile::Printf("SEAT FOUND!!(%d)",i);
 					byteTestSeatId = (i + 1);
 					break;
 				}
