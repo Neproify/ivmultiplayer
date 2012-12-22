@@ -59,7 +59,9 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	memset(m_byteColors, 0, sizeof(m_byteColors));
 	
 	memset(m_bIndicatorState, 0, sizeof(m_bIndicatorState));
-	memset(m_bComponents, 0, sizeof(m_bComponents));
+	SetIndicatorState(false, false, false, false);
+
+	memset(m_iComponents, 0, sizeof(m_iComponents));
 	m_interp.pos.ulFinishTime = 0;
 	m_interp.rot.ulFinishTime = 0;
 	
@@ -430,10 +432,17 @@ void CNetworkVehicle::StreamIn()
 		if(m_ulHornDurationEnd > SharedUtility::GetTime())
 			SoundHorn((m_ulHornDurationEnd - SharedUtility::GetTime()));
 
-		// Set the extras
-		for(int i = 0; i <= 8; ++ i)
-			SetComponentState(i, m_bComponents[i]);
-
+		// Fix missing components at nrg, helicopter etc.
+		if(GetModelInfo()->GetIndex() > 104 && GetModelInfo()->GetIndex() < 116) {
+			for(int i = 0; i < 8; i++)
+				SetComponentState(i, 1);
+		}
+		else
+		{
+			// Set the extras
+			for(int i = 0; i <= 8; ++ i)
+				SetComponentState(i, m_iComponents[i]);
+		}
 		// Restore the variation
 		SetVariation(m_ucVariation);
 
@@ -759,6 +768,30 @@ float CNetworkVehicle::GetPetrolTankHealth()
 		return m_pVehicle->GetPetrolTankHealth();
 
 	return m_fPetrolTankHealth;
+}
+
+void CNetworkVehicle::SetQuaternion(float * quat)
+{
+    if(IsSpawned()) {
+		/*unsigned int dwHandle = GetScriptingHandle();
+		DWORD dwAddress = (CGame::GetBase() + 0xB7BD50);
+		_asm
+		{
+			push quat[3]
+			push quat[2]
+			push quat[1]
+			push quat[0]
+			push dwHandle ; mov ecx, dwHandle(ida says no pointer so we push it ;))
+			call dwAddress
+		}*/
+		Scripting::SetVehicleQuaternion(GetScriptingHandle(), quat[0], quat[1], quat[2], quat[3]);
+	}
+}
+
+void CNetworkVehicle::GetQuaternion(float * quat)
+{
+	if(IsSpawned())
+		Scripting::GetVehicleQuaternion(GetScriptingHandle(), &quat[0], &quat[1], &quat[2], &quat[3]);
 }
 
 void CNetworkVehicle::SetMoveSpeed(const CVector3& vecMoveSpeed)
@@ -1281,25 +1314,25 @@ bool CNetworkVehicle::GetIndicatorState(unsigned char ucSlot)
 	return false;
 }
 
-void CNetworkVehicle::SetComponentState(unsigned char ucSlot, bool bOn)
+void CNetworkVehicle::SetComponentState(unsigned char ucSlot, int iComponent)
 {
 	THIS_CHECK
 	if(ucSlot >= 0 && ucSlot <= 8)
 	{
-		m_bComponents[ucSlot] = bOn;
+		m_iComponents[ucSlot] = iComponent;
 
 		// Are we spawned?
 		if(IsSpawned()) {
-			m_pVehicle->SetComponentState((ucSlot + 1), bOn);
+			m_pVehicle->SetComponentState((ucSlot + 1), iComponent);
 		}
 	}
 }
 
-bool CNetworkVehicle::GetComponentState(unsigned char ucSlot)
+int CNetworkVehicle::GetComponentState(unsigned char ucSlot)
 {
 	THIS_CHECK_R(false)
 	if(ucSlot >= 0 && ucSlot <= 8)
-		return m_bComponents[ucSlot];
+		return m_iComponents[ucSlot];
 
 	return false;
 }

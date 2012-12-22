@@ -22,6 +22,7 @@
 #include "CIVStreaming.h"
 #include "CIVWeather.h"
 #include "CIVWorld.h"
+#include "Patcher/CPatcher.h"
 
 enum eState
 {
@@ -32,6 +33,26 @@ enum eState
 	GAME_STATE_PAUSE_MENU,
 	GAME_STATE_IVMP_PAUSE_MENU,
 };
+
+// Pointer template
+typedef void * ptr;
+
+template <typename T>
+inline T *ptr_cast(unsigned int value)
+{
+	return *reinterpret_cast<T **>(&value);
+}
+
+inline ptr ptr_cast(unsigned int value)
+{
+	return *reinterpret_cast<ptr *>(&value);
+}
+
+template <class T>
+inline T * ptr_cast(ptr value)
+{
+	return reinterpret_cast<T *>(value);
+}
 
 class CPools;
 class IVEntity;

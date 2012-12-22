@@ -111,6 +111,7 @@ String         g_strPassword;
 bool		   g_bLoadingScreenloaded = false;
 int			   g_iCameraState = 1;
 int			   g_iCameraTime = 0;
+bool		   g_bNetworkStatsDisplayed = false;
 
 // TODO: Move this to another class?
 extern float fTextPos[2];
@@ -579,9 +580,19 @@ void Direct3DRender()
 
 			// Draw the string
 			g_pGUI->DrawText(strStats, CEGUI::Vector2(26, 30), (CEGUI::colour)D3DCOLOR_RGBA(255, 255, 255, 255), g_pGUI->GetFont("tahoma-bold", 10));
+			g_pChatWindow->SetEnabled(false);
+			g_bNetworkStatsDisplayed = true;
 		}
 		else
 		{
+			// If our network stats were displayed
+			if(g_bNetworkStatsDisplayed) {
+				if(g_pChatWindow && !g_pChatWindow->IsEnabled())
+					g_pChatWindow->SetEnabled(true);
+				
+				g_bNetworkStatsDisplayed = false;
+			}
+
 			// If our input window exists draw it
 			if(g_pInputWindow)
 				g_pInputWindow->Draw();
