@@ -430,11 +430,9 @@ void CNetworkVehicle::StreamIn()
 		if(m_ulHornDurationEnd > SharedUtility::GetTime())
 			SoundHorn((m_ulHornDurationEnd - SharedUtility::GetTime()));
 
-		// Fix missing components at nrg, helicopter etc.
-		if(GetModelInfo()->GetIndex() > 104 && GetModelInfo()->GetIndex() < 116) {
-			for(int i = 0; i < 8; i++)
-				SetComponentState(i, 1);
-		}
+		// Set the extras
+		for(int i = 0; i <= 8; ++ i)
+			SetComponentState(i, m_bComponents[i]);
 
 		// Restore the variation
 		SetVariation(m_ucVariation);
