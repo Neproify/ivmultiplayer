@@ -872,3 +872,12 @@ void CPlayer::UpdateHeadMoveSync(CVector3 vecHead)
 		g_pEvents->Call("headMove", &pArguments);
 	}
 }
+
+void CPlayer::SetDimension(unsigned char ucDimension)
+{
+	m_ucDimension = ucDimension;
+	CBitStream bsSend;
+	bsSend.Write(this->GetPlayerId());
+	bsSend.Write(this->GetDimension());
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}

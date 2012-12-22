@@ -4,7 +4,7 @@
 // Project: Client.Core
 // Author(s): jenksta
 //            mabako
-//			  XForce
+//            XForce
 // License: See LICENSE in root directory
 //
 //==============================================================================
