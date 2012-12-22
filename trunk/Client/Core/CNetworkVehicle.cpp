@@ -50,7 +50,8 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash, int iModelId)
 	m_iVehicleType(-1)
 {
 
-	memset(m_pPassengers, 0, sizeof(m_pPassengers));
+	for(int i = 0; i < 8; i++)
+		m_pPassengers[i] = NULL;
 	
 	SetModel(dwModelHash);
 	memset(&m_vecPosition, 0, sizeof(CVector3));
@@ -133,8 +134,11 @@ bool CNetworkVehicle::IsOccupied()
 
 void CNetworkVehicle::SetPassenger(BYTE bytePassengerId, CNetworkPlayer * pPassenger)
 {
+	//if(pPassenger)
+		//CLogFile::Printf("Set Passenger %d(%s)",bytePassengerId, pPassenger->GetName().C_String());
+
 	THIS_CHECK
-	if(bytePassengerId < MAX_VEHICLE_PASSENGERS)
+	if(bytePassengerId > MAX_VEHICLE_PASSENGERS)
 		return;
 
 	m_pPassengers[bytePassengerId] = pPassenger;
@@ -460,6 +464,10 @@ void CNetworkVehicle::StreamIn()
 
 		// Reset interpolation
 		ResetInterpolation();
+
+		// Reset indicators
+		memset(m_bIndicatorState, 0, sizeof(m_bIndicatorState));
+		SetIndicatorState(false, false, false, false);
 
 		// Add the driver if we have one
 		if(m_pDriver)
@@ -1582,6 +1590,7 @@ bool CNetworkVehicle::GetVehicleGPSState()
 void CNetworkVehicle::FixCarFloating()
 {
 	THIS_CHECK
+
 	// Check if we have a vehicle pointer
 	if( m_pVehicle == NULL )
 		return;

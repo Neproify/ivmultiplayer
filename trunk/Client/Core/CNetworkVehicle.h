@@ -82,6 +82,8 @@ public:
 	void             SetVehicleId(EntityId vehicleId) { m_vehicleId = vehicleId; }
 	EntityId         GetVehicleId() { return m_vehicleId; }
 
+	int				 GetVehicleModelType() { return m_iVehicleType; }
+
 	CIVVehicle *     GetGameVehicle() { return m_pVehicle; }
 	CIVModelInfo   * GetModelInfo() { return m_pModelInfo; }
 
