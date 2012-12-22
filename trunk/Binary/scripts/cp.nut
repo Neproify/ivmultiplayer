@@ -139,13 +139,13 @@ function onPlayerCommand(playerid, command)
 	{
 		setPlayerDimension(playerid, 0xFF-1);
 	}
-		if(cmd[0] == "/clothes")
+	if(cmd[0] == "/clothes")
 	{
 		setPlayerClothes(playerid, cmd[1].tointeger(), cmd[2].tointeger());
 	}
 	if(cmd[0] == "/attachobjecttoped")
 	{
-		attachObjectToPlayer(playerid,cmd[1].tointeger(),0.0,0.0,1.0,0.0,0.0,0.0);
+		attachObjectToPlayer(playerid,cmd[1].tointeger(),0.5,0.3,0.5,0.0,90.0,0.0);
 	}
 	if(cmd[0] == "/attachobjecttovehicle")
 	{
@@ -171,6 +171,10 @@ function onPlayerCommand(playerid, command)
 	if(cmd[0] == "/driveautomatic")
 	{
 		letPlayerDriveAutomaticAtCoords(playerid,getPlayerVehicleId(playerid),1044.286743, 255.983231, 31.037477,15.0,0);
+	}
+	if(cmd[0] == "/driveactor")
+	{
+		driveActorToCoordinates(cmd[1].tointeger(),1044.286743, 255.983231, 31.037477);
 	}
 	if(cmd[0] == "/sayspeech")
 	{
@@ -212,7 +216,7 @@ function onPlayerCommand(playerid, command)
 	{
 		setCameraBehindPlayer(playerid);
 	}
-	if(cmd[0] == "/lockVehicle")
+	if(cmd[0] == "/lockvehicle")
 	{
 		setVehicleLocked(cmd[1].tointeger(),cmd[2].tointeger());
 	}

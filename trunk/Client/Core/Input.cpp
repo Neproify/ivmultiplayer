@@ -268,6 +268,10 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
 		/*if(uMsg == WM_KEYUP && wParam == VK_F4)
 		{
+			Scripting::SetPlayStatsInt("CAFE_BOUGHT",1);
+		}
+		if(uMsg == WM_KEYUP && wParam == VK_F4)
+		{
 			IVVehicle *  pVehicle = g_pLocalPlayer->GetVehicle()->GetGameVehicle()->GetVehicle();
 			DWORD dwTest = *(DWORD *)(pVehicle + 0x194);
 

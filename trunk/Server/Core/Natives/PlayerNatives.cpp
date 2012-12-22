@@ -2558,20 +2558,18 @@ SQInteger CPlayerNatives::SetDimension(SQVM * pVM)
 	sq_getentity(pVM, -2, &playerId);
 	
 	CPlayer* pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer == NULL) {
-		sq_pushbool(pVM, false);
-		CLogFile::Print("SetDimension failed");
-		return false;
+	if(pPlayer) {
+		pPlayer->SetDimension(iDimension);
+		CBitStream bsSend;
+		bsSend.Write(playerId);
+		bsSend.Write(iDimension);
+
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		sq_pushbool(pVM, true);
+		return true;
 	}
-
-	pPlayer->SetDimension(iDimension);
-	CBitStream bsSend;
-	bsSend.Write(playerId);
-	bsSend.Write(iDimension);
-
-	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
-	sq_pushbool(pVM, true);
-	return 1;
+	sq_pushbool(pVM, false);
+	return false;
 }
 
 SQInteger CPlayerNatives::GetDimension(SQVM * pVM)

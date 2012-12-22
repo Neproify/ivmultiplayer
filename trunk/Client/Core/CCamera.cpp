@@ -185,8 +185,6 @@ void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer)
 	// Check if the camera should be attached to a vehicle or player
 	if(bVehicleOrPlayer)
 		Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
-	else {
+	else
 		Scripting::AttachCamToPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
-		Scripting::SetCamBehindPed(uiHandle);
-	}
 }

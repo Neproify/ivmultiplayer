@@ -3108,7 +3108,6 @@ void CClientRPCHandler::ScriptingCreatePlayerBlip(CBitStream * pBitStream, CPlay
 	{
 		if(!pPlayer->GetBlipActivity() && !pPlayer->IsLocalPlayer())
 		{
-			CLogFile::Printf("Create player blip");
 			unsigned int uiHandle;
 			Scripting::AddBlipForChar(pPlayer->GetScriptingHandle(), &uiHandle);
 			Scripting::ChangeBlipSprite(uiHandle, (Scripting::eBlipSprite)iSprite);

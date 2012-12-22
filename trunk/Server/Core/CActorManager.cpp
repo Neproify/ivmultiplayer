@@ -315,7 +315,7 @@ void CActorManager::RemoveFromVehicle(EntityId actorId)
 	}
 }
 
-bool CActorManager::DriveToCoordinates(EntityId actorId, CVector3 vecDriveTo, CVector3 vecDriveRot, bool bStop)
+bool CActorManager::DriveToCoordinates(EntityId actorId, CVector3 vecDriveTo, CVector3 vecDriveRot)
 {
 	if(m_Actors[actorId].bDrivingAutomatic == true && !UpdateDrivePos(actorId, vecDriveTo, vecDriveRot, true))
 		return false;
@@ -324,8 +324,6 @@ bool CActorManager::DriveToCoordinates(EntityId actorId, CVector3 vecDriveTo, CV
 	bsSend.Write(actorId);
 	bsSend.Write(vecDriveTo);
 	g_pNetworkManager->RPC(RPC_ScriptingActorDriveToCoords, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
-
-	// TODO :
 	return false;
 }
 
