@@ -668,7 +668,7 @@ void Direct3DRender()
 							float petrol = pVehicle->GetPetrolTankHealth();
 							CVector3 vecPos; pVehicle->GetPosition(vecPos);
 							CVector3 vecRot; pVehicle->GetRotation(vecRot);
-							g_pGUI->DrawText(String("VehicleId %d, Enginestate: %d, Health: %d, PetrolTankHealth: %f\nPosition(%f,%f,%f), Rot(%f,%f,%f)", i, model, health, petrol, vecPos.fX,vecPos.fY,vecPos.fZ,vecRot.fX,vecRot.fY,vecRot.fZ), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y));
+							g_pGUI->DrawText(String("VehicleId %d, Enginestate: %d, Health: %d, PetrolTankHealth: %f\nPosition(%.3f,%.3f,%.3f), Rot(%.3f,%.3f,%.3f)", i, model, health, petrol, vecPos.fX,vecPos.fY,vecPos.fZ,vecRot.fX,vecRot.fY,vecRot.fZ), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y));
 						}
 					}
 				}

@@ -67,13 +67,14 @@ private:
 	bool			 m_bFirstStreamIn;
 	bool			 m_bActive;
 	unsigned int	 m_uiInterior;
+	int				 m_iVehicleType;
 	EMPTYVEHICLESYNCPACKET	m_oldEmptySyncData;
 
 	bool             Create(bool bStreamIn = false);
 	void             Destroy();
 
 public:
-	CNetworkVehicle(DWORD dwModelHash);
+	CNetworkVehicle(DWORD dwModelHash, int iModelId);
 	~CNetworkVehicle();
 
 	bool             IsNetworkVehicle() { return (m_vehicleId != INVALID_ENTITY_ID); }

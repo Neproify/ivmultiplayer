@@ -49,7 +49,7 @@
 #define NETWORK_VERSION 0x7B
 
 // Tick Rate
-#define TICK_RATE 50
+#define TICK_RATE 100
 
 // Defines used for the max amount of entities we (IV:MP, not GTA) can handle
 // jenksta: although they may be streamed, shouldn't they at least have some sensible limit?

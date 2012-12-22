@@ -63,8 +63,6 @@ CNetworkManager::CNetworkManager()
 	m_pNetClient->SetPacketHandler(PacketHandler);
 
 	g_pChatWindow->AddInfoMessage(VERSION_IDENTIFIER_2 " Initialized");
-
-
 }
 
 CNetworkManager::~CNetworkManager()
