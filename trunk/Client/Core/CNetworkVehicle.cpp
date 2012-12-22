@@ -26,7 +26,7 @@ extern CNetworkManager * g_pNetworkManager;
 #define THIS_CHECK if(!this) { CLogFile::Printf("this error"); return; }
 #define THIS_CHECK_R(x) if(!this) { CLogFile::Printf("this error"); return x; }
 
-CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
+CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash, int iModelId)
 	: CStreamableEntity(STREAM_ENTITY_VEHICLE, 200.0f),
 	m_pVehicle ( NULL),
 	m_vehicleId(INVALID_ENTITY_ID),
@@ -46,7 +46,8 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	m_uiInterior(-1),
 	m_bActorVehicle(false),
 	m_bFirstStreamIn(false),
-	m_bActive(false)
+	m_bActive(false),
+	m_iVehicleType(-1)
 {
 
 	memset(m_pPassengers, 0, sizeof(m_pPassengers));
@@ -60,6 +61,8 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash)
 	
 	memset(m_bIndicatorState, 0, sizeof(m_bIndicatorState));
 	SetIndicatorState(false, false, false, false);
+
+	m_iVehicleType = iModelId;
 
 	memset(m_iComponents, 0, sizeof(m_iComponents));
 	m_interp.pos.ulFinishTime = 0;
@@ -258,7 +261,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 			FixCarFloating();
 
 			// Fix missing components at nrg, helicopter etc.
-			if(GetModelInfo()->GetIndex() > 104 && GetModelInfo()->GetIndex() < 116) {
+			if(m_iVehicleType > 104 && m_iVehicleType < 116) {
 				for(int i = 0; i < 8; i++) 
 					SetComponentState(i, 1);
 			}
@@ -303,7 +306,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 		FixCarFloating();
 
 		// Fix missing components at nrg, helicopter etc.
-		if(GetModelInfo()->GetIndex() > 104 && GetModelInfo()->GetIndex() < 116) {
+		if(m_iVehicleType > 104 && m_iVehicleType < 116) {
 			for(int i = 0; i < 8; i++)
 				SetComponentState(i, 1);
 		}
@@ -433,7 +436,7 @@ void CNetworkVehicle::StreamIn()
 			SoundHorn((m_ulHornDurationEnd - SharedUtility::GetTime()));
 
 		// Fix missing components at nrg, helicopter etc.
-		if(GetModelInfo()->GetIndex() > 104 && GetModelInfo()->GetIndex() < 116) {
+		if(m_iVehicleType > 104 && m_iVehicleType < 116) {
 			for(int i = 0; i < 8; i++)
 				SetComponentState(i, 1);
 		}
@@ -443,6 +446,7 @@ void CNetworkVehicle::StreamIn()
 			for(int i = 0; i <= 8; ++ i)
 				SetComponentState(i, m_iComponents[i]);
 		}
+
 		// Restore the variation
 		SetVariation(m_ucVariation);
 
@@ -1323,7 +1327,7 @@ void CNetworkVehicle::SetComponentState(unsigned char ucSlot, int iComponent)
 
 		// Are we spawned?
 		if(IsSpawned()) {
-			m_pVehicle->SetComponentState((ucSlot + 1), iComponent);
+			m_pVehicle->SetComponentState( (ucSlot + 1), iComponent ? true : false );
 		}
 	}
 }
@@ -1583,7 +1587,7 @@ void CNetworkVehicle::FixCarFloating()
 		return;
 
 	// Check if we have a helicopter(IDS (112, 113, 114, 115))
-	if( m_pModelInfo->GetIndex() > 111 && m_pModelInfo->GetIndex() < 116)
+	if( m_iVehicleType > 111 && m_iVehicleType < 116)
 		return;
 
 	// Unfreeze the car so we can put it on the ground

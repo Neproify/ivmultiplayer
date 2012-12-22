@@ -295,7 +295,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 		pBitStream->Read(ucVariation);
 
 	// Create the new vehicle
-	CNetworkVehicle * pVehicle = new CNetworkVehicle(g_pModelManager->VehicleIdToModelHash(iModelId));
+	CNetworkVehicle * pVehicle = new CNetworkVehicle(g_pModelManager->VehicleIdToModelHash(iModelId), iModelId);
 	
 	// Set the vehicle spawn position
 	pVehicle->SetSpawnPosition(vecPosition);

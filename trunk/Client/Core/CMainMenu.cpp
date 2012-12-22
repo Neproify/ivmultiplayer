@@ -234,7 +234,7 @@ void CMainMenu::OnConnect(String strHost, unsigned short usPort, String strPassw
 	{
 		// Just connect to the server
 		SAFE_DELETE(g_pNetworkManager);
-		g_pNetworkManager = new CNetworkManager;
+		g_pNetworkManager = new CNetworkManager();
 
 		g_pNetworkManager->Startup(g_strHost,g_usPort,g_strPassword);
 		g_pNetworkManager->Connect();
