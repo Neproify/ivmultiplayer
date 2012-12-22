@@ -637,15 +637,12 @@ bool CGame::Patch()
 		// Hook CEpisodes::IsEpisodeAvaliable to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x814810), (DWORD)CEpisodes__IsEpisodeAvaliable_Hook);
 
-		CPatcher::InstallJmpPatch((GetBase() + 0x949BA0), (DWORD)IVTrain__Constructor);
-
 		// Make the game think we are not connected to the internet
 		*(BYTE *)(GetBase() + 0x10F1390) = 0; // byteInternetConnectionState
 		*(DWORD *)(GetBase() + 0x7AF1A0) = 0x90C3C032; // xor al, al; retn; nop
 
 		// Don't load startup.sco
 		*(BYTE *)(GetBase() + 0x809A8A) = 0x75;
-
 
 		// Always start a new game
 		CPatcher::InstallJmpPatch((GetBase() + 0x5B0311), (GetBase() + 0x5B03BF));
@@ -655,6 +652,7 @@ bool CGame::Patch()
 #ifdef IVMP_TRAINS
 		// Hook for CVehicleFactory__CreateVehicle
 		// CPatcher::InstallJmpPatch((GetBase() + 0x443D60), (DWORD)CVehicleFactory__CreateVehicle);
+		CPatcher::InstallJmpPatch((GetBase() + 0x949BA0), (DWORD)IVTrain__Constructor);
 #else
 		// Disable parked cars
 		CPatcher::InstallRetnPatch(GetBase() + 0xB3EDF0);

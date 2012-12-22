@@ -987,6 +987,7 @@ namespace Scripting
 	static void IncrementIntStat(eIntStatistic stat, unsigned int value) { NativeInvoke::Invoke<unsigned int>(NATIVE_INCREMENT_INT_STAT, stat, value); }
 	static void IncrementIntStatNoMessage(eIntStatistic stat, unsigned int value) { NativeInvoke::Invoke<unsigned int>(NATIVE_INCREMENT_INT_STAT_NO_MESSAGE, stat, value); }
 	static void SetIntStat(eIntStatistic stat, unsigned int value) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_INT_STAT, stat, value); }
+	static void SetPlayStatsInt(const char * szname, int iname) {NativeInvoke::Invoke<unsigned int>(NATIVE_PLAYSTATS_INT, szname, iname); }
 
 	// Pad (controls)
 	static bool GetPadPitchRoll(unsigned int padIndex, float *pPitch, float *pRoll) { return NativeInvoke::Invoke<bool>(NATIVE_GET_PAD_PITCH_ROLL, padIndex, pPitch, pRoll); }

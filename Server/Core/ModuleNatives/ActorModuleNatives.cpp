@@ -257,7 +257,7 @@ namespace Modules
 	{
 		if(g_pActorManager->DoesExist(actorId))
 		{			
-			return g_pActorManager->DriveToCoordinates(actorId, vecDriveTo, vecDriveRot, bStop);
+			return g_pActorManager->DriveToCoordinates(actorId, vecDriveTo, vecDriveRot);
 		}
 		return false;
 	}

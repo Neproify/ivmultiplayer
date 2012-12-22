@@ -255,8 +255,12 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 			// Try fix floating bug
 			FixCarFloating();
 
-			for(int i = 0; i < 8; i++)
-				SetComponentState(i, 1);
+			// Fix missing components at nrg, helicopter etc.
+			if(GetModelInfo()->GetIndex() > 104 && GetModelInfo()->GetIndex() < 116) {
+				for(int i = 0; i < 8; i++) 
+					SetComponentState(i, 1);
+			}
+
 			m_bActive = true;
 			return true;
 		}
@@ -295,8 +299,13 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 		// Try fix floating bug
 		FixCarFloating();
-		for(int i = 0; i < 8; i++)
-			SetComponentState(i, 1);
+
+		// Fix missing components at nrg, helicopter etc.
+		if(GetModelInfo()->GetIndex() > 104 && GetModelInfo()->GetIndex() < 116) {
+			for(int i = 0; i < 8; i++)
+				SetComponentState(i, 1);
+		}
+
 		m_bActive = true;
 		return true;
 	}
@@ -421,9 +430,11 @@ void CNetworkVehicle::StreamIn()
 		if(m_ulHornDurationEnd > SharedUtility::GetTime())
 			SoundHorn((m_ulHornDurationEnd - SharedUtility::GetTime()));
 
-		// Set the extras
-		for(int i = 0; i <= 8; ++ i)
-			SetComponentState(i, m_bComponents[i]);
+		// Fix missing components at nrg, helicopter etc.
+		if(GetModelInfo()->GetIndex() > 104 && GetModelInfo()->GetIndex() < 116) {
+			for(int i = 0; i < 8; i++)
+				SetComponentState(i, 1);
+		}
 
 		// Restore the variation
 		SetVariation(m_ucVariation);
