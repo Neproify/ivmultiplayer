@@ -3444,10 +3444,10 @@ void CClientRPCHandler::ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStr
 			return;
 
 	EntityId playerId;
-	bool bToggle;
+	bool bToggle = false;
 
 	pBitStream->Read(playerId);
-	bToggle = pBitStream->ReadBit();
+	pBitStream->Read(bToggle);
 
 	if(g_pPlayerManager->DoesExist(playerId)) {
 		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
