@@ -158,10 +158,8 @@ void CIVPad::FromControlState(CControlState controlState, bool bCurrent)
 	strTemp.AppendF("%i",controlState.ucInVehicleMove[1]);
 
 	if(atoi(strTemp.Get()) > 128) {
-		controlState.ucInVehicleMove[0] = (unsigned char)'255';
-		controlState.ucInVehicleMove[1] = (unsigned char)'128';
-		GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     controlState.ucInVehicleMove[0]);
-		GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    controlState.ucInVehicleMove[1]);
+		controlState.ucInVehicleMove[0] = (unsigned char)'128';
+		controlState.ucInVehicleMove[1] = (unsigned char)'255';
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     controlState.ucInVehicleMove[0]);
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    controlState.ucInVehicleMove[1]);
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       controlState.ucInVehicleMove[2]);
@@ -173,12 +171,7 @@ void CIVPad::FromControlState(CControlState controlState, bool bCurrent)
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_UP,       controlState.ucInVehicleMove[2]);
 		GET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     controlState.ucInVehicleMove[3]);
 	}
-	
-	GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT,     controlState.ucInVehicleMove[0]);
-	GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT,    controlState.ucInVehicleMove[1]);
 
-	GET_ANALOG_KEY(INPUT_MOVE_LEFT,         controlState.ucOnFootMove[0]);
-	GET_ANALOG_KEY(INPUT_MOVE_RIGHT,        controlState.ucOnFootMove[1]);
 	GET_ANALOG_KEY(INPUT_MOVE_UP,           controlState.ucOnFootMove[2]);
 	GET_ANALOG_KEY(INPUT_MOVE_DOWN,         controlState.ucOnFootMove[3]);
 	GET_ANALOG_KEY(INPUT_VEH_BRAKE,         controlState.ucInVehicleTriggers[0]);
