@@ -32,6 +32,7 @@ void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("createFire", CreateFire, 4, "ffff");
 	pScriptingManager->RegisterFunction("deleteFire", DeleteFire, 1, "i");
 	pScriptingManager->RegisterFunction("attachObjectToPlayer", AttachPed, 8, "iiffffff");
+	pScriptingManager->RegisterFunction("attachObjectToPlayerBone", AttachPedBone, 9, "iiffffffi");
 	pScriptingManager->RegisterFunction("attachObjectToVehicle", AttachVehicle, 8, "iiffffff");
 	pScriptingManager->RegisterFunction("detachObject", DetachObject, 1, "i");
 	pScriptingManager->RegisterFunction("moveObject", MoveObject, -1, NULL);
@@ -226,6 +227,33 @@ SQInteger CObjectNatives::AttachPed(SQVM *pVM)
 	if(g_pObjectManager->DoesExist(objectId))
 	{
 		g_pObjectManager->AttachToPlayer(objectId,playerId,vecPos,vecRot);
+		sq_pushbool(pVM,true);
+	}
+	sq_pushbool(pVM,false);
+	return 1;
+}
+
+SQInteger CObjectNatives::AttachPedBone(SQVM *pVM)
+{
+	EntityId	objectId;
+	EntityId	playerId;
+	CVector3	vecPos;
+	CVector3	vecRot;
+	int			iBone;
+
+	sq_getentity(pVM,-9,&objectId);
+	sq_getentity(pVM,-8,&playerId);
+	sq_getfloat(pVM,-7,&vecPos.fX);
+	sq_getfloat(pVM,-6,&vecPos.fY);
+	sq_getfloat(pVM,-5,&vecPos.fZ);
+	sq_getfloat(pVM,-4,&vecRot.fX);
+	sq_getfloat(pVM,-3,&vecRot.fY);
+	sq_getfloat(pVM,-2,&vecRot.fZ);
+	sq_getinteger(pVM,-1,&iBone);
+
+	if(g_pObjectManager->DoesExist(objectId))
+	{
+		g_pObjectManager->AttachToPlayer(objectId,playerId,vecPos,vecRot, iBone);
 		sq_pushbool(pVM,true);
 	}
 	sq_pushbool(pVM,false);

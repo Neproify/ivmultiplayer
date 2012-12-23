@@ -495,6 +495,7 @@ void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pS
 	unsigned int	uiVehiclePlayerId;
 	CVector3		vecAttachPosition;
 	CVector3		vecAttachRotation;
+	int				iBone = -1;
 
 	while(pBitStream->ReadCompressed(objectId))
 	{
@@ -517,6 +518,10 @@ void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pS
 			// Read the attached rot
 			pBitStream->Read(vecAttachRotation);
 
+			// Read the bone id
+			if(pBitStream->ReadBit())
+				pBitStream->Read(iBone);
+
 			// If object is attached
 			if(bAttached)
 			{
@@ -536,8 +541,12 @@ void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pS
 					{
 						CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(uiVehiclePlayerId);
 					
-						if(pPlayer)
-							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+						if(pPlayer) {
+							if(iBone != -1)
+								Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)iBone,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+							else
+								Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+						}
 					}
 				}
 			}

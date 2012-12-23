@@ -119,7 +119,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
 
 	// Set our heading
-	SetCurrentHeading(syncPacket->fHeading);
+	SetCurrentSyncHeading(syncPacket->fHeading);
 
 	// Set our move speed
 	SetMoveSpeed(syncPacket->vecMoveSpeed);
