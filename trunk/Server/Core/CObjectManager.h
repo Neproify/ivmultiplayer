@@ -24,7 +24,7 @@ struct _Object
 	CVector3		vecAttachRotation;
 	unsigned char	ucDimension;
 	unsigned int	iBone;
-
+};
 struct _Fire
 {
 	CVector3	vecPosition;

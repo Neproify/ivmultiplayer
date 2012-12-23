@@ -370,7 +370,7 @@ SQInteger CObjectNatives::SetDimension(SQVM * pVM)
 	return 1;
 }
 
-SQInteger CVehicleNatives::GetDimension(SQVM * pVM)
+SQInteger CObjectNatives::GetDimension(SQVM * pVM)
 { 
 	EntityId objectId;
 
