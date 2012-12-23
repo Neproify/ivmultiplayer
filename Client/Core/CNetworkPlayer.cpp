@@ -891,11 +891,11 @@ void CNetworkPlayer::GetPosition(CVector3& vecPosition)
 void CNetworkPlayer::SetCurrentHeading(float fHeading)
 {
 	THIS_CHECK
-        if(IsSpawned())
-        {
-                m_pPlayerPed->SetCurrentHeading(fHeading);
-                SetDesiredHeading(fHeading);
-        }
+    if(IsSpawned())
+    {
+            m_pPlayerPed->SetCurrentHeading(fHeading);
+            SetDesiredHeading(fHeading);
+    }
 }
 
 void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
@@ -903,22 +903,27 @@ void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 	THIS_CHECK
 	if(IsSpawned())
 	{
+
+		/*unsigned int uiScriptingHandle = GetScriptingHandle();
+		int iHeading = (int)fHeading;
+		DWORD dwAddress = (CGame::GetBase() + 0xB87760);
+		_asm
+		{
+			push iHeading
+			push uiScriptingHandle
+			call dwAddress
+		}*/
+
 		// Check if the player has already the same pos
 		if(GetCurrentHeading() == fHeading)
 			return;
 
 		// Check if the player isn't moving
 		CVector3 vecMoveSpeed; m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
-		if(vecMoveSpeed.Length() < 2.5f)
+		if(vecMoveSpeed.Length() < 2.5f || !m_currentControlState.IsSprinting())
 		{
+			m_pPlayerPed->SetCurrentHeading(fHeading);
 			m_pPlayerPed->SetDesiredHeading(fHeading);
-			m_pPlayerPed->SetCurrentHeading(fHeading);
-		}
-		else if(!m_currentControlState.IsSprinting())
-		{
-			m_pPlayerPed->SetCurrentHeading(fHeading);
-			Sleep(10);
-			m_pPlayerPed->SetCurrentHeading(fHeading);
 		}
 		else
 		{
@@ -964,6 +969,23 @@ float CNetworkPlayer::GetDesiredHeading()
 	return 0.0f;
 }
 
+void CNetworkPlayer::SetBonePosition(CVector3 vecBone)
+{
+	if(IsSpawned()) {
+		//TODO
+	}
+}
+
+CVector3 CNetworkPlayer::GetBonePosition(int iBone)
+{
+	if(IsSpawned()) {
+		CVector3 vecPos; m_pPlayerPed->GetPosition(vecPos);
+		CVector3 vecBone;
+		Scripting::GetPedBonePosition(GetScriptingHandle(), (Scripting::ePedBone)iBone, vecPos.fX, vecPos.fY, vecPos.fZ, &vecBone);
+		return vecBone;
+	}
+	return CVector3();
+}
 void CNetworkPlayer::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
 	THIS_CHECK

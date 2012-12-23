@@ -144,6 +144,9 @@ public:
 	void                     SetDesiredHeading(float fHeading);
 	float                    GetDesiredHeading();
 
+	void					 SetBonePosition(CVector3 vecBones);
+	CVector3				 GetBonePosition(int iBone);
+
 	void                     SetMoveSpeed(const CVector3& vecMoveSpeed);
 	void                     GetMoveSpeed(CVector3& vecMoveSpeed);
 
