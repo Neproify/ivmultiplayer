@@ -30,6 +30,100 @@ public:
 	CVector3 vecDamage; 			 
 };
 
+class IVVehicleInfo
+{
+public:
+	char sIdentifier[16];			//0x0000  
+	float fMass;					//0x0010  
+	float centreOfMassX;			//0x0020  
+	float centreOfMassY;			//0x0024  
+	float centreOfMassZ;			//0x0028  
+	__int32 nPercentSubmerged;		//0x0030  
+	float m_fDriveInertia;			//0x003C  
+	__int16 m_nDriveGears;			//0x0040  
+	float m_fDriveForce;			//0x0044   
+	float m_fBrakeForce;			//0x0074   
+	float m_fTractionCurveMax;		//0x008C   
+	float m_fTractionCurveMin;		//0x0094   
+	float m_fSuspensionForce;		//0x00B4  
+	float m_fSuspensionCompDamp;	//0x00B8  
+	float m_fSuspensionReboundDamp; //0x00BC  
+	float m_fSuspensionUpperLimit;	//0x00C0  
+	float m_fSuspensionLowerLimit;	//0x00C4  
+	float m_fSuspensionRaise;		//0x00C8  
+	float m_fCollisionDamageMult;	//0x00D4  
+	float m_fWeaponDamageMult;		//0x00D8  
+	float m_fDeformationDamageMult; //0x00DC  
+	float m_fEngineDamageMult;		//0x00E0  
+	float m_fSeatOffsetDist;		//0x00E4  
+	__int32 m_nMonetaryValue;		//0x00E8  
+	DWORD mFlags;					//0x00EC  
+
+	/*
+    float fMass;
+    float fTurnMass;
+    float fTractionMultiplier;
+    float _fC;
+    DWORD dwId;
+    float _f14;
+    float fDragMult;
+    float _f1C;
+    float CentreOfMassX;
+    float CentreOfMassY;
+    float CentreOfMassZ;
+    float _f2C;
+    int nPercentSubmerged
+    float _f34;
+    float _f38;
+    float _f3C;
+    float _f40;
+    float _f44;
+    float _f48;
+    float _f4C;
+    float _f50;
+    float _f54;
+    float _f58;
+    float _f5C;
+    float _f60;
+    float _f64;
+    float _f68;
+    float _f6C;
+    float _f70;
+    float _f74;
+    float _f78;
+    float _f7C;
+    char cDriveType_TransmissionData;
+    char cEngineType_TransmissionData;
+    byte nNumberOfGears_TransmissionData;
+    byte _f83; / / bABS?
+    float _f84;
+    float fEngineInertia;
+    float _f8C;
+    float _f90;
+    float _f94;
+    float _f98;
+    float _f9C;
+    float fBrakeBias;
+    float _fA4;
+    float fSteeringLock;
+    float fTractionLoss;
+    float fTractionBias;
+    float _fB4; / / fSuspensionHighSpdComDamp?  (Always zero)
+    float fSuspensionForceLevel;
+    float fSuspensionDampingLevel;
+    float fSuspensionUpperLimit;
+    float fSuspensionLowerLimit;
+    float fSuspensionBias;
+    float fSuspensionAntiDive;
+    DWORD dwflags <format = hex>;
+    float fSeatOffsetDistance;
+    DWORD dwMonetaryValue;
+    byte bFrontLights; / / (0 = long, 1 = small, 2 = big, 3 = tall)
+    byte bRearLights; / / (0 = long, 1 = small, 2 = big, 3 = tall)
+    byte padding [18];
+   */
+};
+
 class IVVehicle : public IVPhysical
 {
 public:
@@ -100,7 +194,6 @@ public:
 	// 0x1510 - Vector3 m_vecWaterCannonDirection;
 	// 0x1354 - eVehicleType m_type;
 	// 1120-12DC Damage
-	// 1112 Lights On (word i *think*)
 };
 
 class CIVVehicle : public CIVPhysical
