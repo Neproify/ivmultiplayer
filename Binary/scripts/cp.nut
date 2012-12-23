@@ -165,6 +165,18 @@ function onPlayerCommand(playerid, command)
 		local object = createObject(cmd[1].tointeger(), pos[0]+2.0, pos[1]+2.0, pos[2], 0.0, 0.0, 0.0);
 		sendPlayerMessage(playerid, "Object: "+object, 0xFFFFFFAA);
 	}
+	if(cmd[0] == "/moveobject")
+	{
+		moveObject(cmd[1].tointeger(), 1727.337769, 705.455688, 25.831680, 5000.0);
+	}
+	if(cmd[0] == "/moveobjectrot")
+	{
+		moveObject(cmd[1].tointeger(), 1727.337769, 705.455688, 25.831680, 5000.0, 0, 0, 0);
+	}
+	if(cmd[0] == "/rotateobject")
+	{
+		rotateObject(cmd[1].tointeger(), 0, 0, 0, 5000.0);
+	}
 	if(cmd[0] == "/toggleblip")
 	{
 		if(cmd[1].tointeger() == 1)

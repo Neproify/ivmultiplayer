@@ -22,8 +22,8 @@ struct _Object
 	unsigned int	uiVehiclePlayerId;
 	CVector3		vecAttachPosition;
 	CVector3		vecAttachRotation;
+	unsigned char	ucDimension;
 	unsigned int	iBone;
-};
 
 struct _Fire
 {
@@ -68,4 +68,6 @@ public:
 	void			DeleteFire(EntityId fireId);
 	void			HandleClientJoinFire(EntityId playerId);
 	void			CreateExplosion(const CVector3& vecPosition, float fdensity);
+	void			SetDimension(EntityId objectId, unsigned char ucDimension);
+	unsigned char	GetDimension(EntityId objectId) { if(DoesExist(objectId)) return m_Objects[objectId].ucDimension; else return 0; }
 };

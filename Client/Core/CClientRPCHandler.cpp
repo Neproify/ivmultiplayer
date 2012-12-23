@@ -3558,6 +3558,41 @@ void CClientRPCHandler::ScriptingRotateObject(CBitStream * pBitStream, CPlayerSo
 	}
 }
 
+void CClientRPCHandler::ScriptingSetObjectDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId objectId;
+	pBitStream->ReadCompressed(objectId);
+
+	unsigned char ucDimension;
+	pBitStream->Read(ucDimension);
+
+	CObject *pObject = g_pObjectManager->Get(objectId);
+	if(pObject) {
+		pObject->SetDimension(ucDimension);
+	}
+}
+
+
+void CClientRPCHandler::ScriptingSetCheckpointDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId checkpointId;
+	pBitStream->ReadCompressed(checkpointId);
+
+	unsigned char ucDimension;
+	pBitStream->Read(ucDimension);
+
+	CCheckpoint *pCheckpoint = g_pCheckpointManager->Get(checkpointId);
+	if(pCheckpoint) {
+		pCheckpoint->SetDimension(ucDimension);
+	}
+}
+
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -3723,6 +3758,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingDetachObject, DetachObject);
 	AddFunction(RPC_ScriptingMoveObject, ScriptingMoveObject);
 	AddFunction(RPC_ScriptingRotateObject, ScriptingRotateObject);
+	AddFunction(RPC_ScriptingSetObjectDimension, ScriptingSetObjectDimension);
 }
 
 void CClientRPCHandler::Unregister()

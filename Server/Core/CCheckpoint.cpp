@@ -145,3 +145,15 @@ void CCheckpoint::SetRadius(float fRadius)
 	HideForWorld();
 	ShowForWorld();
 }
+
+
+void CCheckpoint::SetDimension(unsigned char ucDimension)
+{
+	m_ucDimension = ucDimension;
+
+	CBitStream bsSend;
+	bsSend.WriteCompressed(GetCheckpointId());
+	bsSend.Write(ucDimension);
+
+	g_pNetworkManager->RPC(RPC_ScriptingSetCheckpointDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
