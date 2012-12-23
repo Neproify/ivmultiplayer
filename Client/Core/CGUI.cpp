@@ -13,6 +13,7 @@
 #include "CGame.h"
 #include "SharedUtility.h"
 #include "CGraphics.h"
+#include "CSettings.h"
 
 extern CChatWindow * g_pChatWindow;
 
@@ -176,7 +177,7 @@ bool CGUI::Initialize()
 		m_pTextDrawingGeometryBuffer->setClippingRegion(CEGUI::Rect(CEGUI::Vector2(0, 0), m_pRenderer->getDisplaySize()));
 
 		// Set the default GUI font
-		m_pSystem->setDefaultFont(GetFont("tahoma"));
+		m_pSystem->setDefaultFont(GetFont(CVAR_GET_STRING("chatfont").Get()));
 
 		// Create the input
 		if(FAILED(DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8A, (LPVOID *)&m_pInput, NULL)))
@@ -353,7 +354,7 @@ void CGUI::DrawText(String sText, CEGUI::Vector2 vecPosition, CEGUI::ColourRect 
 
 		// If we have no valid font use the default one
 		if(!pTextFont)
-			pTextFont = GetFont("tahoma");
+			pTextFont = GetFont(CVAR_GET_STRING("chatfont").Get());
 
 		// Do we have a valid font?
 		if(pTextFont)
