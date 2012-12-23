@@ -35,8 +35,8 @@ void CCheckpointNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getCheckpointTargetPosition", GetTargetPosition, 1, "i");
 	pScriptingManager->RegisterFunction("setCheckpointRadius", SetRadius, 2, "if");
 	pScriptingManager->RegisterFunction("getCheckpointRadius", GetRadius, 1, "i");
-	//pScriptingManager->RegisterFunction("setCheckpointDimension", SetDimension, 2, "ii");
-	//pScriptingManager->RegisterFunction("getCheckpointDimension", GetDimension, 1, "i");
+	pScriptingManager->RegisterFunction("setCheckpointDimension", SetDimension, 2, "ii");
+	pScriptingManager->RegisterFunction("getCheckpointDimension", GetDimension, 1, "i");
 }
 
 // createCheckpoint(type, x, y, z, targetx, targety, targetz, radius)
@@ -311,10 +311,30 @@ SQInteger CCheckpointNatives::GetRadius(SQVM * pVM)
 
 SQInteger CCheckpointNatives::SetDimension(SQVM * pVM)
 {
+	SQInteger iDimension;
+	EntityId checkpointId;
+
+	sq_getinteger(pVM, -1, &iDimension);
+	sq_getentity(pVM, -2, &checkpointId);
+	CCheckpoint* pCheckpoint = g_pCheckpointManager->Get(checkpointId);
+	if(pCheckpoint) {
+		pCheckpoint->SetDimension(iDimension);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+
 	return 1;
 }
 
 SQInteger CCheckpointNatives::GetDimension(SQVM * pVM)
 {
+	EntityId checkpointId;
+
+	sq_getentity(pVM, -1, &checkpointId);
+	CCheckpoint* pCheckpoint = g_pCheckpointManager->Get(checkpointId);
+	if(pCheckpoint) {
+		sq_pushinteger(pVM, (SQInteger)pCheckpoint->GetDimension());
+	}
 	return 1;
 }

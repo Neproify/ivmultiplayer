@@ -189,4 +189,6 @@ enum eRPCIdentfiers
 	RPC_ScriptingTogglePlayerLabelForPlayer,
 	RPC_ScriptingMoveObject,
 	RPC_ScriptingRotateObject,
+	RPC_ScriptingSetObjectDimension,
+	RPC_ScriptingSetCheckpointDimension,
 };

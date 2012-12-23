@@ -37,6 +37,8 @@ void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("detachObject", DetachObject, 1, "i");
 	pScriptingManager->RegisterFunction("moveObject", MoveObject, -1, NULL);
 	pScriptingManager->RegisterFunction("rotateObject", RotateObject, 5, "iffff");
+	pScriptingManager->RegisterFunction("setObjectDimension", SetDimension, 2, "ii");
+	pScriptingManager->RegisterFunction("getObjectDimension", GetDimension, 1, "i");
 }
 
 // createObject(modelhash, x, y, z, rx, ry, rz)
@@ -350,5 +352,30 @@ SQInteger CObjectNatives::RotateObject(SQVM * pVM)
 		return 1;
 	}
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+
+SQInteger CObjectNatives::SetDimension(SQVM * pVM)
+{
+	SQInteger iDimension;
+	EntityId objectId;
+
+	sq_getinteger(pVM, -1, &iDimension);
+	sq_getentity(pVM, -2, &objectId);
+	
+	g_pObjectManager->SetDimension(objectId, iDimension);
+
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+SQInteger CVehicleNatives::GetDimension(SQVM * pVM)
+{ 
+	EntityId objectId;
+
+	sq_getentity(pVM, -1, &objectId);
+
+	sq_pushinteger(pVM, (SQInteger)g_pObjectManager->GetDimension(objectId));
 	return 1;
 }

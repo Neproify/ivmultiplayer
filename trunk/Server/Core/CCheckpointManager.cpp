@@ -87,6 +87,7 @@ void CCheckpointManager::HandleClientJoin(EntityId playerId)
 		{
 			// Add it for the player
 			m_pCheckpoints[i]->AddForPlayer(playerId);
+			m_pCheckpoints[i]->SetDimension(m_pCheckpoints[i]->GetDimension());
 		}
 	}
 }

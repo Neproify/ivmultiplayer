@@ -51,17 +51,27 @@ _MEMBER_FUNCTION_IMPL(Audio, deleteSound)
 	return 1;
 }
 
+void PlayAudioThread(LPVOID lpAudio)
+{
+	((CAudio*)lpAudio)->Play();
+}
+
+void StopAudioThread(LPVOID lpAudio)
+{
+	((CAudio*)lpAudio)->Stop();
+}
+
 _MEMBER_FUNCTION_IMPL(Audio, play)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
-	pAudio->Play ( );
+	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)PlayAudioThread, pAudio, NULL, NULL);
 	return 1;
 }
 
 _MEMBER_FUNCTION_IMPL(Audio, stop)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
-	pAudio->Stop ( );
+	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)StopAudioThread, pAudio, NULL, NULL);
 	return 1;
 }
 
