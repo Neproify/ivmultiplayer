@@ -98,6 +98,8 @@ void CExceptionHandler::WriteExceptionReport()
 	// Open the log file
 	FILE * fFile = fopen(strLogPath, "w");
 	CLogFile::Printf(strLogPath);
+	String reportData;
+
 	// Did the log file open successfully?
 	if(fFile)
 	{
@@ -113,8 +115,7 @@ void CExceptionHandler::WriteExceptionReport()
 #ifndef _SERVER
 		unsigned int address = (unsigned int)ExceptionInfo->ExceptionRecord->ExceptionAddress;
 		address -= CGame::GetBase();
-		address += 0x400000;
-		fprintf(fFile, "Exception address: 0x%p (0x%p) (0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, address, (address + 0x400000));
+		fprintf(fFile, "Exception address: 0x%p (0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, address);
 #else
 		fprintf(fFile, "Exception address: 0x%p\n", ExceptionInfo->ExceptionRecord->ExceptionAddress);
 #endif
@@ -140,6 +141,33 @@ void CExceptionHandler::WriteExceptionReport()
 				}
 			}
 		}
+		fprintf(fFile, "--------------- Unhandled Exception Report End ---------------\n");
+
+		fclose(fFile);
+		// Print a message in the log file
+		CLogFile::Printf("IV:MP has crashed. Please see %s for more information.", strLogPath.Get());
+
+
+		FILE * pFile;
+
+		pFile = fopen (strLogPath, "r");
+		if (pFile != NULL)
+		{
+			fseek(pFile ,0 , SEEK_END);
+			int lSize = ftell (pFile);
+			char* buffer = (char*) malloc (sizeof(char)*lSize);
+			if (buffer == NULL) {
+				fclose(pFile);
+			} else {
+				fseek(pFile, 0, SEEK_SET);
+				size_t result = fread (buffer, 1, lSize, pFile);
+				reportData = buffer;
+				fclose(pFile);
+			}
+		}
+
+		WinExec((SharedUtility::GetAbsolutePath("crashreporter.exe ") + reportData).Get(), SW_SHOW);
+		return;
 
 		// Write the registers segment header
 		fprintf(fFile, "Exception registers: \n");
@@ -188,6 +216,7 @@ void CExceptionHandler::WriteExceptionReport()
 		fprintf(fFile, "--------------- Unhandled Exception Report End ---------------\n");
 		
 #ifndef _SERVER
+#ifdef _CLIENT_LOG_REPORT
 		fprintf(fFile, "\n\n------------------------- Client Log -------------------------\n\n\n");
 		FILE * pFile;
 		String strClientLogOrgPath("%sClient.log",SharedUtility::GetAppPath());
@@ -209,6 +238,7 @@ void CExceptionHandler::WriteExceptionReport()
 				fclose(pFile);
 			}
 		}
+#endif
 #endif
 	}
 
@@ -241,6 +271,8 @@ void CExceptionHandler::WriteExceptionReport()
 
 	// Print a message in the log file
 	CLogFile::Printf("IV:MP has crashed. Please see %s for more information.", strLogPath.Get());
+
+	CreateProcess(SharedUtility::GetAbsolutePath("crashreporter.exe"), (LPSTR)strPath.Get(), NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
 #ifdef WIN32
