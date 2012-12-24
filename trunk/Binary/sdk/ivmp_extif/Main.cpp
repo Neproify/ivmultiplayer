@@ -48,7 +48,7 @@ EXPORT void ScriptLoad(HSQUIRRELVM pVM)
 	// Register your scripting functions here
 	RegisterFunction(pVM, "helloWorld", sq_helloworld);
 
-	IVMP::Vehicles()->Create(65, CVector3(-343.447662f, 1176.119263f, 14.146016f), CVector3(0.0f, 0.0f, 268.219513f), 0, 0, 0, 0);
+	IVMP::Vehicles()->Create(65, CVector3(-343.447662f, 1176.119263f, 14.146016f), CVector3(0.0f, 0.0f, 268.219513f), 0, 0, 0, 0, -1);
 
 	printf("[%s] A script got loaded!\n", m_szModuleName);
 }

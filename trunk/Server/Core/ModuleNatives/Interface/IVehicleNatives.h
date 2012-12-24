@@ -17,7 +17,7 @@ namespace Modules
 	class ICVehicleModuleNatives
 	{
 	public:
-		virtual int Create(int iModelId, CVector3 vecPosition, CVector3 vecRotation, int color1, int color2, int color3, int color4) = 0;
+		virtual int Create(int iModelId, CVector3 vecPosition, CVector3 vecRotation, int color1, int color2, int color3, int color4, int respawn_delay) = 0;
 		virtual bool Delete(EntityId vehicleid) = 0;
 		virtual bool SetCoordinates(EntityId vehicleid, CVector3 vecPosition) = 0;
 		virtual CVector3 GetCoordinates(EntityId vehicleid) = 0;
@@ -40,6 +40,7 @@ namespace Modules
 		virtual CVector3 GetAngularVelocity(EntityId vehicleid) = 0;
 		virtual bool Respawn(EntityId vehicleId) = 0;
 		virtual bool IsOccupied(EntityId vehicleId) = 0;
+		virtual int * GetOccupants(EntityId vehicleId) = 0;
 		virtual bool SetLocked(EntityId vehicleId, int iLocked) = 0;
 		virtual int GetLocked(EntityId vehicleId) = 0;
 		virtual bool SetIndicators(EntityId vehicleId, bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight) = 0;
@@ -58,5 +59,11 @@ namespace Modules
 		virtual bool GetTaxiLights(EntityId vehicleId) = 0;
 		virtual bool RepairWheels(EntityId vehicleId) = 0;
 		virtual bool RepairWindows(EntityId vehicleId) = 0;
+
+		virtual bool Repair(EntityId vehicleId) = 0;
+		virtual bool SetDimension(EntityId vehicleId, int dimension) = 0;
+		virtual int GetDimension(EntityId vehicleId) = 0;
+		virtual bool SetRespawnDelay(EntityId vehicleId, int respawn_delay) = 0;
+		virtual int GetRespawnDelay(EntityId vehicleId) = 0;
 	};
 }

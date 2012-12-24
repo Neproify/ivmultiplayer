@@ -17,7 +17,7 @@ namespace Modules
 	class CVehicleModuleNatives : public ICVehicleModuleNatives
 	{
 	public:
-		int Create(int iModelId, CVector3 vecPosition, CVector3 vecRotation, int color1, int color2, int color3, int color4);
+		int Create(int iModelId, CVector3 vecPosition, CVector3 vecRotation, int color1, int color2, int color3, int color4, int respawn_delay);
 		bool Delete(EntityId vehicleid);
 		bool SetCoordinates(EntityId vehicleid, CVector3 vecPosition);
 		CVector3 GetCoordinates(EntityId vehicleid);
@@ -40,6 +40,7 @@ namespace Modules
 		CVector3 GetAngularVelocity(EntityId vehicleid);
 		bool Respawn(EntityId vehicleId);
 		bool IsOccupied(EntityId vehicleId);
+		int * GetOccupants(EntityId vehicleId);
 		bool SetLocked(EntityId vehicleId, int iLocked);
 		int GetLocked(EntityId vehicleId);
 		bool SetIndicators(EntityId vehicleId, bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight);
@@ -51,7 +52,6 @@ namespace Modules
 		int GetVariation(EntityId vehicleId);
 		bool SetEngineStatus(EntityId vehicleId, bool bEngineStatusx);
 		bool GetEngineStatus(EntityId vehicleId);
-
 		bool SwitchTaxiLights(EntityId vehicleId, bool check);
 		bool ControlCarDoors(EntityId vehicleId, int door, bool door2, float door3);
 		bool SetLights(EntityId vehicleId, bool bLights);
@@ -59,5 +59,11 @@ namespace Modules
 		bool GetTaxiLights(EntityId vehicleId);
 		bool RepairWheels(EntityId vehicleId);
 		bool RepairWindows(EntityId vehicleId);
+
+		bool Repair(EntityId vehicleId);
+		bool SetDimension(EntityId vehicleId, int dimension);
+		int GetDimension(EntityId vehicleId);
+		bool SetRespawnDelay(EntityId vehicleId, int respawn_delay);
+		int GetRespawnDelay(EntityId vehicleId);
 	};
 }

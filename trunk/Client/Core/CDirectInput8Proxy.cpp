@@ -27,7 +27,9 @@ ULONG STDMETHODCALLTYPE CDirectInput8Proxy::AddRef()
 
 ULONG STDMETHODCALLTYPE CDirectInput8Proxy::Release()
 {
-	ULONG uRet = m_dinput->Release();
+	ULONG uRet = 0;
+	if(m_dinput)
+		uRet = m_dinput->Release();
 
 	if(uRet == 0)
 		// If the reference count is 0 delete ourselves

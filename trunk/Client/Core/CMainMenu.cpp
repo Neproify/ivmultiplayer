@@ -38,7 +38,7 @@ CMainMenu                         * CMainMenu::m_pSingleton = NULL;
 std::map<String, unsigned long>     serverPingStartMap;
 extern std::vector<CEGUI::Window *> g_pGUIElements;
 
-void ResetGame();
+void ResetGame(bool now);
 void InternalResetGame(bool bToggle);
 
 bool CMainMenu::OnServerBrowserButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
@@ -224,7 +224,7 @@ void CMainMenu::OnConnect(String strHost, unsigned short usPort, String strPassw
 	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 	{
 		// Reset the game
-		ResetGame();
+		ResetGame(false);
 
 		// Disable the menu
 		CGame::SetState(GAME_STATE_INGAME);
@@ -280,52 +280,7 @@ void CMainMenu::ServerQueryHandler(String strHost, unsigned short usPort, String
 	// Get the server host and port
 	String strHostAndPort("%s:%d", strHost.Get(), usPort);
 
-	// Process the query
-	if(cQueryType == 'i') // Server Information
-	{
-		// Read the host name
-		String strHostName;
-
-		if(!pReply->Read(strHostName))
-			return;
-
-		// Read the player count
-		int iPlayerCount;
-
-		if(!pReply->Read(iPlayerCount))
-			return;
-
-		// Read the max player limit
-		int iMaxPlayers;
-
-		if(!pReply->Read(iMaxPlayers))
-			return;
-
-		// Read if the server is passworded or not
-		bool bPassworded;
-
-		if(!pReply->Read(bPassworded))
-			return;
-
-		// Add the server to the multi column list
-		CEGUI::MultiColumnList * pMultiColumnList = (CEGUI::MultiColumnList *)CMainMenu::GetSingleton()->m_serverBrowser.pServerMultiColumnList;
-		unsigned int iRowIndex = pMultiColumnList->addRow();
-		pMultiColumnList->setItem(new ServerBrowserListItem(strHostName.Get()), 0, iRowIndex);
-		pMultiColumnList->setItem(new ServerBrowserListItem(strHostAndPort.Get()), 1, iRowIndex);
-		char szTempBuf[64];
-		pMultiColumnList->setItem(new ServerBrowserListItem(itoa(iPlayerCount, szTempBuf, 10)), 2, iRowIndex);
-		pMultiColumnList->setItem(new ServerBrowserListItem(itoa(iMaxPlayers, szTempBuf, 10)), 3, iRowIndex);
-		pMultiColumnList->setItem(new ServerBrowserListItem("9999"), 4, iRowIndex);
-		pMultiColumnList->setItem(new ServerBrowserListItem(bPassworded ? "Yes" : "No"), 5, iRowIndex);
-		pMultiColumnList->invalidate();
-
-		// Save the current time to the ping map
-		serverPingStartMap[strHostAndPort] = SharedUtility::GetTime();
-
-		// Send a ping query to the server
-		CMainMenu::GetSingleton()->m_pServerQuery->Query(strHost, usPort, "p");
-	}
-	else if(cQueryType == 'p') // Ping
+	if(cQueryType == 'p') // Ping
 	{
 		// Get the start time from the ping map
 		unsigned long ulStartTime = serverPingStartMap[strHostAndPort];
@@ -357,6 +312,53 @@ void CMainMenu::ServerQueryHandler(String strHost, unsigned short usPort, String
 				}
 			}
 		}
+	}
+	else 
+	{
+		// Read the host name
+		String strHostName;
+
+		if(cQueryType != 'i')
+			return;
+
+		if(!pReply->Read(strHostName))
+			return;
+
+		// Read the player count
+		int iPlayerCount;
+
+		if(!pReply->Read(iPlayerCount))
+			return;
+
+		// Read the max player limit
+		int iMaxPlayers;
+
+		if(!pReply->Read(iMaxPlayers))
+			return;
+
+		// Read if the server is passworded or not
+		bool bPassworded;
+
+		if(!pReply->Read(bPassworded))
+			return;
+
+		// Add the server to the multi column list
+		CEGUI::MultiColumnList * pMultiColumnList = (CEGUI::MultiColumnList *)CMainMenu::GetSingleton()->m_serverBrowser.pServerMultiColumnList;
+		unsigned int iRowIndex = pMultiColumnList->addRow();
+		pMultiColumnList->setItem(new ServerBrowserListItem(strHostName.Get()), 0, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem(strHostAndPort.Get()), 1, iRowIndex);
+		char szTempBuf[64];
+		pMultiColumnList->setItem(new ServerBrowserListItem("-1"), 2, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem(itoa(iMaxPlayers, szTempBuf, 10)), 3, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem("-1"), 4, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem(bPassworded ? "Yes" : "No"), 5, iRowIndex);
+		pMultiColumnList->invalidate();
+
+		// Save the current time to the ping map
+		serverPingStartMap[strHostAndPort] = SharedUtility::GetTime();
+
+		// Send a ping query to the server
+		CMainMenu::GetSingleton()->m_pServerQuery->Query(strHost, usPort, "p");
 	}
 }
 

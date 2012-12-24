@@ -103,5 +103,8 @@ namespace Modules
 		virtual bool fadeScreenOut(EntityId playerId, int iDuration) = 0;
 		virtual bool blockWeaponChange(EntityId playerId, bool btoggle) = 0;
 		virtual bool blockWeaponDrop(EntityId playerId, bool btoggle) = 0;
+
+		virtual bool SetDimension(EntityId playerId, unsigned char ucDimension) = 0;
+		virtual int GetDimension(EntityId playerId) = 0;
 	};
 }

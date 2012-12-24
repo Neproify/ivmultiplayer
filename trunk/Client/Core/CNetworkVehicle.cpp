@@ -239,7 +239,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 			// Disable visible/"normal" damage
 			SetDamageable(false);
-			m_pVehicle->SetCanBeVisiblyDamaged(true);
+			m_pVehicle->SetCanBeVisiblyDamaged(false);
 
 			// Add the vehicle to the world
 			// Not needed as native does it for us
@@ -282,7 +282,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 		// Disable visible/"normal" damage
 		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(true);
+		m_pVehicle->SetCanBeVisiblyDamaged(false);
 
 		// Add the vehicle to the world
 		// Not needed as native does it for us

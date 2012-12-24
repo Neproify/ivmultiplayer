@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CMasterListQuery.h"
+#include <CLogFile.h>
 
 CMasterListQuery::CMasterListQuery(String strHost, String strVersion)
 {
@@ -32,14 +33,20 @@ void CMasterListQuery::Reset()
 
 bool CMasterListQuery::Query(int iType)
 {
-	String strPostPath("/list.php?version=%s", m_strVersion.Get());
+	String strPostPath("/list.php?version=01RC2");
 
 	if(iType == 1)
 		strPostPath += "&category=sponsors";
 	else if(iType == 2)
 		strPostPath += "&category=featured";
 
-	return m_pHttpClient->Get(strPostPath);
+	if(!m_pHttpClient->Get(strPostPath))
+	{
+		CLogFile::Print("FAILED TO CONTACT MASTERLIST");
+		return false;
+	}
+	else
+		return true;
 }
 
 void CMasterListQuery::Process()
@@ -75,6 +82,7 @@ void CMasterListQuery::Process()
 
 				// Set the current position
 				sCurrent = (sPosition + 1);
+				CLogFile::PrintDebugf("MASTERLIST-SERVER: %s",strAddress.C_String());
 			}
 
 			// Call the master list query callback (if we have one)

@@ -23,7 +23,7 @@ namespace Modules
 
 	// createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4)
 	// TODO: Rotation and colors optional
-	int CVehicleModuleNatives::Create(int iModelId, CVector3 vecPosition, CVector3 vecRotation, int color1, int color2, int color3, int color4)
+	int CVehicleModuleNatives::Create(int iModelId, CVector3 vecPosition, CVector3 vecRotation, int color1, int color2, int color3, int color4, int respawn_delay)
 	{
 		if(iModelId < 0 || iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111 || iModelId > 123)
 		{
@@ -35,7 +35,7 @@ namespace Modules
 
 		if(iModelId >= 0 && iModelId <= 125)
 		{
-			return g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4);
+			return g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4, respawn_delay);
 		}
 
 		return INVALID_ENTITY_ID;
@@ -384,6 +384,27 @@ namespace Modules
 
 		return false;
 	}
+
+	int * CVehicleModuleNatives::GetOccupants(EntityId vehicleId)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			int * occupants = new int[MAX_VEHICLE_PASSENGERS+1];
+			for(int i = 0; i <= MAX_VEHICLE_PASSENGERS; i++)
+			{
+				CPlayer * pPlayer = pVehicle->GetOccupant(i);
+				if(pPlayer)
+					occupants[0] = pPlayer->GetPlayerId();
+				else
+					occupants[i] = INVALID_ENTITY_ID;
+			}
+			return occupants;
+		}
+
+		return false;
+	}
 	/*
 	// getVehicleOccupants(vehicleid)
 	SQInteger CVehicleModuleNatives::GetOccupants(SQVM * pVM)
@@ -508,7 +529,7 @@ namespace Modules
 		if(pVehicle)
 		{
 			int * ic = new int[10];
-			for(unsigned char i = 0; i < 9; ++ i)
+			for(unsigned char i = 0; i < 10; ++ i)
 			{
 				ic[i] = pVehicle->GetComponentState(i);
 			}
@@ -658,5 +679,64 @@ namespace Modules
 		}
 
 		return false;
+	}
+
+	bool CVehicleModuleNatives::Repair(EntityId vehicleId)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			pVehicle->RepairVehicle();
+			return true;
+		}
+
+		return false;
+	}
+
+	bool CVehicleModuleNatives::SetDimension(EntityId vehicleId, int dimension)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			pVehicle->SetDimension(dimension);
+			return true;
+		}
+
+		return false;
+	}
+
+	int CVehicleModuleNatives::GetDimension(EntityId vehicleId)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+			return pVehicle->GetDimension();
+
+		return -1;
+	}
+
+	bool CVehicleModuleNatives::SetRespawnDelay(EntityId vehicleId, int respawn_delay)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			pVehicle->SetRespawnDelay(respawn_delay);
+			return true;
+		}
+
+		return false;
+	}
+
+	int CVehicleModuleNatives::GetRespawnDelay(EntityId vehicleId)
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+			return pVehicle->GetRespawnDelay();
+
+		return -1;
 	}
 }
