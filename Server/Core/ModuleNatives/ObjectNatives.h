@@ -24,6 +24,10 @@ namespace Modules
 		CVector3 GetCoordinates(EntityId objectId);
 		bool SetRotation(EntityId objectId, CVector3 vecRotation);
 		CVector3 GetRotation(EntityId objectId);
+		bool Move(EntityId objectId, CVector3 vecMoveTarget, CVector3 vecMoveRot, float fSpeed);
+		bool Rotate(EntityId objectId, CVector3 vecRotation, float fSpeed);
+		bool SetDimension(EntityId objectId, unsigned char ucDimension);
+		int GetDimension(EntityId objectId);
 
 		void CreateExplosion(CVector3 vecPos, float fDensity);
 		EntityId CreateFire(CVector3 vecPos, float fDensity);

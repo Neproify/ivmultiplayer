@@ -203,14 +203,23 @@ namespace Modules
 
 		return -0.1f;
 	}
-
-	bool CCheckpointModuleNatives::SetDimension(EntityId checkpointId, int dimensionId)
+	
+	bool CCheckpointModuleNatives::SetDimension(EntityId checkpointId, unsigned char ucDimension)
 	{
+		if(g_pCheckpointManager->DoesExist(checkpointId))
+		{
+			g_pCheckpointManager->Get(checkpointId)->SetDimension(ucDimension);
+			return true;
+		}
 		return false;
 	}
 
 	int CCheckpointModuleNatives::GetDimension(EntityId checkpointId)
 	{
-		return -1;
+		if(g_pCheckpointManager->DoesExist(checkpointId))
+		{
+			return g_pCheckpointManager->Get(checkpointId)->GetDimension();
+		}
+		return false;
 	}
 }

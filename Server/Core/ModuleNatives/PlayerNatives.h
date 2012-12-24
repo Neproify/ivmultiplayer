@@ -104,5 +104,8 @@ namespace Modules
 		bool fadeScreenOut(EntityId playerId, int iDuration);
 		bool blockWeaponChange(EntityId playerId, bool btoggle);
 		bool blockWeaponDrop(EntityId playerId, bool btoggle);
+		
+		bool SetDimension(EntityId playerId, unsigned char ucDimension);
+		int GetDimension(EntityId playerId);
 	};
 }

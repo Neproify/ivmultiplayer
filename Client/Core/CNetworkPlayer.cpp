@@ -922,8 +922,8 @@ void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 		CVector3 vecMoveSpeed; m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
 		if(vecMoveSpeed.Length() < 2.5f || !m_currentControlState.IsSprinting())
 		{
-			m_pPlayerPed->SetCurrentHeading(fHeading);
 			m_pPlayerPed->SetDesiredHeading(fHeading);
+			m_pPlayerPed->SetCurrentHeading(fHeading);
 		}
 		else
 		{

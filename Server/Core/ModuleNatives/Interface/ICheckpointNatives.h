@@ -29,7 +29,8 @@ namespace Modules
 		virtual CVector3 GetTargetPosition(EntityId checkpointId) = 0;
 		virtual bool SetRadius(EntityId checkpointId, float fRadius) = 0;
 		virtual float GetRadius(EntityId checkpointId) = 0;
-		virtual bool SetDimension(EntityId checkpointId, int dimensionId) = 0;
+
+		virtual bool SetDimension(EntityId checkpointId, unsigned char ucDimension) = 0;
 		virtual int GetDimension(EntityId checkpointId) = 0;
 	};
 }

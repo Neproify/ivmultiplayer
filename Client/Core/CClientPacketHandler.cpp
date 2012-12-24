@@ -19,7 +19,7 @@ extern String            g_strNick;
 extern CNetworkManager * g_pNetworkManager;
 extern CMainMenu	   * g_pMainMenu;
 
-void ResetGame();
+void ResetGame(bool now);
 
 void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -43,8 +43,8 @@ void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerS
 void CClientPacketHandler::ConnectionFailed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Connection failed(Timeout), retrying ....");
-	g_pNetworkManager->Connect();
 	g_pMainMenu->ResetNetworkStats();
+	g_pNetworkManager->Connect();
 }
 
 void CClientPacketHandler::AlreadyConnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -55,16 +55,20 @@ void CClientPacketHandler::AlreadyConnected(CBitStream * pBitStream, CPlayerSock
 
 void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	//g_pChatWindow->AddInfoMessage("Connection failed(server is full), retrying ....");
-	g_pNetworkManager->Connect();
+	g_pChatWindow->AddInfoMessage("Connection failed(server is full), retrying ....");
 	g_pMainMenu->ResetNetworkStats();
-	g_pMainMenu->ShowMessageBox("The server is full!", "Connection failed", true, false, false);
+	g_pNetworkManager->Connect();
+	//g_pMainMenu->ShowMessageBox("The server is full!", "Connection failed", true, false, false);
 }
 
 void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Server closed the connection ...");
 	g_pMainMenu->ResetNetworkStats();
+
+	if(g_pNetworkManager->IsConnected())
+		g_pNetworkManager->Disconnect();
+
 	//g_pMainMenu->ShowMessageBox("The server closed the connection!", "Disconnected", true, true, false);
 	g_pMainMenu->SetDisconnectButtonVisible(false);
 }
@@ -72,6 +76,7 @@ void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket *
 void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	//g_pChatWindow->AddInfoMessage("Connetion to the server lost, retrying ....");
+	ResetGame(true);
 	g_pMainMenu->ResetNetworkStats();
 	g_pMainMenu->ShowMessageBox("Lost connection to the server!", "Timeout", true, true, false);
 	g_pMainMenu->SetDisconnectButtonVisible(false);

@@ -43,10 +43,10 @@
 #endif
 
 // Network module version
-#define NETWORK_MODULE_VERSION 0x07
+#define NETWORK_MODULE_VERSION 0x08
 
 // Network version - increment this when packet layouts change!
-#define NETWORK_VERSION 0x7B
+#define NETWORK_VERSION 0x8A
 
 // Tick Rate
 #define TICK_RATE 100
@@ -106,7 +106,7 @@ typedef unsigned short EntityId;
 #endif
 
 // Mod version string
-#define MOD_VERSION_STRING "0.1 RC2 DEV"
+#define MOD_VERSION_STRING "0.1 RC3 DEV"
 
 // Query port offset
 #define QUERY_PORT_OFFSET 137
@@ -118,7 +118,7 @@ typedef unsigned short EntityId;
 #define MASTERLIST_TIMEOUT 0
 #else if COMPILE_MODE == COMPILE_MODE_RELEASE
 #define MASTERLIST_ADDRESS "www.master.iv-multiplayer.com"
-#define MASTERLIST_VERSION "01RC2DEV"
+#define MASTERLIST_VERSION ""
 #define MASTERLIST_TIMEOUT 50000
 #endif
 

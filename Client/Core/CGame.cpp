@@ -603,6 +603,35 @@ void _declspec(naked) CTaskSimpleStartVehicle__Process()
 	}
 }
 
+HANDLE hFile;
+LPVOID lpBuffer;
+DWORD dwRFile;
+ 
+void _declspec(naked) OpenFile_Hook()
+{
+        _asm
+        {
+                mov eax, [esp+4]
+                mov hFile, eax
+                mov eax, [esp+8]
+                mov lpBuffer, eax  
+                pushad
+        }
+ 
+        strcpy((char *)hFile, "common/data/loadingscreens_ivmp.dat");
+ 
+        dwRFile = (CGame::GetBase() + 0x7B2740);
+        _asm
+        {
+                popad
+                push lpBuffer
+                push hFile
+                call dwRFile
+                add esp, 8
+                retn
+        }
+}
+
 bool CGame::Patch()
 {
 	// Unprotect .text and .rdata memory and leave it unprotected
@@ -616,6 +645,7 @@ bool CGame::Patch()
 		Scripting::SetPedDensityMultiplier(0);
 		Scripting::SetParkedCarDensityMultiplier(0);
 		Scripting::SetRandomCarDensityMultiplier(0);
+
 		/* OTHER FUNCTIONS */
 		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random amient animations)
 		// NOTE: This also disables ambient head movements and maybe some other stuff we actually want
@@ -635,6 +665,12 @@ bool CGame::Patch()
 
 		// Hook CEpisodes::IsEpisodeAvaliable to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x814810), (DWORD)CEpisodes__IsEpisodeAvaliable_Hook);
+		
+		// Hook loading screen
+		CPatcher::InstallHookCall((GetBase() + 0x424301), (DWORD)OpenFile_Hook);
+		char *szTxt = "platform:/textures/loadingscreens_ivmp_textures";
+		CPatcher::InstallPushPatch((GetBase() + 0x423F04), (DWORD)szTxt);
+		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
 
 		// Make the game think we are not connected to the internet
 		*(BYTE *)(GetBase() + 0x10F1390) = 0; // byteInternetConnectionState
@@ -753,9 +789,6 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC180) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC190) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
-		
-		// Overwrite the ESP Check in the func responsible for loading load screens
-		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
 
 		/* ERROR REPORTING END */
 
@@ -1193,7 +1226,7 @@ void CGame::RemoveInitialLoadingScreens()
 		}
 
 		// Disable GTA IV logo & other loading screens
-		if(i > 3 )
+		if( i == 4 )
 			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
 
 		/*if(i > 4) {

@@ -119,7 +119,7 @@ extern String strTextText;
 extern int iTextTime;
 extern DWORD dwTextStartTick;
 
-void ResetGame();
+void ResetGame(bool now);
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 {
@@ -793,11 +793,6 @@ void GameLoad()
 	InternalResetGame(true);
 }
 
-bool bDoPlayerShit = false;
-CNetworkPlayer * pPlayer = NULL;
-#include "CRemotePlayer.h"
-CRemotePlayer * pClonePlayer = NULL;
-
 void GameScriptProcess()
 {
 	// Do we need to reset the game?
@@ -852,9 +847,14 @@ void GameScriptProcess()
 	}
 }
 
-void ResetGame()
+void ResetGame(bool now)
 {
-	g_bResetGame = true;
+	// reset game right at function call is needed to reset clientside scripting stuff on lost connection
+	// clean up this if looks like shit.
+	if(now)
+		InternalResetGame(false);
+	else 
+		g_bResetGame = true;
 }
 
 void InternalResetGame(bool bAutoConnect)
@@ -862,18 +862,14 @@ void InternalResetGame(bool bAutoConnect)
 	CLogFile::Printf("Initializing game for multiplayer activities");
 
 	// Remove local player from vehicle
-	// RootKiller: Maybe fixes reconnect bug
 	if(g_pLocalPlayer)
 		g_pLocalPlayer->RemoveFromVehicle();
 
-	// TODO: Reset functions for all of these classes or something so i don't have to delete and recreate them?
-	//if(g_pClientScriptManager && g_pClientScriptManager->GetGUIManager())
-		//g_pClientScriptManager->GetGUIManager()->DeleteAll();
-	// FIXME: Always crashing at CClientScriptGUIManager::Delete. dunno
-
-	if(g_pClientScriptManager)
-		g_pClientScriptManager->RemoveAll();
-	g_pEvents->clear();
+	g_pClientScriptManager->~CClientScriptManager();
+	SAFE_DELETE(g_pClientScriptManager);
+	// crackHD: i am not sure if scriptExit event will be called for all these scripts...
+	g_pClientScriptManager = new CClientScriptManager();
+ 	g_pEvents->clear();
 	CLogFile::Printf("Reset clientside scripting stuff");
 
 	SAFE_DELETE(g_pModelManager);
@@ -1020,15 +1016,4 @@ void InternalResetGame(bool bAutoConnect)
 		g_pNetworkManager->Connect();
 
 	CLogFile::Printf("Sucessfully (re)initialized game for multiplayer activities");
-}
-
-void AudioThreadProcess(CThread * pCreator)
-{
-	/*while(pCreator->GetUserData<bool>())
-	{
-		CAudioManager::ProcessThread();
-		Sleep(10);
-	}
-	Sleep(10);
-	*/
 }

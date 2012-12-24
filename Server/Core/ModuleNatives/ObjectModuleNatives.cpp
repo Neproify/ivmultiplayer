@@ -85,6 +85,49 @@ namespace Modules
 
 		return false;
 	}
+	
+	bool CObjectModuleNatives::Rotate(EntityId objectId, CVector3 vecRotation, float fSpeed)
+	{
+		if(g_pObjectManager->DoesExist(objectId))
+		{
+			g_pObjectManager->RotateObject(objectId, vecRotation, fSpeed);
+			return true;
+		}
+
+		return false;
+	}
+	
+	bool CObjectModuleNatives::Move(EntityId objectId, CVector3 vecMoveTarget, CVector3 vecMoveRot, float fSpeed)
+	{
+		if(g_pObjectManager->DoesExist(objectId))
+		{
+			g_pObjectManager->MoveObject(objectId, vecMoveTarget, vecMoveRot, fSpeed);
+			return true;
+		}
+
+		return false;
+	}
+	
+	bool CObjectModuleNatives::SetDimension(EntityId objectId, unsigned char ucDimension)
+	{
+		if(g_pObjectManager->DoesExist(objectId))
+		{
+			g_pObjectManager->SetDimension(objectId, ucDimension);
+			return true;
+		}
+
+		return false;
+	}
+	
+	int CObjectModuleNatives::GetDimension(EntityId objectId)
+	{
+		if(g_pObjectManager->DoesExist(objectId))
+		{
+			return g_pObjectManager->GetDimension(objectId);
+		}
+
+		return false;
+	}
 
 	// getObjectRotation(objectid)
 	CVector3 CObjectModuleNatives::GetRotation(EntityId objectId)

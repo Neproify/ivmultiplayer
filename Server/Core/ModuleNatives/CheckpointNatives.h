@@ -29,7 +29,8 @@ namespace Modules
 		CVector3 GetTargetPosition(EntityId checkpointId);
 		bool SetRadius(EntityId checkpointId, float fRadius);
 		float GetRadius(EntityId checkpointId);
-		bool SetDimension(EntityId checkpointId, int dimensionId);
+
+		bool SetDimension(EntityId checkpointId, unsigned char dimensionId);
 		int GetDimension(EntityId checkpointId);
 	};
 }

@@ -221,6 +221,7 @@ bool CHttpClient::Get(String strPath)
 	// Send the GET command
 	if(!Write(strGet.C_String(), strGet.GetLength()))
 	{
+		CLogFile::Printf("HTTP REQUEST FAILED!");
 		// Send failed
 		return false;
 	}

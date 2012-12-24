@@ -10,6 +10,7 @@
 ;======================================================
 ; Configuration
 !define NAME 'IVMP'
+!define VERSION 'RC2'
 
 ;======================================================
 ; Modern Interface Configuration
@@ -127,6 +128,12 @@ Section "Install" SecDummy
 	SetOutPath "$GTAIVDirectory"
 	
 	File ..\..\Binary\bass.dll
+	
+	SetOutPath "$GTAIVDirectory\common\data\"
+	File ..\..\Binary\gamefiles\loadingscreens_ivmp.dat
+	
+	SetOutPath "$GTAIVDirectory\pc\textures\"
+	File ..\..\Binary\gamefiles\loadingscreens_ivmp_textures.wtd
 	
 	SetOutPath "$INSTDIR"
 

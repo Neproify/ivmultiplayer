@@ -2,8 +2,8 @@
 
 //Definitions
 // Audio(url or resource, replay, url to file or add only name from the ressource)
-local audiourl = Audio(true,false,"http://8106.tv/blog/audio/2009_09/15%20Raindrops%20Keep%20Falling%20On%20My%20Head.mp3");
-local audiourlposition = Audio(true,false,"http://8106.tv/blog/audio/2009_09/15%20Raindrops%20Keep%20Falling%20On%20My%20Head.mp3");
+local audiourl = Audio(true,false,"http://files.seti.ee/music/one/SETI_ee_ti_feat_rihanna_-_live_your_life.mp3");
+local audiourlposition = Audio(true,false,"http://files.seti.ee/music/one/SETI_ee_ti_feat_rihanna_-_live_your_life.mp3");
 audiourl.play();
 
 function onKeyPress(key, status)

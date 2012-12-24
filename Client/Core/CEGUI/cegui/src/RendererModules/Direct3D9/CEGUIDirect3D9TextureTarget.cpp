@@ -138,7 +138,7 @@ void Direct3D9TextureTarget::cleanupRenderTexture()
 {
     if (d_surface)
     {
-        d_surface->Release();
+        d_surface->Release(); // FIXME crash at QUIT
         d_surface = 0;
     }
     if (d_texture)

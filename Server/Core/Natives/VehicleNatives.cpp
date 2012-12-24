@@ -71,8 +71,10 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleGpsState", GetGpsState, 1, "i");
 	pScriptingManager->RegisterFunction("setVehicleAlarm", SetAlarm, 2, "ii");
 	pScriptingManager->RegisterFunction("markVehicleAsActorVehicle", MarkVehicle, 2, "ib");
-	pScriptingManager->RegisterFunction("repairVehicle", FixVehicle, 1, "i");
+	pScriptingManager->RegisterFunction("repairVehicle", RepairVehicle, 1, "i");
 
+	pScriptingManager->RegisterFunction("setVehicleRespawnDelay", SetRespawnDelay, 2, "ii");
+	pScriptingManager->RegisterFunction("getVehicleRespawnDelay", GetRespawnDelay, -1, NULL);
 	pScriptingManager->RegisterFunction("setVehicleDimension", SetDimension, 2, "ii");
 	pScriptingManager->RegisterFunction("getVehicleDimension", GetDimension, 1, "i");
 }
@@ -405,6 +407,47 @@ SQInteger CVehicleNatives::GetColor(SQVM * pVM)
 		}
 	}
 
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setVehicleRespawnDelay(vehicleid, respawn_delay)
+SQInteger CVehicleNatives::SetRespawnDelay(SQVM * pVM)
+{
+	SQInteger vehicleid;
+	SQInteger respawn_delay;
+	sq_getinteger(pVM, -2, &vehicleid);
+	sq_getinteger(pVM, -1, &respawn_delay);
+	if(g_pVehicleManager->DoesExist(vehicleid))
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
+
+		if(pVehicle)
+		{
+			pVehicle->SetRespawnDelay(respawn_delay);
+			sq_pushbool(pVM, true);
+			return 1;
+		}
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getVehicleRespawnDelay(vehicleid)
+SQInteger CVehicleNatives::GetRespawnDelay(SQVM * pVM)
+{
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+	if(g_pVehicleManager->DoesExist(vehicleid))
+	{
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
+
+		if(pVehicle)
+		{
+			sq_pushinteger(pVM, pVehicle->GetRespawnDelay());
+			return 1;
+		}
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -842,6 +885,7 @@ SQInteger CVehicleNatives::GetComponents(SQVM * pVM)
 	return 1;
 }
 
+// setVehicleVariation(vehicleid, variation)
 SQInteger CVehicleNatives::SetVariation(SQVM * pVM)
 {
 	EntityId vehicleId;
@@ -863,6 +907,7 @@ SQInteger CVehicleNatives::SetVariation(SQVM * pVM)
 	return 1;
 }
 
+// getVehicleVariation(vehicleid)
 SQInteger CVehicleNatives::GetVariation(SQVM * pVM)
 {
 	EntityId vehicleId;
@@ -880,6 +925,7 @@ SQInteger CVehicleNatives::GetVariation(SQVM * pVM)
 	return 1;
 }
 
+// setVehicleEngineState(vehicleid, turned_on?)
 SQInteger CVehicleNatives::SetEngineStatus(SQVM * pVM)
 {
 	EntityId vehicleId;
@@ -901,6 +947,7 @@ SQInteger CVehicleNatives::SetEngineStatus(SQVM * pVM)
 	return 1;
 }
 
+// getVehicleEngineState(vehicleid)
 SQInteger CVehicleNatives::GetEngineStatus(SQVM * pVM)
 {
 	EntityId vehicleId;
@@ -940,6 +987,7 @@ SQInteger CVehicleNatives::SwitchTaxiLights(SQVM *pVM)
 	return 0;
 }
 
+// controlCarDoors
 SQInteger CVehicleNatives::ControlCar(SQVM *pVM)
 {
 	EntityId vehicleId;
@@ -1022,6 +1070,7 @@ SQInteger CVehicleNatives::GetTaxiLights(SQVM * pVM)
 	return 0;
 }
 
+// repairVehicleWheels(vehicleid)
 SQInteger CVehicleNatives::RepairWheels(SQVM * pVM)
 {
 	EntityId vehicleId;
@@ -1040,6 +1089,7 @@ SQInteger CVehicleNatives::RepairWheels(SQVM * pVM)
 	return 0;
 }
 
+// repairVehicleWindows(vehicleid)
 SQInteger CVehicleNatives::RepairWindows(SQVM * pVM)
 {
 	EntityId vehicleId;
@@ -1119,7 +1169,7 @@ SQInteger CVehicleNatives::SetAlarm(SQVM * pVM)
 }
 
 
-// setVehicleAlarm(vehicleid, alarmduration)
+// markVehicleAsActorVehicle(vehicleid)
 SQInteger CVehicleNatives::MarkVehicle(SQVM * pVM)
 {
 	EntityId vehicleId;
@@ -1141,7 +1191,8 @@ SQInteger CVehicleNatives::MarkVehicle(SQVM * pVM)
 	return 1;
 }
 
-SQInteger CVehicleNatives::FixVehicle(SQVM * pVM)
+// repairVehicle(vehicleid)
+SQInteger CVehicleNatives::RepairVehicle(SQVM * pVM)
 {
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
@@ -1158,7 +1209,7 @@ SQInteger CVehicleNatives::FixVehicle(SQVM * pVM)
 	return 1;
 }
 
-
+// setVehicleDimension(vehicleid, demnsion)
 SQInteger CVehicleNatives::SetDimension(SQVM * pVM)
 {
 	SQInteger iDimension;
@@ -1185,6 +1236,7 @@ SQInteger CVehicleNatives::SetDimension(SQVM * pVM)
 	return 1;
 }
 
+// getVehicleDimension(vehicleid)
 SQInteger CVehicleNatives::GetDimension(SQVM * pVM)
 { 
 	EntityId vehicleId;

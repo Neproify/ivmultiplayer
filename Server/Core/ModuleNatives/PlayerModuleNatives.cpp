@@ -1266,4 +1266,24 @@ namespace Modules
 		}
 		return false;
 	}
+
+	// CrackHD: whatta fuck? Why here all functions use RPC() instead of way i did ???? It is shit. TODO fix
+	bool CPlayerModuleNatives::SetDimension(EntityId playerId, unsigned char ucDimension)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			g_pPlayerManager->GetAt(playerId)->SetDimension(ucDimension);
+			return true;
+		}
+		return false;
+	}
+
+	int CPlayerModuleNatives::GetDimension(EntityId playerId)
+	{
+		if(g_pPlayerManager->DoesExist(playerId))
+		{
+			return g_pPlayerManager->GetAt(playerId)->GetDimension();
+		}
+		return false;
+	}
 }
