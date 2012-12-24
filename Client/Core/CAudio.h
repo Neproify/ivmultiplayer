@@ -11,6 +11,8 @@
 #include "Common.h"
 #include <list>
 
+#pragma once
+
 class CAudio
 {
 private:
@@ -28,7 +30,7 @@ private:
 
 public:
 
-	CAudio	(bool bUrl, bool bReplay, const char * szSoundFile );
+	CAudio	(bool bUrl, bool bReplay, bool bGameFile, const char * szSoundFile );
 	~CAudio ( );
 
 	// Functions

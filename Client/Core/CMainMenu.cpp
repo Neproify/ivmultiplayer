@@ -1078,6 +1078,8 @@ CMainMenu::CMainMenu()
 	m_pSettingsWindowSaveButton->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3f, 0), CEGUI::UDim(0.8f, 0)));
 	m_pSettingsWindowSaveButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&CMainMenu::OnSettingsWindowSaveButtonClick, this));
 
+	m_pLoadingTune = new CAudio(false, false, true, "IVMP_LOADING_TUNE_1.mp3");
+
 	OnResetDevice();
 }
 
@@ -1216,6 +1218,12 @@ void CMainMenu::ShowLoadingScreen()
 	m_pLoadingText->setVisible(true);
 	m_pLoadingBackground->setVisible(true);
 	m_bLoadingScreenActive = true;
+
+	/*if(m_pLoadingTune) {
+		m_pLoadingTune->Play();
+		m_pLoadingTune->SetVolume(0.3f);
+		m_pLoadingTune->UsePositionSystem(false);
+	}*/
 }
 void CMainMenu::HideLoadingScreen()
 {
@@ -1224,6 +1232,9 @@ void CMainMenu::HideLoadingScreen()
 	m_pLoadingText->setVisible(false);
 	m_pLoadingBackground->setVisible(false);
 	m_bLoadingScreenActive = false;
+
+	//if(m_pLoadingTune)
+		//m_pLoadingTune->Stop();
 }
 
 void CMainMenu::SetNetworkStats(String strHost,int players, int maxplayers, String strName)

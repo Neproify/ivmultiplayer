@@ -25,11 +25,14 @@ extern CChatWindow * g_pChatWindow;
 std::list<CAudio *> CAudioManager::m_Audio;
 CLibrary * CAudioManager::m_pLibrary = NULL;
 
-CAudio::CAudio (bool bUrl, bool bReplay, const char * szSoundFile )
+CAudio::CAudio (bool bUrl, bool bReplay, bool bGameFile, const char * szSoundFile )
 {
 	if(!bUrl)
 	{
-		sprintf( m_szSoundFile, SharedUtility::GetAbsolutePath("clientfiles\\resources\\%s", szSoundFile ).Get() );
+		if(!bGameFile)
+			sprintf( m_szSoundFile, SharedUtility::GetAbsolutePath("clientfiles\\resources\\%s", szSoundFile ).Get() );
+		else
+			sprintf( m_szSoundFile, SharedUtility::GetAbsolutePath("gameplay_files\\audio\\%s", szSoundFile ).Get() );
 		m_dwChannel = NULL;
 
 		if ( HIWORD(BASS_GetVersion()) != BASSVERSION ) 

@@ -10,7 +10,7 @@
 #include "CHttpClient.h"
 
 // OS Dependent Defines
-#ifndef WIN32
+#ifndef _WIN32
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -20,8 +20,7 @@
 #include <winsock2.h>
 #include <winsock.h>
 #endif
-#include <SharedUtility.h>
-#include "CLogFile.h"
+#include "..\SharedUtility.h"
 // OS Independent Defines
 #define MAX_BUFFER 8192
 #define DEFAULT_PORT 80
@@ -221,7 +220,7 @@ bool CHttpClient::Get(String strPath)
 	// Send the GET command
 	if(!Write(strGet.C_String(), strGet.GetLength()))
 	{
-		CLogFile::Printf("HTTP REQUEST FAILED!");
+		//CLogFile::Printf("HTTP REQUEST FAILED!");
 		// Send failed
 		return false;
 	}
@@ -232,6 +231,47 @@ bool CHttpClient::Get(String strPath)
 	// Set the request start
 	m_uiRequestStart = SharedUtility::GetTime();
 	return true;
+}
+
+// Send Report writes data into the header(can be readout with php://input http://php.net/manual/en/function.http-get-request-body.php
+void CHttpClient::SendReport(String strPath, String strReport)
+{
+	// Connect to the host
+	if(!Connect())
+	{
+		// Connect failed
+		return;
+	}
+
+	// Reset the header and data
+	m_headerMap.clear();
+	m_strData.Clear();
+
+	// Prepare the GET command
+	String strGet("GET %s HTTP/1.0\r\n" \
+				  "Host: %s\r\n" \
+				  "User-Agent: %s\r\n" \
+				  "Referer: %s\r\n" \
+				  "Connection: close\r\n" \
+				  "\n%s" \
+				  "\r\n",
+				  strPath.Get(), m_strHost.Get(), 
+				  m_strUserAgent.Get(), m_strReferer.Get(), strReport.Get());
+
+	// Send the GET command
+	if(!Write(strGet.C_String(), strGet.GetLength()))
+	{
+		//CLogFile::Printf("HTTP REQUEST FAILED!");
+		// Send failed
+		return;
+	}
+
+	// Set the status to get data
+	m_status = HTTP_STATUS_GET_DATA;
+
+	// Set the request start
+	m_uiRequestStart = SharedUtility::GetTime();
+	return;
 }
 
 bool CHttpClient::Post(bool bHasResponse, String strPath, String strData, String strContentType)
