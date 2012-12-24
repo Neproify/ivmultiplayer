@@ -30,6 +30,7 @@ CHttpClient			* g_pHttpClient;
 #endif
 
 #define IDI_SMALL 108
+String reportData;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
@@ -40,6 +41,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	windowTitle = "IV:MP CrashReporter";
 	windowClass = "IVMPCRASH";
 	MyRegisterClass(hInstance);
+
+	reportData = lpCmdLine;
 
 	if (!InitInstance (hInstance, nCmdShow))
 	{
@@ -112,7 +115,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SendMessage(dwPointer, WM_SETFONT, (WPARAM) hFont, TRUE);
 			SendMessage (dwPointer, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP,(LPARAM)(HANDLE) hBitmap);
 			hFont = CreateFont(20, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial");
-			dwPointer = CreateWindowEx(WS_EX_CLIENTEDGE, "Static", "-- Unhandled Exception Report Start --\n\nException code: 0xC0000005 (Access Violation)\nException address: 0x54021553 (0x53751553)\nException module: Client.Core.dll (+0x00001553)\n\n-- Unhandled Exception Report End --", WS_CHILD | WS_VISIBLE, 10, 75, 420, 215, hWnd , NULL, hInst, NULL);
+			dwPointer = CreateWindowEx(WS_EX_CLIENTEDGE, "Static", reportData.Get(), WS_CHILD | WS_VISIBLE, 10, 75, 420, 215, hWnd , NULL, hInst, NULL);
 			SendMessage(dwPointer, WM_SETFONT, (WPARAM) hFont, TRUE);
 		}
         case WM_PAINT:
@@ -160,16 +163,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				case BUTTON_SEND:
 				{
-					g_pHttpClient = new CHttpClient();
-					g_pHttpClient->SetRequestTimeout(10000);
-					g_pHttpClient->SetHost("crashreporter.iv-multiplayer.com");
+						g_pHttpClient = new CHttpClient();
+						g_pHttpClient->SetRequestTimeout(10000);
+						g_pHttpClient->SetHost("crashreporter.iv-multiplayer.com");
 
-					String strPostPath("/sendreport.php");
-					String strReportData("Crash data");
+						String strPostPath("/sendreport.php");
 
-					g_pHttpClient->SendReport(strPostPath,strReportData);
-					MessageBoxA(NULL,"Thanks for reporting your crash!","Your crash was successfully reported", MB_OK | MB_ICONASTERISK);
-					PostQuitMessage(0);
+						//String strReportData("Crash data");
+
+						g_pHttpClient->SendReport(strPostPath,reportData);
+						MessageBoxA(NULL,"Thanks for reporting your crash!","Your crash was successfully reported", MB_OK | MB_ICONASTERISK);
+						PostQuitMessage(0);
 				}
 			}
 		}
