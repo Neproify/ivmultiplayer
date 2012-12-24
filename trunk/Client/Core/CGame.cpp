@@ -671,6 +671,8 @@ bool CGame::Patch()
 		char *szTxt = "platform:/textures/loadingscreens_ivmp_textures";
 		CPatcher::InstallPushPatch((GetBase() + 0x423F04), (DWORD)szTxt);
 		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
+		CPatcher::InstallJmpPatch((GetBase() + 0xD549DC), (GetBase() + 0xD549C0));
+		CPatcher::InstallJmpPatch((GetBase() + 0xD549EC), (GetBase() + 0xD549D0));
 
 		// Make the game think we are not connected to the internet
 		*(BYTE *)(GetBase() + 0x10F1390) = 0; // byteInternetConnectionState

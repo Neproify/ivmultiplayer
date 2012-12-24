@@ -9,7 +9,7 @@
 //==============================================================================
 
 #include <string.h>
-#ifdef WIN32
+#ifdef _WIN32
 #include <winsock2.h>
 #include <windows.h>
 #include <mmsystem.h>
@@ -31,7 +31,7 @@
 #include "SharedUtility.h"
 #include <stdio.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #define MAX_PATH PATH_MAX
 #endif
 

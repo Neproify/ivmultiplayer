@@ -12,6 +12,7 @@
 #include "CGUI.h"
 #include "CMasterListQuery.h"
 #include "CServerQuery.h"
+#include "CAudio.h"
 
 // Custom ListboxTextItem class to automatically set the selection brush image on creation
 class ServerBrowserListItem : public CEGUI::ListboxTextItem
@@ -41,6 +42,7 @@ private:
 	bool				  m_bLoadingScreenActive;
 	CMasterListQuery    * m_pMasterListQuery;
 	CServerQuery        * m_pServerQuery;
+	CAudio				* m_pLoadingTune;
 
 	// Main Menu
 	CGUIStaticImage     * m_pLogo;

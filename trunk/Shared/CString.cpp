@@ -12,7 +12,7 @@
 #include <sstream>
 
 #define BUFFER_SIZE 8192
-#ifdef WIN32
+#ifdef _WIN32
 #define stricmp _stricmp
 #else
 #define stricmp strcasecmp

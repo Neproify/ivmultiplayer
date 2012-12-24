@@ -93,6 +93,7 @@ public:
 	virtual unsigned short GetPort() { return m_usPort; }
 	virtual void           Reset();
 	virtual bool           Get(String strPath);
+	virtual void		   SendReport(String strPath, String strReport);
 	virtual bool           Post(bool bHasResponse, String strPath, String strData = "", String strContentType = DEFAULT_CONTENT_TYPE);
 	virtual void           Process();
 	virtual String         GetLastErrorString();

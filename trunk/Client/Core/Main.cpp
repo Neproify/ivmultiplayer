@@ -240,6 +240,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 			// Initialize the client task manager
 			g_pClientTaskManager = new CClientTaskManager();
+			
+			// Initialize audio manager
+			CAudioManager::Init();
 
 			// Initialize the game
 			CGame::Initialize();
@@ -273,9 +276,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 			// Initialize the file transfer
 			g_pFileTransfer = new CFileTransfer();
-
-			// Initialize audio manager
-			CAudioManager::Init();
 		}
 		break;
 	case DLL_PROCESS_DETACH:
@@ -865,7 +865,6 @@ void InternalResetGame(bool bAutoConnect)
 	if(g_pLocalPlayer)
 		g_pLocalPlayer->RemoveFromVehicle();
 
-	g_pClientScriptManager->~CClientScriptManager();
 	SAFE_DELETE(g_pClientScriptManager);
 	// crackHD: i am not sure if scriptExit event will be called for all these scripts...
 	g_pClientScriptManager = new CClientScriptManager();
