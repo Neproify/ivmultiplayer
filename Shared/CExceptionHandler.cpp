@@ -104,7 +104,7 @@ void CExceptionHandler::WriteExceptionReport()
 	if(fFile)
 	{
 		// Write the unhandled exception report start notice to the log file
-		fprintf(fFile, "-------------- Unhandled Exception Report Start --------------\n");
+		fprintf(fFile, "-- Unhandled Exception Report Start --\n");
 
 #ifdef WIN32
 		// Write the exception code and exception code string to the log file
@@ -115,7 +115,8 @@ void CExceptionHandler::WriteExceptionReport()
 #ifndef _SERVER
 		unsigned int address = (unsigned int)ExceptionInfo->ExceptionRecord->ExceptionAddress;
 		address -= CGame::GetBase();
-		fprintf(fFile, "Exception address: 0x%p (0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, address);
+		fprintf(fFile, "Exception address: 0x%p (0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, CGame::GetBase());
+		fprintf(fFile, "Exception real-add: 0x%p / 0x%p\n", ((int)ExceptionInfo->ExceptionRecord->ExceptionAddress-CGame::GetBase()), (CGame::GetBase()-(int)ExceptionInfo->ExceptionRecord->ExceptionAddress));
 #else
 		fprintf(fFile, "Exception address: 0x%p\n", ExceptionInfo->ExceptionRecord->ExceptionAddress);
 #endif
@@ -141,7 +142,7 @@ void CExceptionHandler::WriteExceptionReport()
 				}
 			}
 		}
-		fprintf(fFile, "--------------- Unhandled Exception Report End ---------------\n");
+		fprintf(fFile, "--Unhandled Exception Report End --\n");
 
 		fclose(fFile);
 		// Print a message in the log file
@@ -213,7 +214,7 @@ void CExceptionHandler::WriteExceptionReport()
 			m_pfnCallback(fFile);
 
 		// Write the unhandled exception report end notice to the log file
-		fprintf(fFile, "--------------- Unhandled Exception Report End ---------------\n");
+		fprintf(fFile, "--Unhandled Exception Report End --\n");
 		
 #ifndef _SERVER
 #ifdef _CLIENT_LOG_REPORT

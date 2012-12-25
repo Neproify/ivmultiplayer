@@ -2474,13 +2474,15 @@ SQInteger CPlayerNatives::ToggleNametagForPlayer(SQVM * pVM)
 	sq_getentity(pVM, -2, &forPlayerId);
 	sq_getbool(pVM, -1, &bToggle);
 
-	bool bShow = (bToggle != 0);
 	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->DoesExist(forPlayerId))
 	{
+		bool bShow = (bToggle != 0);
+
 		CBitStream bsSend;
 		bsSend.Write(forPlayerId);
 		bsSend.Write(bShow);
 		g_pNetworkManager->RPC(RPC_ScriptingTogglePlayerLabelForPlayer, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		
 		sq_pushbool(pVM, true);
 		return 1;
 	}

@@ -109,7 +109,7 @@ CStreamer::CStreamer()
 	m_uiStreamingLimits[STREAM_ENTITY_PICKUP] = 128; // no more than pickup pool size
 	m_uiStreamingLimits[STREAM_ENTITY_OBJECT] = 512; // no more than object pool size
 	m_uiStreamingLimits[STREAM_ENTITY_CHECKPOINT] = 64; // no more than INTERNAL_CHECKPOINT_LIMIT
-	m_uiStreamingLimits[STREAM_ENTITY_PLAYER] = 32;
+	m_uiStreamingLimits[STREAM_ENTITY_PLAYER] = 48; // 60 but 12 are actors, pool doesn't allow more than 60(hook comming! ;)
 
 	// Reset the streamer
 	Reset();

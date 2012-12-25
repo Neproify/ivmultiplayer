@@ -58,6 +58,7 @@ namespace Scripting
 	static void SetParkedCarDensityMultiplier(unsigned int* density) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_PARKED_CAR_DENSITY_MULTIPLIER, density); }
 	static void AddHospitalRestart(float x, float y, float z, float a, int id) { NativeInvoke::Invoke<unsigned int>(NATIVE_ADD_HOSPITAL_RESTART, x, y, z, a, id); }
 	static void NetworkExpandTo32Players() { NativeInvoke::Invoke<unsigned int>(NATIVE_NETWORK_EXPAND_TO_32_PLAYERS); }
+	static void ActivateNetworkMenu() { NativeInvoke::Invoke<unsigned int>(NATIVE_ACTIVATE_NETWORK_SETTINGS_MENU); }
 	static bool LocalPlayerIsReadyToStartPlaying() { return NativeInvoke::Invoke<bool>(NATIVE_LOCAL_PLAYER_IS_READY_TO_START_PLAYING); }
 	static void LaunchLocalPlayerInNetworkGame() { NativeInvoke::Invoke<unsigned int>(NATIVE_LAUNCH_LOCAL_PLAYER_IN_NETWORK_GAME); }
 	static void ShutdownAndLaunchSinglePlayerGame() { NativeInvoke::Invoke<unsigned int>(NATIVE_SHUTDOWN_AND_LAUNCH_SINGLE_PLAYER_GAME); }

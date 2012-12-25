@@ -567,11 +567,13 @@ SQInteger CVehicleNatives::SetVelocity(SQVM * pVM)
 	{
 		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
-		if(pVehicle)
+		if(pVehicle && pVehicle->GetDriver())
 		{
-			pVehicle->SetMoveSpeed(vecMoveSpeed);
-			sq_pushbool(pVM, true);
-			return 1;
+			if(pVehicle->GetDriver()->GetVehicle()->GetVehicleId() == pVehicle->GetVehicleId()) {
+				pVehicle->SetMoveSpeed(vecMoveSpeed);
+				sq_pushbool(pVM, true);
+				return 1;
+			}
 		}
 	}
 

@@ -8,25 +8,151 @@
 //==============================================================================
 #include <Patcher/CPatcher.h>
 #include "CCrashFixes.h"
-#include "CGame.h"
+#include "Scripting.h"
+
+int thisobject;
+void _declspec(naked) PoolCalculationHook()
+{
+	_asm
+	{
+		mov eax, [ecx + 8]
+		mov thisobject, eax
+		sub eax, [ecx + 14h]
+		pushad
+	}
+	// CLogFile::Printf("[PoolCalculation]Hook: %d",thisobject);
+	_asm
+	{
+		popad
+		retn
+	}
+}
+
+bool bCracked = true;
+void _declspec(naked) CrackedStartup()
+{
+	_asm 
+	{
+		xor	eax, eax
+		cmp	bCracked, 1
+		setz al
+		pushad
+	}
+	CLogFile::Printf("Cracked connect: %d,", bCracked);
+
+	_asm
+	{
+		popad
+		retn
+	}
+}
+
+DWORD dwAddress;
+void _declspec(naked) C_0xBFE330_Hook()
+{
+	_asm popad;
+	dwAddress = (CGame::GetBase() + 0xBFE476);
+	_asm
+	{
+		popad
+		jmp dwAddress
+		retn
+	}
+}
+
+void _declspec(naked) C_0xC03830_Hook()
+{
+	_asm popad;
+	dwAddress = (CGame::GetBase() + 0xBFE476);
+	_asm
+	{
+		popad
+		jmp dwAddress
+		retn
+	}
+}
+
+void _declspec(naked) C_0xCA8260_Hook()
+{
+	_asm popad;
+	dwAddress = (CGame::GetBase() + 0xCA834F);
+	_asm
+	{
+		popad
+		jmp dwAddress
+		retn
+	}
+}
+
+void _declspec(naked) C_0x8B8460_Hook()
+{
+	_asm popad;
+	dwAddress = (CGame::GetBase() + 0x8B86BD);
+	_asm
+	{
+		popad
+		jmp dwAddress
+		retn
+	}
+}
+
+void _declspec(naked) C_0xA1AEF0_Hook()
+{
+	_asm popad;
+	dwAddress = (CGame::GetBase() + 0xA1B018);
+	_asm
+	{
+		popad
+		jmp dwAddress
+		retn
+	}
+}
 
 void CCrashFixes::Install()
 {
+	CLogFile::Printf("Start patching crashfixes...");
+
+#ifdef IVMP_TRAINS
+	// Disable "normal" vehicle generation
+	/*CPatcher::InstallJmpPatch((GetBase() + 0x973B06), (GetBase() + 0x973BC2));
+	CPatcher::InstallJmpPatch((GetBase() + 0x973B28), (GetBase() + 0x973BC2));
+	CPatcher::InstallJmpPatch((GetBase() + 0x973B4A), (GetBase() + 0x973BC2));
+	CPatcher::InstallJmpPatch((GetBase() + 0x973B86), (GetBase() + 0x973BC2));
+	CPatcher::InstallJmpPatch((GetBase() + 0x973BA4), (GetBase() + 0x973BC2));*/
+
+	CPatcher::InstallJmpPatch((GetBase() + 0x973B06), (DWORD)C_0xBFE330_Hook);
+	CPatcher::InstallJmpPatch((GetBase() + 0x973B28), (DWORD)C_0xC03830_Hook);
+	CPatcher::InstallJmpPatch((GetBase() + 0x973B4A), (DWORD)C_0xCA8260_Hook);
+	CPatcher::InstallJmpPatch((GetBase() + 0x973B86), (DWORD)C_0x8B8460_Hook);
+	CPatcher::InstallJmpPatch((GetBase() + 0x973BA4), (DWORD)C_0xA1AEF0_Hook);
+
+#endif
+
 	// Fix vehicle crash(Be carefull, we have to look if this function disables important vehicle stuff..) -> 8 xrefs
 	CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCBA1F0), (CGame::GetBase() + 0xCBA230));
 
-	// Entity fix, seems to be associated with IVPedPool
-	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0x6277B0), (CGame::GetBase() + 0x6279FE));
-
-	// Deformation check
-	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0xB7CC4F), (CGame::GetBase() + 0xB7CC68));
-	// Fix some random crashes(Don't disable this function!)
-	//CPatcher::InstallJmpPatch((CGame::GetBase() + 0x72B240), (CGame::GetBase() + 0x72B813));
-
 	// Disables Warning Messages(like "Unkown resource found") -> Disables only the window(and exit code part)...
-	// Note: Don't enable it, the window only appears when GTA IV fails to initialize sth...
-	//CPatcher::InstallJmpPatch((CGame::GetBase() + /*0x5A932D*/0x5A8CB0), (CGame::GetBase() + 0x5A9361));
+	CPatcher::InstallJmpPatch((CGame::GetBase() + /*0x5A932D*/0x5A8CB0), (CGame::GetBase() + 0x5A9361));
 
+	// Hook/Fixes for random/player crashes
+	CPatcher::InstallJmpPatch((GetBase() + 0x9E2E30), (GetBase() + 0x9E2FFB));
+	*(BYTE*)(GetBase() + 0xF21D36) = 1;
+	Scripting::NetworkExpandTo32Players();
+	CPatcher::InstallJmpPatch((GetBase() + 0x8A79F9/*8A79F1*/), (GetBase() + 0x8A7A03/*0x8A8336*/));
+	CPatcher::InstallJmpPatch((GetBase() + 0xCA76E0), (GetBase() + 0xCA79C9));
+	CPatcher::InstallJmpPatch((GetBase() + 0x447270), (DWORD)PoolCalculationHook);
+	CPatcher::InstallJmpPatch((GetBase() + 0x446970), (GetBase() + 0x446AFF));
+	CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
+	*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
+	DWORD dwAddress = (CGame::GetBase() + 0x809F60); // Preloading
+	_asm call dwAddress;
+	CPatcher::InstallJmpPatch((GetBase() + 0x7B79E0), (DWORD)CrackedStartup);
+	
+	//CPatcher::InstallJmpPatch((GetBase() + 0x9E2DC0), (GetBase() + 0x9E2E24)); // camera stuff
+	//CPatcher::InstallJmpPatch((GetBase() + 0x8A7890), (GetBase() + 0x8A7D64)); // unknown
+	//CPatcher::InstallJmpPatch((GetBase() + 0x8A28B0), (GetBase() + 0x8A297A));
+	//CPatcher::InstallJmpPatch((GetBase() + 0xAEAEF0), (GetBase() + 0xAEB5F9));
+	CLogFile::Printf("Finished patching crashfixes..");
 }
 
 /*
