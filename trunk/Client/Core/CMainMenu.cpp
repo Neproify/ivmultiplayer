@@ -313,34 +313,22 @@ void CMainMenu::ServerQueryHandler(String strHost, unsigned short usPort, String
 			}
 		}
 	}
-	else 
+	else
 	{
+		// Check if we have a valid stream
+		if(!pReply || cQueryType != 'i')
+			return;
+
 		// Read the host name
 		String strHostName;
-
-		if(cQueryType != 'i')
-			return;
-
-		if(!pReply->Read(strHostName))
-			return;
-
-		// Read the player count
 		int iPlayerCount;
-
-		if(!pReply->Read(iPlayerCount))
-			return;
-
-		// Read the max player limit
 		int iMaxPlayers;
-
-		if(!pReply->Read(iMaxPlayers))
-			return;
-
-		// Read if the server is passworded or not
 		bool bPassworded;
 
-		if(!pReply->Read(bPassworded))
-			return;
+		pReply->Read(strHostName);
+		pReply->Read(iPlayerCount);
+		pReply->Read(iMaxPlayers);
+		pReply->Read(bPassworded);
 
 		// Add the server to the multi column list
 		CEGUI::MultiColumnList * pMultiColumnList = (CEGUI::MultiColumnList *)CMainMenu::GetSingleton()->m_serverBrowser.pServerMultiColumnList;
@@ -348,9 +336,9 @@ void CMainMenu::ServerQueryHandler(String strHost, unsigned short usPort, String
 		pMultiColumnList->setItem(new ServerBrowserListItem(strHostName.Get()), 0, iRowIndex);
 		pMultiColumnList->setItem(new ServerBrowserListItem(strHostAndPort.Get()), 1, iRowIndex);
 		char szTempBuf[64];
-		pMultiColumnList->setItem(new ServerBrowserListItem("-1"), 2, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem(itoa(iPlayerCount, szTempBuf, 10)), 2, iRowIndex);
 		pMultiColumnList->setItem(new ServerBrowserListItem(itoa(iMaxPlayers, szTempBuf, 10)), 3, iRowIndex);
-		pMultiColumnList->setItem(new ServerBrowserListItem("-1"), 4, iRowIndex);
+		pMultiColumnList->setItem(new ServerBrowserListItem("9999"), 4, iRowIndex);
 		pMultiColumnList->setItem(new ServerBrowserListItem(bPassworded ? "Yes" : "No"), 5, iRowIndex);
 		pMultiColumnList->invalidate();
 
@@ -871,7 +859,7 @@ CMainMenu::CMainMenu()
 	m_serverBrowser.pWindow = g_pGUI->CreateGUIFrameWindow();
 	m_pBackground->addChildWindow(m_serverBrowser.pWindow);
 	m_serverBrowser.pWindow->setText("Server Browser");
-	m_serverBrowser.pWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0, 780), CEGUI::UDim(0, 585)));
+	m_serverBrowser.pWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0, 1050), CEGUI::UDim(0, 585)));
 	m_serverBrowser.pWindow->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserWindowCloseClick, this));
 	m_serverBrowser.pWindow->setVisible(false);
 
@@ -1121,7 +1109,7 @@ void CMainMenu::OnResetDevice()
 	m_pLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth-width), CEGUI::UDim(0, fHeight-height)));
 	m_pLogo->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
 
-	m_serverBrowser.pWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-300), CEGUI::UDim(0, fHeight/2-225)));
+	m_serverBrowser.pWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-500), CEGUI::UDim(0, fHeight/2-350)));
 	m_pQuickConnectWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-260), CEGUI::UDim(0, fHeight/2-195)));
 	m_pSettingsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/2-260), CEGUI::UDim(0, fHeight/2-190)));
 	//SetServerBrowserWindowVisible(false);
@@ -1174,6 +1162,9 @@ void CMainMenu::SetServerBrowserWindowVisible(bool bVisible)
 		m_serverBrowser.pWindow->setVisible(bVisible);
 		m_serverBrowser.pWindow->activate();
 		m_bServerBrowserWindowVisible = bVisible;
+
+		if(bVisible)
+			OnMasterListQuery(0);
 	}
 }
 

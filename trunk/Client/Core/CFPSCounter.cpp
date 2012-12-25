@@ -52,7 +52,7 @@ void CFPSCounter::Pulse()
 	if(g_pGUI)
 	{
 		// Get the font
-		CEGUI::Font * pFont = g_pGUI->GetFont("tahoma-bold", 10);
+		CEGUI::Font * pFont = g_pGUI->GetFont("tahoma-bold");
 
 		// Draw the current fps if needed
 		if(pFont && g_bFPSToggle)
