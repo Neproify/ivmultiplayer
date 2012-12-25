@@ -573,6 +573,7 @@ void Direct3DRender()
 			//strStats.AppendF("Models (Loaded/Unload): %d/%d\n", CGame::GetLoadedModelCount(), CGame::GetUnloadedModelCount());
 
 			// Append streamed in/out entity counts and streamed in limits to the stats
+			strStats.AppendF("Players (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_PLAYER), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_PLAYER));
 			strStats.AppendF("Vehicles (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_VEHICLE), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_VEHICLE));
 			strStats.AppendF("Pickups (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_PICKUP), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_PICKUP));
 			strStats.AppendF("Objects (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_OBJECT), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_OBJECT));
@@ -682,6 +683,7 @@ void Direct3DRender()
 // Direct3DDevice9::Reset
 void Direct3DInvalidate()
 {
+	/*
 	// If our gui instance exists inform it of the device loss
 	if(g_pGUI)
 		g_pGUI->OnLostDevice();
@@ -689,6 +691,7 @@ void Direct3DInvalidate()
 	// If our graphics instance exists inform it of the device loss
 	if(g_pGraphics)
 		g_pGraphics->OnLostDevice();
+	*/
 }
 
 // Direct3DDevice9::Reset

@@ -136,25 +136,6 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	// Lock our armour
 	LockArmour((syncPacket->uHealthArmour << 16) >> 16);
 
-	// Set our anim stuff
-	//if(syncPacket->bAnim)
-	//{
-	//	m_strAnimGroup = syncPacket->szAnimGroup;
-	//	m_strAnimSpec = syncPacket->szAnimSpecific;
-
-	//	// check if we're not animating and the animation isn't finished(1.0)
-	//	if(!m_bAnimating && syncPacket->fAnimTime < 1.0f)
-	//	{
-	//		m_bAnimating = true;
-	//		Scripting::TaskPlayAnim(GetScriptingHandle(),m_strAnimSpec.C_String(),m_strAnimGroup.C_String(),8.0f,0,0,0,0,-1);
-	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),m_strAnimGroup.C_String(),m_strAnimSpec.C_String(),syncPacket->fAnimTime);
-	//	}
-	//	else if(m_bAnimating)
-	//		Scripting::SetCharAnimCurrentTime(GetScriptingHandle(),m_strAnimGroup.C_String(),m_strAnimSpec.C_String(),syncPacket->fAnimTime);
-	//}
-	//else
-	//	m_bAnimating = false;
-
 	// Get our new weapon and ammo
 	unsigned int uiWeapon = (syncPacket->uWeaponInfo >> 20);
 	unsigned int uiAmmo = ((syncPacket->uWeaponInfo << 12) >> 12);

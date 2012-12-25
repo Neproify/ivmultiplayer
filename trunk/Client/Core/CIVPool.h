@@ -16,19 +16,19 @@
 #include <CLogFile.h>
 
 // From OpenLC by listener
-class IVPool
+class IVPool // size = 31
 {
 public:
-	BYTE *  m_pObjects;    // 00-04
-	BYTE *  m_pFlags;      // 04-08
-	DWORD   m_dwCount;     // 08-0C
-	DWORD   m_dwEntrySize; // 0C-10
-	int     m_nTop;        // 10-14
-	DWORD   m_dwUsed;      // 14-18
-	BYTE    m_bAllocated;  // 18-19
-	BYTE    _f19;          // 19-1A
-	BYTE    _f1A;          // 1A-1B
-	BYTE    _f1B;          // 1B-1C
+	BYTE *  m_pObjects;    // 00-04 4
+	BYTE *  m_pFlags;      // 04-08 8
+	DWORD   m_dwCount;     // 08-0C 12
+	DWORD   m_dwEntrySize; // 0C-10 16
+	int     m_nTop;        // 10-14 20
+	DWORD   m_dwUsed;      // 14-18 24
+	BYTE    m_bAllocated;  // 18-19 25
+	BYTE    _f19;          // 19-1A 29
+	BYTE    _f1A;          // 1A-1B 30
+	BYTE    _f1B;          // 1B-1C 31
 };
 
 template <class T>

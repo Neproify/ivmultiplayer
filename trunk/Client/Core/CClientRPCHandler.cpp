@@ -3450,10 +3450,10 @@ void CClientRPCHandler::ResetVehicleEnterExit(CBitStream * pBitStream, CPlayerSo
 void CClientRPCHandler::ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	if(!pBitStream)
-			return;
+		return;
 
 	EntityId playerId;
-	bool bToggle = false;
+	bool bToggle;
 
 	pBitStream->Read(playerId);
 	pBitStream->Read(bToggle);
@@ -3461,7 +3461,7 @@ void CClientRPCHandler::ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStr
 	if(g_pPlayerManager->DoesExist(playerId)) {
 		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 		if(pPlayer && pPlayer->IsSpawned()) {
-			if(bToggle)
+			if(!bToggle)
 				Scripting::RemoveFakeNetworkNameFromPed(pPlayer->GetScriptingHandle());
 			else {
 				char red = (pPlayer->GetColor() & 0xFF000000) >> 24;

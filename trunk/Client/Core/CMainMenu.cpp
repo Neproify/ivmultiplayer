@@ -245,9 +245,6 @@ void CMainMenu::OnConnect(String strHost, unsigned short usPort, String strPassw
 	}
 	else
 	{
-		CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
-		*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
-
 		// Disable the menu and load the game
 		CGame::SetState(GAME_STATE_LOADING);
 		ShowLoadingScreen();

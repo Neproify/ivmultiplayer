@@ -404,7 +404,6 @@ void CNetworkPlayer::Destroy()
 
 void CNetworkPlayer::StreamIn()
 {
-	CLogFile::Printf("StreamIn");
 	THIS_CHECK
 	if(Create()) {
 		SetPosition(m_vecPos);
@@ -414,7 +413,6 @@ void CNetworkPlayer::StreamIn()
 
 void CNetworkPlayer::StreamOut()
 {
-	CLogFile::Printf("StreamOut");
 	THIS_CHECK
 	GetPosition(m_vecPos);
 	m_uiHealth = GetHealth();

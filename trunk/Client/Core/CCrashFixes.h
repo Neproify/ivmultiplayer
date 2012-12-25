@@ -13,5 +13,6 @@
 class CCrashFixes
 {
 public:
-	static void Install();
+	static void				Install();
+	static unsigned int		GetBase() { return CGame::GetBase(); }
 };

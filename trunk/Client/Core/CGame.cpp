@@ -36,7 +36,7 @@
 #include "AnimGroups.h"
 #include "CCrashFixes.h"
 
-// Enable on of them if we wanna/don't want trains
+// Enable one of them if we want/don't want trains
 #ifdef IVMP_TRAINS
 #undef IVMP_TRAINS
 #endif
@@ -216,18 +216,6 @@ void CGame::Initialize()
 	// Replace "Loading .." with "IV:MP is loading...", some user say that the label sometimes is shown
 	//Scripting::SetMsgForLoadingScreen("IV:MP is loading....");
 
-	/*Scripting::RequestScript("trainHelper");
-	while(!Scripting::HasScriptLoaded("trainHelper")) {
-		Sleep(10);
-	}
-	Scripting::StartNewScript("trainHelper", 1024);
-
-	Scripting::RequestScript("carwash");
-	while(!Scripting::HasScriptLoaded("carwash")) {
-		Sleep(10);
-	}
-	Scripting::StartNewScript("carwash", 1024);*/
-
 	SetInputState(true);
 	SetState(GAME_STATE_NONE);
 
@@ -317,6 +305,14 @@ void _declspec(naked) IVTrain__Constructor()
 	}
 }
 
+void _declspec(naked) IVTrain__Create()
+{
+	// TODO
+	_asm
+	{
+	}
+}
+
 IVTask * ___pTask = NULL;
 
 void _declspec(naked) CTask__Destructor_Hook()
@@ -367,31 +363,30 @@ DWORD dwModel;
 DWORD dwModelArray = 0x15F73B0;
 int iVehType = 0;
 
-void _declspec(naked) CVehicleFactory__CreateVehicle()
+void _declspec(naked) CVehicleFactory__CreateVehicle_Part1()
 {
-        _asm
-        {
-                mov eax, [esp]         
-                mov dwAddress2, eax
-                mov edx, [esp + 4] // get the model
-                mov edx, dwModelArray[edx * 4]
-                mov dwModel, edx
-                pushad
-        }
-        CLogFile::Printf("model (0x%x) - (0x%x)", dwModel, dwAddress2);
-        //iVehType = *(int *)(dwModel + 0x6C);
-        //CLogFile::Printf("type %d", iVehType);
-        dwJmp2 = (CGame::GetBase() + 0x443D66);
-        _asm
-        {
-                popad
-                push ebp
-                push edi
-                mov edi, [esp + 4]
-                jmp dwJmp2
-        }
+    _asm
+    {
+            mov eax, [esp]         
+            mov dwAddress2, eax
+            mov edx, [esp + 4] // get the model
+            mov edx, dwModelArray[edx * 4]
+            mov dwModel, edx
+            pushad
+    }
+    CLogFile::Printf("model (0x%x) - (0x%x)", dwModel, dwAddress2);
+    //iVehType = *(int *)(dwModel + 0x6C);
+    //CLogFile::Printf("type %d", iVehType);
+    dwJmp2 = (CGame::GetBase() + 0x443D66);
+    _asm
+    {
+            popad
+            push ebp
+            push edi
+            mov edi, [esp + 4]
+            jmp dwJmp2
+    }
 }
-
 unsigned int          uiPlayerInfoIndex = 0;
 IVPlayerInfo        * pReturnedPlayerInfo = NULL;
 unsigned int          uiReturnedIndex = 0;
@@ -639,14 +634,10 @@ bool CGame::Patch()
 
 	if(COffsets::GetVersion() == GAME_VERSION_7)
 	{
-		//Scripting::SetParkedCarDensityMultiplier(0);
-		//Scripting::SetRandomCarDensityMultiplier(0);
-
 		Scripting::SetPedDensityMultiplier(0);
 		Scripting::SetParkedCarDensityMultiplier(0);
 		Scripting::SetRandomCarDensityMultiplier(0);
 
-		/* OTHER FUNCTIONS */
 		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random amient animations)
 		// NOTE: This also disables ambient head movements and maybe some other stuff we actually want
 		*(DWORD *)(GetBase() + 0x9849F0) = 0x900004C2;
@@ -683,13 +674,19 @@ bool CGame::Patch()
 
 		// Always start a new game
 		CPatcher::InstallJmpPatch((GetBase() + 0x5B0311), (GetBase() + 0x5B03BF));
-		/* OTHER FUNCTIONS END */
 
-		/* GAME FUNCTIONS */
 #ifdef IVMP_TRAINS
 		// Hook for CVehicleFactory__CreateVehicle
-		// CPatcher::InstallJmpPatch((GetBase() + 0x443D60), (DWORD)CVehicleFactory__CreateVehicle);
+		// CPatcher::InstallJmpPatch((GetBase() + 0x443D60), (DWORD)CVehicleFactory__CreateVehicle_Part1);
 		CPatcher::InstallJmpPatch((GetBase() + 0x949BA0), (DWORD)IVTrain__Constructor);
+		//CPatcher::InstallJmpPatch((GetBase() + 0x973AF0), (DWORD)IVTrain__Create);
+
+		// not sure..
+		CPatcher::InstallNopPatch((GetBase() + 0x8ACD64), 5);
+
+		// Install trains
+		//DWORD dwAddress = (CGame::GetBase() + 0x94A700);
+		//_asm call dwAddress;
 #else
 		// Disable parked cars
 		CPatcher::InstallRetnPatch(GetBase() + 0xB3EDF0);
@@ -707,13 +704,14 @@ bool CGame::Patch()
 		// Disable random peds and vehicles
 		CPatcher::InstallNopPatch((GetBase() + 0x8ACD64), 5);
 		CPatcher::InstallNopPatch((GetBase() + 0x421610), 5);
-		CPatcher::InstallNopPatch((GetBase() + 0x81B22E), 5); // something with vehicles prevent crashes
-#endif
+		CPatcher::InstallNopPatch((GetBase() + 0x81B22E), 5);
+
 		// Disable vehicle generation
 		//CPatcher::InstallJmpPatch((GetBase() + 0x438D00),(GetBase() + 0x438D62));
 
 		// Disable train generation
 		//CPatcher::InstallJmpPatch((GetBase() + 0x94A700),(GetBase() + 0x94A9F4));
+#endif
 				
 		// Disable scenario peds
 		*(BYTE *)(GetBase() + 0x9F72C0) = 0xB8; // mov eax,
@@ -735,24 +733,6 @@ bool CGame::Patch()
 		// Adds a lot of world stuff which was disabled since Alpha >.<
 		PatchWorldAndTrain();
 
-		// Loadingscreen stuff(not needed yet)
-		//CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
-		//*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
-		/*CPatcher::InstallJmpPatch((GetBase() + 0x422CA7), (GetBase() + 0x422CAE));*/
-		
-		// Disalbe vehicle engine noise
-		//CPatcher::InstallJmpPatch((GetBase() + 0xCEF9E0), (GetBase() + 0xCEFA1B));
-
-        // Disable auto vehicle start when player enter to it
-		//CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (GetBase() + /*0xA9F2F1*/0xA9F5D5));
-		
-		// Make the game think that all stuff is already loaded
-		// TODO: int __cdecl sub_424140(char a1) and reverse stuff so we can skip the loadingscreen
-		// NOTE: Problem is now that modules and other stuff is loaded while starting the game
-		//*(DWORD *)(GetBase() + 0x18A8F48)[*(DWORD *)100 * *(DWORD *)(GetBase() + 0x18A8258)] = 0;
-		/* GAME FUNCTIONS END */
-
-		/* ERROR REPORTING */
 		// Don't initialize error reporting
 		CPatcher::InstallRetnPatch(GetBase() + 0xD356D0);
 
@@ -768,11 +748,10 @@ bool CGame::Patch()
 		// NOP; MOV [g_rgsc], eax
 		*(WORD *)(GetBase() + 0x402883) = 0xA390;
 
-		// Disable VDS100 error
-		// TODO
-
-		// Disable VDS101 error
-		// TODO
+		// Disable VDS100/VDS110/VDS120 and other error 
+		//CPatcher::InstallJmpPatch((GetBase() + 0x40262D), (GetBase() + 0x40265C));
+		//CPatcher::InstallJmpPatch((GetBase() + 0x402605), (GetBase() + 0x402613));
+		// -> uses other hook
 
 		// Disable VDS102 error
 		CPatcher::InstallNopPatch((GetBase() + 0x4028ED), 42);
@@ -791,8 +770,6 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC180) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC190) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
-
-		/* ERROR REPORTING END */
 
 		// Install crash fixes
 		CCrashFixes::Install();
