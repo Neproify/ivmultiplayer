@@ -37,7 +37,7 @@ extern CChatWindow     * g_pChatWindow;
 #define THIS_CHECK_R(x) if(!this) { CLogFile::Printf("this error"); return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
-	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
+	: CStreamableEntity(STREAM_ENTITY_PLAYER, 300.0f),
 	m_bIsLocalPlayer(bIsLocalPlayer),
 	m_playerId(INVALID_ENTITY_ID),
 	m_pContextData(NULL),
@@ -2537,6 +2537,7 @@ void CNetworkPlayer::ResetVehicleEnterExit()
 {
 	THIS_CHECK
 	// Reset the vehicle enter/exit flags
+	this->RemoveFromVehicle();
 	m_vehicleEnterExit.bEntering = false;
 	m_vehicleEnterExit.pVehicle = NULL;
 	m_vehicleEnterExit.byteSeatId = 0;
