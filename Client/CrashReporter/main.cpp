@@ -43,6 +43,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	MyRegisterClass(hInstance);
 
 	reportData = lpCmdLine;
+	if(reportData.GetLength() == 0) {
+		MessageBox(NULL,"Failed to start CrashReporter!","No crash report data found...",MB_OK|MB_ICONERROR);
+		ExitProcess(0);
+	}
 
 	if (!InitInstance (hInstance, nCmdShow))
 	{
@@ -80,7 +84,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 HWND hMainWindow;
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-
    hInst = hInstance; 
 
    hMainWindow = CreateWindow(windowClass.c_str(), windowTitle.c_str(), WS_CAPTION | WS_SYSMENU | BS_BITMAP,
@@ -113,6 +116,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			hFont = CreateFont(14, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial");
 			dwPointer = CreateWindowEx(NULL,"Button", "Send", WS_CHILD | WS_VISIBLE | BS_USERBUTTON | BS_BITMAP, 10, 320, 150, 31, hWnd, (HMENU)BUTTON_SEND, hInst, NULL);
 			SendMessage(dwPointer, WM_SETFONT, (WPARAM) hFont, TRUE);
+
 			SendMessage (dwPointer, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP,(LPARAM)(HANDLE) hBitmap);
 			hFont = CreateFont(20, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial");
 			dwPointer = CreateWindowEx(WS_EX_CLIENTEDGE, "Static", reportData.Get(), WS_CHILD | WS_VISIBLE, 10, 75, 420, 215, hWnd , NULL, hInst, NULL);

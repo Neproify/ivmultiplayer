@@ -130,10 +130,10 @@ Section "Install" SecDummy
 	File ..\..\Binary\bass.dll
 	
 	SetOutPath "$GTAIVDirectory\common\data\"
-	File ..\..\Binary\gamefiles\loadingscreens_ivmp.dat
+	File ..\..\Binary\gameplay_files\loadingscreen\loadingscreens_ivmp.dat
 	
 	SetOutPath "$GTAIVDirectory\pc\textures\"
-	File ..\..\Binary\gamefiles\loadingscreens_ivmp_textures.wtd
+	File ..\..\Binary\gameplay_files\loadingscreen\loadingscreens_ivmp_textures.wtd
 	
 	SetOutPath "$INSTDIR"
 
