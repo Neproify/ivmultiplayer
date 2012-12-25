@@ -50,7 +50,7 @@ void _declspec(naked) CrackedStartup()
 DWORD dwAddress;
 void _declspec(naked) C_0xBFE330_Hook()
 {
-	_asm popad;
+	_asm pushad;
 	dwAddress = (CGame::GetBase() + 0xBFE476);
 	_asm
 	{
@@ -62,7 +62,7 @@ void _declspec(naked) C_0xBFE330_Hook()
 
 void _declspec(naked) C_0xC03830_Hook()
 {
-	_asm popad;
+	_asm pushad;
 	dwAddress = (CGame::GetBase() + 0xBFE476);
 	_asm
 	{
@@ -74,7 +74,7 @@ void _declspec(naked) C_0xC03830_Hook()
 
 void _declspec(naked) C_0xCA8260_Hook()
 {
-	_asm popad;
+	_asm pushad;
 	dwAddress = (CGame::GetBase() + 0xCA834F);
 	_asm
 	{
@@ -86,7 +86,7 @@ void _declspec(naked) C_0xCA8260_Hook()
 
 void _declspec(naked) C_0x8B8460_Hook()
 {
-	_asm popad;
+	_asm pushad;
 	dwAddress = (CGame::GetBase() + 0x8B86BD);
 	_asm
 	{
@@ -98,7 +98,7 @@ void _declspec(naked) C_0x8B8460_Hook()
 
 void _declspec(naked) C_0xA1AEF0_Hook()
 {
-	_asm popad;
+	_asm pushad;
 	dwAddress = (CGame::GetBase() + 0xA1B018);
 	_asm
 	{
@@ -136,7 +136,8 @@ void CCrashFixes::Install()
 
 	// Hook/Fixes for random/player crashes
 	CPatcher::InstallJmpPatch((GetBase() + 0x9E2E30), (GetBase() + 0x9E2FFB));
-	*(BYTE*)(GetBase() + 0xF21D36) = 1;
+	CPatcher::Unprotect((GetBase() + 0xF21D36), 1);
+	*(BYTE*)(GetBase() + 0xF21D36) = 0;
 	Scripting::NetworkExpandTo32Players();
 	CPatcher::InstallJmpPatch((GetBase() + 0x8A79F9/*8A79F1*/), (GetBase() + 0x8A7A03/*0x8A8336*/));
 	CPatcher::InstallJmpPatch((GetBase() + 0xCA76E0), (GetBase() + 0xCA79C9));
