@@ -34,6 +34,7 @@ bool GetIndicatorState(IVVehicle * pGameVehicle, int iIndicatorNumber)
 	return pVehicle->GetIndicatorState(iIndicatorNumber);
 }
 
+// TODO: turn indicator audio(sound) off when turning indicator off...
 void _declspec(naked) CVehicle__DrawIndicator_Hook()
 {
 	_asm
