@@ -66,6 +66,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerWeaponSlot", GetWeaponSlot, 1, "ii");
 	pScriptingManager->RegisterFunction("getPlayerAmmoInClip", GetAmmoInClip, 1, "ii");
 	pScriptingManager->RegisterFunction("setPlayerDoorLockState", SetDoorLockState, 7, "isfffbf");
+	pScriptingManager->RegisterFunction("switchPlayerPhysics", TogglePhysics, 3, "bbb");
+	pScriptingManager->RegisterFunction("getWayPointCoordinates", GetWayPointCoords, 0, NULL);
 }
 
 // isPlayerConnected(playerid)
@@ -778,5 +780,49 @@ SQInteger CPlayerNatives::SetDoorLockState(SQVM * pVM)
 		return 1;
 	}
 	sq_pushbool(pVM,false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::TogglePhysics(SQVM * pVM)
+{
+	SQBool bInvincible = false;
+	SQBool bWindScreen = false;
+	SQBool bNockedOffBike = false;
+
+	if(g_pLocalPlayer && g_pLocalPlayer->IsSpawned()) {
+		bool bToggle = (bInvincible != 0);
+		Scripting::SetCharInvincible(g_pLocalPlayer->GetScriptingHandle(), bToggle);
+		bToggle = (bWindScreen != 0);
+		Scripting::SetCharWillFlyThroughWindscreen(g_pLocalPlayer->GetScriptingHandle(), bToggle);
+		bToggle = (bNockedOffBike != 0);
+		Scripting::SetCharCanBeKnockedOffBike(g_pLocalPlayer->GetScriptingHandle(), bToggle);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::GetWayPointCoords(SQVM * pVM)
+{
+	if(g_pLocalPlayer && g_pLocalPlayer->IsSpawned()) {
+		unsigned int uiWayPointHandle = -1;
+		Scripting::GetFirstBlipInfoId(Scripting::BLIP_WAYPOINT);
+		if(uiWayPointHandle != -1) {
+			CVector3 vecPos;
+			Scripting::GetBlipCoords(uiWayPointHandle, &vecPos);
+			if(vecPos.fZ == 0.0)
+				Scripting::GetGroundZFor3DCoord(vecPos.fX, vecPos.fY, 1000, &vecPos.fZ);
+			CSquirrelArguments args;
+			args.push(vecPos.fX);
+			args.push(vecPos.fY);
+			args.push(vecPos.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
+			return 1;
+		}
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
 	return 1;
 }
