@@ -4,8 +4,9 @@
 
 #include "SDK.h"
 
-FuncContainer_t FuncContainer;
 InterfaceContainer_t InterfaceContainer;
+NewInterfaceContainer_t NewInterfaceContainer;
+FuncContainer_t FuncContainer;
 
 EXPORT void SetupFunctions(FuncContainer_t * pContainer)
 {
@@ -14,7 +15,12 @@ EXPORT void SetupFunctions(FuncContainer_t * pContainer)
 
 EXPORT void SetupInterfaces(InterfaceContainer_t * pContainer)
 {
-	// Interfaces example moved to ivmp_extif module
+	InterfaceContainer = *pContainer;
+}
+
+EXPORT void SetupNewInterfaces(NewInterfaceContainer_t * pContainer)
+{
+	NewInterfaceContainer = *pContainer;
 }
 
 void RegisterFunction(HSQUIRRELVM pVM, const char * szName, SQFUNCTION pfnFunction)

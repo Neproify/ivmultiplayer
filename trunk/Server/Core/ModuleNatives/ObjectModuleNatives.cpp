@@ -119,13 +119,22 @@ namespace Modules
 		return false;
 	}
 	
-	int CObjectModuleNatives::GetDimension(EntityId objectId)
+	unsigned char CObjectModuleNatives::GetDimension(EntityId objectId)
 	{
 		if(g_pObjectManager->DoesExist(objectId))
 		{
 			return g_pObjectManager->GetDimension(objectId);
 		}
 
+		return 0;
+	}
+	bool CObjectModuleNatives::AttachToPlayer(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot, int iBone)
+	{
+		if(g_pObjectManager->DoesExist(objectId))
+		{
+			g_pObjectManager->AttachToPlayer(objectId,playerId,vecPos,vecRot, iBone);
+			return true;
+		}
 		return false;
 	}
 
