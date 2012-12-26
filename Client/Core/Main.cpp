@@ -872,6 +872,7 @@ void InternalResetGame(bool bAutoConnect)
 	// crackHD: i am not sure if scriptExit event will be called for all these scripts...
 	g_pClientScriptManager = new CClientScriptManager();
  	g_pEvents->clear();
+	g_pGUI->SetScriptedCursorVisible(false);
 	CLogFile::Printf("Reset clientside scripting stuff");
 
 	SAFE_DELETE(g_pModelManager);

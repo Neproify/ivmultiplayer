@@ -892,9 +892,20 @@ void CGUI::SetCursorVisible(bool bVisible)
 {
 	if(m_bInitialized)
 	{
+		if(!bVisible && m_bScriptedCursorVisible)
+		{
+			// We do not hide cursor if some script shown it.
+			return;
+		}
 		m_pCursor->setVisible(bVisible);
 		m_bCursorChangedForMessageBox = true;
 	}
+}
+
+void CGUI::SetScriptedCursorVisible(bool bVisible)
+{
+	// Set scripted cursor visible state
+	m_bScriptedCursorVisible = bVisible;
 }
 
 void CGUI::SetCursorPosition(float posX, float posY)

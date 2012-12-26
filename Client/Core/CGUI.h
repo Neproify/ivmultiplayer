@@ -116,6 +116,7 @@ private:
 	IDirectInput8            * m_pInput;
 	IDirectInputDevice8      * m_pInputMouse;
 	bool                       m_bInitialized;
+	bool					   m_bScriptedCursorVisible;
 	DWORD                      m_dwInputAxes;
 	DWORD                      m_dwInputButtons;
 	DIMOUSESTATE2              m_MouseState;
@@ -183,6 +184,7 @@ public:
 	CGUIProgressBar			 * CreateGUIProgressBar(CEGUI::String &sName, CEGUI::Window * pParentWindow = NULL);
 	CGUIProgressBar		     * CreateGUIProgressBar(CEGUI::Window * pParentWindow = NULL);
 	void                       SetCursorVisible(bool bVisible);
+	void                       SetScriptedCursorVisible(bool bVisible);
 	RECT                       GetCursorPosition();
 	void					   SetCursorPosition(float posX, float posY);
 	bool                       IsCursorVisible(bool bVisible);
