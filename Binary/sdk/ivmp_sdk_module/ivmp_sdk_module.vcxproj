@@ -12,8 +12,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F749A63C-3108-4C67-AFA1-45D05A080891}</ProjectGuid>
-    <RootNamespace>ivmp_helloworld</RootNamespace>
+    <RootNamespace>ivmp_sdk_module</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>ivmp_sdk_module</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -37,10 +38,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\modules</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../../modules</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
@@ -49,11 +50,12 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;IVMP_HELLOWORLD_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;IVMP_HELLOWORLD_EXPORTS;_MODULE_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -61,6 +63,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>SDK/Shared;SDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -72,13 +75,14 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;IVMP_HELLOWORLD_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;IVMP_HELLOWORLD_EXPORTS;_CRT_SECURE_NO_WARNINGS;_MODULE_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(ProjectDir)/SDK;../../../Shared;../../../Server/Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -89,31 +93,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SDK\Shared\CString.cpp" />
+    <ClCompile Include="SDK\Shared\Game\CControlState.cpp" />
+    <ClCompile Include="SDK\Shared\Network\CBitStream.cpp" />
     <ClCompile Include="SDK\SDK.cpp" />
     <ClCompile Include="Functions.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SDK\Interfaces\CActorManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CBlipManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CCheckpointManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CEventsInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CModuleInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CModuleManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CNetworkManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CObjectManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CPickupManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CPlayerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CPlayerManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CScriptingManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CSquirrelInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CTimeInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CTrafficLightsInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CVehicleInterface.h" />
-    <ClInclude Include="SDK\Interfaces\CVehicleManagerInterface.h" />
-    <ClInclude Include="SDK\Interfaces\InterfaceCommon.h" />
-    <ClInclude Include="SDK\SDK.h" />
+    <ClInclude Include="SDK\Shared\Common.h" />
+    <ClInclude Include="SDK\Shared\CString.h" />
+    <ClInclude Include="SDK\Shared\Game\CControlState.h" />
+    <ClInclude Include="SDK\Shared\Network\CBitStream.h" />
     <ClInclude Include="SDK\Squirrel.h" />
+    <ClInclude Include="SDK\SDK.h" />
     <ClInclude Include="Functions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

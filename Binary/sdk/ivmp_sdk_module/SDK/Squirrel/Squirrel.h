@@ -499,3 +499,4 @@ typedef void ( *sq_setdebughook_t)(HSQUIRRELVM v);
 #define sq_setdebughook FuncContainer.sqsetdebughook
 #define sq_open FuncContainer.sqopen
 #define sq_close FuncContainer.sqclose
+#define LogPrintf FuncContainer.Printf
