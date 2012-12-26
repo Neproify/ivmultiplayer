@@ -1027,6 +1027,11 @@ bool CGUI::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// Is it a key down or key up?
 		else if(uMsg == WM_KEYDOWN || uMsg == WM_KEYUP)
 		{
+           // For some reason when you press ALT it sends 3 messages: (WM_KEYDOWN VK_CONTROL), (WM_KEYDOWN VK_MENU) and (WM_KEYUP VK_MENU)
+           // This caused that after ALT has been pressed CEGUI thought control(VK_CONTROL) is always down
+            if(wParam == VK_MENU && uMsg == WM_KEYDOWN)
+				return m_pSystem->injectKeyUp(DIK_LCONTROL);
+
 			// Convert it to a CEGUI scan code
 			DWORD dwKey = ScanCodeToDIK(wParam);
 
