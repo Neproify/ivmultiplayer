@@ -154,7 +154,10 @@ int sq_guiToggleCursor(SQVM * pVM)
 	SQBool sbBool;
 	sq_getbool(pVM, -1, &sbBool);
 	bool bBool = (sbBool != 0);
+
+	g_pGUI->SetScriptedCursorVisible(bBool);
 	g_pGUI->SetCursorVisible(bBool);
+
 	sq_pushbool(pVM, true);
 	return 1;
 }
