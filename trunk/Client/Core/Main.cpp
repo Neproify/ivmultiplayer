@@ -683,7 +683,6 @@ void Direct3DRender()
 // Direct3DDevice9::Reset
 void Direct3DInvalidate()
 {
-	/*
 	// If our gui instance exists inform it of the device loss
 	if(g_pGUI)
 		g_pGUI->OnLostDevice();
@@ -691,7 +690,6 @@ void Direct3DInvalidate()
 	// If our graphics instance exists inform it of the device loss
 	if(g_pGraphics)
 		g_pGraphics->OnLostDevice();
-	*/
 }
 
 // Direct3DDevice9::Reset
