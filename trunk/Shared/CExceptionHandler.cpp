@@ -113,8 +113,6 @@ void CExceptionHandler::WriteExceptionReport()
 
 		// Write the exception address to the log file
 #ifndef _SERVER
-		unsigned int address = (unsigned int)ExceptionInfo->ExceptionRecord->ExceptionAddress;
-		address -= CGame::GetBase();
 		fprintf(fFile, "Exception address: 0x%p (0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, CGame::GetBase());
 		fprintf(fFile, "Exception real-add: 0x%p / 0x%p\n", ((int)ExceptionInfo->ExceptionRecord->ExceptionAddress-CGame::GetBase()), (CGame::GetBase()-(int)ExceptionInfo->ExceptionRecord->ExceptionAddress));
 #else
@@ -167,8 +165,10 @@ void CExceptionHandler::WriteExceptionReport()
 			}
 		}
 
+#ifdef WIN32
 		WinExec((SharedUtility::GetAbsolutePath("crashreporter.exe ") + reportData).Get(), SW_SHOW);
 		return;
+#endif
 
 		// Write the registers segment header
 		fprintf(fFile, "Exception registers: \n");
@@ -273,7 +273,9 @@ void CExceptionHandler::WriteExceptionReport()
 	// Print a message in the log file
 	CLogFile::Printf("IV:MP has crashed. Please see %s for more information.", strLogPath.Get());
 
+#ifdef WIN32
 	CreateProcess(SharedUtility::GetAbsolutePath("crashreporter.exe"), (LPSTR)strPath.Get(), NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+#endif
 }
 
 #ifdef WIN32
