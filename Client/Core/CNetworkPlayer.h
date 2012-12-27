@@ -275,5 +275,5 @@ public:
 	// Streaming
 	void					 StreamIn();
 	void					 StreamOut();
-	void					 GetStreamingPosition(CVector3& position) { GetPosition(position); }
+	void					 GetStreamPosition(CVector3& position) { GetPosition(position); }
 };
