@@ -60,4 +60,5 @@ public:
 	bool		   GetFirstSpawn() { return m_bFirstSpawn; }
 	void		   SetPing(unsigned short uiPing) { m_uiPing = uiPing; }
 	/*void		   SetAnimation(const char * strGroup, const char * strAnim);*/
+	bool		   IsCameraAttachedToEntity(unsigned uiScriptingHandle);
 };

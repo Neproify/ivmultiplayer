@@ -266,10 +266,10 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	DWORD dwLockState = static_cast<DWORD>(iLocked);
 
 	// Read the engine state
-	bool bEngineStatus = pBitStream->ReadBit();
+	bool bEngineStatus; pBitStream->Read(bEngineStatus);;
 
 	// Read if our lights are on
-	bool bLights = pBitStream->ReadBit();
+	bool bLights; pBitStream->Read(bLights);
 
 	// Read the door angles
 	float fDoor[6];
@@ -1395,8 +1395,10 @@ void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 			// if not cancel their vehicle entry task
 			if(pPlayer->IsInVehicle())
 				pPlayer->RemoveFromVehicle();
-			else
+			else {
 				pPlayer->ClearVehicleEntryTask();
+				pPlayer->ResetVehicleEnterExit();
+			}
 		}
 		// Is it an exit reply?
 		else if(byteEnterExitVehicleType == VEHICLE_EXIT_RETURN)
@@ -3006,8 +3008,12 @@ void CClientRPCHandler::ScriptingAttachCam(CBitStream * pBitStream, CPlayerSocke
 	EntityId attachId;
 	bool bVehicleOrPlayer;
 	unsigned int uiHandle = -1;
+	int iPointType;
+	CVector3 vecOffset;
 
 	pBitStream->ReadCompressed(attachId);
+	pBitStream->Read(vecOffset);
+	pBitStream->Read(iPointType);
 	bVehicleOrPlayer = pBitStream->ReadBit();
 
 	if(g_pCamera)
@@ -3022,7 +3028,7 @@ void CClientRPCHandler::ScriptingAttachCam(CBitStream * pBitStream, CPlayerSocke
 			if(g_pPlayerManager->DoesExist(attachId))
 				uiHandle = g_pPlayerManager->GetAt(attachId)->GetScriptingHandle();
 		}
-		g_pCamera->Attach(uiHandle,bVehicleOrPlayer);
+		g_pCamera->Attach(uiHandle, bVehicleOrPlayer, iPointType, vecOffset);
 	}
 }
 

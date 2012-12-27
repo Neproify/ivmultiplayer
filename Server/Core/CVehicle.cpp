@@ -128,7 +128,7 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	bsSend.Write(m_iHornDuration);
 	bsSend.Write(m_bSirenState);
 	bsSend.Write(m_iLocked);
-	bsSend.WriteBit(m_bEngineStatus);
+	bsSend.Write(m_bEngineStatus);
 	bsSend.Write(m_bLights);
 	bsSend.Write(m_fDoor[0]);
 	bsSend.Write(m_fDoor[1]);

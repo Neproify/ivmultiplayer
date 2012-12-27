@@ -40,6 +40,8 @@ CCamera::CCamera()
 
 	// Create the script cam instance
 	m_pScriptCam = new CIVCam(CGame::GetPools()->GetCamPool()->AtHandle(uiScriptCam));
+
+	m_iCameraAttached = 0;
 }
 
 CCamera::~CCamera()
@@ -102,6 +104,9 @@ void CCamera::SetBehindPed(CIVPed * pPed)
 
 	// Set the cam behind the specified ped
 	Scripting::SetCamBehindPed(CGame::GetPools()->GetPedPool()->HandleOf(pPed->GetPed()));
+	
+	m_iCameraAttached = 0;
+	m_uiCameraAttachedHandle = -1;
 }
 
 void CCamera::SetPosition(const CVector3& vecPosition)
@@ -172,7 +177,7 @@ void CCamera::GetLookAt(CVector3& vecLookAt)
 	memcpy(&vecLookAt, &vecCamLookAt, sizeof(CVector3));
 }
 
-void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer)
+void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer, int iPointType, CVector3 vecOffset)
 {
 	// Check if the scriptcam is activated
 	if(!m_bScriptCamActive)
@@ -182,9 +187,27 @@ void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer)
 	if(uiHandle == -1)
 		return;
 
-	// Check if the camera should be attached to a vehicle or player
-	if(bVehicleOrPlayer)
-		Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
-	else
-		Scripting::AttachCamToPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+	if(iPointType == 1) {
+		m_iCameraAttached = 1;
+		m_uiCameraAttachedHandle = uiHandle;
+		// Check if the camera should be attached to a vehicle or player
+		if(bVehicleOrPlayer)
+			Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+		else
+			Scripting::AttachCamToPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+
+		Scripting::SetCamAttachOffset(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecOffset.fX, vecOffset.fY, vecOffset.fZ);
+	}
+	else if(iPointType == 2)
+	{
+		m_iCameraAttached = 2;
+		m_uiCameraAttachedHandle = uiHandle;
+		// Check if the camera should be attached to a vehicle or player
+		if(bVehicleOrPlayer)
+			Scripting::PointCamAtVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+		else
+			Scripting::PointCamAtPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+
+		//Scripting::SetCamAttachOffset(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecOffset.fX, vecOffset.fY, vecOffset.fZ);
+	}
 }

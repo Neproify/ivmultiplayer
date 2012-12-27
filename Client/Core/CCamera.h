@@ -15,10 +15,12 @@
 class CCamera
 {
 private:
-	CIVCam * m_pGameCam;
-	CIVCam * m_pScriptCam;
-	bool     m_bScriptCamActive;
+	CIVCam *		m_pGameCam;
+	CIVCam *		m_pScriptCam;
+	bool			m_bScriptCamActive;
 
+	int				m_iCameraAttached;
+	unsigned int	m_uiCameraAttachedHandle;
 public:
 	CCamera();
 	~CCamera();
@@ -33,5 +35,8 @@ public:
 	void     GetPosition(CVector3& vecPosition);
 	void     SetLookAt(const CVector3& vecLookAt);
 	void     GetLookAt(CVector3& vecLookAt);
-	void	 Attach(unsigned int uiHandle, bool bVehicleOrPlayer);
+	void	 Attach(unsigned int uiHandle, bool bVehicleOrPlayer, int iPointType, CVector3 vecOffset);
+
+	int				IsCameraAttached() { return m_iCameraAttached; }
+	unsigned int	GetCameraAttachedHandle() { return m_uiCameraAttachedHandle; }
 };

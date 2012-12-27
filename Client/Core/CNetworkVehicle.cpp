@@ -17,6 +17,7 @@
 #include <SharedUtility.h>
 #include "CPools.h"
 #include "CNetworkManager.h"
+#include "CCamera.h"
 
 extern CPlayerManager * g_pPlayerManager;
 extern CModelManager * g_pModelManager;
@@ -493,6 +494,10 @@ void CNetworkVehicle::StreamOut()
 
 	// Check if the vehicle is marked as an actor vehicle
 	if(m_bActorVehicle)
+		return;
+
+	// Check if the camera is attached to our vehicle
+	if(g_pLocalPlayer->IsCameraAttachedToEntity(GetScriptingHandle()))
 		return;
 
 	// Save the coordinates

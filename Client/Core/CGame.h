@@ -145,5 +145,6 @@ public:
 	static DWORD		   GetNativeAddress(DWORD dwNative);
 	static String		   GetAnimationGroup();
 	static void			   PatchWorldAndTrain();
+	static void			   InitializeDefaultGameComponents();
 	static unsigned int	   GetHashFromString(const char * szString);		   
 };
