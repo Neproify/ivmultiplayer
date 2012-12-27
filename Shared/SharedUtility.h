@@ -11,7 +11,7 @@
 
 #pragma once
 
-#ifdef _WIN32
+#ifdef WIN32
 #include <WinSock2.h>
 #include <windows.h>
 #else

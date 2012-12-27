@@ -10,7 +10,7 @@
 #include "CHttpClient.h"
 
 // OS Dependent Defines
-#ifndef _WIN32
+#ifndef WIN32
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -20,7 +20,8 @@
 #include <winsock2.h>
 #include <winsock.h>
 #endif
-#include "..\SharedUtility.h"
+#include <SharedUtility.h>
+
 // OS Independent Defines
 #define MAX_BUFFER 8192
 #define DEFAULT_PORT 80
