@@ -1,1 +1,15 @@
-Download link for nightly/hotfixes and official builds are comming!
+<img src="http://s7.directupload.net/images/121227/kzo7wm9o.png" ></img>
+
+ <h1><li>^IV:Multiplayer^ RC2 Binarys</li></h1>
+   <h3>+Client Windows x86 - Download([http://files.iv-multiplayer.com/01/downloads.php?f=IVMP-0.1-RC2.zip IVMP Download Page])<br>
+   +Server Windows x86 - Download([http://files.iv-multiplayer.com/01/downloads.php?f=IVMP-0.1-RC2-Server-Win32.zip IVMP Download Page])<br>
+   +Server Linux x86 - Download([http://files.iv-multiplayer.com/01/downloads.php?f=IVMP-0.1-RC2-Server-Linux.tar.gz IVMP Download Page])<h3>
+
+ <h1><li>^IV:Multiplayer^ RC3 Development Binarys</li></h1>
+   <h3>+Client Windows x86 - Download([http://nightly.nxdevelopment.net/ nxdevelopment])<br>
+   +Server Windows x86 - Download([http://nightly.nxdevelopment.net/ nxdevelopment])<br>
+   +Server Linux x86 - Download([http://nightly.nxdevelopment.net/ nxdevelopment])<h3>
+<g:plusone size="medium"></g:plusone>
+<hr>
+ <h1>_0.1 RC2 Christmas Release Video_</h1>
+<wiki:video url="http://www.youtube.com/watch?v=5r7bsdGn2Gg"/>
