@@ -35,7 +35,7 @@ extern CChatWindow     * g_pChatWindow;
 #define THIS_CHECK_R(x) if(!this) { CLogFile::Printf("this error"); return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
-	: CStreamableEntity(STREAM_ENTITY_PLAYER, 300.0f),
+	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
 	m_bIsLocalPlayer(bIsLocalPlayer),
 	m_playerId(INVALID_ENTITY_ID),
 	m_pContextData(NULL),
@@ -2125,10 +2125,8 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
 			}
 			
-			if(byteSeatId == 0) {
-				if(pVehicle->GetEngineState())
-					pVehicle->SetEngineState(true);
-			}
+			if(byteSeatId == 0)
+				pVehicle->SetEngineState(pVehicle->GetEngineState());
 
 			// Mark ourselves as entering a vehicle and store our vehicle and seat
 			m_vehicleEnterExit.bEntering = true;
