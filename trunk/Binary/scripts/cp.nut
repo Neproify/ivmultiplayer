@@ -273,11 +273,11 @@ function onPlayerCommand(playerid, command)
 	}
 	if(cmd[0] == "/attachcameratovehicle")
 	{
-		attachPlayerCameraToVehicle(playerid,cmd[1].tointeger());
+		attachPlayerCameraToVehicle(playerid,cmd[1].tointeger(), cmd[2].tointeger(), 0.0, -5.0, 2.0);
 	}
 	if(cmd[0] == "/attachcameratoplayer")
 	{
-		attachPlayerCameraToPlayer(playerid,cmd[1].tointeger());
+		attachPlayerCameraToPlayer(playerid,cmd[1].tointeger(), cmd[2].tointeger(), 0.0, -2.5, 1.5);
 	}
 	if(cmd[0] == "/respawn")
 	{

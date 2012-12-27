@@ -26,6 +26,7 @@
 #include "CClientScriptManager.h"
 #include "CFireManager.h"
 #include "CFileTransfer.h"
+#include "CCamera.h"
 
 extern CNetworkManager		* g_pNetworkManager;
 extern CPlayerManager		* g_pPlayerManager;
@@ -43,6 +44,7 @@ void * pAddress = NULL;
 void * pReturnAddress = NULL;
 
 extern CLocalPlayer * g_pLocalPlayer;
+extern CCamera * g_pCamera;
 
 void GetLocalPlayerSpawnPosition(int, CVector3 * vecSpawnPosition, float * fAngle)
 {
@@ -705,3 +707,17 @@ void CLocalPlayer::SendEmptyVehicleSync()
 	}
 }
 			
+bool CLocalPlayer::IsCameraAttachedToEntity(unsigned int uiHandle)
+{
+	if(IsSpawned() && g_pCamera)
+	{
+		if(g_pCamera->IsCameraAttached() > 0) {
+			if(g_pCamera->GetCameraAttachedHandle() == uiHandle)
+				return true;
+			else
+				return false;
+		}
+		return false;
+	}
+	return false;
+}

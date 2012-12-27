@@ -18,6 +18,12 @@
 
 namespace Scripting
 {
+	// Game stuff
+	static void SetRenderTrainAsDerailed(unsigned int p0, unsigned int p1) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_RENDER_TRAIN_AS_DERAILED, p0, p1); }
+	static void SetRocketLauncherFreebieInHeli(unsigned int p0) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_ROCKET_LAUNCHER_FREEBIE_IN_HELI, p0); }
+	static void SetZonePopulationType(const char *szZone, int iType) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_ZONE_POPULATION_TYPE, szZone, iType); }
+	static void SetZoneScumminess(const char *szZone, int iType) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_ZONE_SCUMMINESS, szZone, iType); }
+
 	// Controls
 	static bool IsControlJustPressed(unsigned int p0, unsigned int p1) { return NativeInvoke::Invoke<bool>(NATIVE_IS_CONTROL_JUST_PRESSED, p0, p1); }
 	static bool IsControlPressed(unsigned int p0, unsigned int p1) { return NativeInvoke::Invoke<bool>(NATIVE_IS_CONTROL_PRESSED, p0, p1); }
@@ -134,6 +140,8 @@ namespace Scripting
 	static void ActivateScriptedCams(int unknown1_1, int unknown2_1) { NativeInvoke::Invoke<unsigned int>(NATIVE_ACTIVATE_SCRIPTED_CAMS, unknown1_1, unknown2_1); }
 	static void PointCamAtCoord(unsigned int cam, float pX, float pY, float pZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_CAM_AT_COORD, cam, pX, pY, pZ); }
 	static void PointCamAtVehicle(unsigned int cam, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_CAM_AT_VEHICLE, cam, vehicle); }
+	static void PointCamAtObject(unsigned int cam, unsigned int obj) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_CAM_AT_OBJECT, cam, obj); }
+	static void PointCamAtPed(unsigned int cam, unsigned int ped) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_CAM_AT_PED, cam, ped); }
 	static void PointCamFixedAtVehicle(unsigned int cam, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_POINT_FIXED_CAM_AT_VEHICLE, cam, vehicle); }
 	static void SetFollowVehicleCamSubmode(unsigned int mode) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_FOLLOW_VEHICLE_CAM_SUBMODE, mode); }
 	static void SetFollowVehicleCamOffset(unsigned int vehicle, float pX, float pY, float pZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_FOLLOW_VEHICLE_CAM_OFFSET, vehicle, pX, pY, pZ); }
@@ -878,6 +886,8 @@ namespace Scripting
 	static void SetCamTargetPed(unsigned int camera, unsigned int ped) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CAM_TARGET_PED, camera, ped); }
 	static void AttachCamToPed(unsigned int camera, unsigned int ped) { NativeInvoke::Invoke<unsigned int>(NATIVE_ATTACH_CAM_TO_PED, camera, ped); }
 	static void AttachCamToVehicle(unsigned int camera, unsigned int vehicle) { NativeInvoke::Invoke<unsigned int>(NATIVE_ATTACH_CAM_TO_VEHICLE, camera, vehicle); }
+	static void SetCamAttachOffset(unsigned int camera, float pX, float pY, float pZ) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CAM_ATTACH_OFFSET, camera, pX, pY, pZ); }
+	static void SetCamAttachOffsetIsRelative(unsigned int p0, unsigned int p1) { NativeInvoke::Invoke<unsigned int>(NATIVE_SET_CAM_ATTACH_OFFSET_IS_RELATIVE, p0, p1); }
 
 	// Network
 	static bool NetworkIsGameRanked() { return NativeInvoke::Invoke<bool>(NATIVE_NETWORK_IS_GAME_RANKED); }

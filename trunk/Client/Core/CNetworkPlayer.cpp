@@ -412,6 +412,11 @@ void CNetworkPlayer::StreamIn()
 void CNetworkPlayer::StreamOut()
 {
 	THIS_CHECK
+
+	// Check if the camera is attached to our player
+	if(g_pLocalPlayer->IsCameraAttachedToEntity(GetScriptingHandle()))
+		return;
+
 	GetPosition(m_vecPos);
 	m_uiHealth = GetHealth();
 	Destroy();
@@ -1928,6 +1933,16 @@ bool CNetworkPlayer::ClearVehicleEntryTask()
 				return true;
 			}
 		}
+		
+		// testcode(maybe it works)
+		unsigned int uiPlayerIndex = GetScriptingHandle();
+		DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
+		_asm
+		{
+			push 11
+			push 0
+			call dwAddress
+		}
 	}
 
 	return false;
@@ -2080,14 +2095,15 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			return;
 
 		// Is the vehicle streamed in?
-		CLogFile::Printf("[DEBUG] Try to enter vehicle %d with door lock state %d",pVehicle->GetVehicleId(),pVehicle->GetDoorLockState());
+		//CLogFile::Printf("[DEBUG] Try to enter vehicle %d with door lock state %d",pVehicle->GetVehicleId(),pVehicle->GetDoorLockState());
 		if(pVehicle->IsStreamedIn() && pVehicle->GetDoorLockState() == 0)
 		{
 			// Create the enter vehicle task
 			int iUnknown = -4;
 
+			// Unkown seats -4, -5
 			if(byteSeatId == 0)
-				iUnknown = -7;
+				iUnknown = 0;
 			else if(byteSeatId == 1)
 				iUnknown = 2;
 			else if(byteSeatId == 2)
@@ -2100,13 +2116,18 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			if(byteSeatId > 0)
 				uiUnknown = 0x200000;
 
-			CIVTaskComplexNewGetInVehicle * pTask = new CIVTaskComplexNewGetInVehicle(pVehicle->GetGameVehicle(), iUnknown, 27, uiUnknown, -2.0f);
+			CIVTaskComplexNewGetInVehicle * pTask = new CIVTaskComplexNewGetInVehicle(pVehicle->GetGameVehicle(), iUnknown, 27, uiUnknown, 0.0f);
 
 			// Did the task create successfully?
 			if(pTask)
 			{
 				// Set it as the ped task
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
+			}
+			
+			if(byteSeatId == 0) {
+				if(pVehicle->GetEngineState())
+					pVehicle->SetEngineState(true);
 			}
 
 			// Mark ourselves as entering a vehicle and store our vehicle and seat
@@ -2459,6 +2480,10 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 						g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 					}
 
+					// Restore engine state
+					if(m_pVehicle->GetEngineState())
+						m_pVehicle->SetEngineState(true);
+
 					if(IsLocalPlayer())
 						CLogFile::Printf("VehicleEntryComplete(LocalPlayer)");
 					else
@@ -2633,12 +2658,12 @@ bool CNetworkPlayer::IsOnScreen()
 		bool bOnScreen = false;
 		_asm
 		{
-			push uiPlayerIndex
 			push 0
+			push uiPlayerIndex
 			call dwAddress
 			mov al, bOnScreen
 		}
-		return bOnScreen*/return true;
+		return bOnScreen;//*/return true;
 	}
 	return false;
 }

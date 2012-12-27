@@ -129,8 +129,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("blockPlayerWeaponScroll", blockWeaponChange, 2, "ib");
 	pScriptingManager->RegisterFunction("requestPlayerAnimations", requestAnim, 2, "is");
 	pScriptingManager->RegisterFunction("releasePlayerAnimations", releaseAnim, 2, "is");
-	pScriptingManager->RegisterFunction("attachPlayerCameraToPlayer", AttachCamToPlayer, 2, "ii");
-	pScriptingManager->RegisterFunction("attachPlayerCameraToVehicle", AttachCamToVehicle, 2, "ii");
+	pScriptingManager->RegisterFunction("attachPlayerCameraToPlayer", AttachCamToPlayer, 6, "iiifff");
+	pScriptingManager->RegisterFunction("attachPlayerCameraToVehicle", AttachCamToVehicle, 6, "iiifff");
 	pScriptingManager->RegisterFunction("displayHudNotification", DisplayHudNotification, 3, "iis");
 	pScriptingManager->RegisterFunction("setPlayerFollowVehicleMode", FollowVehicleMode, 2, "ii");
 	pScriptingManager->RegisterFunction("setPlayerFollowVehicleOffset", FollowVehicleOffset, 5, "iifff");
@@ -2256,15 +2256,25 @@ SQInteger CPlayerNatives::blockWeaponDrop(SQVM * pVM)
 SQInteger CPlayerNatives::AttachCamToPlayer(SQVM * pVM)
 {
 	EntityId playerId;
-	sq_getentity(pVM, -2, &playerId);
+	sq_getentity(pVM, -6, &playerId);
 
 	EntityId toPlayerId;
-	sq_getentity(pVM, -1, &toPlayerId);
+	sq_getentity(pVM, -5, &toPlayerId);
+
+	int iPointType;
+	sq_getinteger(pVM, -4, &iPointType);
+
+	CVector3 vecPos;
+	sq_getfloat(pVM, -3, &vecPos.fX);
+	sq_getfloat(pVM, -2, &vecPos.fY);
+	sq_getfloat(pVM, -1, &vecPos.fZ);
 
 	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->DoesExist(toPlayerId))
 	{
 		CBitStream bsSend;
 		bsSend.WriteCompressed(toPlayerId);
+		bsSend.Write(vecPos);
+		bsSend.Write(iPointType);
 		bsSend.Write0();
 		g_pNetworkManager->RPC(RPC_ScriptingAttachCam, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
@@ -2277,15 +2287,26 @@ SQInteger CPlayerNatives::AttachCamToPlayer(SQVM * pVM)
 SQInteger CPlayerNatives::AttachCamToVehicle(SQVM * pVM)
 {
 	EntityId playerId;
-	sq_getentity(pVM, -2, &playerId);
+	sq_getentity(pVM, -6, &playerId);
 
 	EntityId toVehicleId;
-	sq_getentity(pVM, -1, &toVehicleId);
+	sq_getentity(pVM, -5, &toVehicleId);
+
+	int iPointType;
+	sq_getinteger(pVM, -4, &iPointType);
+
+	CVector3 vecPos;
+	sq_getfloat(pVM, -3, &vecPos.fX);
+	sq_getfloat(pVM, -2, &vecPos.fY);
+	sq_getfloat(pVM, -1, &vecPos.fZ);
+
 
 	if(g_pPlayerManager->DoesExist(playerId) && g_pVehicleManager->DoesExist(toVehicleId))
 	{
 		CBitStream bsSend;
 		bsSend.WriteCompressed(toVehicleId);
+		bsSend.Write(vecPos);
+		bsSend.Write(iPointType);
 		bsSend.Write1();
 		g_pNetworkManager->RPC(RPC_ScriptingAttachCam, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
