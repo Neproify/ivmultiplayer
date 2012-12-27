@@ -12,6 +12,10 @@
 #define WIN32
 #endif
 
+#ifndef WIN_32
+#define WIN_32
+#endif
+
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "winmm.lib")
 
