@@ -309,12 +309,6 @@ void CInputWindow::RecallUp()
 		m_pEditBox->setText(CGUI::AnsiToCeguiFriendlyString(m_szHistory[m_iCurrentHistory], len));
 		m_pEditBox->activate();
 		((CEGUI::Editbox*)m_pEditBox)->setCaratIndex(len);
-
-		for(unsigned int i = 0; i < (len*2);  i++)
-		{
-			keybd_event(VK_RIGHT,0,0,0);
-			keybd_event(VK_RIGHT,0,0,0);
-		}
 	}
 }
 
@@ -331,23 +325,12 @@ void CInputWindow::RecallDown()
 			int len = strlen(m_szCurrent);
 			m_pEditBox->setText(CGUI::AnsiToCeguiFriendlyString(m_szCurrent, len));
 			m_pEditBox->activate();
-			for(unsigned int i = 0; i < (len*2); i++)
-			{
-				keybd_event(VK_RIGHT,0,0,0);
-				keybd_event(VK_RIGHT,0,0,0);
-			}
 		}
 		else
 		{
 			int len = strlen(m_szHistory[m_iCurrentHistory]);
 			m_pEditBox->setText(CGUI::AnsiToCeguiFriendlyString(m_szHistory[m_iCurrentHistory], len));
 			m_pEditBox->activate();
-
-			for(unsigned int i = 0; i < (len*2); i++)
-			{
-				keybd_event(VK_RIGHT,0,0,0);
-				keybd_event(VK_RIGHT,0,0,0);
-			}
 		}
 	}
 }
