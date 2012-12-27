@@ -303,13 +303,14 @@ void CInputWindow::RecallUp()
 	if(m_iCurrentHistory < MAX_RECALLS && ((m_iTotalHistory - 1) > m_iCurrentHistory))
 	{
 		m_pEditBox->setEnabled(true);
-
 		m_iCurrentHistory++;
-		m_pEditBox->setText(m_szHistory[m_iCurrentHistory]);
-		m_pEditBox->activate();
-		((CEGUI::Editbox*)m_pEditBox)->setCaratIndex(strlen(m_szHistory[m_iCurrentHistory]));
 
-		for(unsigned int i = 0; i < (strlen(m_szHistory[m_iCurrentHistory])*2);  i++)
+		int len = strlen(m_szHistory[m_iCurrentHistory]);
+		m_pEditBox->setText(CGUI::AnsiToCeguiFriendlyString(m_szHistory[m_iCurrentHistory], len));
+		m_pEditBox->activate();
+		((CEGUI::Editbox*)m_pEditBox)->setCaratIndex(len);
+
+		for(unsigned int i = 0; i < (len*2);  i++)
 		{
 			keybd_event(VK_RIGHT,0,0,0);
 			keybd_event(VK_RIGHT,0,0,0);
@@ -327,9 +328,10 @@ void CInputWindow::RecallDown()
 
 		if(m_iCurrentHistory == -1)
 		{
-			m_pEditBox->setText(m_szCurrent);
+			int len = strlen(m_szCurrent);
+			m_pEditBox->setText(CGUI::AnsiToCeguiFriendlyString(m_szCurrent, len));
 			m_pEditBox->activate();
-			for(unsigned int i = 0; i < strlen(m_szCurrent)*2; i++)
+			for(unsigned int i = 0; i < (len*2); i++)
 			{
 				keybd_event(VK_RIGHT,0,0,0);
 				keybd_event(VK_RIGHT,0,0,0);
@@ -337,10 +339,11 @@ void CInputWindow::RecallDown()
 		}
 		else
 		{
-			m_pEditBox->setText(m_szHistory[m_iCurrentHistory]);
+			int len = strlen(m_szHistory[m_iCurrentHistory]);
+			m_pEditBox->setText(CGUI::AnsiToCeguiFriendlyString(m_szHistory[m_iCurrentHistory], len));
 			m_pEditBox->activate();
 
-			for(unsigned int i = 0; i < (strlen(m_szHistory[m_iCurrentHistory])*2); i++)
+			for(unsigned int i = 0; i < (len*2); i++)
 			{
 				keybd_event(VK_RIGHT,0,0,0);
 				keybd_event(VK_RIGHT,0,0,0);

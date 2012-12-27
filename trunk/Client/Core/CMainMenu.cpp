@@ -1118,7 +1118,7 @@ void CMainMenu::OnResetDevice()
 CGUIStaticText * CMainMenu::CreateButton(char * szText, CEGUI::UVector2 vecSize, CEGUI::UVector2 vecPosition)
 {
 	CGUIStaticText * pButton = g_pGUI->CreateGUIStaticText();
-	pButton->setText(szText);
+	pButton->setText(CGUI::AnsiToCeguiFriendlyString(szText, strlen(szText)));
 	pButton->setSize(vecSize);
 	pButton->setPosition(vecPosition);
 	pButton->setProperty("FrameEnabled", "false");

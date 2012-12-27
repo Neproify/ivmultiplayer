@@ -408,7 +408,7 @@ _MEMBER_FUNCTION_IMPL(GUIElement, setText)
 		return 1;
 	}
 
-	pWindow->setText(text);
+	pWindow->setText(CGUI::AnsiToCeguiFriendlyString(text, strlen(text)));
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -743,10 +743,9 @@ _MEMBER_FUNCTION_IMPL(GUIText, setText)
 	float fTextWidth = pFont->getTextExtent(text);
 	float fTextHeight = pFont->getFontHeight();
 	pWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0, fTextWidth), CEGUI::UDim(0, fTextHeight)));
-	pWindow->setText(text);
+	pWindow->setText(CGUI::AnsiToCeguiFriendlyString(text, strlen(text)));
 	sq_pushbool(pVM, true);
 	return 1;
-}
 
 // GUIButton
 _MEMBER_FUNCTION_IMPL(GUIButton, constructor)

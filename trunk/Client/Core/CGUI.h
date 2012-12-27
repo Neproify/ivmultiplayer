@@ -198,6 +198,8 @@ public:
 	CEGUI::WindowManager     * GetWindowManager() { return m_pWindowManager; }
 	CEGUI::DefaultWindow     * GetDefaultWindow() { return m_pDefaultWindow; }
 	CEGUI::Font              * GetFont(String strFont, unsigned int uiSize = 8, bool bScaled = false);
+
+	static CEGUI::String AnsiToCeguiFriendlyString(const char* ansi, int len);
 };
 
 class CGUIElement
