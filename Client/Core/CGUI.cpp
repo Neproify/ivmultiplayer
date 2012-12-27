@@ -507,6 +507,7 @@ void CGUI::ShowMessageBox(const CEGUI::String &sText, const CEGUI::String &sTitl
 		// Create the message box window
 		m_messageBox.pWindow = CreateGUIFrameWindow();
 		((CEGUI::FrameWindow *)m_messageBox.pWindow)->setCloseButtonEnabled(false);
+
 		m_messageBox.pWindow->setText(sTitle);
 		m_messageBox.pWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.3f, 0), CEGUI::UDim(0.2f, 0)));
 		m_messageBox.pWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35f, 0), CEGUI::UDim(0.4f, 0)));
@@ -1020,7 +1021,7 @@ bool CGUI::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			WCHAR wcUnicode = 0;
 			SharedUtility::AnsiToUnicode((const char *)&ucAnsi, 1, &wcUnicode, 1);
 
-			if(m_pSystem->injectChar((CEGUI::utf32)wParam))
+			if(m_pSystem->injectChar((CEGUI::utf32)wcUnicode))
 				return true;
 		}
 
@@ -1282,4 +1283,16 @@ CEGUI::Font * CGUI::GetFont(String strFont, unsigned int uiSize, bool bScaled)
 
 	// Font does not exist and font creation failed
 	return NULL;
+}
+
+CEGUI::String CGUI::AnsiToCeguiFriendlyString(const char* ansi, int len)
+{
+	wchar_t *Unicode = new wchar_t[len + 1];
+	SharedUtility::AnsiToUnicode(ansi, -1, Unicode, len);
+	CEGUI::String strCegui;
+	strCegui.resize(len);
+	for(size_t i = 0; i < len; i++)
+		strCegui[i] = (CEGUI::utf32)Unicode[i];
+	delete[] Unicode;
+	return strCegui;
 }
