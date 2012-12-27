@@ -266,10 +266,8 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 			FixCarFloating();
 
 			// Fix missing components at nrg, helicopter etc.
-			if(m_iVehicleType > 104 && m_iVehicleType < 116) {
-				for(int i = 0; i < 8; i++) 
-					SetComponentState(i, 1);
-			}
+			if(m_iVehicleType > 104 && m_iVehicleType < 116)
+				SetComponentState(0, 1);
 
 			m_bActive = true;
 			return true;
@@ -311,10 +309,8 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 		FixCarFloating();
 
 		// Fix missing components at nrg, helicopter etc.
-		if(m_iVehicleType > 104 && m_iVehicleType < 116) {
-			for(int i = 0; i < 8; i++)
-				SetComponentState(i, 1);
-		}
+		if(m_iVehicleType > 104 && m_iVehicleType < 116)
+			SetComponentState(0, 1);
 
 		m_bActive = true;
 		return true;
@@ -441,10 +437,8 @@ void CNetworkVehicle::StreamIn()
 			SoundHorn((m_ulHornDurationEnd - SharedUtility::GetTime()));
 
 		// Fix missing components at nrg, helicopter etc.
-		if(m_iVehicleType > 104 && m_iVehicleType < 116) {
-			for(int i = 0; i < 8; i++)
-				SetComponentState(i, 1);
-		}
+		if(m_iVehicleType > 104 && m_iVehicleType < 116)
+			SetComponentState(0, 1);
 		else
 		{
 			// Set the extras
