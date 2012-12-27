@@ -113,6 +113,8 @@ int			   g_iCameraState = 1;
 int			   g_iCameraTime = 0;
 bool		   g_bNetworkStatsDisplayed = false;
 
+CHttpClient *httpClient;
+
 // TODO: Move this to another class?
 extern float fTextPos[2];
 extern String strTextText;
@@ -435,6 +437,14 @@ void Direct3DRender()
 				g_pMainMenu->SetDisconnectButtonVisible(false);
 				g_pMainMenu->SetVisible(true);
 			}
+			if(CGame::GetState() == GAME_STATE_MAIN_MENU) {
+				httpClient = new CHttpClient();
+				httpClient->SetRequestTimeout(10000);
+				httpClient->SetHost(MASTERLIST_ADDRESS);
+				String strPostPath("/getlatestversion.php");
+				httpClient->Get(strPostPath);
+				CLogFile::Print("OK-master");
+			}
 		}
 	}
 	else
@@ -563,6 +573,28 @@ void Direct3DRender()
 				CGame::SetState(GAME_STATE_IVMP_PAUSE_MENU);
 		}
 	}*/
+
+	if(CGame::GetState() == GAME_STATE_MAIN_MENU)
+	{
+		if(httpClient->IsBusy()) {
+			httpClient->Process();
+			if(httpClient->GotData()) {
+				// Get the data
+				String * strData = httpClient->GetData();
+
+				// Did we not get any data?
+				if(strData->IsEmpty())
+					return;
+
+#ifndef IVMP_DEV_VER
+				if(strcmp(strData->Get(),MOD_VERSION_STRING)) {
+					if(g_pGUI)
+						g_pGUI->ShowMessageBox("New version is avaiable!","New Version avaiable!");
+				}
+#endif
+			}
+		}
+	}
 
 	// Are we in game?
 	if(CGame::GetState() == GAME_STATE_INGAME)

@@ -746,6 +746,7 @@ _MEMBER_FUNCTION_IMPL(GUIText, setText)
 	pWindow->setText(CGUI::AnsiToCeguiFriendlyString(text, strlen(text)));
 	sq_pushbool(pVM, true);
 	return 1;
+}
 
 // GUIButton
 _MEMBER_FUNCTION_IMPL(GUIButton, constructor)

@@ -711,15 +711,16 @@ std::string CGUIWindow::getText()
 	if(len == 0)
 		return std::string();
 
-	char * Ansi = new char[str.length() + 1];
-	std::string out;
-	for(int i = 0; i < (int)str.size(); i++)
-	{
-		Ansi[i] = (UCHAR)str[i];
-	}
+	char *Ansi = new char[str.length() + 1];
+	wchar_t *Unicode = new wchar_t[str.length() + 1];
+	for(size_t i = 0; i < str.size(); i++)
+		Unicode[i] = str[i];
+	WideCharToMultiByte(CP_ACP, NULL, Unicode, -1, Ansi, len, NULL, NULL);
+
 	Ansi[str.size()] = 0;
-	out = Ansi;
-	delete Ansi;
+	std::string out = Ansi;
+	delete[] Ansi;
+	delete[] Unicode;
 
 	return out;
 }
@@ -1291,7 +1292,7 @@ CEGUI::String CGUI::AnsiToCeguiFriendlyString(const char* ansi, int len)
 	SharedUtility::AnsiToUnicode(ansi, -1, Unicode, len);
 	CEGUI::String strCegui;
 	strCegui.resize(len);
-	for(size_t i = 0; i < len; i++)
+	for(size_t i = 0; i < (unsigned int)len; i++)
 		strCegui[i] = (CEGUI::utf32)Unicode[i];
 	delete[] Unicode;
 	return strCegui;
