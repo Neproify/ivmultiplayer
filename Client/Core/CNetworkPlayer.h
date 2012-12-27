@@ -203,9 +203,6 @@ public:
 	void                     AddToWorld();
 	void                     RemoveFromWorld(bool bStopMoving = true);
 
-	void					 StreamIn();
-	void					 StreamOut();
-
 	void                     SetInterior(unsigned int uiInterior);
 	unsigned int             GetInterior();
 
@@ -274,4 +271,9 @@ public:
 
 	//
 	void					 UseMobilePhone(bool bUse);
+
+	// Streaming
+	void					 StreamIn();
+	void					 StreamOut();
+	void					 GetStreamingPosition(CVector3& position) { GetPosition(position); }
 };
