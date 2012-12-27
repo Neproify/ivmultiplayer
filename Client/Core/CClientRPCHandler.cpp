@@ -1081,12 +1081,12 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	EntityId playerId;
 	unsigned short usPing;
-	bool m_bHelmet;
+	bool bHelmet;
 	OnFootSyncData syncPacket;
 	AimSyncData aimSyncPacket;
 	pBitStream->ReadCompressed(playerId);
 	pBitStream->ReadCompressed(usPing);
-	pBitStream->ReadCompressed(m_bHelmet);
+	pBitStream->ReadCompressed(bHelmet);
 
 	pBitStream->Read((char *)&syncPacket, sizeof(OnFootSyncData));
 
@@ -1104,14 +1104,13 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 			if(pRemotePlayer)
 			{
 				// Set the Helmet
-				bool helmet = m_bHelmet;
-				pPlayer->SetHelmet(helmet);
-
+				pPlayer->SetHelmet(!bHelmet);
+																
 				// Store aimdata before updating foot stuff, otherwise the hitbox has moved
 				if(bHasAimSyncData)
 					pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 
-				pRemotePlayer->StoreOnFootSync(&syncPacket);
+				pRemotePlayer->StoreOnFootSync(&syncPacket, bHasAimSyncData);
 			}
 		}
 		else { if(g_pLocalPlayer->GetPlayerId() == pPlayer->GetPlayerId()) { g_pLocalPlayer->SetPing(usPing); } }
@@ -1425,7 +1424,7 @@ void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 	pBitStream->Read(vecAim.fZ);
 
 	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->GetAt(playerId)->IsSpawned())
-		Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(playerId)->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, TICK_RATE, 0);
+		g_pPlayerManager->GetAt(playerId)->TaskLookAtCoord(vecAim.fX, vecAim.fY, vecAim.fZ);
 }
 
 void CClientRPCHandler::NameChange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

@@ -80,6 +80,9 @@ void CNameTags::Draw()
 					// Get the player position + add z coord
 					pPlayer->GetPosition(vecWorldPosition);
 					vecWorldPosition.fZ += 1.15f;
+
+					if(!pPlayer->IsOnScreen())
+						return;
 					
 					// Convert the position to a screen position
 					CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);

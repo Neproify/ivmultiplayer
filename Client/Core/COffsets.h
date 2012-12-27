@@ -216,6 +216,8 @@ public:
 	static unsigned int FUNC_CTaskSimpleDead__Constructor;
 	static unsigned int FUNC_CTaskSimpleCarSetPedInVehicle__Constructor;
 	static unsigned int FUNC_CTaskSimpleCarSetPedOut__Constructor;
+	static unsigned int FUNC_CTaskSimpleStopWalking__Constructor;
+	static unsigned int FUNC_CTaskSimpleStartWalking__Constructor;
 
 	// Weapons
 	static unsigned int FUNC_CPedWeapons__RemoveWeapon;

@@ -11,11 +11,16 @@
 #include "CChatWindow.h"
 #include "CGUI.h"
 #include "CLocalPlayer.h"
+#include "CPlayerManager.h"
+#include "CNetworkPlayer.h"
+#include "CMainMenu.h"
 
-#define DEBUG_TEXT_TOP (40.0f + (MAX_DISPLAYED_MESSAGES * 20))
+#define DEBUG_TEXT_TOP (5.0f/* + (MAX_DISPLAYED_MESSAGES * 20)*/)
 
 extern CGUI         * g_pGUI;
 extern CLocalPlayer * g_pLocalPlayer;
+extern CPlayerManager * g_pPlayerManager;
+extern CMainMenu	* g_pMainMenu;
 
 CDebugView::CDebugView()
 	: m_fDebugTextTop(0)
@@ -27,13 +32,13 @@ CDebugView::~CDebugView()
 
 }
 
-void CDebugView::DrawText(String strText)
+void CDebugView::DrawText(String strText, DWORD dwColor)
 {
 	// Get the font
-	CEGUI::Font * pFont = NULL/*g_pGUI->GetFont("tahoma-bold", 10)*/;
+	CEGUI::Font * pFont = g_pGUI->GetFont("tahoma", 10);
 
 	// Draw the text
-	g_pGUI->DrawText(strText, CEGUI::Vector2(26.0f, m_fDebugTextTop), CEGUI::colour(0xFFFFFFFF), pFont);
+	g_pGUI->DrawText(strText, CEGUI::Vector2((float)g_pGUI->GetDisplayWidth()-400.0f, m_fDebugTextTop), CEGUI::colour(dwColor), pFont);
 
 	// Increment the text top
 	m_fDebugTextTop += 14.0f;
@@ -42,10 +47,7 @@ void CDebugView::DrawText(String strText)
 void CDebugView::DumpTask(String strName, CIVTask * pTask)
 {
 	if(!pTask)
-	{
-		//DrawDebugText(String("%s: None (9999)", strName.Get()));
 		return;
-	}
 
 	DrawText(String("%s: %s (%d)", strName.Get(), pTask->GetName(), pTask->GetType()));
 
@@ -95,7 +97,8 @@ void CDebugView::DumpTasks(CIVPedTaskManager * pPedTaskManager, int iType)
 
 void CDebugView::DumpPlayer(CNetworkPlayer * pPlayer)
 {
-	DrawText("Player Debug: ");
+	DrawText("");
+	DrawText(String("Player Debug(%s): ", pPlayer->GetName().C_String()), 0x990000FF);
 	DrawText("");
 
 	// Position data
@@ -103,7 +106,8 @@ void CDebugView::DumpPlayer(CNetworkPlayer * pPlayer)
 	pPlayer->GetPosition(vecPosition);
 	float fCurrentHeading = pPlayer->GetCurrentHeading();
 	float fDesiredHeading = pPlayer->GetDesiredHeading();
-	DrawText(String("Position: %f, %f, %f Heading (C/D): %f, %f", vecPosition.fX, vecPosition.fY, vecPosition.fZ, fCurrentHeading, fDesiredHeading));
+	DrawText(String("Position: %f, %f, %f ", vecPosition.fX, vecPosition.fY, vecPosition.fZ));
+	DrawText(String("Heading (C/D): %f, %f", fCurrentHeading, fDesiredHeading));
 
 	// Speed data
 	CVector3 vecMoveSpeed;
@@ -168,11 +172,30 @@ void CDebugView::DumpPlayer(CNetworkPlayer * pPlayer)
 
 void CDebugView::Draw()
 {
-	if(g_pGUI)
+	if(g_pGUI && g_pLocalPlayer && g_pPlayerManager)
 	{
+		if(!g_pLocalPlayer->IsSpawned())
+			return;
+
+		if(g_pMainMenu->IsVisible())
+			return;
+
 		m_fDebugTextTop = DEBUG_TEXT_TOP;
 
-		// TODO: Different modes (all network players, all network vehicles, network info, e.t.c.)
-		DumpPlayer(g_pLocalPlayer);
+		if(g_pLocalPlayer)
+			DumpPlayer(g_pLocalPlayer);
+
+		if(g_pPlayerManager->GetAt(0)) {
+			if(g_pLocalPlayer->GetPlayerId() == g_pPlayerManager->GetAt(0)->GetPlayerId()) {
+				if(g_pPlayerManager->GetAt(1)) {
+					if(g_pPlayerManager->GetAt(1)->IsSpawned())
+						DumpPlayer(g_pPlayerManager->GetAt(1));
+				}
+			}
+			else {
+				if(g_pPlayerManager->GetAt(0)->IsSpawned())
+					DumpPlayer(g_pPlayerManager->GetAt(0));
+			}
+		}
 	}
 }

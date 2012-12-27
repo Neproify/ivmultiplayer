@@ -47,3 +47,15 @@ class CIVTaskSimpleCarSetPedOut : public CIVTaskSimple
 public:
 	CIVTaskSimpleCarSetPedOut(CIVVehicle * pVehicle, int a3, char a4, char a5);
 };
+
+class CIVTaskSimpleStopWalking : public CIVTaskSimple
+{
+public:
+	CIVTaskSimpleStopWalking(unsigned int uiPlayerIndex, char iType);
+};
+
+class CIVTaskSimpleStartWalking : public CIVTaskSimple
+{
+public:
+	CIVTaskSimpleStartWalking(unsigned int playerIndex, float a1, float a2, float a3, int a4, int a5);
+};

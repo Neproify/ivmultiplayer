@@ -34,7 +34,7 @@
 #include "AimSync.h"
 #include "CMainMenu.h"
 #include "AnimGroups.h"
-#include "CCrashFixes.h"
+#include "CHooks.h"
 
 // Enable one of them if we want/don't want trains
 #ifdef IVMP_TRAINS
@@ -772,7 +772,7 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
 
 		// Install crash fixes
-		CCrashFixes::Install();
+		CHooks::Install();
 		return true;
 	}
 

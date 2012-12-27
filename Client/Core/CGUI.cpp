@@ -712,7 +712,7 @@ std::string CGUIWindow::getText()
 
 	char * Ansi = new char[str.length() + 1];
 	std::string out;
-	for(int i = 0; i < str.size(); i++)
+	for(int i = 0; i < (int)str.size(); i++)
 	{
 		Ansi[i] = (UCHAR)str[i];
 	}
