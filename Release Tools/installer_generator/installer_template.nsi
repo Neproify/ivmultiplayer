@@ -139,6 +139,7 @@ Section "Install" SecDummy
 
 	File ..\LICENSE
 	File ..\..\Binary\Client.Launcher.exe
+	File ..\..\Binary\crashreporter.exe
 	File ..\..\Binary\Client.LaunchHelper.dll
 	File ..\..\Binary\Client.Core.dll
 	File ..\..\Binary\Network.Core.dll
