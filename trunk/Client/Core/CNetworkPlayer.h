@@ -14,6 +14,8 @@
 #include "CIVPlayerPed.h"
 #include "CIVPlayerInfo.h"
 #include "CContextDataManager.h"
+#include "CIVTask.h"
+#include "IVTasks.h"
 
 class CNetworkVehicle;
 
@@ -80,6 +82,9 @@ private:
 	// Streaming info
 	unsigned int	  m_uiHealth;
 	CVector3		  m_vecPos;
+
+	// Task info
+	CIVTaskSimpleStartWalking * m_pOldTask;
 
 public:
 	CNetworkPlayer(bool bIsLocalPlayer = false);
@@ -210,6 +215,7 @@ public:
 	void                     ResetInterpolation();
 
 	void                     SetTargetPosition(const CVector3& vecPosition, unsigned long ulDelay);
+	void					 SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType);
 
 	void                     RemoveTargetPosition();
 
@@ -262,6 +268,9 @@ public:
 
 	void					 SetBlipActive(bool bActive) { m_bPlayerBlipCreated = bActive; }
 	bool					 GetBlipActivity() { return m_bPlayerBlipCreated; }
+
+	//
+	void					 TaskLookAtCoord(float fX, float fY, float fZ);
 
 	//
 	void					 UseMobilePhone(bool bUse);

@@ -261,6 +261,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			CCursorHook::Install();
 			g_pDebugView = new CDebugView();
 #endif
+#ifdef IVMP_DEV_VER
+			g_pDebugView = new CDebugView();
+#endif
 			// Initialize the client script manager
 			g_pClientScriptManager = new CClientScriptManager();
 
@@ -330,6 +333,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			SAFE_DELETE(g_pFPSCounter);
 
 #ifdef IVMP_DEBUG
+			// Delete out debug viewer
+			SAFE_DELETE(g_pDebugView);
+#endif
+#ifdef IVMP_DEV_VER
 			// Delete out debug viewer
 			SAFE_DELETE(g_pDebugView);
 #endif
@@ -482,6 +489,11 @@ void Direct3DRender()
 	// If our scripting manager exists, call the frame event
 	if(g_pEvents && !g_pMainMenu->IsVisible())
 		g_pEvents->Call("frameRender");
+
+#ifdef IVMP_DEV_VER
+	if(g_pDebugView && g_pGUI && g_pLocalPlayer)
+		g_pDebugView->Draw();
+#endif
 
 	// Check if our screen shot write failed
 	if(CScreenShot::IsDone())

@@ -20,7 +20,7 @@ private:
 	float m_fDebugTextTop;
 
 	// Draw text string
-	void DrawText(String strText);
+	void DrawText(String strText, DWORD dwColor = 0xFFFFFFFF);
 
 	// Dump tasks
 	void DumpTask(String strName, CIVTask * pTask);

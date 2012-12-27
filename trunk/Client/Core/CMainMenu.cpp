@@ -691,7 +691,7 @@ CMainMenu::CMainMenu()
 	m_pLoadingBackground->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
 	m_pLoadingBackground->setProperty("Image", "set:BackgroundLoading image:full_image");
 	m_pLoadingBackground->setProperty("InheritsAlpha","false");
-	m_pLoadingBackground->setAlpha(0.90f);
+	m_pLoadingBackground->setAlpha(0.85f);
 	m_pLoadingBackground->setVisible(false);
 
 	// Loadingscreen stuff
@@ -724,7 +724,7 @@ CMainMenu::CMainMenu()
 	m_pLoadingText = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
 	m_pLoadingText->setText("IV:MP is loading, please wait ...");
 	m_pLoadingText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
-	m_pLoadingText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/8)), CEGUI::UDim(0, (fHeight/2))));
+	m_pLoadingText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/8)), CEGUI::UDim(0, (fHeight/2-60))));
 	m_pLoadingText->setProperty("FrameEnabled", "false");
 	m_pLoadingText->setProperty("BackgroundEnabled", "false");
 	m_pLoadingText->setFont(g_pGUI->GetFont("pricedown",24U));

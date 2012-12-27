@@ -96,7 +96,7 @@ void CRemotePlayer::Init()
 	}
 }
 
-void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
+void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData)
 {
 	// Check if the player isn't avaiable(disconnect etc)
 	if(!g_pPlayerManager->IsActive(GetPlayerId()))
@@ -106,26 +106,102 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 	if(IsInVehicle())
 		RemoveFromVehicle();
 
-	// Set our control state
-	SetControlState(&syncPacket->controlState);
-
 	// If we have new sync data -> continue otherwise we don't need to update it
 	/*if(m_pLastSyncData != syncPacket)
 		m_pLastSyncData = syncPacket;
 	else
 		return;*/
 
-	// Set our position
-	SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
+	if(!bHasAimSyncData) {
+		m_bStoreOnFootSwitch = false;
+		if(syncPacket->vecMoveSpeed.Length() < 0.75) {
+			SetTargetPosition(syncPacket->vecPos,TICK_RATE*2);
+			SetCurrentSyncHeading(syncPacket->fHeading);
 
-	// Set our heading
-	SetCurrentSyncHeading(syncPacket->fHeading);
+			if(m_iOldMoveStyle != 0) {
+				// Stop wakling, stand still and delete tasks
+				unsigned int uiPlayerIndex = GetScriptingHandle();
+				DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
+				_asm
+				{
+					push 17
+					push 0
+					push uiPlayerIndex
+					call dwAddress
+				}
+				/*dwAddress = (CGame::GetBase() + 0xB868E0);
+				_asm
+				{
+					push 1
+					push uiPlayerIndex
+					call dwAddress
+				}*/
+			}
+			SetMoveSpeed(syncPacket->vecMoveSpeed);
+			SetTurnSpeed(syncPacket->vecTurnSpeed);
+			m_iOldMoveStyle = 0;
+		}
+		else if(syncPacket->vecMoveSpeed.Length() < 3.0 && syncPacket->vecMoveSpeed.Length() >= 0.75) {
+			SetTargetPosition(syncPacket->vecPos,TICK_RATE);
+			SetMoveToDirection(syncPacket->vecPos, syncPacket->vecMoveSpeed, 2);
+			m_iOldMoveStyle = 1;
+		}
+		else if(syncPacket->vecMoveSpeed.Length() < 5.0 && syncPacket->vecMoveSpeed.Length() > 3.0) {
+			SetTargetPosition(syncPacket->vecPos,TICK_RATE);
+			SetMoveToDirection(syncPacket->vecPos, syncPacket->vecMoveSpeed, 3);
+			m_iOldMoveStyle = 2;
+		}
+		else {
+			SetTargetPosition(syncPacket->vecPos, (TICK_RATE/4)*3);
+			SetMoveToDirection(syncPacket->vecPos, syncPacket->vecMoveSpeed, 4);
+			m_iOldMoveStyle = 3;
+		}
+	}
+	else
+	{
+		// If we start aiming/shoting, stop walking, set stand still and delete task
+		if(!m_bStoreOnFootSwitch) {
+			m_bStoreOnFootSwitch = true;
+			unsigned int uiPlayerIndex = GetScriptingHandle();
+			DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
+			_asm
+			{
+				push 17
+				push 0
+				push uiPlayerIndex
+				call dwAddress
+			}
+			uiPlayerIndex = GetScriptingHandle();
+			dwAddress = (CGame::GetBase() + 0xB868E0);
+			_asm
+			{
+				push 1
+				push uiPlayerIndex
+				call dwAddress
+			}
+		}
+		SetTargetPosition(syncPacket->vecPos,TICK_RATE*2);
+		SetCurrentSyncHeading(syncPacket->fHeading);
+		SetMoveSpeed(syncPacket->vecMoveSpeed);
+		SetTurnSpeed(syncPacket->vecTurnSpeed);
+	}
 
-	// Set our move speed
-	SetMoveSpeed(syncPacket->vecMoveSpeed);
+	// Simulate jump(while walking/running)
+	if(!m_bStoreOnFootSwitch && syncPacket->vecMoveSpeed.Length() > 1.0 && syncPacket->controlState.IsJumping()) {
+		unsigned int uiPlayerIndex = GetScriptingHandle();
+		char iJumpStyle = 1;
+		DWORD dwAddress = (CGame::GetBase() + 0xB86A20);
+		_asm
+		{
+			push iJumpStyle
+			push uiPlayerIndex
+			call dwAddress
+		}
+		// AB4D90 = TaskJumpConstructor
+	}
 
-	// Set our turn speed
-	SetTurnSpeed(syncPacket->vecTurnSpeed);
+	// Set our control state
+	SetControlState(&syncPacket->controlState);
 
 	// Set our ducking state
 	SetDucking(syncPacket->bDuckState);
@@ -154,6 +230,25 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket)
 		SetAmmo(uiWeapon, uiAmmo);
 	}
 
+	// Stop moving
+	/*dwAddress = (CGame::GetBase() + 0xB85E30);
+	_asm
+	{
+		push uiPlayerIndex
+		call dwAddress
+	}
+	*/
+
+	// Stop jumping
+	/*	unsigned int uiPlayerIndex = GetScriptingHandle();
+		DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
+		_asm
+		{
+			push 3
+			push uiPlayerIndex
+			call dwAddress
+		}
+	*/
 	m_stateType = STATE_TYPE_ONFOOT;
 }
 

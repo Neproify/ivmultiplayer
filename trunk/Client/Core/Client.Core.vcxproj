@@ -89,7 +89,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor;..\..\Vendor\Squirrel;..\..\Client\Core\EA;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;IVMP_WEBKIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -122,7 +122,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AimSync.h" />
-    <ClInclude Include="CCrashFixes.h" />
+    <ClInclude Include="CHooks.h" />
     <ClInclude Include="CD3D9Webkit.hpp" />
     <ClInclude Include="AnimGroups.h" />
     <ClInclude Include="CDebugView.h" />
@@ -303,7 +303,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AimSync.cpp" />
-    <ClCompile Include="CCrashFixes.cpp" />
+    <ClCompile Include="CHooks.cpp" />
     <ClCompile Include="CDebugView.cpp" />
     <ClCompile Include="CIVTrain.cpp" />
     <ClCompile Include="Commands.cpp" />

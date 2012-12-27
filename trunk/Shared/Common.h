@@ -26,6 +26,9 @@
 #include <Linux.h>
 #endif
 
+// Dev Stuff
+#define IVMP_DEV_VER 1
+
 // Compile modes
 #define COMPILE_MODE_CUSTOM 0
 #define COMPILE_MODE_RELEASE 1
@@ -61,7 +64,7 @@
 #define MAX_BLIPS 1300 // Blip Pool Size: 1500
 #define MAX_PICKUPS 0xFFFE // Streamed. Pickup Pool Size: TODO: 1500?
 #define MAX_FIRE 32
-#define MAX_ACTORS 12/*252*/ 
+#define MAX_ACTORS 12
 
 // TODO: RC2: Players: 128, Actors, 252
 

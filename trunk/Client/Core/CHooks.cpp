@@ -7,7 +7,7 @@
 //
 //==============================================================================
 #include <Patcher/CPatcher.h>
-#include "CCrashFixes.h"
+#include "CHooks.h"
 #include "Scripting.h"
 
 int thisobject;
@@ -28,7 +28,7 @@ void _declspec(naked) PoolCalculationHook()
 	}
 }
 
-bool bCracked = true;
+bool bCracked = false;
 void _declspec(naked) CrackedStartup()
 {
 	_asm 
@@ -38,8 +38,7 @@ void _declspec(naked) CrackedStartup()
 		setz al
 		pushad
 	}
-	CLogFile::Printf("Cracked connect: %d,", bCracked);
-
+	//CLogFile::Printf("Cracked connect: %d,", bCracked);
 	_asm
 	{
 		popad
@@ -108,7 +107,7 @@ void _declspec(naked) C_0xA1AEF0_Hook()
 	}
 }
 
-void CCrashFixes::Install()
+void CHooks::Install()
 {
 	CLogFile::Printf("Start patching crashfixes...");
 
@@ -135,18 +134,23 @@ void CCrashFixes::Install()
 	CPatcher::InstallJmpPatch((CGame::GetBase() + /*0x5A932D*/0x5A8CB0), (CGame::GetBase() + 0x5A9361));
 
 	// Hook/Fixes for random/player crashes
-	CPatcher::InstallJmpPatch((GetBase() + 0x9E2E30), (GetBase() + 0x9E2FFB));
-	CPatcher::Unprotect((GetBase() + 0xF21D36), 1);
-	*(BYTE*)(GetBase() + 0xF21D36) = 0;
-	Scripting::NetworkExpandTo32Players();
-	CPatcher::InstallJmpPatch((GetBase() + 0x8A79F9/*8A79F1*/), (GetBase() + 0x8A7A03/*0x8A8336*/));
-	CPatcher::InstallJmpPatch((GetBase() + 0xCA76E0), (GetBase() + 0xCA79C9));
-	CPatcher::InstallJmpPatch((GetBase() + 0x447270), (DWORD)PoolCalculationHook);
-	CPatcher::InstallJmpPatch((GetBase() + 0x446970), (GetBase() + 0x446AFF));
+	//CPatcher::Unprotect((GetBase() + 0xF21D36), 1);
+	//*(BYTE*)(GetBase() + 0xF21D36) = 0;
+	
 	CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
 	*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
+
+	Scripting::NetworkExpandTo32Players();
 	DWORD dwAddress = (CGame::GetBase() + 0x809F60); // Preloading
 	_asm call dwAddress;
+	//dwAddress = (CGame::GetBase() + 0x795690); // Preloading #2
+	//_asm call dwAddress;
+	
+	//CPatcher::InstallJmpPatch((GetBase() + 0x8A79F9/*8A79F1*/), (GetBase() + 0x8A7A03/*0x8A8336*/));
+	CPatcher::InstallJmpPatch((GetBase() + 0x9E2E30), (GetBase() + 0x9E2FFB));
+	CPatcher::InstallJmpPatch((GetBase() + 0xCA76E0), (GetBase() + 0xCA79C9));
+	CPatcher::InstallJmpPatch((GetBase() + 0x446970), (GetBase() + 0x446AFF));
+	CPatcher::InstallJmpPatch((GetBase() + 0x447270), (DWORD)PoolCalculationHook);
 	CPatcher::InstallJmpPatch((GetBase() + 0x7B79E0), (DWORD)CrackedStartup);
 	
 	//CPatcher::InstallJmpPatch((GetBase() + 0x9E2DC0), (GetBase() + 0x9E2E24)); // camera stuff

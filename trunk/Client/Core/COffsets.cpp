@@ -197,6 +197,8 @@ unsigned int COffsets::FUNC_CTaskComplexDie__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskSimpleDead__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskSimpleCarSetPedInVehicle__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskSimpleCarSetPedOut__Constructor = 0;
+unsigned int COffsets::FUNC_CTaskSimpleStartWalking__Constructor = 0;
+unsigned int COffsets::FUNC_CTaskSimpleStopWalking__Constructor = 0;
 
 // Weapons
 unsigned int COffsets::FUNC_CPedWeapons__RemoveWeapon = 0;
@@ -398,6 +400,8 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CTaskSimpleDead__Constructor               = (uiBase +  0xABCF10);
 			FUNC_CTaskSimpleCarSetPedInVehicle__Constructor = (uiBase +  0xA9CB60);
 			FUNC_CTaskSimpleCarSetPedOut__Constructor       = (uiBase +  0xA9CFB0);
+			FUNC_CTaskSimpleStartWalking__Constructor		= (uiBase +  0xA0E310); // 0xA1D830 // 0xA0DFF0
+			FUNC_CTaskSimpleStopWalking__Constructor		= (uiBase +  0xA1D730);
 
 			// Weapons
 			FUNC_CPedWeapons__RemoveWeapon                  = (uiBase +  0x9ABFD0);

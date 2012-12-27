@@ -10,7 +10,7 @@
 #include <Patcher/CPatcher.h>
 #include "CGame.h"
 
-class CCrashFixes
+class CHooks
 {
 public:
 	static void				Install();

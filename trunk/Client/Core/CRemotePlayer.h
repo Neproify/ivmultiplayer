@@ -25,6 +25,8 @@ private:
 	String				m_strAnimGroup;
 	String				m_strAnimSpec;
 	OnFootSyncData	   *m_pLastSyncData;
+	bool				m_bStoreOnFootSwitch;
+	int					m_iOldMoveStyle;
 
 public:
 	CRemotePlayer();
@@ -35,7 +37,7 @@ public:
 	void         Kill();
 	void         Init();
 
-	void         StoreOnFootSync(OnFootSyncData * syncPacket);
+	void         StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData);
 	void         StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * syncPacket);
 	void         StorePassengerSync(EntityId vehicleId, PassengerSyncData * syncPacket);
 	void         StoreSmallSync(SmallSyncData * syncPacket);

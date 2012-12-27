@@ -16,9 +16,7 @@
 #include "CLocalPlayer.h"
 #include <SharedUtility.h>
 #include "COffsets.h"
-#include "CIVTask.h"
 #include "CPools.h"
-#include "IVTasks.h"
 #include "CCamera.h"
 #include "CModelManager.h"
 #include "CChatWindow.h"
@@ -37,7 +35,7 @@ extern CChatWindow     * g_pChatWindow;
 #define THIS_CHECK_R(x) if(!this) { CLogFile::Printf("this error"); return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
-	: CStreamableEntity(STREAM_ENTITY_PLAYER, 300.0f),
+	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
 	m_bIsLocalPlayer(bIsLocalPlayer),
 	m_playerId(INVALID_ENTITY_ID),
 	m_pContextData(NULL),
@@ -901,26 +899,39 @@ void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 	THIS_CHECK
 	if(IsSpawned())
 	{
+		/*
+		float fHeadingFinal;
+		if(fHeading > GetCurrentHeading())
+			fHeadingFinal = fHeading-GetCurrentHeading();
+		else if(GetCurrentHeading() > fHeading)
+			fHeadingFinal = GetCurrentHeading()-fHeading;
 
-		/*unsigned int uiScriptingHandle = GetScriptingHandle();
-		int iHeading = (int)fHeading;
-		DWORD dwAddress = (CGame::GetBase() + 0xB87760);
-		_asm
+		// Check if we have to turn us
+		if(fHeadingFinal > 0.0 && fHeadingFinal < 0.1 || fHeadingFinal < 0.0 && fHeadingFinal > -0.1)
+			return;
+
+		for(int i = 0; i < 10; i++)
 		{
-			push iHeading
-			push uiScriptingHandle
-			call dwAddress
+			if(fHeading > GetCurrentHeading())
+				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
+			else if(GetCurrentHeading() > fHeading)
+				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
 		}*/
-
 		// Check if the player has already the same pos
 		if(GetCurrentHeading() == fHeading)
 			return;
 
 		// Check if the player isn't moving
 		CVector3 vecMoveSpeed; m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
-		if(vecMoveSpeed.Length() < 2.5f || !m_currentControlState.IsSprinting())
+		if(vecMoveSpeed.Length() < 2.0f)
 		{
 			m_pPlayerPed->SetDesiredHeading(fHeading);
+			m_pPlayerPed->SetCurrentHeading(fHeading);
+		}
+		else if(!m_currentControlState.IsSprinting())
+		{
+			m_pPlayerPed->SetCurrentHeading(fHeading);
+			Sleep(10);
 			m_pPlayerPed->SetCurrentHeading(fHeading);
 		}
 		else
@@ -1591,6 +1602,62 @@ void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned lon
 
 		// Initialize the interpolation
 		m_interp.pos.fLastAlpha = 0.0f;
+	}
+}
+
+void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType)
+{
+	THIS_CHECK
+	if(IsSpawned()) {
+		
+		float tX = (vecPos.fX + (vecMove.fX * 10));
+		float tY = (vecPos.fY + (vecMove.fY * 10));
+		float tZ = (vecPos.fZ + (vecMove.fZ * 10));
+		unsigned int uiPlayerIndex = GetScriptingHandle();
+
+		// Destroy the task
+		/*DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
+		_asm
+		{
+			push 17
+			push 0
+			push uiPlayerIndex
+			call dwAddress
+		}*/
+		// Create the task
+		DWORD dwAddress = (CGame::GetBase() + 0xB87480);
+		_asm
+		{
+			push 1000
+			push iMoveType
+			push tZ
+			push tY
+			push tX
+			push uiPlayerIndex
+			call dwAddress
+		}
+		
+		//Sleep(80);
+		/*
+		float tX = (vecPos.fX + (vecMove.fX * 10));
+		float tY = (vecPos.fY + (vecMove.fY * 10));
+		float tZ = (vecPos.fZ + (vecMove.fZ * 10));
+		unsigned int uiPlayerIndex = GetScriptingHandle();
+
+		// Create the car set ped in vehicle task
+		CIVTaskSimpleStartWalking * pTask = new CIVTaskSimpleStartWalking(uiPlayerIndex,tX, tY, tZ, iMoveType, TICK_RATE);
+
+		// Did the task create successfully?
+		if(pTask)
+		{
+			//pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_EVENT_RESPONSE_TEMP);
+			pTask->ProcessPed(m_pPlayerPed);
+
+			if(m_pOldTask)
+				m_pOldTask->Destroy();
+
+			m_pOldTask = pTask;
+		}*/
 	}
 }
 
@@ -2560,9 +2627,19 @@ bool CNetworkPlayer::IsOnScreen()
 {
 	THIS_CHECK_R(false)
 	// Are we spawned?
-	if(IsSpawned())
-		return /*Scripting::IsCharOnScreen(GetScriptingHandle())*/true;
-
+	if(IsSpawned()) {
+		/*unsigned int uiPlayerIndex = GetScriptingHandle();
+		DWORD dwAddress = (CGame::GetBase() + 0xB999E0);
+		bool bOnScreen = false;
+		_asm
+		{
+			push uiPlayerIndex
+			push 0
+			call dwAddress
+			mov al, bOnScreen
+		}
+		return bOnScreen*/return true;
+	}
 	return false;
 }
 
@@ -2584,4 +2661,28 @@ void CNetworkPlayer::UseMobilePhone(bool bUse)
 		Scripting::TaskUseMobilePhone(GetScriptingHandle(),bUse);
 
 	m_bUseMobilePhone = bUse;
+}
+
+void CNetworkPlayer::TaskLookAtCoord(float fX, float fY, float fZ)
+{
+	THIS_CHECK
+	if(IsSpawned())
+	{
+	
+		int uiPlayerHandle = GetScriptingHandle();
+		DWORD dwAddress = (CGame::GetBase() + 0xB895B0);
+		if(uiPlayerHandle != NULL) {
+			_asm
+			{
+				push 0
+				push TICK_RATE
+				push fZ
+				push fY
+				push fX
+				push uiPlayerHandle ; no pointer
+				call dwAddress
+			}
+		}
+		//Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(playerId)->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, TICK_RATE, 0);
+	}
 }
