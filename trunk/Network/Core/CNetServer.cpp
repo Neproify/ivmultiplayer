@@ -56,8 +56,6 @@ void CNetServer::Process()
 			// Pass it to the packet handler
 			m_pfnPacketHandler(pPacket);
 		}
-		if(!this || !pPacket)
-			return;
 		// Deallocate the packet memory used
 		DeallocatePacket(pPacket);
 	}
@@ -205,8 +203,10 @@ PacketId CNetServer::ProcessPacket(RakNet::SystemAddress systemAddress, PacketId
 	case ID_DISCONNECTION_NOTIFICATION:
 		return PACKET_DISCONNECTED;
 		break;
-	case ID_CONNECTION_LOST:
-		return PACKET_LOST_CONNECTION;
+	case ID_CONNECTION_LOST: {
+				printf("First lost: %i", SharedUtility::GetTime());
+			return PACKET_LOST_CONNECTION;
+							 }
 		break;
 	}
 
@@ -279,8 +279,6 @@ CPacket * CNetServer::Receive()
 
 void CNetServer::DeallocatePacket(CPacket * pPacket)
 {
-	if(!this)
-		return;
 	// Check if we have a disconnection packet
 	if(pPacket->packetId == PACKET_DISCONNECTED || pPacket->packetId == PACKET_LOST_CONNECTION)
 	{

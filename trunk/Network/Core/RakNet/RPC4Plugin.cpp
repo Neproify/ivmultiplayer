@@ -49,7 +49,7 @@ RPC4GlobalRegistration::RPC4GlobalRegistration(const char* uniqueID, void ( *fun
 	}
 	globalRegistrationBuffer[globalRegistrationIndex].registerFunctionPointer=functionPointer;
 	globalRegistrationBuffer[globalRegistrationIndex].registerBlockingFunctionPointer=0;
-	RakAssert(callPriority!=0xFFFFFFFF);
+	RakAssert(callPriority!=(int) 0xFFFFFFFF);
 	globalRegistrationBuffer[globalRegistrationIndex].callPriority=callPriority;
 	globalRegistrationIndex++;
 }
@@ -252,7 +252,7 @@ void RPC4::CallLoopback( const char* uniqueID, RakNet::BitStream * bitStream )
 			p=AllocatePacketUnified(sizeof(MessageID)+sizeof(unsigned char)+(unsigned int) strlen(uniqueID)+1);
 #if _RAKNET_SUPPORT_PacketizedTCP==1 && _RAKNET_SUPPORT_TCPInterface==1
 		else
-			p=packetizedTCP->AllocatePacket(sizeof(MessageID)+sizeof(unsigned char)+(unsigned int) strlen(uniqueID)+1);
+			p=tcpInterface->AllocatePacket(sizeof(MessageID)+sizeof(unsigned char)+(unsigned int) strlen(uniqueID)+1);
 #endif
 
 		if (rakPeerInterface)
@@ -288,7 +288,7 @@ void RPC4::CallLoopback( const char* uniqueID, RakNet::BitStream * bitStream )
 		p=AllocatePacketUnified(out.GetNumberOfBytesUsed());
 #if _RAKNET_SUPPORT_PacketizedTCP==1 && _RAKNET_SUPPORT_TCPInterface==1
 	else
-		p=packetizedTCP->AllocatePacket(out.GetNumberOfBytesUsed());
+		p=tcpInterface->AllocatePacket(out.GetNumberOfBytesUsed());
 #endif
 
 	if (rakPeerInterface)
@@ -392,7 +392,8 @@ bool RPC4::CallBlocking( const char* uniqueID, RakNet::BitStream * bitStream, Pa
 		}
 	}
 
-	returnData->Read(blockingReturnValue);
+	returnData->Write(blockingReturnValue);
+	returnData->ResetReadPointer();
 	return true;
 }
 void RPC4::Signal(const char *sharedIdentifier, RakNet::BitStream *bitStream, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast, bool invokeLocal)
@@ -470,7 +471,7 @@ void RPC4::OnAttach(void)
 	{
 		if (globalRegistrationBuffer[i].registerFunctionPointer)
 		{
-			if (globalRegistrationBuffer[i].callPriority==0xFFFFFFFF)
+			if (globalRegistrationBuffer[i].callPriority==(int)0xFFFFFFFF)
 				RegisterFunction(globalRegistrationBuffer[i].functionName, globalRegistrationBuffer[i].registerFunctionPointer);
 			else
 				RegisterSlot(globalRegistrationBuffer[i].functionName, globalRegistrationBuffer[i].registerFunctionPointer, globalRegistrationBuffer[i].callPriority);
@@ -492,7 +493,7 @@ PluginReceiveResult RPC4::OnReceive(Packet *packet)
 		{
 			RakNet::RakString functionName;
 			bsIn.ReadCompressed(functionName);
-			bool isBlocking;
+			bool isBlocking=false;
 			bsIn.Read(isBlocking);
 			if (isBlocking==false)
 			{
@@ -555,7 +556,7 @@ PluginReceiveResult RPC4::OnReceive(Packet *packet)
 		{
 			RakAssert(packet->data[1]==ID_RPC4_RETURN);
 			blockingReturnValue.Reset();
-			blockingReturnValue.Read(bsIn);
+			blockingReturnValue.Write(bsIn);
 			gotBlockingReturnValue=true;
 		}
 		

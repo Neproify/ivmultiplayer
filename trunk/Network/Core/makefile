@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -g -w -D_SERVER -D_LINUX -I../../Shared -I. -I../../Shared/Network
+CFLAGS=-m32 -c -g -w -D_SERVER -D_LINUX -I../Core/RakNet -I../../Shared -I. -I../../Shared/Network -I./
 
 SOURCES=$(wildcard *.cpp)
 SOURCES+=../../Shared/SharedUtility.cpp ../../Shared/CString.cpp ../../Shared/Network/CBitStream.cpp ../../Shared/Game/CControlState.cpp ../../Shared/Linux.cpp
@@ -13,7 +13,7 @@ pch:
 	g++ $(CFLAGS) StdInc.h -o StdInc.h.gch
 
 $(EXECUTABLE): $(OBJECTS) 
-	g++ $(OBJECTS) -lpthread -ldl -shared -o $@ 
+	g++ $(OBJECTS) -m32 -lpthread -ldl -shared -o $@ 
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

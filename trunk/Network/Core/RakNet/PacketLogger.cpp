@@ -85,7 +85,7 @@ unsigned int splitPacketId, unsigned int splitPacketIndex, unsigned int splitPac
 		sprintf(str3,"%5u",reliableMessageNumber);
 	}
 
-	sprintf(into, "%s,%s%s,%s,%s,%5u,%s,%u,%"PRINTF_64_BIT_MODIFIER"u,%s,%s,%i,%i,%i,%i,%s,"
+	sprintf(into, "%s,%s%s,%s,%s,%5u,%s,%u,%" PRINTF_64_BIT_MODIFIER "u,%s,%s,%i,%i,%i,%i,%s,"
 					, localtime
 					, prefix
 					, dir
@@ -128,11 +128,17 @@ void PacketLogger::OnDirectSocketReceive(const char *data, const BitSize_t bitsU
 	FormatLine(str, "Rcv", "Raw", 0, 0, data[0], bitsUsed, RakNet::GetTime(), rakPeerInterface->GetInternalID(UNASSIGNED_SYSTEM_ADDRESS), remoteSystemAddress,(unsigned int)-1,(unsigned int)-1,(unsigned int)-1,(unsigned int)-1);
 	AddToLog(str);
 }
-void PacketLogger::OnReliabilityLayerPacketError(const char *errorMessage, const BitSize_t bitsUsed, SystemAddress remoteSystemAddress)
+void PacketLogger::OnReliabilityLayerNotification(const char *errorMessage, const BitSize_t bitsUsed, SystemAddress remoteSystemAddress, bool isError)
 {
 	char str[1024];
-	FormatLine(str, "RcvErr", errorMessage, 0, 0, "", bitsUsed, RakNet::GetTime(), rakPeerInterface->GetInternalID(UNASSIGNED_SYSTEM_ADDRESS), remoteSystemAddress,(unsigned int)-1,(unsigned int)-1,(unsigned int)-1,(unsigned int)-1);
+	char *type;
+	if (isError)
+		type=(char*) "RcvErr";
+	else
+		type=(char*) "RcvWrn";
+	FormatLine(str, type, errorMessage, 0, 0, "", bitsUsed, RakNet::GetTime(), rakPeerInterface->GetInternalID(UNASSIGNED_SYSTEM_ADDRESS), remoteSystemAddress,(unsigned int)-1,(unsigned int)-1,(unsigned int)-1,(unsigned int)-1);
 	AddToLog(str);
+	RakAssert(isError==false);
 }
 void PacketLogger::OnAck(unsigned int messageNumber, SystemAddress remoteSystemAddress, RakNet::TimeMS time)
 {
@@ -144,7 +150,7 @@ void PacketLogger::OnAck(unsigned int messageNumber, SystemAddress remoteSystemA
 	char localtime[128];
 	GetLocalTime(localtime);
 
-	sprintf(str, "%s,Rcv,Ack,%i,,,,%"PRINTF_64_BIT_MODIFIER"u,%s,%s,,,,,,"
+	sprintf(str, "%s,Rcv,Ack,%i,,,,%" PRINTF_64_BIT_MODIFIER "u,%s,%s,,,,,,"
 					, localtime
 					, messageNumber
 					, (unsigned long long) time
@@ -164,7 +170,7 @@ void PacketLogger::OnPushBackPacket(const char *data, const BitSize_t bitsUsed, 
 	char localtime[128];
 	GetLocalTime(localtime);
 
-	sprintf(str, "%s,Lcl,PBP,,,%s,%i,%"PRINTF_64_BIT_MODIFIER"u,%s,%s,,,,,,"
+	sprintf(str, "%s,Lcl,PBP,,,%s,%i,%" PRINTF_64_BIT_MODIFIER "u,%s,%s,,,,,,"
 					, localtime
 					, BaseIDTOString(data[0])
 					, bitsUsed
@@ -226,7 +232,7 @@ void PacketLogger::WriteMiscellaneous(const char *type, const char *msg)
 	char localtime[128];
 	GetLocalTime(localtime);
 
-	sprintf(str, "%s,Lcl,%s,,,,,%"PRINTF_64_BIT_MODIFIER"u,%s,,,,,,,%s"
+	sprintf(str, "%s,Lcl,%s,,,,,%" PRINTF_64_BIT_MODIFIER "u,%s,,,,,,,%s"
 					, localtime
 					, type
 					, (unsigned long long) time
@@ -309,8 +315,6 @@ const char* PacketLogger::BaseIDTOString(unsigned char Id)
 		"ID_AUTOPATCHER_FINISHED",
 		"ID_AUTOPATCHER_RESTART_APPLICATION",
 		"ID_NAT_PUNCHTHROUGH_REQUEST",
-		"ID_NAT_GROUP_PUNCHTHROUGH_REQUEST",
-		"ID_NAT_GROUP_PUNCHTHROUGH_REPLY",
 		"ID_NAT_CONNECT_AT_TIME",
 		"ID_NAT_GET_MOST_RECENT_PORT",
 		"ID_NAT_CLIENT_READY",
@@ -320,8 +324,6 @@ const char* PacketLogger::BaseIDTOString(unsigned char Id)
 		"ID_NAT_ALREADY_IN_PROGRESS",
 		"ID_NAT_PUNCHTHROUGH_FAILED",
 		"ID_NAT_PUNCHTHROUGH_SUCCEEDED",
-		"ID_NAT_GROUP_PUNCH_FAILED",
-		"ID_NAT_GROUP_PUNCH_SUCCEEDED",
 		"ID_READY_EVENT_SET",
 		"ID_READY_EVENT_UNSET",
 		"ID_READY_EVENT_ALL_SET",
@@ -341,6 +343,11 @@ const char* PacketLogger::BaseIDTOString(unsigned char Id)
 		"ID_FCM2_RESPOND_CONNECTION_COUNT",
 		"ID_FCM2_INFORM_FCMGUID",
 		"ID_FCM2_UPDATE_MIN_TOTAL_CONNECTION_COUNT",
+		"ID_FCM2_VERIFIED_JOIN_START",
+		"ID_FCM2_VERIFIED_JOIN_CAPABLE",
+		"ID_FCM2_VERIFIED_JOIN_FAILED",
+		"ID_FCM2_VERIFIED_JOIN_ACCEPTED",
+		"ID_FCM2_VERIFIED_JOIN_REJECTED",
 		"ID_UDP_PROXY_GENERAL",
 		"ID_SQLite3_EXEC",
 		"ID_SQLite3_UNKNOWN_DB",
@@ -352,8 +359,9 @@ const char* PacketLogger::BaseIDTOString(unsigned char Id)
 		"ID_ROUTER_2_FORWARDING_ESTABLISHED",
 		"ID_ROUTER_2_REROUTED",
 		"ID_TEAM_BALANCER_INTERNAL",
-		"ID_TEAM_BALANCER_REQUESTED_TEAM_CHANGE_PENDING",
-		"ID_TEAM_BALANCER_TEAMS_LOCKED",
+		"ID_TEAM_BALANCER_REQUESTED_TEAM_FULL",
+		"ID_TEAM_BALANCER_REQUESTED_TEAM_LOCKED",
+		"ID_TEAM_BALANCER_TEAM_REQUESTED_CANCELLED",
 		"ID_TEAM_BALANCER_TEAM_ASSIGNED",
 		"ID_LIGHTSPEED_INTEGRATION",
 		"ID_XBOX_LOBBY",
@@ -379,7 +387,7 @@ const char* PacketLogger::BaseIDTOString(unsigned char Id)
 		"ID_RESERVED_7",
 		"ID_RESERVED_8",
 		"ID_RESERVED_9",
-		"ID_USER_PACKET_ENUM",	 
+		"ID_USER_PACKET_ENUM",
 	};
 
 	return (char*)IDTable[Id];
