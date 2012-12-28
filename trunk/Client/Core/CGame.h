@@ -75,6 +75,7 @@ private:
 	static bool			  m_bNameTags;
 	static bool			  m_bGameLoaded;
 	static bool			  m_bHeadMovement;
+	static bool			  m_bSpecialData[2];
 
 public:
 	static unsigned int    GetBase() { return m_uiBaseAddress; }
@@ -146,5 +147,7 @@ public:
 	static String		   GetAnimationGroup();
 	static void			   PatchWorldAndTrain();
 	static void			   InitializeDefaultGameComponents();
-	static unsigned int	   GetHashFromString(const char * szString);		   
+	static unsigned int	   GetHashFromString(const char * szString);		 
+	static void			   SetSpecialData(bool bData1, bool bData2) { m_bSpecialData[0] = bData1; m_bSpecialData[1] = bData2; }
+	static bool			   GetSpecialData(int iData) { return m_bSpecialData[iData]; }
 };

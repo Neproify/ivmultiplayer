@@ -65,6 +65,7 @@ CIVWorld					* CGame::m_pWorld = NULL;
 bool						CGame::m_bNameTags = false;
 bool						CGame::m_bGameLoaded = false;
 bool						 CGame::m_bHeadMovement = true;
+bool						CGame::m_bSpecialData[2] = {false, true};
 
 void CGame::SetFocused(bool bFocused)
 {
