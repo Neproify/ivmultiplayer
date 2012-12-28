@@ -407,6 +407,7 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 	unsigned int	uiVehiclePlayerId;
 	CVector3		vecAttachPosition;
 	CVector3		vecAttachRotation;
+	int				iBone = -1;
 
 	// Read the object id
 	EntityId objectId;
@@ -440,6 +441,10 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 		// Read the attached rot
 		pBitStream->Read(vecAttachRotation);
 
+		// Read the bone id
+		if(pBitStream->ReadBit())
+			pBitStream->Read(iBone);
+
 		// Create the object
 		CObject * pObject = new CObject(dwModelHash, vecPos, vecRot);
 
@@ -468,16 +473,18 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 				{
 					CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(uiVehiclePlayerId);
 					
-					if(pPlayer)
-						Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+					if(pPlayer) {
+						if(iBone != -1)
+							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)iBone,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+						else
+							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+					}
 				}
 			}
 		}
-
 		// If object interior is set
-		if(iInterior != -1) {
+		if(iInterior != -1)
 			Scripting::AddObjectToInteriorRoomByKey(pObject->GetHandle(),(Scripting::eInteriorRoomKey)iInterior);
-		}
 	}
 }
 
