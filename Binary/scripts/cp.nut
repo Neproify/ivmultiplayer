@@ -887,6 +887,7 @@ function onSwitchEngine(playerid)
 		local enginestate = getVehicleEngineState(getPlayerVehicleId(playerid));
 		setVehicleEngineState(getPlayerVehicleId(playerid),!enginestate);
 		sendPlayerMessage(playerid,"Switched Engine",0xFFFFFFAA);
+		triggerClientEvent(playerid, "engineResponse");
 	}
 }		
 addEvent("switchEngine", onSwitchEngine);

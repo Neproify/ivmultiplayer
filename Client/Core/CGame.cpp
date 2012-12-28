@@ -1236,48 +1236,20 @@ void CGame::RemoveInitialLoadingScreens()
 
 void CGame::GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition)
 {
-	// Addresses
-	/*
-	DWORD dwAddress = (CGame::GetBase() + 0x62F1C0);
-	DWORD dwAddress2 = (CGame::GetBase() + 0xAFEA30);
-
-	// Result handlers
-	bool iResult;
-
-	// Screen pos's
-	float *fX;
-	float *fY;
-
-	_asm 
-	{
-			push 2
-			call dwAddress2
-			mov iResult, al
-	}
-
-	_asm
-	{
-			push fY
-			push fX
-			push pWorldPosition
-			call dwAddress
-			mov iOnScreen, al		;get on screen?
-	}
-	*/
-	
+	// AFEA30 // AFF290 // B002E0
 	DWORD dwAddress = (CGame::GetBase() + 0xAFF3A0);
     CVector3 * pWorldPosition = &vecWorldPosition;
     Vector2 * pScreenPosition = &vecScreenPosition;
+	int iOnScreen;
     _asm
     {
             push pScreenPosition
-            push 2					;game viewport id
+            push 2					;game viewport id ; 1= mapicon
             push pWorldPosition
             call dwAddress
-			;mov iOnScreen, al		;get on screen?
-    }
-	
-
+			mov eax, [esp+4]
+			mov iOnScreen, eax
+	}
 	
 	//CLogFile::Printf("[W2S]WORLD(%f,%f,%f),SCREEN(%f,%f), BOOLOnSCREEN(%d,%d)",vecWorldPosition.fX,vecWorldPosition.fY,vecWorldPosition.fZ,fX,fY,iOnScreen,iResult);
 }

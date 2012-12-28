@@ -86,3 +86,9 @@ function onKeyPress(key, status)
 	}
 }
 addEvent("keyPress", onKeyPress);
+
+function onEngineResponse()
+{
+	addChatMessage("Client got Engine packet!",0x0000FFFF);
+}
+addEvent("engineResponse", onEngineResponse);

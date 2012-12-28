@@ -2651,13 +2651,14 @@ bool CNetworkPlayer::IsOnScreen()
 	THIS_CHECK_R(false)
 	// Are we spawned?
 	if(IsSpawned()) {
-		/*unsigned int uiPlayerIndex = GetScriptingHandle();
+		/* // crash at 0x62F042
+		unsigned int uiPlayerIndex = GetScriptingHandle();
 		DWORD dwAddress = (CGame::GetBase() + 0xB999E0);
 		bool bOnScreen = false;
 		_asm
 		{
-			push 0
 			push uiPlayerIndex
+			push 2
 			call dwAddress
 			mov al, bOnScreen
 		}

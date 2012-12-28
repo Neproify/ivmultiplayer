@@ -401,6 +401,7 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 	DWORD			dwModelHash;
 	CVector3		vecPos;
 	CVector3		vecRot;
+	int				iInterior;
 	bool			bAttached;
 	bool			bVehicleAttached;
 	unsigned int	uiVehiclePlayerId;
@@ -420,6 +421,9 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 
 		// Read the rotation
 		pBitStream->Read(vecRot);
+
+		// Read the interior
+		pBitStream->Read(iInterior);
 
 		// Read the attached state
 		pBitStream->Read(bAttached);
@@ -468,7 +472,12 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 						Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
 				}
 			}
-		}	
+		}
+
+		// If object interior is set
+		if(iInterior != -1) {
+			Scripting::AddObjectToInteriorRoomByKey(pObject->GetHandle(),(Scripting::eInteriorRoomKey)iInterior);
+		}
 	}
 }
 
@@ -3601,6 +3610,21 @@ void CClientRPCHandler::ScriptingSetCheckpointDimension(CBitStream * pBitStream,
 	}
 }
 
+void CClientRPCHandler::ScriptingSetObjectInterior(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	EntityId objectId;
+	pBitStream->ReadCompressed(objectId);
+
+	int iInterior;
+	pBitStream->Read(iInterior);
+
+	if(g_pObjectManager->Exists(objectId))
+		Scripting::AddObjectToInteriorRoomByKey(g_pObjectManager->Get(objectId)->GetHandle(),(Scripting::eInteriorRoomKey)iInterior);
+}
+
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -3767,6 +3791,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingMoveObject, ScriptingMoveObject);
 	AddFunction(RPC_ScriptingRotateObject, ScriptingRotateObject);
 	AddFunction(RPC_ScriptingSetObjectDimension, ScriptingSetObjectDimension);
+	AddFunction(RPC_ScriptingSetObjectInterior, ScriptingSetObjectInterior);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3931,4 +3956,5 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingFixVehicle);
 	RemoveFunction(RPC_ScriptingAttachObject);
 	RemoveFunction(RPC_ScriptingDetachObject);
+	RemoveFunction(RPC_ScriptingSetObjectInterior);
 }
