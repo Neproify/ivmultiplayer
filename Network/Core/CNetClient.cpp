@@ -89,8 +89,6 @@ void CNetClient::Process()
 			// Pass it to the packet handler
 			m_pfnPacketHandler(pPacket);
 		}
-		if(!this || !pPacket)
-			return;
 		// Deallocate the packet memory used
 		DeallocatePacket(pPacket);
 	}

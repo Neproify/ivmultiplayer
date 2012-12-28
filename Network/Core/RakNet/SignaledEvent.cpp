@@ -30,7 +30,9 @@ SignaledEvent::~SignaledEvent()
 
 void SignaledEvent::InitEvent(void)
 {
-#ifdef _WIN32
+#if defined(WINDOWS_PHONE_8) || defined(WINDOWS_STORE_RT)
+		eventList=CreateEventEx(0, 0, 0, 0);
+#elif defined(_WIN32)
 		eventList=CreateEvent(0, false, false, 0);
 
 
@@ -115,7 +117,7 @@ void SignaledEvent::WaitOnEvent(int timeoutMs)
 //		eventList,
 //		false,
 //		timeoutMs);
-	WaitForSingleObject(eventList,timeoutMs);
+	WaitForSingleObjectEx(eventList,timeoutMs,FALSE);
 
 
 

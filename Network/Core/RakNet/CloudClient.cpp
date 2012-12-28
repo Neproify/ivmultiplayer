@@ -234,6 +234,10 @@ void CloudClient::DeallocateWithDefaultAllocator(CloudQueryResult *cloudQueryRes
 		allocator->DeallocateRowData(cloudQueryResult->rowsReturned[i]->data);
 		allocator->DeallocateCloudQueryRow(cloudQueryResult->rowsReturned[i]);
 	}
+
+	cloudQueryResult->rowsReturned.Clear(false, _FILE_AND_LINE_);
+	cloudQueryResult->resultKeyIndices.Clear(false, _FILE_AND_LINE_);
+	cloudQueryResult->cloudQuery.keys.Clear(false, _FILE_AND_LINE_);
 }
 void CloudClient::DeallocateWithDefaultAllocator(CloudQueryRow *row)
 {

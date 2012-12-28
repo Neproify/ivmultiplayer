@@ -160,7 +160,9 @@ void SimpleMutex::Unlock(void)
 
 void SimpleMutex::Init(void)
 {
-#ifdef _WIN32
+#if defined(WINDOWS_PHONE_8) || defined(WINDOWS_STORE_RT)
+	InitializeCriticalSectionEx(&criticalSection,0,CRITICAL_SECTION_NO_DEBUG_INFO);
+#elif defined(_WIN32)
 	//	hMutex = CreateMutex(NULL, FALSE, 0);
 	//	RakAssert(hMutex);
 	InitializeCriticalSection(&criticalSection);

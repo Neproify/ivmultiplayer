@@ -93,6 +93,8 @@ struct InternalPacket : public InternalPacketFixedSizeTransmissionHeader
 	RakNet::TimeUS creationTime;
 	///The resendNext time to take action on this packet
 	RakNet::TimeUS nextActionTime;
+	// For debugging
+	RakNet::TimeUS retransmissionTime;
 	// Size of the header when encoded into a bitstream
 	BitSize_t headerLength;
 	/// Buffer is a pointer to the actual data, assuming this packet has data at all
@@ -112,7 +114,7 @@ struct InternalPacket : public InternalPacketFixedSizeTransmissionHeader
 	} allocationScheme;
 	InternalPacketRefCountedData *refCountedData;
 	/// How many attempts we made at sending this message
-//	unsigned char timesSent;
+	unsigned char timesSent;
 	/// The priority level of this packet
 	PacketPriority priority;
 	/// If the reliability type requires a receipt, then return this number with it
