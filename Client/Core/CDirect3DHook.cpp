@@ -12,7 +12,6 @@
 #include <CLogFile.h>
 #include "Input.h"
 
-
 bool CDirect3DHook::m_bHookInstalled = false;
 bool CDirect3DHook::m_bInitialized = false;
 
@@ -100,19 +99,6 @@ HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 {
 	__asm pushad;
 	g_pDevice = pDevice;
-	//HRESULT cooperativeStatus = g_pDevice->TestCooperativeLevel();
-	//if(cooperativeStatus == D3DERR_DEVICENOTRESET)
-	//{
-	//	CLogFile::Printf("PreD3DReset");
-	//	Direct3DInvalidate(); // i.e. pFont->OnLostDevice();
-	//	bReset = true;
-	//}
-	//else if(cooperativeStatus == D3D_OK && bReset)
-	//{
-	//	CLogFile::Printf("PostD3DReset(1)");
-	//	Direct3DReset(); // i.e. pFont->OnResetDevice();
-	//	bReset = false;
-	//}
 
 	if(m_bInitialized == false) {
 		HWND hFocusWindow = FindWindow(NULL,"GTAIV");
@@ -144,8 +130,7 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 	if(g_pDevice == NULL)
 		g_pDevice = pDevice;
 	CLogFile::Printf("PreD3DReset");
-	// Call our lost device function
-	Direct3DInvalidate();
+	
 
 	if(g_bWindowedMode)
 	{
@@ -157,7 +142,10 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 		SetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE, style | WS_POPUPWINDOW | WS_CAPTION | WS_THICKFRAME);
 		SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_NOTOPMOST, 0, 0, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight, SWP_SHOWWINDOW);
 	}
-	
+
+	// Call our lost device function
+	Direct3DInvalidate();
+
 	HRESULT hr = m_pReset(g_pDevice, pPresentationParameters);
 
 	if(SUCCEEDED(hr))

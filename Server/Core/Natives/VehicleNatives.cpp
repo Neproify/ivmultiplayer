@@ -79,8 +79,8 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleDimension", GetDimension, 1, "i");
 }
 
-// createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4)
-// TODO: Rotation and colors optional
+// createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4, respawn_delay)
+// WIP: Rotation and colors optional
 SQInteger CVehicleNatives::Create(SQVM * pVM)
 {
 	SQInteger iModelId;
@@ -98,20 +98,22 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 		sq_pushinteger(pVM, INVALID_ENTITY_ID);
 		return 1;
 	}
-
+	
 	sq_getvector3(pVM, 3, &vecPosition); // 3..5
-	sq_getvector3(pVM, 6, &vecRotation); // 6..8
-
-	sq_getinteger(pVM, 9, &color1);
-	sq_getinteger(pVM, 10, &color2);
-	sq_getinteger(pVM, 11, &color3);
-	sq_getinteger(pVM, 12, &color4);
-
-	if(sq_gettop(pVM) >= 13) {
-		sq_getinteger(pVM, 13, &respawn_delay);
-		//CLogFile::Printf("Set respawn_delay to (%i)", respawn_delay);
+	
+	if(sq_gettop(pVM) >= 6) {
+		sq_getvector3(pVM, 6, &vecRotation); // 6..8
+		if(sq_gettop(pVM) >= 12) {
+			sq_getinteger(pVM, 9, &color1);
+			sq_getinteger(pVM, 10, &color2);
+			sq_getinteger(pVM, 11, &color3);
+			sq_getinteger(pVM, 12, &color4);
+		}
+		if(sq_gettop(pVM) >= 13) {
+			sq_getinteger(pVM, 13, &respawn_delay);
+			//CLogFile::Printf("Set respawn_delay to (%i)", respawn_delay);
+		}
 	}
-
 	if(iModelId >= 0 && iModelId <= 125)
 	{
 		EntityId vehicleId =  g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4, respawn_delay);

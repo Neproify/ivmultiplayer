@@ -902,6 +902,9 @@ void CServerRPCHandler::VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pS
 	if(!pVehicle)
 		return;
 
+	if(pVehicle->GetDeathTime() != 0)
+		return;
+
 	CSquirrelArguments pArguments;
 	pArguments.push(vehicleId);
 	g_pEvents->Call("vehicleDeath",&pArguments);
