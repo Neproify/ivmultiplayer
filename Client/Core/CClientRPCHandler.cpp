@@ -76,7 +76,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	EntityId playerId;
 	String sHostName, sHttpServer;
-	bool bPayAndSpray, bAutoAim, bGUINametags, bHeadMovement;
+	bool bPayAndSpray, bAutoAim, bGUINametags, bHeadMovement, bSpecialData1, bSpecialData2;
 	unsigned short usHttpPort;
 	unsigned char ucWeather, ucTrafficLightState, ucHour, ucMinute;
 	unsigned int uiColor, uiMaxPlayers, uiMinuteDuration, uiTrafficLightTimePassed, uiGreenDuration, uiYellowDuration, uiRedDuration;
@@ -91,6 +91,8 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	pBitStream->Read(usHttpPort);
 	pBitStream->Read(ucWeather);
 	pBitStream->Read(bGUINametags);
+	pBitStream->Read(bSpecialData1);
+	pBitStream->Read(bSpecialData2);
 	pBitStream->Read(bHeadMovement);
 	pBitStream->Read(uiMaxPlayers);
 
@@ -133,6 +135,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	g_pFileTransfer->SetServerInformation(sHttpServer.IsEmpty() ? g_strHost : sHttpServer, usHttpPort);
 
 	CGame::SetNameTags(bGUINametags);
+	CGame::SetSpecialData(bSpecialData1, bSpecialData2);
 	CGame::SetHeadMovement(bHeadMovement);
 	g_pNetworkManager->SetHostName(sHostName);
 	g_pNetworkManager->SetMaxPlayers(uiMaxPlayers);

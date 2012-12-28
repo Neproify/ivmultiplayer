@@ -496,7 +496,7 @@ void CLocalPlayer::SendInVehicleSync()
 		g_pNetworkManager->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
 		// Check if our car is dead(exploded or in water)
-		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(pVehicle->GetScriptingHandle()) && syncPacket.vecPos.fZ < -1.0f))
+		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(pVehicle->GetScriptingHandle()) && syncPacket.vecPos.fZ < -1.0f && CGame::GetSpecialData(1)))
 		{
 			CBitStream bsDeath;
 			bsDeath.Write(pVehicle->GetVehicleId());

@@ -266,11 +266,6 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			}
 		}
 
-		if(uMsg == WM_KEYUP && wParam == VK_F3)
-		{
-			Scripting::SetPlayStatsInt("CAFE_BOUGHT",1);
-			Scripting::SetRocketLauncherFreebieInHeli(1);
-		}
 		/*
 		if(uMsg == WM_KEYUP && wParam == VK_F4)
 		{

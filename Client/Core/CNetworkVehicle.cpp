@@ -18,6 +18,7 @@
 #include "CPools.h"
 #include "CNetworkManager.h"
 #include "CCamera.h"
+#include "CGame.h"
 
 extern CPlayerManager * g_pPlayerManager;
 extern CModelManager * g_pModelManager;
@@ -916,7 +917,7 @@ bool CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 		CVector3 vecPos; GetPosition(vecPos);
 		if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f || vecPos.fZ < -1.0f)
 		{
-			if(Scripting::IsCarDead(GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && vecPos.fZ < -1.0f))
+			if(Scripting::IsCarDead(GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && vecPos.fZ < -1.0f && CGame::GetSpecialData(1)))
 			{
 				CBitStream bsDeath;
 				bsDeath.Write(GetVehicleId());
@@ -1504,14 +1505,29 @@ void CNetworkVehicle::SetDamageable(bool bToggle)
 	// Are we spawned?
 	if(IsSpawned() && m_pVehicle)
 	{
-		// Check if we are "burning" -> if let the car burn out and than explode
-		if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f)
+		if(m_bActorVehicle) {
+			Scripting::SetCarCanBeDamaged(GetScriptingHandle(),false);
+			Scripting::SetCarCanBurstTyres(GetScriptingHandle(),false);
+			return;
+		}
+
+		if(CGame::GetSpecialData(0)) {
+			Scripting::SetCarCanBeDamaged(GetScriptingHandle(),true);
+			Scripting::SetCarCanBurstTyres(GetScriptingHandle(),true);
+		}
+		else
 		{
-			// TODO?
-		}		else
-		{
-			Scripting::SetCarCanBeDamaged(GetScriptingHandle(),bToggle);
-			Scripting::SetCarCanBurstTyres(GetScriptingHandle(),bToggle);
+			// Check if we are "burning" -> if let the car burn out and than explode
+			if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f)
+			{
+				Scripting::SetCarCanBeDamaged(GetScriptingHandle(),true);
+				Scripting::SetCarCanBurstTyres(GetScriptingHandle(),true);
+			}
+			else
+			{
+				Scripting::SetCarCanBeDamaged(GetScriptingHandle(),bToggle);
+				Scripting::SetCarCanBurstTyres(GetScriptingHandle(),bToggle);
+			}
 		}
 	}
 }

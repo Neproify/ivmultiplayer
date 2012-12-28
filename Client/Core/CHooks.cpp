@@ -157,6 +157,10 @@ void CHooks::Install()
 	CPatcher::InstallJmpPatch((GetBase() + 0x815380), (GetBase() + 0x8153D4));
 	CPatcher::InstallJmpPatch((GetBase() + 0x625F15), (GetBase() + 0x625F1D));
 	CPatcher::InstallJmpPatch((GetBase() + 0xB2B24D), (GetBase() + 0xB2B259));
+	//CPatcher::InstallJmpPatch((GetBase() + 0x639760), (DWORD)TextureHook);
+
+	// Don't activate it, destroys loading screens ... XDD
+	//CPatcher::InstallJmpPatch((GetBase() + 0x639760), (GetBase() + 0x6397A5));
 
 	//CPatcher::InstallJmpPatch((GetBase() + 0x9E2DC0), (GetBase() + 0x9E2E24)); // camera stuff
 	//CPatcher::InstallJmpPatch((GetBase() + 0x8A7890), (GetBase() + 0x8A7D64)); // unknown
