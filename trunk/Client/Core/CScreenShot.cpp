@@ -265,8 +265,10 @@ bool CScreenShot::Take()
 	}
 
 	// Get the screen width and height
-	unsigned int uiScreenWidth = g_pGUI->GetDisplayWidth();
-	unsigned int uiScreenHeight = g_pGUI->GetDisplayHeight();
+	D3DVIEWPORT9 viewport;
+	g_pDevice->GetViewport(&viewport);
+	unsigned int uiScreenWidth = viewport.Width;
+	unsigned int uiScreenHeight = viewport.Height;
 
 	// Create the client rect
 	RECT clientRect;
