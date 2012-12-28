@@ -24,7 +24,9 @@ struct _Object
 	CVector3		vecAttachRotation;
 	unsigned char	ucDimension;
 	unsigned int	iBone;
+	int				m_iInterior;
 };
+
 struct _Fire
 {
 	CVector3	vecPosition;
@@ -70,4 +72,7 @@ public:
 	void			CreateExplosion(const CVector3& vecPosition, float fdensity);
 	void			SetDimension(EntityId objectId, unsigned char ucDimension);
 	unsigned char	GetDimension(EntityId objectId) { if(DoesExist(objectId)) return m_Objects[objectId].ucDimension; else return 0; }
+
+	void			SetInterior(EntityId objectId, int iInterior);
+	int				GetInterior(EntityId objectId) { return m_Objects[objectId].m_iInterior; }
 };

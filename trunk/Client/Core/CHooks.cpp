@@ -138,7 +138,7 @@ void CHooks::Install()
 	//*(BYTE*)(GetBase() + 0xF21D36) = 0;
 	
 	CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
-	*(BYTE*)(CGame::GetBase() + 0x119DB14) = 1;
+	*(BYTE*)(CGame::GetBase() + 0x119DB14) = 0;
 
 	Scripting::NetworkExpandTo32Players();
 	DWORD dwAddress = (CGame::GetBase() + 0x809F60); // Preloading

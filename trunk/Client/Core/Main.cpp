@@ -697,6 +697,7 @@ void Direct3DRender()
 							pVehicle->GetPosition(vecWorldPosition); 
 							CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
 
+
 							//if(g_pGraphics)
 							//{
 							//	CVector3 vecScreen;

@@ -53,21 +53,41 @@ EntityId CObjectManager::Create(DWORD dwModelHash, const CVector3& vecPosition, 
 	{
 		if(!m_bActive[x])
 		{
-			CBitStream bsSend;
-			bsSend.WriteCompressed(x);
-			bsSend.Write(dwModelHash);
-			bsSend.Write(vecPosition);
-			bsSend.Write(vecRotation);
-			g_pNetworkManager->RPC(RPC_NewObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 			m_Objects[x].dwModelHash = dwModelHash;
 			m_Objects[x].vecPosition = vecPosition;
 			m_Objects[x].vecRotation = vecRotation;
 			m_bActive[x] = true;
 			m_Objects[x].iBone = -1;
+			m_Objects[x].m_iInterior = -1;
+			m_Objects[x].bAttached = false;
+
+			CBitStream bsSend;
+			bsSend.WriteCompressed(x);
+			bsSend.Write(m_Objects[x].dwModelHash);
+			bsSend.Write(m_Objects[x].vecPosition);
+			bsSend.Write(m_Objects[x].vecRotation);
+			bsSend.Write(m_Objects[x].m_iInterior);
+			bsSend.Write(m_Objects[x].bAttached);
+			bsSend.Write(m_Objects[x].bVehicleAttached);
+			bsSend.Write(m_Objects[x].uiVehiclePlayerId);
+			bsSend.Write(m_Objects[x].vecAttachPosition);
+			bsSend.Write(m_Objects[x].vecAttachRotation);
+				
+			if(m_Objects[x].iBone == -1)
+				bsSend.Write0();
+			else
+			{
+				bsSend.Write1();
+				bsSend.Write(m_Objects[x].iBone);
+			}
+
+			g_pNetworkManager->RPC(RPC_NewObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 			
 			CSquirrelArguments pArguments;
 			pArguments.push(x);
 			g_pEvents->Call("objectCreate", &pArguments);
+
+			this->SetDimension(x, this->GetDimension(x));	
 
 			return x;
 		}
@@ -104,6 +124,7 @@ void CObjectManager::HandleClientJoin(EntityId playerId)
 				bsSend.Write(m_Objects[x].dwModelHash);
 				bsSend.Write(m_Objects[x].vecPosition);
 				bsSend.Write(m_Objects[x].vecRotation);
+				bsSend.Write(m_Objects[x].m_iInterior);
 				bsSend.Write(m_Objects[x].bAttached);
 				bsSend.Write(m_Objects[x].bVehicleAttached);
 				bsSend.Write(m_Objects[x].uiVehiclePlayerId);
@@ -380,5 +401,19 @@ void CObjectManager::SetDimension(EntityId objectId, unsigned char ucDimension)
 		bsSend.Write(ucDimension);
 
 		g_pNetworkManager->RPC(RPC_ScriptingSetObjectDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	}
+}
+
+
+void CObjectManager::SetInterior(EntityId objectId, int iInterior)
+{
+	if(DoesExist(objectId)) {
+		m_Objects[objectId].m_iInterior = iInterior;
+
+		CBitStream bsSend;
+		bsSend.WriteCompressed(objectId);
+		bsSend.Write(iInterior);
+		
+		g_pNetworkManager->RPC(RPC_ScriptingSetObjectInterior, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	}
 }

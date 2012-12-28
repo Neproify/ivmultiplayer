@@ -191,4 +191,5 @@ enum eRPCIdentfiers
 	RPC_ScriptingRotateObject,
 	RPC_ScriptingSetObjectDimension,
 	RPC_ScriptingSetCheckpointDimension,
+	RPC_ScriptingSetObjectInterior,
 };

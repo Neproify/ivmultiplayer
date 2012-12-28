@@ -186,6 +186,7 @@ private:
 	static void	ScriptingRotateObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetObjectDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetCheckpointDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void	ScriptingSetObjectInterior(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();

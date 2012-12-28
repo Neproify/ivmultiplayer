@@ -39,6 +39,8 @@ void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("rotateObject", RotateObject, 5, "iffff");
 	pScriptingManager->RegisterFunction("setObjectDimension", SetDimension, 2, "ii");
 	pScriptingManager->RegisterFunction("getObjectDimension", GetDimension, 1, "i");
+	pScriptingManager->RegisterFunction("setObjectInterior", SetInterior, 2, "ii");
+	pScriptingManager->RegisterFunction("getObjectInterior", GetInterior, 1, "i");
 }
 
 // createObject(modelhash, x, y, z, rx, ry, rz)
@@ -377,5 +379,35 @@ SQInteger CObjectNatives::GetDimension(SQVM * pVM)
 	sq_getentity(pVM, -1, &objectId);
 
 	sq_pushinteger(pVM, (SQInteger)g_pObjectManager->GetDimension(objectId));
+	return 1;
+}
+
+SQInteger CObjectNatives::SetInterior(SQVM * pVM)
+{
+	EntityId objectId;
+	int iInterior;
+
+	sq_getentity(pVM, -2, &objectId);
+	sq_getinteger(pVM, -1, &iInterior);
+
+	if(g_pObjectManager->DoesExist(objectId)) {
+		g_pObjectManager->SetInterior(objectId, iInterior);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CObjectNatives::GetInterior(SQVM * pVM)
+{
+	EntityId objectId;
+	sq_getentity(pVM, -2, &objectId);
+
+	if(g_pObjectManager->DoesExist(objectId)) {
+		sq_pushinteger(pVM, g_pObjectManager->GetInterior(objectId));
+		return 1;
+	}
+	sq_pushbool(pVM, false);
 	return 1;
 }

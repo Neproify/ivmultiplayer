@@ -1786,7 +1786,7 @@ SQInteger CPlayerNatives::TriggerEvent(SQVM * pVM)
 
 	CBitStream bsSend;
 	arguments.serialize(&bsSend);
-	g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false, PACKET_CHANNEL_SCRIPT);
+	g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -1974,10 +1974,12 @@ SQInteger CPlayerNatives::ToggleHelmet(SQVM * pVM)
 
 	if(pPlayer)
 	{
-		if(sqbToggle)
+		bool bToggle = (sqbToggle != 0);
+		if(bToggle)
 			pPlayer->GiveHelmet();
 		else
 			pPlayer->RemoveHelmet();
+
 		sq_pushbool(pVM, true);
 		return 1;
 	}

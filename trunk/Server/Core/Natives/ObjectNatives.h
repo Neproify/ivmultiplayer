@@ -33,6 +33,8 @@ private:
 	static SQInteger RotateObject(SQVM * pVM);
 	static SQInteger SetDimension(SQVM * pVM);
 	static SQInteger GetDimension(SQVM * pVM);
+	static SQInteger SetInterior(SQVM * pVM);
+	static SQInteger GetInterior(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

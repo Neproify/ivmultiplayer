@@ -210,7 +210,7 @@ bool CVehicle::IsOccupied()
 
 void CVehicle::SetPassenger(BYTE byteSeatId, CPlayer * pPassenger)
 {
-	if(byteSeatId < MAX_VEHICLE_PASSENGERS)
+	if(byteSeatId >= MAX_VEHICLE_PASSENGERS)
 		return;
 
 	m_pPassengers[byteSeatId] = pPassenger;
