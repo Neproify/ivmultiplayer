@@ -83,6 +83,10 @@ unsigned int CNetServer::Send(CBitStream * pBitStream, ePacketPriority priority,
 
 unsigned int CNetServer::RPC(RPCIdentifier rpcId, CBitStream * pBitStream, ePacketPriority priority, ePacketReliability reliability, EntityId playerId, bool bBroadcast, char cOrderingChannel)
 {
+
+	if(playerId != INVALID_ENTITY_ID && !IsPlayerConnected(playerId))
+		return 0;
+
 	CBitStream bitStream;
 	bitStream.Write((PacketId)PACKET_RPC);
 	bitStream.Write(rpcId);
@@ -203,10 +207,8 @@ PacketId CNetServer::ProcessPacket(RakNet::SystemAddress systemAddress, PacketId
 	case ID_DISCONNECTION_NOTIFICATION:
 		return PACKET_DISCONNECTED;
 		break;
-	case ID_CONNECTION_LOST: {
-				printf("First lost: %i", SharedUtility::GetTime());
+	case ID_CONNECTION_LOST:
 			return PACKET_LOST_CONNECTION;
-							 }
 		break;
 	}
 

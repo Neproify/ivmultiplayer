@@ -10,6 +10,7 @@
 #pragma once
 
 #include <CString.h>
+#include "DXSDK/Include/d3d9.h"
 #include <Threading/CMutex.h>
 #include <Threading/CThread.h>
 
@@ -30,11 +31,11 @@ private:
 	static unsigned char * m_ucData;
 	static unsigned int    m_uiScreenWidth;
 	static unsigned int    m_uiScreenHeight;
-	static CMutex          m_threadDataMutex;
 	static ThreadData      m_threadData;
 
-	static String GetScreenShotPath();
-	static void   WriteImageToFile(CThread * pThread);
+	static String			GetScreenShotPath();
+	static void				GetFrontBufferPixels(UINT uiSizeX, UINT uiSizeY,unsigned char* buffer);
+	static void				WriteImageToFile(CThread * pThread);
 
 public:
 	CScreenShot();
@@ -42,6 +43,7 @@ public:
 	static bool   Take();
 	static bool   IsDone();
 	static bool   HasSucceeded();
+	
 	static String GetWriteName();
 	static String GetError();
 	static void   Reset();
