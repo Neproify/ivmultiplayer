@@ -2,13 +2,227 @@
 //
 // File: CFileTransfer.cpp
 // Project: Client.Core
-// Author(s): Einstein
-//            jenksta
+// Author(s):	Einstein
+//				jenksta
+//				CrackHD
 // License: See LICENSE in root directory
 //
 //==============================================================================
 
 #include "CFileTransfer.h"
+#include <stdio.h>
+#include "SharedUtility.h"
+#include "CClientScriptManager.h"
+#include "CNetworkManager.h"
+#include "CLogFile.h"
+#include "CLocalPlayer.h"
+#include <Threading\CThread.h>
+
+extern CClientScriptManager * g_pClientScriptManager;
+extern CLocalPlayer			* g_pLocalPlayer;
+
+CFileTransfer::CFileTransfer()
+{
+	m_thread = new CThread();
+	m_userdata = new ThreadUserData();	
+}
+
+// Returns true if download thread is working NOW
+bool CFileTransfer::IsBusy()
+{
+	return m_userdata->busy || m_thread->IsRunning();
+}
+
+// Starts download missing files thread
+bool CFileTransfer::Process()
+{
+	// Doin nuthin if there is nothing todo or we already doin somethin
+	if(IsBusy() || GetTransferListSize() == 0)
+		return false;
+
+	// Creating directories to download files to..
+	String strFolderName = SharedUtility::GetAbsolutePath("clientfiles");
+	if(!SharedUtility::Exists(strFolderName))
+		SharedUtility::CreateDirectoryA(strFolderName);
+	if(!SharedUtility::Exists(strFolderName + "\\clientscripts"))
+		SharedUtility::CreateDirectoryA(strFolderName + "\\clientscripts");
+	if(!SharedUtility::Exists(strFolderName + "\\resources"))
+		SharedUtility::CreateDirectoryA(strFolderName + "\\resources");	
+	
+	CLogFile::Print("Starting download client files thread...");
+	m_thread->SetUserData<ThreadUserData*>(m_userdata);
+	m_thread->Start(WorkAsync);
+
+	return true;
+}
+
+// Returns failed to download file.
+FileDownload * CFileTransfer::GetFailedResource()
+{
+	// Loop all files and check they all okay (downloaded)
+	for(std::list<FileDownload *>::iterator iter = m_userdata->m_fileList.begin(); iter != m_userdata->m_fileList.end(); iter++)
+	{
+		if((*iter)->okay == false)
+			return *iter;
+	}
+
+	return NULL;
+}
+
+// Adds a file to download list
+void CFileTransfer::AddFile(String strFileName, CFileChecksum fileChecksum, bool bIsResource)
+{
+	CLogFile::Printf("ADDING FILE %s:", strFileName.Get());
+
+	String strFolderName;
+	if(bIsResource) strFolderName = "resources";
+	else strFolderName = "clientscripts";
+
+	String strFilePath(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", strFolderName.Get(), strFileName.Get()));
+	if(SharedUtility::Exists(strFilePath))
+	{
+		// If file already exists, compare checksums, and if they match we dont need to download.
+		CFileChecksum currentFileChecksum;
+		currentFileChecksum.Calculate(strFilePath);
+		if(currentFileChecksum == fileChecksum)
+		{
+			if(!bIsResource)
+			{
+				// Load script
+				g_pClientScriptManager->AddScript(strFileName, strFilePath);
+				if(g_pLocalPlayer->GetFirstSpawn())
+					g_pClientScriptManager->Load(strFileName);				
+			}
+
+			CLogFile::Printf("FILE %s FINISHED WITHOUT NEED TO DOWNLOAD.", strFileName.Get());
+			return;
+		}
+	}
+		
+	m_userdata->m_fileList.push_back(new FileDownload(strFileName, fileChecksum, bIsResource ? FileDownloadCategory::Resource : FileDownloadCategory::Script));
+	CLogFile::Printf("FILE %s SET TO DOWNLOAD LIST.", strFileName.Get());
+}
+
+// Returns count of files need to be downloaded
+int CFileTransfer::GetTransferListSize()
+{
+	// Loop all files and count which of them who are not downloaded.
+	int count = 0;
+	for(std::list<FileDownload *>::iterator iter = m_userdata->m_fileList.begin(); iter != m_userdata->m_fileList.end(); iter++)
+	{
+		if(!(*iter)->okay)
+			count++;
+	}
+	return count;
+}
+
+// RESET file transferer: remove all files from to-download and downloaded list. Stop downloading if in progress
+void CFileTransfer::Reset()
+{
+	// Terminate thread if working (hard - is it cool?):
+	if(IsBusy())
+		m_thread->Stop(false, true);
+
+	// Clear file list and reset userdata
+	m_userdata->m_fileList.clear();
+	DownloadedHandler_t handler = m_userdata->downloadedHandler;
+	delete m_userdata;
+	m_userdata = new ThreadUserData();
+	m_userdata->downloadedHandler = handler;
+}
+
+// Compiles all missing clientscipts (which downloaded)
+void CFileTransfer::CompileScripts()
+{
+	// Loading and running all not yet loaded scripts.
+	for(std::list<FileDownload *>::iterator iter = m_userdata->m_fileList.begin(); iter != m_userdata->m_fileList.end(); iter++)
+	{
+		CLogFile::Printf("Compile: %s", (*iter)->name);
+	}
+}
+
+// Sets a http server info
+void CFileTransfer::SetServerInformation(String strAddress, unsigned short usPort)
+{
+	m_userdata->httpDownloader->SetHost(strAddress);
+	m_userdata->httpDownloader->SetPort(usPort);
+}
+
+// Threaded functions:
+void WorkAsync(CThread * pCreator)
+{
+	ThreadUserData * pUserdata = pCreator->GetUserData<ThreadUserData *>();
+	if(pUserdata->busy)
+		return;
+	pUserdata->busy = true;
+	pUserdata->bDownloadCompleted = false;
+
+	Sleep(5000);
+
+	// Download all files queued.
+	for(std::list<FileDownload *>::iterator iter = pUserdata->m_fileList.begin(); iter != pUserdata->m_fileList.end(); iter++)
+	{
+		if((*iter)->okay != true) // not downloaded or failed before
+		{
+			pUserdata->currentFile = (*iter);
+
+			// Get a file path for this file to download to
+			String strFolderName = "clientscripts";
+			if((*iter)->type == FileDownloadCategory::Script);
+			else if((*iter)->type == FileDownloadCategory::Resource)
+				strFolderName = "resources";
+			String strFilePath(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", strFolderName.Get(), (*iter)->name.Get()));
+			
+			// Opening file handle:
+			FILE * f = fopen(strFilePath.Get(), "w");
+			if(!f)
+			{
+				(*iter)->failReason = "Failed to open file handle (w)";
+				(*iter)->okay = false;
+				return;
+			}
+			(*iter)->fileName = strFilePath;
+
+			// Downloading data to it via http client:
+			String strDownloadUrl("/%s/%s", strFolderName.Get(), (*iter)->name.Get());
+			if(!pUserdata->httpDownloader->Get(strDownloadUrl))
+			{
+				(*iter)->failReason = pUserdata->httpDownloader->GetLastErrorString();
+				(*iter)->okay = false;
+				return;
+			}
+			pUserdata->httpDownloader->SetFile(f);
+			while(pUserdata->httpDownloader->GettingData() || !pUserdata->httpDownloader->GotData())
+				pUserdata->httpDownloader->Process();
+			pUserdata->httpDownloader->SetFile();
+			fclose(f);
+			(*iter)->okay = true;	
+
+			// Call file downloaded callback
+			if(pUserdata->downloadedHandler != NULL)
+				pUserdata->downloadedHandler();	
+
+			// Finished
+			pUserdata->currentFile = NULL;
+		}
+	}
+	pUserdata->bDownloadCompleted = true;
+	pUserdata->busy = false;
+}
+/*bool WorkAsync_FileRecv(const char * szData, unsigned int uiDataSize,	void * pUserData_)
+{
+	// Get current file handle and write data there.
+	ThreadUserData * pUserData = (ThreadUserData*)pUserData_;
+	FileDownload * current = pUserData->currentFile;
+	FILE * f = current->File;
+	fwrite(szData, 1, uiDataSize, f);
+	//fflush(f);
+
+	// Discard data in http client:
+	return false;
+}*/
+
+/*#include "CFileTransfer.h"
 #include <stdio.h>
 #include "SharedUtility.h"
 #include "CClientScriptManager.h"
@@ -414,3 +628,4 @@ void CFileTransfer::Reset()
 
 	m_fDownloadFile = NULL;
 }
+*/

@@ -676,15 +676,14 @@ void CHttpClient::Process()
 					}
 
 					// Call the receive handler if we have one
-					bool bAppendData = true;
-
-					if(m_pfnReceiveHandler) {
-						bAppendData = m_pfnReceiveHandler(szBuffer + iSkipBytes, iBytesRecieved, m_pReceiveHandlerUserData);
+					if(m_pfnReceiveHandler)
+					{
+						if(m_pfnReceiveHandler(szBuffer + iSkipBytes, iBytesRecieved, m_pReceiveHandlerUserData))
+							m_strData.Append(szBuffer + iSkipBytes, iBytesRecieved);
 					}
-
-					// Append the buffer to the data if needed
-					if(bAppendData)
-						m_strData.Append(szBuffer + iSkipBytes, iBytesRecieved);
+					// Write to file if we have set one
+					else if(m_file)
+						fwrite(szBuffer, 1, iBytesRecieved, m_file);
 				}
 				else if(iBytesRecieved == 0)
 				{

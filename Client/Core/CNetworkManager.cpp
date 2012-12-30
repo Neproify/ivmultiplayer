@@ -39,7 +39,6 @@ extern CNetworkManager * g_pNetworkManager;
 extern CFileTransfer * g_pFileTransfer;
 extern CActorManager * g_pActorManager;
 
-
 bool IsPlayerLimitReached()
 {
 	return false;
@@ -61,7 +60,6 @@ CNetworkManager::CNetworkManager()
 
 	// Set the net client packet handler function
 	m_pNetClient->SetPacketHandler(PacketHandler);
-
 	g_pChatWindow->AddInfoMessage(VERSION_IDENTIFIER_2 " Initialized");
 }
 
