@@ -62,6 +62,7 @@ private:
 	unsigned int             m_uiRequestStart;
 	ReceieveHandler_t        m_pfnReceiveHandler;
 	void                   * m_pReceiveHandlerUserData;
+	FILE					* m_file;
 
 	bool                   Connect();
 	void                   Disconnect();
@@ -98,4 +99,6 @@ public:
 	virtual void           Process();
 	virtual String         GetLastErrorString();
 	virtual void           SetReceiveHandle(ReceieveHandler_t pfnRecieveHandler, void * pUserData = NULL);
+	// Sets a file which we have to write received data to
+	virtual void           SetFile(FILE * f = NULL) { m_file = f; }
 };

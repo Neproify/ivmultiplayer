@@ -13,17 +13,82 @@
 #include <list>
 #include <CFileChecksum.h>
 #include <Network/CHttpClient.h>
-#include "CGUI.h"
+#include <Threading\CThread.h>
 
-struct ServerFile
+// Categories of client files
+enum FileDownloadCategory { Resource, Script };
+
+// Represents client file
+struct FileDownload							// represents information about 1 file we need to process
 {
-	String        strName;
-	CFileChecksum fileChecksum;
-	String        strType;
+	String	name;							// client resource name
+	String	fileName;						// full file name (local file system)
+	String	failReason;						// compile/download fail message
+	bool	okay;							// downloaded & compiled OK
+	CFileChecksum checksum;					// checksum (of target file on server)
+	FileDownloadCategory type;				// type of file(category)
+	FILE * File;							// file handle to write to (should be NULL)
+
+public: 
+	FileDownload(String fName, CFileChecksum fChecksum, FileDownloadCategory fCategory)
+	{
+		name = fName;
+		checksum = fChecksum;
+		type = fCategory;
+		okay = false;
+	}
 };
 
-class CFileTransfer
+// Function type for "file downloaded" callback
+typedef void (* DownloadedHandler_t)();
+
+// Communicate object between threads
+struct ThreadUserData	
+{	
+	std::list<FileDownload *> m_fileList;
+	bool busy;
+	bool bDownloadCompleted;
+	CHttpClient * httpDownloader;
+	FileDownload * currentFile;
+	DownloadedHandler_t downloadedHandler;
+
+public:
+	ThreadUserData()
+	{
+		httpDownloader = new CHttpClient();
+		m_fileList = std::list<FileDownload *>();
+		bDownloadCompleted = false;
+		busy = false;
+		downloadedHandler = NULL;
+	}
+};
+
+class CFileTransfer	
 {
+private:
+	CThread *	m_thread;
+	ThreadUserData * m_userdata;
+
+public:
+	CFileTransfer();
+	void AddFile(String strFileName, CFileChecksum fileChecksum, bool bIsResource);
+	bool Process();
+	void SetServerInformation(String strAddress, unsigned short usPort);
+	bool IsBusy();
+	FileDownload * GetFailedResource();
+	FileDownload * GetCurrentFile() { return m_userdata->currentFile; }
+	void CompileScripts();
+	int GetTransferListSize();
+	void Reset();
+	void SetDownloadImageVisible(bool visible) { };
+	// Sets a handler for "file downloaded" callback
+	void SetDownloadedHandler(DownloadedHandler_t handler) { m_userdata->downloadedHandler = handler; }
+};
+// Threaded static functions:
+void WorkAsync(CThread * pCreator);
+//bool WorkAsync_FileRecv(const char * szData, unsigned int uiDataSize,	void * pUserData);
+
+/*
 private:
 	CHttpClient             m_httpClient;
 	std::list<ServerFile *> m_fileList;
@@ -32,11 +97,6 @@ private:
 	FILE                  * m_fDownloadFile;
 	CGUIStaticText		  * m_pFileText;
 	CGUIStaticImage		  * m_pFileImage;
-
-private:
-	static bool  ReceiveHandler(const char * szData, unsigned int uiDataSize, void * pUserData);
-	bool         StartDownload(String strName, String strType);
-
 public:
 	CFileTransfer();
 
@@ -46,4 +106,6 @@ public:
 	void         Process();
 	void		 SetDownloadImageVisible(bool bVisible) { m_pFileImage->setVisible(bVisible); }
 	void         Reset();
-};
+};*/
+
+

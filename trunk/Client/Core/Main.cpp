@@ -96,6 +96,8 @@ CNameTags            * g_pNameTags = NULL;
 CClientTaskManager   * g_pClientTaskManager = NULL;
 CFireManager		 * g_pFireManager = NULL;
 
+void FileTransfer_DownloadedFile();
+
 #ifdef IVMP_WEBKIT
 	//CD3D9WebKit * g_pWebkit;
 	//CD3D9WebView * g_pWebView;
@@ -281,6 +283,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 			// Initialize the file transfer
 			g_pFileTransfer = new CFileTransfer();
+			g_pFileTransfer->SetDownloadedHandler(FileTransfer_DownloadedFile);
 		}
 		break;
 	case DLL_PROCESS_DETACH:
@@ -1062,4 +1065,29 @@ void InternalResetGame(bool bAutoConnect)
 		g_pNetworkManager->Connect();
 
 	CLogFile::Printf("Sucessfully (re)initialized game for multiplayer activities");
+}
+
+void FileTransfer_DownloadedFile()
+{
+	FileDownload * file = g_pFileTransfer->GetCurrentFile();
+	if(!file)
+		return;
+
+	// getting data from current file (because without copy - crash....)
+	char szName[100];
+	char szFullName[500];
+	memcpy(szName, file->name, file->name.GetLength());
+	memcpy(szFullName, file->fileName, file->fileName.GetLength());
+	szName[file->name.GetLength()] = 0;
+	szFullName[file->fileName.GetLength()] = 0;
+	
+	if(file->type == FileDownloadCategory::Resource)
+		g_pChatWindow->AddInfoMessage("Downloaded client resource: %s.", szName);
+	else if(file->type == FileDownloadCategory::Script)
+	{
+		g_pChatWindow->AddInfoMessage("Loading client script: %s.", szName);
+		g_pClientScriptManager->AddScript(String(szName), String(szFullName));
+		if(g_pLocalPlayer->GetFirstSpawn())
+			g_pClientScriptManager->Load(String(szName));	
+	}
 }
