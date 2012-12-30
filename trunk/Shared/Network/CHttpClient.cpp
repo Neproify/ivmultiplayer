@@ -40,8 +40,8 @@ CHttpClient::CHttpClient()
 	m_uiRequestTimeout(30000),
 	m_uiRequestStart(0),
 	m_pfnReceiveHandler(NULL),
-	m_pReceiveHandlerUserData(NULL)
-
+	m_pReceiveHandlerUserData(NULL),
+	m_file(NULL)
 {
 	// If windows startup winsock
 #ifdef WIN32
@@ -682,7 +682,7 @@ void CHttpClient::Process()
 							m_strData.Append(szBuffer + iSkipBytes, iBytesRecieved);
 					}
 					// Write to file if we have set one
-					else if(m_file)
+					else if(m_file != NULL)
 						fwrite(szBuffer, 1, iBytesRecieved, m_file);
 				}
 				else if(iBytesRecieved == 0)
