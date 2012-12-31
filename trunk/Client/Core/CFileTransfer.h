@@ -40,7 +40,7 @@ public:
 };
 
 // Function type for "file downloaded" callback
-typedef void (* DownloadedHandler_t)();
+typedef void (* DownloadHandler_t)();
 
 // Communicate object between threads
 struct ThreadUserData	
@@ -50,7 +50,8 @@ struct ThreadUserData
 	bool bDownloadCompleted;
 	CHttpClient * httpDownloader;
 	FileDownload * currentFile;
-	DownloadedHandler_t downloadedHandler;
+	DownloadHandler_t downloadedHandler;
+	DownloadHandler_t downloadFailedHandler;
 
 public:
 	ThreadUserData()
@@ -81,11 +82,12 @@ public:
 	int GetTransferListSize();
 	void Reset();
 	void SetDownloadImageVisible(bool visible) { };
-	// Sets a handler for "file downloaded" callback
-	void SetDownloadedHandler(DownloadedHandler_t handler) { m_userdata->downloadedHandler = handler; }
+	void SetDownloadedHandler(DownloadHandler_t handler) { m_userdata->downloadedHandler = handler; }
+	void SetDownloadFailedHandler(DownloadHandler_t handler) { m_userdata->downloadFailedHandler = handler; }
 };
 // Threaded static functions:
 void WorkAsync(CThread * pCreator);
+//static bool ReceiveHandler(const char * szData, unsigned int uiDataSize, void * pUserData_);
 //bool WorkAsync_FileRecv(const char * szData, unsigned int uiDataSize,	void * pUserData);
 
 /*
