@@ -96,7 +96,9 @@ CNameTags            * g_pNameTags = NULL;
 CClientTaskManager   * g_pClientTaskManager = NULL;
 CFireManager		 * g_pFireManager = NULL;
 
+// TODO: move this code from here
 void FileTransfer_DownloadedFile();
+void FileTransfer_DownloadFailed();
 
 #ifdef IVMP_WEBKIT
 	//CD3D9WebKit * g_pWebkit;
@@ -284,6 +286,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			// Initialize the file transfer
 			g_pFileTransfer = new CFileTransfer();
 			g_pFileTransfer->SetDownloadedHandler(FileTransfer_DownloadedFile);
+			g_pFileTransfer->SetDownloadFailedHandler(FileTransfer_DownloadFailed);
 		}
 		break;
 	case DLL_PROCESS_DETACH:
@@ -915,7 +918,6 @@ void InternalResetGame(bool bAutoConnect)
 		g_pLocalPlayer->RemoveFromVehicle();
 
 	SAFE_DELETE(g_pClientScriptManager);
-	// crackHD: i am not sure if scriptExit event will be called for all these scripts...
 	g_pClientScriptManager = new CClientScriptManager();
  	g_pEvents->clear();
 	g_pGUI->SetScriptedCursorVisible(false);
@@ -1067,13 +1069,14 @@ void InternalResetGame(bool bAutoConnect)
 	CLogFile::Printf("Sucessfully (re)initialized game for multiplayer activities");
 }
 
+// TODO: move this code from here
+
 void FileTransfer_DownloadedFile()
 {
 	FileDownload * file = g_pFileTransfer->GetCurrentFile();
-	if(!file)
-		return;
 
 	// getting data from current file (because without copy - crash....)
+	// TODO: fix it
 	char szName[100];
 	char szFullName[500];
 	memcpy(szName, file->name, file->name.GetLength());
@@ -1090,4 +1093,19 @@ void FileTransfer_DownloadedFile()
 		if(g_pLocalPlayer->GetFirstSpawn())
 			g_pClientScriptManager->Load(String(szName));	
 	}
+}
+void FileTransfer_DownloadFailed()
+{
+	FileDownload * file = g_pFileTransfer->GetCurrentFile();
+
+	// getting data from current file (because without copy - crash....)
+	// TODO: fix it
+	char szName[100];
+	char szError[100];
+	memcpy(szName, file->name, file->name.GetLength());
+	memcpy(szError, file->failReason, file->failReason.GetLength());
+	szError[file->failReason.GetLength()] = 0;
+	
+	g_pChatWindow->AddInfoMessage("Download failed: %s (%s)", szName, szError);
+	// TODO: abort joining server
 }

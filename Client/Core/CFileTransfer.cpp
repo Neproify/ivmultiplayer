@@ -123,12 +123,15 @@ void CFileTransfer::Reset()
 	if(IsBusy())
 		m_thread->Stop(false, true);
 
-	// Clear file list and reset userdata
+	// Clear file list and reset userdata (with saving handlers set)
+	// TODO: ThreadUserData.Reset() instead of this
 	m_userdata->m_fileList.clear();
-	DownloadedHandler_t handler = m_userdata->downloadedHandler;
+	DownloadHandler_t downloadedHandler = m_userdata->downloadedHandler;
+	DownloadHandler_t failedHandler = m_userdata->downloadFailedHandler;
 	delete m_userdata;
 	m_userdata = new ThreadUserData();
-	m_userdata->downloadedHandler = handler;
+	m_userdata->downloadedHandler = downloadedHandler;
+	m_userdata->downloadFailedHandler = failedHandler;
 }
 
 // Compiles all missing clientscipts (which downloaded)
@@ -154,57 +157,74 @@ void WorkAsync(CThread * pCreator)
 	ThreadUserData * pUserdata = pCreator->GetUserData<ThreadUserData *>();
 	if(pUserdata->busy)
 		return;
+
 	pUserdata->busy = true;
 	pUserdata->bDownloadCompleted = false;
+		pUserdata->currentFile = NULL;
 
-	Sleep(5000);
+	// If we connecting to local host (very fast) wait a little to give world time to initialize.
+	String host = pUserdata->httpDownloader->GetHost();
+	if(host == "127.0.0.1" || host.ToLower() == "localhost")
+		Sleep(2000);
 
 	// Download all files queued.
 	for(std::list<FileDownload *>::iterator iter = pUserdata->m_fileList.begin(); iter != pUserdata->m_fileList.end(); iter++)
 	{
-		if((*iter)->okay != true) // not downloaded or failed before
-		{
-			pUserdata->currentFile = (*iter);
+		if((*iter)->okay)
+			continue;
+		pUserdata->currentFile = (*iter);
 
-			// Get a file path for this file to download to
-			String strFolderName = "clientscripts";
-			if((*iter)->type == FileDownloadCategory::Script);
-			else if((*iter)->type == FileDownloadCategory::Resource)
-				strFolderName = "resources";
-			String strFilePath(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", strFolderName.Get(), (*iter)->name.Get()));
+		// Get a file path for this file to download to
+		String strFolderName = "clientscripts";
+		if((*iter)->type == FileDownloadCategory::Script);
+		else if((*iter)->type == FileDownloadCategory::Resource)
+			strFolderName = "resources";
+		String strFilePath(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", strFolderName.Get(), (*iter)->name.Get()));
 			
-			// Opening file handle:
-			FILE * f = fopen(strFilePath.Get(), "w");
-			if(!f)
-			{
-				(*iter)->failReason = "Failed to open file handle (w)";
-				(*iter)->okay = false;
-				return;
-			}
-			(*iter)->fileName = strFilePath;
-
-			// Downloading data to it via http client:
-			String strDownloadUrl("/%s/%s", strFolderName.Get(), (*iter)->name.Get());
-			if(!pUserdata->httpDownloader->Get(strDownloadUrl))
-			{
-				(*iter)->failReason = pUserdata->httpDownloader->GetLastErrorString();
-				(*iter)->okay = false;
-				return;
-			}
-			pUserdata->httpDownloader->SetFile(f);
-			while(pUserdata->httpDownloader->GettingData() || !pUserdata->httpDownloader->GotData())
-				pUserdata->httpDownloader->Process();
-			pUserdata->httpDownloader->SetFile();
-			fclose(f);
-			(*iter)->okay = true;	
-
-			// Call file downloaded callback
-			if(pUserdata->downloadedHandler != NULL)
-				pUserdata->downloadedHandler();	
-
-			// Finished
-			pUserdata->currentFile = NULL;
+		// Opening file handle:
+		FILE * f = fopen(strFilePath.Get(), "wb");
+		if(!f)
+		{
+			(*iter)->failReason = "Failed to open file handle (write)";
+			if(pUserdata->downloadFailedHandler != NULL)
+				pUserdata->downloadFailedHandler();
+			return;
 		}
+		(*iter)->fileName = strFilePath;
+
+		// Connecting:
+		String strDownloadUrl("/%s/%s", strFolderName.Get(), (*iter)->name.Get());
+		if(!pUserdata->httpDownloader->Get(strDownloadUrl))
+		{
+			// We can't connect or something like this.
+			(*iter)->failReason = pUserdata->httpDownloader->GetLastErrorString();
+			return;
+		}
+		// Downloading:
+		pUserdata->httpDownloader->SetFile(f);
+		while(pUserdata->httpDownloader->GettingData() || !pUserdata->httpDownloader->GotData())
+			pUserdata->httpDownloader->Process();
+		pUserdata->httpDownloader->SetFile();
+		fclose(f);
+
+		// Checksum check:
+		CFileChecksum chk;
+		chk.Calculate(strFilePath);
+		if(chk != (*iter)->checksum)
+		{
+			// Something strange happend while downloading...
+			(*iter)->failReason = "Checksum mismatch";
+			if(pUserdata->downloadFailedHandler != NULL)
+				pUserdata->downloadFailedHandler();
+			return;
+		}
+
+		// Finished
+		fclose(f);
+		(*iter)->okay = true;	
+		if(pUserdata->downloadedHandler != NULL)
+			pUserdata->downloadedHandler();	
+		pUserdata->currentFile = NULL;
 	}
 	pUserdata->bDownloadCompleted = true;
 	pUserdata->busy = false;
