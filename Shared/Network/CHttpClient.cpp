@@ -8,20 +8,20 @@
 //==============================================================================
 
 #include "CHttpClient.h"
+#include <SharedUtility.h>
 
-// OS Dependent Defines
+// OS Dependent
 #ifndef WIN32
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #define closesocket close
 #include <string.h>
+#include <stdio.h>
 #else
 #include <winsock2.h>
 #include <winsock.h>
-
 #endif
-#include <SharedUtility.h>
 
 // OS Independent Defines
 #define MAX_BUFFER 8192
@@ -194,6 +194,7 @@ void CHttpClient::Reset()
 
 	// Set the status to none
 	m_status = HTTP_STATUS_NONE;
+	SetFile();
 }
 
 bool CHttpClient::Get(String strPath)
@@ -681,9 +682,9 @@ void CHttpClient::Process()
 						if(m_pfnReceiveHandler(szBuffer + iSkipBytes, iBytesRecieved, m_pReceiveHandlerUserData))
 							m_strData.Append(szBuffer + iSkipBytes, iBytesRecieved);
 					}
-					// Write to file if we have set one
+					// Write response data to file if we have one set
 					else if(m_file != NULL)
-						fwrite(szBuffer, 1, iBytesRecieved, m_file);
+						fwrite(szBuffer + iSkipBytes, 1, iBytesRecieved, m_file);
 				}
 				else if(iBytesRecieved == 0)
 				{
