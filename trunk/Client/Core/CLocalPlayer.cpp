@@ -116,7 +116,7 @@ void CLocalPlayer::HandleSpawn()
 {
 	// Hide the filedownload stuff
 	if(g_pFileTransfer)
-		g_pFileTransfer->SetDownloadImageVisible(false);
+		;//g_pFileTransfer->SetCurrentFileText();
 
 	// If we're already spawned(min. one time death), recreate fire(deleted after respawn)
 	if(m_bFirstSpawn)

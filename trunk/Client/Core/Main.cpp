@@ -96,10 +96,6 @@ CNameTags            * g_pNameTags = NULL;
 CClientTaskManager   * g_pClientTaskManager = NULL;
 CFireManager		 * g_pFireManager = NULL;
 
-// TODO: move this code from here
-void FileTransfer_DownloadedFile();
-void FileTransfer_DownloadFailed();
-
 #ifdef IVMP_WEBKIT
 	//CD3D9WebKit * g_pWebkit;
 	//CD3D9WebView * g_pWebView;
@@ -1067,45 +1063,4 @@ void InternalResetGame(bool bAutoConnect)
 		g_pNetworkManager->Connect();
 
 	CLogFile::Printf("Sucessfully (re)initialized game for multiplayer activities");
-}
-
-// TODO: move this code from here
-
-void FileTransfer_DownloadedFile()
-{
-	FileDownload * file = g_pFileTransfer->GetCurrentFile();
-
-	// getting data from current file (because without copy - crash....)
-	// TODO: fix it
-	char szName[100];
-	char szFullName[500];
-	memcpy(szName, file->name, file->name.GetLength());
-	memcpy(szFullName, file->fileName, file->fileName.GetLength());
-	szName[file->name.GetLength()] = 0;
-	szFullName[file->fileName.GetLength()] = 0;
-	
-	if(file->type == FileDownloadCategory::Resource)
-		g_pChatWindow->AddInfoMessage("Downloaded client resource: %s.", szName);
-	else if(file->type == FileDownloadCategory::Script)
-	{
-		g_pChatWindow->AddInfoMessage("Loading client script: %s.", szName);
-		g_pClientScriptManager->AddScript(String(szName), String(szFullName));
-		if(g_pLocalPlayer->GetFirstSpawn())
-			g_pClientScriptManager->Load(String(szName));	
-	}
-}
-void FileTransfer_DownloadFailed()
-{
-	FileDownload * file = g_pFileTransfer->GetCurrentFile();
-
-	// getting data from current file (because without copy - crash....)
-	// TODO: fix it
-	char szName[100];
-	char szError[100];
-	memcpy(szName, file->name, file->name.GetLength());
-	memcpy(szError, file->failReason, file->failReason.GetLength());
-	szError[file->failReason.GetLength()] = 0;
-	
-	g_pChatWindow->AddInfoMessage("Download failed: %s (%s)", szName, szError);
-	// TODO: abort joining server
 }

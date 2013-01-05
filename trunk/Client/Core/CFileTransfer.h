@@ -14,6 +14,7 @@
 #include <CFileChecksum.h>
 #include <Network/CHttpClient.h>
 #include <Threading\CThread.h>
+#include "CGUI.h"
 
 // Categories of client files
 enum FileDownloadCategory { Resource, Script };
@@ -39,7 +40,7 @@ public:
 	}
 };
 
-// Function type for "file downloaded" callback
+// Function type for handlers
 typedef void (* DownloadHandler_t)();
 
 // Communicate object between threads
@@ -68,46 +69,26 @@ class CFileTransfer
 {
 private:
 	CThread *	m_thread;
-	ThreadUserData * m_userdata;
+	ThreadUserData * m_userdata;	
+    CGUIStaticText * m_pFileText;
+    CGUIStaticImage	* m_pFileImage;
 
 public:
 	CFileTransfer();
 	void AddFile(String strFileName, CFileChecksum fileChecksum, bool bIsResource);
 	bool Process();
-	void SetServerInformation(String strAddress, unsigned short usPort);
 	bool IsBusy();
-	FileDownload * GetFailedResource();
-	FileDownload * GetCurrentFile() { return m_userdata->currentFile; }
-	void CompileScripts();
-	int GetTransferListSize();
 	void Reset();
-	void SetDownloadImageVisible(bool visible) { };
 	void SetDownloadedHandler(DownloadHandler_t handler) { m_userdata->downloadedHandler = handler; }
 	void SetDownloadFailedHandler(DownloadHandler_t handler) { m_userdata->downloadFailedHandler = handler; }
+	FileDownload * GetCurrentFile() { return m_userdata->currentFile; }
+	int GetTransferListSize();
+	void SetServerInformation(String strAddress, unsigned short usPort);
+	void SetCurrentFileText(const char * fileNameText = NULL);
 };
 // Threaded static functions:
 void WorkAsync(CThread * pCreator);
-//static bool ReceiveHandler(const char * szData, unsigned int uiDataSize, void * pUserData_);
-//bool WorkAsync_FileRecv(const char * szData, unsigned int uiDataSize,	void * pUserData);
 
-/*
-private:
-	CHttpClient             m_httpClient;
-	std::list<ServerFile *> m_fileList;
-	bool                    m_bDownloadingFile;
-	ServerFile            * m_pDownloadFile;
-	FILE                  * m_fDownloadFile;
-	CGUIStaticText		  * m_pFileText;
-	CGUIStaticImage		  * m_pFileImage;
-public:
-	CFileTransfer();
-
-	unsigned int GetTransferListSize() { return m_fileList.size(); }
-	void         SetServerInformation(String strAddress, unsigned short usPort);
-	void         AddFile(String strFileName, CFileChecksum fileChecksum, bool bIsResource);
-	void         Process();
-	void		 SetDownloadImageVisible(bool bVisible) { m_pFileImage->setVisible(bVisible); }
-	void         Reset();
-};*/
-
-
+// Definitions of handlers for client files download
+void FileTransfer_DownloadedFile();
+void FileTransfer_DownloadFailed();
