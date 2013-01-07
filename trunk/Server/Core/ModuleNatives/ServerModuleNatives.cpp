@@ -46,19 +46,22 @@ namespace Modules
 	// addRule(name, value)
 	void CServerModuleNatives::AddRule(const char * rule, const char * value)
 	{
-		g_pQuery->AddRule(rule, value);
+		if(g_pQuery)
+			g_pQuery->AddRule(rule, value);
 	}
 
 	// removeRule(name)
 	void CServerModuleNatives::RemoveRule(const char * rule)
 	{
-		g_pQuery->RemoveRule(rule);
+		if(g_pQuery)
+			g_pQuery->RemoveRule(rule);
 	}
 
 	// setRule(name, value)
 	void CServerModuleNatives::SetRule(const char * rule, const char * value)
 	{
-		g_pQuery->SetRule(rule, value);
+		if(g_pQuery)
+			g_pQuery->SetRule(rule, value);
 	}
 
 	// getRule(name)

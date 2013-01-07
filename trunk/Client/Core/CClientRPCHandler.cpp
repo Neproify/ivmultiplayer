@@ -2319,15 +2319,10 @@ void CClientRPCHandler::ScriptingSetBlipIcon(CBitStream * pBitStream, CPlayerSoc
 	if(!pBitStream)
 		return;
 
-	// Read the blip id
 	EntityId blipId;
 	pBitStream->Read(blipId);
-
-	//Read the name
 	bool bShow;
 	pBitStream->Read(bShow);
-
-	//Set the blip name
 	g_pBlipManager->Show(blipId, bShow);
 
 }
