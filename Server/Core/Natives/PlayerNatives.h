@@ -115,6 +115,7 @@ private:
 	static SQInteger SetMobilePhone(SQVM * pVM);
 	static SQInteger SaySpeech(SQVM * pVM);
 	static SQInteger DriveAutomatic(SQVM * pVM);
+	static SQInteger GetFileChecksum(SQVM * pVM);
 
 	static SQInteger SetDimension(SQVM * pVM);
 	static SQInteger GetDimension(SQVM * pVM);

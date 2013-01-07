@@ -89,7 +89,9 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true),
 	m_ulLastPureSyncTime(0),
 	m_uiLastInterior(0),
 	m_bDisableVehicleInfo(false),
-	m_bFirstSpawn(false)
+	m_bFirstSpawn(false),
+	m_bFinishedInitialize(false),
+	m_bSpawnMarked(false)
 {
 	//m_bAnimating = false;
 	
@@ -115,20 +117,12 @@ void CLocalPlayer::Respawn()
 void CLocalPlayer::HandleSpawn()
 {
 	// Hide the filedownload stuff
-	if(g_pFileTransfer)
-		;//g_pFileTransfer->SetCurrentFileText();
+	//if(g_pFileTransfer)
+		//g_pFileTransfer->SetCurrentFileText();
 
 	// If we're already spawned(min. one time death), recreate fire(deleted after respawn)
 	if(m_bFirstSpawn)
 		g_pFireManager->ReCreateAllFire();
-
-	// Now load our client scripts(seems that all resources are downloaded ;))
-	if(!m_bFirstSpawn)
-	{
-		g_pClientScriptManager->LoadAll();
-		m_bFirstSpawn = true;
-	}
-
 	CLogFile::Printf("HandleSpawn(LocalPlayer)");
 
 	// Enable input if needed
@@ -159,12 +153,13 @@ void CLocalPlayer::HandleSpawn()
 	// Reset the camera
 	g_pCamera->Reset();
 
-	CLogFile::Printf("Send the spawn notification to the server");
-	// Send the spawn notification to the server
-	CBitStream bsSend;
-	bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
-	g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
-
+	if(!m_bSpawnMarked) {
+		// Send the spawn notification to the server
+		CBitStream bsSend;
+		bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
+		g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+		m_bSpawnMarked = true;
+	}
 	CLogFile::Printf("Flag us as alive");
 	// Flag us as alive
 	m_bIsDead = false;
@@ -201,6 +196,32 @@ void CLocalPlayer::DoDeathCheck()
 void CLocalPlayer::Pulse()
 {
 	CNetworkPlayer::Pulse();
+
+	if(g_pFileTransfer && g_pNetworkManager) {
+		if(g_pFileTransfer->DownloadFinished() && !m_bFinishedInitialize){
+			m_bFinishedInitialize = true;
+
+			// Now load our client scripts(seems that all resources are downloaded ;))
+			if(!m_bFirstSpawn)
+			{
+				g_pClientScriptManager->LoadAll();
+				m_bFirstSpawn = true;
+			}
+			g_pNetworkManager->RPC(RPC_PlayerJoinComplete, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+
+			if(!m_bSpawnMarked) {
+				// Send the spawn notification to the server
+				CBitStream bsSend;
+				bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
+				g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+
+				// Set again spawn position..
+				CVector3 vecSpawnPos; GetSpawnPosition(&vecSpawnPos);
+				SetPosition(vecSpawnPos);
+				m_bSpawnMarked = true;
+			}
+		}
+	}
 
 	if(g_pNetworkManager->IsConnected())
 	{
@@ -349,6 +370,14 @@ void CLocalPlayer::SendOnFootSync()
 		AimSyncData aimSyncPacket;
 		GetAimSyncData(&aimSyncPacket);
 
+		aimSyncPacket.bAiming = false;
+		aimSyncPacket.bShooting = false;
+
+		if(syncPacket.controlState.IsAiming())
+			aimSyncPacket.bAiming = true;
+		else if(syncPacket.controlState.IsFiring())
+			aimSyncPacket.bShooting = true;
+
 		// Write the aim sync data to the bit stream
 		bsSend.Write((char *)&aimSyncPacket, sizeof(AimSyncData));
 	}
@@ -405,6 +434,9 @@ void CLocalPlayer::SendInVehicleSync()
 		// Get their vehicles siren state
 		syncPacket.bSirenState = pVehicle->GetSirenState();
 
+		// Get their vehicle engine state
+		syncPacket.bEngineStatus = pVehicle->GetEngineState();
+
 		// Get their vehicles turn speed
 		pVehicle->GetTurnSpeed(syncPacket.vecTurnSpeed);
 
@@ -442,9 +474,6 @@ void CLocalPlayer::SendInVehicleSync()
 		// Get their current weapon and ammo
 		unsigned int uCurrentWeapon = GetCurrentWeapon();
 		syncPacket.uPlayerWeaponInfo = ((uCurrentWeapon << 20) | GetAmmo(uCurrentWeapon));
-
-		// Get their vehicles engine status (untested)
-		syncPacket.bEngineStatus = pVehicle->GetEngineState();
 		
 		// Set default window and typres values & check them
 		for(int i = 0; i <= 5; i++)
@@ -496,7 +525,7 @@ void CLocalPlayer::SendInVehicleSync()
 		g_pNetworkManager->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
 		// Check if our car is dead(exploded or in water)
-		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(pVehicle->GetScriptingHandle()) && syncPacket.vecPos.fZ < -1.0f && CGame::GetSpecialData(1)))
+		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(pVehicle->GetScriptingHandle()) && CGame::GetSpecialData(1)))
 		{
 			CBitStream bsDeath;
 			bsDeath.Write(pVehicle->GetVehicleId());

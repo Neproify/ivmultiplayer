@@ -16,6 +16,9 @@
 #include <CLogFile.h>
 #include "COffsets.h"
 
+// Log native calls(detect crash scripting functions)
+//#define NATIVE_LOG 1
+
 class NativeInvoke
 {
 private:
@@ -38,6 +41,11 @@ private:
 			((NativeCall)dwNativeFunc)(pNativeContext);
 		else
 			CLogFile::PrintDebugf("Failed to find native address of hash 0x%p", uiHash);
+
+		#ifdef NATIVE_LOG
+				CLogFile::PrintDebugf("Finished invoke native %x/%p",uiHash,uiHash);
+				CLogFile::PrintDebugf(" ");
+		#endif
 	}
 
 public:
@@ -45,6 +53,10 @@ public:
 	static inline R Invoke(unsigned int hash)
 	{
 		NativeContext cxt;
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -54,6 +66,11 @@ public:
 	{
 		NativeContext cxt;
 		cxt.Push(p1);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d",p1);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -64,6 +81,11 @@ public:
 		NativeContext cxt;
 		cxt.Push(p1);
 		cxt.Push(p2);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d",p1,p2);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -75,6 +97,11 @@ public:
 		cxt.Push(p1);
 		cxt.Push(p2);
 		cxt.Push(p3);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d",p1,p2,p3);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -87,6 +114,11 @@ public:
 		cxt.Push(p2);
 		cxt.Push(p3);
 		cxt.Push(p4);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d",p1,p2,p3,p4);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -101,6 +133,11 @@ public:
 		cxt.Push(p3);
 		cxt.Push(p4);
 		cxt.Push(p5);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d",p1,p2,p3,p4,p5);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -116,6 +153,11 @@ public:
 		cxt.Push(p4);
 		cxt.Push(p5);
 		cxt.Push(p6);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -132,6 +174,11 @@ public:
 		cxt.Push(p5);
 		cxt.Push(p6);
 		cxt.Push(p7);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -149,6 +196,11 @@ public:
 		cxt.Push(p6);
 		cxt.Push(p7);
 		cxt.Push(p8);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7,p8);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -168,6 +220,11 @@ public:
 		cxt.Push(p7);
 		cxt.Push(p8);
 		cxt.Push(p9);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7,p8,p9);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -189,6 +246,11 @@ public:
 		cxt.Push(p8);
 		cxt.Push(p9);
 		cxt.Push(p10);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7,p8,p9,p10);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -211,6 +273,11 @@ public:
 		cxt.Push(p9);
 		cxt.Push(p10);
 		cxt.Push(p11);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -234,6 +301,11 @@ public:
 		cxt.Push(p10);
 		cxt.Push(p11);
 		cxt.Push(p12);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -258,6 +330,11 @@ public:
 		cxt.Push(p11);
 		cxt.Push(p12);
 		cxt.Push(p13);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -283,6 +360,11 @@ public:
 		cxt.Push(p12);
 		cxt.Push(p13);
 		cxt.Push(p14);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -310,6 +392,11 @@ public:
 		cxt.Push(p13);
 		cxt.Push(p14);
 		cxt.Push(p15);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}
@@ -339,6 +426,11 @@ public:
 		cxt.Push(p14);
 		cxt.Push(p15);
 		cxt.Push(p16);
+#ifdef NATIVE_LOG
+		CLogFile::PrintDebugf("");
+		CLogFile::PrintDebugf("Start invoking native hash %x/%p",hash,hash);
+		//CLogFile::PrintDebugf("Params: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16);
+#endif
 		Invoke(hash, &cxt);
 		return cxt.GetResult<R>();
 	}

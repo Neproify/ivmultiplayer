@@ -120,6 +120,7 @@ void CObjectManager::HandleClientJoin(EntityId playerId)
 		{
 			if(m_bActive[x])
 			{
+				bsSend.Reset();
 				bsSend.WriteCompressed(x);
 				bsSend.Write(m_Objects[x].dwModelHash);
 				bsSend.Write(m_Objects[x].vecPosition);
@@ -139,11 +140,10 @@ void CObjectManager::HandleClientJoin(EntityId playerId)
 					bsSend.Write(m_Objects[x].iBone);
 				}
 
-				this->SetDimension(x, this->GetDimension(x));			
+				this->SetDimension(x, this->GetDimension(x));
+				g_pNetworkManager->RPC(RPC_NewObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 			}
 		}
-
-		g_pNetworkManager->RPC(RPC_NewObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	}
 }
 

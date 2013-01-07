@@ -15,6 +15,7 @@ class CServerRPCHandler : public CRPCHandler
 {
 private:
 	static void PlayerConnect(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void PlayerJoinComplete(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void Command(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

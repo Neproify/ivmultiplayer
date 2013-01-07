@@ -20,6 +20,7 @@
 #include "CClientScriptManager.h"
 #include "CMainMenu.h"
 #include "CChatWindow.h"
+#pragma warning(disable:4482)
 
 extern CClientScriptManager * g_pClientScriptManager;
 extern CLocalPlayer			* g_pLocalPlayer;
@@ -34,7 +35,8 @@ extern CNetworkManager		* g_pNetworkManager;
 
 CFileTransfer::CFileTransfer()
 	: m_pFileImage(NULL),
-	m_pFileText(NULL)
+	m_pFileText(NULL),
+	m_bFinishedDownload(false)
 {
 	m_thread = new CThread();
 	m_userdata = new ThreadUserData();	
@@ -71,7 +73,7 @@ bool CFileTransfer::Process()
 // Adds a file to download list
 void CFileTransfer::AddFile(String strFileName, CFileChecksum fileChecksum, bool bIsResource)
 {
-	CLogFile::Printf("ADDING FILE %s:", strFileName.Get());
+	CLogFile::PrintDebugf("ADDING FILE %s:", strFileName.Get());
 
 	String strFolderName;
 	if(bIsResource) strFolderName = "resources";
@@ -93,13 +95,13 @@ void CFileTransfer::AddFile(String strFileName, CFileChecksum fileChecksum, bool
 					g_pClientScriptManager->Load(strFileName);				
 			}
 
-			CLogFile::Printf("FILE %s FINISHED WITHOUT NEED TO DOWNLOAD.", strFileName.Get());
+			CLogFile::PrintDebugf("FILE %s FINISHED WITHOUT NEED TO DOWNLOAD.", strFileName.Get());
 			return;
 		}
 	}
 		
 	m_userdata->m_fileList.push_back(new FileDownload(strFileName, fileChecksum, bIsResource ? FileDownloadCategory::Resource : FileDownloadCategory::Script));
-	CLogFile::Printf("FILE %s SET TO DOWNLOAD LIST.", strFileName.Get());
+	CLogFile::PrintDebugf("FILE %s SET TO DOWNLOAD LIST.", strFileName.Get());
 }
 
 // Returns count of files need to be downloaded
@@ -112,6 +114,10 @@ int CFileTransfer::GetTransferListSize()
 		if(!(*iter)->okay)
 			count++;
 	}
+
+	if(count == 0)
+		g_pFileTransfer->SetDownloadFinished(true);
+
 	return count;
 }
 
@@ -146,45 +152,45 @@ void CFileTransfer::SetServerInformation(String strAddress, unsigned short usPor
     // Check if we have created image and text stuff for download, if not create it
     if(!m_pFileImage)
     {
-            // Try to load the image download.png - NOW!
-            try
-            {
-                CEGUI::ImagesetManager::getSingleton().createFromImageFile("Download", "Download.png");
-            }
-            catch(CEGUI::InvalidRequestException e)
-            {
-				String strFile = e.getMessage().c_str();
-				strFile = strFile.SubStr(strFile.Find(" - ")+3, (unsigned int)-1);
-				String str("IV:MP failed to load. (%s)", strFile.Get());
-				MessageBox(NULL, str.C_String(), "IV:MP Error", MB_OK | MB_ICONERROR);
-				ExitProcess(0);
-            }
-            catch(CEGUI::Exception e)
-            {
-                MessageBox(NULL, "IV:MP failed to load. Check CEGUI.log for details.", "IV:MP Error", MB_OK | MB_ICONERROR);
-                ExitProcess(0);
-            }
+        // Try to load the image download.png - NOW!
+        try
+        {
+            CEGUI::ImagesetManager::getSingleton().createFromImageFile("Download", "Download.png");
+        }
+        catch(CEGUI::InvalidRequestException e)
+        {
+			String strFile = e.getMessage().c_str();
+			strFile = strFile.SubStr(strFile.Find(" - ")+3, (unsigned int)-1);
+			String str("IV:MP failed to load. (%s)", strFile.Get());
+			MessageBox(NULL, str.C_String(), "IV:MP Error", MB_OK | MB_ICONERROR);
+			ExitProcess(0);
+        }
+        catch(CEGUI::Exception e)
+        {
+            MessageBox(NULL, "IV:MP failed to load. Check CEGUI.log for details.", "IV:MP Error", MB_OK | MB_ICONERROR);
+            ExitProcess(0);
+        }
 
-            m_pFileImage = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
-            m_pFileImage->setProperty("FrameEnabled", "false");
-            m_pFileImage->setProperty("BackgroundEnabled", "false");
-            m_pFileImage->setSize(CEGUI::UVector2(CEGUI::UDim(0, (386.0f*1.5f)), CEGUI::UDim(0, (114.0f*1.5f))));
-            m_pFileImage->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/3),  CEGUI::UDim(0, fHeight/2+(fHeight/(float)6.5))));
-            m_pFileImage->setProperty("Image", "set:Download image:full_image");
-            m_pFileImage->setProperty("InheritsAlpha","false");
-            m_pFileImage->setAlpha(0.90f);
-            m_pFileImage->setVisible(false);
+        m_pFileImage = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+        m_pFileImage->setProperty("FrameEnabled", "false");
+        m_pFileImage->setProperty("BackgroundEnabled", "false");
+        m_pFileImage->setSize(CEGUI::UVector2(CEGUI::UDim(0, (386.0f*1.5f)), CEGUI::UDim(0, (114.0f*1.5f))));
+        m_pFileImage->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/3),  CEGUI::UDim(0, fHeight/2+(fHeight/(float)6.5))));
+        m_pFileImage->setProperty("Image", "set:Download image:full_image");
+        m_pFileImage->setProperty("InheritsAlpha","false");
+        m_pFileImage->setAlpha(0.90f);
+        m_pFileImage->setVisible(false);
     }
     if(!m_pFileText)
     {
-            m_pFileText = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
-            m_pFileText->setText("Waiting for resources download");
-            m_pFileText->setSize(CEGUI::UVector2(CEGUI::UDim(TRANSFERBOX_WIDTH, 0), CEGUI::UDim(TRANSFERBOX_HEIGHT, 0)));
-            m_pFileText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/(float)2.75),  CEGUI::UDim(0, fHeight/2-(fHeight/4))));
-            m_pFileText->setProperty("FrameEnabled", "false");
-            m_pFileText->setProperty("BackgroundEnabled", "false");
-            m_pFileText->setFont(g_pGUI->GetFont("tahoma",28U));
-            m_pFileText->setVisible(false);
+        m_pFileText = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+        m_pFileText->setText("Waiting for resources download");
+        m_pFileText->setSize(CEGUI::UVector2(CEGUI::UDim(TRANSFERBOX_WIDTH, 0), CEGUI::UDim(TRANSFERBOX_HEIGHT, 0)));
+        m_pFileText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/(float)2.75),  CEGUI::UDim(0, fHeight/2-(fHeight/4))));
+        m_pFileText->setProperty("FrameEnabled", "false");
+        m_pFileText->setProperty("BackgroundEnabled", "false");
+        m_pFileText->setFont(g_pGUI->GetFont("tahoma",28U));
+        m_pFileText->setVisible(false);
     }
 }
 
@@ -244,7 +250,7 @@ void WorkAsync(CThread * pCreator)
 
 		// Connecting:
 		String strDownloadUrl("/%s/%s", strFolderName.Get(), (*iter)->name.Get());		
-		CLogFile::Printf("[DEBUG]: Downloading %s, %s, %s", (*iter)->name.Get(), strDownloadUrl.Get(), strFilePath.Get());
+		CLogFile::PrintDebugf("[TRANSFER]: Downloading %s, %s, %s", (*iter)->name.Get(), strDownloadUrl.Get(), strFilePath.Get());
 		if(!pUserdata->httpDownloader->Get(strDownloadUrl))
 		{
 			// We can't connect or something like this.
@@ -280,6 +286,7 @@ void WorkAsync(CThread * pCreator)
 		g_pFileTransfer->SetCurrentFileText();
 	}
 	pUserdata->bDownloadCompleted = true;
+	g_pFileTransfer->SetDownloadFinished(true);
 	pUserdata->busy = false;
 }
 
@@ -290,7 +297,7 @@ void FileTransfer_DownloadedFile()
 	
 	 if(file->type == FileDownloadCategory::Script)
 	{
-		CLogFile::Printf("Loading client script: %s.", file->name.Get());
+		CLogFile::PrintDebugf("Loading client script: %s.", file->name.Get());
 		g_pClientScriptManager->AddScript(file->name.Get(), file->fileName.Get());
 		if(g_pLocalPlayer->GetFirstSpawn())
 			g_pClientScriptManager->Load(file->name);	
@@ -301,7 +308,6 @@ void FileTransfer_DownloadFailed()
 	FileDownload * file = g_pFileTransfer->GetCurrentFile();
 	String errorMessage("Download failed: %s (%s)", file->name.Get(), file->failReason.Get());	
 	CLogFile::Print(errorMessage);
-
 
 	g_pFileTransfer->Process();
 	/*g_pNetworkManager->Disconnect();	

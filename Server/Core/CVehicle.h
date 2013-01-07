@@ -50,6 +50,7 @@ private:
 	int			  m_iRespawnDelay;
 	unsigned long m_lastTimeOccupied;
 	unsigned long m_ulDeathTime;
+	bool		  m_bCarDeath;
 
 public:
 	CVehicle(EntityId vehicleId, int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4);
@@ -131,4 +132,6 @@ public:
 	int			  GetRespawnDelay() { return m_iRespawnDelay; }
 	void		  SetDeathTime(unsigned long time) { m_ulDeathTime = time; }
 	unsigned long GetDeathTime() { return m_ulDeathTime; }
+
+	void		  ExplodeCar(EntityId playerId);
 };

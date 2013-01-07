@@ -72,7 +72,7 @@ private:
 	ThreadUserData * m_userdata;	
     CGUIStaticText * m_pFileText;
     CGUIStaticImage	* m_pFileImage;
-
+	bool		m_bFinishedDownload;
 public:
 	CFileTransfer();
 	void AddFile(String strFileName, CFileChecksum fileChecksum, bool bIsResource);
@@ -85,6 +85,9 @@ public:
 	int GetTransferListSize();
 	void SetServerInformation(String strAddress, unsigned short usPort);
 	void SetCurrentFileText(const char * fileNameText = NULL);
+
+	bool DownloadFinished() { return m_bFinishedDownload; }
+	void SetDownloadFinished(bool bFinished) { m_bFinishedDownload = bFinished; }
 };
 // Threaded static functions:
 void WorkAsync(CThread * pCreator);

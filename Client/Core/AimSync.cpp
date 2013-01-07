@@ -145,22 +145,6 @@ void InstallAimSyncHooks()
 	// CIKManager::AimWeapon function isn't called, tried 
 	// disabling player ped checks below but still doesn't call
 	// Disable local player checks for weapon aiming
-	//*(BYTE *)(CGame::GetBase() + 0xCC797F) = 0x90;//
-	//*(BYTE *)(CGame::GetBase() + 0xCC7980) = 0xE9;//
-	/*CPatcher::InstallNopPatch((CGame::GetBase() + 0x89C7A0), 21);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA61763), 13);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA60F7A), 13);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA60BF9), 13);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCC7978), 26);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCC9D94), 26);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0x8969E9), 9);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA94E39), 7);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xA94E67), 13);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xBD71B0), 7);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xBD71BB), 11);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCC8191), 18);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCC7978), 26);
-	CPatcher::InstallNopPatch((CGame::GetBase() + 0xCCAA84), 16);*/
 
 	// Hook for the CIKManager::AimWeapon function
 	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x950D60), (DWORD)CIKManager__AimWeapon);

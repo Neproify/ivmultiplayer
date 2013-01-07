@@ -187,6 +187,7 @@ private:
 	static void ScriptingSetObjectDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetCheckpointDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void	ScriptingSetObjectInterior(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingExplodeCar(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();

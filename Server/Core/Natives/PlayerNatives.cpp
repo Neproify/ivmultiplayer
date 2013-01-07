@@ -141,6 +141,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("letPlayerDriveAutomaticAtCoords", DriveAutomatic, 7, "iiffffi");
 	pScriptingManager->RegisterFunction("togglePlayerNametagForPlayer",ToggleNametagForPlayer, 3, "iib");
 	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
+	pScriptingManager->RegisterFunction("getPlayerFileChecksum", GetFileChecksum, 2, "ii");
 	
 	pScriptingManager->RegisterFunction("setPlayerDimension", SetDimension, 2, "ii");
 	pScriptingManager->RegisterFunction("getPlayerDimension", GetDimension, 1, "i");
@@ -151,7 +152,10 @@ SQInteger CPlayerNatives::IsConnected(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
-	sq_pushbool(pVM, g_pPlayerManager->DoesExist(playerId));
+	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->GetAt(playerId)->IsJoined())
+		sq_pushbool(pVM, true);
+	else
+		sq_pushbool(pVM, false);
 	return 1;
 }
 
@@ -2612,4 +2616,23 @@ SQInteger CPlayerNatives::GetDimension(SQVM * pVM)
 
 	sq_pushinteger(pVM, -1);
 	return 1;
+}
+
+SQInteger CPlayerNatives::GetFileChecksum(SQVM * pVM)
+{ 
+	EntityId playerId;
+	int iFile;
+
+	sq_getentity(pVM, -2, &playerId);
+	sq_getinteger(pVM, -1, &iFile);
+	if(iFile >= 0 && iFile < 2) {
+		if(g_pPlayerManager->DoesExist(playerId)) {
+			sq_pushinteger(pVM, g_pPlayerManager->GetAt(playerId)->GetFileChecksum(iFile));
+			return 1;
+		}
+		else {
+			sq_pushbool(pVM, false);
+			return 1;
+		}
+	}
 }

@@ -113,7 +113,27 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 		return;*/
 
 	if(!bHasAimSyncData) {
-		m_bStoreOnFootSwitch = false;
+
+		// Stop shooting/aiming
+		if(m_bStoreOnFootSwitch) {
+			m_bStoreOnFootSwitch = false;
+			unsigned int uiPlayerIndex = GetScriptingHandle();
+			DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
+			_asm
+			{
+				push 35
+				push 0
+				push uiPlayerIndex
+				call dwAddress
+			}
+			_asm
+			{
+				push 36
+				push 0
+				push uiPlayerIndex
+				call dwAddress
+			}
+		}
 		if(syncPacket->vecMoveSpeed.Length() < 0.75) {
 			SetTargetPosition(syncPacket->vecPos,TICK_RATE*2);
 			SetCurrentSyncHeading(syncPacket->fHeading);
@@ -352,8 +372,7 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 			pVehicle->SetDirtLevel(syncPacket->fDirtLevel);
 
 		// Set their vehicles engine status
-		if(pVehicle->GetEngineState() != syncPacket->bEngineStatus)
-			pVehicle->SetEngineState(syncPacket->bEngineStatus);
+		pVehicle->SetEngineState(syncPacket->bEngineStatus);
 
 		// Set their lights
 		if(pVehicle->GetLightsState() != syncPacket->bLights)

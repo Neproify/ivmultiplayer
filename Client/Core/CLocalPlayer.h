@@ -27,6 +27,8 @@ private:
 	bool				m_bDisableVehicleInfo;
 	CControlState		m_lastControlStateSent;
 	bool				m_bFirstSpawn;
+	bool				m_bSpawnMarked;
+	bool				m_bFinishedInitialize;
 	unsigned short		m_uiPing;
 	OnFootSyncData		m_oldOnFootSync;
 	/*bool			    m_bAnimating;

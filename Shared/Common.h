@@ -289,6 +289,19 @@ struct AimSyncData
 	CVector3 vecShotSource;		// shot source
 	CVector3 vecShotTarget;		// shot target
 	CVector3 vecLookAt;			// look at position
+
+	// New System
+	bool	 bAiming;
+	bool	 bShooting;
+};
+
+struct CheckGTAFiles
+{
+	unsigned int uiHandleFileChecksum;
+	bool bHandleFileChanged;
+
+	unsigned int uiGTAFileChecksum;
+	bool bGTAFileChecksum;
 };
 
 // Refuse Reasons

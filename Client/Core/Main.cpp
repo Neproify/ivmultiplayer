@@ -619,7 +619,7 @@ void Direct3DRender()
 			//strStats.AppendF("Models (Loaded/Unload): %d/%d\n", CGame::GetLoadedModelCount(), CGame::GetUnloadedModelCount());
 
 			// Append streamed in/out entity counts and streamed in limits to the stats
-			strStats.AppendF("Players (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_PLAYER), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_PLAYER));
+			strStats.AppendF("Players (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_PLAYER)+1, g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_PLAYER));
 			strStats.AppendF("Vehicles (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_VEHICLE), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_VEHICLE));
 			strStats.AppendF("Pickups (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_PICKUP), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_PICKUP));
 			strStats.AppendF("Objects (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_OBJECT), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_OBJECT));
@@ -1044,6 +1044,7 @@ void InternalResetGame(bool bAutoConnect)
 	g_pTime->SetTime(0, 0);
 	CGame::SetTime(0,0);
 	
+	CGame::InitializeDefaultGameComponents();
 	// TODO: Remove all gui stuff(images etc, after disconnect)
 	// XForce: OnResetDevice causes blackscreen at maximize
 

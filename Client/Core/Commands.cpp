@@ -37,7 +37,7 @@ void QuitCommand(char * szParams)
 	SAFE_DELETE(g_pNetworkManager);
 
 	// Exit
-	ExitProcess(0);
+	TerminateProcess(GetCurrentProcess(), 0);
 }
 
 void QuickQuitCommand(char * szParams)

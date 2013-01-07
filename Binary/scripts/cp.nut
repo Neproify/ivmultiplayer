@@ -30,7 +30,7 @@ function onScriptInit()
 	createVehicle(37, 1666.811768, 421.175903, 28.643723, 359.297852, 351.982788, 268.549927, 0, 0, 0, 0); // car3
 	createVehicle(40, 1657.118408, 421.462982, 28.569500, 359.828613, 352.884033, 267.583008, 0, 0, 0, 0); // car4
 	createVehicle(93, 1649.273560, 421.382935, 28.761145, 0.001465, 351.280945, 270.491577, 1, 1, 1, 1); // car5
-	createVehicle(3, 1641.365967, 421.592712, 28.691023, 359.782715, 352.587891, 269.953735, 0, 0, 0, 0); // car6
+	createVehicle(28, 1641.365967, 421.592712, 28.691023, 359.782715, 352.587891, 269.953735, 131, 131, 131, 131); // car6
 	createVehicle(95, 1631.719482, 420.940094, 28.562838, 1.065430, 352.694153, 277.920654, 0, 0, 0, 0); // car7
 	createVehicle(91, 1628.712646, 430.695221, 28.632729, 359.860657, 352.000366, 96.860474, 0, 0, 0, 0); // car8
 	//createVehicle(12, 1644.682373, 443.919067, 28.959641, 0.186646, 359.772217, 181.766296, 1, 1, 1, 1); // car9
@@ -62,23 +62,33 @@ function onScriptExit()
 }
 addEvent("scriptExit", onScriptExit);
 
-function onPlayerConnect(playerID, playerName, playerIP, playerSerial, bHasModdedGameFiles)
+function onPlayerAuth(playerID, playerName, playerIP, playerSerial, bHasModdedGameFiles)
 {
 	// Don't use natives here, the player sends only the request, he's NOT connected to the server!
-	sendMessageToAll(playerName + " (" + playerID + ") has connected.", White);
+	sendMessageToAll(playerName + " (" + playerID + ") is connecting.", White);
 	if(bHasModdedGameFiles) {
 	//	return 0; // Don't allow modified game files!
 	}
 	return 1;
 }
+addEvent("playerAuth", onPlayerAuth);
+
+function onPlayerConnect(playerid, playerName)
+{
+	// Now you can use the natives, because the player is registered at the server
+	setPlayerSpawnLocation(playerid, /*-341.36, 1144.80, 14.79, 40.114815*/1649.508179, 395.261627, 38.151573, -2.931725);
+	sendPlayerMessage(playerid, "Welcome to Brooks", White);
+	sendPlayerMessage(playerid, "Press [FFFF0000]'I'[FFFFFFAA] to stop the music!",0xFFFFFFAA,true);
+	setPlayerTime(playerid, 6, 50);
+}
 addEvent("playerConnect", onPlayerConnect);
 
 function onPlayerJoin(playerid) {
-	// Now you can use the natives, because the player is registered at the server
-	setPlayerSpawnLocation(playerid, /*-341.36, 1144.80, 14.79, 40.114815*/1649.508179, 395.261627, 38.151573, -2.931725);
-	sendPlayerMessage(playerid, "Welcome to Central Park", White);
-	sendPlayerMessage(playerid, "Press [FFFF0000]'I'[FFFFFFAA] to stop the music!",0xFFFFFFAA,true);
-	setPlayerTime(playerid, 6, 50);
+	// After he has downloaded all files, we're checking his gta files
+	sendMessageToAll(getPlayerName(playerid) + " (" + playerid + ") has successfully connected.", White);
+	// Check files
+	log("FileChecksum from user "+getPlayerName(playerid)+" handling.dat: 0x"+getPlayerFileChecksum(playerid,0));
+	log("FileChecksum from user "+getPlayerName(playerid)+" gta.dat: 0x"+getPlayerFileChecksum(playerid,1));
 }
 addEvent("playerJoin", onPlayerJoin);
 
@@ -116,6 +126,10 @@ addEvent("playerSpawn", onSpawn);
 function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
+	if(cmd[0] == "/weather")
+	{
+		setWeather(cmd[1].tointeger());
+	}
 	if(cmd[0] == "/moveobject")
 	{
 		moveObject(cmd[1].tointeger(), 1727.337769, 705.455688, 25.831680, 5000.0);
@@ -848,10 +862,10 @@ addEvent("vehicleDamage",onVehicleDamage);
 
 function onPlayerShot(playerid,x,y,z,xl,yl,zl,shot)
 {
-	if(shot)
+	/*if(shot)
 		log(format("WEP: %d SHOT(%f, %f, %f)|LOOKAT(%f, %f, %f)",playerid,x,y,z,xl,yl,zl));
 	else
-		log(format("WEP: %d AIM(%f, %f, %f)|LOOKAT(%f, %f, %f)",playerid,x,y,z,xl,yl,zl));
+		log(format("WEP: %d AIM(%f, %f, %f)|LOOKAT(%f, %f, %f)",playerid,x,y,z,xl,yl,zl));*/
 }
 addEvent("playerShot",onPlayerShot);
 

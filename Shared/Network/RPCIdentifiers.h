@@ -17,6 +17,7 @@ enum eRPCIdentfiers
 
 	// Player RPCs
 	RPC_PlayerConnect,
+	RPC_PlayerJoinComplete,
 
 	// RPC's
 	RPC_Message,
@@ -192,4 +193,5 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetObjectDimension,
 	RPC_ScriptingSetCheckpointDimension,
 	RPC_ScriptingSetObjectInterior,
+	RPC_ScriptingExplodeCar,
 };

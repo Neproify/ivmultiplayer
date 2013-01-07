@@ -87,4 +87,6 @@ void InstallIndicatorHooks()
 
 	// Hook CVehicle::DrawIndicator to use our hook function
 	CPatcher::InstallJmpPatch(COffsets::FUNC_CVehicle__DrawIndicator, (DWORD)CVehicle__DrawIndicator_Hook, 5);
+
+	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x9CD1C4), (CGame::GetBase() + 0x9CD210));
 }
