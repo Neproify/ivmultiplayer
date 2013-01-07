@@ -97,9 +97,6 @@ bool bReset = false;
 
 HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 {
-	__asm pushad;
-	g_pDevice = pDevice;
-
 	if(m_bInitialized == false) {
 		HWND hFocusWindow = FindWindow(NULL,"GTAIV");
 		if(hFocusWindow != NULL) {
@@ -120,18 +117,19 @@ HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 	}
 	if(!bReset)
 		Direct3DRender();
-	__asm popad;
 	return m_pEndScene(g_pDevice);
 }
 D3DPRESENT_PARAMETERS parameters;
 HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	__asm pushad;
 	if(g_pDevice == NULL)
 		g_pDevice = pDevice;
+
 	CLogFile::Printf("PreD3DReset");
 	
-
+	// Call our lost device function
+	Direct3DInvalidate();
+	
 	if(g_bWindowedMode)
 	{
 		pPresentationParameters->Windowed = 1;
@@ -142,9 +140,6 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 		SetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE, style | WS_POPUPWINDOW | WS_CAPTION | WS_THICKFRAME);
 		SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_NOTOPMOST, 0, 0, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight, SWP_SHOWWINDOW);
 	}
-
-	// Call our lost device function
-	Direct3DInvalidate();
 
 	HRESULT hr = m_pReset(g_pDevice, pPresentationParameters);
 
@@ -159,6 +154,5 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 	{
 		CLogFile::Printf("PostD3DReset(0)");
 	}
-	__asm popad;
 	return hr;
 }

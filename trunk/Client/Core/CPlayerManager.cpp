@@ -304,7 +304,6 @@ void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos
 
 	if(!m_bCreated[playerId])
 	{
-		m_pPlayers[playerId]->Create();
 		m_bCreated[playerId] = true;
 	}
 

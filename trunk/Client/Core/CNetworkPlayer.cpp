@@ -35,7 +35,7 @@ extern CChatWindow     * g_pChatWindow;
 #define THIS_CHECK_R(x) if(!this) { CLogFile::Printf("this error"); return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
-	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
+	: CStreamableEntity(STREAM_ENTITY_PLAYER, 300.0f),
 	m_bIsLocalPlayer(bIsLocalPlayer),
 	m_playerId(INVALID_ENTITY_ID),
 	m_pContextData(NULL),
@@ -284,7 +284,7 @@ bool CNetworkPlayer::Create()
 
 	// Reset interpolation
 	ResetInterpolation();
-	this->m_bIsStreamedIn = true;
+
 	//CLogFile::Printf("Done: PlayerNumber: %d, ScriptingHandle: %d", m_byteGamePlayerNumber, GetScriptingHandle());
 	return true;
 }
