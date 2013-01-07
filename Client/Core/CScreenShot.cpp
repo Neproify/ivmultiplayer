@@ -177,7 +177,7 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 		png_info* info_ptr = png_create_info_struct(png_ptr);
 		png_init_io(png_ptr, file);
 		png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
-		png_set_compression_level(png_ptr, 1);
+		png_set_compression_level(png_ptr, 9);
 		png_set_IHDR(png_ptr, info_ptr, uiScreenWidth, uiScreenHeight, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 		png_set_rows(png_ptr, info_ptr, ScreenData);
 		png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_BGR | PNG_TRANSFORM_STRIP_ALPHA, NULL);
@@ -185,6 +185,11 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 		png_destroy_write_struct(&png_ptr, &info_ptr);
 	fclose(file);
 
+	for (unsigned short y = 0; y < uiScreenHeight; y++) {
+		delete []ScreenData[y];
+	}
+	delete []ScreenData;
+	delete []mem;
 	m_threadData.bWriting = false;
 }
 

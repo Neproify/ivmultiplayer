@@ -43,11 +43,6 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 	{
 		if(IsSpawned())
 			return false;
-
-		if(!Create())
-			return false;
-		else
-			this->m_bIsStreamedIn = true;
 	}
 
 	Teleport(vecSpawnPos);
