@@ -114,7 +114,6 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 		bsSend.Write0();
 
 	bsSend.Write(m_iRespawnDelay);
-
 	bsSend.Write((char *)m_byteColors, sizeof(m_byteColors));
 
 	bsSend.Write(m_fDirtLevel);
@@ -158,7 +157,6 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	bsSend.Write(m_vehicleId);
 	bsSend.Write(m_bActorVehicle);
 	g_pNetworkManager->RPC(RPC_ScriptingMarkVehicleAsActorVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-
 
 	SetColors(m_byteColors[0],m_byteColors[1],m_byteColors[2],m_byteColors[3]);
 }
@@ -829,4 +827,11 @@ void CVehicle::RepairVehicle()
 	CBitStream bsSend;
 	bsSend.Write(m_vehicleId);
 	g_pNetworkManager->RPC(RPC_ScriptingFixVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+void CVehicle::ExplodeCar(EntityId playerId)
+{
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	g_pNetworkManager->RPC(RPC_ScriptingExplodeCar, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 }

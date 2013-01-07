@@ -403,6 +403,11 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CTaskSimpleStartWalking__Constructor		= (uiBase +  0xA0E310); // 0xA1D830 // 0xA0DFF0
 			FUNC_CTaskSimpleStopWalking__Constructor		= (uiBase +  0xA1D730);
 
+			// aim task simple constructor = 0xA5FD80|native address = 0xB89090(param size 5)|static task select id = 35
+			// aim and walk simple constructor = 0xA0E630|native address = 0xB89F50(param size 12)|static task select id = 47
+			// shot task simple constructor = 0xA5FD80|native address = 0xB89140(param size 6)|static task select id = 36
+			// shot and walk simple constructor = 0xA0E710|native address = 0xB88F30(paran size 9)|static task select id = 33
+
 			// Weapons
 			FUNC_CPedWeapons__RemoveWeapon                  = (uiBase +  0x9ABFD0);
 			FUNC_CPedWeapons__RemoveAllWeapons              = (uiBase +  0x9AC040);

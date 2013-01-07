@@ -17,6 +17,7 @@ class CPlayer : public CPlayerInterface
 {
 private:
 	EntityId      m_playerId;
+	bool		  m_bJoined;
 	SQInstance  * m_pScriptingInstance;
 	String        m_strName;
 	bool          m_bSpawned;
@@ -52,6 +53,7 @@ private:
 	unsigned char m_ucDimension;
 	bool		  m_bDrop;
 	unsigned int  m_iWantedLevel;
+	CheckGTAFiles m_FileCheck;
 
 public:
 	CPlayer(EntityId playerId, String strName);
@@ -59,8 +61,12 @@ public:
 
 	EntityId       GetPlayerId() { return m_playerId; }
 	SQInstance   * GetScriptingInstance() { return m_pScriptingInstance; }
+	bool		   IsJoined() { return m_bJoined; }
+	void		   SetJoined(bool bJoin) { m_bJoined = bJoin; }
 	bool           IsOnFoot() { return (m_pVehicle == NULL); }
 	bool           IsInVehicle() { return (m_pVehicle != NULL); }
+	void		   SetFileCheck(CheckGTAFiles pFiles) { m_FileCheck = pFiles; }
+	unsigned int   GetFileChecksum(int iFile);
 	String         GetIp();
 	void           Kick(bool bSendNotification = true);
 	void           Ban(unsigned int uiSeconds);
@@ -124,7 +130,7 @@ public:
 	void           SetClothes(unsigned char ucBodyPart, unsigned char ucClothes);
 	unsigned char  GetClothes(unsigned char ucBodyPart);
 	void		   UseMobilePhone(bool bUse) { m_bMobilePhoneUse = bUse; }
-	void		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShotm, CVector3 vecLookAt);
+	bool		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShotm, CVector3 vecLookAt);
 	void		   UpdateHeadMoveSync(CVector3 vecHead);
 
 	void		   SetDimension(unsigned char ucDimension);

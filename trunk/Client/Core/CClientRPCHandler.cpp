@@ -269,7 +269,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	DWORD dwLockState = static_cast<DWORD>(iLocked);
 
 	// Read the engine state
-	bool bEngineStatus; pBitStream->Read(bEngineStatus);;
+	bool bEngineStatus; pBitStream->Read(bEngineStatus);
 
 	// Read if our lights are on
 	bool bLights; pBitStream->Read(bLights);
@@ -337,8 +337,8 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	pVehicle->SetIndicatorState(bIndicatorStateFrontLeft, bIndicatorStateFrontRight, bIndicatorStateBackLeft, bIndicatorStateBackRight);
 
 	// Set the components
-	for(unsigned char i = 0; i < 9; ++ i)
-		pVehicle->SetComponentState(i, bComponents[i]);
+	for(int i = 0; i < 9; ++ i)
+		pVehicle->SetComponentState(i, (int)bComponents[i]);
 
 	// Sound horn if needed
 	pVehicle->SoundHorn(iHornDuration);
@@ -465,6 +465,8 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 
 					if(pVehicle)
 						Scripting::AttachObjectToCar(pObject->GetHandle(),pVehicle->GetScriptingHandle(),0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ);
+					
+					pObject->SetAttached(true);
 				}
 			}
 			else if(!bVehicleAttached)
@@ -473,18 +475,21 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 				{
 					CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(uiVehiclePlayerId);
 					
-					if(pPlayer) {
+					if(pPlayer && pPlayer->IsSpawned()) {
 						if(iBone != -1)
 							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)iBone,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
 						else
 							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+						pObject->SetAttached(true);
 					}
 				}
 			}
 		}
 		// If object interior is set
-		if(iInterior != -1)
+		if(iInterior != -1) {
 			Scripting::AddObjectToInteriorRoomByKey(pObject->GetHandle(),(Scripting::eInteriorRoomKey)iInterior);
+			pObject->SetAttached(true);
+		}
 	}
 }
 
@@ -498,8 +503,11 @@ void CClientRPCHandler::DetachObject(CBitStream * pBitStream, CPlayerSocket * pS
 	while(pBitStream->ReadCompressed(objectId))
 	{
 		CObject * pObject = g_pObjectManager->Get(objectId);
-		if(pObject)
+		if(pObject) {
 			Scripting::DetachObject(g_pObjectManager->Get(objectId)->GetHandle(), true);
+			CVector3 vecPos; pObject->GetPosition(vecPos);
+			pObject->SetPosition(vecPos);
+		}
 	}
 }
 void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -550,8 +558,10 @@ void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pS
 					{
 						CNetworkVehicle * pVehicle = g_pVehicleManager->Get(uiVehiclePlayerId);
 
-						if(pVehicle)
+						if(pVehicle) {
 							Scripting::AttachObjectToCar(pObject->GetHandle(),pVehicle->GetScriptingHandle(),0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ);
+							pObject->SetAttached(true);
+						}
 					}
 				}
 				else if(!bVehicleAttached)
@@ -565,6 +575,7 @@ void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pS
 								Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)iBone,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
 							else
 								Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+							pObject->SetAttached(true);
 						}
 					}
 				}
@@ -583,8 +594,16 @@ void CClientRPCHandler::DeleteObject(CBitStream * pBitStream, CPlayerSocket * pS
 	EntityId objectId;
 	pBitStream->ReadCompressed(objectId);
 
-	// Delete the object from the object manager
-	g_pObjectManager->Delete(objectId);
+	// Does the object exist?
+	if(g_pObjectManager->Exists(objectId)) {
+
+		// Is the object attached?
+		if(g_pObjectManager->Get(objectId)->IsAttached()) 
+			Scripting::DetachObject(g_pObjectManager->Get(objectId)->GetHandle(),true);
+
+		// Delete the object from the object manager
+		g_pObjectManager->Delete(objectId);
+	}
 }
 
 void CClientRPCHandler::NewPickup(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -842,8 +861,7 @@ void CClientRPCHandler::ScriptingSetActorColor(CBitStream * pBitStream, CPlayerS
 
 	unsigned int color;
 	pBitStream->Read(color);
-
-	CLogFile::Printf("Got color: 0x%X", color);
+	//CLogFile::Printf("Got color: 0x%X", color);
 
 	g_pActorManager->SetColor(actorId,color);
 }
@@ -1123,7 +1141,7 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 			if(pRemotePlayer)
 			{
 				// Set the Helmet
-				pPlayer->SetHelmet(!bHelmet);
+				pPlayer->SetHelmet(bHelmet);
 																
 				// Store aimdata before updating foot stuff, otherwise the hitbox has moved
 				if(bHasAimSyncData)
@@ -1512,7 +1530,7 @@ void CClientRPCHandler::DeleteFile(CBitStream * pBitStream, CPlayerSocket * pSen
 	String strFileName;
 	pBitStream->Read(strFileName);
 
-	CLogFile::Printf(__FILE__,__LINE__,"Delete File: %s", strFileName.C_String());
+	//CLogFile::Printf(__FILE__,__LINE__,"Delete File: %s", strFileName.C_String());
 
 	if(bIsScript && g_pClientScriptManager->Exists(strFileName))
 	{
@@ -3627,6 +3645,18 @@ void CClientRPCHandler::ScriptingSetObjectInterior(CBitStream * pBitStream, CPla
 		Scripting::AddObjectToInteriorRoomByKey(g_pObjectManager->Get(objectId)->GetHandle(),(Scripting::eInteriorRoomKey)iInterior);
 }
 
+void CClientRPCHandler::ScriptingExplodeCar(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+	
+	EntityId vehicleId;
+	pBitStream->Read(vehicleId);
+
+	if(g_pVehicleManager->Exists(vehicleId))
+		Scripting::ExplodeCar(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),true,false);
+}
+
 void CClientRPCHandler::Register()
 {
 	// Network
@@ -3794,6 +3824,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingRotateObject, ScriptingRotateObject);
 	AddFunction(RPC_ScriptingSetObjectDimension, ScriptingSetObjectDimension);
 	AddFunction(RPC_ScriptingSetObjectInterior, ScriptingSetObjectInterior);
+	AddFunction(RPC_ScriptingSetCheckpointDimension, ScriptingSetCheckpointDimension);
 }
 
 void CClientRPCHandler::Unregister()

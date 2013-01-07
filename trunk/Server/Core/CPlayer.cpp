@@ -69,6 +69,7 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_ucDimension = 0;
 	m_bDrop = false;
 	m_iWantedLevel = 0;
+	m_bJoined = false;
 }
 
 CPlayer::~CPlayer()
@@ -267,7 +268,15 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
-		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource, aimSyncData->vecLookAt);
+		/*
+		// Shitcode, we can detect it clientside, only for tests
+		aimSyncData->bShooting = false;
+		aimSyncData->bAiming = false;
+		if(UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource, aimSyncData->vecLookAt))
+			aimSyncData->bShooting = true;
+		else
+			aimSyncData->bAiming = true;
+		*/
 	}
 
 	// Set the state to on foot
@@ -821,7 +830,7 @@ unsigned char CPlayer::GetClothes(unsigned char ucBodyPart)
 	return m_ucClothes[ucBodyPart];
 }
 
-void CPlayer::UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot, CVector3 vecLookAt)
+bool CPlayer::UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot, CVector3 vecLookAt)
 {
 	CSquirrelArguments pArguments;
 	pArguments.push(m_playerId);
@@ -836,6 +845,7 @@ void CPlayer::UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot, CVector3 vecLo
 		pArguments.push(vecLookAt.fY);
 		pArguments.push(vecLookAt.fZ);
 		pArguments.push(true);
+		return true;
 	}
 	else
 	{
@@ -847,6 +857,7 @@ void CPlayer::UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot, CVector3 vecLo
 		pArguments.push(vecLookAt.fY);
 		pArguments.push(vecLookAt.fZ);
 		pArguments.push(false);
+		return false;
 	}
 	g_pEvents->Call("playerShot", &pArguments);
 }
@@ -880,4 +891,21 @@ void CPlayer::SetDimension(unsigned char ucDimension)
 	bsSend.Write(this->GetPlayerId());
 	bsSend.Write(this->GetDimension());
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
+unsigned int CPlayer::GetFileChecksum(int iFile)
+{
+	if(iFile >= 0 && iFile < 2) {
+		// handling.dat
+		if(iFile == 0)
+			return m_FileCheck.uiHandleFileChecksum;
+
+		// gta.dat
+		if(iFile == 1) 
+			return m_FileCheck.uiGTAFileChecksum;
+
+		return -1;
+	}
+	else
+		return -1;
 }

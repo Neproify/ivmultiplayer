@@ -57,9 +57,18 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 	String strName;
 	pBitStream->Read(strName);
 
+	CheckGTAFiles pCheckFiles;
 	bool bGameFilesModded = false;
-	bGameFilesModded = pBitStream->ReadBit();
+	pBitStream->Read((char *)&pCheckFiles, sizeof(CheckGTAFiles));
 
+	if(pCheckFiles.bGTAFileChecksum || pCheckFiles.bHandleFileChanged) {
+		if(CVAR_GET_BOOL("checkGTAFiles"))
+			CLogFile::Printf("[FileCheckSum] Warning, detected modded GTA IV files at player %s", strName.Get());
+
+		bGameFilesModded = true;
+	}
+
+	// Apply serial and ip
 	String strIP = pSenderSocket->GetAddress(true);
 	String strSerial = pSenderSocket->GetSerial();
 
@@ -93,14 +102,13 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 	}
 
 	// Call the playerConnect event, and process the return value
-	CSquirrelArguments playerConnectArguments;
-	playerConnectArguments.push(playerId);
-	playerConnectArguments.push(strName);
-	playerConnectArguments.push(strIP);
-	playerConnectArguments.push(strSerial);
-	playerConnectArguments.push(bGameFilesModded);
-
-	if(g_pEvents->Call("playerConnect", &playerConnectArguments).GetInteger() != 1)
+	CSquirrelArguments playerAuthArguments;
+	playerAuthArguments.push(playerId);
+	playerAuthArguments.push(strName);
+	playerAuthArguments.push(strIP);
+	playerAuthArguments.push(strSerial);
+	playerAuthArguments.push(bGameFilesModded);
+	if(g_pEvents->Call("playerAuth", &playerAuthArguments).GetInteger() != 1)
 	{
 		bsSend.Write(REFUSE_REASON_ABORTED_BY_SCRIPT);
 		g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
@@ -110,17 +118,23 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 
 	CLogFile::Printf("[Connect] Authorization for %s (%s) complete.", strIP.Get(), strName.Get());
 
+	// Setup the player
+	g_pPlayerManager->Add(playerId, strName);
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	
+	// Check player creation
+	if(!pPlayer) {
+		CLogFile::Printf("[Connect] Player creation for %s failed!", strName.Get());
+		return;
+	}
+
+	// Apply files
+	pPlayer->SetFileCheck(pCheckFiles);
+	
 	// Send them our nametag settings(this must be send BEFORE the players/actors are created!!!!!)
 	CBitStream bsNametags;
 	bsNametags.Write(/*CVAR_GET_BOOL("guinametags")*/false);
 	g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
-
-	// Setup the player
-	g_pPlayerManager->Add(playerId, strName);
-	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-
-	if(!pPlayer)
-		return;
 
 	// Let the vehicle manager handle the client join
 	g_pVehicleManager->HandleClientJoin(playerId);
@@ -210,15 +224,34 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 	// Inform the script file manager of the client join
 	g_pClientScriptFileManager->HandleClientJoin(playerId);
 
-	// Call the playerJoin event(AFTER he has downloaded all files)
-	CSquirrelArguments pArguments;
-	pArguments.push(playerId);
-	g_pEvents->Call("playerJoin", &pArguments);
+	CLogFile::Printf("[Join] %s (%d) is joining the game.", strName.Get(), playerId);
 
-	CLogFile::Printf("[Join] %s (%d) has joined the game.", strName.Get(), playerId);
-	
+	CSquirrelArguments playerConnectArguments;
+	playerConnectArguments.push(playerId);
+	playerConnectArguments.push(strName);
+	g_pEvents->Call("playerConnect", &playerConnectArguments);
 }
+void CServerRPCHandler::PlayerJoinComplete(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
 
+	EntityId playerId = pSenderSocket->playerId;
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		pPlayer->SetJoined(true);
+
+		// Call the playerJoin event(AFTER he has downloaded all files)
+		CSquirrelArguments pArguments;
+		pArguments.push(playerId);
+		g_pEvents->Call("playerJoin", &pArguments);
+
+		CLogFile::Printf("[Join] %s (%d) has joined the game.", pPlayer->GetName().Get(), playerId);
+	}
+}
 void CServerRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -268,7 +301,6 @@ void CServerRPCHandler::Command(CBitStream * pBitStream, CPlayerSocket * pSender
 
 		if(!pBitStream->Read(strCommand))
 			return;
-
 
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
@@ -910,6 +942,7 @@ void CServerRPCHandler::VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pS
 	CSquirrelArguments pArguments;
 	pArguments.push(vehicleId);
 	g_pEvents->Call("vehicleDeath",&pArguments);
+	pVehicle->SetDeathTime(SharedUtility::GetTime());
 
 	if(g_pEvents->Call("vehicleRespawn", &pArguments).GetInteger() == 1)
 	{
@@ -938,11 +971,8 @@ void CServerRPCHandler::VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pS
 					}
 				}
 			}
-
 		}
-		pVehicle->SetDeathTime(SharedUtility::GetTime());
 	}
-		
 }
 
 void CServerRPCHandler::SyncActor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -990,6 +1020,7 @@ void CServerRPCHandler::RequestActorUpdate(CBitStream * pBitStream, CPlayerSocke
 void CServerRPCHandler::Register()
 {
 	AddFunction(RPC_PlayerConnect, PlayerConnect);
+	AddFunction(RPC_PlayerJoinComplete, PlayerJoinComplete);
 	AddFunction(RPC_Chat, Chat);
 	AddFunction(RPC_Command, Command);
 	AddFunction(RPC_PlayerSpawn, PlayerSpawn);
@@ -1013,6 +1044,7 @@ void CServerRPCHandler::Register()
 void CServerRPCHandler::Unregister()
 {
 	RemoveFunction(RPC_PlayerConnect);
+	RemoveFunction(RPC_PlayerJoinComplete);
 	RemoveFunction(RPC_Chat);
 	RemoveFunction(RPC_Command);
 	RemoveFunction(RPC_PlayerSpawn);

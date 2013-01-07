@@ -33,10 +33,17 @@ void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSo
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pChatWindow->AddInfoMessage("Connection established, please wait..");
-	CBitStream  bsSend;
+	CBitStream bsSend;
 	bsSend.Write(NETWORK_VERSION);
 	bsSend.Write(g_strNick);
-	bsSend.WriteBit(!CGameFileChecker::CheckFiles());
+
+	CheckGTAFiles pCheckFiles;
+	pCheckFiles.uiHandleFileChecksum = CGameFileChecker::CheckGameFile(0);
+	pCheckFiles.uiGTAFileChecksum = CGameFileChecker::CheckGameFile(1);
+	pCheckFiles.bGTAFileChecksum = CGameFileChecker::IsGameFileChanged(1);
+	pCheckFiles.bHandleFileChanged = CGameFileChecker::IsGameFileChanged(0);
+
+	bsSend.Write(&pCheckFiles);
 	g_pNetworkManager->RPC(RPC_PlayerConnect, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 }
 
@@ -69,6 +76,7 @@ void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket *
 	if(g_pNetworkManager->IsConnected())
 		g_pNetworkManager->Disconnect();
 
+	ResetGame(true);
 	//g_pMainMenu->ShowMessageBox("The server closed the connection!", "Disconnected", true, true, false);
 	g_pMainMenu->SetDisconnectButtonVisible(false);
 }

@@ -13,4 +13,7 @@ class CGameFileChecker
 {
 public:
 	static bool CheckFiles();
+
+	static unsigned int CheckGameFile(int iFile);
+	static bool IsGameFileChanged(int iFile);
 };

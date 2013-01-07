@@ -114,8 +114,12 @@ void CVehicleManager::HandleClientJoin(EntityId playerId)
 	{
 		for(EntityId x = 0; x < MAX_VEHICLES; x++)
 		{
-			if(m_bActive[x])
+			if(m_bActive[x]) {
 				m_pVehicles[x]->SpawnForPlayer(playerId);
+
+				if(m_pVehicles[x]->GetDeathTime() != 0 && m_pVehicles[x]->GetDeathTime() + 5000 <= SharedUtility::GetTime())
+					m_pVehicles[x]->ExplodeCar(playerId);
+			}
 		}
 	}
 }

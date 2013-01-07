@@ -1441,30 +1441,73 @@ void CNetworkPlayer::GetShotTarget(CVector3& vecShotTarget)
 void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 {
 	THIS_CHECK
-	// Set the aim target
-	SetAimTarget(aimSyncData->vecAimTarget);
+	if(IsSpawned()) {
+		// Set the aim target
+		SetAimTarget(aimSyncData->vecAimTarget);
 
-	// Set the shot source
-	SetShotSource(aimSyncData->vecShotSource);
+		// Set the shot source
+		SetShotSource(aimSyncData->vecShotSource);
 
-	// Set the shot target
-	SetShotTarget(aimSyncData->vecShotTarget);
+		// Set the shot target
+		SetShotTarget(aimSyncData->vecShotTarget);
+		
+		// Store the tasks(only 1 task, otherwise other tasks will be stoped/paused -> strange :D)
+		// TODO; find IS_CHAR_AIMING native and reverse it, i searched 2 hours, no result, seems that there's no "official" aim detect func..
+		if(aimSyncData->bAiming) {
+			/*DWORD dwFunc = (CGame::GetBase() + 0xB89090);
+			float px; float py; float pz;
+			px = aimSyncData->vecAimTarget.fX;
+			py = aimSyncData->vecAimTarget.fY;
+			pz = aimSyncData->vecAimTarget.fZ;
+			unsigned int uiScriptingHandle = GetScriptingHandle();
+			_asm
+			{
+				push 1
+				push pz
+				push py
+				push px
+				push uiScriptingHandle
+				call dwFunc
+			}*/
+			// aimSyncData->vecAimTarget.fX,aimSyncData->vecAimTarget.fY,aimSyncData->vecAimTarget.fZ
+		}
+		else if(aimSyncData->bShooting) {
+			/*DWORD dwFunc = (CGame::GetBase() + 0xB89140);
+			float px; float py; float pz;
+			px = aimSyncData->vecShotTarget.fX;
+			py = aimSyncData->vecShotTarget.fY;
+			pz = aimSyncData->vecShotTarget.fZ;
+			unsigned int uiScriptingHandle = GetScriptingHandle();
+			_asm
+			{
+				push 1
+				push 1
+				push pz
+				push py
+				push px
+				push uiScriptingHandle
+				call dwFunc
+			}*/
+		}
+	}
 }
 
 void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 {
 	THIS_CHECK
-	// Get the aim target
-	GetAimTarget(aimSyncData->vecAimTarget);
+	if(IsSpawned()) {
+		// Get the aim target
+		GetAimTarget(aimSyncData->vecAimTarget);
 
-	// Get the aim source
-	GetShotSource(aimSyncData->vecShotSource);
+		// Get the aim source
+		GetShotSource(aimSyncData->vecShotSource);
 
-	// Get the aim target
-	GetShotTarget(aimSyncData->vecShotTarget);
+		// Get the aim target
+		GetShotTarget(aimSyncData->vecShotTarget);
 
-	// Get the look at pos
-	g_pCamera->GetLookAt(aimSyncData->vecLookAt);
+		// Get the look at pos
+		g_pCamera->GetLookAt(aimSyncData->vecLookAt);
+	}
 }
 
 void CNetworkPlayer::AddToWorld()
@@ -1803,7 +1846,7 @@ void CNetworkPlayer::Pulse()
 				{
 					if(m_pVehicle->GetDriver() == NULL)
 					{
-						if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()))
+						if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && CGame::GetSpecialData(1)))
 						{
 							CBitStream bsDeath;
 							bsDeath.Write(m_pVehicle->GetVehicleId());
@@ -2102,8 +2145,12 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			int iUnknown = -4;
 
 			// Unkown seats -4, -5
-			if(byteSeatId == 0)
-				iUnknown = 0;
+			if(byteSeatId == 0) {
+				if(IsLocalPlayer())
+					iUnknown = -7; // TODO: find "localplayer" entry seat..
+				else
+					iUnknown = -7;
+			}
 			else if(byteSeatId == 1)
 				iUnknown = 2;
 			else if(byteSeatId == 2)
@@ -2111,7 +2158,7 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			else if(byteSeatId == 3)
 				iUnknown = 3;
 
-			unsigned int uiUnknown = 0;
+			unsigned int uiUnknown = 32; // 0
 
 			if(byteSeatId > 0)
 				uiUnknown = 0x200000;
@@ -2125,6 +2172,7 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
 			}
 			
+			// Restore engine
 			if(byteSeatId == 0)
 				pVehicle->SetEngineState(pVehicle->GetEngineState());
 
@@ -2212,7 +2260,7 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 		if((int)m_pVehicle->GetHealth() < 0 || (float)m_pVehicle->GetPetrolTankHealth() < 0.0f)
 		{
 			m_bVehicleDeathCheck = true;
-			if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()))
+			if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && CGame::GetSpecialData(1)))
 			{
 				CBitStream bsDeath;
 				bsDeath.Write(m_pVehicle->GetVehicleId());
@@ -2223,8 +2271,8 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 
 		// Reset Driver
 		THIS_CHECK
-			if(m_pVehicle)
-				m_pVehicle->SetDriver(NULL);
+		if(m_pVehicle)
+			m_pVehicle->SetDriver(NULL);
 
 		// Reset interpolation
 		ResetInterpolation();
@@ -2625,7 +2673,7 @@ void CNetworkPlayer::ResetVehicleEnterExit()
 {
 	THIS_CHECK
 	// Reset the vehicle enter/exit flags
-	this->RemoveFromVehicle();
+	RemoveFromVehicle();
 	m_vehicleEnterExit.bEntering = false;
 	m_vehicleEnterExit.pVehicle = NULL;
 	m_vehicleEnterExit.byteSeatId = 0;
@@ -2673,7 +2721,7 @@ void CNetworkPlayer::SetHelmet(bool bHelmet)
 	if(bHelmet)
 		Scripting::GivePedHelmet(GetScriptingHandle());
 	if(!bHelmet)
-		Scripting::RemovePedHelmet(GetScriptingHandle(),true);
+		Scripting::RemovePedHelmet(GetScriptingHandle(),true); // no animation
 
 	m_bHelmet = bHelmet;
 }
@@ -2692,7 +2740,6 @@ void CNetworkPlayer::TaskLookAtCoord(float fX, float fY, float fZ)
 	THIS_CHECK
 	if(IsSpawned())
 	{
-	
 		int uiPlayerHandle = GetScriptingHandle();
 		DWORD dwAddress = (CGame::GetBase() + 0xB895B0);
 		if(uiPlayerHandle != NULL) {

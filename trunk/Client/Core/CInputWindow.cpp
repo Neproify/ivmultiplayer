@@ -170,7 +170,7 @@ void CInputWindow::ProcessInput()
 		if(m_szInput[0] == COMMAND_CHAR)
 		{
 			// Command entered
-			if(strlen(m_szInput) > 1)
+			if(strlen(m_szInput) > 1 && m_szInput[1] != ' ')
 			{
 				// Add the command to the history
 				AddToHistory(m_szInput);
@@ -189,19 +189,20 @@ void CInputWindow::ProcessInput()
 					std::list<ClientCommand *>::iterator iter;
 					for(iter = m_pCommands.begin(); iter != m_pCommands.end(); iter++)
 					{
-						if(!_stricmp((*iter)->szCommandName, szCmd))
-						{
-							// A command has been registered for it
-							(*iter)->pCommandFunc(szParams);
-							ClearInput();
-							Disable();
-							return;
+						if(m_pCommands.begin() != m_pCommands.end()) {
+							if(!_stricmp((*iter)->szCommandName, szCmd))
+							{
+								// A command has been registered for it
+								(*iter)->pCommandFunc(szParams);
+								ClearInput();
+								Disable();
+								return;
+							}
 						}
 					}
 				}
-
 				// Check if we are connected
-				if(g_pNetworkManager && g_pNetworkManager->HasJoinedGame())
+				if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 				{
 					// Event for client-side commands
 					if(g_pEvents)
@@ -222,8 +223,7 @@ void CInputWindow::ProcessInput()
 		{
 			// Add the text to the history
 			AddToHistory(m_szInput);
-
-			if(g_pNetworkManager && g_pNetworkManager->HasJoinedGame())
+			if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 			{
 				CBitStream bsSend;
 				bsSend.Write(String(m_szInput));

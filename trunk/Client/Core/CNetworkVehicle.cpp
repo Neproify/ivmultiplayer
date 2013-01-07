@@ -392,7 +392,8 @@ void CNetworkVehicle::StreamIn()
 		if(!m_bFirstStreamIn)
 			m_bFirstStreamIn = true;
 
-		//CLogFile::Printf("Vehicle Streamin %d",m_vehicleId);
+		// Restore the engine state
+		SetEngineState(m_bEngineStatus);
 
 		// Set the position
 		SetPosition(m_vecPosition);
@@ -454,9 +455,6 @@ void CNetworkVehicle::StreamIn()
 			Scripting::ForceCarLights(GetScriptingHandle(),2);
 		else if(!m_bLights)
 			Scripting::ForceCarLights(GetScriptingHandle(),1);
-		
-		// Restore the engine state
-		SetEngineState(m_bEngineStatus);
 
 		// Reset interpolation
 		ResetInterpolation();
@@ -526,7 +524,6 @@ void CNetworkVehicle::StreamOut()
 	// Save the vehicle basic health
 	m_uiHealth = GetHealth();
 
-
 	// Save the petrol tank health
 	m_fPetrolTankHealth = GetPetrolTankHealth();
 
@@ -586,7 +583,7 @@ void CNetworkVehicle::SetModel(DWORD dwModelHash)
 	// Has the model not changed?
 	if(m_pModelInfo->GetIndex() == iModelIndex)
 	{
-		CLogFile::Printf("CClientVehicle::SetModel Failed (Model change not needed)!");
+		//CLogFile::Printf("CClientVehicle::SetModel Failed (Model change not needed)!");
 		return;
 	}
 
@@ -915,9 +912,10 @@ bool CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 		GetMoveSpeed(emptyVehicleSync->vecMoveSpeed);*/
 
 		CVector3 vecPos; GetPosition(vecPos);
+
 		if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f || vecPos.fZ < -1.0f)
 		{
-			if(Scripting::IsCarDead(GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && vecPos.fZ < -1.0f && CGame::GetSpecialData(1)))
+			if(Scripting::IsCarDead(GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && CGame::GetSpecialData(1)))
 			{
 				CBitStream bsDeath;
 				bsDeath.Write(GetVehicleId());
@@ -933,6 +931,7 @@ bool CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 	
 		for(int i = 0; i <= 5; i++)
 			emptyVehicleSync->fDoor[i] = GetCarDoorAngle(i);
+
 		m_oldEmptySyncData = *emptyVehicleSync;
 		return true;
 	}
@@ -1554,10 +1553,10 @@ void CNetworkVehicle::SetEngineState(bool bState)
 {
 	THIS_CHECK
 	// Are we spawned?
-	if(IsSpawned())
-		m_pVehicle->SetEngineStatus(bState ? 1 : 0, bState ? 1 : 0);
-
-	m_bEngineStatus = bState;
+	if(IsSpawned() && GetEngineState() != bState) {
+		m_pVehicle->SetEngineStatus(bState ? 1 : 0, 1);
+		m_bEngineStatus = bState;
+	}
 }
 
 bool CNetworkVehicle::GetEngineState()

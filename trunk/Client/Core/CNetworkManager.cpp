@@ -111,9 +111,27 @@ void CNetworkManager::PacketHandler(CPacket * pPacket)
 	CNetworkManager * pNetworkManager = g_pNetworkManager;
 	if(!g_pNetworkManager)
 		return;
+
 	// Pass it to the packet handler, if that doesn't handle it, pass it to the rpc handler
-	if(!pNetworkManager->m_pClientPacketHandler->HandlePacket(pPacket) && !pNetworkManager->m_pClientRPCHandler->HandlePacket(pPacket))
-		CLogFile::PrintDebugf("Warning: Unhandled packet (Id: %d)\n", pPacket->packetId);
+	if(!pNetworkManager->m_pClientPacketHandler->HandlePacket(pPacket) && !pNetworkManager->m_pClientRPCHandler->HandlePacket(pPacket)) 
+	{ 
+		if(g_pChatWindow) { 
+			CBitStream bitStream(pPacket->ucData, pPacket->uiLength, false);
+			RPCIdentifier rpcId;
+
+			int iRPCIdentifier = -1;
+			String strType = "Unkown";
+
+			if(pPacket->packetId == 131)
+				strType = "RPC Package";
+
+			if(bitStream.Read(rpcId))
+				iRPCIdentifier = (RPCIdentifier)rpcId;
+
+			g_pChatWindow->AddErrorMessage("[NETWORK WARNING] Unhandled packet (Type: %s|RPC: %d)", strType.Get(), iRPCIdentifier); 
+			CLogFile::PrintDebugf("[NETWORK WARNING] Unhandled packet (Type: %s|RPC: %d)", strType.Get(), iRPCIdentifier);
+		} 
+	}
 }
 
 void CNetworkManager::Process()
@@ -168,6 +186,7 @@ void CNetworkManager::Process()
 
 		if(g_pObjectManager)
 			g_pObjectManager->Process();
+
 		// Process the audio manager
 		CAudioManager::Process();
 

@@ -151,7 +151,31 @@ void CChatWindow::AddChatMessage(EntityId playerId, const char * szMessage)
 
 	//Write messages to log
 	CLogFile::Open("Chatlog.log",true);
-	CLogFile::Printf("%s",szMessage);
+	CLogFile::Printf("%s: %s",m_chatMessages[0].szName,szMessage);
+	CLogFile::Close();
+	CLogFile::Open("Client.log",true);//Reopen client.log
+}
+
+void CChatWindow::AddErrorMessage(const char * szFormat, ...)
+{
+	// Ensure we have a valid format string
+	if(!szFormat)
+		return;
+
+	MoveUp();
+	va_list vaArgs;
+	va_start(vaArgs, szFormat);
+	vsnprintf(m_chatMessages[0].szMessage, MAX_MESSAGE_LENGTH, szFormat, vaArgs);
+	va_end(vaArgs);
+	m_chatMessages[0].szMessage[MAX_MESSAGE_LENGTH] = '\0';
+	m_chatMessages[0].messageColor = MESSAGE_ERROR_COLOR;
+	m_chatMessages[0].fNameExtent = 0;
+	m_chatMessages[0].bAllowFormatting = true;
+	m_iMessageAmount++;
+
+	// Write info to log
+	CLogFile::Open("Chatlog.log",true);
+	CLogFile::Printf("ERROR: %s",szFormat);
 	CLogFile::Close();
 	CLogFile::Open("Client.log",true);//Reopen client.log
 }
@@ -221,6 +245,12 @@ void CChatWindow::AddMessage(DWORD dwColor, bool bAllowFormatting, const char * 
 	m_chatMessages[0].fNameExtent = 0;
 	m_chatMessages[0].bAllowFormatting = bAllowFormatting;
 	m_iMessageAmount++;
+
+	// Write info to log
+	CLogFile::Open("Chatlog.log",true);
+	CLogFile::Printf("%s",szFormat);
+	CLogFile::Close();
+	CLogFile::Open("Client.log",true);//Reopen client.log
 }
 
 void CChatWindow::PageUp()

@@ -45,6 +45,9 @@ public:
 	void GetRotation(CVector3& vecRotation);
 	unsigned int GetHandle() { return m_uiObjectHandle; }
 
+	bool		IsAttached() { return bAttached; }
+	void		SetAttached(bool bAttach) { bAttached = bAttach; }
+
 	bool		IsMoving() { return m_bIsMoving; }
 	void		SetIsMoving(bool bMoving) { m_bIsMoving = bMoving; }
 	CVector3	GetMoveTarget() { return m_vecMoveTarget; }

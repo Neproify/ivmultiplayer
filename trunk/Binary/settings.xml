@@ -38,6 +38,9 @@
 	<!-- Toggles the headmovement sync -->
 	<headmovement>true</headmovement>
 	
+	<!-- Toggles the gamefile check -->
+	<checkGTAFiles>true</checkGTAFiles>
+	
 	<!-- Switches between vehicles are always damageable or only if the vehicle has a driver -->
 	<vehicledamage>true</vehicledamage>
 	
