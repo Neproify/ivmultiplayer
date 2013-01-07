@@ -82,6 +82,13 @@ SQInteger CServerNatives::LogF(SQVM * pVM)
 // addRule(name, value)
 SQInteger CServerNatives::AddRule(SQVM * pVM)
 {
+	if(!g_pQuery)
+	{
+		// If <query> is disabled on server.
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
 	const char* rule;
 	const char* value;
 	sq_getstring(pVM, -2, &rule);
@@ -93,6 +100,13 @@ SQInteger CServerNatives::AddRule(SQVM * pVM)
 // removeRule(name)
 SQInteger CServerNatives::RemoveRule(SQVM * pVM)
 {
+	if(!g_pQuery)
+	{
+		// If <query> is disabled on server.
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
 	const char* rule;
 	sq_getstring(pVM, -1, &rule);
 	sq_pushbool(pVM, g_pQuery->RemoveRule(rule));
@@ -101,7 +115,14 @@ SQInteger CServerNatives::RemoveRule(SQVM * pVM)
 
 // setRule(name, value)
 SQInteger CServerNatives::SetRule(SQVM * pVM)
-{
+{	
+	if(!g_pQuery)
+	{
+		// If <query> is disabled on server.
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
 	const char* rule;
 	const char* value;
 	sq_getstring(pVM, -2, &rule);
@@ -113,6 +134,13 @@ SQInteger CServerNatives::SetRule(SQVM * pVM)
 // getRule(name)
 SQInteger CServerNatives::GetRule(SQVM * pVM)
 {
+	if(!g_pQuery)
+	{
+		// If <query> is disabled on server.
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
 	const char* rule;
 	sq_getstring(pVM, -1, &rule);
 	QueryRule * pRule = g_pQuery->GetRule(rule);

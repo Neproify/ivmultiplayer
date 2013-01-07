@@ -61,7 +61,7 @@ EntityId CBlipManager::Create(int iSprite, CVector3 vecPosition, bool bShow)
 			m_Blips[x].fSize = 1.0f;
 			m_Blips[x].bRouteBlip = false;
 			m_Blips[x].bShortRange = false;
-			m_Blips[x].bShow = true;
+			m_Blips[x].bShow = bShow;
 			m_Blips[x].strName = "";
 			bsSend.Write(m_Blips[x].uiColor);
 			bsSend.Write(m_Blips[x].fSize);

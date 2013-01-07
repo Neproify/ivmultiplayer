@@ -576,6 +576,9 @@ int main(int argc, char ** argv)
 		CLogFile::Print("\n============ Loading Resources ===========\n");
 #endif
 
+	if(CVAR_GET_BOOL("query"))
+		g_pQuery = new CQuery(CVAR_GET_INTEGER("port"), CVAR_GET_STRING("hostaddress"));
+
 	int iResourcesLoaded = 0;
 	int iFailedResources = 0;
 
@@ -629,9 +632,6 @@ int main(int argc, char ** argv)
 	CThread inputThread;
 	inputThread.SetUserData<bool>(true);
 	inputThread.Start(InputThread);
-
-	if(CVAR_GET_BOOL("query"))
-		g_pQuery = new CQuery(CVAR_GET_INTEGER("port"), CVAR_GET_STRING("hostaddress"));
 
 	if(CVAR_GET_BOOL("listed"))
 		g_pMasterList = new CMasterList(MASTERLIST_ADDRESS, MASTERLIST_VERSION, MASTERLIST_TIMEOUT, CVAR_GET_INTEGER("port"));
