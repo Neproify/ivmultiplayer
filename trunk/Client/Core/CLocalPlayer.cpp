@@ -760,3 +760,14 @@ bool CLocalPlayer::IsCameraAttachedToEntity(unsigned int uiHandle)
 	}
 	return false;
 }
+
+void CLocalPlayer::Reset()
+{
+	m_bFirstSpawn = false;
+	m_bFinishedInitialize = false;
+	m_bSpawnMarked = false;
+
+	// Reset file transfer
+	if(g_pFileTransfer)
+		g_pFileTransfer->SetDownloadFinished(false);
+}

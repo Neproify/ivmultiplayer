@@ -968,6 +968,7 @@ void InternalResetGame(bool bAutoConnect)
 		CLogFile::Printf("Created local player instance");
 	}
 
+	g_pLocalPlayer->Reset();
 	g_pLocalPlayer->SetPlayerId(INVALID_ENTITY_ID);
 	g_pLocalPlayer->SetModel(Scripting::MODEL_PLAYER);
 	g_pLocalPlayer->Teleport(CVector3());

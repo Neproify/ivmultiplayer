@@ -41,11 +41,11 @@ void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn)
 		char * szIpAddress = inet_ntoa(sa);
 
 		// Call the scripting event
-		/*CSquirrelArguments args;
+		CSquirrelArguments args;
 		args.push(request_info->uri);
 		args.push(szIpAddress);
 		args.push(request_info->request_method);
-		g_pEvents->Call("webRequest", &args);*/
+		g_pEvents->Call("webRequest", &args);
 
 		// Output the string to the web client
 		/*const char * out = "yes";
