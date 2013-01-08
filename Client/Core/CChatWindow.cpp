@@ -175,7 +175,7 @@ void CChatWindow::AddErrorMessage(const char * szFormat, ...)
 
 	// Write info to log
 	CLogFile::Open("Chatlog.log",true);
-	CLogFile::Printf("ERROR: %s",szFormat);
+	CLogFile::Printf("ERROR: %s",m_chatMessages[0].szMessage);
 	CLogFile::Close();
 	CLogFile::Open("Client.log",true);//Reopen client.log
 }
@@ -199,7 +199,7 @@ void CChatWindow::AddInfoMessage(const char * szFormat, ...)
 
 	// Write info to log
 	CLogFile::Open("Chatlog.log",true);
-	CLogFile::Printf("INFO: %s",szFormat);
+	CLogFile::Printf("INFO: %s",m_chatMessages[0].szMessage);
 	CLogFile::Close();
 	CLogFile::Open("Client.log",true);//Reopen client.log
 }
@@ -224,7 +224,7 @@ void CChatWindow::AddInfoDebugMessage(const char * szFormat, ...)
 
 	// Write info to log
 	CLogFile::Open("Chatlog.log",true);
-	CLogFile::Printf("DEBUG: %s",szFormat);
+	CLogFile::Printf("DEBUG: %s",m_chatMessages[0].szMessage);
 	CLogFile::Close();
 	CLogFile::Open("Client.log",true);//Reopen client.log
 #endif
@@ -248,7 +248,7 @@ void CChatWindow::AddMessage(DWORD dwColor, bool bAllowFormatting, const char * 
 
 	// Write info to log
 	CLogFile::Open("Chatlog.log",true);
-	CLogFile::Printf("%s",szFormat);
+	CLogFile::Printf("%s",m_chatMessages[0].szMessage);
 	CLogFile::Close();
 	CLogFile::Open("Client.log",true);//Reopen client.log
 }

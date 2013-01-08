@@ -13,6 +13,7 @@
 #include <Network/PacketIdentifiers.h>
 #include "CGameFileChecker.h"
 #include "CMainMenu.h"
+#include "CGame.h"
 
 extern CChatWindow     * g_pChatWindow;
 extern String            g_strNick;
@@ -72,6 +73,7 @@ void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket *
 {
 	g_pChatWindow->AddInfoMessage("Server closed the connection ...");
 	g_pMainMenu->ResetNetworkStats();
+	CGame::SetKickedFromServer(true);
 
 	if(g_pNetworkManager->IsConnected())
 		g_pNetworkManager->Disconnect();

@@ -31,8 +31,8 @@ extern CModelManager   * g_pModelManager;
 extern bool              m_bControlsDisabled;
 extern CChatWindow     * g_pChatWindow;
 
-#define THIS_CHECK if(!this) { CLogFile::Printf("this error"); return; }
-#define THIS_CHECK_R(x) if(!this) { CLogFile::Printf("this error"); return x; }
+#define THIS_CHECK if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[NETWORPLAYER WARNING] Internal error occured in CNetworkPlayer.cpp"); } return; }
+#define THIS_CHECK_R(x) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[NETWORPLAYER WARNING] Internal error occured in CNetworkPlayer.cpp"); } return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	: CStreamableEntity(STREAM_ENTITY_PLAYER, 300.0f),

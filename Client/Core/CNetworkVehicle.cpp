@@ -19,14 +19,16 @@
 #include "CNetworkManager.h"
 #include "CCamera.h"
 #include "CGame.h"
+#include "CChatWindow.h"
 
 extern CPlayerManager * g_pPlayerManager;
 extern CModelManager * g_pModelManager;
 extern CLocalPlayer * g_pLocalPlayer;
 extern CNetworkManager * g_pNetworkManager;
+extern CChatWindow * g_pChatWindow;
 
-#define THIS_CHECK if(!this) { CLogFile::Printf("this error"); return; }
-#define THIS_CHECK_R(x) if(!this) { CLogFile::Printf("this error"); return x; }
+#define THIS_CHECK if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[NETWORKVEHICLE WARNING] Internal error occured in CNetworkVehicle.cpp"); } return; }
+#define THIS_CHECK_R(x) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[NETWORKVEHICLE WARNING] Internal error occured in CNetworkVehicle.cpp"); } return x; }
 
 CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash, int iModelId)
 	: CStreamableEntity(STREAM_ENTITY_VEHICLE, 200.0f),

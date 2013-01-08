@@ -153,6 +153,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	g_pMainMenu->SetDisconnectButtonVisible(true);
 
 	CGame::SetInputState(true);
+	CGame::SetKickedFromServer(false);
 	CGame::SetState(GAME_STATE_INGAME);
 	g_pChatWindow->AddInfoMessage("Successfully joined %s.", sHostName.C_String());
 }
@@ -964,8 +965,8 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 		// Is it the local player?
 		if(pPlayer->IsLocalPlayer())
 		{
-			// Respawn the local player
-			g_pLocalPlayer->Respawn();
+			if(g_pFileTransfer->DownloadFinished() && g_pLocalPlayer->IsConnectFinished())
+				g_pLocalPlayer->Respawn();
 		}
 		else
 		{
@@ -3271,9 +3272,7 @@ void CClientRPCHandler::ScriptingSetVehiclePetrolTankHealth(CBitStream *pBitStre
 
 	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
 	if(pVehicle)
-	{
 		pVehicle->SetPetrolTankHealth(fPetrol);
-	}
 }
 
 void CClientRPCHandler::ScriptingSetVehicleTyreState(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
@@ -3727,6 +3726,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingDisplayInfoText, ScriptingDisplayInfoText);
 	AddFunction(RPC_ScriptingToggleFrozen, ScriptingToggleFrozen);
 	AddFunction(RPC_ScriptingSetVehicleHealth, ScriptingSetVehicleHealth);
+	AddFunction(RPC_ScriptingSetVehiclePetrolTankHealth, ScriptingSetVehiclePetrolTankHealth);
 	AddFunction(RPC_ScriptingSetPlayerArmour, ScriptingSetPlayerArmour);
 	AddFunction(RPC_ScriptingSetPlayerMoveSpeed, ScriptingSetPlayerMoveSpeed);
 	AddFunction(RPC_ScriptingSetVehicleMoveSpeed, ScriptingSetVehicleMoveSpeed);

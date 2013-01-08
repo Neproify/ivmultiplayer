@@ -53,15 +53,6 @@ bool CFileTransfer::Process()
 {
 	if(IsBusy() || GetTransferListSize() == 0)
 		return false;
-
-	CLogFile::Print("Creating directories to download files to..");
-	String strFolderName = SharedUtility::GetAbsolutePath("clientfiles");
-	if(!SharedUtility::Exists(strFolderName))
-		SharedUtility::CreateDirectoryA(strFolderName);
-	if(!SharedUtility::Exists(strFolderName + "\\clientscripts"))
-		SharedUtility::CreateDirectoryA(strFolderName + "\\clientscripts");
-	if(!SharedUtility::Exists(strFolderName + "\\resources"))
-		SharedUtility::CreateDirectoryA(strFolderName + "\\resources");	
 	
 	CLogFile::Print("Starting download client files thread...");
 	m_thread->SetUserData<ThreadUserData*>(m_userdata);
@@ -115,8 +106,10 @@ int CFileTransfer::GetTransferListSize()
 			count++;
 	}
 
-	if(count == 0)
+	if(m_userdata->m_fileList.size() == 0)
 		g_pFileTransfer->SetDownloadFinished(true);
+	//else 
+		//g_pFileTransfer->SetDownloadFinished(false);
 
 	return count;
 }
@@ -218,8 +211,8 @@ void WorkAsync(CThread * pCreator)
 
 	// If connecting to local host (very fast) wait a little to give world time to initialize.
 	String host = pUserdata->httpDownloader->GetHost();
-	if(host == "127.0.0.1" || host.ToLower() == "localhost")
-		Sleep(2000);
+	//if(host == "127.0.0.1" || host.ToLower() == "localhost")
+		//Sleep(2000);
 
 	// Download all files queued.
 	for(std::list<FileDownload *>::iterator iter = pUserdata->m_fileList.begin(); iter != pUserdata->m_fileList.end(); iter++)
@@ -250,7 +243,7 @@ void WorkAsync(CThread * pCreator)
 
 		// Connecting:
 		String strDownloadUrl("/%s/%s", strFolderName.Get(), (*iter)->name.Get());		
-		CLogFile::PrintDebugf("[TRANSFER]: Downloading %s, %s, %s", (*iter)->name.Get(), strDownloadUrl.Get(), strFilePath.Get());
+		CLogFile::PrintDebugf("[TRANSFER]: Downloading %s, %s", (*iter)->name.Get(), strDownloadUrl.Get()/*, strFilePath.Get()*/);
 		if(!pUserdata->httpDownloader->Get(strDownloadUrl))
 		{
 			// We can't connect or something like this.
@@ -297,9 +290,9 @@ void FileTransfer_DownloadedFile()
 	
 	 if(file->type == FileDownloadCategory::Script)
 	{
-		CLogFile::PrintDebugf("Loading client script: %s.", file->name.Get());
+		CLogFile::PrintDebugf("Adding client script: %s.", file->name.Get());
 		g_pClientScriptManager->AddScript(file->name.Get(), file->fileName.Get());
-		if(g_pLocalPlayer->GetFirstSpawn())
+		if(g_pLocalPlayer->GetFirstSpawn() && g_pFileTransfer->DownloadFinished())
 			g_pClientScriptManager->Load(file->name);	
 	}
 }

@@ -74,6 +74,7 @@ private:
 	static CIVWorld     * m_pWorld;
 	static bool			  m_bNameTags;
 	static bool			  m_bGameLoaded;
+	static bool			  m_bKickedFromServer;
 	static bool			  m_bHeadMovement;
 	static bool			  m_bSpecialData[2];
 
@@ -143,6 +144,8 @@ public:
 	static bool			   GetHeadMovement() { return m_bHeadMovement; }
 	static void			   SetGameLoaded(bool load) { m_bGameLoaded = load; }
 	static bool			   IsGameLoaded() { return m_bGameLoaded; }
+	static void			   SetKickedFromServer(bool bKick) { m_bKickedFromServer = bKick; }
+	static bool			   IsKickedFromServer() { return m_bKickedFromServer; }
 	static DWORD		   GetNativeAddress(DWORD dwNative);
 	static String		   GetAnimationGroup();
 	static void			   PatchWorldAndTrain();

@@ -145,7 +145,7 @@ void CNetworkManager::Process()
 	if(m_bJoinedServer && !m_bJoinedGame)
 	{
 		// Is the file transfer list empty?
-		if(g_pFileTransfer->GetTransferListSize() == 0)
+		if(g_pFileTransfer->DownloadFinished() && g_pLocalPlayer->IsConnectFinished())
 		{
 			// Flag ourselves as joined a game
 			m_bJoinedGame = true;
