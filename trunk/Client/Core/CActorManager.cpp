@@ -90,6 +90,7 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 			Scripting::ChangeBlipSprite(m_Actors[actorId].uiBlipId, Scripting::BLIP_OBJECTIVE);
 			Scripting::ChangeBlipScale(m_Actors[actorId].uiBlipId, 0.5);
 			Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].strName.Get());
+			Scripting::SetBlipAsShortRange(m_Actors[actorId].uiBlipId, true);
 		}
 		Scripting::RemoveFakeNetworkNameFromPed(m_Actors[actorId].uiActorIndex);
 		Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,strName.Get(),255,255,255,255);

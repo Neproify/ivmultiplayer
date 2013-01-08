@@ -43,6 +43,7 @@ public:
 	void           HandleSpawn();
 	void           DoDeathCheck();
 	void           Pulse();
+	bool		   IsConnectFinished() { return m_bFinishedInitialize; }
 	void           SetSpawnLocation(CVector3 vecPosition, float fHeading);
 	void           SetPlayerControlAdvanced(bool bControl, bool bCamera);
 	void           SendOnFootSync();

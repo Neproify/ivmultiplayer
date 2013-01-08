@@ -93,11 +93,9 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true),
 	m_bFinishedInitialize(false),
 	m_bSpawnMarked(false)
 {
-	//m_bAnimating = false;
-	
 	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
-	this->SetCanBeStreamedIn(false);
-	Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(), false);
+	SetCanBeStreamedIn(false);
+
 	// Patch to override spawn position and let the game call HandleSpawn
 	CPatcher::InstallCallPatch(COffsets::FUNC_GetLocalPlayerSpawnPosition, (DWORD)GetLocalPlayerSpawnPosition, 5);
 	CPatcher::InstallCallPatch(COffsets::CALL_SpawnLocalPlayer, (DWORD)HandleLocalPlayerSpawn, 5);
@@ -123,6 +121,7 @@ void CLocalPlayer::HandleSpawn()
 	// If we're already spawned(min. one time death), recreate fire(deleted after respawn)
 	if(m_bFirstSpawn)
 		g_pFireManager->ReCreateAllFire();
+
 	CLogFile::Printf("HandleSpawn(LocalPlayer)");
 
 	// Enable input if needed
@@ -153,14 +152,22 @@ void CLocalPlayer::HandleSpawn()
 	// Reset the camera
 	g_pCamera->Reset();
 
-	if(!m_bSpawnMarked) {
+	if(m_bFinishedInitialize && m_bFirstSpawn) {
 		// Send the spawn notification to the server
 		CBitStream bsSend;
 		bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
 		g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 		m_bSpawnMarked = true;
 	}
+	else
+	{
+		// Fade the screen out
+		Scripting::ScreenFadeOut(1);
+	}
 	CLogFile::Printf("Flag us as alive");
+	if(IsSpawned())
+		Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(),true);
+
 	// Flag us as alive
 	m_bIsDead = false;
 }
@@ -198,26 +205,29 @@ void CLocalPlayer::Pulse()
 	CNetworkPlayer::Pulse();
 
 	if(g_pFileTransfer && g_pNetworkManager) {
-		if(g_pFileTransfer->DownloadFinished() && !m_bFinishedInitialize){
+		if(g_pFileTransfer->DownloadFinished() && g_pFileTransfer->GetTransferListSize() == 0 && !m_bFinishedInitialize){
 			m_bFinishedInitialize = true;
 
-			// Now load our client scripts(seems that all resources are downloaded ;))
-			if(!m_bFirstSpawn)
-			{
+			g_pNetworkManager->RPC(RPC_PlayerJoinComplete, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+			CLogFile::Print("HandleLocalPlayerSpawn(#1, send join notification to the server)");
+			if(!m_bSpawnMarked) {
+				CLogFile::Print("HandleLocalPlayerSpawn(#2, loading scripts)");
 				g_pClientScriptManager->LoadAll();
 				m_bFirstSpawn = true;
-			}
-			g_pNetworkManager->RPC(RPC_PlayerJoinComplete, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 
-			if(!m_bSpawnMarked) {
 				// Send the spawn notification to the server
 				CBitStream bsSend;
 				bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
 				g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+					
+				CLogFile::Print("HandleLocalPlayerSpawn(#3, spawn player)");
 
 				// Set again spawn position..
-				CVector3 vecSpawnPos; GetSpawnPosition(&vecSpawnPos);
-				SetPosition(vecSpawnPos);
+				if(IsSpawned()) {
+					CVector3 vecSpawnPos; GetSpawnPosition(&vecSpawnPos);
+					SetPosition(vecSpawnPos);
+				}
+				Scripting::ScreenFadeIn(1);
 				m_bSpawnMarked = true;
 			}
 		}

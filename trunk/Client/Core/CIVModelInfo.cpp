@@ -157,12 +157,12 @@ void CIVModelInfo::AddReference(bool bWaitForLoad)
 	// Increment the reference count
 	m_dwReferenceCount++;
 
-	CLogFile::Printf("Added model reference for model %d (Reference count is now %d)", m_iModelIndex, m_dwReferenceCount);
+	//CLogFile::Printf("Added model reference for model %d (Reference count is now %d)", m_iModelIndex, m_dwReferenceCount);
 
 	// Is this the first reference?
 	if(m_dwReferenceCount == 1)
 	{
-		CLogFile::Printf("Loading model %d", m_iModelIndex);
+		//CLogFile::Printf("Loading model %d", m_iModelIndex);
 
 		// Load the model
 		Load(bWaitForLoad);
@@ -186,12 +186,12 @@ void CIVModelInfo::RemoveReference()
 	if(m_dwReferenceCount > 0)
 	{
 		m_dwReferenceCount--;
-		CLogFile::Printf("Removed model reference for model %d (Reference count is now %d)", m_iModelIndex, m_dwReferenceCount);
+		//CLogFile::Printf("Removed model reference for model %d (Reference count is now %d)", m_iModelIndex, m_dwReferenceCount);
 
 		// Is this the last reference?
 		if(m_dwReferenceCount == 0)
 		{
-			CLogFile::Printf("Unlading model %d", m_iModelIndex);
+			//CLogFile::Printf("Unlading model %d", m_iModelIndex);
 
 			// Unload the model
 			Unload();

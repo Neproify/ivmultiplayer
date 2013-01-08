@@ -35,6 +35,7 @@
 #include "CMainMenu.h"
 #include "AnimGroups.h"
 #include "CHooks.h"
+#include <SharedUtility.h>
 
 // Enable one of them if we want/don't want trains
 #ifdef IVMP_TRAINS
@@ -66,6 +67,7 @@ bool						CGame::m_bNameTags = false;
 bool						CGame::m_bGameLoaded = false;
 bool						 CGame::m_bHeadMovement = true;
 bool						CGame::m_bSpecialData[2] = {false, true};
+bool						CGame::m_bKickedFromServer = false;
 
 void CGame::SetFocused(bool bFocused)
 {
@@ -235,6 +237,15 @@ void CGame::Initialize()
 	//		Scripting::MarkScriptAsNoLongerNeeded(cVar4);
 	//	}
 	//}
+
+	CLogFile::Print("Creating directories to download files to..");
+	String strFolderName = SharedUtility::GetAbsolutePath("clientfiles");
+	if(!SharedUtility::Exists(strFolderName))
+		SharedUtility::CreateDirectoryA(strFolderName);
+	if(!SharedUtility::Exists(strFolderName + "\\clientscripts"))
+		SharedUtility::CreateDirectoryA(strFolderName + "\\clientscripts");
+	if(!SharedUtility::Exists(strFolderName + "\\resources"))
+		SharedUtility::CreateDirectoryA(strFolderName + "\\resources");	
 
 	// Create our pools class
 	m_pPools = new CPools();

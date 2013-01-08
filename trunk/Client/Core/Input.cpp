@@ -174,7 +174,8 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		if(g_pActorManager)
 			g_pActorManager->bGameFocused = true;
 
-		// Show the cursor
+		// Hide the cursor
+		//ShowCursor(FALSE);
 		ShowCursor(true);
 		CLogFile::Print("Gained window focus");
 
@@ -191,7 +192,8 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		if(g_pActorManager)
 			g_pActorManager->bGameFocused = false;
 
-		// Hide the cursor
+		// Show the cursor
+		//ShowCursor(TRUE);
 		ShowCursor(false);
 		CLogFile::Print("Lost window focus");
 		return 1;
@@ -207,7 +209,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		if(g_pNetworkManager)
 		{
 			// Is this a F12 key up?
-			if(CGame::IsGameLoaded())
+			if(CGame::IsGameLoaded() && !CGame::IsKickedFromServer())
 			{
 				if(uMsg == WM_KEYUP && wParam == VK_F12)
 				{
