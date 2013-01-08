@@ -14,10 +14,12 @@
 #include "CVehicleManager.h"
 #include "CNetworkManager.h"
 #include <CLogfile.h>
+#include "CGame.h"
 
 extern CModelManager * g_pModelManager;
 extern CVehicleManager * g_pVehicleManager;
 extern CNetworkManager * g_pNetworkManager;
+extern CGame * g_pGame;
 
 CActorManager::CActorManager()
 	: bGameFocused(true), 
@@ -356,7 +358,32 @@ void CActorManager::DriveToPoint(EntityId actorId, EntityId vehicleId, CVector3 
 				g_pVehicleManager->Get(vehicleId)->GetRotation(vecRot);
 				g_pVehicleManager->Get(vehicleId)->SetRotation(vecRot);
 
-				Scripting::TaskCarDriveToCoord(m_Actors[actorId].uiActorIndex,g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),vecFinalPos.fX,vecFinalPos.fY,vecFinalPos.fZ, 10.0f, 0, 0, 0, 5.0f, -1);
+				unsigned int uiVehicle = g_pVehicleManager->Get(vehicleId)->GetScriptingHandle();
+				unsigned int uiPlayer = m_Actors[actorId].uiActorIndex;
+				float pX = vecFinalPos.fX;
+				float pY = vecFinalPos.fY;
+				float pZ = vecFinalPos.fZ;
+				DWORD dwFunc = (CGame::GetBase() + 0xB87200);
+				float f1 = 5.0;
+				float f2 = 10.0;
+				/*(signed int a1, signed int a2, float a3, float a4, int a5, int a6, int a7, int a8, int a9, float a10, int a11, char a12)*/
+				_asm
+				{
+					push 0
+					push 1
+					push f1
+					push 0
+					push 0
+					push 0
+					push f2
+					push pZ
+					push pY
+					push pX
+					push uiVehicle
+					push uiPlayer
+					call dwFunc
+				}
+				//Scripting::TaskCarDriveToCoord(m_Actors[actorId].uiActorIndex,g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),vecFinalPos.fX,vecFinalPos.fY,vecFinalPos.fZ, 10.0f, 0, 0, 0, 5.0f, -1);
 				m_Actors[actorId].bRender = true;
 			}
 		}

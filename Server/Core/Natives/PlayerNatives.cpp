@@ -2635,4 +2635,6 @@ SQInteger CPlayerNatives::GetFileChecksum(SQVM * pVM)
 			return 1;
 		}
 	}
+	sq_pushbool(pVM, false);
+	return 1;
 }

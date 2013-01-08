@@ -92,6 +92,9 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 	pArguments.push(byteReason);
 	g_pEvents->Call("playerDisconnect", &pArguments);
 
+	// Delete player blip
+	g_pBlipManager->DeleteForPlayer(playerId);
+
 	m_pPlayers[playerId]->SetState(STATE_TYPE_DISCONNECT);
 	m_pPlayers[playerId]->DeleteForWorld();
 
