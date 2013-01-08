@@ -152,18 +152,18 @@ void CLocalPlayer::HandleSpawn()
 	// Reset the camera
 	g_pCamera->Reset();
 
-	if(m_bFinishedInitialize && m_bFirstSpawn) {
+	if(m_bFinishedInitialize && m_bFirstSpawn && m_bSpawnMarked) {
 		// Send the spawn notification to the server
 		CBitStream bsSend;
 		bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
 		g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
-		m_bSpawnMarked = true;
 	}
 	else
 	{
 		// Fade the screen out
 		Scripting::ScreenFadeOut(1);
 	}
+
 	CLogFile::Printf("Flag us as alive");
 	if(IsSpawned())
 		Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(),true);
@@ -216,9 +216,10 @@ void CLocalPlayer::Pulse()
 				m_bFirstSpawn = true;
 
 				// Send the spawn notification to the server
-				CBitStream bsSend;
-				bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
-				g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+				// NOTE: don't call it there, we're using HandleSpawn function .. ;)
+				//CBitStream bsSend;
+				//bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
+				//g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 					
 				CLogFile::Print("HandleLocalPlayerSpawn(#3, spawn player)");
 
