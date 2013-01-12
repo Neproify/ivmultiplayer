@@ -31,6 +31,7 @@ private:
 	bool				m_bFinishedInitialize;
 	unsigned short		m_uiPing;
 	OnFootSyncData		m_oldOnFootSync;
+	bool				m_bRadarVisible;
 	/*bool			    m_bAnimating;
 	char*				m_strAnimGroup;
 	char*				m_strAnimSpec;*/
@@ -64,6 +65,8 @@ public:
 	void		   SetPing(unsigned short uiPing) { m_uiPing = uiPing; }
 	/*void		   SetAnimation(const char * strGroup, const char * strAnim);*/
 	bool		   IsCameraAttachedToEntity(unsigned uiScriptingHandle);
+	void		   SetRadarVisible(bool bVis) { m_bRadarVisible = bVis; }
+	bool		   IsRadarVisible() { return m_bRadarVisible; }
 
 	void		   Reset();
 };

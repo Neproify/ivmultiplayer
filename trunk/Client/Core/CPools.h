@@ -19,7 +19,7 @@
 #include "CIVTrain.h"
 
 // Player info array size
-#define PLAYER_INFO_ARRAY_SIZE 32
+#define PLAYER_INFO_ARRAY_SIZE 255 // 32
 
 // Custom (increased) checkpoint array size
 #define CHECKPOINT_ARRAY_SIZE 128

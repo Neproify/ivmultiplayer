@@ -32,7 +32,7 @@
 	<!-- Toggles frequently called events which has impact on CPU usage  -->
 	<frequentevents>false</frequentevents>
 
-	<!-- Toggles the network nametags from GTA IV to nametags from IV:MP(GUI) -->
+	<!-- Toggles the network nametags from GTA IV to nametags from IV:MP(CEGUI) -->
 	<guinametags>false</guinametags>
 	
 	<!-- Toggles the headmovement sync -->
@@ -40,6 +40,9 @@
 	
 	<!-- Toggles the gamefile check -->
 	<checkGTAFiles>true</checkGTAFiles>
+	
+	<!-- Toggles remote control, no rc = "none" -->
+	<remotecontrol>none</remotecontrol>
 	
 	<!-- Switches between vehicles are always damageable or only if the vehicle has a driver -->
 	<vehicledamage>true</vehicledamage>

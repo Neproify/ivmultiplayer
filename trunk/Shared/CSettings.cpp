@@ -35,6 +35,7 @@ void CSettings::LoadDefaults()
 	AddBool("vehiclewaterdeath", true);
 	AddBool("headmovement",true);
 	AddBool("checkGTAFiles",true);
+	AddString("remotecontrol","none");
 	AddString("hostname", VERSION_IDENTIFIER_2 " Server");
 	AddString("hostaddress", "");
 	AddBool("frequentevents", false);

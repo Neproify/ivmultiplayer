@@ -445,7 +445,6 @@ void Direct3DRender()
 				httpClient->SetHost(MASTERLIST_ADDRESS);
 				String strPostPath("/getlatestversion.php");
 				httpClient->Get(strPostPath);
-				CLogFile::Print("OK-master");
 			}
 		}
 	}
@@ -519,7 +518,7 @@ void Direct3DRender()
 	}
 	
 	// Moving Camera for main menu, problem: g_pCamera->SetLookAt() cause an crash at change
-	/*if(g_pNetworkManager && g_pCamera)
+	if(g_pNetworkManager && g_pCamera)
 	{
 		if(!g_pNetworkManager->IsConnected() && CGame::IsGameLoaded())
 		{
@@ -537,17 +536,17 @@ void Direct3DRender()
 				if(g_iCameraState == 1)
 				{
 					g_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
-					//g_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT));
+					g_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT),false);
 				}
 				if(g_iCameraState == 2)
 				{
 					g_pCamera->SetPosition(CVector3(TRIANGLE_CAMERA_POS));
-					//g_pCamera->SetLookAt(CVector3(TRIANGLE_CAMERA_LOOK_AT));
+					g_pCamera->SetLookAt(CVector3(TRIANGLE_CAMERA_LOOK_AT),false);
 				}
 				if(g_iCameraState == 3)
 				{
 					g_pCamera->SetPosition(CVector3(TRIANGLE_CAMERA_POS_OLD));
-					//g_pCamera->SetLookAt(CVector3(TRIANGLE_CAMERA_LOOK_AT_OLD));
+					g_pCamera->SetLookAt(CVector3(TRIANGLE_CAMERA_LOOK_AT_OLD),false);
 				}
 			}
 			else
@@ -563,7 +562,7 @@ void Direct3DRender()
 				g_pCamera->SetPosition(vecPosition);
 			}
 		}
-	}
+	}/*
 	if(g_pNetworkManager)
 	{
 		if(!g_pNetworkManager->IsConnected() && CGame::IsGameLoaded())
@@ -857,6 +856,11 @@ void GameScriptProcess()
 	if(g_pNetworkManager)
 		g_pNetworkManager->Process();
 
+	//Scripting::SetTextScale(0.40f,0.30f);
+	//Scripting::DisplayTextWithLiteralString(0.025f, 0.960f, "STRING", "Testmessage");
+	//Scripting::DisplayTextWithString(0.832f, 0.069f, "STRING", "SPECAL"); 
+	//Scripting::PrintHelpForever("TX_H07");
+
 	// HACKY!
 	// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
 	//		       ...If the player is in the vehicle, it will turn it automatic on -.-
@@ -1034,10 +1038,11 @@ void InternalResetGame(bool bAutoConnect)
 	CLogFile::Printf("Created/Reseted camera instance");
 
 	if(g_pCamera) {
-	g_pCamera->ActivateScriptCam();
-	g_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
-	//g_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT));
-	CLogFile::Printf("Reset camera stuff");
+		g_pCamera->ActivateScriptCam();
+		g_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
+		//if(!g_pNetworkManager->IsConnected())
+		g_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT),false);
+		CLogFile::Printf("Reset camera stuff");
 	}
 
 	// Set the time and weather after the camera set, one of the camera stuff changes the time and the weather

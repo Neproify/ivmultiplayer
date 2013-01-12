@@ -54,6 +54,7 @@ private:
 	bool		  m_bDrop;
 	unsigned int  m_iWantedLevel;
 	CheckGTAFiles m_FileCheck;
+	bool		  m_bRemoteControlLogedIn;
 
 public:
 	CPlayer(EntityId playerId, String strName);
@@ -137,6 +138,9 @@ public:
 	unsigned char  GetDimension() { return m_ucDimension; }
 	void		   SetBlockWeaponDrop(bool drop) { m_bDrop = drop; }
 	bool		   GetBlockWeaponDrop() { return m_bDrop; }
+
+	void		   SetRemoteControl(bool bControl) { m_bRemoteControlLogedIn = bControl; }
+	bool		   IsRemoteControl() { return m_bRemoteControlLogedIn; }
 
 	void		   SetWantedLevel(int iWantedLevel) { m_iWantedLevel = iWantedLevel; }
 	int			   GetWantedLevel() { return m_iWantedLevel; }

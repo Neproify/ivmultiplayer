@@ -632,27 +632,51 @@ DWORD dwRFile;
  
 void _declspec(naked) OpenFile_Hook()
 {
-        _asm
-        {
-                mov eax, [esp+4]
-                mov hFile, eax
-                mov eax, [esp+8]
-                mov lpBuffer, eax  
-                pushad
-        }
+    _asm
+    {
+            mov eax, [esp+4]
+            mov hFile, eax
+            mov eax, [esp+8]
+            mov lpBuffer, eax  
+            pushad
+    }
  
-        strcpy((char *)hFile, "common/data/loadingscreens_ivmp.dat");
+    strcpy((char *)hFile, "common/data/loadingscreens_ivmp.dat");
  
-        dwRFile = (CGame::GetBase() + 0x7B2740);
-        _asm
-        {
-                popad
-                push lpBuffer
-                push hFile
-                call dwRFile
-                add esp, 8
-                retn
-        }
+    dwRFile = (CGame::GetBase() + 0x7B2740);
+    _asm
+    {
+            popad
+            push lpBuffer
+            push hFile
+            call dwRFile
+            add esp, 8
+            retn
+    }
+}
+char *szFile;
+String strFile;
+DWORD dwAddress4;
+void _declspec(naked) LoadTexture_Hook()
+{
+	_asm
+	{
+		mov eax, [esp+4]
+		mov szFile, eax
+		pushad
+	}
+	strFile = szFile;
+	CLogFile::Printf("LoadTexture: %s", strFile.Get());
+	dwAddress4 = (CGame::GetBase() + 0xA712B0);
+	_asm
+	{
+		popad
+		push szFile
+		call dwAddress4
+		add esp, 8 ; should be 8
+		retn
+	}
+
 }
 
 bool CGame::Patch()
@@ -692,7 +716,11 @@ bool CGame::Patch()
 		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
 		CPatcher::InstallJmpPatch((GetBase() + 0xD549DC), (GetBase() + 0xD549C0));// Disables loading music, reduces gta loading time & fix crash
 		CPatcher::InstallJmpPatch((GetBase() + 0xD549EC), (GetBase() + 0xD549D0));// Disables loading music, reduces gta loading time & fix crash
+		//CPatcher::InstallJmpPatch((GetBase() + 0xA714F0), (DWORD)LoadTexture_Hook);
 		
+		// IMG/.DAT loading function(later useful for importing .dat or .wtd or .wft files(vehicles etc.))
+		//CPatcher::InstallJmpPatch((GetBase() + 0x8D79A0), (GetBase() + 0x8D7BB2));
+
 		// Make the game think we are not connected to the internet
 		*(BYTE *)(GetBase() + 0x10F1390) = 0; // byteInternetConnectionState
 		*(DWORD *)(GetBase() + 0x7AF1A0) = 0x90C3C032; // xor al, al; retn; nop
@@ -740,7 +768,6 @@ bool CGame::Patch()
 		// Disable train generation
 		//CPatcher::InstallJmpPatch((GetBase() + 0x94A700),(GetBase() + 0x94A9F4));
 #endif
-				
 		// Disable scenario peds
 		*(BYTE *)(GetBase() + 0x9F72C0) = 0xB8; // mov eax,
 		*(DWORD *)(GetBase() + 0x9F72C1) = 0x0; // 0

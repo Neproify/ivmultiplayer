@@ -938,6 +938,11 @@ namespace Scripting
 	static void OpenGarage(const char *name) { NativeInvoke::Invoke<unsigned int>(NATIVE_OPEN_GARAGE, name); }
 
 	// Text (GXT stuff)
+	static void Print(const char *gxtName, unsigned int timeMS, bool enable) { NativeInvoke::Invoke<unsigned int>(NATIVE_PRINT, gxtName, timeMS, enable); }
+    static void PrintBig(const char *gxtName, unsigned int timeMS, bool enable) { NativeInvoke::Invoke<unsigned int>(NATIVE_PRINT_BIG, gxtName, timeMS, enable); }
+    static void PrintHelp(const char *gxtName) { NativeInvoke::Invoke<unsigned int>(NATIVE_PRINT_HELP, gxtName); }
+    static void PrintHelpForever(const char *gxtName) { NativeInvoke::Invoke<unsigned int>(NATIVE_PRINT_HELP_FOREVER, gxtName); }
+	
 	static void ScriptingDisplayText(float x, float y, const char *gxtName) { NativeInvoke::Invoke<unsigned int>(NATIVE_DISPLAY_TEXT, x, y, gxtName); }
 	static void DisplayTextWith2Numbers(float x, float y, const char *gxtName, int number1, int number2) { NativeInvoke::Invoke<unsigned int>(NATIVE_DISPLAY_TEXT_WITH_2_NUMBERS, x, y, gxtName, number1, number2); }
 	static void DisplayTextWithFloat(float x, float y, const char *gxtName, float value, unsigned int unknown) { NativeInvoke::Invoke<unsigned int>(NATIVE_DISPLAY_TEXT_WITH_FLOAT, x, y, gxtName, value, unknown); }

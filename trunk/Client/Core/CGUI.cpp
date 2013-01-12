@@ -505,6 +505,11 @@ void CGUI::ShowMessageBox(const CEGUI::String &sText, const CEGUI::String &sTitl
 		HideMessageBox();
 
 		// Create the message box window
+
+		// IF any messagebox already exist, destroy it
+		if(m_messageBox.pWindow)
+			m_messageBox.pWindow->destroy();
+
 		m_messageBox.pWindow = CreateGUIFrameWindow();
 		((CEGUI::FrameWindow *)m_messageBox.pWindow)->setCloseButtonEnabled(false);
 

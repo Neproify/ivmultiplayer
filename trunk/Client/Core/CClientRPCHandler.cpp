@@ -2415,6 +2415,9 @@ void CClientRPCHandler::ScriptingToggleRadar(CBitStream * pBitStream, CPlayerSoc
 	// Set the radar visibility
 	CGame::SetRadarVisible(bToggle);
 	Scripting::DisplayRadar(bToggle);
+
+	if(g_pLocalPlayer)
+		g_pLocalPlayer->SetRadarVisible(bToggle);
 }
 
 void CClientRPCHandler::ScriptingToggleNames(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

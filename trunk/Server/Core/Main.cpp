@@ -110,9 +110,9 @@ void SendConsoleInput(String strInput)
 			{
 				CBitStream bsSend;
 				bsSend.Write((DWORD)0xFFFFFFAA);
-				bsSend.Write(strParameters);
+				bsSend.Write(String("Server says: %s",strParameters.Get()));
 				g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
-				CLogFile::Print(strParameters);
+				CLogFile::Printf("Server says: %s", strParameters.Get());
 			}
 		}
 		else if(strCommand == "loadscript")
@@ -431,6 +431,13 @@ int main(int argc, char ** argv)
 		CLogFile::Printf(" HTTP Server: %s", CVAR_GET_STRING("httpserver").Get());
 
 	CLogFile::Printf(" Max Players: %d", CVAR_GET_INTEGER("maxplayers"));
+
+	String strRemoteControl = CVAR_GET_STRING("remotecontrol");
+	if(!strcmp(strRemoteControl.Get(),"none"))
+		CLogFile::Printf(" RemoteControl: deactivated");
+	else
+		CLogFile::Printf(" RemoteControl: active");
+
 #ifdef WIN32
 	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	CLogFile::Print("====================================================================");
