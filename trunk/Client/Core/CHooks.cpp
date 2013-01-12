@@ -139,18 +139,8 @@ void CHooks::Install()
 	// Disables Warning Messages(like "Unkown resource found") -> Disables only the window(and exit code part)...
 	CPatcher::InstallJmpPatch((CGame::GetBase() + /*0x5A932D*/0x5A8CB0), (CGame::GetBase() + 0x5A9361));
 
-	// Hook/Fixes for random/player crashes
-	//CPatcher::Unprotect((GetBase() + 0xF21D36), 1);
-	//*(BYTE*)(GetBase() + 0xF21D36) = 0;
-	
 	CPatcher::Unprotect((CGame::GetBase() + 0x119DB14), 1);
 	*(BYTE*)(CGame::GetBase() + 0x119DB14) = 0;
-
-	//Scripting::NetworkExpandTo32Players();
-	DWORD dwAddress = (CGame::GetBase() + 0x809F60); // Preloading
-	//_asm call dwAddress;
-	//dwAddress = (CGame::GetBase() + 0x795690); // Preloading #2
-	//_asm call dwAddress;
 	
 	//CPatcher::InstallJmpPatch((GetBase() + 0x8A79F9/*8A79F1*/), (GetBase() + 0x8A7A03/*0x8A8336*/));
 	CPatcher::InstallJmpPatch((GetBase() + 0x9E2E30), (GetBase() + 0x9E2FFB));
@@ -158,6 +148,12 @@ void CHooks::Install()
 	CPatcher::InstallJmpPatch((GetBase() + 0x446970), (GetBase() + 0x446AFF));
 	CPatcher::InstallJmpPatch((GetBase() + 0x447270), (DWORD)PoolCalculationHook);
 	CPatcher::InstallJmpPatch((GetBase() + 0x7B79E0), (DWORD)CrackedStartup);
+
+	// Disable automatic radar turn-on(in vehicle)
+	CPatcher::InstallJmpPatch((GetBase() + 0x42D3D1), (GetBase() + 0x42D3D8)); // initialize or render(seems to be a render func)
+	//CPatcher::InstallJmpPatch((GetBase() + 0x8095D0), (GetBase() + 0x8095D7)); // switch between mp and singlepl
+	CPatcher::InstallJmpPatch((GetBase() + 0x811B6E), (GetBase() + 0x811B73)); // from init blip gtaiv func(startup)
+	//CPatcher::InstallJmpPatch((GetBase() + 0x927B37), (GetBase() + 0x927B3E)); // unkown(associated with vehicles)
 	
 	// Prevent crashes on player connect(associated with ped intelligence)
 	CPatcher::InstallJmpPatch((GetBase() + 0x815380), (GetBase() + 0x8153D4));
@@ -166,31 +162,3 @@ void CHooks::Install()
 	CPatcher::InstallJmpPatch((GetBase() + 0x9C5994), (GetBase() + 0x9C59C4)); // Disables shotgun given when enter vehicle
 	CLogFile::Printf("Finished patching crashfixes..");
 }
-
-/*
-int __thiscall sub_CBA1F0(int this, unsigned int *a2)
-{
-  int result; // eax@1
-  unsigned int v3; // edx@1
-  int v4; // esi@1
-
-  v4 = *(_DWORD *)(this + 1536);
-  v3 = *a2;
-  result = 0;
-  if ( v4 > 0 )
-  {
-    while ( v3 < *(_DWORD *)(this + 4 * result) || v3 >= *(_DWORD *)(this + 4 * result + 512) )
-    {
-      ++result;
-      if ( result >= v4 )
-        return result;
-    }
-    if ( result != -1 )
-    {
-      result = v3 + *(_DWORD *)(this + 4 * result + 1024);
-      *a2 = result;
-    }
-  }
-  return result;
-}
-*/
