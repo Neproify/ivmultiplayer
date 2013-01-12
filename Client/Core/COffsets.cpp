@@ -16,6 +16,11 @@ eGameVersion COffsets::m_GameVersion = GAME_VERSION_UNKNOWN;
 unsigned int COffsets::FUNC_CreatePlayerPed = 0;
 unsigned int COffsets::FUNC_SetupPedIntelligence = 0;
 unsigned int COffsets::FUNC_CPlayerPed__SetModelIndex = 0;
+unsigned int COffsets::VAR_Ped_Factory = 0;
+unsigned int COffsets::FUNC_Setup_Ped = 0;
+unsigned int COffsets::FUNC_CPlayerPed__Constructor = 0;
+unsigned int COffsets::FUNC_ShutdownPedIntelligence = 0;
+unsigned int COffsets::FUNC_CPed__ScalarDeletingDestructor = 0;
 
 // Game
 unsigned int COffsets::VAR_MenuActive_1 = 0;
@@ -219,6 +224,11 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CreatePlayerPed                            = (uiBase + 0x81CB90);
 			FUNC_SetupPedIntelligence                       = (uiBase + 0x89EC20);
 			FUNC_CPlayerPed__SetModelIndex                  = (uiBase + 0x9C0AA0);
+			FUNC_CPlayerPed__Constructor					= (uiBase + 0x9C1910);
+			VAR_Ped_Factory									= (uiBase + 0x15E35A0);
+			FUNC_Setup_Ped									= (uiBase + 0x43A6A0);
+			FUNC_ShutdownPedIntelligence					= (uiBase + 0x9C4DF0);
+			FUNC_CPed__ScalarDeletingDestructor				= (uiBase + 0x8ACAC0);
 
 			// Game
 			VAR_MenuActive_1                                = (uiBase + 0x10C7F80);

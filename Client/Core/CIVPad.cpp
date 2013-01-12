@@ -124,6 +124,8 @@ void CIVPad::ToControlState(CControlState& controlState, bool bCurrent)
 	SET_ANALOG_KEY(INPUT_VEH_MOVE_DOWN,     controlState.ucInVehicleMove[3]);
 	SET_ANALOG_KEY(INPUT_VEH_BRAKE,         controlState.ucInVehicleTriggers[0]);
 	SET_ANALOG_KEY(INPUT_VEH_ACCELERATE,    controlState.ucInVehicleTriggers[1]);
+	SET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT_2,	controlState.ucInVehicleMove2[0]);
+	SET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT_2,	controlState.ucInVehicleMove2[1]);
 
 	// Binary keys
 	SET_BINARY_KEY(INPUT_ENTER,             controlState.keys.bEnterExitVehicle);
@@ -176,6 +178,8 @@ void CIVPad::FromControlState(CControlState controlState, bool bCurrent)
 	GET_ANALOG_KEY(INPUT_MOVE_DOWN,         controlState.ucOnFootMove[3]);
 	GET_ANALOG_KEY(INPUT_VEH_BRAKE,         controlState.ucInVehicleTriggers[0]);
 	GET_ANALOG_KEY(INPUT_VEH_ACCELERATE,    controlState.ucInVehicleTriggers[1]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_LEFT_2,	controlState.ucInVehicleMove2[0]);
+	GET_ANALOG_KEY(INPUT_VEH_MOVE_RIGHT_2,	controlState.ucInVehicleMove2[1]);
 
 	// Binary keys
 	GET_BINARY_KEY(INPUT_ENTER,             controlState.keys.bEnterExitVehicle);

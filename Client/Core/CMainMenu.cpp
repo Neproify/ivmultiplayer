@@ -22,6 +22,7 @@
 //#include "CD3D9Webkit.hpp"
 
 extern CGUI            * g_pGUI;
+extern CGraphics	   * g_pGraphics;
 extern CNetworkManager * g_pNetworkManager;
 extern CChatWindow     * g_pChatWindow;
 extern bool              g_bWindowedMode;
@@ -33,6 +34,8 @@ extern String            g_strPassword;
 extern CCredits        * g_pCredits;
 extern bool				 g_bGameLoaded;
 //extern CD3D9WebKit     * g_pWebkit;
+
+#define PAUSE_MENU_BACKGROUND 0x00000080
 
 CMainMenu                         * CMainMenu::m_pSingleton = NULL;
 std::map<String, unsigned long>     serverPingStartMap;
@@ -107,8 +110,7 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 		InternalResetGame(false);
 		Sleep(500);
 		SetDisconnectButtonVisible(false);
-
-		//m_pBackground->setAlpha(0.1f);
+		SetVisible(true);
 	}
 	return true;
 }
@@ -1149,7 +1151,14 @@ void CMainMenu::SetVisible(bool bVisible)
 	m_bVisible = bVisible;
 	g_pGUI->SetCursorVisible(bVisible);
 	m_pBackground->setVisible(bVisible);
-	m_pBackground->setAlpha(0.95f);
+
+	if(CGame::IsGameLoaded()) 
+		m_pBackground->removeProperty("Image");
+	else
+	{
+		m_pBackground->setProperty("Image", "set:Background image:full_image");
+		m_pBackground->setAlpha(0.95f);
+	}
 }
 
 void CMainMenu::SetServerBrowserWindowVisible(bool bVisible)
@@ -1197,6 +1206,21 @@ void CMainMenu::Process()
 
 	// Process the server query
 	m_pServerQuery->Process();
+
+	// Process the background
+	if(CGame::IsGameLoaded() && g_pGraphics) {
+		if(m_pBackground->isVisible()) {
+			float x,y,x1,y1;
+			x1 = (float)g_pGUI->GetDisplayWidth();
+			y1 = (float)(g_pGUI->GetDisplayHeight()/8);
+			x = 0.0;
+			y = 0.0;
+			g_pGraphics->DrawRect(x, y, x1, y1, ( PAUSE_MENU_BACKGROUND >> 8 ) + ( ( PAUSE_MENU_BACKGROUND & 0xFF ) << 24 ));
+			y1 = (float)(g_pGUI->GetDisplayHeight()/4);
+			y = (float)((g_pGUI->GetDisplayHeight()/(float)4)*3.4);
+			g_pGraphics->DrawRect(x, y, x1, y1, ( PAUSE_MENU_BACKGROUND >> 8 ) + ( ( PAUSE_MENU_BACKGROUND & 0xFF ) << 24 ));
+		}
+	}
 }
 
 void CMainMenu::ShowLoadingScreen()

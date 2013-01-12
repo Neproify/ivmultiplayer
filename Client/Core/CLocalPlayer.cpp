@@ -165,6 +165,7 @@ void CLocalPlayer::HandleSpawn()
 	}
 
 	CLogFile::Printf("Flag us as alive");
+
 	if(IsSpawned())
 		Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(),true);
 
@@ -267,8 +268,10 @@ void CLocalPlayer::Pulse()
 							SendPassengerSync();
 						}
 					}
-					// Send our empty vehicle sync
-					SendEmptyVehicleSync();
+					if(m_bFinishedInitialize && m_bFirstSpawn && m_bSpawnMarked) {
+						// Send our empty vehicle sync
+						SendEmptyVehicleSync();
+					}
 				}
 				else
 				{

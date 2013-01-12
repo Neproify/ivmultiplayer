@@ -70,6 +70,7 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_bDrop = false;
 	m_iWantedLevel = 0;
 	m_bJoined = false;
+	m_bRemoteControlLogedIn = false;
 }
 
 CPlayer::~CPlayer()
@@ -268,11 +269,12 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
+		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource, aimSyncData->vecLookAt);
 		/*
 		// Shitcode, we can detect it clientside, only for tests
 		aimSyncData->bShooting = false;
 		aimSyncData->bAiming = false;
-		if(UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource, aimSyncData->vecLookAt))
+		if()
 			aimSyncData->bShooting = true;
 		else
 			aimSyncData->bAiming = true;

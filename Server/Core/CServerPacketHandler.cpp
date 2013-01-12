@@ -18,7 +18,19 @@ extern CPlayerManager * g_pPlayerManager;
 
 void CServerPacketHandler::NewConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	CLogFile::Printf("[Connect] Authorizing connection from IP %s (ID %d, Serial %s)...", pSenderSocket->GetAddress(false).Get(), pSenderSocket->playerId, pSenderSocket->strSerial.Get());
+	String strSerial = "Unkown";
+	String strIP = "Unkown";
+
+	if(pSenderSocket->GetAddress(false)) {
+		strIP.Clear();
+		strIP.Append(pSenderSocket->GetAddress(false).Get());
+	}
+	if(pSenderSocket->GetSerial()) {
+		strSerial.Clear();
+		strSerial.Append(pSenderSocket->GetSerial().Get());
+	}
+
+	CLogFile::Printf("[Connect] Authorizing connection from IP %s (ID %d, Serial %s)...",strIP.Get(), pSenderSocket->GetPlayerId(), strSerial.Get());
 }
 
 void CServerPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

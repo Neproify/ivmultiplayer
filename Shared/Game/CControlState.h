@@ -20,6 +20,9 @@ public:
 	// In Vehicle Move
 	unsigned char ucInVehicleMove[4]; // left, right, up, down
 
+	// In Vehicle Move 2
+	unsigned char ucInVehicleMove2[2]; // other
+
 	// In Vehicle Triggers
 	unsigned char ucInVehicleTriggers[2]; // left, right
 

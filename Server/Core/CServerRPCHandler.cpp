@@ -43,6 +43,8 @@ extern CModuleManager * g_pModuleManager;
 extern CEvents * g_pEvents;
 extern CVehicle * g_pVehicle;
 
+void SendConsoleInput(String strInput);
+
 void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -302,10 +304,75 @@ void CServerRPCHandler::Command(CBitStream * pBitStream, CPlayerSocket * pSender
 		if(!pBitStream->Read(strCommand))
 			return;
 
-		CSquirrelArguments pArguments;
-		pArguments.push(playerId);
-		pArguments.push(strCommand.Get());
-		g_pEvents->Call("playerCommand", &pArguments);
+		size_t sCheckSplit = strCommand.Find(' ', 0);
+		String strCheckCommand = strCommand.SubStr(0, sCheckSplit++);
+
+		if(!strcmp(strCheckCommand.Get(),"/rc")) {
+			size_t sSplit = strCommand.Find(' ', 0);
+			String strRconCommand = strCommand.SubStr(0, sSplit++);
+			String strParameters = strCommand.SubStr(sSplit, (strCommand.GetLength() - sSplit));
+
+			sSplit = strParameters.Find(' ', 0);
+			String strParms1 = strParameters.SubStr(0, sSplit++);
+			String strParms2 = strParameters.SubStr(sSplit, (strParameters.GetLength() - sSplit));
+
+			// Is the command empty?
+			if(strRconCommand.IsEmpty())
+				return;
+
+			// Is the remote control function disabled?
+			if(!strcmp(CVAR_GET_STRING("remotecontrol"),"none"))
+				return;
+
+			if(g_pPlayerManager->GetAt(playerId)->IsRemoteControl()) {
+				SendConsoleInput(String("%s %s",strParms1.Get(),strParms2.Get()));
+
+				CSquirrelArguments pArguments;
+				pArguments.push(playerId);
+				pArguments.push(String("%s %s",strParms1.Get(),strParms2.Get()));
+				g_pEvents->Call("remoteCall", &pArguments);
+
+				CBitStream bsSend;
+				bsSend.Write((DWORD)0xFFFFFFAA);
+				bsSend.Write(String("[REMOTECONTROL]: Successfully forced command (%s %s)",strParms1.Get(),strParms2.Get()));
+				bsSend.Write(false);
+				g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+			}
+			else
+			{
+				if(!strcmp(strParms1.Get(),"login")) {
+					if(!strcmp(CVAR_GET_STRING("remotecontrol"),strParms2.Get())) {
+						g_pPlayerManager->GetAt(playerId)->SetRemoteControl(true);
+						CBitStream bsSend;
+						bsSend.Write((DWORD)0xFFFFFFAA);
+						bsSend.Write(String("[REMOTECONTROL]: Successfully logged in!"));
+						bsSend.Write(false);
+						g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+						return;
+					}
+					CBitStream bsSend;
+					bsSend.Write((DWORD)0xFFFFFFAA);
+					bsSend.Write(String("[REMOTECONTROL]: Failed to login, wrong password..."));
+					bsSend.Write(false);
+					g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+					CLogFile::Printf("[REMOTECONTROL]: User %s(%d) failed to login(given password. %s)!",g_pPlayerManager->GetAt(playerId)->GetName().Get(),g_pPlayerManager->GetAt(playerId)->GetPlayerId(),strParms2.Get());
+				}
+				else
+				{
+					CBitStream bsSend;
+					bsSend.Write((DWORD)0xFFFFFFAA);
+					bsSend.Write(String("[REMOTECONTROL]: Please login(/rc login [password]) to use remotecontrol!"));
+					bsSend.Write(false);
+					g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+				}
+			}
+		}
+		else {
+			CSquirrelArguments pArguments;
+			pArguments.push(playerId);
+			pArguments.push(strCommand.Get());
+			g_pEvents->Call("playerCommand", &pArguments);
+		}
 	}
 }
 

@@ -63,8 +63,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getPlayerColor", GetColor, 1, "i");
 	pScriptingManager->RegisterFunction("isPlayerDucking", IsDucking, 1, "i");
 	pScriptingManager->RegisterFunction("isPlayerJackingAVehicle", IsJackingAVehicle, 1, "i");
-	pScriptingManager->RegisterFunction("getPlayerWeaponSlot", GetWeaponSlot, 1, "ii");
-	pScriptingManager->RegisterFunction("getPlayerAmmoInClip", GetAmmoInClip, 1, "ii");
+	pScriptingManager->RegisterFunction("getPlayerWeaponSlot", GetWeaponSlot, 2, "ii");
+	pScriptingManager->RegisterFunction("getPlayerAmmoInClip", GetAmmoInClip, 2, "ii");
 	pScriptingManager->RegisterFunction("setPlayerDoorLockState", SetDoorLockState, 7, "isfffbf");
 	pScriptingManager->RegisterFunction("switchPlayerPhysics", TogglePhysics, 3, "bbb");
 	pScriptingManager->RegisterFunction("getWayPointCoordinates", GetWayPointCoords, 0, NULL);

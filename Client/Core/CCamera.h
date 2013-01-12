@@ -33,7 +33,7 @@ public:
 	void     SetBehindPed(CIVPed * pPed);
 	void     SetPosition(const CVector3& vecPosition);
 	void     GetPosition(CVector3& vecPosition);
-	void     SetLookAt(const CVector3& vecLookAt);
+	void     SetLookAt(const CVector3& vecLookAt, bool bWorldLoad = true);
 	void     GetLookAt(CVector3& vecLookAt);
 	void	 Attach(unsigned int uiHandle, bool bVehicleOrPlayer, int iPointType, CVector3 vecOffset);
 

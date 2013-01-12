@@ -87,7 +87,7 @@ EntityId CObjectManager::Create(DWORD dwModelHash, const CVector3& vecPosition, 
 			pArguments.push(x);
 			g_pEvents->Call("objectCreate", &pArguments);
 
-			this->SetDimension(x, this->GetDimension(x));	
+			SetDimension(x, this->GetDimension(x));	
 
 			return x;
 		}
@@ -140,8 +140,8 @@ void CObjectManager::HandleClientJoin(EntityId playerId)
 					bsSend.Write(m_Objects[x].iBone);
 				}
 
-				this->SetDimension(x, this->GetDimension(x));
 				g_pNetworkManager->RPC(RPC_NewObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+				SetDimension(x, this->GetDimension(x));
 			}
 		}
 	}

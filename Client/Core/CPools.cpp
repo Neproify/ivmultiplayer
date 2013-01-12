@@ -49,7 +49,7 @@ void CPools::Initialize()
 	DWORD dwSize;
 	for(int i = 0; i < 1/*2*/; i++) {
 		// TODO: detect why *3 doesn't work at ped pool -> always crash, maybe a debugger helps?
-		dwSize = m_pPedPool->GetPool()->m_dwEntrySize*2;
+		dwSize = m_pPedPool->GetPool()->m_dwEntrySize*2;//*3;
 		m_pPedPool->SetPoolEntrySize(dwSize);
 
 		dwSize = m_pVehiclePool->GetPool()->m_dwEntrySize*2;

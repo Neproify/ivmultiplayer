@@ -134,21 +134,20 @@ void CCamera::GetPosition(CVector3& vecPosition)
 	}
 }
 
-void CCamera::SetLookAt(const CVector3& vecLookAt)
+void CCamera::SetLookAt(const CVector3& vecLookAt, bool bWorldLoad)
 {
-	// If the camera is already activated, deactivate it first!
-	if(m_bScriptCamActive)
-		DeactivateScriptCam();
-
 	// Activate the script cam if needed
 	if(!m_bScriptCamActive)
 		ActivateScriptCam();
 
 	// Load the world at the look at
-	CGame::GetStreaming()->LoadWorldAtPosition(vecLookAt);
+	if(bWorldLoad)
+		CGame::GetStreaming()->LoadWorldAtPosition(vecLookAt);
 
+	unsigned int uiCam = CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam());
 	// Set the script cam look at | Or we have to use the hook code?(CGame)
-	Scripting::PointCamAtCoord(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ);
+	if(uiCam)
+		Scripting::PointCamAtCoord(uiCam, vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ);
 }
 
 void CCamera::GetLookAt(CVector3& vecLookAt)
