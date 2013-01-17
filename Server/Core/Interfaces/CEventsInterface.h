@@ -86,4 +86,5 @@ public:
 	virtual bool AddModuleEvent(const char* szName, EventHandler_t pfnHandler, void* pChunk = 0) = 0;
 	virtual bool RemoveModuleEvent(const char* szName, EventHandler_t pfnHandler, void* pChunk = 0) = 0;
 	virtual void CallModuleEvent(const char* szName, SquirrelArgumentsInterface* pArguments, SquirrelArgumentInterface* pReturn) = 0;
+	virtual const char* GetCurrentEvent() = 0;
 };

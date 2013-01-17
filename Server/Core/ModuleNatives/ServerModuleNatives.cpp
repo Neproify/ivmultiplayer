@@ -101,34 +101,6 @@ namespace Modules
 		return g_pPlayerManager->GetPlayerCount();
 	}
 
-	/*
-	// ADAMIX: todo
-	// getPlayers()
-	SQInteger CServerModuleNatives::GetPlayers(SQVM * pVM)
-	{
-		SQInteger iCount = 0;
-
-		sq_newtable(pVM);
-
-		for(EntityId i = 0; i < MAX_PLAYERS; i++)
-		{
-			if(g_pPlayerManager->DoesExist(i))
-			{
-				CPlayer * pPlayer = g_pPlayerManager->GetAt(i);
-
-				if(pPlayer)
-				{
-					sq_pushinteger(pVM, i);
-					sq_pushstring(pVM, pPlayer->GetName(), -1);
-					sq_createslot(pVM, -3);
-					++iCount;
-				}
-			}
-		}
-
-		return 1;
-	}
-	*/
 	// getPlayerSlots()
 	int CServerModuleNatives::GetPlayerSlots()
 	{

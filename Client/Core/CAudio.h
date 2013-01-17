@@ -38,6 +38,9 @@ public:
 	void	Stop ( );
 	void	Pause ( );
 	bool	IsStarted ( );
+	bool	IsPlaying ( );
+	bool	IsPaused ( );
+	bool	IsStalled ( );
 	void	SetVolume ( float fVolume );
 	void	RestoreVolume ( );
 	float	GetVolume ( );
