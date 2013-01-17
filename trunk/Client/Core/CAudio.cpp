@@ -151,19 +151,16 @@ bool CAudio::IsStarted ( )
 bool CAudio::IsPlaying ( )
 {
 	return BASS_ChannelIsActive ( m_dwChannel ) == BASS_ACTIVE_PLAYING;
-	return false;
 }
 
 bool CAudio::IsPaused ( )
 {
 	return BASS_ChannelIsActive ( m_dwChannel ) == BASS_ACTIVE_PAUSED;
-	return false;
 }
 
 bool CAudio::IsStalled ( )
 {
 	return BASS_ChannelIsActive ( m_dwChannel ) == BASS_ACTIVE_STALLED;
-	return false;
 }
 
 void CAudio::SetVolume ( float fVolume )
