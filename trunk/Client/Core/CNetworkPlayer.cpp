@@ -31,8 +31,8 @@ extern CModelManager   * g_pModelManager;
 extern bool              m_bControlsDisabled;
 extern CChatWindow     * g_pChatWindow;
 
-#define THIS_CHECK(func) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[WARNING] Internal error occured in CNetworkPlayer.cpp[Type:1|Func:%s]",func); } return; }
-#define THIS_CHECK_R(func,x) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[WARNING] Internal error occured in CNetworkPlayer.cpp[Type:2|Func:%s]",func); } return x; }
+#define THIS_CHECK(func) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[WARNING] Internal error occured in %s[ Type 1 | Func %s() ]",__FILE__,func); } return; }
+#define THIS_CHECK_R(func,x) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[WARNING] Internal error occured in %s [ Type 2 | Func %s() ]",__FILE__,func); } return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	: CStreamableEntity(STREAM_ENTITY_PLAYER, 300.0f),
@@ -131,6 +131,19 @@ bool CNetworkPlayer::Create()
 
 	// Create a context data instance for this player
 	m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
+
+	CIVPool<DWORD> * pPedMoveBlendPool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82B4));
+	CIVPool<DWORD> * pPedBasePool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82B8));
+	CIVPool<DWORD> * pPedDataPool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82A8));
+	CIVPool<DWORD> * pPedPool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82AC));
+	CLogFile::Printf("PedMoveBlendPool: used:%d, entrysize:%d", pPedMoveBlendPool->GetUsed(), pPedMoveBlendPool->GetEntrySize());
+	CLogFile::Printf("PedBasePool: used:%d, entrysize:%d", pPedBasePool->GetUsed(), pPedBasePool->GetEntrySize());
+	CLogFile::Printf("PedDataPool: used:%d, entrysize:%d", pPedDataPool->GetUsed(), pPedDataPool->GetEntrySize());
+	CLogFile::Printf("PedPool: used:%d, entrysize:%d", pPedPool->GetUsed(), pPedPool->GetEntrySize());
+    delete pPedMoveBlendPool;
+	delete pPedBasePool;
+	delete pPedDataPool;
+	delete pPedPool;
 
 	// Allocate the player ped
 	IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();
@@ -2046,10 +2059,23 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			else if(byteSeatId == 3)
 				iUnknown = 3;
 
-			unsigned int uiUnknown = 32; // 0
+			unsigned int uiUnknown = 0;
 
-			if(byteSeatId > 0)
-				uiUnknown = 0x200000;
+			if(/*byteSeatId > 0*/*(DWORD*)pVehicle->GetGameVehicle() + 4948 != 3)
+				uiUnknown |= 0x2000000u;
+
+			int v5;
+			DWORD dwFunction = (CGame::GetBase() + 0x9C6E40);
+			DWORD a1 = *(DWORD *)((pVehicle->GetGameVehicle()->GetVehicle() + 24) + 2880);
+			DWORD a2 = *(DWORD *)(pVehicle->GetGameVehicle()->GetVehicle() + 24);
+			_asm
+			{
+				push a2
+				push a1
+				call dwFunction
+				mov v5, eax
+			}
+			g_pChatWindow->AddInfoMessage("Vehicle-Seat/Door: %d",v5);
 
 			CIVTaskComplexNewGetInVehicle * pTask = new CIVTaskComplexNewGetInVehicle(pVehicle->GetGameVehicle(), iUnknown, 27, uiUnknown, 0.0f);
 

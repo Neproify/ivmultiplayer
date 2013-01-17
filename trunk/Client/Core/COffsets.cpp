@@ -163,6 +163,7 @@ unsigned int COffsets::FUNC_CPhysical__GetTurnSpeed = 0;
 unsigned int COffsets::PATCH_CVehicle__HazzardLightsOn = 0;
 unsigned int COffsets::FUNC_CVehicle__DrawIndicator = 0;
 unsigned int COffsets::RETURN_CVehicle__DrawIndicator = 0;
+unsigned int COffsets::FUNC_CVehicleAudio__SetIndicators = 0;
 
 // Streaming
 unsigned int COffsets::VAR_ResourceTypeWdrIndex = 0;
@@ -278,6 +279,7 @@ void COffsets::Init(unsigned int uiBase)
 			PATCH_CVehicle__HazzardLightsOn                 = (uiBase +  0x9D1D53);
 			FUNC_CVehicle__DrawIndicator                    = (uiBase +  0x9CD0F0);
 			RETURN_CVehicle__DrawIndicator                  = (uiBase +  0x9CD0F6);
+			FUNC_CVehicleAudio__SetIndicators               = (uiBase +  0xAEAC00);
 
 			// Misc
 			VAR_CurrentWantedLevel                          = (uiBase + 0x118F0DC); // Poor Naming (Could be some member of CWanted)

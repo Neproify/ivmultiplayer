@@ -71,4 +71,5 @@ public:
 	EntityId		GetVehicleId(EntityId actorId) { return m_Actors[actorId].vehicleId; }
 	bool			DoesExist(EntityId actorId) { return m_bActive[actorId]; };
 	void			Process();
+	EntityId		GetActorCount();
 };

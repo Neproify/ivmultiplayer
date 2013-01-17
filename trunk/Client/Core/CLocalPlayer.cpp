@@ -91,7 +91,8 @@ CLocalPlayer::CLocalPlayer() : CNetworkPlayer(true),
 	m_bDisableVehicleInfo(false),
 	m_bFirstSpawn(false),
 	m_bFinishedInitialize(false),
-	m_bSpawnMarked(false)
+	m_bSpawnMarked(false),
+	m_bRadarVisible(true)
 {
 	memset(&m_lastControlStateSent, 0, sizeof(CControlState));
 	SetCanBeStreamedIn(false);
