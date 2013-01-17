@@ -232,6 +232,11 @@ CPlayerManager::~CPlayerManager()
 
 void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 {
+	if(IsPlayerLimitReached()) {
+		g_pChatWindow->AddErrorMessage("[WARNING] Failed to add player %d(%s), playerlimit already reached[FUNC:%s()]",playerId,sPlayerName.Get(),__FUNCTION__);
+		return;
+	}
+
 	if(DoesExist(playerId))
 	{
 		CLogFile::Printf("Player %d was not deleted.", playerId);
@@ -385,14 +390,13 @@ void CPlayerManager::SetLocalPlayer(EntityId playerId, CNetworkPlayer * pPlayer)
 	g_pLocalPlayer->SetPlayerId(playerId);
 }
 
-
-/*bool CPlayerManager::IsPlayerLimitReached(void)
+bool CPlayerManager::IsPlayerLimitReached( void )
 {
 	int count = 0;
-	for(int x = 0; x < MAX_PLAYERS; ++x) 
+	for(EntityId x = 0; x < MAX_PLAYERS; ++x) 
 	{
-		if(m_bActive[x])
+		if(DoesExist(x))
 			count++;
 	}
 	return count >= MAX_PLAYERS;
-}*/
+}

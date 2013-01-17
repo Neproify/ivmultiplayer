@@ -124,6 +124,19 @@ public:
    */
 };
 
+/* Maybe:
+visible:
+  if(true)
+    *(_DWORD *)(result + 36) |= 0x20u;
+  else
+    *(_DWORD *)(result + 36) &= 0xFFFFFFDFu;
+
+*(DWORD *)(pVehicle + 0x1354) --> Vehicle Type(3 = train|5 = plane|)
+*(BYTE* )(pVehicle  0xF66) -> (true |= 1u;), false( &= 0FEu);
+
+!0B7F3D0
+*/
+
 class IVVehicle : public IVPhysical
 {
 public:

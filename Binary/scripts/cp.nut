@@ -413,7 +413,23 @@ function onPlayerCommand(playerid, command)
 	{
 		setVehicleEngineState(getPlayerVehicleId(playerid),false);
 	}
-	if(cmd[0] == "/createActor")
+	if(cmd[0] == "/createactors")
+	{
+		for(local i = 0; i < cmd[1].tointeger(); i++) {
+			local pos = getPlayerCoordinates(playerid);
+			local actor = createActor(8,pos[0],pos[1],pos[2],90.0);
+			toggleActorHelmet(actor,false);
+			toggleActorFrozen(actor,false);
+			setActorName(actor,"JeNkStAX");
+			toggleActorNametag(actor,true);
+			forceAnimationAtActor(actor,"amb@smoking_spliff","create_spliff");
+			
+			//
+			local actorcount = getActorCount();
+			sendPlayerMessage(playerid,"Actorcount: "+actorcount,0xFFFFFFAA);
+		}
+	}
+	if(cmd[0] == "/createactor")
 	{
 		local pos = getPlayerCoordinates(playerid);
 		local actor = createActor(8,pos[0],pos[1],pos[2],90.0);
@@ -427,7 +443,7 @@ function onPlayerCommand(playerid, command)
 		local actorcount = getActorCount();
 		sendPlayerMessage(playerid,"Actorcount: "+actorcount,0xFFFFFFAA);
 	}
-	if(cmd[0] == "/createActor2")
+	if(cmd[0] == "/createactor2")
 	{
 		local pos = getPlayerCoordinates(playerid);
 		local actor = createActor(21,pos[0],pos[1],pos[2],90.0);

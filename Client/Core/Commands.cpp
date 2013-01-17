@@ -15,7 +15,6 @@
 #include "CModelManager.h"
 #include "SharedUtility.h"
 #include "CFPSCounter.h"
-//#include "CD3D9Webkit.hpp"
 
 extern CInputWindow * g_pInputWindow;
 extern CChatWindow * g_pChatWindow;
@@ -25,7 +24,31 @@ extern CPlayerManager * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
 extern CModelManager * g_pModelManager;
 extern CFPSCounter * g_pFPSCounter;
-//extern CD3D9WebKit * g_pWebkit;
+
+void AddNetworkPlayer(char * szParams)
+{
+	EntityId playerId = -1;
+	for(EntityId i = 0; i < MAX_PLAYERS; i++) {
+		if(!g_pPlayerManager->DoesExist(i)) {
+			playerId = i;
+			break;
+		}
+	}
+
+	if(playerId != -1) {
+		// Add the player to the player manager
+		g_pPlayerManager->Add(playerId, "IV:MP NetworkPlayer");
+		if(g_pPlayerManager->DoesExist(playerId)) {
+			CVector3 vecPos; g_pLocalPlayer->GetPosition(vecPos);
+			g_pPlayerManager->GetAt(playerId)->SetColor((unsigned int)0xFFFFFFAA);
+			g_pPlayerManager->GetAt(playerId)->SetPosition(vecPos);
+			g_pPlayerManager->GetAt(playerId)->SetModel(7);
+			g_pChatWindow->AddInfoMessage("Networkplayer Added");
+		}
+	}
+	else
+		g_pChatWindow->AddInfoMessage("Couldn't find free player slot..");
+}
 
 void QuitCommand(char * szParams)
 {
@@ -275,6 +298,7 @@ void RegisterCommands()
 	g_pInputWindow->RegisterCommand("ping", GetPing);
 	g_pInputWindow->RegisterCommand("fps", GetFPS);
 	g_pInputWindow->RegisterCommand("dvi", DisableVehicleInfos);
+	g_pInputWindow->RegisterCommand("anp", AddNetworkPlayer);
 	#ifdef DEBUG_COMMANDS_ENABLED
 	g_pInputWindow->RegisterCommand("ap", AddPlayerCommand);
 	g_pInputWindow->RegisterCommand("dp", DeletePlayerCommand);

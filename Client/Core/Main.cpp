@@ -601,7 +601,7 @@ void Direct3DRender()
 	if(CGame::GetState() == GAME_STATE_INGAME)
 	{
 		// Is F4 held down and do we have a network manager?
-		if(GetAsyncKeyState(VK_F4) && g_pNetworkManager)
+		if(GetAsyncKeyState(VK_F4) && g_pNetworkManager && g_pActorManager)
 		{
 			// Get the network statistics
 			CNetStats * pNetStats = g_pNetworkManager->GetNetClient()->GetNetStats();
@@ -620,6 +620,7 @@ void Direct3DRender()
 			// Append streamed in/out entity counts and streamed in limits to the stats
 			strStats.AppendF("Players (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_PLAYER)+1, g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_PLAYER));
 			strStats.AppendF("Vehicles (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_VEHICLE), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_VEHICLE));
+			strStats.AppendF("Actors (Actor-Count/Max-Actors): %d/%d\n", g_pActorManager->GetActorCount(), MAX_ACTORS);
 			strStats.AppendF("Pickups (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_PICKUP), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_PICKUP));
 			strStats.AppendF("Objects (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_OBJECT), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_OBJECT));
 			strStats.AppendF("Checkpoints (StreamedIn/StreamedInLimit): %d/%d\n", g_pStreamer->GetStreamedInEntityCountOfType(STREAM_ENTITY_CHECKPOINT), g_pStreamer->GetStreamedInLimitOfType(STREAM_ENTITY_CHECKPOINT));

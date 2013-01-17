@@ -182,6 +182,7 @@ public:
 	static unsigned int PATCH_CVehicle__HazzardLightsOn;
 	static unsigned int FUNC_CVehicle__DrawIndicator;
 	static unsigned int RETURN_CVehicle__DrawIndicator;
+	static unsigned int FUNC_CVehicleAudio__SetIndicators;
 
 	// Streaming
 	static unsigned int VAR_ResourceTypeWdrIndex;

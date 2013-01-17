@@ -20,6 +20,10 @@ CPools::CPools()
 	memset(&m_checkpoints, 0, sizeof(m_checkpoints));
 
 	// Modify checkpoint rendering to use our custom array
+	/*
+	VAR_RenderCheckpoints_FirstCP                   = (uiBase +  0x855966);
+	VAR_RenderCheckpoints_LastCP                    = (uiBase +  0x856705);
+	*/
 	*(DWORD *)(COffsets::VAR_RenderCheckpoints_FirstCP) = (DWORD)m_checkpoints + 0x18;
 	*(DWORD *)(COffsets::VAR_RenderCheckpoints_LastCP) = (DWORD)m_checkpoints + 0x18 + CHECKPOINT_ARRAY_SIZE * sizeof(IVCheckpoint);
 }
@@ -35,32 +39,12 @@ CPools::~CPools()
 
 void CPools::Initialize()
 {
-	// Initialize game pools
-	m_pPedPool = new CIVPool<IVPed>(*(IVPool **)COffsets::VAR_PedPool);
-	m_pVehiclePool = new CIVPool<IVVehicle>(*(IVPool **)COffsets::VAR_VehiclePool);
-	m_pTaskPool = new CIVPool<IVTask>(*(IVPool **)COffsets::VAR_TaskPool);
-	m_pCamPool = new CIVPool<IVCam>(*(IVPool **)COffsets::VAR_CamPool);
-	//m_pTrainPool = new CIVPool<IVTrain>(*(IVPool **)COffsets::VAR_TrainPool);
-
-	// Increase Pedpool
-	CLogFile::Print("====================================================================");
-	CLogFile::Printf("[START]PedPool: x%p | dwEntrySize: x%p",m_pPedPool,m_pPedPool->GetPool()->m_dwEntrySize);
-	CLogFile::Printf("[START]VehiclePool: x%p | dwEntrySize: x%p",m_pVehiclePool,m_pVehiclePool->GetPool()->m_dwEntrySize);
-	DWORD dwSize;
-	for(int i = 0; i < 1/*2*/; i++) {
-		// TODO: detect why *3 doesn't work at ped pool -> always crash, maybe a debugger helps?
-		dwSize = m_pPedPool->GetPool()->m_dwEntrySize*2;//*3;
-		m_pPedPool->SetPoolEntrySize(dwSize);
-
-		dwSize = m_pVehiclePool->GetPool()->m_dwEntrySize*2;
-		m_pVehiclePool->SetPoolEntrySize(dwSize);
-
-		CLogFile::Printf("[%d]PedPool: x%p | dwEntrySize: x%p | dwUsed: x%p",i,m_pPedPool,m_pPedPool->GetPool()->m_dwEntrySize,m_pPedPool->GetPool()->m_dwUsed);
-		CLogFile::Printf("[%d]VehiclePool : x%p | dwEntrySize: x%p | dwUsed: x%p",i,m_pVehiclePool,m_pVehiclePool->GetPool()->m_dwEntrySize, m_pVehiclePool->GetPool()->m_dwUsed);
-	}
-	CLogFile::Printf("[END]PedPool: x%p | dwEntrySize: x%p",m_pPedPool,m_pPedPool->GetPool()->m_dwEntrySize);
-	CLogFile::Printf("[END]VehiclePool: x%p | dwEntrySize: x%p",m_pVehiclePool,m_pVehiclePool->GetPool()->m_dwEntrySize);
-	CLogFile::Print("====================================================================");
+    // Initialize game pools
+    m_pPedPool = new CIVPool<IVPed>(*(IVPool **)COffsets::VAR_PedPool);
+    m_pVehiclePool = new CIVPool<IVVehicle>(*(IVPool **)COffsets::VAR_VehiclePool);
+    m_pTaskPool = new CIVPool<IVTask>(*(IVPool **)COffsets::VAR_TaskPool);
+    m_pCamPool = new CIVPool<IVCam>(*(IVPool **)COffsets::VAR_CamPool);
+    //m_pTrainPool = new CIVPool<IVTrain>(*(IVPool **)COffsets::VAR_TrainPool);
 }
 
 IVPlayerInfo * CPools::GetPlayerInfoFromIndex(unsigned int uiIndex)

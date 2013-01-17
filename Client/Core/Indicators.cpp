@@ -3,6 +3,7 @@
 // File: Indicators.cpp
 // Project: Client.Core
 // Author(s): mabako
+//            jenksta
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -17,6 +18,7 @@ extern CStreamer * g_pStreamer;
 
 IVVehicle * pIndicatorIVVehicle;
 int         iIndicatorType;
+BYTE        byteIndicatorsOn;
 
 bool GetIndicatorState(IVVehicle * pGameVehicle, int iIndicatorNumber)
 {
@@ -34,7 +36,25 @@ bool GetIndicatorState(IVVehicle * pGameVehicle, int iIndicatorNumber)
 	return pVehicle->GetIndicatorState(iIndicatorNumber);
 }
 
-// TODO: turn indicator audio(sound) off when turning indicator off...
+bool AreIndicatorsOn(IVVehicle * pGameVehicle)
+{
+	if(!pGameVehicle)
+		return false;
+
+	CNetworkVehicle * pVehicle = g_pStreamer->GetVehicleFromGameVehicle(pGameVehicle);
+
+	if(!pVehicle)
+		return false;
+
+	if(pVehicle->GetIndicatorState(0) || pVehicle->GetIndicatorState(1) || 
+		pVehicle->GetIndicatorState(2) || pVehicle->GetIndicatorState(3))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void _declspec(naked) CVehicle__DrawIndicator_Hook()
 {
 	_asm
@@ -75,6 +95,27 @@ void _declspec(naked) CVehicle__DrawIndicator_Hook()
 	}
 }
 
+void _declspec(naked) CVehicleAudio__SetIndicator_Hook()
+{
+	_asm
+	{
+		mov eax, [esp+4]
+		mov pIndicatorIVVehicle, eax
+		pushad
+	}
+
+	byteIndicatorsOn = AreIndicatorsOn(pIndicatorIVVehicle);
+
+	_asm
+	{
+		popad
+		mov al, byteIndicatorsOn
+		mov [ecx+0B2Eh], al
+		mov byte ptr [ecx+0B30h], 1
+		retn 4
+	}
+}
+
 void InstallIndicatorHooks()
 {
 	// TODO: When you're away from a vehicle and look at the front indicators, there's two possibilities:
@@ -88,5 +129,12 @@ void InstallIndicatorHooks()
 	// Hook CVehicle::DrawIndicator to use our hook function
 	CPatcher::InstallJmpPatch(COffsets::FUNC_CVehicle__DrawIndicator, (DWORD)CVehicle__DrawIndicator_Hook, 5);
 
+	// Pass our vehicle pointer to CVehicleAudio::SetIndicator (push ecx instead of eax)
+	*(BYTE *)(CGame::GetBase() + 0x9D2292) = 0x51;
+
+	// Hook CVehicleAudio::SetIndicator to use our hook function
+	CPatcher::InstallJmpPatch(COffsets::FUNC_CVehicleAudio__SetIndicators, (DWORD)CVehicleAudio__SetIndicator_Hook, 5);
+
+	// Whats this for?
 	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x9CD1C4), (CGame::GetBase() + 0x9CD210));
 }

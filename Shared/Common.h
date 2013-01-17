@@ -57,14 +57,14 @@
 // Defines used for the max amount of entities we (IV:MP, not GTA) can handle
 // jenksta: although they may be streamed, shouldn't they at least have some sensible limit?
 // NOTE: (if client-side entitys are introduced, those should not use ids from the same range as server ids)
-#define MAX_PLAYERS 48/*128*/ // Player Info Array Size: 64 // Ped Pool Size: 64
+#define MAX_PLAYERS 32/*128*/ // Player Info Array Size: 32 // Ped Pool Size: ~200
 #define MAX_VEHICLES 0xFFFE // Streamed. See note on Pickups. Vehicle Pool Size: 140
 #define MAX_OBJECTS 0xFFFE // Streamed. See note on Pickups. Object Pool Size: 1300
 #define MAX_CHECKPOINTS 0xFFFE // Streamed. Checkpoint Pool Size: See CStreamer.h
 #define MAX_BLIPS 1300 // Blip Pool Size: 1500
 #define MAX_PICKUPS 0xFFFE // Streamed. Pickup Pool Size: TODO: 1500?
 #define MAX_FIRE 32
-#define MAX_ACTORS 12
+#define MAX_ACTORS 85
 
 // TODO: RC2: Players: 128, Actors, 252
 
