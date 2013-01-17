@@ -89,6 +89,27 @@ _MEMBER_FUNCTION_IMPL(Audio, isStarted)
 	return 1;
 }
 
+_MEMBER_FUNCTION_IMPL(Audio, isPlaying)
+{
+	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	sq_pushbool( pVM, pAudio->IsPlaying() );
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(Audio, isPaused)
+{
+	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	sq_pushbool( pVM, pAudio->IsPaused() );
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(Audio, isStalled)
+{
+	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	sq_pushbool( pVM, pAudio->IsStalled() );
+	return 1;
+}
+
 _MEMBER_FUNCTION_IMPL(Audio, setVolume)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);

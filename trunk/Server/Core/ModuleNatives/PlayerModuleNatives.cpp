@@ -589,10 +589,8 @@ namespace Modules
 		if(g_pPlayerManager->DoesExist(playerId))
 		{
 			CBitStream bsSend;
-			bool bPlayerFrozen = (sqbPlayerFrozen != 0);
-			bsSend.Write(bPlayerFrozen);
-			bool bCameraFrozen = (sqbCameraFrozen != 0);
-			bsSend.Write(bCameraFrozen);
+			bsSend.Write(sqbPlayerFrozen);
+			bsSend.Write(sqbCameraFrozen);
 			g_pNetworkManager->RPC(RPC_ScriptingToggleFrozen, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 			return true;
 		}
@@ -927,14 +925,23 @@ namespace Modules
 		return CControlState();
 	}
 	
-
 	// triggerClientEvent(playerid, eventname, ...)
-	bool CPlayerModuleNatives::TriggerEvent(EntityId playerid, const char * szEventName, const char * szFormat, ...)
+	bool CPlayerModuleNatives::TriggerEvent(EntityId playerid, const char * szEventName, const char * szFormat, SquirrelArgumentsInterface* args, ...)
 	{
+		if(args != NULL)
+		{
+			// If we have arguments already, we add event name to the front of list and send them to client.
+			CSquirrelArguments* arguments = reinterpret_cast<CSquirrelArguments*>(args);
+			arguments->push_front((new CSquirrelArgument(String(szEventName))));
+			CBitStream bsSend;
+			arguments->serialize(&bsSend);
+			g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerid, false, PACKET_CHANNEL_SCRIPT);
+			return true;
+		}
+
 		CBitStream bsSend;
 		CSquirrelArguments* arguments = new CSquirrelArguments();
 		arguments->push(String(szEventName));
-
 		int argcount = 0;
 		const char* p = szFormat;
 		if(p)

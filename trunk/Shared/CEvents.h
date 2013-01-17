@@ -94,6 +94,8 @@ class CEvents : public std::map< String, std::list< CEventHandler* > >
 #endif
 {
 public:
+	const char* currentEventName;
+
 	~CEvents()
 	{
 		clear();
@@ -185,8 +187,7 @@ public:
 	}
 
 	bool IsEventRegistered(String eventName)
-	{		
-		// TODO: Add checking for special script also
+	{
 		CEvents::iterator iter = find(eventName);
 		return iter != end();
 	}
@@ -207,6 +208,11 @@ public:
 		Call(szName, reinterpret_cast<CSquirrelArguments*>(pArguments), reinterpret_cast<CSquirrelArgument*>(pReturn));
 	}
 
+	const char * GetCurrentEvent()
+	{
+		return currentEventName;
+	}
+
 #endif
 
 	CSquirrelArgument Call(String strName, CSquirrel* pScript = NULL)
@@ -225,6 +231,7 @@ public:
 
 	void Call(String strName, CSquirrelArguments* pArguments, CSquirrelArgument* pReturn, CSquirrel* pScript = NULL)
 	{
+		currentEventName = strName;
 		SQVM* pVM = pScript ? pScript->GetVM() : 0;
 
 		// Any events with that name?

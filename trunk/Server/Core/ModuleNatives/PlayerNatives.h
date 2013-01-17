@@ -11,6 +11,7 @@
 #pragma once
 
 #include "ModuleNatives.h"
+#include <Scripting/CSquirrelArguments.h>
 
 namespace Modules
 {
@@ -93,7 +94,7 @@ namespace Modules
 		CControlState GetEmptyControlState();
 		CControlState GetPreviousControlState(EntityId playerId);
 		CControlState GetControlState(EntityId playerId);
-		bool TriggerEvent(EntityId playerid, const char * szEventName, const char * szFormat, ...);
+		bool TriggerEvent(EntityId playerid, const char * szEventName, const char * szFormat, SquirrelArgumentsInterface* pArgs = NULL, ...);
 
 		bool forceAnim(EntityId playerId, const char * szGroup, const char * szAnim);
 		bool requestAnim(EntityId playerId);
