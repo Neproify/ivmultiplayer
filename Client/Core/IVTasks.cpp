@@ -261,3 +261,22 @@ CIVTaskSimpleStopWalking::CIVTaskSimpleStopWalking(unsigned int uiPlayerIndex, c
 	}
 	*/
 }
+
+CIVTaskComplexJump::CIVTaskComplexJump(WORD wFlags, void * a2)
+{
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
+	// Create the task
+	Create();
+
+	// Call the task constructor
+	IVTask * pTask = GetTask();
+	_asm
+	{
+		push a2
+		push wFlags
+		mov ecx, pTask
+		call COffsets::FUNC_CTaskComplexJump__Constructor
+	}
+}

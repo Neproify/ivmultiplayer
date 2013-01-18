@@ -59,3 +59,10 @@ class CIVTaskSimpleStartWalking : public CIVTaskSimple
 public:
 	CIVTaskSimpleStartWalking(unsigned int playerIndex, float a1, float a2, float a3, int a4, int a5);
 };
+
+class CIVTaskComplexJump : public CIVTaskComplex
+{
+public:
+	// iFlags (0 = Stand still and jump, 0x40 = Move forward and jump)
+	CIVTaskComplexJump(WORD wFlags, void * a2); // a2 = CVector4 *
+};
