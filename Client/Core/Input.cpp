@@ -279,21 +279,8 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		}
 		if(uMsg == WM_KEYUP && wParam == VK_F3)
 		{
-			/*DWORD dwAddress = (CGame::GetBase() + 0x8ADA50);
-			DWORD dwOffset = *(DWORD *)(CGame::GetBase() + 0xE9A3B8);
-			_asm
-			{
-				push dwOffset
-				call dwAddress
-				add esp, 8
-			}
-
-			dwAddress = (CGame::GetBase() + 0x41FD90);
-			_asm call dwAddress;
-			CLogFile::Print("OK -> CALLED");*/
-
 			IVVehicle * pGameVehicle = g_pLocalPlayer->GetVehicle()->GetGameVehicle()->GetVehicle();
-			//*(BYTE *)(pVehicle->GetGameVehicle()->GetVehicle() + 0xF71) |= 1;
+			*(BYTE *)(pGameVehicle + 0xF71) |= 1;
 			*((BYTE *)pGameVehicle + 3953) = *((BYTE *)pGameVehicle + 3953) & 0xFE | 2;
 		}
 		/*

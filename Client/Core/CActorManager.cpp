@@ -87,29 +87,19 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	delete pPedPool;
 
 	Scripting::CreateChar(0, (Scripting::eModel)dwModelHash, vecPosition.fX, vecPosition.fY, vecPosition.fZ, &m_Actors[actorId].uiActorIndex, true);
-	CLogFile::Print("Actor create finished");
-	//Scripting::SetBlockingOfNonTemporaryEvents(m_Actors[actorId].uiActorIndex, true);
-	CLogFile::Print("Actor initialize #1");
+	Scripting::SetBlockingOfNonTemporaryEvents(m_Actors[actorId].uiActorIndex, true);
 	Scripting::SetCharInvincible(m_Actors[actorId].uiActorIndex, true);
-	CLogFile::Print("Actor initialize #2");
 	Scripting::SetCharHealth(m_Actors[actorId].uiActorIndex, 200);
-	CLogFile::Print("Actor initialize #3");
 	Scripting::AddArmourToChar(m_Actors[actorId].uiActorIndex, 200);
-	CLogFile::Print("Actor initialize #4");
 	Scripting::SetCharDefaultComponentVariation(m_Actors[actorId].uiActorIndex);
-	CLogFile::Print("Actor initialize #5");
 	//Scripting::AddArmourToChar(m_Actors[actorId].uiActorIndex, 200);
-	CLogFile::Print("Actor initialize #6");
 	Scripting::SetCharHeading(m_Actors[actorId].uiActorIndex, fHeading);
-	CLogFile::Print("Actor initialize #7");
 	Scripting::AllowReactionAnims(m_Actors[actorId].uiActorIndex,false);
-	CLogFile::Print("Actor initialize #8");
 
 	if(bFrozen)
 		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,true);
 	if(bHelmet)
 		Scripting::GivePedHelmet(m_Actors[actorId].uiActorIndex);
-	CLogFile::Print("Actor initialize #9");
 	if(!CGame::GetNameTags())
 	{
 		if(bBlip)
@@ -128,7 +118,6 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 		m_Actors[actorId].strName = strName;
 		m_Actors[actorId].iNametagColor = iColor;
 	}
-	CLogFile::Print("Actor initialize #10");
 	m_Actors[actorId].bNametag = true;
 	m_bActive[actorId] = true;
 
@@ -146,7 +135,6 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 			m_bSpawned = true;
 		}
 	}
-	CLogFile::Print("Actor initialize #11");
 }
 
 bool CActorManager::Delete(EntityId actorId)
@@ -185,16 +173,13 @@ void CActorManager::SetHeading(EntityId actorId, float fHeading)
 
 CVector3 CActorManager::GetPosition(EntityId actorId)
 {	
-	float vecPosition1;
-	float vecPosition2;
-	float vecPosition3;
-	
-	Scripting::GetCharCoordinates(m_Actors[actorId].uiActorIndex,&vecPosition1,&vecPosition2,&vecPosition3);
+	CVector3 vecPos;
+	Scripting::GetCharCoordinates(m_Actors[actorId].uiActorIndex,&vecPos.fX,&vecPos.fY,&vecPos.fZ);
 
 	if(m_bActive[actorId])
 	{
-		m_Actors[actorId].vecPosition = CVector3(vecPosition1,vecPosition2,vecPosition3); 
-		return CVector3(vecPosition1,vecPosition2,vecPosition3);
+		m_Actors[actorId].vecPosition = vecPos; 
+		return vecPos;
 	}
 
 	return CVector3(0.0f, 0.0f, 0.0f);

@@ -9,7 +9,7 @@
 	<!-- httpserver>example.com</httpserver -->
 
 	<!-- Maximum number of players the server will support (Max 32) -->
-	<maxplayers>48</maxplayers>
+	<maxplayers>32</maxplayers>
 
 	<!-- Maximum number of vehicles the server will support (Max 65534) -->
 	<maxvehicles>400</maxvehicles>
@@ -33,7 +33,7 @@
 	<frequentevents>false</frequentevents>
 
 	<!-- Toggles the network nametags from GTA IV to nametags from IV:MP(CEGUI) -->
-	<guinametags>false</guinametags>
+	<guinametags>true</guinametags>
 	
 	<!-- Toggles the headmovement sync -->
 	<headmovement>true</headmovement>
@@ -65,6 +65,8 @@
 	
 	<!-- The resources the client will download and used by clientscripts -->
 	<!-- clientresource>ivmp.png</clientresource -->
+	<clientresource>hud.dat</clientresource>
+	<clientresource>RadioLogo.dat</clientresource>
 	
 	<!-- The modules the server will load and run -->
 	<!-- For windows: -->

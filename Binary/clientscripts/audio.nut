@@ -56,5 +56,19 @@ function onKeyPress(key, status)
 			tuneRadio(false,19);
 		}
 	}
+	else if(key == "b") // testcode
+	{
+		if(status == "down")
+		{
+			importAndLoadGameFile("hud.dat");
+		}
+	}
+	else if(key == "v") // testcode
+	{
+		if(status == "down")
+		{
+			importAndLoadGameFile("RadioLogo.dat");
+		}
+	}
 }
 addEvent("keyPress", onKeyPress);

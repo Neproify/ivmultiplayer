@@ -28,6 +28,8 @@ extern CGraphics	  * g_pGraphics;
 extern CCamera		  * g_pCamera;
 extern CChatWindow	  * g_pChatWindow;
 
+
+// TODO: if the distance between you and actor/other players is growing, the nametag/health/armor-bar should be getting smaller
 CNameTags::CNameTags()
 {
 	// Flag ourselves as enabled
@@ -57,14 +59,6 @@ void CNameTags::Draw()
 		// Get the local player position
 		CVector3 vecLocalPlayerPosition;
 		g_pLocalPlayer->GetPosition(vecLocalPlayerPosition);
-			
-		// Get the lookat data from camera
-		CIVCam * pGameCam = g_pCamera->GetGameCam();
-		pGameCam->GetPosition(vecCamPosition);
-		vecCamForward = pGameCam->GetCam()->m_data1.m_matMatrix.vecForward;
-		vecLookAt.fX = vecCamPosition.fX + vecCamForward.fX;
-		vecLookAt.fY = vecCamPosition.fY + vecCamForward.fY;
-		vecLookAt.fZ = vecCamPosition.fZ + vecCamForward.fZ;
 
 		CVector3 vecWorldPosition;
 		Vector2 vecScreenPosition;
@@ -72,44 +66,37 @@ void CNameTags::Draw()
 		// First render gui stuff(nametags), than boxes
 		for(EntityId i = 0; i < MAX_PLAYERS; i++)
 		{
-				// Is the current player active?
-				if(g_pPlayerManager->DoesExist(i) && g_pLocalPlayer->GetPlayerId() != i)
-				{
-					CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(i);
+			// Is the current player active?
+			if(g_pPlayerManager->DoesExist(i) && g_pLocalPlayer->GetPlayerId() != i)
+			{
+				CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(i);
 
-					// Get the player position + add z coord
-					pPlayer->GetPosition(vecWorldPosition);
-					vecWorldPosition.fZ += 1.15f;
+				// Get the player position + add z coord
+				pPlayer->GetPosition(vecWorldPosition);
+				vecWorldPosition.fZ += 1.15f;
 
-					if(!pPlayer->IsOnScreen())
-						return;
+				if(!pPlayer->IsOnScreen())
+					continue;
 					
-					// Convert the position to a screen position
-					if(!CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition))
-						continue;
+				// Convert the position to a screen position
+				if(!CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition))
+					continue;
 
-					// Is this player not within our view range?
-					if((vecLocalPlayerPosition - vecWorldPosition).Length() > 60.0f)
-						continue;
+				// Is this player not within our view range?
+				if((vecLocalPlayerPosition - vecWorldPosition).Length() > 60.0f)
+					continue;
 
-					// Check the cam position with the world position(fix desync)
-					if(((vecLookAt - vecWorldPosition).Length() * 1.35) < ((vecLocalPlayerPosition - vecWorldPosition).Length()))
-						continue;
-					
-					// set the position to the newest
-					vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.25f); // must be added, otherwise wrong pos
+				// set the name
+				String strNameTag("(%d) %s",i, pPlayer->GetName().Get());
 
-					// set the name
-					String strNameTag("(%d) %s",i, pPlayer->GetName().Get());
+				// Get the name tag color
+				DWORD dwColor = ((pPlayer->GetColor() >> 8) | 0xFF000000);
 
-					// Get the name tag color
-					DWORD dwColor = ((pPlayer->GetColor() >> 8) | 0xFF000000);
+				// Draw the name tag
+				g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X - (b_w / 2)), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
 
-					// Draw the name tag
-					g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X - (b_w / 2)), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
-
-				}
 			}
+		}
 		
 		// Loop through all active actors
 		for(EntityId i = 0; i < MAX_ACTORS; i++)
@@ -126,15 +113,8 @@ void CNameTags::Draw()
 					continue;
 
 				// Is this player not within our view range?
-				if((vecLocalPlayerPosition - vecWorldPosition).Length() > 30.0f)
+				if((vecLocalPlayerPosition - vecWorldPosition).Length() > 60.0f)
 					continue;
-
-				// Check the cam position with the world position(fix desync)
-				if(((vecLookAt - vecWorldPosition).Length() * 1.35) < ((vecLocalPlayerPosition - vecWorldPosition).Length()))
-					continue;
-
-				// set the position to the newest
-				vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.15f); // must be added, otherwise wrong pos
 
 				// set the name
 				String strNameTag("%s", g_pActorManager->GetName(i).Get());
@@ -144,11 +124,8 @@ void CNameTags::Draw()
 
 				// Draw the name tag
 				g_pGUI->DrawText(strNameTag, CEGUI::Vector2((vecScreenPosition.X - (b_w / 2)), vecScreenPosition.Y), CEGUI::colour(dwColor), m_pFont, false);
-
 			}
 		}
-		// Now render the boxes
-
 		// Loop through all active actors
 		for(EntityId i = 0; i < MAX_PLAYERS; i++)
 		{
@@ -169,10 +146,6 @@ void CNameTags::Draw()
 				if((vecLocalPlayerPosition - vecWorldPosition).Length() > 60.0f)
 					continue;
 
-				// Check the cam position with the world position(fix desync)
-				if(((vecLookAt - vecWorldPosition).Length() * 1.35) < ((vecLocalPlayerPosition - vecWorldPosition).Length()))
-					continue;
-
 				// Get the ped health (Subtract 100 as IV health is health + 100)
 				float m_fHealth = ( h_b_w * ((float)(pPlayer->GetHealth() - 100.0f) / 100) );
 				float m_fArmour = ( h_b_w * ((float)(pPlayer->GetArmour()) / 100) );
@@ -185,9 +158,6 @@ void CNameTags::Draw()
 
 				if(m_fArmour < 0)
 					m_fArmour = 0.0f;
-
-				// set the position to the newest
-				vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.15f); // must be added, otherwise wrong pos
 
 				// Draw boxes
 				if(pPlayer->GetArmour() > 2.0)
@@ -232,14 +202,6 @@ void CNameTags::Draw()
 			// Get the local player position
 			CVector3 vecLocalPlayerPosition;
 			g_pLocalPlayer->GetPosition(vecLocalPlayerPosition);
-			
-			// Get the lookat data from camera
-			CIVCam * pGameCam = g_pCamera->GetGameCam();
-			pGameCam->GetPosition(vecCamPosition);
-			vecCamForward = pGameCam->GetCam()->m_data1.m_matMatrix.vecForward;
-			vecLookAt.fX = vecCamPosition.fX + vecCamForward.fX;
-			vecLookAt.fY = vecCamPosition.fY + vecCamForward.fY;
-			vecLookAt.fZ = vecCamPosition.fZ + vecCamForward.fZ;
 
 			CVector3 vecWorldPosition;
 			Vector2 vecScreenPosition;
@@ -259,11 +221,7 @@ void CNameTags::Draw()
 						continue;
 
 					// Is this player not within our view range?
-					if((vecLocalPlayerPosition - vecWorldPosition).Length() > 30.0f)
-						continue;
-
-					// Check the cam position with the world position(fix desync)
-					if(((vecLookAt - vecWorldPosition).Length() * 1.35) < ((vecLocalPlayerPosition - vecWorldPosition).Length()))
+					if((vecLocalPlayerPosition - vecWorldPosition).Length() > 60.0f)
 						continue;
 
 					// Get the ped health (Subtract 100 as IV health is health + 100)
@@ -278,9 +236,6 @@ void CNameTags::Draw()
 
 					if(m_fArmour < 0)
 						m_fArmour = 0.0f;
-
-					// set the position to the newest
-					vecScreenPosition.Y += ( (vecLocalPlayerPosition - vecWorldPosition).Length() * 0.15f); // must be added, otherwise wrong pos
 
 					if(g_pActorManager->GetArmour(i) > 2.0)
 					{

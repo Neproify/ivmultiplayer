@@ -143,7 +143,7 @@ void _declspec(naked) TextureSelect_Hook()
 		}*/
 	}
 	else	
-	CLogFile::Printf("TextureSelect_Hook: (Pointer)%p/(File/Type)%s", hFile2, iTexture);
+		;//CLogFile::Printf("TextureSelect_Hook: (Pointer)%p/(File/Type)%s", hFile2, iTexture);
 
 	dwJump = (CGame::GetBase() + 0x639715);
 	_asm

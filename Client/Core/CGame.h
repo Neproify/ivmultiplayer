@@ -23,6 +23,7 @@
 #include "CIVWeather.h"
 #include "CIVWorld.h"
 #include "Patcher/CPatcher.h"
+#include <CLogFile.h>
 
 enum eState
 {
@@ -138,7 +139,7 @@ public:
 	static void            StopCutscene(char * szCutsceneName);
 	static void			   RequestAnimGroup(const char *szAnimGroup);
 	static void			   ReleaseAnimGroup(const char *szAnimGroup);
-	static void			   SetNameTags(bool bNametags) { m_bNameTags = bNametags; }
+	static void			   SetNameTags(bool bNametags) { m_bNameTags = bNametags; CLogFile::Printf("SETENABLED: %d",bNametags); }
 	static bool			   GetNameTags() { return m_bNameTags; }
 	static void			   SetHeadMovement(bool bMove) { m_bHeadMovement = bMove; }
 	static bool			   GetHeadMovement() { return m_bHeadMovement; }
