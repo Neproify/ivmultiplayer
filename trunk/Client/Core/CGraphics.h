@@ -25,7 +25,7 @@ private:
 	IDirect3DDevice9     * m_pDevice;
 	IDirect3DStateBlock9 * m_pStateBlock;
 	LPD3DXSPRITE		   m_pSprite;
-	IDirect3DTexture9				* m_pPixelTexture;
+	IDirect3DTexture9	 * m_pPixelTexture;
 	IDirect3DTexture9	 * m_pTexture;
 	void				   GenerateTextures( IDirect3DTexture9 ** pTexture, DWORD dwColour );
 
