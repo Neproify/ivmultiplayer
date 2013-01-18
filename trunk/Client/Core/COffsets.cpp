@@ -205,6 +205,7 @@ unsigned int COffsets::FUNC_CTaskSimpleCarSetPedInVehicle__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskSimpleCarSetPedOut__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskSimpleStartWalking__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskSimpleStopWalking__Constructor = 0;
+unsigned int COffsets::FUNC_CTaskComplexJump__Constructor = 0;
 
 // Weapons
 unsigned int COffsets::FUNC_CPedWeapons__RemoveWeapon = 0;
@@ -414,6 +415,7 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CTaskSimpleCarSetPedOut__Constructor       = (uiBase +  0xA9CFB0);
 			FUNC_CTaskSimpleStartWalking__Constructor		= (uiBase +  0xA0E310); // 0xA1D830 // 0xA0DFF0
 			FUNC_CTaskSimpleStopWalking__Constructor		= (uiBase +  0xA1D730);
+			FUNC_CTaskComplexJump__Constructor              = (uiBase +  0xAB4D90);
 
 			// aim task simple constructor = 0xA5FD80|native address = 0xB89090(param size 5)|static task select id = 35
 			// aim and walk simple constructor = 0xA0E630|native address = 0xB89F50(param size 12)|static task select id = 47

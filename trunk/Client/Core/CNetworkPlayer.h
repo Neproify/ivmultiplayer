@@ -272,6 +272,8 @@ public:
 	//
 	void					 UseMobilePhone(bool bUse);
 
+	void                     Jump(bool bMoving);
+
 	// Streaming
 	void					 StreamIn();
 	void					 StreamOut();

@@ -15,7 +15,7 @@
 
 enum eGameVersion
 {
-	GAME_VERSION_UNKNOWN, // FOOBARRED!
+	GAME_VERSION_UNKNOWN, // ?.?.?.?
 	GAME_VERSION_4,       // 1.0.4.0
 	GAME_VERSION_5,       // 1.0.0.4
 	GAME_VERSION_6,       // 1.0.6.0
@@ -224,6 +224,7 @@ public:
 	static unsigned int FUNC_CTaskSimpleCarSetPedOut__Constructor;
 	static unsigned int FUNC_CTaskSimpleStopWalking__Constructor;
 	static unsigned int FUNC_CTaskSimpleStartWalking__Constructor;
+	static unsigned int FUNC_CTaskComplexJump__Constructor;
 
 	// Weapons
 	static unsigned int FUNC_CPedWeapons__RemoveWeapon;

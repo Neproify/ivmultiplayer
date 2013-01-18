@@ -93,7 +93,7 @@ void CRemotePlayer::Init()
 
 void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData)
 {
-	// Check if the player isn't avaiable(disconnect etc)
+	// Check if the player isn't available(disconnect etc)
 	if(!g_pPlayerManager->IsActive(GetPlayerId()))
 		return;
 	
@@ -202,17 +202,10 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 	}
 
 	// Simulate jump(while walking/running)
-	if(!m_bStoreOnFootSwitch && syncPacket->vecMoveSpeed.Length() > 1.0 && syncPacket->controlState.IsJumping()) {
-		unsigned int uiPlayerIndex = GetScriptingHandle();
-		char iJumpStyle = 1;
-		DWORD dwAddress = (CGame::GetBase() + 0xB86A20);
-		_asm
-		{
-			push iJumpStyle
-			push uiPlayerIndex
-			call dwAddress
-		}
-		// AB4D90 = TaskJumpConstructor
+	if(!m_bStoreOnFootSwitch && syncPacket->vecMoveSpeed.Length() > 1.0 && syncPacket->controlState.IsJumping())
+	{
+		// Start the jump task
+		Jump(true);
 	}
 
 	// Set our control state

@@ -2640,15 +2640,6 @@ void CNetworkPlayer::SetHelmet(bool bHelmet)
 	m_bHelmet = bHelmet;
 }
 
-void CNetworkPlayer::UseMobilePhone(bool bUse)
-{
-	THIS_CHECK(__FUNCTION__);
-	if(IsSpawned())
-		Scripting::TaskUseMobilePhone(GetScriptingHandle(),bUse);
-
-	m_bUseMobilePhone = bUse;
-}
-
 void CNetworkPlayer::TaskLookAtCoord(float fX, float fY, float fZ)
 {
 	THIS_CHECK(__FUNCTION__);
@@ -2669,5 +2660,30 @@ void CNetworkPlayer::TaskLookAtCoord(float fX, float fY, float fZ)
 			}
 		}
 		//Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(playerId)->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, TICK_RATE, 0);
+	}
+}
+
+void CNetworkPlayer::UseMobilePhone(bool bUse)
+{
+	THIS_CHECK(__FUNCTION__);
+	if(IsSpawned())
+		Scripting::TaskUseMobilePhone(GetScriptingHandle(),bUse);
+
+	m_bUseMobilePhone = bUse;
+}
+
+void CNetworkPlayer::Jump(bool bMoving)
+{
+	if(IsSpawned())
+	{
+		// Create the jump task
+		CIVTaskComplexJump * pTask = new CIVTaskComplexJump((bMoving ? 0x40 : 0), NULL);
+
+		// Did the task create successfully?
+		if(pTask)
+		{
+			// Set it as the ped task
+			pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
+		}
 	}
 }
