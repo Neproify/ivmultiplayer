@@ -24,19 +24,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\cegui\src\XMLParserModules\expatParser\CEGUIExpatParser.cpp">
-      <Filter>cegui\src\XMLParserModules\expatParser</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cegui\src\XMLParserModules\expatParser\CEGUIExpatParserModule.cpp">
-      <Filter>cegui\src\XMLParserModules\expatParser</Filter>
-    </ClCompile>
+    <ClCompile Include="..\..\..\cegui\src\XMLParserModules\expatParser\CEGUIExpatParser.cpp" />
+    <ClCompile Include="..\..\..\cegui\src\XMLParserModules\expatParser\CEGUIExpatParserModule.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\cegui\include\XMLParserModules\expatParser\CEGUIExpatParser.h">
-      <Filter>cegui\include\XMLParserModules\expatParser</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cegui\include\XMLParserModules\expatParser\CEGUIExpatParserModule.h">
-      <Filter>cegui\include\XMLParserModules\expatParser</Filter>
-    </ClInclude>
+    <ClInclude Include="..\..\..\cegui\include\XMLParserModules\expatParser\CEGUIExpatParser.h" />
+    <ClInclude Include="..\..\..\cegui\include\XMLParserModules\expatParser\CEGUIExpatParserModule.h" />
   </ItemGroup>
 </Project>

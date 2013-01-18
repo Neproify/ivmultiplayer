@@ -46,7 +46,7 @@ private:
 	bool		  m_bTyre[6];
 	bool		  m_bGpsState;
 	bool		  m_bActorVehicle;
-	unsigned char m_ucDimension;
+	DimensionId   m_ucDimension;
 	int			  m_iRespawnDelay;
 	unsigned long m_lastTimeOccupied;
 	unsigned long m_ulDeathTime;
@@ -124,8 +124,8 @@ public:
 	void		  SetAlarm(int iDuration);
 	void		  MarkVehicle(bool bToggle);
 	void		  RepairVehicle();
-	void		  SetDimension(unsigned char ucDimension) { m_ucDimension = ucDimension; }
-	unsigned char GetDimension() { return m_ucDimension; }
+	void		  SetDimension(DimensionId ucDimension) { m_ucDimension = ucDimension; }
+	DimensionId   GetDimension() { return m_ucDimension; }
 	void		  SetLastTimeOccupied(unsigned long lastTimeOccupied) { m_lastTimeOccupied = lastTimeOccupied; }
 	unsigned long GetLastTimeOccupied() { return m_lastTimeOccupied; }
 	void		  SetRespawnDelay(int iRespawnDelay) { m_iRespawnDelay = iRespawnDelay; }

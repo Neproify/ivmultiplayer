@@ -188,6 +188,14 @@ private:
 	static void ScriptingSetCheckpointDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void	ScriptingSetObjectInterior(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingExplodeCar(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void New3DLabel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void Delete3DLabel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSet3DLabelPosition(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSet3DLabelText(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSet3DLabelColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSet3DLabelVisible(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSet3DLabelStreamingDistance(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSet3DLabelDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 
 public:
 	void        Register();

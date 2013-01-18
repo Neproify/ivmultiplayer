@@ -127,7 +127,7 @@ public:
 	static String          GetCurrentAreaName();
 	static String          GetCurrentStreetName();
 	static void            RemoveInitialLoadingScreens();
-	static void            GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition);
+	static bool            GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition);
 	static void            CreateExplosion(CVector3& vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound = true, bool bInvisible = false, float fCameraShake = 0.0f);
 	static unsigned int    CreateFire(CVector3 vecPosition, unsigned int uiStrength = 1, unsigned char ucAllowedGenerations = 0);
 	static bool            DeleteFire(unsigned int uiFire);

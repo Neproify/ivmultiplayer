@@ -32,6 +32,9 @@ private:
 	CVector3		m_vecMoveTargetRot;
 	CVector3		m_vecMoveStartRot;
 
+	float			m_fMoveDuration;
+	unsigned long	m_ulMoveStartTime;
+
 public:
 	CObject(DWORD dwModelHash, CVector3 vecPosition, CVector3 vecRotation);
 	~CObject();
@@ -63,6 +66,10 @@ public:
 	void		SetStartRotation(const CVector3 &vec) { m_vecMoveStartRot = vec; }
 
 	float		GetMoveSpeed() { return m_fMoveSpeed; }
+	float		GetMoveDuration() { return m_fMoveDuration; }
+	unsigned long GetMoveStartTime() { return m_ulMoveStartTime; }
+	void		SetMoveDuration(float duration) { m_fMoveDuration = duration; }
+	void		SetMoveStartTime(unsigned long time) { m_ulMoveStartTime = time; }
 	void		SetMoveSpeed(float fSpeed) { m_fMoveSpeed = fSpeed; }
 	void		MoveObject(const CVector3& vecTarget, const CVector3& vecRot, float fSpeed);
 

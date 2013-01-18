@@ -194,4 +194,12 @@ enum eRPCIdentfiers
 	RPC_ScriptingSetCheckpointDimension,
 	RPC_ScriptingSetObjectInterior,
 	RPC_ScriptingExplodeCar,
+	RPC_New3DLabel,
+	RPC_Delete3DLabel,
+	RPC_ScriptingSet3DLabelPosition,
+	RPC_ScriptingSet3DLabelText,
+	RPC_ScriptingSet3DLabelColor,
+	RPC_ScriptingSet3DLabelVisible,
+	RPC_ScriptingSet3DLabelStreamingDistance,
+	RPC_ScriptingSet3DLabelDimension,
 };

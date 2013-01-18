@@ -48,26 +48,27 @@ private:
 			unsigned long ulFinishTime;
 		} rot;
 	}                m_interp;
-	bool             m_bSirenState;
-	bool             m_bIndicatorState[4];
-	int				 m_iComponents[9];
+
 	DWORD            m_dwDoorLockState;
 	unsigned long    m_ulHornDurationEnd;
-	unsigned int     m_uiHealth;
 	float            m_fDirtLevel;
 	float            m_fPetrolTankHealth;
-	unsigned char    m_ucVariation;
+	float			 m_fDoor[6];
+	bool             m_bSirenState;
+	bool             m_bIndicatorState[4];
 	bool			 m_bEngineStatus;
 	bool			 m_bTaxiLights;
-	float			 m_fDoor[6];
 	bool			 m_bLights;
 	bool			 m_bWindow[4];
 	bool			 m_bGpsState;
 	bool			 m_bActorVehicle;
 	bool			 m_bFirstStreamIn;
 	bool			 m_bActive;
+	unsigned char    m_ucVariation;
+	unsigned int     m_uiHealth;
 	unsigned int	 m_uiInterior;
 	int				 m_iVehicleType;
+	int				 m_iComponents[9];
 	EMPTYVEHICLESYNCPACKET	m_oldEmptySyncData;
 
 	bool             Create(bool bStreamIn = false);

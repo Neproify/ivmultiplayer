@@ -45,3 +45,6 @@
 
 // Script functions
 #include "Natives/ScriptNatives.h"
+
+// 3DLabel functions
+#include "Natives/3DLabelNatives.h"

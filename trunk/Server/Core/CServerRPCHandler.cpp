@@ -25,6 +25,7 @@
 #include "CEvents.h"
 #include "CNetworkManager.h"
 #include "CVehicle.h"
+#include "C3DLabels.h"
 
 extern CNetworkManager * g_pNetworkManager;
 extern CScriptingManager * g_pScriptingManager;
@@ -42,6 +43,7 @@ extern CTrafficLights * g_pTrafficLights;
 extern CModuleManager * g_pModuleManager;
 extern CEvents * g_pEvents;
 extern CVehicle * g_pVehicle;
+extern C3DLabelManager		* g_p3DLabelManager;
 
 void SendConsoleInput(String strInput);
 
@@ -161,6 +163,8 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 
 	// Let the actor manager handle the client join
 	g_pActorManager->HandleClientJoin(playerId);
+
+	g_p3DLabelManager->HandleClientJoin(playerId);
 
 	// Construct the reply bit stream
 	bsSend.Write(playerId);
@@ -1009,7 +1013,6 @@ void CServerRPCHandler::VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pS
 	CSquirrelArguments pArguments;
 	pArguments.push(vehicleId);
 	g_pEvents->Call("vehicleDeath",&pArguments);
-	pVehicle->SetDeathTime(SharedUtility::GetTime());
 
 	if(g_pEvents->Call("vehicleRespawn", &pArguments).GetInteger() == 1)
 	{
@@ -1039,6 +1042,7 @@ void CServerRPCHandler::VehicleDeath(CBitStream * pBitStream, CPlayerSocket * pS
 				}
 			}
 		}
+		pVehicle->SetDeathTime(SharedUtility::GetTime());
 	}
 }
 

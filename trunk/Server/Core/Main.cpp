@@ -42,6 +42,7 @@
 #include "CQuery.h"
 #include <CExceptionHandler.h>
 #include "ModuleNatives/ModuleNatives.h"
+#include "C3DLabels.h"
 
 #define HEIPHEN_GEN(string, stringname) \
 	{ \
@@ -72,6 +73,8 @@ unsigned long        g_ulStartTick = 0;
 CMutex               consoleInputQueueMutex;
 std::queue<String>   consoleInputQueue;
 CQuery             * g_pQuery = NULL;
+
+C3DLabelManager		* g_p3DLabelManager = NULL;
 
 extern CScriptTimerManager * g_pScriptTimerManager;
 
@@ -479,6 +482,8 @@ int main(int argc, char ** argv)
 	g_pCheckpointManager = new CCheckpointManager();
 	g_pModuleManager = new CModuleManager();
 	g_pScriptTimerManager = new CScriptTimerManager();
+	g_p3DLabelManager = new C3DLabelManager();
+
 	g_pWebserver = new CWebServer(CVAR_GET_INTEGER("httpport"));
 	g_pTime = new CTime();
 	g_pTrafficLights = new CTrafficLights();
@@ -557,6 +562,9 @@ int main(int argc, char ** argv)
 
 	// Register the event natives
 	CEventNatives::Register(g_pScriptingManager);
+
+	// Register the 3dlabel natives
+	_3DLabelNatives::Register(g_pScriptingManager);
 
 	// Register the script natives
 	RegisterScriptNatives(g_pScriptingManager);

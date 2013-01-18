@@ -22,7 +22,7 @@ struct _Object
 	unsigned int	uiVehiclePlayerId;
 	CVector3		vecAttachPosition;
 	CVector3		vecAttachRotation;
-	unsigned char	ucDimension;
+	DimensionId 	ucDimension;
 	unsigned int	iBone;
 	int				m_iInterior;
 };
@@ -70,8 +70,8 @@ public:
 	void			DeleteFire(EntityId fireId);
 	void			HandleClientJoinFire(EntityId playerId);
 	void			CreateExplosion(const CVector3& vecPosition, float fdensity);
-	void			SetDimension(EntityId objectId, unsigned char ucDimension);
-	unsigned char	GetDimension(EntityId objectId) { if(DoesExist(objectId)) return m_Objects[objectId].ucDimension; else return 0; }
+	void			SetDimension(EntityId objectId, DimensionId ucDimension);
+	DimensionId 	GetDimension(EntityId objectId) { if(DoesExist(objectId)) return m_Objects[objectId].ucDimension; else return 0; }
 
 	void			SetInterior(EntityId objectId, int iInterior);
 	int				GetInterior(EntityId objectId) { return m_Objects[objectId].m_iInterior; }

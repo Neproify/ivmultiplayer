@@ -59,6 +59,7 @@
 #include "CFireManager.h"
 #include <Threading/CThread.h>
 #include <Threading/CMutex.h>
+#include "C3DLabels.h"
 
 #ifdef IVMP_WEBKIT
 	//#include "CD3D9Webkit.hpp"
@@ -95,6 +96,7 @@ CCredits             * g_pCredits = NULL;
 CNameTags            * g_pNameTags = NULL;
 CClientTaskManager   * g_pClientTaskManager = NULL;
 CFireManager		 * g_pFireManager = NULL;
+C3DLabelManager		* g_p3DLabelManager = NULL;
 
 #ifdef IVMP_WEBKIT
 	//CD3D9WebKit * g_pWebkit;
@@ -371,6 +373,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			// Delete our events manager
 			SAFE_DELETE(g_pEvents);
 
+			SAFE_DELETE(g_p3DLabelManager);
+
 			// Uninstall the Cursor hook
 #ifdef IVMP_DEBUG
 			CCursorHook::Uninstall();
@@ -496,6 +500,9 @@ void Direct3DRender()
 	// If our credits class exists process it
 	if(g_pCredits)
 		g_pCredits->Process();
+
+	if(g_p3DLabelManager)
+		g_p3DLabelManager->Render();
 
 	// If our scripting manager exists, call the frame event
 	if(g_pEvents && !g_pMainMenu->IsVisible())
@@ -697,19 +704,9 @@ void Direct3DRender()
 								continue;
 					
 							pVehicle->GetPosition(vecWorldPosition); 
-							CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
+							if(!CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition))
+								continue;
 
-
-							//if(g_pGraphics)
-							//{
-							//	CVector3 vecScreen;
-							//	g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition, &vecScreen);
-						
-							//	if( vecScreen.fZ < 0 )
-							//		return;
-							//}
-							//else
-							//	return;
 							
 							int health = pVehicle->GetHealth();
 							int model = pVehicle->GetEngineState();
@@ -799,6 +796,10 @@ void Direct3DReset()
 		g_pMainMenu = new CMainMenu();
 	else
 		g_pMainMenu->OnResetDevice();
+
+
+	if(!g_p3DLabelManager)
+		g_p3DLabelManager = new C3DLabelManager();
 
 	//// Show loading screen
 	//if(!CGame::IsGameLoaded() && !CGame::IsMenuActive())
@@ -947,6 +948,10 @@ void InternalResetGame(bool bAutoConnect)
 	SAFE_DELETE(g_pFireManager);
 	g_pFireManager = new CFireManager();
 	CLogFile::Printf("Created fire manager instance");
+
+	SAFE_DELETE(g_p3DLabelManager);
+	g_p3DLabelManager = new C3DLabelManager();
+	CLogFile::Printf("Created 3d label manager instance");
 
 	// Set all vehicles to destroyable
 	if(g_pVehicleManager)
