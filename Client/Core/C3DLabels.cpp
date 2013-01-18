@@ -28,8 +28,7 @@ C3DLabel::C3DLabel(LabelId id, String text, CVector3 vecPosition, DWORD dwColor,
 	m_vecPosition(vecPosition),
 	m_dwColor(dwColor),
 	m_bVisible(bVisible),
-	m_labelId(id),
-	m_pFont(NULL)
+	m_labelId(id)
 {
 	
 	SetDimension(0);
@@ -49,10 +48,12 @@ void C3DLabel::Render()
 	if(!CGame::GetScreenPositionFromWorldPosition(m_vecPosition, vecScreenPosition))
 		return;
 
-	if(g_pGUI && m_pFont == NULL)
-		m_pFont = g_pGUI->GetFont("tahoma-bold", 10);
-
-	g_pGUI->DrawText(m_strText.Get(), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y), CEGUI::colour(m_dwColor), m_pFont, false);
+	if(g_pGUI)
+	{
+		CEGUI::Font * pFont = g_pGUI->GetFont("tahoma-bold");
+		if(pFont)
+			g_pGUI->DrawText(m_strText.Get(), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y), CEGUI::colour(m_dwColor), pFont, false);
+	}
 }
 
 

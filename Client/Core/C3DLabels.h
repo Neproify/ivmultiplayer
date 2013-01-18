@@ -27,8 +27,7 @@ private:
 	DWORD		m_dwColor;
 	LabelId		m_labelId;
 	bool		m_bVisible;
-	CEGUI::Font * m_pFont;
-	bool streamed;
+	bool		streamed;
 
 public:
 	C3DLabel();

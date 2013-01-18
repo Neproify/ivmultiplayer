@@ -143,7 +143,7 @@ void CGraphics::DrawBox_2(float fLeft, float fTop, float fWidth, float fHeight, 
 void CGraphics::DrawRect(float fX, float fY, float fWidth, float fHeight, unsigned long ulColor)
 {
 	// From Irrlicht
-	/*D3DVERTEX vertex[4];
+	D3DVERTEX vertex[4];
 	vertex[0] = D3DVERTEX(fX, fY, 0.0f, 1.0f, ulColor);
 	vertex[1] = D3DVERTEX((fX + fWidth), fY, 0.0f, 1.0f, ulColor);
 	vertex[2] = D3DVERTEX((fX + fWidth), (fY + fHeight), 0.0f, 1.0f, ulColor);
@@ -155,16 +155,7 @@ void CGraphics::DrawRect(float fX, float fY, float fWidth, float fHeight, unsign
 	m_pDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
 	m_pDevice->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 4, 2, &indices[0], D3DFMT_INDEX16, &vertex[0], sizeof(D3DVERTEX));
 	//m_pDevice->Release();
-	End();*/
-
-	m_pSprite->Begin( D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE );
-	D3DXMATRIX matrix;
-    D3DXVECTOR2 SCAL ( fWidth, fHeight );
-    D3DXVECTOR2 POS ( fX, fY );
-    D3DXMatrixTransformation2D ( &matrix, NULL, 0.0f, &SCAL, NULL, 0.0f, &POS );
-	m_pSprite->SetTransform( &matrix );
-    m_pSprite->Draw( m_pPixelTexture, NULL, NULL, NULL, ulColor );
-	m_pSprite->End( );
+	End();
 }
 
 void CGraphics::DrawBox( float fLeft, float fTop, float fWidth, float fHeight, DWORD dwColour )
