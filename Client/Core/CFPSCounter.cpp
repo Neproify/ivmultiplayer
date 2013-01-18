@@ -57,5 +57,9 @@ void CFPSCounter::Pulse()
 		// Draw the current fps if needed
 		if(pFont && g_bFPSToggle)
 			g_pGUI->DrawText(String("FPS: %d", m_uiTotalFramesPerSecond), CEGUI::Vector2(5, 5), CEGUI::colour(0xFFFFFFFF), pFont);
+
+		// workaround for not drawing rect on Windows 8
+		if(pFont)
+			g_pGUI->DrawText(String(""), CEGUI::Vector2(5, 5), CEGUI::colour(0xFFFFFFFF), pFont);
 	}
 }

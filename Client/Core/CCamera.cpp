@@ -220,8 +220,8 @@ extern CChatWindow* g_pChatWindow;
 
 bool CCamera::IsOnScreen(const CVector3& vecPosition)
 {
-#define CVEC_TO_D3DVEC(vec) new D3DXVECTOR3(vec.fX, vec.fY, vec.fZ)
-#define D3DVEC_TO_CVEC(vec) new CVector3(vec.x, vec.y, vec.z)
+#define CVEC_TO_D3DVEC(vec) &D3DXVECTOR3(vec.fX, vec.fY, vec.fZ)
+#define D3DVEC_TO_CVEC(vec) &CVector3(vec.x, vec.y, vec.z)
 	CVector3 vecCamPos;
 	GetGameCam()->GetPosition(vecCamPos);
 
@@ -229,7 +229,7 @@ bool CCamera::IsOnScreen(const CVector3& vecPosition)
 	GetLookAt(vecCamLookAt);
 
 	D3DXMATRIX matView;
-	D3DXMatrixLookAtLH(&matView, CVEC_TO_D3DVEC(vecCamPos), CVEC_TO_D3DVEC(vecCamLookAt), new D3DXVECTOR3(0, 0, 1));
+	D3DXMatrixLookAtLH(&matView, CVEC_TO_D3DVEC(vecCamPos), CVEC_TO_D3DVEC(vecCamLookAt), &D3DXVECTOR3(0, 0, 1));
 
 	D3DVIEWPORT9 viewport;
 	g_pGraphics->GetDevice()->GetViewport(&viewport);

@@ -1051,6 +1051,17 @@ void InternalResetGame(bool bAutoConnect)
 		CLogFile::Printf("Reset camera stuff");
 	}
 
+	// Reset radio logo properties
+	DWORD FUNC__IMPORT_RADIOLOGO = (CGame::GetBase() + 0x822E30);
+	_asm call FUNC__IMPORT_RADIOLOGO;
+
+	// Reset hud properties
+	DWORD FUNC__IMPORT_HUD = (CGame::GetBase() + 0x848390);
+	DWORD VAR__HUD_FILE = (CGame::GetBase() + /*0xD5DCF4*/0x848419);
+	char *szTxt = "common:/DATA/HUD.DAT";
+	CPatcher::InstallPushPatch(VAR__HUD_FILE, (DWORD)szTxt);
+	_asm call FUNC__IMPORT_HUD;
+
 	// Set the time and weather after the camera set, one of the camera stuff changes the time and the weather
 	CGame::GetWeather()->SetWeather(WEATHER_SUNNY);
 	g_pTime->SetTime(0, 0);
