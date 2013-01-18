@@ -41,7 +41,7 @@ public:
 	void	DrawLine(float fStartX, float fStartY, float fEndX, float fEndY, unsigned long ulColor);
 	void	DrawBox_2(float fLeft, float fTop, float fWidth, float fHeight, DWORD dwColorBox);
 	void	DrawRect(float fX, float fY, float fWidth, float fHeight, unsigned long ulColor);
-	void	DrawBox( float fLeft, float fTop, float fWidth, float fHeight, DWORD dwColour );
+	void	DrawBox(float fLeft, float fTop, float fWidth, float fHeight, DWORD dwColour);
 	float	GetFontHeight( float fScale = 1.0f );
 	void	GetScreenPositionFromWorldPosition(CVector3 vecWorld, CVector3 * vecScreen);
 

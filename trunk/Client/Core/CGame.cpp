@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <process.h>
 #include "CGame.h"
-#include <CLogFile.h>
 #include "Scripting.h"
 #include "CGUI.h"
 #include "CChatWindow.h"

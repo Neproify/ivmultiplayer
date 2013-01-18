@@ -62,6 +62,7 @@ void RegisterClientNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("tuneRadio", sq_tuneRadio, 2, "bi");
 	pScriptingManager->RegisterFunction("triggerServerEvent", sq_triggerServerEvent, -1, NULL);
 	pScriptingManager->RegisterFunction("getGameLanguage", sq_getGameLanguage, -1, NULL);
+	pScriptingManager->RegisterFunction("importAndLoadGameFile", sq_importAndLoadGameFile, 1, "s");
 }
 
 // addChatMessage(string)
@@ -547,4 +548,105 @@ int sq_getGameLanguage(SQVM * pVM)
 
 	sq_pushstring(pVM,strLanguage.Get(),-1);
 	return 1;
+}
+
+DWORD dwJumpAddr = (CGame::GetBase() + 0x822E7A);
+char *szRadioFile;
+void __declspec(naked) Hook_RadioLogoScreens()
+{
+	_asm pushad;
+	//
+	szRadioFile = "common:/DATA/RadioLogo_ivmp.DAT";
+	_asm
+	{
+		popad
+		mov edi, szRadioFile
+		jmp dwJumpAddr
+	}
+}
+
+int sq_importAndLoadGameFile(SQVM * pVM)
+{
+	const char * szFile;
+	sq_getstring(pVM, -1, &szFile);
+	String strFile = szFile;
+
+	String strAbsolutePath;
+	strAbsolutePath = SharedUtility::GetAbsolutePath("clientfiles");
+	if(!strcmp(szFile,"hud.dat") || !strcmp(szFile,"RadioLogo.dat")) {
+		std::ifstream szFileExist(String("%s\\resources\\%s", strAbsolutePath.Get(), strFile.Get()).Get());
+		if(!szFileExist) {
+			CLogFile::Printf("[IMPORT] Failed to import file %s into GTA [File does not exist]",strFile.Get());
+			sq_pushbool(pVM,false);
+			return 1;
+		}
+
+		char szInstallDirectory[MAX_PATH];
+		if(!SharedUtility::ReadRegistryString(HKEY_LOCAL_MACHINE, "Software\\Rockstar Games\\Grand Theft Auto IV", 
+			"InstallFolder", NULL, szInstallDirectory, sizeof(szInstallDirectory)) || !SharedUtility::Exists(szInstallDirectory))
+		{
+			if(!SharedUtility::ReadRegistryString(HKEY_CURRENT_USER, "Software\\IVMP", "gtaivdir", NULL, 
+				szInstallDirectory, sizeof(szInstallDirectory)) || 
+				!SharedUtility::Exists(szInstallDirectory))
+			{
+				CLogFile::Printf("[IMPORT] Failed to import file %s into GTA [Failed to find gta iv directory]",strFile.Get());
+				sq_pushbool(pVM,false);
+				return 1;
+			}
+		}
+		
+		String strCopyPath = String("%s\\common\\data",szInstallDirectory);
+		if(!SharedUtility::Exists(strCopyPath.Get()))
+			SharedUtility::CreateDirectoryA(strCopyPath.Get());
+
+		String strFolderName = SharedUtility::GetAbsolutePath("clientfiles");
+		strFolderName.AppendF("\\resources\\%s",strFile.Get());
+		
+		if(!strcmp(szFile,"hud.dat"))
+			strCopyPath.Append("\\hud_ivmp.dat");
+		else if(!strcmp(szFile,"RadioLogo.dat"))
+			strCopyPath.Append("\\RadioLogo_ivmp.dat");
+
+		if(g_pChatWindow)
+			g_pChatWindow->AddInfoMessage("IMPORT from: %s | to: %s",strFolderName.Get(), strCopyPath.Get());
+
+		if(CopyFileA(strFolderName.Get(),strCopyPath.Get(),false))
+		{
+			// Addresses
+			DWORD FUNC__IMPORT_HUD = (CGame::GetBase() + 0x848390);
+			DWORD VAR__HUD_FILE = (CGame::GetBase() + /*0xD5DCF4*/0x848419);
+			DWORD FUNC__IMPORT_RADIOLOGO = (CGame::GetBase() + 0x822E30);
+
+			if(!strcmp(szFile,"hud.dat")) {
+				char *szTxt = "common:/DATA/HUD_IVMP.DAT";
+				CPatcher::InstallPushPatch(VAR__HUD_FILE, (DWORD)szTxt);
+				_asm call FUNC__IMPORT_HUD;
+				szTxt = "common:/DATA/HUD.DAT";
+				CPatcher::InstallPushPatch(VAR__HUD_FILE, (DWORD)szTxt);
+			}
+			else if(!strcmp(szFile,"RadioLogo.dat")) {
+				void * tramp = CPatcher::InstallJmpPatch((CGame::GetBase() + 0x822E75), (DWORD)Hook_RadioLogoScreens, 5);
+				_asm call FUNC__IMPORT_RADIOLOGO;
+				CPatcher::UninstallDetourPatchInternal((CGame::GetBase() + 0x822E75),tramp,5);
+			}
+			else
+			{
+				CLogFile::Printf("[IMPORT] Failed to import file %s into GTA [Not supported file]",strFile.Get());
+				sq_pushbool(pVM, false);
+				return 1;
+			}
+		}
+		else
+		{
+			CLogFile::Printf("[IMPORT] Failed to import file %s into GTA [Copy failed]",strFile.Get());
+			sq_pushbool(pVM, false);
+			return 1;
+		}
+	}
+	else
+	{	
+		CLogFile::Printf("[IMPORT] Failed to import file %s into GTA [Not supported file]",strFile.Get());
+		sq_pushbool(pVM, false);
+		return 1;
+	}
 }
