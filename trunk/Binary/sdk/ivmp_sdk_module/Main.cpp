@@ -32,7 +32,7 @@ EXPORT bool InitModule(char * szModuleName)
 /*
 	This function is called when a some script is loaded.
 */
-EXPORT void ScriptLoad(const char* szName, HSQUIRRELVM pVM)
+EXPORT void ScriptLoad(HSQUIRRELVM pVM)
 {
 	// Register constants for this script:
 	RegisterConstant(pVM, "TEST_FLOAT_CONST", 29.0f);
@@ -43,15 +43,15 @@ EXPORT void ScriptLoad(const char* szName, HSQUIRRELVM pVM)
 	RegisterFunction(pVM, "createVehicleEx", sq_createVehicleEx);		// any template/count of paramaters for function 'createVehicleEx'
 	//..., "fantasticFunction", sq_fantasticFunction, 6, "siifsb");		// template: ( string, integer, integer, float, string, bool ) - for function 'fantasticFunction'
 
-	LogPrintf("[%s] A script '%s' got loaded!", m_szModuleName, szName);
+	LogPrintf("[%s] A script got loaded!", m_szModuleName);
 }
 
 /*
 	This function is called when a some script is unloaded.
 */
-EXPORT void ScriptUnload(const char* szName, HSQUIRRELVM pVM)
+EXPORT void ScriptUnload(HSQUIRRELVM pVM)
 {
-	LogPrintf("[%s] A script '%s' got unloaded!", m_szModuleName, szName);
+	LogPrintf("[%s] A script got unloaded!", m_szModuleName);
 }
 
 /*

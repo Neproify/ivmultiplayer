@@ -144,8 +144,8 @@ typedef void (* SetupFunctions_t)(void *pContainer);
 typedef void (* SetupInterfaces_t)(void *pContainer);
 typedef void (* SetupNewInterfaces_t)(void *pContainer);
 typedef bool (* InitModule_t)(char *);
-typedef void (* ScriptLoad_t)(const char*, HSQUIRRELVM);
-typedef void (* ScriptUnload_t)(const char*, HSQUIRRELVM);
+typedef void (* ScriptLoad_t)(HSQUIRRELVM);
+typedef void (* ScriptUnload_t)(HSQUIRRELVM);
 typedef void (* Pulse_t)();
 
 struct ModuleFunctions
@@ -166,8 +166,8 @@ public:
 	~CModule();
 
 	bool IsValid();
-	void ScriptLoad(const char* szName, HSQUIRRELVM pVM);
-	void ScriptUnload(const char* szName, HSQUIRRELVM pVM);
+	void ScriptLoad(HSQUIRRELVM pVM);
+	void ScriptUnload(HSQUIRRELVM pVM);
 	void Pulse();
 
 private:
