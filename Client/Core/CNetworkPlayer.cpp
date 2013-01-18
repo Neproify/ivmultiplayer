@@ -35,7 +35,7 @@ extern CChatWindow     * g_pChatWindow;
 #define THIS_CHECK_R(func,x) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[WARNING] Internal error occured in %s [ Type 2 | Func %s() ]",__FILE__,func); } return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
-	: CStreamableEntity(STREAM_ENTITY_PLAYER, 300.0f),
+	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
 	m_bIsLocalPlayer(bIsLocalPlayer),
 	m_playerId(INVALID_ENTITY_ID),
 	m_pContextData(NULL),
@@ -94,15 +94,19 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 		// Set the player info instance to NULL
 		m_pPlayerInfo = NULL;
 	}
-	if(!bIsLocalPlayer)
+
+	if(!IsLocalPlayer())
 		SetCanBeStreamedIn(true);
+
 }
 
 CNetworkPlayer::~CNetworkPlayer()
 {
-	// Destroy ourselves
-	OnDelete();
-	Destroy();
+	CLogFile::Printf("Destroy NetworkPlayer");
+	if(!IsLocalPlayer()) {
+		// Destroy ourselves
+		OnDelete();
+	}
 }
 
 bool CNetworkPlayer::Create()
@@ -1747,7 +1751,7 @@ void CNetworkPlayer::Pulse()
 				{
 					if(m_pVehicle->GetDriver() == NULL)
 					{
-						if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && CGame::GetSpecialData(1)))
+						if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(m_pVehicle->GetScriptingHandle()) && CGame::GetSpecialData(1)))
 						{
 							CBitStream bsDeath;
 							bsDeath.Write(m_pVehicle->GetVehicleId());
@@ -1878,15 +1882,15 @@ bool CNetworkPlayer::ClearVehicleEntryTask()
 			}
 		}
 		
-		// testcode(maybe it works)
-		unsigned int uiPlayerIndex = GetScriptingHandle();
-		DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
-		_asm
-		{
-			push 11
-			push 0
-			call dwAddress
-		}
+		//// testcode(maybe it works)
+		//unsigned int uiPlayerIndex = GetScriptingHandle();
+		//DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
+		//_asm
+		//{
+		//	push 11
+		//	push 0
+		//	call dwAddress
+		//}
 	}
 
 	return false;
@@ -2174,7 +2178,7 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 		if((int)m_pVehicle->GetHealth() < 0 || (float)m_pVehicle->GetPetrolTankHealth() < 0.0f)
 		{
 			m_bVehicleDeathCheck = true;
-			if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && CGame::GetSpecialData(1)))
+			if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(m_pVehicle->GetScriptingHandle()) && CGame::GetSpecialData(1)))
 			{
 				CBitStream bsDeath;
 				bsDeath.Write(m_pVehicle->GetVehicleId());
@@ -2588,6 +2592,7 @@ void CNetworkPlayer::ResetVehicleEnterExit()
 	THIS_CHECK(__FUNCTION__);
 	// Reset the vehicle enter/exit flags
 	RemoveFromVehicle();
+	
 	m_vehicleEnterExit.bEntering = false;
 	m_vehicleEnterExit.pVehicle = NULL;
 	m_vehicleEnterExit.byteSeatId = 0;
@@ -2659,7 +2664,7 @@ void CNetworkPlayer::TaskLookAtCoord(float fX, float fY, float fZ)
 				call dwAddress
 			}
 		}
-		//Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(playerId)->GetScriptingHandle(), vecAim.fX, vecAim.fY, vecAim.fZ, TICK_RATE, 0);
+		//Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(GetPlayerId())->GetScriptingHandle(), fX, fY, fZ, TICK_RATE, 0);
 	}
 }
 

@@ -36,6 +36,7 @@ public:
 	void     SetLookAt(const CVector3& vecLookAt, bool bWorldLoad = true);
 	void     GetLookAt(CVector3& vecLookAt);
 	void	 Attach(unsigned int uiHandle, bool bVehicleOrPlayer, int iPointType, CVector3 vecOffset);
+	bool	 IsOnScreen(const CVector3& vecPosition);
 
 	int				IsCameraAttached() { return m_iCameraAttached; }
 	unsigned int	GetCameraAttachedHandle() { return m_uiCameraAttachedHandle; }

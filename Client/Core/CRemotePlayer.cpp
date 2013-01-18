@@ -36,6 +36,8 @@ CRemotePlayer::~CRemotePlayer()
 {
 	Destroy();
 }
+#include "CStreamer.h"
+extern CStreamer * g_pStreamer;
 
 bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate)
 {
@@ -43,6 +45,17 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 	{
 		if(IsSpawned())
 			return false;
+
+		
+		g_pStreamer->ForceStreamIn(this);
+		SetCanBeStreamedIn(true);
+
+		if(!IsSpawned())
+			return false;
+		/*if(!Create())
+			return false;
+		else
+			m_bIsStreamedIn = true;*/
 	}
 
 	Teleport(vecSpawnPos);
@@ -80,7 +93,6 @@ void CRemotePlayer::Init()
 			char blue = (GetColor() & 0x0000FF00) >> 8;
 			char alpha = (GetColor() & 0x000000FF);
 			Scripting::GivePedFakeNetworkName(GetScriptingHandle(),(GetName() + String(" (%i)",this->GetPlayerId())).Get(),red, green, blue, alpha);
-			//Scripting::GivePedFakeNetworkName(GetScriptingHandle(),GetName().Get(),((BYTE*)GetColor())[0],((BYTE*)GetColor())[1],((BYTE*)GetColor())[2],((BYTE*)GetColor())[3]);
 		}
 		// These two will be useful for a setPlayerUseModelAnims native
 		//Scripting::SetAnimGroupForChar(m_pedIndex, "move_player");

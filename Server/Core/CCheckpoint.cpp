@@ -147,7 +147,7 @@ void CCheckpoint::SetRadius(float fRadius)
 }
 
 
-void CCheckpoint::SetDimension(unsigned char ucDimension)
+void CCheckpoint::SetDimension(DimensionId ucDimension)
 {
 	m_ucDimension = ucDimension;
 

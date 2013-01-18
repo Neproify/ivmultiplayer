@@ -21,7 +21,7 @@ private:
 	CVector3 m_vecTargetPosition;
 	float    m_fRadius;
 	bool	 m_bShow;
-	unsigned char m_ucDimension;
+	DimensionId m_ucDimension;
 
 public:
 	CCheckpoint(EntityId checkpointId, WORD wType, CVector3 vecPosition, CVector3 vecTargetPosition, float fRadius);
@@ -44,6 +44,6 @@ public:
 	void     GetTargetPosition(CVector3& vecTargetPosition) { vecTargetPosition = m_vecPosition; }
 	void     SetRadius(float fRadius);
 	float    GetRadius() { return m_fRadius; }
-	void	 SetDimension(unsigned char ucDimension);
-	unsigned char GetDimension() { return m_ucDimension; }
+	void	 SetDimension(DimensionId ucDimension);
+	DimensionId GetDimension() { return m_ucDimension; }
 };

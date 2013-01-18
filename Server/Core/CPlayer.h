@@ -50,7 +50,7 @@ private:
 	CVector3	  m_vecLastAim;
 	CVector3	  m_vecLastShot;
 	CVector3	  m_vecLastHeadMove;
-	unsigned char m_ucDimension;
+	DimensionId   m_ucDimension;
 	bool		  m_bDrop;
 	unsigned int  m_iWantedLevel;
 	CheckGTAFiles m_FileCheck;
@@ -134,8 +134,8 @@ public:
 	bool		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShotm, CVector3 vecLookAt);
 	void		   UpdateHeadMoveSync(CVector3 vecHead);
 
-	void		   SetDimension(unsigned char ucDimension);
-	unsigned char  GetDimension() { return m_ucDimension; }
+	void		   SetDimension(DimensionId ucDimension);
+	DimensionId    GetDimension() { return m_ucDimension; }
 	void		   SetBlockWeaponDrop(bool drop) { m_bDrop = drop; }
 	bool		   GetBlockWeaponDrop() { return m_bDrop; }
 

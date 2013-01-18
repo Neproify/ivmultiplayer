@@ -20,10 +20,12 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -99,6 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="C3DLabels.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="CModule.h" />
     <ClInclude Include="CModuleManager.h" />
@@ -184,6 +187,7 @@
     <ClInclude Include="ModuleNatives\ServerNatives.h" />
     <ClInclude Include="ModuleNatives\VehicleNatives.h" />
     <ClInclude Include="ModuleNatives\WorldNatives.h" />
+    <ClInclude Include="Natives\3DLabelNatives.h" />
     <ClInclude Include="Natives\ActorNatives.h" />
     <ClInclude Include="Natives\BlipNatives.h" />
     <ClInclude Include="Natives\CheckpointNatives.h" />
@@ -256,6 +260,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C3DLabels.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="CModule.cpp" />
     <ClCompile Include="CModuleManager.cpp" />
@@ -319,6 +324,7 @@
     <ClCompile Include="ModuleNatives\ServerModuleNatives.cpp" />
     <ClCompile Include="ModuleNatives\VehicleModuleNatives.cpp" />
     <ClCompile Include="ModuleNatives\WorldModuleNatives.cpp" />
+    <ClCompile Include="Natives\3DLabelNatives.cpp" />
     <ClCompile Include="Natives\ActorNatives.cpp" />
     <ClCompile Include="Natives\BlipNatives.cpp" />
     <ClCompile Include="Natives\CheckpointNatives.cpp" />

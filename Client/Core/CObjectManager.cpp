@@ -23,20 +23,20 @@ void CObjectManager::Process()
 			if(pObject->IsMoving()) {
 				CVector3 target = pObject->GetMoveTarget();
 				CVector3 start = pObject->GetStartPosititon();
-				float pps = 60.0f / ((SharedUtility::GetTime() - lastTimeObjectProcessed));
-				float xSpeed = ((target.fX - start.fX) * pps / pObject->GetMoveSpeed()); 
-				float ySpeed = ((target.fY - start.fY) * pps / pObject->GetMoveSpeed());
-				float zSpeed = ((target.fZ - start.fZ) * pps / pObject->GetMoveSpeed());
+
+				float moveProgress = (SharedUtility::GetTime() - pObject->GetMoveStartTime()) / pObject->GetMoveDuration();
+
+				float xSpeed = ((target.fX - start.fX) * moveProgress); 
+				float ySpeed = ((target.fY - start.fY) * moveProgress);
+				float zSpeed = ((target.fZ - start.fZ) * moveProgress);
 				
 				CVector3 vecMove(xSpeed, ySpeed, zSpeed);
 
-				CVector3 pos;
-				pObject->GetPosition(pos);
-				pos.fX += xSpeed;
-				pos.fY += ySpeed;
-				pos.fZ += zSpeed;
-				pObject->SetPosition(pos);
-				if((target-pos).Length() <= vecMove.Length()) {
+				start.fX += xSpeed;
+				start.fY += ySpeed;
+				start.fZ += zSpeed;
+				pObject->SetPosition(start);
+				if((target-start).Length() <= vecMove.Length()) {
 					pObject->SetIsMoving(false);
 					pObject->SetPosition(target);
 				}
@@ -44,20 +44,20 @@ void CObjectManager::Process()
 			if(pObject->IsRotating()) {
 				CVector3 target = pObject->GetMoveTargetRot();
 				CVector3 start = pObject->GetStartRotation();
-				float pps = 60.0f / ((SharedUtility::GetTime() - lastTimeObjectProcessed));
-				float xSpeed = ((target.fX - start.fX) * pps / pObject->GetMoveSpeed()); 
-				float ySpeed = ((target.fY - start.fY) * pps / pObject->GetMoveSpeed());
-				float zSpeed = ((target.fZ - start.fZ) * pps / pObject->GetMoveSpeed());
-
-				CVector3 vecMove(xSpeed, ySpeed, zSpeed);
 				
-				CVector3 rot;
-				pObject->GetRotation(rot);
-				rot.fX += xSpeed;
-				rot.fY += ySpeed;
-				rot.fZ += zSpeed;
-				pObject->SetRotation(rot);
-				if((target-rot).Length() <= vecMove.Length()) {
+				float moveProgress = (SharedUtility::GetTime() - pObject->GetMoveStartTime()) / pObject->GetMoveDuration();
+
+				float xSpeed = ((target.fX - start.fX) * moveProgress); 
+				float ySpeed = ((target.fY - start.fY) * moveProgress);
+				float zSpeed = ((target.fZ - start.fZ) * moveProgress);
+				
+				CVector3 vecMove(xSpeed, ySpeed, zSpeed);
+
+				start.fX += xSpeed;
+				start.fY += ySpeed;
+				start.fZ += zSpeed;
+				pObject->SetRotation(start);
+				if((target-start).Length() <= vecMove.Length()) {
 					pObject->SetIsRotating(false);
 					pObject->SetRotation(target);
 				}

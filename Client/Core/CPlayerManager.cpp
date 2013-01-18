@@ -14,10 +14,12 @@
 #include <CLogFile.h>
 #include "Scripting/CScriptingManager.h"
 #include "CEvents.h"
+#include "CStreamer.h"
 
 extern CChatWindow * g_pChatWindow;
 extern CScriptingManager * g_pScriptingManager;
 extern CEvents * g_pEvents;
+extern CStreamer * g_pStreamer;
 
 DWORD dwPlayerModelHashes[] = 
 {
@@ -279,7 +281,7 @@ bool CPlayerManager::Remove(EntityId playerId)
 
 	// Teleport him away so we can't see him anymore
 	m_pPlayers[playerId]->Teleport(CVector3(0.0f, 0.0f, -20.0f));
-	
+
 	// Destroy him now...
 	m_pPlayers[playerId]->Destroy();
 	m_bCreated[playerId] = false;
@@ -318,7 +320,7 @@ void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos
 	/*if(pRemotePlayer->GetGamePlayerPed() != NULL && pRemotePlayer->GetModelInfo() != NULL) {
 		if( ModelHashToSkinId(pRemotePlayer->GetModelInfo()->GetHash()) != iModelId) {
 			pRemotePlayer->SetModel(SkinIdToModelHash(iModelId));
-		}
+	}
 	}*/
 
 	if(g_pEvents)

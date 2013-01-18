@@ -38,6 +38,7 @@
 #include "CFireManager.h"
 #include "CGame.h"
 #include "CStreamer.h"
+#include "C3DLabels.h"
 
 extern String                 g_strNick;
 extern String                 g_strHost;
@@ -64,6 +65,7 @@ extern CNameTags            * g_pNameTags;
 extern CCamera              * g_pCamera;
 extern CFireManager		    * g_pFireManager;
 extern CStreamer			* g_pStreamer;
+extern C3DLabelManager		* g_p3DLabelManager;
 
 
 bool m_bControlsDisabled = false;
@@ -989,6 +991,7 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pBitStream->Read(vecSpawnPos);
 			pBitStream->Read(fHeading);
 
+
 			// Reset health to 200(IV Health + 100), otherwise player is "dead"
 			pPlayer->SetHealth(200);
 
@@ -1431,12 +1434,7 @@ void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 
 			// If they are already in the vehicle, remove them, 
 			// if not cancel their vehicle entry task
-			if(pPlayer->IsInVehicle())
-				pPlayer->RemoveFromVehicle();
-			else {
-				pPlayer->ClearVehicleEntryTask();
-				pPlayer->ResetVehicleEnterExit();
-			}
+			pPlayer->ResetVehicleEnterExit();
 		}
 		// Is it an exit reply?
 		else if(byteEnterExitVehicleType == VEHICLE_EXIT_RETURN)
@@ -3558,6 +3556,8 @@ void CClientRPCHandler::ScriptingMoveObject(CBitStream * pBitStream, CPlayerSock
 		pObject->SetMoveSpeed(fMoveSpeed);
 		pObject->SetIsMoving(true);
 
+		pObject->SetMoveStartTime(SharedUtility::GetTime());
+		pObject->SetMoveDuration(fMoveSpeed);
 
 		if(vecMoveRot.Length() != 0) {
 			pObject->SetMoveTargetRot(vecMoveRot);
@@ -3592,6 +3592,9 @@ void CClientRPCHandler::ScriptingRotateObject(CBitStream * pBitStream, CPlayerSo
 		CVector3 vecStartRot;
 		pObject->GetRotation(vecStartRot);
 		pObject->SetStartRotation(vecStartRot);
+
+		pObject->SetMoveStartTime(SharedUtility::GetTime());
+		pObject->SetMoveDuration(fMoveSpeed);
 
 		pObject->SetIsRotating(true);
 	}
@@ -3658,6 +3661,151 @@ void CClientRPCHandler::ScriptingExplodeCar(CBitStream * pBitStream, CPlayerSock
 	if(g_pVehicleManager->Exists(vehicleId))
 		Scripting::ExplodeCar(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),true,false);
 }
+#include "CChatWindow.h"
+extern CChatWindow* g_pChatWindow;
+void CClientRPCHandler::New3DLabel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	/*  Server structure
+		bsSend.WriteCompressed(i);
+		bsSend.Write(m_Labels[i]->GetText());
+		bsSend.Write(m_Labels[i]->GetPosition());
+		bsSend.Write(m_Labels[i]->GetColor());
+		bsSend.Write(m_Labels[i]->GetStreamingDistance());
+		bsSend.Write(m_Labels[i]->GetDimension());
+		bsSend.WriteBit(m_Labels[i]->IsVisible()); 
+	*/
+	if(!pBitStream)
+		return;
+
+	LabelId labelId;
+	pBitStream->ReadCompressed(labelId);
+
+	String text;
+	pBitStream->Read(text);
+
+	CVector3 vecPosition;
+	pBitStream->Read(vecPosition);
+
+	DWORD dwColor;
+	pBitStream->Read(dwColor);
+
+	float fStreamingDistance;
+	pBitStream->Read(fStreamingDistance);
+
+	DimensionId dimensionId;
+	pBitStream->Read(dimensionId);
+
+	bool bVisible = pBitStream->ReadBit();
+
+	g_pChatWindow->AddInfoMessage("New Label(%s, %i, %f)", text.Get(), bVisible, fStreamingDistance);
+	LabelId id = g_p3DLabelManager->Add(text.Get(), vecPosition, dwColor, bVisible, fStreamingDistance);
+	g_p3DLabelManager->GetAt(id)->SetDimension(dimensionId);
+}
+
+void CClientRPCHandler::Delete3DLabel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	LabelId labelId;
+	pBitStream->ReadCompressed(labelId);
+	g_p3DLabelManager->Remove(labelId);
+}
+
+void CClientRPCHandler::ScriptingSet3DLabelPosition(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	LabelId labelId;
+	pBitStream->ReadCompressed(labelId);
+
+	CVector3 vecPosition;
+	pBitStream->Read(vecPosition);
+
+	if(g_p3DLabelManager->GetAt(labelId)) {
+		g_p3DLabelManager->GetAt(labelId)->SetPosition(vecPosition);
+	}
+}
+
+void CClientRPCHandler::ScriptingSet3DLabelText(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	LabelId labelId;
+	pBitStream->ReadCompressed(labelId);
+
+	String text;
+	pBitStream->Read(text);
+
+	if(g_p3DLabelManager->GetAt(labelId)) {
+		g_p3DLabelManager->GetAt(labelId)->SetText(text);
+	}
+}
+
+void CClientRPCHandler::ScriptingSet3DLabelColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	LabelId labelId;
+	pBitStream->ReadCompressed(labelId);
+
+	DWORD dwColor;
+	pBitStream->Read(dwColor);
+	
+	if(g_p3DLabelManager->GetAt(labelId)) {
+		g_p3DLabelManager->GetAt(labelId)->SetColor(dwColor);
+	}
+}
+
+void CClientRPCHandler::ScriptingSet3DLabelVisible(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	LabelId labelId;
+	pBitStream->ReadCompressed(labelId);
+
+	bool bVisible = pBitStream->ReadBit();
+
+	if(g_p3DLabelManager->GetAt(labelId)) {
+		g_p3DLabelManager->GetAt(labelId)->SetVisible(bVisible);
+	}
+}
+
+void CClientRPCHandler::ScriptingSet3DLabelStreamingDistance(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	LabelId labelId;
+	pBitStream->ReadCompressed(labelId);
+
+	float fStreamingDistance;
+	pBitStream->Read(fStreamingDistance);
+
+	if(g_p3DLabelManager->GetAt(labelId)) {
+		g_p3DLabelManager->GetAt(labelId)->SetStreamingDistance(fStreamingDistance);
+	}
+}
+
+void CClientRPCHandler::ScriptingSet3DLabelDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	if(!pBitStream)
+		return;
+
+	LabelId labelId;
+	pBitStream->ReadCompressed(labelId);
+
+	DimensionId dimensionId;
+	pBitStream->Read(dimensionId);
+
+	if(g_p3DLabelManager->GetAt(labelId)) {
+		g_p3DLabelManager->GetAt(labelId)->SetDimension(dimensionId);
+	}
+}
 
 void CClientRPCHandler::Register()
 {
@@ -3692,6 +3840,8 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_DeleteFile, DeleteFile);
 	AddFunction(RPC_NewPickup, NewPickup);
 	AddFunction(RPC_DeletePickup, DeletePickup);
+	AddFunction(RPC_New3DLabel, New3DLabel);
+	AddFunction(RPC_Delete3DLabel, Delete3DLabel);
 
 	// Scripting
 	AddFunction(RPC_ScriptingSetPlayerHealth, ScriptingSetPlayerHealth);
@@ -3828,6 +3978,13 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingSetObjectDimension, ScriptingSetObjectDimension);
 	AddFunction(RPC_ScriptingSetObjectInterior, ScriptingSetObjectInterior);
 	AddFunction(RPC_ScriptingSetCheckpointDimension, ScriptingSetCheckpointDimension);
+	AddFunction(RPC_ScriptingExplodeCar, ScriptingExplodeCar);
+	AddFunction(RPC_ScriptingSet3DLabelPosition, ScriptingSet3DLabelPosition);
+	AddFunction(RPC_ScriptingSet3DLabelText, ScriptingSet3DLabelText);
+	AddFunction(RPC_ScriptingSet3DLabelColor, ScriptingSet3DLabelColor);
+	AddFunction(RPC_ScriptingSet3DLabelVisible, ScriptingSet3DLabelVisible);
+	AddFunction(RPC_ScriptingSet3DLabelStreamingDistance, ScriptingSet3DLabelStreamingDistance);
+	AddFunction(RPC_ScriptingSet3DLabelDimension, ScriptingSet3DLabelDimension);
 }
 
 void CClientRPCHandler::Unregister()
@@ -3993,4 +4150,12 @@ void CClientRPCHandler::Unregister()
 	RemoveFunction(RPC_ScriptingAttachObject);
 	RemoveFunction(RPC_ScriptingDetachObject);
 	RemoveFunction(RPC_ScriptingSetObjectInterior);
+	RemoveFunction(RPC_ScriptingSet3DLabelColor);
+	RemoveFunction(RPC_ScriptingSet3DLabelDimension);
+	RemoveFunction(RPC_ScriptingSet3DLabelPosition);
+	RemoveFunction(RPC_ScriptingSet3DLabelStreamingDistance);
+	RemoveFunction(RPC_ScriptingSet3DLabelText);
+	RemoveFunction(RPC_ScriptingSet3DLabelVisible);
+	RemoveFunction(RPC_New3DLabel);
+	RemoveFunction(RPC_Delete3DLabel);
 }

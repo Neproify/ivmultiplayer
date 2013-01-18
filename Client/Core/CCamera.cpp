@@ -14,6 +14,9 @@
 #include "Scripting.h"
 #include "CLocalPlayer.h"
 #include <Math/CMath.h>
+#include "CGraphics.h"
+
+extern CGraphics* g_pGraphics;
 
 extern CLocalPlayer * g_pLocalPlayer;
 
@@ -209,4 +212,41 @@ void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer, int iPointTyp
 
 		//Scripting::SetCamAttachOffset(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecOffset.fX, vecOffset.fY, vecOffset.fZ);
 	}
+}
+#include "d3d9.h"
+#include "CChatWindow.h"
+
+extern CChatWindow* g_pChatWindow;
+
+bool CCamera::IsOnScreen(const CVector3& vecPosition)
+{
+#define CVEC_TO_D3DVEC(vec) new D3DXVECTOR3(vec.fX, vec.fY, vec.fZ)
+#define D3DVEC_TO_CVEC(vec) new CVector3(vec.x, vec.y, vec.z)
+	CVector3 vecCamPos;
+	GetGameCam()->GetPosition(vecCamPos);
+
+	CVector3 vecCamLookAt;
+	GetLookAt(vecCamLookAt);
+
+	D3DXMATRIX matView;
+	D3DXMatrixLookAtLH(&matView, CVEC_TO_D3DVEC(vecCamPos), CVEC_TO_D3DVEC(vecCamLookAt), new D3DXVECTOR3(0, 0, 1));
+
+	D3DVIEWPORT9 viewport;
+	g_pGraphics->GetDevice()->GetViewport(&viewport);
+
+	DWORD dwLenX = viewport.Width;
+	DWORD dwLenY = viewport.Height;
+
+	D3DXMATRIX matProj;
+	D3DXMatrixPerspectiveFovLH(&matProj, GetGameCam()->GetCam()->m_data1.m_fFOV, (float)dwLenX / (float)dwLenY, GetGameCam()->GetCam()->m_data1.m_fNear, GetGameCam()->GetCam()->m_data1.m_fFar); 
+
+	D3DXMATRIX matWorld;
+	D3DXMatrixIdentity(&matWorld);
+
+	D3DXVECTOR3 vecSPos;
+	D3DXVec3Project(&vecSPos, CVEC_TO_D3DVEC(vecPosition), &viewport, &matProj, &matView, &matWorld);
+
+	//g_pChatWindow->AddInfoMessage("W2S (%f|%f|%f)", vecSPos.x, vecSPos.y, vecSPos.z);
+
+	return ( vecSPos.z < 1.f );
 }

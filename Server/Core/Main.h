@@ -27,3 +27,5 @@ typedef unsigned char BYTE;
 #define stricmp strcasecmp
 #define Sleep(ms) usleep(ms * 1000)
 #endif
+
+typedef unsigned char DimensionId;

@@ -34,6 +34,7 @@
 #include "AimSync.h"
 #include "CMainMenu.h"
 #include "AnimGroups.h"
+#include "CCamera.h"
 #include "CHooks.h"
 #include <SharedUtility.h>
 
@@ -51,6 +52,7 @@ extern CInputWindow       * g_pInputWindow;
 extern CClientTaskManager * g_pClientTaskManager;
 extern CCredits           * g_pCredits;
 extern CMainMenu		  * g_pMainMenu;
+extern CCamera			  * g_pCamera;
 
 unsigned int				CGame::m_uiBaseAddress = 0;
 bool						CGame::m_bInputState = false;
@@ -68,6 +70,8 @@ bool						CGame::m_bGameLoaded = false;
 bool						 CGame::m_bHeadMovement = true;
 bool						CGame::m_bSpecialData[2] = {false, true};
 bool						CGame::m_bKickedFromServer = false;
+
+
 
 void CGame::SetFocused(bool bFocused)
 {
@@ -1271,7 +1275,7 @@ void CGame::RemoveInitialLoadingScreens()
 	}
 }
 
-void CGame::GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition)
+bool CGame::GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition)
 {
 	// AFEA30 // AFF290 // B002E0
 	DWORD dwAddress = (CGame::GetBase() + 0xAFF3A0);
@@ -1287,7 +1291,15 @@ void CGame::GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector
 			mov eax, [esp+4]
 			mov iOnScreen, eax
 	}
+	CVector3 vecScreenPos;
+	bool onScreen = false;
+	if(g_pCamera)
+		onScreen = g_pCamera->IsOnScreen(vecWorldPosition);
 	
+	/*vecScreenPosition.X = vecScreenPos.fX;
+	vecScreenPosition.Y = vecScreenPos.fY;*/
+
+	return onScreen;
 	//CLogFile::Printf("[W2S]WORLD(%f,%f,%f),SCREEN(%f,%f), BOOLOnSCREEN(%d,%d)",vecWorldPosition.fX,vecWorldPosition.fY,vecWorldPosition.fZ,fX,fY,iOnScreen,iResult);
 }
 

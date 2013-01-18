@@ -126,6 +126,19 @@ addEvent("playerSpawn", onSpawn);
 function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
+
+	if(cmd[0] == "/label")
+	{
+		if(cmd.len() < 2) 
+			sendPlayerMessage(playerid, "USAGE: /label [labeltext]", 0xFFFFFFAA);
+		else 
+		{
+			local pos = getPlayerCoordinates(playerid);
+			local labeltext = command.slice(cmd[0].len() + 1);
+			local keks = create3DLabel(labeltext, pos[0], pos[1], pos[2], 0xFF0000FF, true, 600.0);
+			sendPlayerMessage(playerid, "Added successfull label "+keks+" with display string "+labeltext+"...",0xFFFFFFAA);
+		}
+	}
 	if(cmd[0] == "/weather")
 	{
 		setWeather(cmd[1].tointeger());

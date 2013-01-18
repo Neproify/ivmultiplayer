@@ -85,22 +85,12 @@ void CNameTags::Draw()
 						return;
 					
 					// Convert the position to a screen position
-					CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
+					if(!CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition))
+						continue;
 
 					// Is this player not within our view range?
 					if((vecLocalPlayerPosition - vecWorldPosition).Length() > 60.0f)
 						continue;
-
-					//if(g_pGraphics)
-					//{
-					//	CVector3 vecScreen;
-					//	g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition, &vecScreen);
-					//	
-					//	if( vecScreen.fZ < 0 )
-					//		return;
-					//}
-					//else
-					//	return;
 
 					// Check the cam position with the world position(fix desync)
 					if(((vecLookAt - vecWorldPosition).Length() * 1.35) < ((vecLocalPlayerPosition - vecWorldPosition).Length()))
@@ -132,22 +122,12 @@ void CNameTags::Draw()
 				vecWorldPosition.fZ += 1.0f;
 					
 				// Convert the position to a screen position
-				CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
+				if(!CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition))
+					continue;
 
 				// Is this player not within our view range?
 				if((vecLocalPlayerPosition - vecWorldPosition).Length() > 30.0f)
 					continue;
-
-				//if(g_pGraphics)
-				//{
-				//	CVector3 vecScreen;
-				//	g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition, &vecScreen);
-
-				//	if( vecScreen.fZ < 0 )
-				//		return;
-				//}
-				//else
-				//	return;
 
 				// Check the cam position with the world position(fix desync)
 				if(((vecLookAt - vecWorldPosition).Length() * 1.35) < ((vecLocalPlayerPosition - vecWorldPosition).Length()))
@@ -182,22 +162,12 @@ void CNameTags::Draw()
 				vecWorldPosition.fZ += 1.15f;
 					
 				// Convert the position to a screen position
-				CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
+				if(!CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition))
+					continue;
 
 				// Is this player not within our view range?
 				if((vecLocalPlayerPosition - vecWorldPosition).Length() > 60.0f)
 					continue;
-
-			    //if(g_pGraphics)
-				//{
-				//	CVector3 vecScreen;
-				//	g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition, &vecScreen);
-				//		
-				//	if( vecScreen.fZ < 0 )
-				//		return;
-				//}
-				//else
-				//	return;
 
 				// Check the cam position with the world position(fix desync)
 				if(((vecLookAt - vecWorldPosition).Length() * 1.35) < ((vecLocalPlayerPosition - vecWorldPosition).Length()))
@@ -285,22 +255,12 @@ void CNameTags::Draw()
 					vecWorldPosition.fZ += 1.0f;
 					
 					// Convert the position to a screen position
-					CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition);
+					if(!CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition))
+						continue;
 
 					// Is this player not within our view range?
 					if((vecLocalPlayerPosition - vecWorldPosition).Length() > 30.0f)
 						continue;
-
-					//if(g_pGraphics)
-					//{
-					//	CVector3 vecScreen;
-					//	g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition, &vecScreen);
-					//	
-					//	if( vecScreen.fZ < 0 )
-					//		return;
-					//}
-					//else
-					//	return;
 
 					// Check the cam position with the world position(fix desync)
 					if(((vecLookAt - vecWorldPosition).Length() * 1.35) < ((vecLocalPlayerPosition - vecWorldPosition).Length()))

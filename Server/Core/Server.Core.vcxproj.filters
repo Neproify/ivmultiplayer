@@ -615,6 +615,12 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C3DLabels.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\3DLabelNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -916,6 +922,12 @@
     </ClCompile>
     <ClCompile Include="ModuleNatives\WorldModuleNatives.cpp">
       <Filter>Source Files\Modules\Natives</Filter>
+    </ClCompile>
+    <ClCompile Include="C3DLabels.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\3DLabelNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -33,6 +33,7 @@ enum eStreamEntityType
 	STREAM_ENTITY_OBJECT,
 	STREAM_ENTITY_CHECKPOINT,
 	STREAM_ENTITY_PLAYER,
+	STREAM_ENTITY_LABEL,
 	STREAM_ENTITY_MAX,
 };
 
@@ -58,13 +59,14 @@ public:
 	CStreamableEntity(eStreamEntityType eType, float fDistance = 200.0f);
 	virtual ~CStreamableEntity();
 
-	float             GetStreamingDistance();
-	bool              IsStreamedIn();
-	eStreamEntityType GetType() { return m_eType; }
-	void              SetDimension(DimensionId dimensionId);
-	DimensionId       GetDimension() { return m_pDimensionId; }
-	void              SetCanBeStreamedIn(bool bCanBeStreamedIn) { m_bCanBeStreamedIn = bCanBeStreamedIn; }
-	bool              CanBeStreamedIn() { return m_bCanBeStreamedIn; }
+		void			  SetStreamingDistance(float fDistance) { m_fStreamingDistance = fDistance; }
+		float             GetStreamingDistance();
+		bool              IsStreamedIn();
+		eStreamEntityType GetType() { return m_eType; }
+		void              SetDimension(DimensionId dimensionId);
+		DimensionId       GetDimension() { return m_pDimensionId; }
+		void              SetCanBeStreamedIn(bool bCanBeStreamedIn) { m_bCanBeStreamedIn = bCanBeStreamedIn; }
+		bool              CanBeStreamedIn() { return m_bCanBeStreamedIn; }
 
 	virtual void      GetStreamPosition(CVector3& vecPosition) { };
 	virtual void      UpdateInterior(unsigned int uiInterior) { };
