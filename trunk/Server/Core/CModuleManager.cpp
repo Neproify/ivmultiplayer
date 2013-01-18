@@ -41,21 +41,21 @@ CModule * CModuleManager::LoadModule(const char * szName)
 	return pModule;
 }
 
-void CModuleManager::ScriptLoad(HSQUIRRELVM pVM)
+void CModuleManager::ScriptLoad(const char* szName, HSQUIRRELVM pVM)
 {
 	for(std::list<CModule *>::iterator i = m_lstModules.begin(); i != m_lstModules.end(); ++i)
 	{
 		if(*i)
-			(*i)->ScriptLoad(pVM);
+			(*i)->ScriptLoad(szName, pVM);
 	}
 }
 
-void CModuleManager::ScriptUnload(HSQUIRRELVM pVM)
+void CModuleManager::ScriptUnload(const char* szName, HSQUIRRELVM pVM)
 {
 	for(std::list<CModule *>::iterator i = m_lstModules.begin(); i != m_lstModules.end(); ++i)
 	{
 		if(*i)
-			(*i)->ScriptUnload(pVM);
+			(*i)->ScriptUnload(szName, pVM);
 	}
 }
 

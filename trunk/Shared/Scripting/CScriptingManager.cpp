@@ -768,7 +768,7 @@ CSquirrel * CScriptingManager::Load(String strName, String strPath)
 
 #ifdef _SERVER
 	if(g_pModuleManager)
-		g_pModuleManager->ScriptLoad(pScript->GetVM());
+		g_pModuleManager->ScriptLoad(strName.Get(), pScript->GetVM());
 #endif
 
 	if(!pScript->Execute())
@@ -815,7 +815,7 @@ bool CScriptingManager::Unload(String strName)
 		
 #ifdef _SERVER
 		if(g_pModuleManager)
-			g_pModuleManager->ScriptUnload(pScript->GetVM());
+			g_pModuleManager->ScriptUnload(pScript->GetName().Get(), pScript->GetVM());
 #endif
 
 		pScript->Unload();

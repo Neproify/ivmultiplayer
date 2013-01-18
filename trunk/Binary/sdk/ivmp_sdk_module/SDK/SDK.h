@@ -30,7 +30,11 @@ using namespace Modules;
 // Define used for invalid entity ids
 #define INVALID_ENTITY_ID 0xFFFF
 
-void RegisterFunction(HSQUIRRELVM pVM, const char * szName, SQFUNCTION pfnFunction);
+void RegisterFunction(HSQUIRRELVM pVM, const char * szName, SQFUNCTION pfnFunction, int iParameterCount = -1, String strFunctionTemplate = NULL);
+void RegisterConstant(HSQUIRRELVM pVM, const char *szName, int value);
+void RegisterConstant(HSQUIRRELVM pVM, const char *szName, bool value);
+void RegisterConstant(HSQUIRRELVM pVM, const char *szName, const char* value, int len);
+void RegisterConstant(HSQUIRRELVM pVM, const char *szName, float value);
 
 typedef void (* LogPrintf_t)(const char * szFormat, ...);
 struct InterfaceContainer_t

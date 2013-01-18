@@ -20,8 +20,8 @@ public:
 	~CModuleManager();
 
 	CModule * LoadModule(const char * szName);
-	void ScriptLoad(HSQUIRRELVM pVM);
-	void ScriptUnload(HSQUIRRELVM pVM);
+	void ScriptLoad(const char* szName, HSQUIRRELVM pVM);
+	void ScriptUnload(const char* szName, HSQUIRRELVM pVM);
 	void Pulse();
 
 private:

@@ -160,20 +160,20 @@ bool CModule::IsValid()
 	return true;
 }
 
-void CModule::ScriptLoad(HSQUIRRELVM pVM)
+void CModule::ScriptLoad(const char* szName, HSQUIRRELVM pVM)
 {
 	if(!m_pLibrary || !m_ModuleFunctions.pfnScriptLoad)
 		return;
 
-	m_ModuleFunctions.pfnScriptLoad(pVM);
+	m_ModuleFunctions.pfnScriptLoad(szName, pVM);
 }
 
-void CModule::ScriptUnload(HSQUIRRELVM pVM)
+void CModule::ScriptUnload(const char* szName, HSQUIRRELVM pVM)
 {
 	if(!m_pLibrary || !m_ModuleFunctions.pfnScriptUnload)
 		return;
 
-	m_ModuleFunctions.pfnScriptUnload(pVM);
+	m_ModuleFunctions.pfnScriptUnload(szName, pVM);
 }
 
 void CModule::Pulse()
