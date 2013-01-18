@@ -32,11 +32,14 @@ CSquirrelArgument::CSquirrelArgument(SQObject o)
 		break;
 	case OT_FLOAT:
 		data.f = o._unVal.fFloat;
+		break;
 	case OT_STRING:
 		data.str = new String(o._unVal.pString->_val);
+		break;
 	case OT_NATIVECLOSURE:
 	case OT_CLOSURE:
 		data.sqObject = o;
+		break;
 	case OT_INSTANCE:
 		data.pInstance = o._unVal.pInstance;
 		break;
