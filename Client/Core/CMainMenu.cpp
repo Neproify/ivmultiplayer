@@ -41,7 +41,7 @@ CMainMenu                         * CMainMenu::m_pSingleton = NULL;
 std::map<String, unsigned long>     serverPingStartMap;
 extern std::vector<CEGUI::Window *> g_pGUIElements;
 
-void ResetGame(bool now);
+void ResetGame(bool bResetNow);
 void InternalResetGame(bool bToggle);
 
 bool CMainMenu::OnServerBrowserButtonMouseEnter(const CEGUI::EventArgs &eventArgs)

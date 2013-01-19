@@ -83,9 +83,6 @@ private:
 	unsigned int	  m_uiHealth;
 	CVector3		  m_vecPos;
 
-	// Task info
-	CIVTaskSimpleStartWalking * m_pOldTask;
-
 public:
 	CNetworkPlayer(bool bIsLocalPlayer = false);
 	~CNetworkPlayer();

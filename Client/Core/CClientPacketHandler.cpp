@@ -20,7 +20,7 @@ extern String            g_strNick;
 extern CNetworkManager * g_pNetworkManager;
 extern CMainMenu	   * g_pMainMenu;
 
-void ResetGame(bool now);
+void ResetGame(bool bResetNow);
 
 void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {

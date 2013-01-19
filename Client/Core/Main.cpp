@@ -373,6 +373,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			// Delete our events manager
 			SAFE_DELETE(g_pEvents);
 
+			// Delete our 3D label manager
 			SAFE_DELETE(g_p3DLabelManager);
 
 			// Uninstall the Cursor hook
@@ -872,6 +873,8 @@ void GameScriptProcess()
 		{
 			// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
 			//		 ...If the player is in the vehicle, it will turn it automatic on -.-
+			// jenksta: Then find all references to CVehicle::TurnEngineOn and find which call is for when 
+			// the player enters the vehicle?
 			if(!g_pLocalPlayer->GetVehicle()->GetEngineState())
 				g_pLocalPlayer->GetVehicle()->SetEngineState(false);
 		}
@@ -901,11 +904,11 @@ void GameScriptProcess()
 	}
 }
 
-void ResetGame(bool now)
+// jenksta: NOTE: Can only be called with bResetNow = true from the game script thread
+void ResetGame(bool bResetNow)
 {
-	// reset game right at function call is needed to reset clientside scripting stuff on lost connection
-	// clean up this if looks like shit.
-	if(now)
+	// If requested reset the game now
+	if(bResetNow)
 		InternalResetGame(false);
 	else 
 		g_bResetGame = true;
@@ -1034,6 +1037,7 @@ void InternalResetGame(bool bAutoConnect)
 	// Destroy the camera and create it again
 	if(g_pCamera)
 	{
+		// jenksta: wtf?
 		g_pCamera->~CCamera();
 		SAFE_DELETE(g_pCamera);
 		g_pCamera = new CCamera(); 
@@ -1051,21 +1055,16 @@ void InternalResetGame(bool bAutoConnect)
 		CLogFile::Printf("Reset camera stuff");
 	}
 
-	// Reset radio logo properties
-	DWORD FUNC__IMPORT_RADIOLOGO = (CGame::GetBase() + 0x822E30);
-	_asm call FUNC__IMPORT_RADIOLOGO;
+	// Reset radio logo
+	CGame::LoadRadioLogo();
 
-	// Reset hud properties
-	DWORD FUNC__IMPORT_HUD = (CGame::GetBase() + 0x848390);
-	DWORD VAR__HUD_FILE = (CGame::GetBase() + /*0xD5DCF4*/0x848419);
-	char *szTxt = "common:/DATA/HUD.DAT";
-	CPatcher::InstallPushPatch(VAR__HUD_FILE, (DWORD)szTxt);
-	_asm call FUNC__IMPORT_HUD;
+	// Reset HUD
+	CGame::LoadHUD();
 
 	// Set the time and weather after the camera set, one of the camera stuff changes the time and the weather
 	CGame::GetWeather()->SetWeather(WEATHER_SUNNY);
 	g_pTime->SetTime(0, 0);
-	CGame::SetTime(0,0);
+	CGame::SetTime(0, 0);
 	Scripting::SetTimeScale(1.0f);
 	
 	CGame::InitializeDefaultGameComponents();
