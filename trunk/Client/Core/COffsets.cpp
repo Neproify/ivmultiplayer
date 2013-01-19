@@ -183,7 +183,7 @@ unsigned int COffsets::FUNC_LoadAllResources = 0;
 unsigned int COffsets::FUNC_HasResourceLoaded = 0;
 unsigned int COffsets::FUNC_ReleaseResource = 0;
 unsigned int COffsets::FUNC_GetModelIndexFromHash = 0;
-unsigned int COffsets::FUNC_CAnimStore__GetIndexFromName = 0;
+unsigned int COffsets::FUNC_CAnimStore__GetIndexFromHash = 0;
 unsigned int COffsets::FUNC_LoadWorldAtPosition = 0;
 
 // Ped
@@ -206,6 +206,7 @@ unsigned int COffsets::FUNC_CTaskSimpleCarSetPedOut__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskSimpleStartWalking__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskSimpleStopWalking__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskComplexJump__Constructor = 0;
+unsigned int COffsets::FUNC_CTaskSimpleTriggerLookAt__Constructor = 0;
 
 // Weapons
 unsigned int COffsets::FUNC_CPedWeapons__RemoveWeapon = 0;
@@ -393,7 +394,7 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_HasResourceLoaded                          = (uiBase +  0x832DD0);
 			FUNC_ReleaseResource                            = (uiBase +  0x832B60);
 			FUNC_GetModelIndexFromHash                      = (uiBase +  0x98AAE0);
-			FUNC_CAnimStore__GetIndexFromName               = (uiBase +  0x8631E0);
+			FUNC_CAnimStore__GetIndexFromHash               = (uiBase +  0x862C90);
 			FUNC_LoadWorldAtPosition                        = (uiBase +  0xB2BBA0);
 
 			// Ped
@@ -416,6 +417,7 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CTaskSimpleStartWalking__Constructor		= (uiBase +  0xA0E310); // 0xA1D830 // 0xA0DFF0
 			FUNC_CTaskSimpleStopWalking__Constructor		= (uiBase +  0xA1D730);
 			FUNC_CTaskComplexJump__Constructor              = (uiBase +  0xAB4D90);
+			FUNC_CTaskSimpleTriggerLookAt__Constructor      = (uiBase +  0xA20FF0);
 
 			// aim task simple constructor = 0xA5FD80|native address = 0xB89090(param size 5)|static task select id = 35
 			// aim and walk simple constructor = 0xA0E630|native address = 0xB89F50(param size 12)|static task select id = 47

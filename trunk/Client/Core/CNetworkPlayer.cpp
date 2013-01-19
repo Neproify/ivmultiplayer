@@ -2620,26 +2620,13 @@ void CNetworkPlayer::TaskLookAtCoord(float fX, float fY, float fZ)
 	if(IsSpawned())
 	{
 		CVector3 vecLookAt(fX, fY, fZ);
-		CVector3 * pVecLookAt = &vecLookAt;
-		const char * szDescription = "CommandTaskLookAt";
-		float fUnknown = 0.0f; // Or try 1.0f
-		void * pPedIKManager = GetGamePlayerPed()->GetPed()->m_pPedIKManager;
-		DWORD dwAddress = (CGame::GetBase() + 0x959CC0); // CPedIKManager::LookAt
-		_asm
+		CIVTaskSimpleTriggerLookAt * pTask = new CIVTaskSimpleTriggerLookAt(NULL, TICK_RATE, -1, &vecLookAt);
+		
+		// Did the task create successfully?
+		if(pTask)
 		{
-			push 2
-			push 500
-			push 500
-			push 32 ; sub_B841D0 get flags func?
-			push pVecLookAt ; where to look
-			push -1
-			push TICK_RATE ; time to look?
-			push 0
-			push 0
-			push szDescription ; description
-			push fUnknown
-			mov ecx, pPedIKManager
-			call dwAddress
+			// Set it as the ped task
+			pTask->SetAsPedTaskSecondary(m_pPlayerPed, TASK_SECONDARY_PARTIAL_ANIM);
 		}
 	}
 }

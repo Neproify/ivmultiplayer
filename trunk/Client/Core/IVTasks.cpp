@@ -176,3 +176,28 @@ CIVTaskComplexJump::CIVTaskComplexJump(WORD wFlags, int a2)
 		call COffsets::FUNC_CTaskComplexJump__Constructor
 	}
 }
+
+CIVTaskSimpleTriggerLookAt::CIVTaskSimpleTriggerLookAt(CIVEntity * pEntity, int iTime, int iOffsetBoneTag, CVector3 * pOffsetPos, DWORD dwFlags, float fSpeed, int iBlendTime, int iPriority)
+{
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
+	// Create the task
+	Create();
+
+	// Call the task constructor
+	IVTask * pTask = GetTask();
+	_asm
+	{
+		push iPriority
+		push iBlendTime
+		push fSpeed
+		push dwFlags
+		push pOffsetPos
+		push iOffsetBoneTag
+		push iTime
+		push pEntity
+		mov ecx, pTask
+		call COffsets::FUNC_CTaskSimpleTriggerLookAt__Constructor
+	}
+}

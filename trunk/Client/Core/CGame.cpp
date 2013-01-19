@@ -1238,11 +1238,10 @@ void CGame::RemoveInitialLoadingScreens()
 	// Legal, Legal 2, R*, R*N, GTA:IV, ...
 	for(int i = 0; i < *(int *)(COffsets::VAR_NumLoadingScreens); ++i)
 	{
+		*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = ((i <= 4) ? 4 : i);
+
 		if(i <= 4)
-		{
-			*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = 0;
 			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
-		}
 	}
 }
 
