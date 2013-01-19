@@ -550,21 +550,6 @@ int sq_getGameLanguage(SQVM * pVM)
 	return 1;
 }
 
-DWORD dwJumpAddr = (CGame::GetBase() + 0x822E7A);
-char *szRadioFile;
-void __declspec(naked) Hook_RadioLogoScreens()
-{
-	_asm pushad;
-	//
-	szRadioFile = "common:/DATA/RadioLogo_ivmp.DAT";
-	_asm
-	{
-		popad
-		mov edi, szRadioFile
-		jmp dwJumpAddr
-	}
-}
-
 int sq_importAndLoadGameFile(SQVM * pVM)
 {
 	const char * szFile;
@@ -612,22 +597,15 @@ int sq_importAndLoadGameFile(SQVM * pVM)
 
 		if(CopyFileA(strFolderName.Get(),strCopyPath.Get(),false))
 		{
-			// Addresses
-			DWORD FUNC__IMPORT_HUD = (CGame::GetBase() + 0x848390);
-			DWORD VAR__HUD_FILE = (CGame::GetBase() + /*0xD5DCF4*/0x848419);
-			DWORD FUNC__IMPORT_RADIOLOGO = (CGame::GetBase() + 0x822E30);
-
-			if(!strcmp(szFile,"hud.dat")) {
-				char *szTxt = "common:/DATA/HUD_IVMP.DAT";
-				CPatcher::InstallPushPatch(VAR__HUD_FILE, (DWORD)szTxt);
-				_asm call FUNC__IMPORT_HUD;
-				szTxt = "common:/DATA/HUD.DAT";
-				CPatcher::InstallPushPatch(VAR__HUD_FILE, (DWORD)szTxt);
+			if(!strcmp(szFile,"hud.dat"))
+			{
+				// Load custom HUD.dat
+				CGame::LoadHUD("common:/DATA/HUD_IVMP.DAT");
 			}
-			else if(!strcmp(szFile,"RadioLogo.dat")) {
-				void * tramp = CPatcher::InstallJmpPatch((CGame::GetBase() + 0x822E75), (DWORD)Hook_RadioLogoScreens, 5);
-				_asm call FUNC__IMPORT_RADIOLOGO;
-				CPatcher::UninstallDetourPatchInternal((CGame::GetBase() + 0x822E75),tramp,5);
+			else if(!strcmp(szFile,"RadioLogo.dat"))
+			{
+				// Load custom RadioLogo.dat
+				CGame::LoadRadioLogo("common:/DATA/RadioLogo_ivmp.DAT");
 			}
 			else
 			{
