@@ -2994,7 +2994,8 @@ void CClientRPCHandler::ScriptingRequestAnims(CBitStream * pBitStream, CPlayerSo
 	String strGroup;
 	pBitStream->Read(strGroup);
 
-	CGame::RequestAnimGroup(strGroup.Get());
+	int iAnimIndex = CGame::GetStreaming()->GetAnimIndexFromName(strGroup);
+	CGame::GetStreaming()->RequestResource(RESOURCE_TYPE_WAD, iAnimIndex);
 }
 
 void CClientRPCHandler::ScriptingReleaseAnims(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3005,8 +3006,8 @@ void CClientRPCHandler::ScriptingReleaseAnims(CBitStream * pBitStream, CPlayerSo
 
 	String strGroup;
 	pBitStream->Read(strGroup);
-
-	CGame::ReleaseAnimGroup(strGroup.Get());
+	int iAnimIndex = CGame::GetStreaming()->GetAnimIndexFromName(strGroup);
+	CGame::GetStreaming()->ReleaseResource(RESOURCE_TYPE_WAD, iAnimIndex);
 }
 
 void CClientRPCHandler::ScriptingForceWind(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

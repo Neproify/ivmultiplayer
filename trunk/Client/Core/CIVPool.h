@@ -19,16 +19,16 @@
 class IVPool // size = 31
 {
 public:
-	BYTE *  m_pObjects;    // 00-04 4
-	BYTE *  m_pFlags;      // 04-08 8
-	DWORD   m_dwCount;     // 08-0C 12
-	DWORD   m_dwEntrySize; // 0C-10 16
-	int     m_nTop;        // 10-14 20
-	DWORD   m_dwUsed;      // 14-18 24
-	BYTE    m_bAllocated;  // 18-19 25
-	BYTE    _f19;          // 19-1A 29
-	BYTE    _f1A;          // 1A-1B 30
-	BYTE    _f1B;          // 1B-1C 31
+	BYTE *  m_pObjects;    // 00-04
+	BYTE *  m_pFlags;      // 04-08
+	DWORD   m_dwCount;     // 08-0C
+	DWORD   m_dwEntrySize; // 0C-10
+	int     m_nTop;        // 10-14
+	DWORD   m_dwUsed;      // 14-18
+	BYTE    m_bAllocated;  // 18-19
+	BYTE    _f19;          // 19-1A
+	BYTE    _f1A;          // 1A-1B
+	BYTE    _f1B;          // 1B-1C
 };
 
 template <class T>
@@ -46,20 +46,12 @@ public:
 	CIVPool(IVPool * pPool)
 	{
 		m_pPool = pPool;
-
-		// Unprotect all pool members
-		CPatcher::Unprotect((DWORD)m_pPool,28);
-
-		// Reunprotect dwentrysize
-		CPatcher::Unprotect((DWORD)m_pPool->m_dwEntrySize,4);
 	}
 
 	~CIVPool()
 	{
 
 	}
-
-	void	SetPoolEntrySize(DWORD dwSize) { m_pPool->m_dwEntrySize = dwSize; }
 
 	void     SetPool(IVPool * pPool) { m_pPool = pPool; }
 	IVPool * GetPool() { return m_pPool; }
