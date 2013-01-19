@@ -119,29 +119,10 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 	else
 		return;*/
 
-	if(!bHasAimSyncData) {
-
-		// Stop shooting/aiming
-		if(m_bStoreOnFootSwitch) {
-			m_bStoreOnFootSwitch = false;
-			unsigned int uiPlayerIndex = GetScriptingHandle();
-			DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
-			_asm
-			{
-				push 35
-				push 0
-				push uiPlayerIndex
-				call dwAddress
-			}
-			_asm
-			{
-				push 36
-				push 0
-				push uiPlayerIndex
-				call dwAddress
-			}
-		}
-		if(syncPacket->vecMoveSpeed.Length() < 0.75) {
+	if(!bHasAimSyncData)
+	{
+		if(syncPacket->vecMoveSpeed.Length() < 0.75)
+		{
 			SetTargetPosition(syncPacket->vecPos,TICK_RATE*2);
 			SetCurrentSyncHeading(syncPacket->fHeading);
 

@@ -906,6 +906,34 @@ bool CGame::IsHudVisible()
 	return *(bool *)COffsets::VAR_HudEnabled;
 }
 
+void CGame::LoadHUD(String strPath)
+{
+	// Set our HUD.dat path
+	const char * szPath = strPath.C_String();
+	*(DWORD *)(CGame::GetBase() + 0x84841A) = (DWORD)szPath;
+
+	// Load our HUD
+	DWORD FUNC_LoadHUD (CGame::GetBase() + 0x848390);
+	_asm call FUNC_LoadHUD;
+
+	// Restore our HUD.dat path
+	*(DWORD *)(CGame::GetBase() + 0x84841A) = (DWORD)(CGame::GetBase() + 0xD5DCF4);
+}
+
+void CGame::LoadRadioLogo(String strPath)
+{
+	// Set our RadioLogo.dat path
+	const char * szPath = strPath.C_String();
+	*(DWORD *)(CGame::GetBase() + 0x822E76) = (DWORD)szPath;
+
+	// Load our radio logo
+	DWORD FUNC_LoadRadioLogo = (CGame::GetBase() + 0x822E30);
+	_asm call FUNC_LoadRadioLogo
+
+	// Restore our HUD.dat path
+	*(DWORD *)(CGame::GetBase() + 0x822E76) = (DWORD)(CGame::GetBase() + 0xD5B7B8);
+}
+
 void CGame::SetRadarVisible(bool bVisible)
 {
 	*(bool *)(COffsets::VAR_RadarVisible) = bVisible;

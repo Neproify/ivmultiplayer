@@ -1561,22 +1561,13 @@ void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned lon
 void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType)
 {
 	THIS_CHECK(__FUNCTION__);
-	if(IsSpawned()) {
-		
+	if(IsSpawned())
+	{
 		float tX = (vecPos.fX + (vecMove.fX * 10));
 		float tY = (vecPos.fY + (vecMove.fY * 10));
 		float tZ = (vecPos.fZ + (vecMove.fZ * 10));
 		unsigned int uiPlayerIndex = GetScriptingHandle();
 
-		// Destroy the task
-		/*DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
-		_asm
-		{
-			push 17
-			push 0
-			push uiPlayerIndex
-			call dwAddress
-		}*/
 		// Create the task
 		DWORD dwAddress = (CGame::GetBase() + 0xB87480);
 		_asm
@@ -1589,28 +1580,6 @@ void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int i
 			push uiPlayerIndex
 			call dwAddress
 		}
-		
-		//Sleep(80);
-		/*
-		float tX = (vecPos.fX + (vecMove.fX * 10));
-		float tY = (vecPos.fY + (vecMove.fY * 10));
-		float tZ = (vecPos.fZ + (vecMove.fZ * 10));
-		unsigned int uiPlayerIndex = GetScriptingHandle();
-
-		// Create the car set ped in vehicle task
-		CIVTaskSimpleStartWalking * pTask = new CIVTaskSimpleStartWalking(uiPlayerIndex,tX, tY, tZ, iMoveType, TICK_RATE);
-
-		// Did the task create successfully?
-		if(pTask)
-		{
-			//pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_EVENT_RESPONSE_TEMP);
-			pTask->ProcessPed(m_pPlayerPed);
-
-			if(m_pOldTask)
-				m_pOldTask->Destroy();
-
-			m_pOldTask = pTask;
-		}*/
 	}
 }
 
@@ -2682,7 +2651,7 @@ void CNetworkPlayer::Jump(bool bMoving)
 	if(IsSpawned())
 	{
 		// Create the jump task
-		CIVTaskComplexJump * pTask = new CIVTaskComplexJump((bMoving ? 0x40 : 0), NULL);
+		CIVTaskComplexJump * pTask = new CIVTaskComplexJump((bMoving ? 0x40 : 0), 0);
 
 		// Did the task create successfully?
 		if(pTask)

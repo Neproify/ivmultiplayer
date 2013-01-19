@@ -110,6 +110,8 @@ public:
 	static DWORD           GetWantedLevel();
 	static void            SetHudVisible(bool bVisible);
 	static bool            IsHudVisible();
+	static void            LoadHUD(String strPath = "common:/DATA/HUD.DAT");
+	static void            LoadRadioLogo(String strPath = "common:/DATA/RadioLogo.DAT");
 	static void            SetRadarVisible(bool bVisible);
 	static bool            IsRadarVisible();
 	static void            SetPlayerNamesVisible(BYTE byteVisible);
