@@ -54,3 +54,10 @@ public:
 	// iFlags (0 = Stand still and jump, 0x40 = Move forward and jump)
 	CIVTaskComplexJump(WORD wFlags, int a2); // a2 = CVector4 *
 };
+
+class CIVTaskSimpleTriggerLookAt : public CIVTaskSimple
+{
+public:
+	// Thanks mta
+	CIVTaskSimpleTriggerLookAt(CIVEntity * pEntity, int iTime, int iOffsetBoneTag, CVector3 * pOffsetPos, DWORD dwFlags = 0x20, float fSpeed = 0.25f, int iBlendTime = 1000, int iPriority = 2);
+};

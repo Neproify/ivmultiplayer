@@ -202,7 +202,7 @@ public:
 	static unsigned int FUNC_HasResourceLoaded;
 	static unsigned int FUNC_ReleaseResource;
 	static unsigned int FUNC_GetModelIndexFromHash;
-	static unsigned int FUNC_CAnimStore__GetIndexFromName;
+	static unsigned int FUNC_CAnimStore__GetIndexFromHash;
 	static unsigned int FUNC_LoadWorldAtPosition;
 
 	// Ped
@@ -225,6 +225,7 @@ public:
 	static unsigned int FUNC_CTaskSimpleStopWalking__Constructor;
 	static unsigned int FUNC_CTaskSimpleStartWalking__Constructor;
 	static unsigned int FUNC_CTaskComplexJump__Constructor;
+	static unsigned int FUNC_CTaskSimpleTriggerLookAt__Constructor;
 
 	// Weapons
 	static unsigned int FUNC_CPedWeapons__RemoveWeapon;

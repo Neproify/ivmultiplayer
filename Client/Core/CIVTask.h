@@ -329,6 +329,7 @@ public:
 	const char * GetName();
 	bool         MakeAbortable(CIVPed * pPed, int iAbortPriority, CIVEvent * pEvent = NULL);
 	void         SetAsPedTask(CIVPed * pPed, int iTaskPriority, bool bForceNewTask = false);
+	void         SetAsPedTaskSecondary(CIVPed * pPed, int iTaskPriority);
 };
 
 class CIVTaskSimple : public CIVTask

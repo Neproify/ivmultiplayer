@@ -467,6 +467,21 @@ void CIVTask::SetAsPedTask(CIVPed * pPed, int iTaskPriority, bool bForceNewTask)
 	}
 }
 
+void CIVTask::SetAsPedTaskSecondary(CIVPed * pPed, int iTaskPriority)
+{
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
+	if(m_pTask)
+	{
+		// Get the game task pointer
+		CIVTask * pClientTask = g_pClientTaskManager->GetClientTaskFromGameTask(m_pTask);
+
+		// Set the task as the ped task
+		pPed->GetPedTaskManager()->SetTaskSecondary(pClientTask, iTaskPriority);
+	}
+}
+
 bool CIVTaskSimple::ProcessPed(CIVPed * pPed)
 {
 #ifdef EXT_LOG

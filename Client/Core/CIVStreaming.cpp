@@ -148,9 +148,9 @@ int CIVStreaming::GetAnimIndexFromHash(unsigned int uiHash)
 	_asm
 	{
 		push uiHash
-			call COffsets::FUNC_CAnimStore__GetIndexFromName
-			mov iAnimIndex, eax
-			add esp, 4
+		call COffsets::FUNC_CAnimStore__GetIndexFromHash
+		mov iAnimIndex, eax
+		add esp, 4
 	}
 	return iAnimIndex;
 }
