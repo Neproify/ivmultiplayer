@@ -15,7 +15,6 @@
 #include <CLogFile.h>
 #include "CGame.h"
 #include "CXLiveHook.h"
-#include "CFileHook.h"
 #include "CChatWindow.h"
 #include "CInputWindow.h"
 #include "CDirect3DHook.h"
@@ -255,9 +254,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			// Install the XLive hook
 			CXLiveHook::Install();
 
-			// Install the file hook
-			CFileHook::Install();
-
 			// Install the Direct3D hook
 			CDirect3DHook::Install();
 
@@ -390,9 +386,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 			// Uninstall the Direct3D hook
 			CDirect3DHook::Uninstall();
-
-			// Uninstall the file hook
-			CFileHook::Uninstall();
 
 			// Shutdown audio manager
 			CAudioManager::SetAllVolume(0.0f);
