@@ -14,7 +14,7 @@
 
 CDirectInputHook::DirectInput8Create_t CDirectInputHook::m_pDirectInput8Create;
 CDirectInputHook::XInputGetState_t     CDirectInputHook::m_pXInputGetState;
-bool CDirectInputHook::m_bHookInstalled = false;
+bool                                   CDirectInputHook::m_bHookInstalled = false;
 
 // HACK: We don't want to use the proxy for our own device
 bool bOurDeviceCreated = false;

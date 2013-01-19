@@ -175,6 +175,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 						//String strReportData("Crash data");
 
+						// jenksta: this should just be using CHttpClient::Post
 						g_pHttpClient->SendReport(strPostPath,reportData);
 						MessageBoxA(NULL,"Thanks for reporting your crash!","Your crash was successfully reported", MB_OK | MB_ICONASTERISK);
 						PostQuitMessage(0);

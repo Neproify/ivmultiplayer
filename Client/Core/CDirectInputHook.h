@@ -16,7 +16,7 @@ class CDirectInputHook
 {
 private:
 	typedef HRESULT				 (WINAPI * DirectInput8Create_t)(HINSTANCE, DWORD, REFIID, LPVOID *, LPUNKNOWN);
-	typedef DWORD                (WINAPI * XInputGetState_t)(DWORD dwUserIndex, XINPUT_STATE * pState);
+	typedef DWORD                (WINAPI * XInputGetState_t)(DWORD, XINPUT_STATE *);
 
 	static DirectInput8Create_t  m_pDirectInput8Create;
 	static XInputGetState_t      m_pXInputGetState;
@@ -26,6 +26,6 @@ private:
 	static DWORD WINAPI          XInputGetState_Hook(DWORD dwUserIndex, XINPUT_STATE * pState);
 
 public:
-	static void Install();
-	static void Uninstall();
+	static void                  Install();
+	static void                  Uninstall();
 };
