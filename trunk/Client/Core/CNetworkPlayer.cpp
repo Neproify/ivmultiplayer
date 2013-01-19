@@ -2619,21 +2619,28 @@ void CNetworkPlayer::TaskLookAtCoord(float fX, float fY, float fZ)
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
 	{
-		int uiPlayerHandle = GetScriptingHandle();
-		DWORD dwAddress = (CGame::GetBase() + 0xB895B0);
-		if(uiPlayerHandle != NULL) {
-			_asm
-			{
-				push 0
-				push TICK_RATE
-				push fZ
-				push fY
-				push fX
-				push uiPlayerHandle ; no pointer
-				call dwAddress
-			}
+		CVector3 vecLookAt(fX, fY, fZ);
+		CVector3 * pVecLookAt = &vecLookAt;
+		const char * szDescription = "CommandTaskLookAt";
+		float fUnknown = 0.0f; // Or try 1.0f
+		void * pPedIKManager = GetGamePlayerPed()->GetPed()->m_pPedIKManager;
+		DWORD dwAddress = (CGame::GetBase() + 0x959CC0); // CPedIKManager::LookAt
+		_asm
+		{
+			push 2
+			push 500
+			push 500
+			push 32 ; sub_B841D0 get flags func?
+			push pVecLookAt ; where to look
+			push -1
+			push TICK_RATE ; time to look?
+			push 0
+			push 0
+			push szDescription ; description
+			push fUnknown
+			mov ecx, pPedIKManager
+			call dwAddress
 		}
-		//Scripting::TaskLookAtCoord(g_pPlayerManager->GetAt(GetPlayerId())->GetScriptingHandle(), fX, fY, fZ, TICK_RATE, 0);
 	}
 }
 
