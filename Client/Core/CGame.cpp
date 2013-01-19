@@ -717,8 +717,10 @@ bool CGame::Patch()
 		char *szTxt = "platform:/textures/loadingscreens_ivmp_textures";
 		CPatcher::InstallPushPatch((GetBase() + 0x423F04), (DWORD)szTxt);
 		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
-		CPatcher::InstallJmpPatch((GetBase() + 0xD549DC), (GetBase() + 0xD549C0));// Disables loading music, reduces gta loading time & fix crash
-		CPatcher::InstallJmpPatch((GetBase() + 0xD549EC), (GetBase() + 0xD549D0));// Disables loading music, reduces gta loading time & fix crash
+
+		// jenksta: dont think you realise what your doing here, so disabling it...
+		//CPatcher::InstallJmpPatch((GetBase() + 0xD549DC), (GetBase() + 0xD549C0));// Disables loading music, reduces gta loading time & fix crash
+		//CPatcher::InstallJmpPatch((GetBase() + 0xD549EC), (GetBase() + 0xD549D0));// Disables loading music, reduces gta loading time & fix crash
 		//CPatcher::InstallJmpPatch((GetBase() + 0xA714F0), (DWORD)LoadTexture_Hook);
 		
 		// IMG/.DAT loading function(later useful for importing .dat or .wtd or .wft files(vehicles etc.))
@@ -738,12 +740,8 @@ bool CGame::Patch()
 		// Hook for CVehicleFactory__CreateVehicle
 		// CPatcher::InstallJmpPatch((GetBase() + 0x443D60), (DWORD)CVehicleFactory__CreateVehicle_Part1);
 		CPatcher::InstallJmpPatch((GetBase() + 0x949BA0), (DWORD)IVTrain__Constructor);
-		//CPatcher::InstallJmpPatch((GetBase() + 0x973AF0), (DWORD)IVTrain__Create);
 
-		// not sure..
-		CPatcher::InstallNopPatch((GetBase() + 0x8ACD64), 5);
-
-		// Install trains
+		// Load train track nodes
 		//DWORD dwAddress = (CGame::GetBase() + 0x94A700);
 		//_asm call dwAddress;
 #else
@@ -768,7 +766,7 @@ bool CGame::Patch()
 		// Disable vehicle generation
 		//CPatcher::InstallJmpPatch((GetBase() + 0x438D00),(GetBase() + 0x438D62));
 
-		// Disable train generation
+		// Disable train track node loading
 		//CPatcher::InstallJmpPatch((GetBase() + 0x94A700),(GetBase() + 0x94A9F4));
 #endif
 		// Disable scenario peds
@@ -779,14 +777,15 @@ bool CGame::Patch()
 		// Disable fake cars
 		CPatcher::InstallRetnPatch(GetBase() + 0x9055D0);
 
-		// Disable sleep
+		// Disable long sleep in CGame::Run
 		*(DWORD *)(GetBase() + 0x401835) = 1;
 
 		// Hook for pointcamatcoord
 		//CPatcher::InstallJmpPatch((GetBase() + 0xAFE840), (DWORD)CameraPointAtCoord);
 
+		// jenksta: this will also disable things that we actually want so disabling it...
 		// Disable auto vehicle start when player enter to it
-		CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (DWORD)CTaskSimpleStartVehicle__Process);
+		//CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (DWORD)CTaskSimpleStartVehicle__Process);
 
 		// Adds a lot of world stuff which was disabled since Alpha >.<
 		PatchWorldAndTrain();
@@ -1426,39 +1425,6 @@ void CGame::StopCutscene(char * szCutsceneName)
 	}
 }
 
-void CGame::RequestAnimGroup(const char *szAnimGroup)
-{
-	/*for(int i = 0; i < 760; i++)
-	{
-		if(animationGroups[i].Get() == szAnimGroup)
-		{
-			if(!Scripting::HaveAnimsLoaded(animationGroups[i].Get()))
-				Scripting::RequestAnims(animationGroups[i].Get());
-
-			return;
-		}
-	}*/
-	if(!Scripting::HaveAnimsLoaded(szAnimGroup))
-		Scripting::RequestAnims(szAnimGroup);
-}
-
-void CGame::ReleaseAnimGroup(const char *szAnimGroup)
-{
-	/*for(int i = 0; i < 760; i++)
-	{
-		if(animationGroups[i].Get() == szAnimGroup)
-		{
-			if(Scripting::HaveAnimsLoaded(animationGroups[i].Get()))
-				Scripting::RemoveAnims(animationGroups[i].Get());
-
-			return;
-		}
-	}*/
-
-	if(Scripting::HaveAnimsLoaded(szAnimGroup))
-		Scripting::RemoveAnims(szAnimGroup);
-}
-
 DWORD CGame::GetNativeAddress(DWORD dwNative)
 {
 	DWORD dwFunc = COffsets::FUNC_ScrVM__FindNativeAddress;
@@ -1480,6 +1446,7 @@ DWORD CGame::GetNativeAddress(DWORD dwNative)
 
 void CGame::InitializeDefaultGameComponents()
 {
+	// jenksta: you don't need any of this... its for the games automatic population
 	Scripting::SetZonePopulationType( "Zact1", 0 );
     Scripting::SetZonePopulationType( "Zact2", 0 );
     Scripting::SetZonePopulationType( "Zacti", 1 );
@@ -1911,6 +1878,7 @@ void CGame::InitializeDefaultGameComponents()
 
 void CGame::PatchWorldAndTrain() 
 {
+	// jenksta: whats all this mess?
 	DWORD dwCallAddress;
 
 	// Patch vehicles(our own vehicle generator(for trains etc)) and other world stuff 
@@ -2172,17 +2140,4 @@ void CGame::PatchWorldAndTrain()
 	//CLogFile::PrintDebugf("PATCH TRAIN/WORLD ADDITION  40");
 
 	// NO VEHICLE CREATION YET!!
-}
-
-unsigned int CGame::GetHashFromString(const char *szString)
-{
-	DWORD dwAddress = (CGame::GetBase() + 0x5A8290);
-	unsigned int uiHash;
-	_asm
-	{
-		mov eax, szString
-		call dwAddress
-		mov uiHash, eax
-	}
-	return uiHash;
 }

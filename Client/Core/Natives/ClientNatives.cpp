@@ -601,11 +601,15 @@ int sq_importAndLoadGameFile(SQVM * pVM)
 			{
 				// Load custom HUD.dat
 				CGame::LoadHUD("common:/DATA/HUD_IVMP.DAT");
+				sq_pushbool(pVM, true);
+				return 1;
 			}
 			else if(!strcmp(szFile,"RadioLogo.dat"))
 			{
 				// Load custom RadioLogo.dat
 				CGame::LoadRadioLogo("common:/DATA/RadioLogo_ivmp.DAT");
+				sq_pushbool(pVM, true);
+				return 1;
 			}
 			else
 			{
@@ -627,4 +631,7 @@ int sq_importAndLoadGameFile(SQVM * pVM)
 		sq_pushbool(pVM, false);
 		return 1;
 	}
+
+	sq_pushbool(pVM, false);
+	return 1;
 }

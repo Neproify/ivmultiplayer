@@ -139,21 +139,18 @@ public:
 	static void            ToggleLazlowStation(bool bToggle);
 	static void            InitCutscene(char * szCutsceneName, bool bUnknown1 = false, bool bUnknown2 = false);
 	static void            StopCutscene(char * szCutsceneName);
-	static void			   RequestAnimGroup(const char *szAnimGroup);
-	static void			   ReleaseAnimGroup(const char *szAnimGroup);
 	static void			   SetNameTags(bool bNametags) { m_bNameTags = bNametags; CLogFile::Printf("SETENABLED: %d",bNametags); }
 	static bool			   GetNameTags() { return m_bNameTags; }
 	static void			   SetHeadMovement(bool bMove) { m_bHeadMovement = bMove; }
 	static bool			   GetHeadMovement() { return m_bHeadMovement; }
 	static void			   SetGameLoaded(bool load) { m_bGameLoaded = load; }
 	static bool			   IsGameLoaded() { return m_bGameLoaded; }
+	// jenksta: this isn't related to the game, TODO: move it!
 	static void			   SetKickedFromServer(bool bKick) { m_bKickedFromServer = bKick; }
 	static bool			   IsKickedFromServer() { return m_bKickedFromServer; }
 	static DWORD		   GetNativeAddress(DWORD dwNative);
-	static String		   GetAnimationGroup();
 	static void			   PatchWorldAndTrain();
 	static void			   InitializeDefaultGameComponents();
-	static unsigned int	   GetHashFromString(const char * szString);		 
 	static void			   SetSpecialData(bool bData1, bool bData2) { m_bSpecialData[0] = bData1; m_bSpecialData[1] = bData2; }
 	static bool			   GetSpecialData(int iData) { return m_bSpecialData[iData]; }
 };
