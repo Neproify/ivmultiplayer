@@ -35,7 +35,6 @@
 #include "AnimGroups.h"
 #include "CCamera.h"
 #include "CHooks.h"
-#include "CFileHook.h"
 #include <SharedUtility.h>
 
 // Enable one of them if we want/don't want trains

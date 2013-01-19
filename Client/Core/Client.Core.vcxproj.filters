@@ -169,12 +169,6 @@
     <Filter Include="Header Files\Hooks\DirectInputProxy">
       <UniqueIdentifier>{111be440-172a-4235-a892-03d3214b7a4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Hooks\FileHook">
-      <UniqueIdentifier>{0514cea7-0f7b-4755-8156-d5874d8f35bd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Hooks\FileHook">
-      <UniqueIdentifier>{c30730fc-a1c1-4a59-9349-15a74ebcb091}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Commands.h">
@@ -720,9 +714,6 @@
     <ClInclude Include="CHooks.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="CFileHook.h">
-      <Filter>Header Files\Hooks\FileHook</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">
@@ -1171,9 +1162,6 @@
     </ClCompile>
     <ClCompile Include="C3DLabels.cpp">
       <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="CFileHook.cpp">
-      <Filter>Source Files\Hooks\FileHook</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
