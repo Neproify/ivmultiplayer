@@ -326,12 +326,13 @@ bool CHttpClient::Post(bool bHasResponse, String strPath, String strData, String
 		Disconnect();
 	}
 
-	return true;
-	
+	return true;	
 }
+
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
-struct mg_request_info {
+struct mg_request_info
+{
   char *request_method;  // "GET", "POST", etc
   char *uri;             // URL-decoded URI
   char *http_version;    // E.g. "1.0", "1.1"
@@ -348,7 +349,8 @@ struct mg_request_info {
 };
 
 static char *skip_quoted(char **buf, const char *delimiters,
-                         const char *whitespace, char quotechar) {
+                         const char *whitespace, char quotechar)
+{
   char *p, *begin_word, *end_word, *end_whitespace;
 
   begin_word = *buf;
@@ -391,7 +393,8 @@ static char *skip_quoted(char **buf, const char *delimiters,
 
 // Simplified version of skip_quoted without quote char
 // and whitespace == delimiters
-static char *skip(char **buf, const char *delimiters) {
+static char *skip(char **buf, const char *delimiters)
+{
   return skip_quoted(buf, delimiters, delimiters, 0);
 }
 
@@ -399,7 +402,8 @@ static char *skip(char **buf, const char *delimiters) {
 //   -1  if request is malformed
 //    0  if request is not yet fully buffered
 //   >0  actual request length, including last \r\n\r\n
-static int get_request_len(const char *buf, int buflen) {
+static int get_request_len(const char *buf, int buflen)
+{
   const char *s, *e;
   int len = 0;
 
@@ -421,7 +425,8 @@ static int get_request_len(const char *buf, int buflen) {
 
 // Parse HTTP headers from the given buffer, advance buffer to the point
 // where parsing stopped.
-static void parse_http_headers(char **buf, struct mg_request_info *ri) {
+static void parse_http_headers(char **buf, struct mg_request_info *ri)
+{
   int i;
 
   for (i = 0; i < (int) ARRAY_SIZE(ri->http_headers); i++) {
@@ -433,7 +438,8 @@ static void parse_http_headers(char **buf, struct mg_request_info *ri) {
   }
 }
 
-static int is_valid_http_method(const char *method) {
+static int is_valid_http_method(const char *method)
+{
   return !strcmp(method, "GET") || !strcmp(method, "POST") ||
     !strcmp(method, "HEAD") || !strcmp(method, "CONNECT") ||
     !strcmp(method, "PUT") || !strcmp(method, "DELETE") ||
@@ -443,7 +449,8 @@ static int is_valid_http_method(const char *method) {
 // Parse HTTP request, fill in mg_request_info structure.
 // This function modifies the buffer by NUL-terminating
 // HTTP request components, header names and header values.
-static int parse_http_message(char *buf, int len, struct mg_request_info *ri) {
+static int parse_http_message(char *buf, int len, struct mg_request_info *ri)
+{
   int request_length = get_request_len(buf, len);
   if (request_length > 0) {
     // Reset attributes. DO NOT TOUCH is_ssl, remote_ip, remote_port
@@ -464,7 +471,8 @@ static int parse_http_message(char *buf, int len, struct mg_request_info *ri) {
   return request_length;
 }
 
-static int parse_http_request(char *buf, int len, struct mg_request_info *ri) {
+static int parse_http_request(char *buf, int len, struct mg_request_info *ri)
+{
   int result = parse_http_message(buf, len, ri);
   if (result > 0 &&
       is_valid_http_method(ri->request_method) &&
@@ -476,7 +484,8 @@ static int parse_http_request(char *buf, int len, struct mg_request_info *ri) {
   return result;
 }
 
-static int parse_http_response(char *buf, int len, struct mg_request_info *ri) {
+static int parse_http_response(char *buf, int len, struct mg_request_info *ri)
+{
   int result = parse_http_message(buf, len, ri);
   return result > 0 && !strncmp(ri->request_method, "HTTP/", 5) ? result : -1;
 }

@@ -35,6 +35,7 @@
 #include "AnimGroups.h"
 #include "CCamera.h"
 #include "CHooks.h"
+#include "CFileHook.h"
 #include <SharedUtility.h>
 
 // Enable one of them if we want/don't want trains
@@ -53,22 +54,22 @@ extern CCredits           * g_pCredits;
 extern CMainMenu		  * g_pMainMenu;
 extern CCamera			  * g_pCamera;
 
-unsigned int				CGame::m_uiBaseAddress = 0;
-bool						CGame::m_bInputState = false;
-eState						CGame::m_State = GAME_STATE_NONE;
-bool						CGame::m_bFocused = false;
-CPools						* CGame::m_pPools = NULL;
-CIVPad						* CGame::m_pPad = NULL;
-CIVModelInfo				CGame::m_modelInfos[NUM_ModelInfos];
-CIVWeaponInfo				CGame::m_weaponInfos[NUM_WeaponInfos];
-CIVStreaming				* CGame::m_pStreaming = NULL;
-CIVWeather					* CGame::m_pWeather = NULL;
-CIVWorld					* CGame::m_pWorld = NULL;
-bool						CGame::m_bNameTags = false;
-bool						CGame::m_bGameLoaded = false;
-bool						 CGame::m_bHeadMovement = true;
-bool						CGame::m_bSpecialData[2] = {false, true};
-bool						CGame::m_bKickedFromServer = false;
+unsigned int   CGame::m_uiBaseAddress = 0;
+bool           CGame::m_bInputState = false;
+eState         CGame::m_State = GAME_STATE_NONE;
+bool           CGame::m_bFocused = false;
+CPools       * CGame::m_pPools = NULL;
+CIVPad       * CGame::m_pPad = NULL;
+CIVModelInfo   CGame::m_modelInfos[NUM_ModelInfos];
+CIVWeaponInfo  CGame::m_weaponInfos[NUM_WeaponInfos];
+CIVStreaming * CGame::m_pStreaming = NULL;
+CIVWeather   * CGame::m_pWeather = NULL;
+CIVWorld     * CGame::m_pWorld = NULL;
+bool           CGame::m_bNameTags = false;
+bool           CGame::m_bGameLoaded = false;
+bool           CGame::m_bHeadMovement = true;
+bool           CGame::m_bSpecialData[2] = {false, true};
+bool           CGame::m_bKickedFromServer = false;
 
 
 
@@ -194,12 +195,6 @@ void CGame::Initialize()
 
 	if(Patch())
 	{
-		// DOES this native have any function, ida says nope
-		#ifdef DEBUG
-			Scripting::DebugOn();
-			CLogFile::Printf("Applied GTAIV DEBUG mode");
-		#endif
-
 		CLogFile::Printf("Applied patches");
 		InstallKeySyncHooks();
 		InstallAimSyncHooks();
@@ -225,22 +220,7 @@ void CGame::Initialize()
 	SetInputState(true);
 	SetState(GAME_STATE_NONE);
 
-	// Testcode
-	//char *cVar4 = new char[10];
-	//for (int I = 0; I <= 1; I++ )
- //   {
-	//	if(I == 0)
-	//		strcpy_s(cVar4, 32, "MPCellphone");
-	//	else if(I == 1)
-	//		strcpy_s(cVar4, 32, "speechControl_net");
-
-	//	Scripting::RequestScript(cVar4);
-	//	if(Scripting::HasScriptLoaded(cVar4)) {
-	//		Scripting::StartNewScript(cVar4, 2014);
-	//		Scripting::MarkScriptAsNoLongerNeeded(cVar4);
-	//	}
-	//}
-
+	// jenksta: this is nothing to do with the game so shouldn't be here, move it
 	CLogFile::Print("Creating directories to download files to..");
 	String strFolderName = SharedUtility::GetAbsolutePath("clientfiles");
 	if(!SharedUtility::Exists(strFolderName))
@@ -693,7 +673,7 @@ bool CGame::Patch()
 		Scripting::SetParkedCarDensityMultiplier(0);
 		Scripting::SetRandomCarDensityMultiplier(0);
 
-		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random amient animations)
+		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random ambient animations)
 		// NOTE: This also disables ambient head movements and maybe some other stuff we actually want
 		*(DWORD *)(GetBase() + 0x9849F0) = 0x900004C2;
 
@@ -712,10 +692,14 @@ bool CGame::Patch()
 		// Hook CEpisodes::IsEpisodeAvaliable to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x814810), (DWORD)CEpisodes__IsEpisodeAvaliable_Hook);
 		
-		// Hook loading screen
-		CPatcher::InstallHookCall((GetBase() + 0x424301), (DWORD)OpenFile_Hook);
-		char *szTxt = "platform:/textures/loadingscreens_ivmp_textures";
-		CPatcher::InstallPushPatch((GetBase() + 0x423F04), (DWORD)szTxt);
+		// Hook loading screen files
+		CFileHook::AddFile("loadingscreens_pc.dat", SharedUtility::GetAbsolutePath("gameplay_files\\loadingscreen\\loadingscreens_ivmp.dat"));
+		CFileHook::AddFile("loadingscreens.wtd", SharedUtility::GetAbsolutePath("gameplay_files\\loadingscreen\\loadingscreens_ivmp_textures.wtd"));
+		//CPatcher::InstallHookCall((GetBase() + 0x424301), (DWORD)OpenFile_Hook);
+		//char *szTxt = "platform:/textures/loadingscreens_ivmp_textures";
+		//CPatcher::InstallPushPatch((GetBase() + 0x423F04), (DWORD)szTxt);
+
+		// Disable initial loading screens
 		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
 
 		// jenksta: dont think you realise what your doing here, so disabling it...
@@ -1183,7 +1167,7 @@ void CGame::ResetScrollBars(unsigned char ucScrollbar)
 
 	// *urls
 	if(ucScrollbar == 4 || ucScrollbar == 0xFF)
-		SetScrollBarText(4, "autoeroticar.com       chiropracticovernight.com       ilovetoblow.org       a-thousand-words.net       libertytreeonline.com       babiesovernight.com       love-meet.net       loveyourmeat.com       myonlineme.com       outsourceforamerica.com       pointclickshipabitch.com       weazelnews.com       piswasser.com       beanmachinecoffee.com       burgershot.net       electrictit.com       krapea.com       lipurgex.com       littlelacysurprisepageant.com       publiclibertyonline.com       vipluxuryringtones.com       americantravelguide.net       fruitcomputers.com       designerslave.com       erisfootware.com       eugenicsincorporated.com       flyhighpizzapie.com       gloryholethemepark.com       craplist.net       blogsnobs.org       libertycitypolice.com       sprunksoda.com       rustybrownsringdonuts.com       peepthatshit.com       lootandwank.com       myroomonline.net       dragonbrainthemovie.com       eatbiglogs.com       friendswithoutfaces.net       hornyhighschoolreunions.com       money2makemoney.com       poker-in-the-rear.com       redwoodcigarettes.com       roidsforlittleboys.com       ");
+		SetScrollBarText(4, "autoeroticar.com       chiropracticovernight.com       ilovetoblow.org       a-thousand-words.net       libertytreeonline.com       babiesovernight.com       love-meet.net       loveyourmeat.com       nyan.cat       outsourceforamerica.com       pointclickshipabitch.com       weazelnews.com       piswasser.com       beanmachinecoffee.com       burgershot.net       electrictit.com       krapea.com       lipurgex.com       littlelacysurprisepageant.com       publiclibertyonline.com       vipluxuryringtones.com       americantravelguide.net       fruitcomputers.com       designerslave.com       erisfootware.com       eugenicsincorporated.com       flyhighpizzapie.com       gloryholethemepark.com       craplist.net       blogsnobs.org       libertycitypolice.com       sprunksoda.com       rustybrownsringdonuts.com       peepthatshit.com       lootandwank.com       myroomonline.net       dragonbrainthemovie.com       eatbiglogs.com       friendswithoutfaces.net       hornyhighschoolreunions.com       money2makemoney.com       poker-in-the-rear.com       redwoodcigarettes.com       roidsforlittleboys.com       ");
 	
 	// *comedyclub
 	if(ucScrollbar == 5 || ucScrollbar == 0xFF)
@@ -1255,49 +1239,21 @@ String CGame::GetCurrentStreetName()
 
 	return strStreetName;
 }
+
 void CGame::RemoveInitialLoadingScreens()
 {
-	// Legal, Legal 2, R*, R*N, GTA:IV, ...
-	/*for( int i = 0; i < *(int *)(COffsets::VAR_NumLoadingScreens); ++i ) // For loading screen the make the black background
-	{
-		if( i < 2 )
-		{
-			*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = ((i < 2) ? 0 : 0);
-			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 3600000;
-		}
-
-		if( i >= 2 && i <= 4 )
-		{
-			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
-		}
-	}*/
-
-	/*
-	// Legal, Legal 2, R*, R*N, GTA:IV, ...
 	for(int i = 0; i < *(int *)(COffsets::VAR_NumLoadingScreens); ++i)
 	{
-		*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = ((i <= 4) ? 4 : i);
-
-		if(i <= 4)
-			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
-	}
-	*/
-	for( int i = 0; i < *(int *)(COffsets::VAR_NumLoadingScreens); ++i ) {
 		// Disable legal notice
-		if( i < 2 ) {
+		if(i < 2)
+		{
 			*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = ((i < 2) ? 0 : 0);
 			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
 		}
 
 		// Disable GTA IV logo & other loading screens
-		if( i == 4 )
+		if(i == 4)
 			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
-
-		/*if(i > 4) {
-			//CLogFile::Printf("%d(%x/%p/%d)",i,*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400),*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400),*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400));
-			//*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
-			//*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = 6;
-		}*/
 	}
 }
 
