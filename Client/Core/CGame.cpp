@@ -691,13 +691,6 @@ bool CGame::Patch()
 
 		// Hook CEpisodes::IsEpisodeAvaliable to use our own function
 		CPatcher::InstallJmpPatch((GetBase() + 0x814810), (DWORD)CEpisodes__IsEpisodeAvaliable_Hook);
-		
-		// Hook loading screen files
-		CFileHook::AddFile("loadingscreens_pc.dat", SharedUtility::GetAbsolutePath("gameplay_files\\loadingscreen\\loadingscreens_ivmp.dat"));
-		CFileHook::AddFile("loadingscreens.wtd", SharedUtility::GetAbsolutePath("gameplay_files\\loadingscreen\\loadingscreens_ivmp_textures.wtd"));
-		//CPatcher::InstallHookCall((GetBase() + 0x424301), (DWORD)OpenFile_Hook);
-		//char *szTxt = "platform:/textures/loadingscreens_ivmp_textures";
-		//CPatcher::InstallPushPatch((GetBase() + 0x423F04), (DWORD)szTxt);
 
 		// Disable initial loading screens
 		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
@@ -1242,18 +1235,14 @@ String CGame::GetCurrentStreetName()
 
 void CGame::RemoveInitialLoadingScreens()
 {
+	// Legal, Legal 2, R*, R*N, GTA:IV, ...
 	for(int i = 0; i < *(int *)(COffsets::VAR_NumLoadingScreens); ++i)
 	{
-		// Disable legal notice
-		if(i < 2)
+		if(i <= 4)
 		{
-			*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = ((i < 2) ? 0 : 0);
+			*(DWORD *)(COffsets::VAR_FirstLoadingScreenType + i * 400) = 0;
 			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
 		}
-
-		// Disable GTA IV logo & other loading screens
-		if(i == 4)
-			*(DWORD *)(COffsets::VAR_FirstLoadingScreenDuration + i * 400) = 0;
 	}
 }
 
