@@ -668,10 +668,6 @@ bool CGame::Patch()
 
 	if(COffsets::GetVersion() == GAME_VERSION_7)
 	{
-		Scripting::SetPedDensityMultiplier(0);
-		Scripting::SetParkedCarDensityMultiplier(0);
-		Scripting::SetRandomCarDensityMultiplier(0);
-
 		// Return at start of CTaskSimplePlayRandomAmbients::ProcessPed (Disable random ambient animations)
 		// NOTE: This also disables ambient head movements and maybe some other stuff we actually want
 		*(DWORD *)(GetBase() + 0x9849F0) = 0x900004C2;
@@ -764,7 +760,7 @@ bool CGame::Patch()
 		//CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (DWORD)CTaskSimpleStartVehicle__Process);
 
 		// Adds a lot of world stuff which was disabled since Alpha >.<
-		PatchWorldAndTrain();
+		//PatchWorldAndTrain();
 
 		// Don't initialize error reporting
 		CPatcher::InstallRetnPatch(GetBase() + 0xD356D0);
@@ -805,7 +801,7 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
 
 		// Install crash fixes
-		CHooks::Install();
+		//CHooks::Install();
 		return true;
 	}
 
