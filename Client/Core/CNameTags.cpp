@@ -19,6 +19,14 @@
 #include <Common.h>
 #include "CLogFile.h"
 
+// Nametags definitions etc..
+#define b_w					80
+#define	b_h					11
+#define b_i_p				2
+#define h_b_w				(b_w - b_i_p)
+#define	nt_a				18
+#define nt_a_a				30
+
 extern CGUI           * g_pGUI;
 extern CLocalPlayer   * g_pLocalPlayer;
 extern CPlayerManager * g_pPlayerManager;

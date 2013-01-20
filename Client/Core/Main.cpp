@@ -570,18 +570,7 @@ void Direct3DRender()
 				g_pCamera->SetPosition(vecPosition);
 			}
 		}
-	}/*
-	if(g_pNetworkManager)
-	{
-		if(!g_pNetworkManager->IsConnected() && CGame::IsGameLoaded())
-		{
-			if(CGame::GetState() == (eState)3)
-				CGame::SetState(GAME_STATE_IVMP_PAUSE_MENU);
-
-			if(!g_pMainMenu->IsVisible() && !CGame::IsMenuActive())
-				CGame::SetState(GAME_STATE_IVMP_PAUSE_MENU);
-		}
-	}*/
+	}
 
 	if(CGame::GetState() == GAME_STATE_MAIN_MENU)
 	{
@@ -663,26 +652,7 @@ void Direct3DRender()
 			CGame::SetTime(ucHour, ucMinute);
 			CGame::SetDayOfWeek(g_pTime->GetDayOfWeek());
 		}
-		/* Vehicle Headlights testcode
-			IVVehicle * pGameVehicle = pVehicle->GetGameVehicle()->GetVehicle();
-			//*(BYTE *)(pVehicle->GetGameVehicle()->GetVehicle() + 0xF71) |= 1;
-			*((BYTE *)pGameVehicle + 3953) = *((BYTE *)pGameVehicle + 3953) & 0xFE | 2;
-				
-		}
 
-		 CViewportManager + 0x00 = sysArray (CViewport *)
-		 CViewport + 0x53C = Viewport ID
-		 GET_VIEWPORT_POS_AND_SIZE(unsigned int uiViewportId, float * fPosX, float * fPosY, float * fSizeX, float * fSizeY)
-		 (pViewport + 0x10) is always used
-		 ((pViewport + 0x10) + 0x298) = float fPosX;
-		 (((pViewport + 0x10) + 0x298) + 0x4) = float fPosY;
-		 (((pViewport + 0x10) + 0x298) + 0x8) = float fSizeX;
-		 (((pViewport + 0x10) + 0x298) + 0xC) = float fSizeY;
-		 GET_VIEWPORT_POSITION_OF_COORD(float fCoordX, float fCoordY, float fCoordZ, unsigned int uiViewportId, float * fPosX, float * fPosY)
-		 Viewport 1 = CViewportPrimaryOrtho
-		 Viewport 2 = CViewportGame
-		 Viewport 3 = CViewportRadar
-		*/
 		if(g_pLocalPlayer)
 		{
 			if(g_pLocalPlayer->GetVehicleInfos())
@@ -720,6 +690,7 @@ void Direct3DRender()
 				}
 			}
 		}
+
 		if(g_pNameTags)
 			g_pNameTags->Draw();
 	}

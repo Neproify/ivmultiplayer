@@ -45,6 +45,7 @@ C3DLabel::~C3DLabel()
 void C3DLabel::Render()
 {
 	Vector2 vecScreenPosition;
+
 	if(!CGame::GetScreenPositionFromWorldPosition(m_vecPosition, vecScreenPosition))
 		return;
 
