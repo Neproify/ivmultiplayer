@@ -997,7 +997,14 @@ void InternalResetGame(bool bAutoConnect)
 	CGame::ResetScrollBars();
 	CGame::SetScrollBarColor();
 	CGame::ToggleLazlowStation(true);
+
+	//
 	Scripting::SetScenarioPedDensityMultiplier(0, 0);
+	Scripting::SetPedDensityMultiplier(0);
+	Scripting::SetParkedCarDensityMultiplier(0);
+	Scripting::SetRandomCarDensityMultiplier(0);
+	//
+
 	// SetCanBurstCarTyres(bool canburst);
 	Scripting::SetMaxWantedLevel(0);
 	Scripting::SetCreateRandomCops(false);
@@ -1048,6 +1055,7 @@ void InternalResetGame(bool bAutoConnect)
 	// Mark the game as loaded.
 	if(!g_bGameLoaded)
 		g_bGameLoaded = true;
+
 	CGame::SetGameLoaded(g_bGameLoaded);
 
 	// Reset the network stats
