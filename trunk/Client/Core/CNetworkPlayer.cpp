@@ -1346,7 +1346,8 @@ void CNetworkPlayer::GetShotTarget(CVector3& vecShotTarget)
 void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 {
 	THIS_CHECK(__FUNCTION__);
-	if(IsSpawned()) {
+	if(IsSpawned())
+	{
 		// Set the aim target
 		SetAimTarget(aimSyncData->vecAimTarget);
 
@@ -1355,52 +1356,14 @@ void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 
 		// Set the shot target
 		SetShotTarget(aimSyncData->vecShotTarget);
-		
-		// Store the tasks(only 1 task, otherwise other tasks will be stoped/paused -> strange :D)
-		// TODO; find IS_CHAR_AIMING native and reverse it, i searched 2 hours, no result, seems that there's no "official" aim detect func..
-		if(aimSyncData->bAiming) {
-			/*DWORD dwFunc = (CGame::GetBase() + 0xB89090);
-			float px; float py; float pz;
-			px = aimSyncData->vecAimTarget.fX;
-			py = aimSyncData->vecAimTarget.fY;
-			pz = aimSyncData->vecAimTarget.fZ;
-			unsigned int uiScriptingHandle = GetScriptingHandle();
-			_asm
-			{
-				push 1
-				push pz
-				push py
-				push px
-				push uiScriptingHandle
-				call dwFunc
-			}*/
-			// aimSyncData->vecAimTarget.fX,aimSyncData->vecAimTarget.fY,aimSyncData->vecAimTarget.fZ
-		}
-		else if(aimSyncData->bShooting) {
-			/*DWORD dwFunc = (CGame::GetBase() + 0xB89140);
-			float px; float py; float pz;
-			px = aimSyncData->vecShotTarget.fX;
-			py = aimSyncData->vecShotTarget.fY;
-			pz = aimSyncData->vecShotTarget.fZ;
-			unsigned int uiScriptingHandle = GetScriptingHandle();
-			_asm
-			{
-				push 1
-				push 1
-				push pz
-				push py
-				push px
-				push uiScriptingHandle
-				call dwFunc
-			}*/
-		}
 	}
 }
 
 void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 {
 	THIS_CHECK(__FUNCTION__);
-	if(IsSpawned()) {
+	if(IsSpawned())
+	{
 		// Get the aim target
 		GetAimTarget(aimSyncData->vecAimTarget);
 

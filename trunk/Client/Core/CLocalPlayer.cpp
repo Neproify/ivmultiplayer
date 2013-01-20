@@ -317,12 +317,6 @@ void CLocalPlayer::SendOnFootSync()
 	CBitStream bsSend;
 	OnFootSyncData syncPacket;
 
-	/*GetPosition(m_oldOnFootSync.vecPos);
-	GetMoveSpeed(m_oldOnFootSync.vecMoveSpeed);
-	GetTurnSpeed(m_oldOnFootSync.vecTurnSpeed);
-	if(m_oldOnFootSync.bDuckState == IsDucking())
-		if(m_oldOnFootSync.fHeading == GetCurrentHeading())
-			if(m_oldOnFootSync.uHealthArmour == ((GetHealth() << 16) | GetArmour()))*/
 	// Get our control state
 	GetControlState(&syncPacket.controlState);
 
@@ -347,26 +341,6 @@ void CLocalPlayer::SendOnFootSync()
 	// Get their health and armour
 	syncPacket.uHealthArmour = ((GetHealth() << 16) | GetArmour());
 
-	// Set default animation stuff
-	/*syncPacket.bAnim = false;
-
-	// Check for anims
-	// TODO Fix animation system
-	if(m_bAnimating)
-	{
-		if(!Scripting::HasCharAnimFinished(GetScriptingHandle(),m_strAnimSpec))
-		{
-			float fTime;
-			syncPacket.bAnim = true;
-			strcpy(syncPacket.szAnimGroup, m_strAnimGroup);
-			strcpy(syncPacket.szAnimSpecific, m_strAnimSpec);
-			Scripting::GetCharAnimCurrentTime(g_pLocalPlayer->GetScriptingHandle(),m_strAnimGroup,m_strAnimSpec,&fTime);
-			syncPacket.fAnimTime = fTime;
-		}
-		else
-			m_bAnimating = false;
-	}*/
-
 	// Get their current weapon and ammo
 	unsigned int uiCurrentWeapon = GetCurrentWeapon();
 	syncPacket.uWeaponInfo = ((uiCurrentWeapon << 20) | GetAmmo(uiCurrentWeapon));
@@ -385,14 +359,6 @@ void CLocalPlayer::SendOnFootSync()
 		AimSyncData aimSyncPacket;
 		GetAimSyncData(&aimSyncPacket);
 
-		aimSyncPacket.bAiming = false;
-		aimSyncPacket.bShooting = false;
-
-		if(syncPacket.controlState.IsAiming())
-			aimSyncPacket.bAiming = true;
-		else if(syncPacket.controlState.IsFiring())
-			aimSyncPacket.bShooting = true;
-
 		// Write the aim sync data to the bit stream
 		bsSend.Write((char *)&aimSyncPacket, sizeof(AimSyncData));
 	}
@@ -404,18 +370,17 @@ void CLocalPlayer::SendOnFootSync()
 
 	g_pNetworkManager->RPC(RPC_OnFootSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
+	// jenksta: this doesn't need to be sent every update, should be sent every x 
+	// amount of time, fix it
 	// Send our latest head movement if it's enabled
 	if(CGame::GetHeadMovement() && IsSpawned()) 
 	{
-		CBitStream bsHead;
 		CVector3 vecLookAt; 
-
 		g_pCamera->GetLookAt(vecLookAt);
-		bsHead.Write(vecLookAt.fX);
-		bsHead.Write(vecLookAt.fY);
-		bsHead.Write(vecLookAt.fZ);
 
-		g_pNetworkManager->RPC(RPC_HeadMovement, &bsHead, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+		CBitStream bsSend;
+		bsSend.Write(vecLookAt);
+		g_pNetworkManager->RPC(RPC_HeadMovement, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 	}
 }
 
@@ -443,12 +408,15 @@ void CLocalPlayer::SendInVehicleSync()
 		// Get their vehicles rotation
 		pVehicle->GetRotation(syncPacket.vecRotation);
 
+		// jenksta: this doesn't need to be sent in every packet, fix it (Create a new VehicleUpdate RPC)
 		// Get their vehicles colors
 		pVehicle->GetColors(syncPacket.byteColors[0], syncPacket.byteColors[1], syncPacket.byteColors[2], syncPacket.byteColors[3]);
 
+		// jenksta: this doesn't need to be sent in every packet, fix it
 		// Get their vehicles siren state
 		syncPacket.bSirenState = pVehicle->GetSirenState();
 
+		// jenksta: this doesn't need to be sent in every packet, fix it
 		// Get their vehicle engine state
 		syncPacket.bEngineStatus = pVehicle->GetEngineState();
 
@@ -458,16 +426,16 @@ void CLocalPlayer::SendInVehicleSync()
 		// Get their vehicles move speed
 		pVehicle->GetMoveSpeed(syncPacket.vecMoveSpeed);
 
-		// Get their vehicle quaternion
-		//pVehicle->GetQuaternion(syncPacket.fQuaternion);
-
+		// jenksta: this doesn't need to be sent in every packet, fix it (?)
 		// Get their vehicles engine health & petroltank health
 		syncPacket.uiHealth = pVehicle->GetHealth();
 		syncPacket.fPetrolHealth = (float)pVehicle->GetPetrolTankHealth();
 
+		// jenksta: this doesn't need to be sent in every packet, fix it
 		// Get their vehicles dirt level
 		syncPacket.fDirtLevel = pVehicle->GetDirtLevel();
 
+		// jenksta: this doesn't need to be sent in every packet, fix it
 		// Get their lights
 		syncPacket.bLights = pVehicle->GetLightsState();
 
@@ -475,6 +443,7 @@ void CLocalPlayer::SendInVehicleSync()
 		//CVector3 vecPos;
 		//pVehicle->GetDeformation(vecPos);
 
+		// jenksta: this doesn't need to be sent in every packet, fix it
 		// Get the door stuff
 		syncPacket.fDoor[0] = pVehicle->GetCarDoorAngle(0);
 		syncPacket.fDoor[1] = pVehicle->GetCarDoorAngle(1);
@@ -490,6 +459,7 @@ void CLocalPlayer::SendInVehicleSync()
 		unsigned int uCurrentWeapon = GetCurrentWeapon();
 		syncPacket.uPlayerWeaponInfo = ((uCurrentWeapon << 20) | GetAmmo(uCurrentWeapon));
 		
+		// jenksta: this doesn't need to be sent in every packet, fix it
 		// Set default window and typres values & check them
 		for(int i = 0; i <= 5; i++)
 		{
@@ -503,12 +473,14 @@ void CLocalPlayer::SendInVehicleSync()
 		}
 
 		
+		// jenksta: this doesn't need to be sent in every packet, fix it
 		for(int i = 0; i <= 3; i++)
 		{
 			if(!Scripting::IsVehWindowIntact(pVehicle->GetScriptingHandle(),(Scripting::eVehicleWindow)i))
 				syncPacket.bWindow[i] = true;
 		}
 
+		// jenksta: this doesn't need to be sent in every packet, fix it
 		for(int i = 0; i <= 5; i++)
 		{
 			if(Scripting::IsCarTyreBurst(pVehicle->GetScriptingHandle(),(Scripting::eVehicleTyre)i))
@@ -539,6 +511,7 @@ void CLocalPlayer::SendInVehicleSync()
 
 		g_pNetworkManager->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
+		// jenksta: this is completely wrong, fix/remove it
 		// Check if our car is dead(exploded or in water)
 		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(pVehicle->GetScriptingHandle()) && CGame::GetSpecialData(1)))
 		{

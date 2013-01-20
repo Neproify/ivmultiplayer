@@ -188,14 +188,6 @@ enum eVehicleEntryExit
 #define EXPORT extern "C"
 #endif
 
-// Nametags definitions etc..
-#define b_w					80
-#define	b_h					11
-#define b_i_p				2
-#define h_b_w				(b_w - b_i_p)
-#define	nt_a				18
-#define nt_a_a				30
-
 // Debug Commands Enabled
 //#define DEBUG_COMMANDS_ENABLED
 
@@ -209,10 +201,6 @@ struct OnFootSyncData
 	bool bDuckState : 1;             // ducking
 	unsigned int uHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uWeaponInfo;        // player weapon and ammo
-	bool bAnim;						 // player anim
-	char szAnimGroup[256];			 // anim group
-	char szAnimSpecific[256];	     // anim category from group
-	float fAnimTime;				 // set anim time
 };
 
 struct InVehicleSyncData
@@ -235,7 +223,6 @@ struct InVehicleSyncData
 	bool bWindow[4];					   // vehicle window
 	bool bTyre[6];						   // vehicle tyres
 	bool bGpsState : 1;				       // gps state
-	float fQuaternion[4];					// vehicle quaternion
 	unsigned int uPlayerHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uPlayerWeaponInfo;        // player weapon and ammo
 };
@@ -289,10 +276,6 @@ struct AimSyncData
 	CVector3 vecShotSource;		// shot source
 	CVector3 vecShotTarget;		// shot target
 	CVector3 vecLookAt;			// look at position
-
-	// New System
-	bool	 bAiming;
-	bool	 bShooting;
 };
 
 struct CheckGTAFiles
@@ -327,3 +310,4 @@ enum eStateType
 	STATE_TYPE_PASSENGER,
 	STATE_TYPE_EXITVEHICLE
 };
+

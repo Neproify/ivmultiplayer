@@ -237,6 +237,7 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 	playerConnectArguments.push(strName);
 	g_pEvents->Call("playerConnect", &playerConnectArguments);
 }
+
 void CServerRPCHandler::PlayerJoinComplete(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -258,6 +259,7 @@ void CServerRPCHandler::PlayerJoinComplete(CBitStream * pBitStream, CPlayerSocke
 		CLogFile::Printf("[Join] %s (%d) has joined the game.", pPlayer->GetName().Get(), playerId);
 	}
 }
+
 void CServerRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -874,6 +876,7 @@ void CServerRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 		if(pPlayer)
 		{
 			pPlayer->UpdateHeadMoveSync(vecAim);
+			// jenksta: this is being sent to EVERYONE (including the player it came from), fix it
 			g_pNetworkManager->RPC(RPC_HeadMovement, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED, INVALID_ENTITY_ID, true);
 		}
 	}
