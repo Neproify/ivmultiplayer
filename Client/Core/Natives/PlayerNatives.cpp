@@ -49,7 +49,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("isPlayerOnFoot", IsOnFoot, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerModel", GetModel, 1, "i");
 	pScriptingManager->RegisterFunction("isPlayerSpawned", IsSpawned, 1, "i");
-	pScriptingManager->RegisterFunction("getPlayerHeading", GetHeading, 1, "1");
+	pScriptingManager->RegisterFunction("getPlayerHeading", GetHeading, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerMoney", GetMoney, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerState", GetState, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerWeapon", GetWeapon, 1, "i");

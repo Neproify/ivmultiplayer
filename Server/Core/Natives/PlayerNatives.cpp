@@ -68,7 +68,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("togglePlayerControls", ToggleControls, 2, "ib");
 	pScriptingManager->RegisterFunction("isPlayerSpawned", IsSpawned, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerHeading", SetHeading, 2, "if");
-	pScriptingManager->RegisterFunction("getPlayerHeading", GetHeading, 1, "1");
+	pScriptingManager->RegisterFunction("getPlayerHeading", GetHeading, 1, "i");
 	pScriptingManager->RegisterFunction("togglePlayerPhysics", TogglePhysics, 2, "ib");
 	pScriptingManager->RegisterFunction("kickPlayer", Kick, 2, "ib");
 	pScriptingManager->RegisterFunction("banPlayer", Ban, 2, "ii");
