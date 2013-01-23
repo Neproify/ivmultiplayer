@@ -52,12 +52,10 @@ CGraphics::CGraphics(IDirect3DDevice9 * pDevice)
 {
 	m_pDevice = pDevice;
 	m_pStateBlock = NULL;
+	m_pPixelTexture = NULL;
 
-	// Create Sprite..
-	D3DXCreateSprite( m_pDevice, &m_pSprite );
-
-	// Create Texture stuff
-	D3DXCreateTextureFromFileInMemory( pDevice,  g_szPixel, sizeof( g_szPixel ), &m_pPixelTexture );
+	// Create our sprite
+	D3DXCreateSprite(m_pDevice, &m_pSprite);
 
 	OnResetDevice();
 }
@@ -75,6 +73,17 @@ void CGraphics::OnLostDevice()
 		m_pStateBlock->Release();
 		m_pStateBlock = NULL;
 	}
+
+	// If we have a pixel texture release it
+	if(m_pPixelTexture)
+	{
+		m_pPixelTexture->Release();
+		m_pPixelTexture = NULL;
+	}
+
+	// If we have a sprite inform it of the device loss
+	if(m_pSprite)
+		m_pSprite->OnLostDevice();
 }
 
 void CGraphics::OnResetDevice()
@@ -82,6 +91,14 @@ void CGraphics::OnResetDevice()
 	// If we don't have a state block create one
 	if(!m_pStateBlock)
 		m_pDevice->CreateStateBlock(D3DSBT_ALL, &m_pStateBlock);
+
+	// If we don't have a pixel texture create one
+	if(!m_pPixelTexture)
+		D3DXCreateTextureFromFileInMemory(m_pDevice,  g_szPixel, sizeof(g_szPixel), &m_pPixelTexture);
+
+	// If we have a sprite inform it of the device reset
+	if(m_pSprite)
+		m_pSprite->OnResetDevice();
 }
 
 void CGraphics::Begin()

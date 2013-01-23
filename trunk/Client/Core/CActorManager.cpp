@@ -73,19 +73,6 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	
 	CLogFile::Printf("Actor create %d", actorId);
 
-	CIVPool<DWORD> * pPedMoveBlendPool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82B4));
-	CIVPool<DWORD> * pPedBasePool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82B8));
-	CIVPool<DWORD> * pPedDataPool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82A8));
-	CIVPool<DWORD> * pPedPool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82AC));
-	CLogFile::Printf("PedMoveBlendPool: used:%d, entrysize:%d", pPedMoveBlendPool->GetUsed(), pPedMoveBlendPool->GetEntrySize());
-	CLogFile::Printf("PedBasePool: used:%d, entrysize:%d", pPedBasePool->GetUsed(), pPedBasePool->GetEntrySize());
-	CLogFile::Printf("PedDataPool: used:%d, entrysize:%d", pPedDataPool->GetUsed(), pPedDataPool->GetEntrySize());
-	CLogFile::Printf("PedPool: used:%d, entrysize:%d", pPedPool->GetUsed(), pPedPool->GetEntrySize());
-    delete pPedMoveBlendPool;
-	delete pPedBasePool;
-	delete pPedDataPool;
-	delete pPedPool;
-
 	Scripting::CreateChar(0, (Scripting::eModel)dwModelHash, vecPosition.fX, vecPosition.fY, vecPosition.fZ, &m_Actors[actorId].uiActorIndex, true);
 	Scripting::SetBlockingOfNonTemporaryEvents(m_Actors[actorId].uiActorIndex, true);
 	Scripting::SetCharInvincible(m_Actors[actorId].uiActorIndex, true);
@@ -97,9 +84,11 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	Scripting::AllowReactionAnims(m_Actors[actorId].uiActorIndex,false);
 
 	if(bFrozen)
-		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,true);
+		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex, true);
+
 	if(bHelmet)
 		Scripting::GivePedHelmet(m_Actors[actorId].uiActorIndex);
+
 	if(!CGame::GetNameTags())
 	{
 		if(bBlip)
@@ -110,6 +99,7 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 			Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].strName.Get());
 			Scripting::SetBlipAsShortRange(m_Actors[actorId].uiBlipId, true);
 		}
+
 		Scripting::RemoveFakeNetworkNameFromPed(m_Actors[actorId].uiActorIndex);
 		Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,strName.Get(),255,255,255,255);
 	}

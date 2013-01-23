@@ -90,7 +90,7 @@ public:
 	// 0x42 = WORD
 	// 0x44 = WORD
 	PAD(IVEntity, pad3, 0xC);    // 3C-48
-	DWORD m_hInterior;           // 48-4C
+	DWORD m_hInterior;           // 48-4C - Handle to current interior instance in the interior instance pool
 	PAD(IVEntity, pad4, 0x17);   // 4C-63
 	// 0x4C = DWORD
 	// 0x58 = DWORD

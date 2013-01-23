@@ -75,6 +75,7 @@ void __declspec(naked) HandleLocalPlayerSpawn()
 	}
 
 	g_pLocalPlayer->HandleSpawn();
+
 	_asm
 	{
 		popad

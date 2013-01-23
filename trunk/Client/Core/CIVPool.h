@@ -16,7 +16,7 @@
 #include <CLogFile.h>
 
 // From OpenLC by listener
-class IVPool // size = 31
+class IVPool
 {
 public:
 	BYTE *  m_pObjects;    // 00-04

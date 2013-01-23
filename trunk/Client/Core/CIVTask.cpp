@@ -55,6 +55,7 @@ TaskName TaskNames[] =
 	{ TASK_COMPLEX_ON_FIRE, "ComplexOnFire" },
 	{ TASK_SIMPLE_CLIMB, "SimpleClimb" },
 	{ TASK_COMPLEX_IN_WATER, "ComplexInWater" },
+	{ TASK_SIMPLE_TRIGGER_LOOK_AT, "SimpleTriggerLookAt" },
 	{ TASK_COMPLEX_INJURED_ON_GROUND, "ComplexInjuredOnGround" },
 	{ TASK_SIMPLE_DO_NOTHING, "SimpleDoNothing" },
 	{ TASK_SIMPLE_MOVE_DO_NOTHING, "SimpleMoveDoNothing" },

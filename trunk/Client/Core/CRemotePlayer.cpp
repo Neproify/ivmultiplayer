@@ -45,7 +45,6 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 	{
 		if(IsSpawned())
 			return false;
-
 		
 		g_pStreamer->ForceStreamIn(this);
 		SetCanBeStreamedIn(true);
@@ -119,6 +118,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 	else
 		return;*/
 
+#if 0
 	if(!bHasAimSyncData)
 	{
 		if(syncPacket->vecMoveSpeed.Length() < 0.75)
@@ -188,10 +188,12 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 				call dwAddress
 			}
 		}
+#endif
 		SetTargetPosition(syncPacket->vecPos,TICK_RATE*2);
 		SetCurrentSyncHeading(syncPacket->fHeading);
 		SetMoveSpeed(syncPacket->vecMoveSpeed);
 		SetTurnSpeed(syncPacket->vecTurnSpeed);
+#if 0
 	}
 
 	// Simulate jump(while walking/running)
@@ -200,6 +202,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 		// Start the jump task
 		Jump(true);
 	}
+#endif
 
 	// Set our control state
 	SetControlState(&syncPacket->controlState);
@@ -231,25 +234,6 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 		SetAmmo(uiWeapon, uiAmmo);
 	}
 
-	// Stop moving
-	/*dwAddress = (CGame::GetBase() + 0xB85E30);
-	_asm
-	{
-		push uiPlayerIndex
-		call dwAddress
-	}
-	*/
-
-	// Stop jumping
-	/*	unsigned int uiPlayerIndex = GetScriptingHandle();
-		DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
-		_asm
-		{
-			push 3
-			push uiPlayerIndex
-			call dwAddress
-		}
-	*/
 	m_stateType = STATE_TYPE_ONFOOT;
 }
 
