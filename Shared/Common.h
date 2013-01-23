@@ -49,7 +49,7 @@
 #define NETWORK_MODULE_VERSION 0x08
 
 // Network version - increment this when packet layouts change!
-#define NETWORK_VERSION 0x8A
+#define NETWORK_VERSION 0x8B
 
 // Tick Rate
 #define TICK_RATE 100
