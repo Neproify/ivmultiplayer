@@ -177,6 +177,7 @@ public:
 	static unsigned int FUNC_CPhysical__GetMoveSpeed;
 	static unsigned int FUNC_CPhysical__SetTurnSpeed;
 	static unsigned int FUNC_CPhysical__GetTurnSpeed;
+	static unsigned int FUNC_CPhysical__SetLastDamageEntity;
 
 	// Indicators
 	static unsigned int PATCH_CVehicle__HazzardLightsOn;

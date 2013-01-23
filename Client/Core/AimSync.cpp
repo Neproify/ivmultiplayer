@@ -17,6 +17,7 @@
 
 DWORD      dwFunc = NULL;
 IVPed    * g_pIKPed = NULL;
+CVector3 * g_vecLookAtTarget = NULL;
 CVector3 * g_vecWeaponAimTarget = NULL;
 IVPed    * g_pWeaponPed = NULL;
 CVector3 * g_vecWeaponShotSource = NULL;
@@ -78,6 +79,32 @@ void StoreShotSourceTarget(IVPed * pPed, CVector3 * pWeaponSource, CVector3 * pW
 		}
 		else
 			CLogFile::PrintDebugf("StoreShotSourceTarget Warning: Invalid Player Ped");
+	}
+}
+
+void _declspec(naked) CIKManager__LookAt()
+{
+	_asm
+	{
+		push ebp
+		mov ebp, esp
+		mov eax, [ecx+40h] // CIKManager + 0x40 = CPed * pPed
+		mov g_pIKPed, eax
+		mov eax, [ebp+1Ch]
+		mov g_vecLookAtTarget, eax
+		pop ebp
+	}
+
+	StoreAimTarget(g_pIKPed, g_vecLookAtTarget);
+	dwFunc = (CGame::GetBase() + 0x959CC6);
+
+	_asm
+	{
+		popad
+		push ebp
+		mov ebp, esp
+		and esp, 0FFFFFFF0h
+		jmp dwFunc
 	}
 }
 
@@ -145,6 +172,9 @@ void InstallAimSyncHooks()
 	// CIKManager::AimWeapon function isn't called, tried 
 	// disabling player ped checks below but still doesn't call
 	// Disable local player checks for weapon aiming
+
+	// Hook for the CIKManager::LookAt function
+	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x959CC0), (DWORD)CIKManager__LookAt);
 
 	// Hook for the CIKManager::AimWeapon function
 	CPatcher::InstallJmpPatch((CGame::GetBase() + 0x950D60), (DWORD)CIKManager__AimWeapon);

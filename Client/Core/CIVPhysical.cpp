@@ -10,17 +10,21 @@
 #include "CIVPhysical.h"
 #include "CGame.h"
 #include <CLogFile.h>
+#include "COffsets.h"
 
 CIVPhysical::CIVPhysical() : CIVDynamicEntity()
 {
+
 }
 
 CIVPhysical::CIVPhysical(IVPhysical * pPhysical) : CIVDynamicEntity(pPhysical)
 {
+
 }
 
 CIVPhysical::~CIVPhysical()
 {
+
 }
 
 void CIVPhysical::SetPhysical(IVPhysical * pPhysical)
@@ -49,12 +53,11 @@ void CIVPhysical::SetMoveSpeed(const CVector3& vecMoveSpeed)
 	if(pPhysical)
 	{
 		const CVector3 * pVecMoveSpeed = &vecMoveSpeed;
-		DWORD dwFunc = (CGame::GetBase() + FUNC_CPhysical__SetMoveSpeed_7);
 		_asm
 		{
 			push pVecMoveSpeed
 			mov ecx, pPhysical
-			call dwFunc
+			call COffsets::FUNC_CPhysical__SetMoveSpeed
 		}
 	}
 }
@@ -69,12 +72,11 @@ void CIVPhysical::GetMoveSpeed(CVector3& vecMoveSpeed)
 	if(pPhysical)
 	{
 		CVector3 * pVecMoveSpeed = &vecMoveSpeed;
-		DWORD dwFunc = (CGame::GetBase() + FUNC_CPhysical__GetMoveSpeed_7);
 		_asm
 		{
 			push pVecMoveSpeed
 			mov ecx, pPhysical
-			call dwFunc
+			call COffsets::FUNC_CPhysical__GetMoveSpeed
 		}
 	}
 }
@@ -89,12 +91,11 @@ void CIVPhysical::SetTurnSpeed(const CVector3& vecTurnSpeed)
 	if(pPhysical)
 	{
 		const CVector3 * pVecTurnSpeed = &vecTurnSpeed;
-		DWORD dwFunc = (CGame::GetBase() + FUNC_CPhysical__SetTurnSpeed_7);
 		_asm
 		{
 			push pVecTurnSpeed
 			mov ecx, pPhysical
-			call dwFunc
+			call COffsets::FUNC_CPhysical__SetTurnSpeed
 		}
 	}
 }
@@ -109,12 +110,11 @@ void CIVPhysical::GetTurnSpeed(CVector3& vecTurnSpeed)
 	if(pPhysical)
 	{
 		CVector3 * pVecTurnSpeed = &vecTurnSpeed;
-		DWORD dwFunc = (CGame::GetBase() + FUNC_CPhysical__GetTurnSpeed_7);
 		_asm
 		{
 			push pVecTurnSpeed
 			mov ecx, pPhysical
-			call dwFunc
+			call COffsets::FUNC_CPhysical__GetTurnSpeed
 		}
 	}
 }
@@ -127,7 +127,15 @@ void CIVPhysical::SetLastDamageEntity(IVEntity * pLastDamageEntity)
 	IVPhysical * pPhysical = (IVPhysical *)GetEntity();
 
 	if(pPhysical)
-		pPhysical->m_pLastDamageEntity = pLastDamageEntity;
+	{
+		IVEntity * _pLastDamageEntity = pLastDamageEntity;
+		_asm
+		{
+			push _pLastDamageEntity
+			mov ecx, pPhysical
+			call COffsets::FUNC_CPhysical__SetLastDamageEntity
+		}
+	}
 }
 
 IVEntity * CIVPhysical::GetLastDamageEntity()

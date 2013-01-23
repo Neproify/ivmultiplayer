@@ -12,11 +12,6 @@
 #include "CIVDynamicEntity.h"
 #include "CIVWeaponInfo.h"
 
-#define FUNC_CPhysical__SetMoveSpeed_7 0xA47750
-#define FUNC_CPhysical__GetMoveSpeed_7 0xA477F0
-#define FUNC_CPhysical__SetTurnSpeed_7 0xA47840
-#define FUNC_CPhysical__GetTurnSpeed_7 0xA478E0
-
 class IVPhysicalVFTable : public IVDynamicEntityVFTable
 {
 public:

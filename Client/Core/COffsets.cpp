@@ -158,6 +158,7 @@ unsigned int COffsets::FUNC_CPhysical__SetMoveSpeed = 0;
 unsigned int COffsets::FUNC_CPhysical__GetMoveSpeed = 0;
 unsigned int COffsets::FUNC_CPhysical__SetTurnSpeed = 0;
 unsigned int COffsets::FUNC_CPhysical__GetTurnSpeed = 0;
+unsigned int COffsets::FUNC_CPhysical__SetLastDamageEntity = 0;
 
 // Indicators
 unsigned int COffsets::PATCH_CVehicle__HazzardLightsOn = 0;
@@ -375,6 +376,7 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CPhysical__GetMoveSpeed                    = (uiBase +  0xA477F0);
 			FUNC_CPhysical__SetTurnSpeed                    = (uiBase +  0xA47840);
 			FUNC_CPhysical__GetTurnSpeed                    = (uiBase +  0xA478E0);
+			FUNC_CPhysical__SetLastDamageEntity             = (uiBase +  0xA47990);
 
 			// Streaming
 			VAR_ResourceTypeWdrIndex                        = (uiBase + 0x15F73A0);

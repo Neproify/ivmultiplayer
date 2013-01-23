@@ -50,15 +50,31 @@ class IVVehicle;
 class IVPedIntelligence
 {
 public:
-	PAD(IVPedIntelligence, pad0, 0x44);
-	IVPedTaskManager * m_pPedTaskManager;
+	PAD(IVPedIntelligence, pad0, 0x44);   // 000-044
+	IVPedTaskManager * m_pPedTaskManager; // 044-048
 	// 0x84 = CEventGroup m_eventGroup; (size is 0x48 or 0x4C) (4C probs extra CEventGlobalGroup member)
 	// 0xF0 = BYTE m_byteEventId;
 	// 0xF1 = BYTE m_byteEventPriority;
-	// 0xF4 = CVehicleScanner m_vehicleScanner;
+	// 0xF4 = CVehicleScanner m_vehicleScanner; (CEntityScanner (Size 0x5C))
 	// 0x150 = CPedScanner m_pedScanner;
 	// 0x1AC = CObjectScanner m_objectScanner;
-	// TODO: Find size
+	PAD(IVPedIntelligence, pad1, 0x2A8);  // 048-2F0
+};
+
+class IVEventHandler
+{
+	PAD(IVEventHandler, pad0, 0x40); // 00-40
+};
+
+class IVEventScanner
+{
+	PAD(IVEventHandler, pad0, 0x130); // 000-130
+};
+
+class IVPedIntelligenceNY : public IVPedIntelligence
+{
+	IVEventHandler m_eventHandler; // 2F0-330 (CEventHandlerNY)
+	IVEventScanner m_eventScanner; // 330-460 (CEventScannerNY)
 };
 
 class IVPedBase
@@ -77,6 +93,11 @@ enum eCharCreator
 	REPLAY_CHAR
 };
 
+class IVPedData
+{
+	PAD(IVPedData, pad0, 0x60); // 00-60
+};
+
 #pragma pack(1)
 class IVPed : public IVPhysical
 {
@@ -88,9 +109,9 @@ public:
 	PAD(IVPed, pad1, 0x2);                  // 210-21C
 	IVPedBase * m_pPedBase;                 // 21C-220
 	PAD(IVPed, pad2, 0x4);                  // 220-224
-	IVPedIntelligence * m_pPedIntelligence;	// 224-228
+	IVPedIntelligence * m_pPedIntelligence;	// 224-228 (Should be IVPedIntelligenceNY)
 	IVPlayerInfo * m_pPlayerInfo;           // 228-22C
-	DWORD m_pPedData;                       // 22C-230
+	IVPedData * m_pPedData;                 // 22C-230
 	PAD(IVPed, pad3, 0x3C);                 // 230-26C
 	BYTE m_byteUnknown;                     // 26C-26D - Bits 4: in vehicle
 	PAD(IVPed, pad4, 0x43);                 // 26D-2B0

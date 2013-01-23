@@ -136,19 +136,6 @@ bool CNetworkPlayer::Create()
 	// Create a context data instance for this player
 	m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
 
-	CIVPool<DWORD> * pPedMoveBlendPool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82B4));
-	CIVPool<DWORD> * pPedBasePool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82B8));
-	CIVPool<DWORD> * pPedDataPool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82A8));
-	CIVPool<DWORD> * pPedPool = new CIVPool<DWORD>(*(IVPool **)(CGame::GetBase() + 0x18A82AC));
-	CLogFile::Printf("PedMoveBlendPool: used:%d, entrysize:%d", pPedMoveBlendPool->GetUsed(), pPedMoveBlendPool->GetEntrySize());
-	CLogFile::Printf("PedBasePool: used:%d, entrysize:%d", pPedBasePool->GetUsed(), pPedBasePool->GetEntrySize());
-	CLogFile::Printf("PedDataPool: used:%d, entrysize:%d", pPedDataPool->GetUsed(), pPedDataPool->GetEntrySize());
-	CLogFile::Printf("PedPool: used:%d, entrysize:%d", pPedPool->GetUsed(), pPedPool->GetEntrySize());
-    delete pPedMoveBlendPool;
-	delete pPedBasePool;
-	delete pPedDataPool;
-	delete pPedPool;
-
 	// Allocate the player ped
 	IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();
 
@@ -181,6 +168,7 @@ bool CNetworkPlayer::Create()
 		mov esi, pPlayerPed
 		call COffsets::FUNC_Setup_Ped
 	}
+
 	if(!pPlayerPed)
 		return false;
 
@@ -211,6 +199,7 @@ bool CNetworkPlayer::Create()
 	// Add to world
 	m_pPlayerPed->AddToWorld();
 
+	// jenksta: wtf is this doing here??
 	// Delete player helemt
 	m_bHelmet = false;
 	SetHelmet(m_bHelmet);
@@ -285,6 +274,7 @@ void CNetworkPlayer::Destroy()
 		// Set the context data pointer to NULL
 		m_pContextData = NULL;
 	}
+
 	// Delete the player ped instance
 	SAFE_DELETE(m_pPlayerPed);
 
@@ -308,7 +298,8 @@ void CNetworkPlayer::Destroy()
 void CNetworkPlayer::StreamIn()
 {
 	THIS_CHECK(__FUNCTION__);
-	if(Create()) {
+	if(Create())
+	{
 		SetPosition(m_vecPos);
 		SetHealth(m_uiHealth);
 	}
@@ -905,6 +896,7 @@ CVector3 CNetworkPlayer::GetBonePosition(int iBone)
 	}
 	return CVector3();
 }
+
 void CNetworkPlayer::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
 	THIS_CHECK(__FUNCTION__);

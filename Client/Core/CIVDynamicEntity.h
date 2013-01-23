@@ -26,7 +26,7 @@ public:
 	// 000-074
 	PAD(IVDynamicEntity, pad0, 0x4);  // 074-078
 	DWORD m_pAnim;                    // 078-07C
-	// 0x80 = CPortalTracker * m_pPortalTracker
+	// 0x80 - 0xCC = CPortalTracker m_portalTracker; (+0x30 = CDynamicEntity * m_pDynamicEntity)
 	PAD(IVDynamicEntity, pad1, 0x90); // 07C-10C
 };
 
