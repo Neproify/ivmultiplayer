@@ -190,7 +190,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 		}
 #endif
 		SetTargetPosition(syncPacket->vecPos, TICK_RATE);
-		SetCurrentHeading(syncPacket->fHeading);
+		SetTargetRotation(syncPacket->fHeading, TICK_RATE);
 		SetMoveSpeed(syncPacket->vecMoveSpeed);
 		SetTurnSpeed(syncPacket->vecTurnSpeed);
 #if 0
