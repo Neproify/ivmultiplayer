@@ -329,287 +329,114 @@ bool CHttpClient::Post(bool bHasResponse, String strPath, String strData, String
 	return true;	
 }
 
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
-
-struct mg_request_info
+// find s2 in s1 (with size s1_s) starting from index sp and ending at s1_s or first instance of ts
+int strfind(const char * s1, int s1_s, const char * s2, int sp = 0, char * ts = NULL)
 {
-  char *request_method;  // "GET", "POST", etc
-  char *uri;             // URL-decoded URI
-  char *http_version;    // E.g. "1.0", "1.1"
-  char *query_string;    // URL part after '?' (not including '?') or NULL
-  char *remote_user;     // Authenticated user, or NULL if no auth used
-  long remote_ip;        // Client's IP address
-  int remote_port;       // Client's port
-  int is_ssl;            // 1 if SSL-ed, 0 if not
-  int num_headers;       // Number of headers
-  struct mg_header {
-    char *name;          // HTTP header name
-    char *value;         // HTTP header value
-  } http_headers[64];    // Maximum 64 headers
-};
-
-static char *skip_quoted(char **buf, const char *delimiters,
-                         const char *whitespace, char quotechar)
-{
-  char *p, *begin_word, *end_word, *end_whitespace;
-
-  begin_word = *buf;
-  end_word = begin_word + strcspn(begin_word, delimiters);
-
-  // Check for quotechar
-  if (end_word > begin_word) {
-    p = end_word - 1;
-    while (*p == quotechar) {
-      // If there is anything beyond end_word, copy it
-      if (*end_word == '\0') {
-        *p = '\0';
-        break;
-      } else {
-        size_t end_off = strcspn(end_word + 1, delimiters);
-        memmove (p, end_word, end_off + 1);
-        p += end_off; // p must correspond to end_word - 1
-        end_word += end_off + 1;
-      }
-    }
-    for (p++; p < end_word; p++) {
-      *p = '\0';
-    }
-  }
-
-  if (*end_word == '\0') {
-    *buf = end_word;
-  } else {
-    end_whitespace = end_word + 1 + strspn(end_word + 1, whitespace);
-
-    for (p = end_word; p < end_whitespace; p++) {
-      *p = '\0';
-    }
-
-    *buf = end_whitespace;
-  }
-
-  return begin_word;
-}
-
-// Simplified version of skip_quoted without quote char
-// and whitespace == delimiters
-static char *skip(char **buf, const char *delimiters)
-{
-  return skip_quoted(buf, delimiters, delimiters, 0);
-}
-
-// Check whether full request is buffered. Return:
-//   -1  if request is malformed
-//    0  if request is not yet fully buffered
-//   >0  actual request length, including last \r\n\r\n
-static int get_request_len(const char *buf, int buflen)
-{
-  const char *s, *e;
-  int len = 0;
-
-  for (s = buf, e = s + buflen - 1; len <= 0 && s < e; s++)
-    // Control characters are not allowed but >=128 is.
-    if (!isprint(* (const unsigned char *) s) && *s != '\r' &&
-        *s != '\n' && * (const unsigned char *) s < 128) {
-      len = -1;
-      break; // [i_a] abort scan as soon as one malformed character is found; don't let subsequent \r\n\r\n win us over anyhow
-    } else if (s[0] == '\n' && s[1] == '\n') {
-      len = (int) (s - buf) + 2;
-    } else if (s[0] == '\n' && &s[1] < e &&
-        s[1] == '\r' && s[2] == '\n') {
-      len = (int) (s - buf) + 3;
-    }
-
-  return len;
-}
-
-// Parse HTTP headers from the given buffer, advance buffer to the point
-// where parsing stopped.
-static void parse_http_headers(char **buf, struct mg_request_info *ri)
-{
-  int i;
-
-  for (i = 0; i < (int) ARRAY_SIZE(ri->http_headers); i++) {
-    ri->http_headers[i].name = skip_quoted(buf, ":", " ", 0);
-    ri->http_headers[i].value = skip(buf, "\r\n");
-    if (ri->http_headers[i].name[0] == '\0')
-      break;
-    ri->num_headers = i + 1;
-  }
-}
-
-static int is_valid_http_method(const char *method)
-{
-  return !strcmp(method, "GET") || !strcmp(method, "POST") ||
-    !strcmp(method, "HEAD") || !strcmp(method, "CONNECT") ||
-    !strcmp(method, "PUT") || !strcmp(method, "DELETE") ||
-    !strcmp(method, "OPTIONS") || !strcmp(method, "PROPFIND");
-}
-
-// Parse HTTP request, fill in mg_request_info structure.
-// This function modifies the buffer by NUL-terminating
-// HTTP request components, header names and header values.
-static int parse_http_message(char *buf, int len, struct mg_request_info *ri)
-{
-  int request_length = get_request_len(buf, len);
-  if (request_length > 0) {
-    // Reset attributes. DO NOT TOUCH is_ssl, remote_ip, remote_port
-    ri->remote_user = ri->request_method = ri->uri = ri->http_version = NULL;
-    ri->num_headers = 0;
-
-    buf[request_length - 1] = '\0';
-
-    // RFC says that all initial whitespaces should be ingored
-    while (*buf != '\0' && isspace(* (unsigned char *) buf)) {
-      buf++;
-    }
-    ri->request_method = skip(&buf, " ");
-    ri->uri = skip(&buf, " ");
-    ri->http_version = skip(&buf, "\r\n");
-    parse_http_headers(&buf, ri);
-  }
-  return request_length;
-}
-
-static int parse_http_request(char *buf, int len, struct mg_request_info *ri)
-{
-  int result = parse_http_message(buf, len, ri);
-  if (result > 0 &&
-      is_valid_http_method(ri->request_method) &&
-      !strncmp(ri->http_version, "HTTP/", 5)) {
-    ri->http_version += 5;   // Skip "HTTP/"
-  } else {
-    result = -1;
-  }
-  return result;
-}
-
-static int parse_http_response(char *buf, int len, struct mg_request_info *ri)
-{
-  int result = parse_http_message(buf, len, ri);
-  return result > 0 && !strncmp(ri->request_method, "HTTP/", 5) ? result : -1;
-}
-
-bool CHttpClient::ParseHeaders(String& strBuffer, int& iBufferSize)
-{
-	// Find the header size, testing code, but should work
-	mg_request_info info;
-	
-	char* buf = new char[iBufferSize];
-	memcpy(buf, strBuffer.C_String(), iBufferSize);
-	parse_http_response(buf, strBuffer.GetLength(), &info);
-	
-	String buf_header;
-	int iHeaderSize = 0;
-	for(int i = 0; i < info.num_headers; ++i)
+	for(int i = sp; i < s1_s; i++)
 	{
-		buf_header.AppendF("%s: %s\r\n", info.http_headers[i].name, info.http_headers[i].value);
-	}
-
-	iHeaderSize = buf_header.GetLength();
-	iHeaderSize += (info.request_method != NULL ? strlen(info.request_method) : 0) + (info.uri != NULL ? strlen(info.uri) : 0) + (info.http_version != NULL ? strlen(info.http_version) : 0) + strlen("\r\n\r\n\r\n");
-	iBufferSize -= iHeaderSize;
-	strBuffer.Erase(0, iHeaderSize);
-	m_headerMap["HeaderSize"] = iHeaderSize;
-
-
-	// ADAMIX/JENKSTA: commented out this code because doesn't work properly. Are we really need to parse headers?
-
-	/*// Ignore all initial whitespace
-	unsigned int uiWhiteSpace = 0;
-
-	for(unsigned int i = 0; i < (unsigned int)iBufferSize; i++)
-	{
-		// Is this whitespace?
-		if(strBuffer[i] == ' ')
+		if(ts)
 		{
-			// Increment the whitespace amount
-			uiWhiteSpace++;
-			continue;
+			if(s1[i] == ts[0])
+			{
+				for(int j = 0; j < (int)strlen(ts); j++)
+				{
+					if(s1[i+j] != ts[j])
+						break;
+
+					return -1;
+				}
+			}
 		}
 
-		// Finished
-		break;
+		if(s1[i] == s2[0])
+		{
+			for(int j = 0; j < (int)strlen(s2); j++)
+			{
+				if(s1[i+j] != s2[j])
+					break;
+
+				return i;
+			}
+		}
 	}
 
-	// Remove whitespace
-	if(uiWhiteSpace > 0)
-		strBuffer.Erase(0, uiWhiteSpace);
+	return -1;
+}
+
+bool CHttpClient::ParseHeaders(const char * szBuffer, int& iBufferSize, int& iHeaderSize)
+{
+	// Find amount of whitespace
+	int iWhiteSpace = 0;
+
+	for(int i = 0; i < iBufferSize; i++)
+	{
+		if(szBuffer[i] != ' ')
+			break;
+
+		// Increment the whitespace amount
+		iWhiteSpace++;
+	}
+
+	// Increment the header size
+	iHeaderSize += iWhiteSpace;
 
 	// Ignore the version, status code and status message
 	// TODO: Use this information?
 	// Will be in format 'HTTP/1.0 200 OK\r\n'
-	unsigned int uiIgnore = strBuffer.Find("\r\n");
+	int iIgnore = strfind(szBuffer, iBufferSize, "\r\n", iHeaderSize);
 
-	if(uiIgnore == String::nPos)
+	if(iIgnore == -1)
 		return false;
 
-	strBuffer.Erase(0, (uiIgnore + 2));
-	iBufferSize -= (uiIgnore + 2);
+	String strIgnore;
+	strIgnore.Set(szBuffer + iHeaderSize, iIgnore);
+
+	// Increment the header size
+	iHeaderSize += (iIgnore + 2); // + 2 for '\r\n'
 
 	// Find all headers
-	unsigned int uiContentLength = String::nPos;
-	unsigned int uiNameSplit;
-	unsigned int uiValueSplit;
+	int iNameSplit;
+	int iValueSplit;
 
-	while((uiNameSplit = strBuffer.Find(": ")) != String::nPos)
+	while((iNameSplit = strfind(szBuffer, iBufferSize, ": ", iHeaderSize, "\r\n")) != -1)
 	{
-		// Do we have a content length?
-		if(uiContentLength != String::nPos)
-		{
-			// Get the content start
-			unsigned int uiContentStart = (iBufferSize - uiContentLength);
+		// Get the header name
+		int iNameSize = (iNameSplit - iHeaderSize);
+		String strName;
+		strName.Set((szBuffer + iHeaderSize), iNameSize);
 
-			// Is the find over the content start?
-			if(uiNameSplit >= uiContentStart)
-				break;
-		}
+		// Increment the header size
+		iHeaderSize += (iNameSize + 2); // + 2 for '\r\n'
 
 		// Find the value end
-		uiValueSplit = strBuffer.Find("\r\n");
+		iValueSplit = strfind(szBuffer, iBufferSize, "\r\n", iHeaderSize);
 
 		// Did we not find a value end?
-		if(uiValueSplit == String::nPos)
+		if(iValueSplit == -1)
 			return false;
 
-		// Get the header name
-		String strName = strBuffer.SubStr(0, uiNameSplit);
-
-		// If this is an accept-ranges header get the value from the next header
-		// jenksta: not sure if this is right, but this is how it works with 'accept-ranges: bytes'
-		// in mongoose
-		if(!strName.ICompare("accept-ranges"))
-		{
-			// Find the value end
-			uiValueSplit = strBuffer.Find("\r\n", (uiValueSplit + 2));
-
-			// Did we not find a value end?
-			if(uiValueSplit == String::nPos)
-				return false;
-		}
-
 		// Get the header value
-		String strValue = strBuffer.SubStr((uiNameSplit + 2), (uiValueSplit - (uiNameSplit + 2)));
+		int iValueSize = (iValueSplit - iHeaderSize);
+		String strValue;
+		strValue.Set((szBuffer + iHeaderSize), iValueSize);
+
+		// Increment the header size
+		iHeaderSize += (iValueSize + 2); // + 2 for '\r\n'
 
 		// Add the header to the header map
 		m_headerMap[strName] = strValue;
-
-		// Erase the header from the buffer
-		strBuffer.Erase(0, (uiValueSplit + 2));
-		iBufferSize -= (uiValueSplit + 2);
-
-		// Is this the content length header?
-		if(!strName.ICompare("content-length"))
-		{
-			// Set the content length
-			uiContentLength = strValue.ToInteger();
-		}
 	}
 
 	// Did we not get any headers?
 	if(m_headerMap.empty())
 		return false;
-	*/
+
+	// Ignore the '\r\n' after the headers
+	iHeaderSize += 2;
+
+	// Decrement the buffer size by the header size
+	iBufferSize -= iHeaderSize;
+
 	// Success
 	return true;
 }
@@ -646,23 +473,16 @@ void CHttpClient::Process()
 
 				// Try to read from the socket
 				int iBytesRecieved = Read(szBuffer, sizeof(szBuffer));
-
-				int iSkipBytes = 0;
+				int iHeaderSize = 0;
 
 				// Did we get anything?
 				if(iBytesRecieved > 0)
 				{
-					// Create a string from the received data
-					String strBuffer;
-					strBuffer.Set(szBuffer, iBytesRecieved);
-					
 					// Are the headers empty?
 					if(m_headerMap.empty())
 					{
-						iSkipBytes = iBytesRecieved;
-
 						// Parse the headers
-						if(!ParseHeaders(strBuffer, iBytesRecieved))
+						if(!ParseHeaders(szBuffer, iBytesRecieved, iHeaderSize))
 						{
 							// We don't have a header, set the status
 							m_status = HTTP_STATUS_INVALID;
@@ -678,22 +498,23 @@ void CHttpClient::Process()
 							return;
 						}
 
-						iSkipBytes -= iBytesRecieved;
-
 						// Do we not have any data?
 						if(iBytesRecieved == 0)
 							return;
 					}
 
+					// Skip the header data if we have any
+					char * szData = (iBytesRecieved ? (szBuffer + iHeaderSize) : NULL);
+
 					// Call the receive handler if we have one
 					if(m_pfnReceiveHandler)
 					{
-						if(m_pfnReceiveHandler(szBuffer + iSkipBytes, iBytesRecieved, m_pReceiveHandlerUserData))
-							m_strData.Append(szBuffer + iSkipBytes, iBytesRecieved);
+						if(m_pfnReceiveHandler(szData, iBytesRecieved, m_pReceiveHandlerUserData))
+							m_strData.Append(szData, iBytesRecieved);
 					}
 					// Write response data to file if we have one set
 					else if(m_file != NULL)
-						fwrite(szBuffer + iSkipBytes, 1, iBytesRecieved, m_file);
+						fwrite(szData, 1, iBytesRecieved, m_file);
 				}
 				else if(iBytesRecieved == 0)
 				{
