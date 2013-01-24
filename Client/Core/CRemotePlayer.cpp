@@ -104,7 +104,7 @@ void CRemotePlayer::Init()
 
 void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData)
 {
-	// Check if the player isn't available(disconnect etc)
+	// Check if the player isn't available
 	if(!g_pPlayerManager->IsActive(GetPlayerId()))
 		return;
 	
@@ -189,8 +189,8 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 			}
 		}
 #endif
-		SetTargetPosition(syncPacket->vecPos,TICK_RATE*2);
-		SetCurrentSyncHeading(syncPacket->fHeading);
+		SetTargetPosition(syncPacket->vecPos, TICK_RATE);
+		SetCurrentHeading(syncPacket->fHeading);
 		SetMoveSpeed(syncPacket->vecMoveSpeed);
 		SetTurnSpeed(syncPacket->vecTurnSpeed);
 #if 0
@@ -239,7 +239,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 
 void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * syncPacket)
 {
-	// Check if the player isn't avaiable(disconnect etc)
+	// Check if the player isn't available
 	if(!g_pPlayerManager->IsActive(GetPlayerId()))
 		return;
 
@@ -478,5 +478,4 @@ void CRemotePlayer::SetColor(unsigned int uiColor)
 
 	if(GetBlipActivity())
 		Scripting::ChangeBlipColour(GetBlip(), uiColor);
-
 }
