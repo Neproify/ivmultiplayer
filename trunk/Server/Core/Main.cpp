@@ -362,16 +362,6 @@ void InputThread(CThread * pCreator)
 	}
 }
 
-#if 0
-// test
-#include <Squirrel/squirrel.h>
-#include <Squirrel/sqstate.h>
-#include <Squirrel/sqvm.h>
-#include <Squirrel/sqtable.h>
-#include <Squirrel/sqstring.h>
-// test end
-#endif
-
 int main(int argc, char ** argv)
 {
 #ifdef WIN32
@@ -657,45 +647,6 @@ int main(int argc, char ** argv)
 	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
 #else
 	CLogFile::Print("\n====================================================================\n");
-#endif
-
-#if 0
-	// test
-	// Open a temporary VM
-	SQVM * pVM = sq_open(1024);
-
-	// Create the exports table
-	SQTable * pTable = SQTable::Create(_ss(pVM), 0);
-
-	// Close the temporary VM
-	//sq_close(pVM);
-
-	// Create the exports table SQObject
-	SQObject value;
-	value._type = OT_TABLE;
-	value._unVal.pTable = pTable;
-
-	for(std::list<CSquirrel *>::iterator iter = g_pScriptingManager->GetScriptList()->begin(); iter != g_pScriptingManager->GetScriptList()->end(); iter++)
-	{
-		// Get the VM pointer for this script
-		SQVM * pVM = (*iter)->GetVM();
-
-		// Push the root table onto the stack
-		sq_pushroottable(pVM);
-
-		// Push the table name onto the stack
-		sq_pushstring(pVM, "exports",-1);
-
-		// Push the exports table onto the stack
-		sq_pushobject(pVM, value);
-
-		// Create the new root table slot
-		sq_newslot(pVM, -3, true);
-
-		// Pop the root table from the stack
-		sq_pop(pVM, 1);
-	}
-	// end test
 #endif
 
 	while(g_pNetworkManager->bRunning)

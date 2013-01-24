@@ -68,7 +68,7 @@ private:
 	void                   Disconnect();
 	bool                   Write(const char * szData, int iLen);
 	int                    Read(char * szBuffer, int iLen);
-	bool                   ParseHeaders(String& strBuffer, int& iBufferSize);
+	bool                   ParseHeaders(const char * szBuffer, int& iBufferSize, int& iHeaderSize);
 
 public:
 	CHttpClient();
@@ -79,6 +79,7 @@ public:
 	virtual bool           GettingData() { return (m_status == HTTP_STATUS_GET_DATA); }
 	virtual bool           GotData() { return (m_status == HTTP_STATUS_GOT_DATA); }
 	virtual bool           IsBusy() { return (m_status == HTTP_STATUS_GET_DATA); }
+	virtual unsigned int   GetHeaderCount() { return m_headerMap.size(); }
 	virtual String         GetHeader(String strName) { return m_headerMap[strName]; }
 	virtual String       * GetData() { return &m_strData; }
 	virtual eHttpError     GetLastError() { return m_lastError; }
