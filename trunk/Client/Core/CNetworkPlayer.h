@@ -51,6 +51,15 @@ private:
 			unsigned long ulStartTime;
 			unsigned long ulFinishTime;
 		} pos;
+		struct
+		{
+			float         fStart;
+			float         fTarget;
+			float         fError;
+			float         fLastAlpha;
+			unsigned long ulStartTime;
+			unsigned long ulFinishTime;
+		} rot;
 	}                 m_interp;
 	unsigned char     m_ucClothes[11];
 	bool              m_bUseCustomClothesOnSpawn;
@@ -204,16 +213,19 @@ public:
 	unsigned int             GetInterior();
 
 	void                     UpdateTargetPosition();
+	void                     UpdateTargetRotation();
 
 	void                     Interpolate();
 	void                     ResetInterpolation();
 
 	void                     SetTargetPosition(const CVector3& vecPosition, unsigned long ulDelay);
-	void					 SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType);
+	void                     SetTargetRotation(float fHeading, unsigned long ulDelay);
 
 	void                     RemoveTargetPosition();
+	void                     RemoveTargetRotation();
 
 	bool                     HasTargetPosition() { return (m_interp.pos.ulFinishTime != 0); }
+	bool                     HasTargetRotation() { return (m_interp.pos.ulFinishTime != 0); }
 
 	virtual void             SetColor(unsigned int uiColor);
 	unsigned int             GetColor();

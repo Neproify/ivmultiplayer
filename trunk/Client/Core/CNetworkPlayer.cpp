@@ -57,6 +57,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	
 {
 	m_interp.pos.ulFinishTime = 0;
+	m_interp.rot.ulFinishTime = 0;
 	memset(&m_ucClothes, 0, sizeof(m_ucClothes));
 
 	memset(&m_previousControlState, 0, sizeof(CControlState));
@@ -179,6 +180,22 @@ bool CNetworkPlayer::Create()
 		push 2
 		mov ecx, pPlayerPed
 		call COffsets::FUNC_SetupPedIntelligence
+	}
+
+
+	// Assign initial ped move blend task
+	_asm
+	{
+		mov eax, pPlayerPed
+		mov ecx, [eax+0A90h]
+		mov edx, [ecx]
+		mov eax, [edx+1Ch]
+		call eax
+		push 0 ; force new task
+		push 4 ; type
+		push eax ; task
+		mov eax, pPlayerPed
+		call COffsets::FUNC_CPedTaskManager__SetTaskPriority
 	}
 
 	// Set our player info ped pointer
@@ -360,6 +377,7 @@ void CNetworkPlayer::Kill(bool bInstantly)
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 			}
 		}
+
 		// Set the health and armour to 0
 		SetHealth(0);
 		SetArmour(0);
@@ -727,7 +745,7 @@ void CNetworkPlayer::Teleport(const CVector3& vecPosition, bool bResetInterpolat
 
 	// Reset interpolation if requested
 	if(bResetInterpolation)
-		RemoveTargetPosition();
+		ResetInterpolation();
 }
 
 void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpolation)
@@ -767,7 +785,7 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 
 	// Reset interpolation if requested
 	if(bResetInterpolation)
-		RemoveTargetPosition();
+		ResetInterpolation();
 }
 
 void CNetworkPlayer::GetPosition(CVector3& vecPosition)
@@ -793,65 +811,6 @@ void CNetworkPlayer::SetCurrentHeading(float fHeading)
             m_pPlayerPed->SetCurrentHeading(fHeading);
             SetDesiredHeading(fHeading);
     }
-}
-
-void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
-{
-	THIS_CHECK(__FUNCTION__);
-	if(IsSpawned())
-	{
-		/*
-		float fHeadingFinal;
-		if(fHeading > GetCurrentHeading())
-			fHeadingFinal = fHeading-GetCurrentHeading();
-		else if(GetCurrentHeading() > fHeading)
-			fHeadingFinal = GetCurrentHeading()-fHeading;
-
-		// Check if we have to turn us
-		if(fHeadingFinal > 0.0 && fHeadingFinal < 0.1 || fHeadingFinal < 0.0 && fHeadingFinal > -0.1)
-			return;
-
-		for(int i = 0; i < 10; i++)
-		{
-			if(fHeading > GetCurrentHeading())
-				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
-			else if(GetCurrentHeading() > fHeading)
-				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
-		}*/
-		// Check if the player has already the same pos
-		if(GetCurrentHeading() == fHeading)
-			return;
-
-		// Check if the player isn't moving
-		CVector3 vecMoveSpeed; m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
-		if(vecMoveSpeed.Length() < 2.0f)
-		{
-			m_pPlayerPed->SetDesiredHeading(fHeading);
-			m_pPlayerPed->SetCurrentHeading(fHeading);
-		}
-		else if(!m_currentControlState.IsSprinting())
-		{
-			m_pPlayerPed->SetCurrentHeading(fHeading);
-			Sleep(10);
-			m_pPlayerPed->SetCurrentHeading(fHeading);
-		}
-		else
-		{
-			float fHeadingFinal;
-			if(fHeading > GetCurrentHeading())
-				fHeadingFinal = fHeading-GetCurrentHeading();
-			else if(GetCurrentHeading() > fHeading)
-				fHeadingFinal = GetCurrentHeading()-fHeading;
-
-			for(int i = 0; i < 10; i++)
-			{
-				if(fHeading > GetCurrentHeading())
-					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
-				else if(GetCurrentHeading() > fHeading)
-					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
-			}
-		}
-	}
 }
 
 float CNetworkPlayer::GetCurrentHeading()
@@ -1476,12 +1435,51 @@ void CNetworkPlayer::UpdateTargetPosition()
 	}
 }
 
+void CNetworkPlayer::UpdateTargetRotation()
+{
+	THIS_CHECK(__FUNCTION__);
+	if(HasTargetRotation())
+	{
+		unsigned long ulCurrentTime = SharedUtility::GetTime();
+
+		// Get our rotation
+		float fCurrentHeading = GetCurrentHeading();
+
+		// Get the factor of time spent from the interpolation start
+		// to the current time.
+		float fAlpha = Math::Unlerp(m_interp.rot.ulStartTime, ulCurrentTime, m_interp.rot.ulFinishTime);
+
+		// Don't let it overcompensate the error
+		fAlpha = Math::Clamp(0.0f, fAlpha, 1.0f);
+
+		// Get the current error portion to compensate
+		float fCurrentAlpha = (fAlpha - m_interp.rot.fLastAlpha);
+		m_interp.rot.fLastAlpha = fAlpha;
+
+		// Apply the error compensation
+		float fCompensation = Math::Lerp(0.0f, fCurrentAlpha, m_interp.rot.fError);
+
+		// If we finished compensating the error, finish it for the next pulse
+		if(fAlpha == 1.0f)
+			m_interp.rot.ulFinishTime = 0;
+
+		// Calculate the new rotation
+		float fNewRotation = (fCurrentHeading + fCompensation);
+
+		// Set our new rotation
+		SetCurrentHeading(fNewRotation);
+	}
+}
+
 void CNetworkPlayer::Interpolate()
 {
 	THIS_CHECK(__FUNCTION__);
 	// Are we not getting in/out of a vehicle?
 	if(true)
+	{
 		UpdateTargetPosition();
+		UpdateTargetRotation();
+	}
 }
 
 void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned long ulDelay)
@@ -1513,28 +1511,31 @@ void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned lon
 	}
 }
 
-void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType)
+void CNetworkPlayer::SetTargetRotation(float fHeading, unsigned long ulDelay)
 {
 	THIS_CHECK(__FUNCTION__);
+	// Are we spawned?
 	if(IsSpawned())
 	{
-		float tX = (vecPos.fX + (vecMove.fX * 10));
-		float tY = (vecPos.fY + (vecMove.fY * 10));
-		float tZ = (vecPos.fZ + (vecMove.fZ * 10));
-		unsigned int uiPlayerIndex = GetScriptingHandle();
+		// Update our target rotation
+		UpdateTargetRotation();
 
-		// Create the task
-		DWORD dwAddress = (CGame::GetBase() + 0xB87480);
-		_asm
-		{
-			push 1000
-			push iMoveType
-			push tZ
-			push tY
-			push tX
-			push uiPlayerIndex
-			call dwAddress
-		}
+		// Get our rotation
+		float fCurrentHeading = GetCurrentHeading();
+
+		// Set the target heading
+		m_interp.rot.fTarget = fHeading;
+
+		// Calculate the relative error
+		m_interp.rot.fError = (fHeading - fCurrentHeading);
+
+		// Get the interpolation interval
+		unsigned long ulTime = SharedUtility::GetTime();
+		m_interp.pos.ulStartTime = ulTime;
+		m_interp.pos.ulFinishTime = (ulTime + ulDelay);
+
+		// Initialize the interpolation
+		m_interp.pos.fLastAlpha = 0.0f;
 	}
 }
 
@@ -1544,10 +1545,17 @@ void CNetworkPlayer::RemoveTargetPosition()
 	m_interp.pos.ulFinishTime = 0;
 }
 
+void CNetworkPlayer::RemoveTargetRotation()
+{
+	THIS_CHECK(__FUNCTION__);
+	m_interp.rot.ulFinishTime = 0;
+}
+
 void CNetworkPlayer::ResetInterpolation()
 {
 	THIS_CHECK(__FUNCTION__);
 	RemoveTargetPosition();
+	RemoveTargetRotation();
 }
 
 void CNetworkPlayer::SetColor(unsigned int uiColor)
@@ -1973,13 +1981,8 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			// Create the enter vehicle task
 			int iUnknown = -4;
 
-			// Unkown seats -4, -5
-			if(byteSeatId == 0) {
-				if(IsLocalPlayer())
-					iUnknown = -7; // TODO: find "localplayer" entry seat..
-				else
-					iUnknown = -7;
-			}
+			if(byteSeatId == 0)
+				iUnknown = -7;
 			else if(byteSeatId == 1)
 				iUnknown = 2;
 			else if(byteSeatId == 2)
@@ -1989,21 +1992,8 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 
 			unsigned int uiUnknown = 0;
 
-			if(/*byteSeatId > 0*/*(DWORD*)pVehicle->GetGameVehicle() + 4948 != 3)
+			if(byteSeatId > 0)
 				uiUnknown |= 0x2000000u;
-
-			int v5;
-			DWORD dwFunction = (CGame::GetBase() + 0x9C6E40);
-			DWORD a1 = *(DWORD *)((pVehicle->GetGameVehicle()->GetVehicle() + 24) + 2880);
-			DWORD a2 = *(DWORD *)(pVehicle->GetGameVehicle()->GetVehicle() + 24);
-			_asm
-			{
-				push a2
-				push a1
-				call dwFunction
-				mov v5, eax
-			}
-			g_pChatWindow->AddInfoMessage("Vehicle-Seat/Door: %d",v5);
 
 			CIVTaskComplexNewGetInVehicle * pTask = new CIVTaskComplexNewGetInVehicle(pVehicle->GetGameVehicle(), iUnknown, 27, uiUnknown, 0.0f);
 
