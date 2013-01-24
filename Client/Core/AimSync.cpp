@@ -93,6 +93,7 @@ void _declspec(naked) CIKManager__LookAt()
 		mov eax, [ebp+1Ch]
 		mov g_vecLookAtTarget, eax
 		pop ebp
+		pushad
 	}
 
 	StoreAimTarget(g_pIKPed, g_vecLookAtTarget);

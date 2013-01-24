@@ -7,6 +7,7 @@
 // License: See LICENSE in root directory
 //
 //==============================================================================
+
 #include <list>
 #include <String.h>
 #include <bass/bass.h>
