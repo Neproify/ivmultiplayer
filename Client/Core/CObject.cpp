@@ -10,6 +10,7 @@
 
 #include "CObject.h"
 #include "CLocalPlayer.h"
+#include <SharedUtility.h>
 
 extern CLocalPlayer * g_pLocalPlayer;
 
@@ -18,10 +19,10 @@ CObject::CObject(DWORD dwModelHash, CVector3 vecPosition, CVector3 vecRotation)
 	m_uiObjectHandle(0),
 	m_dwModelHash(dwModelHash),
 	m_vecPosition(vecPosition),
-	m_vecRotation(vecRotation),
-	m_bIsMoving(false),
-	m_bIsRotating(false)
+	m_vecRotation(vecRotation)
 {
+	m_interp.pos.ulFinishTime = 0;
+	m_interp.rot.ulFinishTime = 0;
 }
 
 CObject::~CObject()
@@ -83,6 +84,61 @@ void CObject::SetRotation(const CVector3& vecRotation)
 void CObject::GetRotation(CVector3& vecRotation)
 {
 	vecRotation = m_vecRotation;
+}
+
+void CObject::Process()
+{
+	// Do we need to interpolate movement?
+	if(m_interp.pos.ulFinishTime != 0)
+	{
+		// Get the factor of time spend from start time to current time
+		float fAlpha = Math::UnlerpClamped(m_interp.pos.ulStartTime, SharedUtility::GetTime(), m_interp.pos.ulFinishTime);
+
+		// Have we finished interpolating?
+		if(fAlpha == 1.0f)
+			m_interp.pos.ulFinishTime = 0;
+
+		// Calculate the new position
+		CVector3 vecNewPosition = Math::Lerp(m_interp.pos.vecStart, fAlpha, m_interp.pos.vecTarget);
+
+		// Set the new position
+		SetPosition(vecNewPosition);
+	}
+
+	// Do we need to interpolate rotation?
+	if(m_interp.rot.ulFinishTime != 0)
+	{
+		// Get the factor of time spend from start time to current time
+		float fAlpha = Math::UnlerpClamped(m_interp.rot.ulStartTime, SharedUtility::GetTime(), m_interp.rot.ulFinishTime);
+
+		// Have we finished interpolating?
+		if(fAlpha == 1.0f)
+			m_interp.rot.ulFinishTime = 0;
+
+		// Calculate the new rotation
+		CVector3 vecNewRotation = Math::Lerp(m_interp.rot.vecStart, fAlpha, m_interp.rot.vecTarget);
+
+		// Set the new rotation
+		SetRotation(vecNewRotation);
+	}
+}
+
+void CObject::Move(const CVector3& vecPosition, unsigned int uiTime)
+{
+	GetPosition(m_interp.pos.vecStart);
+	m_interp.pos.vecTarget = vecPosition;
+	unsigned int ulCurrentTime = SharedUtility::GetTime();
+	m_interp.pos.ulStartTime = ulCurrentTime;
+	m_interp.pos.ulFinishTime = (ulCurrentTime + uiTime);
+}
+
+void CObject::Rotate(const CVector3& vecRotation, unsigned int uiTime)
+{
+	GetRotation(m_interp.rot.vecStart);
+	m_interp.rot.vecTarget = vecRotation;
+	unsigned int ulCurrentTime = SharedUtility::GetTime();
+	m_interp.rot.ulStartTime = ulCurrentTime;
+	m_interp.rot.ulFinishTime = (ulCurrentTime + uiTime);
 }
 
 void CObject::StreamIn()

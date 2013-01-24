@@ -18,13 +18,11 @@ extern CNetworkManager * g_pNetworkManager;
 // Object functions
 namespace Modules
 {
-	// createObject(modelhash, x, y, z, rx, ry, rz)
 	EntityId CObjectModuleNatives::Create(int modelhash, CVector3 vecPosition, CVector3 vecRotation)
 	{
 		return g_pObjectManager->Create(modelhash, vecPosition, vecRotation);
 	}
 
-	// deleteObject(objectid)
 	bool CObjectModuleNatives::Delete(EntityId objectId)
 	{
 		if(g_pObjectManager->DoesExist(objectId))
@@ -36,7 +34,6 @@ namespace Modules
 		return false;
 	}
 
-	// getObjectModel(objectid)
 	int CObjectModuleNatives::GetModel(EntityId objectId)
 	{
 		if(g_pObjectManager->DoesExist(objectId))
@@ -47,7 +44,6 @@ namespace Modules
 		return -1;
 	}
 
-	// setObjectCoordinates(objectid, x, y, z)
 	bool CObjectModuleNatives::SetCoordinates(EntityId objectId, CVector3 vecPosition)
 	{
 		if(g_pObjectManager->DoesExist(objectId))
@@ -58,7 +54,6 @@ namespace Modules
 		return false;
 	}
 
-	// getObjectCoordinates(objectid)
 	CVector3 CObjectModuleNatives::GetCoordinates(EntityId objectId)
 	{
 		if(g_pObjectManager->DoesExist(objectId))
@@ -75,7 +70,6 @@ namespace Modules
 	}
 
 
-	// setObjectRotation(objectid, x, y, z)
 	bool CObjectModuleNatives::SetRotation(EntityId objectId, CVector3 vecRotation)
 	{
 		if(g_pObjectManager->DoesExist(objectId))
@@ -85,29 +79,54 @@ namespace Modules
 
 		return false;
 	}
-	
-	bool CObjectModuleNatives::Rotate(EntityId objectId, CVector3 vecRotation, float fSpeed)
+
+	CVector3 CObjectModuleNatives::GetRotation(EntityId objectId)
 	{
 		if(g_pObjectManager->DoesExist(objectId))
 		{
-			g_pObjectManager->RotateObject(objectId, vecRotation, fSpeed);
+			CVector3 vecRotation;
+
+			if(g_pObjectManager->GetRotation(objectId, vecRotation))
+			{
+				return vecRotation;
+			}
+		}
+
+		return CVector3();
+	}
+
+	bool CObjectModuleNatives::Move(EntityId objectId, CVector3 vecMoveTarget, CVector3 vecMoveRot, int iTime)
+	{
+		if(g_pObjectManager->DoesExist(objectId))
+		{
+			g_pObjectManager->MoveObject(objectId, vecMoveTarget, iTime, true, vecMoveRot);
 			return true;
 		}
 
 		return false;
 	}
 	
-	bool CObjectModuleNatives::Move(EntityId objectId, CVector3 vecMoveTarget, CVector3 vecMoveRot, float fSpeed)
+	bool CObjectModuleNatives::Rotate(EntityId objectId, CVector3 vecRotation, int iTime)
 	{
 		if(g_pObjectManager->DoesExist(objectId))
 		{
-			g_pObjectManager->MoveObject(objectId, vecMoveTarget, vecMoveRot, fSpeed);
+			g_pObjectManager->RotateObject(objectId, vecRotation, iTime);
 			return true;
 		}
 
 		return false;
 	}
-	
+
+	bool CObjectModuleNatives::AttachToPlayer(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot, int iBone)
+	{
+		if(g_pObjectManager->DoesExist(objectId))
+		{
+			g_pObjectManager->AttachToPlayer(objectId,playerId,vecPos,vecRot, iBone);
+			return true;
+		}
+		return false;
+	}
+
 	bool CObjectModuleNatives::SetDimension(EntityId objectId, unsigned char ucDimension)
 	{
 		if(g_pObjectManager->DoesExist(objectId))
@@ -127,31 +146,6 @@ namespace Modules
 		}
 
 		return 0;
-	}
-	bool CObjectModuleNatives::AttachToPlayer(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot, int iBone)
-	{
-		if(g_pObjectManager->DoesExist(objectId))
-		{
-			g_pObjectManager->AttachToPlayer(objectId,playerId,vecPos,vecRot, iBone);
-			return true;
-		}
-		return false;
-	}
-
-	// getObjectRotation(objectid)
-	CVector3 CObjectModuleNatives::GetRotation(EntityId objectId)
-	{
-		if(g_pObjectManager->DoesExist(objectId))
-		{
-			CVector3 vecRotation;
-
-			if(g_pObjectManager->GetRotation(objectId, vecRotation))
-			{
-				return vecRotation;
-			}
-		}
-
-		return CVector3();
 	}
 
 	void CObjectModuleNatives::CreateExplosion(CVector3 vecPos, float fDensity)

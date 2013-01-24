@@ -3532,43 +3532,26 @@ void CClientRPCHandler::ScriptingMoveObject(CBitStream * pBitStream, CPlayerSock
 		return;
 
 	EntityId objectId;
-	pBitStream->ReadCompressed(objectId);
-
 	CVector3 vecMoveTarget;
+	int iTime;
+	bool bHasRotation = false;
+	CVector3 vecMoveRotation;
+
+	pBitStream->ReadCompressed(objectId);
 	pBitStream->Read(vecMoveTarget);
+	pBitStream->Read(iTime);
 
-	float fMoveSpeed;
-	pBitStream->Read(fMoveSpeed);
-
-	CVector3 vecMoveRot;
-	vecMoveRot = CVector3();
-
-	if(pBitStream->ReadBit())
-		pBitStream->Read(vecMoveRot);
+	if(bHasRotation = pBitStream->ReadBit())
+		pBitStream->Read(vecMoveRotation);
 
 	CObject *pObject = g_pObjectManager->Get(objectId);
-	if(pObject) {
-		pObject->SetMoveTarget(vecMoveTarget);
 
-		CVector3 vecStart;
-		pObject->GetPosition(vecStart);
-		pObject->SetStartPosition(vecStart);
+	if(pObject)
+	{
+		pObject->Move(vecMoveTarget, (unsigned int)iTime);
 
-		pObject->SetMoveSpeed(fMoveSpeed);
-		pObject->SetIsMoving(true);
-
-		pObject->SetMoveStartTime(SharedUtility::GetTime());
-		pObject->SetMoveDuration(fMoveSpeed);
-
-		if(vecMoveRot.Length() != 0) {
-			pObject->SetMoveTargetRot(vecMoveRot);
-
-			CVector3 vecStartRot;
-			pObject->GetRotation(vecStartRot);
-			pObject->SetStartRotation(vecStartRot);
-
-			pObject->SetIsRotating(true);
-		}
+		if(bHasRotation)
+			pObject->Rotate(vecMoveRotation, (unsigned int)iTime);
 	}
 }
 
@@ -3578,27 +3561,17 @@ void CClientRPCHandler::ScriptingRotateObject(CBitStream * pBitStream, CPlayerSo
 		return;
 
 	EntityId objectId;
-	pBitStream->ReadCompressed(objectId);
+	CVector3 vecMoveRotation;
+	int iTime;
 
-	CVector3 vecMoveRot;
-	pBitStream->Read(vecMoveRot);
-
-	float fMoveSpeed;
-	pBitStream->Read(fMoveSpeed);
+	pBitStream->ReadCompressed(objectId);	
+	pBitStream->Read(vecMoveRotation);
+	pBitStream->Read(iTime);
 
 	CObject *pObject = g_pObjectManager->Get(objectId);
-	if(pObject) {
-		pObject->SetMoveTargetRot(vecMoveRot);
 
-		CVector3 vecStartRot;
-		pObject->GetRotation(vecStartRot);
-		pObject->SetStartRotation(vecStartRot);
-
-		pObject->SetMoveStartTime(SharedUtility::GetTime());
-		pObject->SetMoveDuration(fMoveSpeed);
-
-		pObject->SetIsRotating(true);
-	}
+	if(pObject)
+		pObject->Rotate(vecMoveRotation, (unsigned int)iTime);
 }
 
 void CClientRPCHandler::ScriptingSetObjectDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

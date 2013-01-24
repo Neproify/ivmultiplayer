@@ -355,35 +355,37 @@ void CObjectManager::Detach(EntityId objectId)
 	}
 }
 
-void CObjectManager::MoveObject(EntityId objectId, const CVector3& vecMoveTarget, const CVector3& vecMoveRot, float fSpeed)
+void CObjectManager::MoveObject(EntityId objectId, const CVector3& vecMoveTarget, int iTime, bool bHasRot, const CVector3& vecMoveRot)
 {
 	if(DoesExist(objectId))
 	{
 		CBitStream bsSend;
 		bsSend.WriteCompressed(objectId);
 		bsSend.Write(vecMoveTarget);
-		bsSend.Write(fSpeed);
+		bsSend.Write(iTime);
 		m_Objects[objectId].vecPosition = vecMoveTarget;
 
-		if((vecMoveRot - m_Objects[objectId].vecPosition).Length() != 0) {
+		if(bHasRot)
+		{
 			bsSend.Write1();
 			bsSend.Write(vecMoveRot);
 			m_Objects[objectId].vecRotation = vecMoveRot;
-		} else {
-			bsSend.Write0();
 		}
+		else
+			bsSend.Write0();
+
 		g_pNetworkManager->RPC(RPC_ScriptingMoveObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	}
 }
 
-void CObjectManager::RotateObject(EntityId objectId, const CVector3& vecMoveRot, float fSpeed)
+void CObjectManager::RotateObject(EntityId objectId, const CVector3& vecMoveRot, int iTime)
 {
 	if(DoesExist(objectId))
 	{
 		CBitStream bsSend;
 		bsSend.WriteCompressed(objectId);
 		bsSend.Write(vecMoveRot);
-		bsSend.Write(fSpeed);
+		bsSend.Write(iTime);
 		m_Objects[objectId].vecRotation = vecMoveRot;
 
 		g_pNetworkManager->RPC(RPC_ScriptingRotateObject, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);

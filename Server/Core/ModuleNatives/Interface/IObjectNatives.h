@@ -30,8 +30,8 @@ namespace Modules
 		virtual bool AttachPed(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot) = 0;
 		virtual bool AttachVehicle(EntityId objectId, EntityId vehicleId, CVector3 vecPos, CVector3 vecRot) = 0;		
 	
-		virtual bool Move(EntityId objectId, CVector3 vecMoveTarget, CVector3 vecMoveRot, float fSpeed) = 0;
-		virtual bool Rotate(EntityId objectId, CVector3 vecRotation, float fSpeed) = 0;
+		virtual bool Move(EntityId objectId, CVector3 vecMoveTarget, CVector3 vecMoveRot, int iTime) = 0;
+		virtual bool Rotate(EntityId objectId, CVector3 vecRotation, int iTime) = 0;
 		virtual bool AttachToPlayer(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot, int iBone) = 0;
 		virtual bool SetDimension(EntityId objectId, unsigned char ucDimension) = 0;
 		virtual unsigned char GetDimension(EntityId objectId) = 0;

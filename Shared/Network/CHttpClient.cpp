@@ -388,11 +388,12 @@ bool CHttpClient::ParseHeaders(const char * szBuffer, int& iBufferSize, int& iHe
 	if(iIgnore == -1)
 		return false;
 
-	String strIgnore;
-	strIgnore.Set(szBuffer + iHeaderSize, iIgnore);
+	int iIgnoreSize = (iIgnore - iHeaderSize);
+	//String strIgnore;
+	//strIgnore.Set((szBuffer + iHeaderSize), iIgnore);
 
 	// Increment the header size
-	iHeaderSize += (iIgnore + 2); // + 2 for '\r\n'
+	iHeaderSize += (iIgnoreSize + 2); // + 2 for '\r\n'
 
 	// Find all headers
 	int iNameSplit;

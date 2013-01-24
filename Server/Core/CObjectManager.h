@@ -62,8 +62,8 @@ public:
 	bool			GetRotation(EntityId objectId, CVector3& vecRotation);
 	void			AttachToVehicle(EntityId objectId, EntityId vehicleId,const CVector3& vecPos, const CVector3& vecRot);
 	void			AttachToPlayer(EntityId objectId, EntityId playerId, const CVector3& vecPos, const CVector3& vecRot, int iBone = -1);
-	void			MoveObject(EntityId objectId, const CVector3& vecMoveTarget,const CVector3& vecMoveRot, float fSpeed);
-	void			RotateObject(EntityId objectId, const CVector3& vecMoveRot, float fSpeed);
+	void			MoveObject(EntityId objectId, const CVector3& vecMoveTarget, int iTime, bool bHasRot = false, const CVector3& vecMoveRot = CVector3());
+	void			RotateObject(EntityId objectId, const CVector3& vecMoveRot, int iTime);
 	void			Detach(EntityId objectId);
 
 	EntityId		CreateFire(const CVector3& vecPosition, float fdensity);

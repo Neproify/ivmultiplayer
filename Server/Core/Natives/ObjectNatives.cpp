@@ -36,7 +36,7 @@ void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("attachObjectToVehicle", AttachVehicle, 8, "iiffffff");
 	pScriptingManager->RegisterFunction("detachObject", DetachObject, 1, "i");
 	pScriptingManager->RegisterFunction("moveObject", MoveObject, -1, NULL);
-	pScriptingManager->RegisterFunction("rotateObject", RotateObject, 5, "iffff");
+	pScriptingManager->RegisterFunction("rotateObject", RotateObject, 5, "ifffi");
 	pScriptingManager->RegisterFunction("setObjectDimension", SetDimension, 2, "ii");
 	pScriptingManager->RegisterFunction("getObjectDimension", GetDimension, 1, "i");
 	pScriptingManager->RegisterFunction("setObjectInterior", SetInterior, 2, "ii");
@@ -304,35 +304,49 @@ SQInteger CObjectNatives::DetachObject(SQVM *pVM)
 
 SQInteger CObjectNatives::MoveObject(SQVM * pVM)
 {
+	SQInteger iParams = sq_gettop(pVM) - 1;
+
+	CHECK_PARAMS_MIN("moveObject", 5);
+	CHECK_TYPE("moveObject", 1, -iParams, OT_INTEGER);
+	CHECK_TYPE("moveObject", 2, -iParams + 1, OT_FLOAT);
+	CHECK_TYPE("moveObject", 3, -iParams + 2, OT_FLOAT);
+	CHECK_TYPE("moveObject", 4, -iParams + 3, OT_FLOAT);
+	CHECK_TYPE("moveObject", 5, -iParams + 4, OT_INTEGER);
+
+	if(iParams >= 6)
+	{
+		CHECK_TYPE("moveObject", 6, -iParams + 5, OT_FLOAT);
+		CHECK_TYPE("moveObject", 7, -iParams + 6, OT_FLOAT);
+		CHECK_TYPE("moveObject", 8, -iParams + 7, OT_FLOAT);
+	}
+
 	EntityId objectId;
 	CVector3 vecMoveTarget;
 	CVector3 vecMoveRot;
-	float fSpeed;
-	if(sq_gettop(pVM) >= 5) {
-		sq_getentity(pVM, 2, &objectId);
-		sq_getfloat(pVM, 3, &vecMoveTarget.fX);
-		sq_getfloat(pVM, 4, &vecMoveTarget.fY);
-		sq_getfloat(pVM, 5, &vecMoveTarget.fZ);
-		sq_getfloat(pVM, 6, &fSpeed);
+	int iTime;
 
-		if(g_pObjectManager->DoesExist(objectId)) {
-			g_pObjectManager->GetRotation(objectId, vecMoveRot);
-		}
+	sq_getentity(pVM, 2, &objectId);
+	sq_getfloat(pVM, 3, &vecMoveTarget.fX);
+	sq_getfloat(pVM, 4, &vecMoveTarget.fY);
+	sq_getfloat(pVM, 5, &vecMoveTarget.fZ);
+	sq_getinteger(pVM, 6, &iTime);
 
+	if(g_pObjectManager->DoesExist(objectId))
+	{
 		if(sq_gettop(pVM) > 5)
 		{
 			sq_getfloat(pVM, 7, &vecMoveRot.fX);
 			sq_getfloat(pVM, 8, &vecMoveRot.fY);
 			sq_getfloat(pVM, 9, &vecMoveRot.fZ);
+			g_pObjectManager->MoveObject(objectId, vecMoveTarget, iTime, true, vecMoveRot);
 		}
+		else
+			g_pObjectManager->MoveObject(objectId, vecMoveTarget, iTime);
 
-		if(g_pObjectManager->DoesExist(objectId))
-		{
-			g_pObjectManager->MoveObject(objectId, vecMoveTarget, vecMoveRot, fSpeed);
-			sq_pushbool(pVM, true);
-			return 1;
-		}
+		sq_pushbool(pVM, true);
+		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -341,18 +355,20 @@ SQInteger CObjectNatives::RotateObject(SQVM * pVM)
 {
 	EntityId objectId;
 	CVector3 vecMoveRot;
-	float fSpeed;
+	int iTime;
 	sq_getentity(pVM, -5, &objectId);
 	sq_getfloat(pVM, -4, &vecMoveRot.fX);
 	sq_getfloat(pVM, -3, &vecMoveRot.fY);
 	sq_getfloat(pVM, -2, &vecMoveRot.fZ);
-	sq_getfloat(pVM, -1, &fSpeed);
+	sq_getinteger(pVM, -1, &iTime);
+
 	if(g_pObjectManager->DoesExist(objectId))
 	{
-		g_pObjectManager->RotateObject(objectId, vecMoveRot, fSpeed);
+		g_pObjectManager->RotateObject(objectId, vecMoveRot, iTime);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }

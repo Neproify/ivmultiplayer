@@ -25,8 +25,8 @@ namespace Modules
 		bool SetRotation(EntityId objectId, CVector3 vecRotation);
 		CVector3 GetRotation(EntityId objectId);
 
-		bool Move(EntityId objectId, CVector3 vecMoveTarget, CVector3 vecMoveRot, float fSpeed);
-		bool Rotate(EntityId objectId, CVector3 vecRotation, float fSpeed);
+		bool Move(EntityId objectId, CVector3 vecMoveTarget, CVector3 vecMoveRot, int iTime);
+		bool Rotate(EntityId objectId, CVector3 vecRotation, int iTime);
 		bool AttachToPlayer(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot, int iBone);
 		bool SetDimension(EntityId objectId, unsigned char ucDimension);
 		unsigned char GetDimension(EntityId objectId);
