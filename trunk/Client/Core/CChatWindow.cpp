@@ -180,6 +180,30 @@ void CChatWindow::AddErrorMessage(const char * szFormat, ...)
 	CLogFile::Open("Client.log",true);//Reopen client.log
 }
 
+void CChatWindow::AddNetworkMessage(const char * szFormat, ...)
+{
+	// Ensure we have a valid format string
+	if(!szFormat)
+		return;
+
+	MoveUp();
+	va_list vaArgs;
+	va_start(vaArgs, szFormat);
+	vsnprintf(m_chatMessages[0].szMessage, MAX_MESSAGE_LENGTH, szFormat, vaArgs);
+	va_end(vaArgs);
+	m_chatMessages[0].szMessage[MAX_MESSAGE_LENGTH] = '\0';
+	m_chatMessages[0].messageColor = MESSAGE_NETWORK_COLOR;
+	m_chatMessages[0].fNameExtent = 0;
+	m_chatMessages[0].bAllowFormatting = true;
+	m_iMessageAmount++;
+
+	// Write info to log
+	CLogFile::Open("Chatlog.log",true);
+	CLogFile::Printf("NETWORK: %s",m_chatMessages[0].szMessage);
+	CLogFile::Close();
+	CLogFile::Open("Client.log",true);//Reopen client.log
+}
+
 void CChatWindow::AddInfoMessage(const char * szFormat, ...)
 {
 	// Ensure we have a valid format string

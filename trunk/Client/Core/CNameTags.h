@@ -17,9 +17,8 @@ class CNameTags
 private:
 	bool          m_bEnabled;
 	CEGUI::Font * m_pFont;
-	CVector3	  vecCamPosition;
-	CVector3	  vecCamForward;
-	CVector3	  vecLookAt;
+
+	void DrawTag(String strName, unsigned int uiHealth, unsigned int uiArmour, Vector2 vecScreenPosition, DWORD dwColor);
 
 public:
 	CNameTags();

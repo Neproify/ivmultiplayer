@@ -103,15 +103,17 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 		bsSend.Write(REFUSE_REASON_NAME_IN_USE);
 		g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
 		CLogFile::Printf("[Connect] Authorization for %s (%s) failed (name in use).", strIP.Get(), strName.Get());
+		return;
 	}
 
-	// Call the playerConnect event, and process the return value
+	// Call the playerAuth event, and process the return value
 	CSquirrelArguments playerAuthArguments;
 	playerAuthArguments.push(playerId);
 	playerAuthArguments.push(strName);
 	playerAuthArguments.push(strIP);
 	playerAuthArguments.push(strSerial);
 	playerAuthArguments.push(bGameFilesModded);
+
 	if(g_pEvents->Call("playerAuth", &playerAuthArguments).GetInteger() != 1)
 	{
 		bsSend.Write(REFUSE_REASON_ABORTED_BY_SCRIPT);
@@ -127,18 +129,14 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 	
 	// Check player creation
-	if(!pPlayer) {
-		CLogFile::Printf("[Connect] Player creation for %s failed!", strName.Get());
+	if(!pPlayer)
+	{
+		CLogFile::Printf("[Connect] Failed to create player instance for %s.", strName.Get());
 		return;
 	}
 
 	// Apply files
 	pPlayer->SetFileCheck(pCheckFiles);
-	
-	// Send them our nametag settings(this must be send BEFORE the players/actors are created!!!!!)
-	CBitStream bsNametags;
-	bsNametags.Write(CVAR_GET_BOOL("guinametags"));
-	g_pNetworkManager->RPC(RPC_ScriptingSetNametags, &bsNametags, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 
 	// Let the vehicle manager handle the client join
 	g_pVehicleManager->HandleClientJoin(playerId);
@@ -169,16 +167,16 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 	// Construct the reply bit stream
 	bsSend.Write(playerId);
 	bsSend.Write(CVAR_GET_STRING("hostname"));
-	bsSend.Write(CVAR_GET_BOOL("paynspray"));
-	bsSend.Write(CVAR_GET_BOOL("autoaim"));
+	bsSend.WriteBit(CVAR_GET_BOOL("paynspray"));
+	bsSend.WriteBit(CVAR_GET_BOOL("autoaim"));
 	bsSend.Write(pPlayer->GetColor());
 	bsSend.Write(CVAR_GET_STRING("httpserver"));
 	bsSend.Write((unsigned short)CVAR_GET_INTEGER("httpport"));
 	bsSend.Write((unsigned char)CVAR_GET_INTEGER("weather"));
-	bsSend.Write(CVAR_GET_BOOL("guinametags"));
-	bsSend.Write(CVAR_GET_BOOL("vehicledamage"));
-	bsSend.Write(CVAR_GET_BOOL("vehiclewaterdeath"));
-	bsSend.Write(CVAR_GET_BOOL("headmovement"));
+	bsSend.WriteBit(CVAR_GET_BOOL("guinametags"));
+	bsSend.WriteBit(CVAR_GET_BOOL("vehicledamage"));
+	bsSend.WriteBit(CVAR_GET_BOOL("vehiclewaterdeath"));
+	bsSend.WriteBit(CVAR_GET_BOOL("headmovement"));
 	bsSend.Write(CVAR_GET_INTEGER("maxplayers"));
 
 	// Time
@@ -186,6 +184,7 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 	g_pTime->GetTime(&ucHour, &ucMinute);
 	bsSend.Write((unsigned char)(ucHour + (24 * (1 + g_pTime->GetDayOfWeek()))));
 	bsSend.Write(ucMinute);
+
 	if(g_pTime->GetMinuteDuration() != CTime::DEFAULT_MINUTE_DURATION)
 	{
 		bsSend.Write1();
@@ -195,7 +194,7 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 		bsSend.Write0();
 
 	// Traffic Lights
-	bsSend.Write((BYTE)g_pTrafficLights->GetSetState());
+	bsSend.Write((unsigned char)g_pTrafficLights->GetSetState());
 	bsSend.Write(g_pTrafficLights->GetTimeThisCylce());
 
 	if(g_pTrafficLights->GetSetState() != CTrafficLights::TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)

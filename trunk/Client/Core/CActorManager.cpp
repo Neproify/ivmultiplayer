@@ -89,25 +89,8 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	if(bHelmet)
 		Scripting::GivePedHelmet(m_Actors[actorId].uiActorIndex);
 
-	if(!CGame::GetNameTags())
-	{
-		if(bBlip)
-		{
-			Scripting::AddBlipForChar(m_Actors[actorId].uiActorIndex, &m_Actors[actorId].uiBlipId);
-			Scripting::ChangeBlipSprite(m_Actors[actorId].uiBlipId, Scripting::BLIP_OBJECTIVE);
-			Scripting::ChangeBlipScale(m_Actors[actorId].uiBlipId, 0.5);
-			Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].strName.Get());
-			Scripting::SetBlipAsShortRange(m_Actors[actorId].uiBlipId, true);
-		}
-
-		Scripting::RemoveFakeNetworkNameFromPed(m_Actors[actorId].uiActorIndex);
-		Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,strName.Get(),255,255,255,255);
-	}
-	else
-	{
-		m_Actors[actorId].strName = strName;
-		m_Actors[actorId].iNametagColor = iColor;
-	}
+	m_Actors[actorId].strName = strName;
+	m_Actors[actorId].iNametagColor = iColor;
 	m_Actors[actorId].bNametag = true;
 	m_bActive[actorId] = true;
 
@@ -178,14 +161,7 @@ CVector3 CActorManager::GetPosition(EntityId actorId)
 void CActorManager::SetName(EntityId actorId, String strName)
 {
 	if(m_bActive[actorId])
-	{
 		m_Actors[actorId].strName = strName;
-		if(!CGame::GetNameTags()) {
-			Scripting::ChangeBlipNameFromAscii(m_Actors[actorId].uiBlipId, m_Actors[actorId].strName.C_String());
-			Scripting::RemoveFakeNetworkNameFromPed(m_Actors[actorId].uiActorIndex);
-			Scripting::GivePedFakeNetworkName(m_Actors[actorId].uiActorIndex,strName.Get(),255,255,255,255);
-		}
-	}
 }
 
 bool CActorManager::ToggleNametag(EntityId actorId, bool bShow)
@@ -393,9 +369,9 @@ void CActorManager::DriveToPoint(EntityId actorId, EntityId vehicleId, CVector3 
 			m_Actors[actorId].bRender = false;
 	}
 }
+
 CBitStream		bsSend;
-float			fHeading;
-unsigned int	uiVehicleHandle;
+
 void CActorManager::Process()
 {
 	// Check if we were in the menu or on desk and if, get the latest coords
@@ -443,8 +419,6 @@ void CActorManager::Process()
 			{
 				// Reset stuff
 				bsSend.Reset();
-				fHeading = 0.0f;
-				uiVehicleHandle = -1;
 
 				CNetworkVehicle * pVehicle = g_pVehicleManager->Get(m_Actors[i].vehicleId);
 				if(!pVehicle)
@@ -454,8 +428,6 @@ void CActorManager::Process()
 					return;
 
 				ActorSyncData actorSync;
-				uiVehicleHandle = g_pVehicleManager->Get(m_Actors[i].vehicleId)->GetScriptingHandle();
-
 				actorSync.actorId = i;
 				actorSync.vehicleId = m_Actors[i].vehicleId;
 				pVehicle->GetPosition(actorSync.vecPos);
@@ -473,7 +445,6 @@ void CActorManager::Process()
 			{
 				// Reset stuff
 				bsSend.Reset();
-				fHeading = 0.0f;
 				ActorSyncData actorSync;
 
 				actorSync.bDriving = false;
