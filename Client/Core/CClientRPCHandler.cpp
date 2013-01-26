@@ -1,4 +1,3 @@
-
 //============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
 // File: CClientRPCHandler.cpp
@@ -85,21 +84,23 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	pBitStream->Read(playerId);
 	pBitStream->Read(sHostName);
-	pBitStream->Read(bPayAndSpray);
-	pBitStream->Read(bAutoAim);
+	bPayAndSpray = pBitStream->ReadBit();
+	bAutoAim = pBitStream->ReadBit();
 	pBitStream->Read(uiColor);
 
 	pBitStream->Read(sHttpServer);
 	pBitStream->Read(usHttpPort);
 	pBitStream->Read(ucWeather);
-	pBitStream->Read(bGUINametags);
-	pBitStream->Read(bSpecialData1);
-	pBitStream->Read(bSpecialData2);
+	bGUINametags = pBitStream->ReadBit();
+	bSpecialData1 = pBitStream->ReadBit();
+	bSpecialData2 = pBitStream->ReadBit();
+	bHeadMovement = pBitStream->ReadBit();
 	pBitStream->Read(bHeadMovement);
 	pBitStream->Read(uiMaxPlayers);
 
 	pBitStream->Read(ucHour);
 	pBitStream->Read(ucMinute);
+
 	if(pBitStream->ReadBit())
 		pBitStream->Read(uiMinuteDuration);
 	else
@@ -112,6 +113,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	if(ucTrafficLightState != CTrafficLights::TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)
 	{
 		g_pTrafficLights->SetLocked(pBitStream->ReadBit());
+
 		if(pBitStream->ReadBit())
 		{
 			if(ucTrafficLightState >= CTrafficLights::TRAFFIC_LIGHT_STATE_FLASHING_FLASHING)
@@ -1334,7 +1336,7 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
  	else if(iReason == REFUSE_REASON_NAME_IN_USE)
 		strReason = "Your name is already in use.";
  	else if(iReason == REFUSE_REASON_ABORTED_BY_SCRIPT)
-		strReason = "Connection aborted by script!";
+		strReason = "Connection aborted by script.";
  
  	// Disconnect from the server & show the message
  	g_pNetworkManager->Disconnect();
@@ -3027,10 +3029,9 @@ void CClientRPCHandler::ScriptingSetNametags(CBitStream * pBitStream, CPlayerSoc
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
-	
+
 	bool bToggle;
 	pBitStream->Read(bToggle);
-
 	CGame::SetNameTags(bToggle);
 }
 

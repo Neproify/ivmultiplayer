@@ -17,11 +17,13 @@
 #include "CLocalPlayer.h"
 #include "CGame.h"
 #include "CPlayerManager.h"
+#include "CStreamer.h"
 
-extern CChatWindow * g_pChatWindow;
+extern CChatWindow     * g_pChatWindow;
 extern CVehicleManager * g_pVehicleManager;
-extern CLocalPlayer * g_pLocalPlayer;
-extern CPlayerManager * g_pPlayerManager;
+extern CLocalPlayer    * g_pLocalPlayer;
+extern CPlayerManager  * g_pPlayerManager;
+extern CStreamer       * g_pStreamer;
 
 CRemotePlayer::CRemotePlayer()
 	: CNetworkPlayer(),
@@ -36,8 +38,6 @@ CRemotePlayer::~CRemotePlayer()
 {
 	Destroy();
 }
-#include "CStreamer.h"
-extern CStreamer * g_pStreamer;
 
 bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate)
 {
@@ -50,7 +50,11 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 		SetCanBeStreamedIn(true);
 
 		if(!IsSpawned())
+		{
+			g_pChatWindow->AddNetworkMessage("[NETWORK] Failed to spawn remote player %s.", GetName().Get());
 			return false;
+		}
+
 		/*if(!Create())
 			return false;
 		else
@@ -85,14 +89,6 @@ void CRemotePlayer::Init()
 		Scripting::SetCharWillFlyThroughWindscreen(GetScriptingHandle(), false);
 		Scripting::SetPedDiesWhenInjured(GetScriptingHandle(), false);
 		Scripting::SetCharInvincible(GetScriptingHandle(), true);
-
-		if(!CGame::GetNameTags()) {
-			char red = (GetColor() & 0xFF000000) >> 24;
-			char green = (GetColor() & 0x00FF0000) >> 16;
-			char blue = (GetColor() & 0x0000FF00) >> 8;
-			char alpha = (GetColor() & 0x000000FF);
-			Scripting::GivePedFakeNetworkName(GetScriptingHandle(),(GetName() + String(" (%i)",this->GetPlayerId())).Get(),red, green, blue, alpha);
-		}
 		// These two will be useful for a setPlayerUseModelAnims native
 		//Scripting::SetAnimGroupForChar(m_pedIndex, "move_player");
 		//Scripting::SetCharGestureGroup(m_pedIndex, "GESTURES@MALE");

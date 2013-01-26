@@ -54,4 +54,3 @@ public:
 	void                  Disconnect();
 	void                  RPC(RPCIdentifier rpcId, CBitStream * pBitStream, ePacketPriority priority, ePacketReliability reliability, char cOrderingChannel = PACKET_CHANNEL_DEFAULT);
 };
-static void FileTransfer_FileDownloaded(const FileDownload * file);

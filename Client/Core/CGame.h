@@ -139,7 +139,8 @@ public:
 	static void            ToggleLazlowStation(bool bToggle);
 	static void            InitCutscene(char * szCutsceneName, bool bUnknown1 = false, bool bUnknown2 = false);
 	static void            StopCutscene(char * szCutsceneName);
-	static void			   SetNameTags(bool bNametags) { m_bNameTags = bNametags; CLogFile::Printf("SETENABLED: %d",bNametags); }
+	// jenksta: this needs to be moved as its not related to the game
+	static void			   SetNameTags(bool bNametags) { m_bNameTags = bNametags; }
 	static bool			   GetNameTags() { return m_bNameTags; }
 	static void			   SetHeadMovement(bool bMove) { m_bHeadMovement = bMove; }
 	static bool			   GetHeadMovement() { return m_bHeadMovement; }

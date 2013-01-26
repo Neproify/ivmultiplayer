@@ -23,6 +23,7 @@
 #include "CFileTransfer.h"
 #include "CAudio.h"
 #include "CActorManager.h"
+#include <Network/PacketIdentifiers.h>
 
 extern String g_strNick;
 extern CLocalPlayer * g_pLocalPlayer;
@@ -39,15 +40,6 @@ extern CNetworkManager * g_pNetworkManager;
 extern CFileTransfer * g_pFileTransfer;
 extern CActorManager * g_pActorManager;
 
-bool IsPlayerLimitReached()
-{
-	return false;
-}
-
-bool IsVehicleLimitReached()
-{
-	return false;
-}
 CNetworkManager::CNetworkManager()
 	: m_pNetClient(CNetworkModule::GetNetClientInterface()),
 	m_pClientPacketHandler(new CClientPacketHandler()),
@@ -109,27 +101,27 @@ void CNetworkManager::PacketHandler(CPacket * pPacket)
 {
 	// Get the network manager pointer
 	CNetworkManager * pNetworkManager = g_pNetworkManager;
+
 	if(!g_pNetworkManager)
 		return;
 
 	// Pass it to the packet handler, if that doesn't handle it, pass it to the rpc handler
 	if(!pNetworkManager->m_pClientPacketHandler->HandlePacket(pPacket) && !pNetworkManager->m_pClientRPCHandler->HandlePacket(pPacket)) 
-	{ 
-		if(g_pChatWindow) { 
-			CBitStream bitStream(pPacket->ucData, pPacket->uiLength, false);
-			RPCIdentifier rpcId;
+	{
+		if(g_pChatWindow)
+		{
+			if(pPacket->packetId == PACKET_RPC)
+			{
+				// Construct the bit stream
+				CBitStream bitStream(pPacket->ucData, pPacket->uiLength, false);
+				RPCIdentifier rpcId;
 
-			int iRPCIdentifier = -1;
-			String strType = "Unkown";
-
-			if(pPacket->packetId == 131)
-				strType = "RPC Package";
-
-			if(bitStream.Read(rpcId))
-				iRPCIdentifier = (RPCIdentifier)rpcId;
-
-			g_pChatWindow->AddErrorMessage("[NETWORK WARNING] Unhandled packet (Type: %s|RPC: %d)", strType.Get(), iRPCIdentifier); 
-			CLogFile::PrintDebugf("[NETWORK WARNING] Unhandled packet (Type: %s|RPC: %d)", strType.Get(), iRPCIdentifier);
+				// Read the rpc id
+				if(bitStream.Read(rpcId))
+					g_pChatWindow->AddNetworkMessage("[NETWORK] Unhandled RPC (Type: %d)", rpcId);
+			}
+			else
+				g_pChatWindow->AddNetworkMessage("[NETWORK] Unhandled packet (Type: %d)", pPacket->packetId);
 		} 
 	}
 }
@@ -137,7 +129,6 @@ void CNetworkManager::PacketHandler(CPacket * pPacket)
 void CNetworkManager::Process()
 {
 	// If our file transfer class exists process it>	Client.Core.dll!CNetworkManager::PacketHandler(CPacket * pPacket)  Zeile 106 + 0x1b Bytes	C++
-
 	if(g_pFileTransfer)
 		g_pFileTransfer->Process();
 
@@ -184,6 +175,7 @@ void CNetworkManager::Process()
 		if(g_pCheckpointManager)
 			g_pCheckpointManager->Pulse();
 
+		// If our object manager exists process it
 		if(g_pObjectManager)
 			g_pObjectManager->Process();
 
