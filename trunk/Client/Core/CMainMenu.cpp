@@ -978,7 +978,7 @@ CMainMenu::CMainMenu()
 	m_pSettingsWindowNickStaticText->setFont(g_pGUI->GetFont("tahoma-bold"));
 
 	m_pSettingsWindowNickEditBox = g_pGUI->CreateGUIEditBox(m_pSettingsWindowGeneral);
-	m_pSettingsWindowNickEditBox->setText(g_strNick.C_String());
+	m_pSettingsWindowNickEditBox->setText(CGUI::AnsiToCeguiFriendlyString(g_strNick.C_String(), g_strNick.GetLength()));
 	m_pSettingsWindowNickEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowNickEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.3f, 0)));
 

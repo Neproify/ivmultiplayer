@@ -187,14 +187,10 @@ CClientScriptManager::CClientScriptManager()
 
 CClientScriptManager::~CClientScriptManager()
 {
+	RemoveAll();
 	SAFE_DELETE(g_pScriptTimerManager);
 	SAFE_DELETE(m_pScripting);
 	SAFE_DELETE(m_pGUIManager);
-
-	for(std::list<ClientScript *>::iterator iter = m_clientScripts.begin(); iter != m_clientScripts.end(); iter++)
-		SAFE_DELETE (*iter);
-
-	m_clientScripts.clear();
 }
 
 void CClientScriptManager::AddScript(String strName, String strPath)
