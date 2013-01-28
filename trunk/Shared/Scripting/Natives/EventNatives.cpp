@@ -55,18 +55,8 @@ SQInteger CEventNatives::Call(SQVM * pVM)
 	for(SQInteger i = 3; i <= iTop; ++ i)
 		pArguments.pushFromStack(pVM, i);
 
-	// Something really went wrong here
-	if(pArguments.size() == 0)
-	{
-		sq_pushnull(pVM);
-		return 1;
-	}
-
-	CSquirrelArgument pReturn(*pArguments.front());
-	pArguments.pop_front();
-
 	// Call the event
-	g_pEvents->Call(szEventName, &pArguments, &pReturn);
+	CSquirrelArgument pReturn = g_pEvents->Call(szEventName, &pArguments);
 	pReturn.push(pVM);
 	return 1;
 }

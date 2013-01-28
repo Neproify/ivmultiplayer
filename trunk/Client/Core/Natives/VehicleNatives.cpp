@@ -26,7 +26,7 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 {
 	pScriptingManager->RegisterFunction("isVehicleValid", IsValid, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleCoordinates", GetCoordinates, 1, "i");
-	pScriptingManager->RegisterFunction("getVehiclePosition", GetCoordinates, 1, "i");
+	//pScriptingManager->RegisterFunction("getVehiclePosition", GetCoordinates, 1, "i"); What is that? Clone? TODO
 	pScriptingManager->RegisterFunction("getVehicleRotation", GetRotation, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleColor", GetColor, 1, "i");
 	pScriptingManager->RegisterFunction("getVehicleModel", GetModel, 1, "i");

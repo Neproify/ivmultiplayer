@@ -775,6 +775,7 @@ CSquirrel * CScriptingManager::Load(String strName, String strPath)
 	{
 		delete pScript;
 		m_scripts.remove(pScript);
+		CLogFile::Printf("Failed to execute script %s", strName.Get());
 		return NULL;
 	}
 

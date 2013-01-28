@@ -229,8 +229,9 @@ void CClientScriptManager::Load(String strName)
 
 		if(pClientScript->strName == strName)
 		{
-			m_pScripting->Load(pClientScript->strName, pClientScript->strPath);
-			CLogFile::Printf("ClientScript %s loaded.", strName.Get());
+			CSquirrel* pScript = m_pScripting->Load(pClientScript->strName, pClientScript->strPath);
+			if(pScript)
+				CLogFile::Printf("ClientScript %s loaded.", strName.Get());
 			return;
 		}
 	}
