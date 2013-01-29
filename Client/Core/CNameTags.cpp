@@ -53,7 +53,7 @@ CNameTags::~CNameTags()
 void CNameTags::DrawTag(String strName, unsigned int uiHealth, unsigned int uiArmour, Vector2 vecScreenPosition, DWORD dwColor)
 {
 	// Draw the name tag
-	g_pGUI->DrawText(strName, CEGUI::Vector2((vecScreenPosition.X - (b_w / 2)), vecScreenPosition.Y), 
+	g_pGUI->DrawText(strName, CEGUI::Vector2((vecScreenPosition.fX - (b_w / 2)), vecScreenPosition.fY), 
 					 CEGUI::colour(dwColor), m_pFont, false);
 
 	// Ensure correct health and armor values
@@ -86,33 +86,33 @@ void CNameTags::DrawTag(String strName, unsigned int uiHealth, unsigned int uiAr
 	if(uiArmour > 2)
 	{
 		// Background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.X - (b_w / 2)), (vecScreenPosition.Y + nt_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
+		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - (b_w / 2)), (vecScreenPosition.fY + nt_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
 
 		// Armour background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 180, 180, 180) );
+		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 180, 180, 180) );
 
 		// Armour
-		g_pGraphics->DrawBox_2( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), fArmourWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(225, 225, 225, 225) );
+		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), fArmourWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(225, 225, 225, 225) );
 
 		// Background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.X - (b_w / 2)), (vecScreenPosition.Y + nt_a_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
+		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - (b_w / 2)), (vecScreenPosition.fY + nt_a_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
 
 		// Health background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 110, 0, 0) );
+		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 110, 0, 0) );
 
 		// Health
-		g_pGraphics->DrawBox_2( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a_a + b_i_p)), fHealthWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 255, 0, 0) );
+		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a_a + b_i_p)), fHealthWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 255, 0, 0) );
 	}
 	else
 	{
 		// Background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.X - (b_w / 2)), (vecScreenPosition.Y + nt_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
+		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - (b_w / 2)), (vecScreenPosition.fY + nt_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
 
 		// Health background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 110, 0, 0) );
+		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 110, 0, 0) );
 
 		// Health
-		g_pGraphics->DrawBox_2( (vecScreenPosition.X - ((b_w / 2) - b_i_p)), (vecScreenPosition.Y + (nt_a + b_i_p)), fHealthWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 255, 0, 0) );
+		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), fHealthWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 255, 0, 0) );
 
 	}
 }

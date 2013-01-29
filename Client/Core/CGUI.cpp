@@ -718,8 +718,10 @@ std::string CGUIWindow::getText()
 
 	char *Ansi = new char[str.length() + 1];
 	wchar_t *Unicode = new wchar_t[str.length() + 1];
+
 	for(size_t i = 0; i < str.size(); i++)
 		Unicode[i] = str[i];
+
 	WideCharToMultiByte(CP_ACP, NULL, Unicode, -1, Ansi, len, NULL, NULL);
 
 	Ansi[str.size()] = 0;

@@ -282,3 +282,8 @@ bool CIVPed::IsRagdoll()
 
 	return true;
 }
+
+unsigned int CIVPed::GetAmmo(eWeaponType weapon)
+{
+	return 0;
+}

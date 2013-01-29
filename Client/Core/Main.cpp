@@ -40,7 +40,7 @@
 #include "CFPSCounter.h"
 #include "CDebugView.h"
 #include "SharedUtility.h"
-#include "CFileTransfer.h"
+#include "CFileTransferManager.h"
 #include "CGraphics.h"
 #include "KeySync.h"
 #include "CStreamer.h"
@@ -87,7 +87,7 @@ CMainMenu            * g_pMainMenu = NULL;
 CFPSCounter          * g_pFPSCounter = NULL;
 CDebugView			 * g_pDebugView = NULL;
 CGUIStaticText       * g_pVersionIdentifier = NULL;
-CFileTransfer        * g_pFileTransfer = NULL;
+CFileTransferManager * g_pFileTransfer = NULL;
 CStreamer            * g_pStreamer = NULL;
 CTime                * g_pTime = NULL;
 CEvents              * g_pEvents = NULL;
@@ -281,10 +281,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 				ExitProcess(0);
 			}
 
-			// Initialize the file transfer
-			g_pFileTransfer = new CFileTransfer();
-			g_pFileTransfer->SetDownloadedHandler(FileTransfer_DownloadedFile);
-			g_pFileTransfer->SetDownloadFailedHandler(FileTransfer_DownloadFailed);
+			// Initialize the file transfer manager
+			g_pFileTransfer = new CFileTransferManager();
 		}
 		break;
 	case DLL_PROCESS_DETACH:
@@ -684,7 +682,7 @@ void Direct3DRender()
 							float petrol = pVehicle->GetPetrolTankHealth();
 							CVector3 vecPos; pVehicle->GetPosition(vecPos);
 							CVector3 vecRot; pVehicle->GetRotation(vecRot);
-							g_pGUI->DrawText(String("VehicleId %d, Enginestate: %d, Health: %d, PetrolTankHealth: %f\nPosition(%.3f,%.3f,%.3f), Rot(%.3f,%.3f,%.3f)", i, model, health, petrol, vecPos.fX,vecPos.fY,vecPos.fZ,vecRot.fX,vecRot.fY,vecRot.fZ), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y));
+							g_pGUI->DrawText(String("VehicleId %d, Enginestate: %d, Health: %d, PetrolTankHealth: %f\nPosition(%.3f,%.3f,%.3f), Rot(%.3f,%.3f,%.3f)", i, model, health, petrol, vecPos.fX,vecPos.fY,vecPos.fZ,vecRot.fX,vecRot.fY,vecRot.fZ), CEGUI::Vector2(vecScreenPosition.fX, vecScreenPosition.fY));
 						}
 					}
 				}
@@ -983,8 +981,8 @@ void InternalResetGame(bool bAutoConnect)
 	g_pNetworkManager->Startup(g_strHost, g_usPort, g_strPassword);
 	CLogFile::Printf("Started network manager instance");
 
-	// Reset file transfer
-	g_pFileTransfer->Reset();
+	// Clear our file transfer list
+	g_pFileTransfer->Clear(true);
 
 	g_pTime->SetDayOfWeek(2);
 	g_pTime->SetMinuteDuration(0);

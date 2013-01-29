@@ -188,6 +188,7 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 	for (unsigned short y = 0; y < uiScreenHeight; y++) {
 		delete []ScreenData[y];
 	}
+
 	delete []ScreenData;
 	delete []mem;
 	m_threadData.bWriting = false;
@@ -199,7 +200,7 @@ bool CScreenShot::Take()
 	if(m_writeThread.IsRunning() || m_threadData.bWriting == true)
 	{
 		// Flag the write as not succeeded
-		m_threadData.strError = "Screen shot already being taken";
+		m_threadData.strError = "Screen shot already being taken.";
 		return false;
 	}
 
@@ -207,7 +208,7 @@ bool CScreenShot::Take()
 	if((SharedUtility::GetTime() - m_ulLastScreenShotTime) < 1000)
 	{
 		// Flag the write as not succeeded
-		m_threadData.strError = "You must wait 1 second between screen shots";
+		m_threadData.strError = "You must wait 1 second between screen shots.";
 		return false;
 	}
 

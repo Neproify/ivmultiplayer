@@ -88,9 +88,6 @@ void CClientFileManager::HandleClientJoin(EntityId playerId)
 
 	for(iterator iter = begin(); iter != end(); ++ iter)
 	{
-		// Reset the bit stream
- 		bsSend.Reset();
-
 		// Write if the file is a script or resource
 		bsSend.Write(bIsScriptManager);
 
@@ -99,8 +96,8 @@ void CClientFileManager::HandleClientJoin(EntityId playerId)
 
 		// Write the file checksum
 		bsSend.Write((char *)&((*iter).second), sizeof(CFileChecksum));
-
-		// Send the rpc
-		g_pNetworkManager->RPC(RPC_NewFile, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 	}
+
+	// Send the rpc
+	g_pNetworkManager->RPC(RPC_NewFile, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 }

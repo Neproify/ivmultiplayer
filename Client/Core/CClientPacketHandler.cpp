@@ -38,13 +38,14 @@ void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerS
 	bsSend.Write(NETWORK_VERSION);
 	bsSend.Write(g_strNick);
 
+	// jenksta: wtf?
 	CheckGTAFiles pCheckFiles;
 	pCheckFiles.uiHandleFileChecksum = CGameFileChecker::CheckGameFile(0);
 	pCheckFiles.uiGTAFileChecksum = CGameFileChecker::CheckGameFile(1);
 	pCheckFiles.bGTAFileChecksum = CGameFileChecker::IsGameFileChanged(1);
 	pCheckFiles.bHandleFileChanged = CGameFileChecker::IsGameFileChanged(0);
-
 	bsSend.Write((char *)&pCheckFiles, sizeof(CheckGTAFiles));
+
 	g_pNetworkManager->RPC(RPC_PlayerConnect, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 }
 

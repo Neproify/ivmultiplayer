@@ -38,7 +38,7 @@ static float WrapAround(float fValue, float fHigh)
 // From Multi Theft Auto
 static float ConvertRadiansToDegrees(float fRotation)
 {
-	return WrapAround((float)(fRotation * 180.0f / PI + 360.0f), 360.0f);
+	return WrapAround((fRotation * 180.0f / PI + 360.0f), 360.0f);
 }
 
 static CVector3 ConvertRadiansToDegrees(const CVector3 &vecRotation)
@@ -51,7 +51,7 @@ static CVector3 ConvertRadiansToDegrees(const CVector3 &vecRotation)
 // From Multi Theft Auto
 static float ConvertDegreesToRadians(float fRotation)
 {
-	return WrapAround((float)(fRotation * PI / 180.0f + 2 * PI), (float)(2 * PI));
+	return WrapAround((fRotation * PI / 180.0f + 2 * PI), DOUBLE_PI);
 }
 
 static CVector3 ConvertDegreesToRadians(const CVector3 &vecRotation)
@@ -208,6 +208,22 @@ static bool IsPointInPolygon(int nvert, float *polyX, float *polyY, float pointX
 
 	return bValid;
 }
+};
+
+struct Vector2
+{
+	float fX;
+	float fY;
+
+	Vector2()
+	{
+		fX = fY = 0.0f;
+	}
+
+	Vector2(float _fX, float _fY)
+	{
+		fX = fX; fY = fY;
+	}
 };
 
 // TODO: Class'ify in its own file

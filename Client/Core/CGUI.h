@@ -19,12 +19,10 @@
 #include <RendererModules/Direct3D9/CEGUIDirect3D9Renderer.h>
 #include "CDirectInput8Proxy.h"
 #include <CString.h>
+#include <Math\CMath.h>
 
-//#define STYLE_SCHEME "VanillaSkin.scheme"
 #define STYLE_SCHEME "WindowsLook.scheme"
-//#define STYLE_PREFIX "Vanilla"
 #define STYLE_PREFIX "WindowsLook"
-//#define STYLE_IMAGES "Vanilla-Images"
 #define STYLE_IMAGES "WindowsLook"
 
 // TODO: Rename these to DIB (DIMB?) (DIM?) (Same as DIK_)
@@ -37,44 +35,26 @@
 #define DIMOUSE_7BUTTON      6
 #define DIMOUSE_8BUTTON      7
 
-// Using this causes the intellisense to not recognize the new struct which means no syntax highlighting :(
-//#define InheritedStructTypedef(inheritFrom, structName) typedef struct structName : inheritFrom { }
-//InheritedStructTypedef(CEGUI::Window, CGUIButton);
+#define InheritedStruct(inheritFrom, structName) struct structName : inheritFrom { }
+
 // TODO: These should all be the cegui types
-// e.g. typedef CGUITitleBar CEGUI::TitleBar?
 struct CGUIWindow : CEGUI::Window
 {
 	std::string getText();
 };
 
-struct CGUITitleBar : CGUIWindow {};
-struct CGUIButton : CGUIWindow {};
-struct CGUIFrameWindow : CGUIWindow {};
-struct CGUIEditBox : CGUIWindow {};
-struct CGUIMultiLineEditBox : CGUIWindow {};
-struct CGUIStaticImage : CGUIWindow {};
-struct CGUIStaticText : CGUIWindow {};
-struct CGUICheckBox : CGUIWindow {};
-struct CGUIMultiColumnList : CGUIWindow {};
-struct CGUITabControl : CGUIWindow {};
-struct CGUITabContentPane : CGUIWindow {};
-struct CGUIProgressBar : CGUIWindow {};
-
-struct Vector2
-{
-	float X;
-	float Y;
-
-	Vector2()
-	{
-		X = Y = 0;
-	}
-
-	Vector2(float fX, float fY)
-	{
-		X = fX; Y = fY;
-	}
-};
+InheritedStruct(CGUIWindow, CGUITitleBar);
+InheritedStruct(CGUIWindow, CGUIButton);
+InheritedStruct(CGUIWindow, CGUIFrameWindow);
+InheritedStruct(CGUIWindow, CGUIEditBox);
+InheritedStruct(CGUIWindow, CGUIMultiLineEditBox);
+InheritedStruct(CGUIWindow, CGUIStaticImage);
+InheritedStruct(CGUIWindow, CGUIStaticText);
+InheritedStruct(CGUIWindow, CGUICheckBox);
+InheritedStruct(CGUIWindow, CGUIMultiColumnList);
+InheritedStruct(CGUIWindow, CGUITabControl);
+InheritedStruct(CGUIWindow, CGUITabContentPane);
+InheritedStruct(CGUIWindow, CGUIProgressBar);
 
 enum eGUIMessageBoxType
 {
@@ -199,7 +179,7 @@ public:
 	CEGUI::DefaultWindow     * GetDefaultWindow() { return m_pDefaultWindow; }
 	CEGUI::Font              * GetFont(String strFont, unsigned int uiSize = 8, bool bScaled = false);
 
-	static CEGUI::String AnsiToCeguiFriendlyString(const char* ansi, int len);
+	static CEGUI::String       AnsiToCeguiFriendlyString(const char* ansi, int len);
 };
 
 class CGUIElement
@@ -358,8 +338,8 @@ public:
 	{
 		if(m_pWindow)
 		{
-			CEGUI::UDim x((bRelative ? vecPosition.X : 0.0f), (bRelative ? 0.0f : vecPosition.X));
-			CEGUI::UDim y((bRelative ? vecPosition.Y : 0.0f), (bRelative ? 0.0f : vecPosition.Y));
+			CEGUI::UDim x((bRelative ? vecPosition.fX : 0.0f), (bRelative ? 0.0f : vecPosition.fX));
+			CEGUI::UDim y((bRelative ? vecPosition.fY : 0.0f), (bRelative ? 0.0f : vecPosition.fY));
 			m_pWindow->setPosition(CEGUI::UVector2(x, y));
 		}
 	}

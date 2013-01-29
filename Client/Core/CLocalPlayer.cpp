@@ -25,7 +25,7 @@
 #include "CCamera.h"
 #include "CClientScriptManager.h"
 #include "CFireManager.h"
-#include "CFileTransfer.h"
+#include "CFileTransferManager.h"
 #include "CCamera.h"
 
 extern CNetworkManager		* g_pNetworkManager;
@@ -38,7 +38,7 @@ extern CCamera				* g_pCamera;
 extern bool					m_bControlsDisabled;
 extern CClientScriptManager * g_pClientScriptManager;
 extern CFireManager			* g_pFireManager;
-extern CFileTransfer		* g_pFileTransfer;
+extern CFileTransferManager * g_pFileTransfer;
 
 void * pAddress = NULL;
 void * pReturnAddress = NULL;
@@ -207,8 +207,10 @@ void CLocalPlayer::Pulse()
 {
 	CNetworkPlayer::Pulse();
 
-	if(g_pFileTransfer && g_pNetworkManager) {
-		if(g_pFileTransfer->DownloadFinished() && g_pFileTransfer->GetTransferListSize() == 0 && !m_bFinishedInitialize){
+	if(g_pFileTransfer && g_pNetworkManager)
+	{
+		if(g_pFileTransfer->IsComplete() && !m_bFinishedInitialize)
+		{
 			m_bFinishedInitialize = true;
 
 			g_pNetworkManager->RPC(RPC_PlayerJoinComplete, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE);
@@ -745,8 +747,4 @@ void CLocalPlayer::Reset()
 	m_bFirstSpawn = false;
 	m_bFinishedInitialize = false;
 	m_bSpawnMarked = false;
-
-	// Reset file transfer
-	if(g_pFileTransfer)
-		g_pFileTransfer->SetDownloadFinished(false);
 }
