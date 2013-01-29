@@ -103,11 +103,13 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
 	{
 		g_pChatWindow->SetEnabled(true);
+
 		for(int i = 0; i < 10; i++)
 			g_pChatWindow->AddMessage(0xFFFFFFAA,false," ");
 
-		ShowMessageBox("Successfully disconnected from server ...","Disconnect",true,false,false);
+		ShowMessageBox("Successfully disconnected from server","Disconnect",true,false,false);
 		InternalResetGame(false);
+		// jenksta: wtf?
 		Sleep(500);
 		SetDisconnectButtonVisible(false);
 		SetVisible(true);

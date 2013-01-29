@@ -13,7 +13,6 @@
 #include <Network/CNetClientInterface.h>
 #include "CClientPacketHandler.h"
 #include "CClientRPCHandler.h"
-#include "CFileTransfer.h"
 
 enum eNetState
 {

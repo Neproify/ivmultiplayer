@@ -431,11 +431,10 @@ int sq_getScreenPositionFromWorldPosition(SQVM * pVM)
 	sq_getvector3(pVM, -1, &vecWorldPos);
 	CGame::GetScreenPositionFromWorldPosition(vecWorldPos, vecScreenPos);
 	sq_newarray(pVM, 0);
-	sq_pushfloat(pVM, vecScreenPos.X);
+	sq_pushfloat(pVM, vecScreenPos.fX);
 	sq_arrayappend(pVM, -2);
-	sq_pushfloat(pVM, vecScreenPos.Y);
+	sq_pushfloat(pVM, vecScreenPos.fY);
 	sq_arrayappend(pVM, -2);
-
 	return 1;
 }
 

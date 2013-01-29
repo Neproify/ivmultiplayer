@@ -9,7 +9,6 @@
 #pragma once
 
 // Common
-#include <winsock2.h>
 #include <windows.h>
 #include <stdio.h>
 #include <ShlObj.h>

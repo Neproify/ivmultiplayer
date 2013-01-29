@@ -183,4 +183,5 @@ public:
 	bool                IsDucking();
 	void                SetRagdoll(bool bRagdoll);
 	bool                IsRagdoll();
+	unsigned int        GetAmmo(eWeaponType weapon);
 };

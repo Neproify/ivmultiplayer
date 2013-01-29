@@ -20,25 +20,25 @@
 #include "CStreamer.h"
 #include "Scripting/CScriptTimerManager.h"
 #include <Network/CNetworkModule.h>
-#include "CFileTransfer.h"
+#include "CFileTransferManager.h"
 #include "CAudio.h"
 #include "CActorManager.h"
 #include <Network/PacketIdentifiers.h>
 
-extern String g_strNick;
-extern CLocalPlayer * g_pLocalPlayer;
-extern CChatWindow * g_pChatWindow;
-extern CPlayerManager * g_pPlayerManager;
-extern CVehicleManager * g_pVehicleManager;
-extern CObjectManager * g_pObjectManager;
-extern CBlipManager * g_pBlipManager;
-extern CActorManager * g_pActorManager;
-extern CCheckpointManager * g_pCheckpointManager;
-extern CStreamer * g_pStreamer;
-extern CScriptTimerManager * g_pScriptTimerManager;
-extern CNetworkManager * g_pNetworkManager;
-extern CFileTransfer * g_pFileTransfer;
-extern CActorManager * g_pActorManager;
+extern String                 g_strNick;
+extern CLocalPlayer         * g_pLocalPlayer;
+extern CChatWindow          * g_pChatWindow;
+extern CPlayerManager       * g_pPlayerManager;
+extern CVehicleManager      * g_pVehicleManager;
+extern CObjectManager       * g_pObjectManager;
+extern CBlipManager         * g_pBlipManager;
+extern CActorManager        * g_pActorManager;
+extern CCheckpointManager   * g_pCheckpointManager;
+extern CStreamer            * g_pStreamer;
+extern CScriptTimerManager  * g_pScriptTimerManager;
+extern CNetworkManager      * g_pNetworkManager;
+extern CFileTransferManager * g_pFileTransfer;
+extern CActorManager        * g_pActorManager;
 
 CNetworkManager::CNetworkManager()
 	: m_pNetClient(CNetworkModule::GetNetClientInterface()),
@@ -128,7 +128,7 @@ void CNetworkManager::PacketHandler(CPacket * pPacket)
 
 void CNetworkManager::Process()
 {
-	// If our file transfer class exists process it>	Client.Core.dll!CNetworkManager::PacketHandler(CPacket * pPacket)  Zeile 106 + 0x1b Bytes	C++
+	// If our file transfer class exists process it
 	if(g_pFileTransfer)
 		g_pFileTransfer->Process();
 
@@ -136,7 +136,7 @@ void CNetworkManager::Process()
 	if(m_bJoinedServer && !m_bJoinedGame)
 	{
 		// Is the file transfer list empty?
-		if(g_pFileTransfer->DownloadFinished() && g_pLocalPlayer->IsConnectFinished())
+		if(g_pFileTransfer->IsComplete() && g_pLocalPlayer->IsConnectFinished())
 		{
 			// Flag ourselves as joined a game
 			m_bJoinedGame = true;

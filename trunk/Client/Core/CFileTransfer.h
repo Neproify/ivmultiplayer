@@ -2,96 +2,39 @@
 //
 // File: CFileTransfer.h
 // Project: Client.Core
-// Author(s): Einstein
-//            jenksta
+// Author(s): jenksta
 // License: See LICENSE in root directory
 //
 //==============================================================================
 
 #pragma once
 
-#include <list>
-#include <CFileChecksum.h>
-#include <Network/CHttpClient.h>
-#include <Threading\CThread.h>
-#include "CGUI.h"
+#include "CFileChecksum.h"
+#include <Network\CHttpClient.h>
 
-// Categories of client files
-enum FileDownloadCategory { Resource, Script };
-
-// Represents client file
-struct FileDownload							// represents information about 1 file we need to process
-{
-	String	name;							// client resource name
-	String	fileName;						// full file name (local file system)
-	String	failReason;						// compile/download fail message
-	bool	okay;							// downloaded & compiled OK
-	CFileChecksum checksum;					// checksum (of target file on server)
-	FileDownloadCategory type;				// type of file(category)
-	FILE * File;							// file handle to write to (should be NULL)
-
-public: 
-	FileDownload(String fName, CFileChecksum fChecksum, FileDownloadCategory fCategory)
-	{
-		name = fName;
-		checksum = fChecksum;
-		type = fCategory;
-		okay = false;
-	}
-};
-
-// Function type for handlers
-typedef void (* DownloadHandler_t)();
-
-// Communicate object between threads
-struct ThreadUserData	
-{	
-	std::list<FileDownload *> m_fileList;
-	bool busy;
-	bool bDownloadCompleted;
-	CHttpClient * httpDownloader;
-	FileDownload * currentFile;
-	DownloadHandler_t downloadedHandler;
-	DownloadHandler_t downloadFailedHandler;
-
-public:
-	ThreadUserData()
-	{
-		httpDownloader = new CHttpClient();
-		m_fileList = std::list<FileDownload *>();
-		bDownloadCompleted = false;
-		busy = false;
-		downloadedHandler = NULL;
-	}
-};
-
-class CFileTransfer	
+class CFileTransfer
 {
 private:
-	CThread *	m_thread;
-	ThreadUserData * m_userdata;	
-    CGUIStaticText * m_pFileText;
-    CGUIStaticImage	* m_pFileImage;
-	bool		m_bFinishedDownload;
+	bool          m_bIsResource;
+	String        m_strName;
+	String        m_strHttpPath;
+	String        m_strPath;
+	CFileChecksum m_checksum;
+	CHttpClient   m_httpClient;
+	bool          m_bComplete;
+	bool          m_bSucceeded;
+	String        m_strError;
+
 public:
-	CFileTransfer();
-	void AddFile(String strFileName, CFileChecksum fileChecksum, bool bIsResource);
-	bool Process();
-	bool IsBusy();
-	void Reset();
-	void SetDownloadedHandler(DownloadHandler_t handler) { m_userdata->downloadedHandler = handler; }
-	void SetDownloadFailedHandler(DownloadHandler_t handler) { m_userdata->downloadFailedHandler = handler; }
-	FileDownload * GetCurrentFile() { return m_userdata->currentFile; }
-	int GetTransferListSize();
-	void SetServerInformation(String strAddress, unsigned short usPort);
-	void SetCurrentFileText(const char * fileNameText = NULL);
+	CFileTransfer(bool bIsResource, String strHost, unsigned short usPort, String strName, CFileChecksum checksum);
+	~CFileTransfer();
 
-	bool DownloadFinished() { return m_bFinishedDownload; }
-	void SetDownloadFinished(bool bFinished) { m_bFinishedDownload = bFinished; }
+	bool   IsResource() { return m_bIsResource; }
+	String GetName() { return m_strName; }
+	String GetHTTPPath() { return m_strHttpPath; }
+	String GetPath() { return m_strPath; }
+	bool   IsComplete() { return m_bComplete; }
+	bool   HasSucceeded() { return m_bSucceeded; }
+	String GetError() { return m_strError; }
+	bool   Download();
 };
-// Threaded static functions:
-void WorkAsync(CThread * pCreator);
-
-// Definitions of handlers for client files download
-void FileTransfer_DownloadedFile();
-void FileTransfer_DownloadFailed();

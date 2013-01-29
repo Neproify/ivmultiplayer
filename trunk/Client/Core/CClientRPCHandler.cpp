@@ -22,7 +22,7 @@
 #include "CMainMenu.h"
 #include "CClientScriptManager.h"
 #include <CSettings.h>
-#include "CFileTransfer.h"
+#include "CFileTransferManager.h"
 #include <Game/CTime.h>
 #include <Game/CTrafficLights.h>
 #include "CLocalPlayer.h"
@@ -54,7 +54,7 @@ extern CPickupManager       * g_pPickupManager;
 extern CModelManager        * g_pModelManager;
 extern CMainMenu            * g_pMainMenu;
 extern CClientScriptManager * g_pClientScriptManager;
-extern CFileTransfer        * g_pFileTransfer;
+extern CFileTransferManager * g_pFileTransfer;
 extern CTime                * g_pTime;
 extern CTrafficLights       * g_pTrafficLights;
 extern CScriptingManager    * g_pScriptingManager;
@@ -65,7 +65,6 @@ extern CCamera              * g_pCamera;
 extern CFireManager		    * g_pFireManager;
 extern CStreamer			* g_pStreamer;
 extern C3DLabelManager		* g_p3DLabelManager;
-
 
 bool m_bControlsDisabled = false;
 
@@ -95,7 +94,6 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	bSpecialData1 = pBitStream->ReadBit();
 	bSpecialData2 = pBitStream->ReadBit();
 	bHeadMovement = pBitStream->ReadBit();
-	pBitStream->Read(bHeadMovement);
 	pBitStream->Read(uiMaxPlayers);
 
 	pBitStream->Read(ucHour);
@@ -136,7 +134,8 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	g_pTrafficLights->SetState((CTrafficLights::eTrafficLightState)ucTrafficLightState);
 	g_pTrafficLights->SetTimeThisCycle(uiTrafficLightTimePassed);
 
-	g_pFileTransfer->SetServerInformation(sHttpServer.IsEmpty() ? g_strHost : sHttpServer, usHttpPort);
+	g_pFileTransfer->SetHost(sHttpServer.IsEmpty() ? g_strHost : sHttpServer);
+	g_pFileTransfer->SetPort(usHttpPort);
 
 	CGame::SetNameTags(bGUINametags);
 	CGame::SetSpecialData(bSpecialData1, bSpecialData2);
@@ -969,7 +968,7 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 		// Is it the local player?
 		if(pPlayer->IsLocalPlayer())
 		{
-			if(g_pFileTransfer->DownloadFinished() && g_pLocalPlayer->IsConnectFinished())
+			if(g_pFileTransfer->IsComplete() && g_pLocalPlayer->IsConnectFinished())
 				g_pLocalPlayer->Respawn();
 		}
 		else
@@ -998,15 +997,6 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pPlayer->SetHealth(200);
 
 			// If the player is already spawned(connected) -> clear die task
-			pPlayer->ClearDieTask();
-			
-			// Remove the player to reset all animations and readd him
-			pPlayer->RemoveFromWorld();
-			Sleep(10); // wait some ms
-			pPlayer->AddToWorld();
-
-			// Reset health to 200(IV Health + 100), otherwise player is "dead"
-			pPlayer->SetHealth(200);
 			pPlayer->ClearDieTask();
 
 			// Spawn player
@@ -1501,20 +1491,23 @@ void CClientRPCHandler::NewFile(CBitStream * pBitStream, CPlayerSocket * pSender
 	if(!pBitStream)
 		return;
 
-	// Read the file type
+	
 	bool bIsScript;
-	pBitStream->Read(bIsScript);
-
-	// Read the file name
 	String strFileName;
-	pBitStream->Read(strFileName);
-
-	// Read the file checksum
 	CFileChecksum fileChecksum;
-	pBitStream->Read((char *)&fileChecksum, sizeof(CFileChecksum));
 
-	// Add the file to the file transfer
-	g_pFileTransfer->AddFile(strFileName, fileChecksum, !bIsScript);
+	// Read the file type
+	while(pBitStream->Read(bIsScript))
+	{
+		// Read the file name
+		pBitStream->Read(strFileName);
+
+		// Read the file checksum
+		pBitStream->Read((char *)&fileChecksum, sizeof(CFileChecksum));
+
+		// Add the file to the file transfer manager
+		g_pFileTransfer->Add(!bIsScript, strFileName, fileChecksum);
+	}
 }
 
 void CClientRPCHandler::DeleteFile(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

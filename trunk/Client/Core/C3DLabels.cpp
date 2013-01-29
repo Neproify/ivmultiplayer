@@ -52,8 +52,9 @@ void C3DLabel::Render()
 	if(g_pGUI)
 	{
 		CEGUI::Font * pFont = g_pGUI->GetFont("tahoma-bold");
+
 		if(pFont)
-			g_pGUI->DrawText(m_strText.Get(), CEGUI::Vector2(vecScreenPosition.X, vecScreenPosition.Y), CEGUI::colour(m_dwColor), pFont, false);
+			g_pGUI->DrawText(m_strText.Get(), CEGUI::Vector2(vecScreenPosition.fX, vecScreenPosition.fY), CEGUI::colour(m_dwColor), pFont, false);
 	}
 }
 

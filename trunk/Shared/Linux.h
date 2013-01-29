@@ -3,7 +3,6 @@
 // File: Linux.h
 // Project: Shared
 // Author(s): adamix
-// 
 // License: See LICENSE in root directory
 //
 //==============================================================================
