@@ -15,8 +15,6 @@
 #include <list>
 #include "CIVVehicle.h"
 
-//#define NEW_STREAMER
-
 // Type used for dimension ids
 typedef unsigned char DimensionId;
 
@@ -81,19 +79,22 @@ protected:
 
 class CNetworkVehicle;
 
-class CStreamer : public std::list<CStreamableEntity*>
+class CStreamer : public std::list<CStreamableEntity *>
 {
 	friend class CStreamableEntity;
 private:
-	unsigned long						m_ulLastStreamTime;
-	DimensionId							m_dimensionId;
-	std::list<CStreamableEntity *>		m_streamedElements[STREAM_ENTITY_MAX];
-	std::list<CStreamableEntity *>		m_newlyStreamedElements[STREAM_ENTITY_MAX];
-	unsigned int						m_uiStreamingLimits[STREAM_ENTITY_MAX]; // max number of each entity type the game can handle	
+	static CStreamer             * m_pInstance;
+	unsigned long                  m_ulLastStreamTime;
+	DimensionId                    m_dimensionId;
+	std::list<CStreamableEntity *> m_streamedElements[STREAM_ENTITY_MAX];
+	std::list<CStreamableEntity *> m_newlyStreamedElements[STREAM_ENTITY_MAX];
+	unsigned int                   m_uiStreamingLimits[STREAM_ENTITY_MAX]; // max number of each entity type the game can handle	
 
 public:
 	CStreamer();
+	~CStreamer();
 
+	static CStreamer               * GetInstance() { return m_pInstance; }
 	void                             Reset();
 	void                             Pulse();
 	void                             UpdateInterior(unsigned int uiInterior);

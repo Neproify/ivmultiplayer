@@ -10,10 +10,9 @@
 #pragma once
 
 #include "Scripting.h"
-#include "CLocalPlayer.h"
-#include "CGame.h"
+#include "CClient.h"
 
-extern CLocalPlayer * g_pLocalPlayer;
+extern CClient * g_pClient;
 
 class CCutsceneInteriors
 {
@@ -47,7 +46,7 @@ public:
 			case 0xfa8eb76:  // Michelle? (mich_a.cut 934.73 -189.6 34.16)
 				{
 					CVector3 vecPosition;
-					g_pLocalPlayer->GetPosition(vecPosition);
+					g_pClient->GetLocalPlayer()->GetPosition(vecPosition);
 
 					if(vecPosition.fZ < 10.0f)
 						break;

@@ -929,6 +929,9 @@
     <ClCompile Include="Natives\3DLabelNatives.cpp">
       <Filter>Source Files\Scripting\Natives</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Shared\CEvents.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Server.rc">

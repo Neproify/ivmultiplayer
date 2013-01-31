@@ -13,42 +13,20 @@
 #include <windows.h>
 #include <windowsx.h>
 #include "Input.h"
-#include "CChatWindow.h"
-#include "CInputWindow.h"
+#include "CClient.h"
 #include "CGame.h"
 #include "Scripting.h"
-#include "CLocalPlayer.h"
 #include "CGUI.h"
-#include "CMainMenu.h"
-#include "Scripting/CScriptingManager.h"
-#include <CEvents.h>
 #include <SharedUtility.h>
 #include "CScreenShot.h"
-#include "CNetworkManager.h"
 #include "CGame.h"
-#include "CPlayerManager.h"
-#include "CActorManager.h"
-#include "CVehicleManager.h"
 #include "CIVTrain.h"
 #include "Patcher/CPatcher.h"
-#include "CGraphics.h"
 
 WNDPROC           m_wWndProc = NULL;
 std::list<String> pressedKeys;
 
-extern CChatWindow       * g_pChatWindow;
-extern CInputWindow      * g_pInputWindow;
-extern CLocalPlayer      * g_pLocalPlayer;
-extern CScriptingManager * g_pScriptingManager;
-extern CGUI              * g_pGUI;
-extern CMainMenu         * g_pMainMenu;
-extern CEvents           * g_pEvents;
-extern CNetworkManager	 * g_pNetworkManager;
-extern CGame			 * g_pGame;
-extern CPlayerManager	 * g_pPlayerManager;
-extern CActorManager	 * g_pActorManager;
-extern CVehicleManager   * g_pVehicleManager;
-extern CGraphics		 * g_pGraphics;
+extern CClient * g_pClient;
 
 String GetKeyNameByCode(DWORD dwCode)
 {
@@ -171,16 +149,22 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	{
 		// Set the game focused flag
 		CGame::SetFocused(true);
-		if(g_pActorManager)
-			g_pActorManager->bGameFocused = true;
+
+		CActorManager * pActorManager = g_pClient->GetActorManager();
+
+		if(pActorManager)
+			pActorManager->bGameFocused = true;
 
 		// Hide the cursor
 		//ShowCursor(FALSE);
 		ShowCursor(true);
 		CLogFile::Print("Gained window focus");
 
-		if(g_pMainMenu)
-			g_pMainMenu->HideLoadingScreen();
+		// Get our main menu
+		CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+
+		if(pMainMenu)
+			pMainMenu->HideLoadingScreen();
 
 		return 1;
 	}
@@ -189,8 +173,11 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	{
 		// Set the game focused flag
 		CGame::SetFocused(false);
-		if(g_pActorManager)
-			g_pActorManager->bGameFocused = false;
+
+		CActorManager * pActorManager = g_pClient->GetActorManager();
+
+		if(pActorManager)
+			pActorManager->bGameFocused = false;
 
 		// Show the cursor
 		//ShowCursor(TRUE);
@@ -202,38 +189,53 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	// Are we focused?
 	if(bFocused)
 	{
+		// Get our input window and local player
+		CInputWindow * pInputWindow = g_pClient->GetInputWindow();
+		CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
+		// Get our GUI instance
+		CGUI * pGUI = g_pClient->GetGUI();
+
 		// Pass the input to the GUI
-		if(g_pGUI && g_pGUI->MsgProc(hWnd, uMsg, wParam, lParam))
+		if(pGUI && pGUI->MsgProc(hWnd, uMsg, wParam, lParam))
 			return 1;
 
-		if(g_pNetworkManager)
+		CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+		if(pNetworkManager)
 		{
 			// Is this a F12 key up?
 			if(CGame::IsGameLoaded() && !CGame::IsKickedFromServer())
 			{
 				if(uMsg == WM_KEYUP && wParam == VK_F12)
 				{
-					if(g_pMainMenu)
+					// Get our main menu
+					CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+
+					if(pMainMenu)
 					{
-						if(!g_pMainMenu->IsVisible())
+						if(!pMainMenu->IsVisible())
 						{
-							if(g_pInputWindow && !g_pInputWindow->IsEnabled())
+							if(pInputWindow && !pInputWindow->IsEnabled())
 							{
 								if(CGame::GetState() == GAME_STATE_INGAME)
 								{
 									CGame::SetState(GAME_STATE_IVMP_PAUSE_MENU);
 									CGame::SetInputState(false);
-									g_pChatWindow->SetEnabled(false);
+									g_pClient->GetChatWindow()->SetEnabled(false);
+
+									// jenksta: TODO client CPlayerManager::GetPlayerCount
 									int players = 0;
 									for(int i = 0; i < MAX_PLAYERS; i++)
 									{
-										if(g_pPlayerManager->DoesExist(i))
+										if(g_pClient->GetPlayerManager()->DoesExist(i))
 											players++;
 									}
-									if(g_pNetworkManager->IsConnected())
-										g_pMainMenu->SetNetworkStats(g_pNetworkManager->GetHostName(),players,g_pNetworkManager->GetMaxPlayers(),g_pLocalPlayer->GetName());
+
+									if(pNetworkManager->IsConnected())
+										pMainMenu->SetNetworkStats(pNetworkManager->GetHostName(),players,pNetworkManager->GetMaxPlayers(),pLocalPlayer->GetName());
 									
-									if(g_pNetworkManager->IsConnected())
+									if(pNetworkManager->IsConnected())
 										Scripting::SetTimeScale(0.5);
 
 									Scripting::DisplayRadar(false);
@@ -247,14 +249,14 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 							if(CGame::GetState() == GAME_STATE_IVMP_PAUSE_MENU)
 							{
 								CGame::SetState(GAME_STATE_INGAME);
-								CGame::SetInputState(g_pLocalPlayer->GetControl());
-								g_pChatWindow->SetEnabled(true);
+								CGame::SetInputState(pLocalPlayer->GetControl());
+								g_pClient->GetChatWindow()->SetEnabled(true);
 
-								if(g_pNetworkManager->IsConnected())
+								if(g_pClient->GetNetworkManager()->IsConnected())
 									Scripting::SetTimeScale(1.0);
 
 								Scripting::DisplayRadar(true);
-								if(g_pLocalPlayer && !g_pLocalPlayer->IsRadarVisible())
+								if(pLocalPlayer && !pLocalPlayer->IsRadarVisible())
 									Scripting::DisplayRadar(false);
 
 								return 1;
@@ -270,16 +272,16 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		{
 			// Take a screen shot
 			if(CScreenShot::Take())
-				g_pChatWindow->AddInfoMessage("Screen shot captured.");
+				g_pClient->GetChatWindow()->AddInfoMessage("Screen shot captured.");
 			else
 			{
-				g_pChatWindow->AddInfoMessage("Screen shot capture failed (%s).", CScreenShot::GetError().Get());
+				g_pClient->GetChatWindow()->AddInfoMessage("Screen shot capture failed (%s).", CScreenShot::GetError().Get());
 				CScreenShot::Reset();
 			}
 		}
 		if(uMsg == WM_KEYUP && wParam == VK_F3)
 		{
-			IVVehicle * pGameVehicle = g_pLocalPlayer->GetVehicle()->GetGameVehicle()->GetVehicle();
+			IVVehicle * pGameVehicle = pLocalPlayer->GetVehicle()->GetGameVehicle()->GetVehicle();
 			*(BYTE *)(pGameVehicle + 0xF71) |= 1;
 			*((BYTE *)pGameVehicle + 3953) = *((BYTE *)pGameVehicle + 3953) & 0xFE | 2;
 		}
@@ -290,7 +292,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			DWORD dwTest = *(DWORD *)(pVehicle + 0x194);
 
 			//int v1 = sub_426700((void *)VAR_VehiclePool, **(_DWORD **)(a1 + 8));
-			g_pChatWindow->AddInfoMessage("Testvar 0x%p(%x)%d",dwTest,dwTest,dwTest);
+			g_pClient->GetChatWindow()->AddInfoMessage("Testvar 0x%p(%x)%d",dwTest,dwTest,dwTest);
 			CLogFile::Printf("Testvar 0x%p(%x)%d",dwTest,dwTest,dwTest);
 		}*/
 		
@@ -314,7 +316,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		//	// Check if he's on the screen
 		//	CVector3 vecScreen;
 		//	g_pGraphics->GetScreenPositionFromWorldPosition(vecWorldPosition,&vecScreen);
-		//	g_pChatWindow->AddInfoMessage("Z: %f",vecScreen.fZ);
+		//	g_pClient->GetChatWindow()->AddInfoMessage("Z: %f",vecScreen.fZ);
 		//}
 
 		/*if(uMsg == WM_KEYUP && wParam == VK_F2)
@@ -416,13 +418,8 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		// Is this a F7 key up?
 		if(uMsg == WM_KEYUP && wParam == VK_F7)
 		{
-			if(g_pChatWindow)
-			{
-				if(g_pChatWindow->IsEnabled())
-					g_pChatWindow->SetEnabled(false);
-				else
-					g_pChatWindow->SetEnabled(true);
-			}
+			if(g_pClient->GetChatWindow())
+				g_pClient->GetChatWindow()->SetEnabled(!g_pClient->GetChatWindow()->IsEnabled());
 		}
 
 		// Are we in game?
@@ -432,7 +429,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			if(uMsg == WM_KEYUP && wParam == VK_PRIOR)
 			{
 				// Move the chat window page upwards
-				g_pChatWindow->PageUp();
+				g_pClient->GetChatWindow()->PageUp();
 				return 1;
 			}
 
@@ -440,19 +437,19 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			if(uMsg == WM_KEYUP && wParam == VK_NEXT)
 			{
 				// Move the chat window page downwards
-				g_pChatWindow->PageDown();
+				g_pClient->GetChatWindow()->PageDown();
 				return 1;
 			}
 
 			// If the input window exists pass the input to it
-			if(g_pInputWindow)
+			if(pInputWindow)
 			{
-				bool bInputEnabled = g_pInputWindow->IsEnabled();
+				bool bInputEnabled = pInputWindow->IsEnabled();
 
-				if(g_pInputWindow->HandleInput(uMsg, (DWORD)wParam))
+				if(pInputWindow->HandleInput(uMsg, (DWORD)wParam))
 				{
 					// Have we just enabled the chat window?
-					if(!bInputEnabled && g_pInputWindow->IsEnabled())
+					if(!bInputEnabled && pInputWindow->IsEnabled())
 					{
 						// Clear all keys
 						for(std::list<String>::iterator iter = pressedKeys.begin(); pressedKeys.size() > 0; iter = pressedKeys.begin())
@@ -460,7 +457,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 							CSquirrelArguments pArguments;
 							pArguments.push(*iter);
 							pArguments.push("up");
-							g_pEvents->Call("keyPress", &pArguments);
+							g_pClient->GetEvents()->Call("keyPress", &pArguments);
 							pressedKeys.erase(iter);
 						}
 
@@ -470,7 +467,7 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			}
 
 			// Is the input window disabled?
-			if(g_pInputWindow && !g_pInputWindow->IsEnabled())
+			if(pInputWindow && !pInputWindow->IsEnabled())
 			{
 				String strCode = GetKeyNameByCode((DWORD)wParam);
 
@@ -497,12 +494,14 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 						}
 					}
 
-					if(strState.IsNotEmpty() && g_pEvents)
+					CEvents * pEvents = g_pClient->GetEvents();
+
+					if(strState.IsNotEmpty() && pEvents)
 					{
 						CSquirrelArguments pArguments;
 						pArguments.push(strCode);
 						pArguments.push(strState);
-						g_pEvents->Call("keyPress", &pArguments);
+						pEvents->Call("keyPress", &pArguments);
 					}
 				}
 			}

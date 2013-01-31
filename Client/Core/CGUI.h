@@ -179,7 +179,8 @@ public:
 	CEGUI::DefaultWindow     * GetDefaultWindow() { return m_pDefaultWindow; }
 	CEGUI::Font              * GetFont(String strFont, unsigned int uiSize = 8, bool bScaled = false);
 
-	static CEGUI::String       AnsiToCeguiFriendlyString(const char* ansi, int len);
+	static CEGUI::String       AnsiToCeguiFriendlyString(const char * szAnsiString, unsigned int uiLength);
+	static CEGUI::String       AnsiToCeguiFriendlyString(String strAnsiString);
 };
 
 class CGUIElement

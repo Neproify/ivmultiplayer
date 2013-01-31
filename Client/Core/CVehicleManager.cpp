@@ -9,17 +9,13 @@
 //==============================================================================
 
 #include "CVehicleManager.h"
-#include "CLocalPlayer.h"
-#include "CNetworkManager.h"
-#include "CStreamer.h"
+#include "CClient.h"
 
-extern CLocalPlayer * g_pLocalPlayer;
-extern CNetworkManager * g_pNetworkManager;
-extern CStreamer * g_pStreamer;
+extern CClient * g_pClient;
 
 void CVehicleManager::Pulse()
 {
-	std::list<CStreamableEntity *> * streamedVehicles = g_pStreamer->GetStreamedInEntitiesOfType(STREAM_ENTITY_VEHICLE);
+	std::list<CStreamableEntity *> * streamedVehicles = g_pClient->GetStreamer()->GetStreamedInEntitiesOfType(STREAM_ENTITY_VEHICLE);
 
 	for(std::list<CStreamableEntity *>::iterator iter = streamedVehicles->begin(); iter != streamedVehicles->end(); ++iter)
 	{

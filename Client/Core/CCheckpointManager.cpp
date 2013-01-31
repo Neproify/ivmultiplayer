@@ -10,16 +10,14 @@
 //==============================================================================
 
 #include "CCheckpointManager.h"
+#include "CClient.h"
 #include "CPlayerManager.h"
-#include "CNetworkManager.h"
 
-extern CLocalPlayer    * g_pLocalPlayer;
-extern CNetworkManager * g_pNetworkManager;
-extern CStreamer       * g_pStreamer;
+extern CClient * g_pClient;
 
 void CCheckpointManager::Pulse()
 {
-	std::list<CStreamableEntity *> * streamedCheckpoints = g_pStreamer->GetStreamedInEntitiesOfType(STREAM_ENTITY_CHECKPOINT);
+	std::list<CStreamableEntity *> * streamedCheckpoints = g_pClient->GetStreamer()->GetStreamedInEntitiesOfType(STREAM_ENTITY_CHECKPOINT);
 
 	for(std::list<CStreamableEntity *>::iterator iter = streamedCheckpoints->begin(); iter != streamedCheckpoints->end(); ++iter)
 	{

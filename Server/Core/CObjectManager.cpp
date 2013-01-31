@@ -395,7 +395,8 @@ void CObjectManager::RotateObject(EntityId objectId, const CVector3& vecMoveRot,
 
 void CObjectManager::SetDimension(EntityId objectId, DimensionId ucDimension)
 {
-	if(DoesExist(objectId)) {
+	if(DoesExist(objectId))
+	{
 		m_Objects[objectId].ucDimension = ucDimension;
 
 		CBitStream bsSend;

@@ -10,25 +10,17 @@
 // they are streamed in too (possibly force stream in if not?))
 
 #include "CNetworkVehicle.h"
-#include "CPlayerManager.h"
-#include "CModelManager.h"
-#include "CLocalPlayer.h"
+#include "CClient.h"
 #include "Scripting.h"
 #include <SharedUtility.h>
 #include "CPools.h"
-#include "CNetworkManager.h"
 #include "CCamera.h"
 #include "CGame.h"
-#include "CChatWindow.h"
 
-extern CPlayerManager * g_pPlayerManager;
-extern CModelManager * g_pModelManager;
-extern CLocalPlayer * g_pLocalPlayer;
-extern CNetworkManager * g_pNetworkManager;
-extern CChatWindow * g_pChatWindow;
+extern CClient * g_pClient;
 
-#define THIS_CHECK(func) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[WARNING] Internal error occured in %s[ Type 1 | Func %s() ]",__FILE__,func); } return; }
-#define THIS_CHECK_R(func,x) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[WARNING] Internal error occured in %s [ Type 2 | Func %s() ]",__FILE__,func); } return x; }
+#define THIS_CHECK(func) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s[ Type 1 | Func %s() ]",__FILE__,func); } return; }
+#define THIS_CHECK_R(func,x) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s [ Type 2 | Func %s() ]",__FILE__,func); } return x; }
 
 CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash, int iModelId)
 	: CStreamableEntity(STREAM_ENTITY_VEHICLE, 200.0f),
@@ -381,7 +373,7 @@ void CNetworkVehicle::Destroy()
 void CNetworkVehicle::StreamIn()
 {
 	THIS_CHECK(__FUNCTION__);
-	if(GetDriver() == g_pLocalPlayer)
+	if(GetDriver() == g_pClient->GetLocalPlayer())
 		CLogFile::Printf("STREAM IN ON LOCAL PLAYERS VEHICLE!");
 
 	// Attempt to create the vehicle
@@ -484,7 +476,7 @@ void CNetworkVehicle::StreamIn()
 void CNetworkVehicle::StreamOut()
 {
 	THIS_CHECK(__FUNCTION__);
-	if(GetDriver() == g_pLocalPlayer)
+	if(GetDriver() == g_pClient->GetLocalPlayer())
 		CLogFile::Printf("STREAM OUT ON LOCAL PLAYERS VEHICLE!");
 
 	// Check if the vehicle is marked as an actor vehicle
@@ -492,7 +484,7 @@ void CNetworkVehicle::StreamOut()
 		return;
 
 	// Check if the camera is attached to our vehicle
-	if(g_pLocalPlayer->IsCameraAttachedToEntity(GetScriptingHandle()))
+	if(g_pClient->GetLocalPlayer()->IsCameraAttachedToEntity(GetScriptingHandle()))
 		return;
 
 	// Save the coordinates
@@ -921,7 +913,7 @@ bool CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 			{
 				CBitStream bsDeath;
 				bsDeath.Write(GetVehicleId());
-				g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+				g_pClient->GetNetworkManager()->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
 			}
 		}
 
@@ -1276,16 +1268,13 @@ void CNetworkVehicle::SetInterior(unsigned int uiInterior)
 	THIS_CHECK(__FUNCTION__);
 	//CLogFile::Printf("(%d)Interior - %d,%d",GetVehicleId(), GetInterior(), m_uiInterior);
 
-	// Check stuff before continue setting interior..
-	if( !IsSpawned() || !g_pLocalPlayer || !m_pVehicle )
-		return;
+	// Get our local player
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
 	
-	if( IsSpawned() && m_uiInterior != GetInterior()) {
-		if(g_pLocalPlayer->GetVehicle() == NULL){
-			Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
-			m_uiInterior = uiInterior;
-		}
-		else if(g_pLocalPlayer->GetVehicle()->GetVehicleId() != GetVehicleId()) {
+	if(IsSpawned() && m_uiInterior != GetInterior() && pLocalPlayer)
+	{
+		if(pLocalPlayer->GetVehicle() != this)
+		{
 			Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
 			m_uiInterior = uiInterior;
 		}

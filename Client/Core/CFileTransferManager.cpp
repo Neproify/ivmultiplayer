@@ -8,24 +8,13 @@
 //==============================================================================
 
 #include "CFileTransferManager.h"
+#include "CClient.h"
 #include <CLogFile.h>
 
 #define TRANSFERBOX_WIDTH  350
 #define TRANSFERBOX_HEIGHT 58
 
-extern CGUI * g_pGUI;
-
-// jenksta: temp
-#include "CClientScriptManager.h"
-#include "CLocalPlayer.h"
-#include "CNetworkManager.h"
-#include "CMainMenu.h"
-#include "CChatWindow.h"
-extern CClientScriptManager * g_pClientScriptManager;
-extern CLocalPlayer         * g_pLocalPlayer;
-extern CNetworkManager      * g_pNetworkManager;
-extern CMainMenu            * g_pMainMenu;
-extern CChatWindow          * g_pChatWindow;
+extern CClient * g_pClient;
 
 CFileTransferManager::CFileTransferManager()
 {
@@ -42,9 +31,12 @@ CFileTransferManager::~CFileTransferManager()
 
 void CFileTransferManager::Add(bool bIsResource, String strName, CFileChecksum checksum)
 {
+	// Get our GUI instance
+	CGUI * pGUI = g_pClient->GetGUI();
+
 	// Ensure we have our transfer info gui stuff created
-	float fWidth = (float)g_pGUI->GetDisplayWidth();
-	float fHeight = (float)g_pGUI->GetDisplayHeight();
+	float fWidth = (float)pGUI->GetDisplayWidth();
+	float fHeight = (float)pGUI->GetDisplayHeight();
 
 	// Check if we have created image and text stuff for download, if not create it
 	if(!m_pFileImage)
@@ -68,7 +60,7 @@ void CFileTransferManager::Add(bool bIsResource, String strName, CFileChecksum c
 			ExitProcess(0);
 		}
 
-		m_pFileImage = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+		m_pFileImage = pGUI->CreateGUIStaticImage(pGUI->GetDefaultWindow());
 		m_pFileImage->setProperty("FrameEnabled", "false");
 		m_pFileImage->setProperty("BackgroundEnabled", "false");
 		m_pFileImage->setSize(CEGUI::UVector2(CEGUI::UDim(0, (386.0f*1.5f)), CEGUI::UDim(0, (114.0f*1.5f))));
@@ -80,13 +72,13 @@ void CFileTransferManager::Add(bool bIsResource, String strName, CFileChecksum c
 	}
 	if(!m_pFileText)
 	{
-		m_pFileText = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+		m_pFileText = pGUI->CreateGUIStaticText(pGUI->GetDefaultWindow());
 		m_pFileText->setText("Waiting for resources download");
 		m_pFileText->setSize(CEGUI::UVector2(CEGUI::UDim(TRANSFERBOX_WIDTH, 0), CEGUI::UDim(TRANSFERBOX_HEIGHT, 0)));
 		m_pFileText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, fWidth/(float)2.75),  CEGUI::UDim(0, fHeight/2-(fHeight/4))));
 		m_pFileText->setProperty("FrameEnabled", "false");
 		m_pFileText->setProperty("BackgroundEnabled", "false");
-		m_pFileText->setFont(g_pGUI->GetFont("tahoma",28U));
+		m_pFileText->setFont(pGUI->GetFont("tahoma",28U));
 		m_pFileText->setVisible(false);
 	}
 
@@ -203,22 +195,28 @@ void CFileTransferManager::Process()
 				if(!pFileTransfer->IsResource())
 				{
 					CLogFile::PrintDebugf("Adding client script: %s.", pFileTransfer->GetName().Get());
-					g_pClientScriptManager->AddScript(pFileTransfer->GetName(), pFileTransfer->GetPath());
+					CClientScriptManager * pClientScriptManager = g_pClient->GetClientScriptManager();
+					pClientScriptManager->AddScript(pFileTransfer->GetName(), pFileTransfer->GetPath());
 
-					if(g_pLocalPlayer->GetFirstSpawn())
-						g_pClientScriptManager->Load(pFileTransfer->GetName());
+					if(g_pClient->GetLocalPlayer()->GetFirstSpawn())
+						pClientScriptManager->Load(pFileTransfer->GetName());
 				}
 			}
 			else
 			{
 				String strErrorMessage("Failed to download file %s (%s)", pFileTransfer->GetName().Get(), pFileTransfer->GetError().Get());
 				CLogFile::Print(strErrorMessage);
-				g_pNetworkManager->Disconnect();
-				g_pMainMenu->ResetNetworkStats();
-				g_pChatWindow->SetEnabled(false);
-				g_pMainMenu->SetDisconnectButtonVisible(false);
-				g_pMainMenu->SetVisible(true);
-				g_pGUI->ShowMessageBox(strErrorMessage.Get(), "File transfer failed");
+				g_pClient->GetNetworkManager()->Disconnect();
+				g_pClient->GetChatWindow()->SetEnabled(false);
+
+				// Get our main menu
+				CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+
+				pMainMenu->ResetNetworkStats();
+				pMainMenu->SetDisconnectButtonVisible(false);
+				pMainMenu->SetVisible(true);
+
+				g_pClient->GetGUI()->ShowMessageBox(strErrorMessage.Get(), "File transfer failed");
 			}
 
 			m_transferList.remove(pFileTransfer);

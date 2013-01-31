@@ -169,6 +169,12 @@
     <Filter Include="Header Files\Hooks\DirectInputProxy">
       <UniqueIdentifier>{111be440-172a-4235-a892-03d3214b7a4b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Audio">
+      <UniqueIdentifier>{34de087e-831a-46eb-8dae-763ccb7b1462}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Audio">
+      <UniqueIdentifier>{871a8206-c1f0-41de-90b9-abf739491992}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Commands.h">
@@ -696,9 +702,6 @@
     <ClInclude Include="CIVPedWeaponSlot.h">
       <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
-    <ClInclude Include="CAudio.h">
-      <Filter>Header Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="CFireManager.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
@@ -716,6 +719,15 @@
     </ClInclude>
     <ClInclude Include="CFileTransferManager.h">
       <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAudio.h">
+      <Filter>Header Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="CAudioManager.h">
+      <Filter>Header Files\Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1145,9 +1157,6 @@
     <ClCompile Include="CIVPedWeaponSlot.cpp">
       <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
-    <ClCompile Include="CAudio.cpp">
-      <Filter>Source Files\Game</Filter>
-    </ClCompile>
     <ClCompile Include="CFireManager.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
@@ -1168,6 +1177,18 @@
     </ClCompile>
     <ClCompile Include="CFileTransferManager.cpp">
       <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CEvents.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="CAudio.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="CAudioManager.cpp">
+      <Filter>Source Files\Audio</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

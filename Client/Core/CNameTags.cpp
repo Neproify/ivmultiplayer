@@ -8,16 +8,9 @@
 //==============================================================================
 
 #include "CNameTags.h"
-#include "CGUI.h"
-#include "CLocalPlayer.h"
-#include "CPlayerManager.h"
-#include "CActorManager.h"
-#include "CGame.h"
-#include "CGraphics.h"
-#include "CCamera.h"
-#include "CChatWindow.h"
 #include <Common.h>
-#include "CLogFile.h"
+#include <CLogFile.h>
+#include "CClient.h"
 
 // Nametags definitions etc..
 #define b_w					80
@@ -27,13 +20,7 @@
 #define	nt_a				18
 #define nt_a_a				30
 
-extern CGUI           * g_pGUI;
-extern CLocalPlayer   * g_pLocalPlayer;
-extern CPlayerManager * g_pPlayerManager;
-extern CActorManager  * g_pActorManager;
-extern CGame		  * g_pGame;
-extern CGraphics	  * g_pGraphics;
-
+extern CClient * g_pClient;
 
 // TODO: if the distance between you and actor/other players is growing, the nametag/health/armor-bar should be getting smaller
 CNameTags::CNameTags()
@@ -42,7 +29,7 @@ CNameTags::CNameTags()
 	m_bEnabled = true;
 
 	// Get the name tag font
-	m_pFont = g_pGUI->GetFont("tahoma-bold", 10);
+	m_pFont = g_pClient->GetGUI()->GetFont("tahoma-bold", 10);
 }
 
 CNameTags::~CNameTags()
@@ -53,7 +40,7 @@ CNameTags::~CNameTags()
 void CNameTags::DrawTag(String strName, unsigned int uiHealth, unsigned int uiArmour, Vector2 vecScreenPosition, DWORD dwColor)
 {
 	// Draw the name tag
-	g_pGUI->DrawText(strName, CEGUI::Vector2((vecScreenPosition.fX - (b_w / 2)), vecScreenPosition.fY), 
+	g_pClient->GetGUI()->DrawText(strName, CEGUI::Vector2((vecScreenPosition.fX - (b_w / 2)), vecScreenPosition.fY), 
 					 CEGUI::colour(dwColor), m_pFont, false);
 
 	// Ensure correct health and armor values
@@ -82,37 +69,40 @@ void CNameTags::DrawTag(String strName, unsigned int uiHealth, unsigned int uiAr
 	if(m_fArmour < 0)
 		m_fArmour = 0.0f;
 
+	// Get our graphics
+	CGraphics * pGraphics = g_pClient->GetGraphics();
+
 	// Draw boxes
 	if(uiArmour > 2)
 	{
 		// Background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - (b_w / 2)), (vecScreenPosition.fY + nt_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
+		pGraphics->DrawBox_2( (vecScreenPosition.fX - (b_w / 2)), (vecScreenPosition.fY + nt_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
 
 		// Armour background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 180, 180, 180) );
+		pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 180, 180, 180) );
 
 		// Armour
-		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), fArmourWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(225, 225, 225, 225) );
+		pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), fArmourWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(225, 225, 225, 225) );
 
 		// Background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - (b_w / 2)), (vecScreenPosition.fY + nt_a_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
+		pGraphics->DrawBox_2( (vecScreenPosition.fX - (b_w / 2)), (vecScreenPosition.fY + nt_a_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
 
 		// Health background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 110, 0, 0) );
+		pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 110, 0, 0) );
 
 		// Health
-		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a_a + b_i_p)), fHealthWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 255, 0, 0) );
+		pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a_a + b_i_p)), fHealthWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 255, 0, 0) );
 	}
 	else
 	{
 		// Background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - (b_w / 2)), (vecScreenPosition.fY + nt_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
+		pGraphics->DrawBox_2( (vecScreenPosition.fX - (b_w / 2)), (vecScreenPosition.fY + nt_a), b_w, b_h, D3DCOLOR_ARGB(120, 0, 0, 0) );
 
 		// Health background
-		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 110, 0, 0) );
+		pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), (b_w - (b_i_p * 2)), (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 110, 0, 0) );
 
 		// Health
-		g_pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), fHealthWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 255, 0, 0) );
+		pGraphics->DrawBox_2( (vecScreenPosition.fX - ((b_w / 2) - b_i_p)), (vecScreenPosition.fY + (nt_a + b_i_p)), fHealthWidth, (b_h - (b_i_p * 2)), D3DCOLOR_ARGB(180, 255, 0, 0) );
 
 	}
 }
@@ -123,26 +113,32 @@ void CNameTags::Draw()
 	if(!m_bEnabled)
 		return;
 
+	// Get our graphics, player manager and local player
+	CGraphics * pGraphics = g_pClient->GetGraphics();
+	CPlayerManager * pPlayerManager = g_pClient->GetPlayerManager();
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
 	// Have we our graphics and device class?
-	if(!g_pGraphics || !g_pGraphics->GetDevice())
+	if(!pGraphics || !pGraphics->GetDevice())
 		return;
 
-	if(g_pPlayerManager && g_pLocalPlayer && g_pLocalPlayer->IsSpawned() && g_pGame->GetNameTags())
+	if(pPlayerManager && pLocalPlayer && pLocalPlayer->IsSpawned() && CGame::GetNameTags())
 	{
 		// Get the local player position
 		CVector3 vecLocalPlayerPosition;
 		CVector3 vecWorldPosition;
 		Vector2 vecScreenPosition;
-		g_pLocalPlayer->GetPosition(vecLocalPlayerPosition);
+		pLocalPlayer->GetPosition(vecLocalPlayerPosition);
 			
-		// First render gui stuff(nametags), than boxes
+		// Render player tags
 		for(EntityId i = 0; i < MAX_PLAYERS; i++)
 		{
-			// Is the current player active?
-			if(g_pPlayerManager->DoesExist(i) && g_pLocalPlayer->GetPlayerId() != i)
-			{
-				CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(i);
+			// Get the player
+			CNetworkPlayer * pPlayer = pPlayerManager->GetAt(i);
 
+			// Is the current player spawned and not the local player?
+			if(pPlayer->IsSpawned() && !pPlayer->IsLocalPlayer())
+			{
 				// Get the player position + add z coord
 				pPlayer->GetPosition(vecWorldPosition);
 				vecWorldPosition.fZ += 1.15f;
@@ -172,15 +168,18 @@ void CNameTags::Draw()
 				DrawTag(strNameTag, uiHealth, uiArmour, vecScreenPosition, dwColor);
 			}
 		}
+
+		// Get our actor manager
+		CActorManager * pActorManager = g_pClient->GetActorManager();
 		
-		// Loop through all active actors
+		// Render actor tags
 		for(EntityId i = 0; i < MAX_ACTORS; i++)
 		{
 			// Is the current actor active?
-			if(g_pActorManager->DoesExist(i)/* && g_pActorManager->IsNameTagEnabled(i)*/)
+			if(pActorManager->DoesExist(i)/* && g_pActorManager->IsNameTagEnabled(i)*/)
 			{
 				// Get the player position + add z coord
-				vecWorldPosition = g_pActorManager->GetPosition(i);
+				vecWorldPosition = pActorManager->GetPosition(i);
 				vecWorldPosition.fZ += 1.0f;
 					
 				// Convert the position to a screen position
@@ -192,14 +191,14 @@ void CNameTags::Draw()
 					continue;
 
 				// set the name
-				String strNameTag("%s", g_pActorManager->GetName(i).Get());
+				String strNameTag("%s", pActorManager->GetName(i).Get());
 
 				// Get the name tag color
-				unsigned int dwColor = ((g_pActorManager->GetNametagColor(i) >> 8) | 0xFF000000);
+				unsigned int dwColor = ((pActorManager->GetNametagColor(i) >> 8) | 0xFF000000);
 
 				// Get the actor health and armour
-				unsigned int uiHealth = (unsigned int)(g_pActorManager->GetHealth(i) - 100);
-				unsigned int uiArmour = (unsigned int)(g_pActorManager->GetArmour(i));
+				unsigned int uiHealth = (unsigned int)(pActorManager->GetHealth(i) - 100);
+				unsigned int uiArmour = (unsigned int)(pActorManager->GetArmour(i));
 
 				// Draw the name tag
 				DrawTag(strNameTag, uiHealth, uiArmour, vecScreenPosition, dwColor);

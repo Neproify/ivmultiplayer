@@ -22,8 +22,6 @@
 #include "../Server/Core/Interfaces/CEventsInterface.h"
 #endif
 
-extern CScriptingManager * g_pScriptingManager;
-
 class CEventHandler
 {
 public:
@@ -61,7 +59,7 @@ public:
 	void Call(CSquirrelArguments* pArguments, CSquirrelArgument* pReturn)
 	{
 		// Check if the VM does exist
-		CSquirrel* pScript = g_pScriptingManager->Get(m_pVM); 
+		CSquirrel* pScript = CScriptingManager::GetInstance()->Get(m_pVM); 
 		if(pScript)
 			pScript->Call(m_pFunction, pArguments, pReturn);
 	}
@@ -95,13 +93,27 @@ class CEvents : public std::map< String, std::list< CEventHandler* > >
 	, public CEventsInterface
 #endif
 {
+private:
+	static CEvents * m_pInstance;
+
 public:
 	const char* currentEventName;
+
+	CEvents()
+	{
+		// Set our instance
+		m_pInstance = this;
+	}
 
 	~CEvents()
 	{
 		clear();
+
+		// Reset our instance
+		m_pInstance = NULL;
 	}
+
+	static CEvents * GetInstance() { return m_pInstance; }
 
 	bool Add(String strName, CEventHandler* pEventHandler)
 	{

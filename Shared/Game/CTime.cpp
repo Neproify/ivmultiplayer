@@ -17,6 +17,9 @@
 extern CNetworkManager * g_pNetworkManager;
 #endif
 
+CTime            * CTime::m_pInstance = NULL;
+const unsigned int CTime::DEFAULT_MINUTE_DURATION = 2000;
+
 CTime::CTime()
 	: m_ulTimeSet(SharedUtility::GetTime()),
 	m_ucHour(12),
@@ -24,10 +27,14 @@ CTime::CTime()
 	m_ucDayOfWeek(0),
 	m_uiMinuteDuration(DEFAULT_MINUTE_DURATION)
 {
+	// Set our instance
+	m_pInstance = this;
 }
 
 CTime::~CTime()
 {
+	// Reset our instance
+	m_pInstance = NULL;
 }
 
 void CTime::SetTime(const unsigned char ucHour, const unsigned char ucMinute)

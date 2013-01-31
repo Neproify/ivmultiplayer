@@ -9,40 +9,21 @@
 //
 //==============================================================================
 
-#include "CMainMenu.h"
-#include "CNetworkManager.h"
-#include <CSettings.h>
-#include "CGraphics.h"
-#include "CChatWindow.h"
-#include <Network/CHttpClient.h>
-#include <CLogFile.h>
-#include "CCredits.h"
 #include <map>
+#include <CSettings.h>
+#include <CLogFile.h>
+#include <Network/CHttpClient.h>
+#include "CMainMenu.h"
+#include "CClient.h"
 #include "CGame.h"
-//#include "CD3D9Webkit.hpp"
 
-extern CGUI            * g_pGUI;
-extern CGraphics	   * g_pGraphics;
-extern CNetworkManager * g_pNetworkManager;
-extern CChatWindow     * g_pChatWindow;
-extern bool              g_bWindowedMode;
-extern bool              g_bFPSToggle;
-extern unsigned short    g_usPort;
-extern String            g_strHost;
-extern String            g_strNick;
-extern String            g_strPassword;
-extern CCredits        * g_pCredits;
-extern bool				 g_bGameLoaded;
-//extern CD3D9WebKit     * g_pWebkit;
+extern CClient * g_pClient;
 
 #define PAUSE_MENU_BACKGROUND 0x00000080
 
 CMainMenu                         * CMainMenu::m_pSingleton = NULL;
 std::map<String, unsigned long>     serverPingStartMap;
 extern std::vector<CEGUI::Window *> g_pGUIElements;
-
-void ResetGame(bool bResetNow);
-void InternalResetGame(bool bToggle);
 
 bool CMainMenu::OnServerBrowserButtonMouseEnter(const CEGUI::EventArgs &eventArgs)
 {
@@ -100,15 +81,17 @@ void CMainMenu::SetDisconnectButtonVisible(bool bDisconnectButtonVisible)
 
 bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
-	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+	if(pNetworkManager && pNetworkManager->IsConnected())
 	{
-		g_pChatWindow->SetEnabled(true);
+		g_pClient->GetChatWindow()->SetEnabled(true);
 
 		for(int i = 0; i < 10; i++)
-			g_pChatWindow->AddMessage(0xFFFFFFAA,false," ");
+			g_pClient->GetChatWindow()->AddMessage(0xFFFFFFAA,false," ");
 
 		ShowMessageBox("Successfully disconnected from server","Disconnect",true,false,false);
-		InternalResetGame(false);
+		g_pClient->ResetGame(true);
 		// jenksta: wtf?
 		Sleep(500);
 		SetDisconnectButtonVisible(false);
@@ -161,18 +144,20 @@ bool CMainMenu::OnAboutButtonMouseLeave(const CEGUI::EventArgs &eventArgs)
 
 bool CMainMenu::OnAboutButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
-	g_pCredits->Start();
+	g_pClient->GetCredits()->Start();
 	return true;
 }
 
 bool CMainMenu::OnQuitButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
 	// If we are connected to a server, disconnect
-	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
-		g_pNetworkManager->Disconnect();
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+	if(pNetworkManager && pNetworkManager->IsConnected())
+		pNetworkManager->Disconnect();
 	
 	// Delete the network manager interface
-	SAFE_DELETE(g_pNetworkManager);
+	SAFE_DELETE(pNetworkManager);
 
 	// Delete the webkit interface
 	// SAFE_DELETE(g_pWebkit);
@@ -195,57 +180,57 @@ void CMainMenu::OnConnectMessageBoxResponse(eGUIMessageBoxResponse type)
 	else if(type == GUI_MESSAGEBOX_NO)
 	{
 		// Connect anyway
-		CMainMenu::GetSingleton()->OnConnect(g_strHost, g_usPort, g_strPassword, true);
+		CMainMenu::GetSingleton()->OnConnect(g_pClient->GetHost(), g_pClient->GetPort(), g_pClient->GetPassword(), true);
 	}
 }
 
 void CMainMenu::OnConnect(String strHost, unsigned short usPort, String strPassword, bool bIgnoreDefaultName)
 {
 	// Ensure we have a name set
-	if(g_strNick.IsEmpty())
+	if(g_pClient->GetNick().IsEmpty())
 	{
-		g_pGUI->ShowMessageBox("You must have a name set!\nPress 'Ok' to open the 'Settings' menu.", "Error", GUI_MESSAGEBOXTYPE_OK, OnConnectMessageBoxResponse);
+		g_pClient->GetGUI()->ShowMessageBox("You must have a name set!\nPress 'Ok' to open the 'Settings' menu.", "Error", GUI_MESSAGEBOXTYPE_OK, OnConnectMessageBoxResponse);
 		return;
 	}
 
-	// Set the host
-	g_strHost = strHost;
-
-	// Set the port
-	g_usPort = usPort;
+	// Set the host and port
+	g_pClient->SetHost(strHost);
+	g_pClient->SetPort(usPort);
 
 	// Set the password
-	g_strPassword = strPassword;
+	g_pClient->SetPassword(strPassword);
 
 	// Ensure they have changed from the default name and we are not ignoring default name
 	if(CVAR_GET_STRING("nick") == "player" && !bIgnoreDefaultName)
 	{
-		g_pGUI->ShowMessageBox("Your current name \"player\" is the default name.\nDo you wish to change your name?.", "Warning", GUI_MESSAGEBOXTYPE_YESNO, OnConnectMessageBoxResponse);
+		g_pClient->GetGUI()->ShowMessageBox("Your current name \"player\" is the default name.\nDo you wish to change your name?.", "Warning", GUI_MESSAGEBOXTYPE_YESNO, OnConnectMessageBoxResponse);
 		return;
 	}
 
 	// Are we already connected?
-	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+	if(pNetworkManager && pNetworkManager->IsConnected())
 	{
 		// Reset the game
-		ResetGame(false);
+		g_pClient->ResetGame();
 
 		// Disable the menu
 		CGame::SetState(GAME_STATE_INGAME);
-		g_pChatWindow->SetEnabled(true);
+		g_pClient->GetChatWindow()->SetEnabled(true);
 	}
-	else if(g_pNetworkManager && !g_pNetworkManager->IsConnected() && g_bGameLoaded == true)
+	else if(pNetworkManager && !pNetworkManager->IsConnected() && g_pClient->IsGameLoaded())
 	{
 		// Just connect to the server
-		SAFE_DELETE(g_pNetworkManager);
-		g_pNetworkManager = new CNetworkManager();
+		SAFE_DELETE(pNetworkManager);
+		pNetworkManager = new CNetworkManager();
 
-		g_pNetworkManager->Startup(g_strHost,g_usPort,g_strPassword);
-		g_pNetworkManager->Connect();
+		pNetworkManager->Startup(g_pClient->GetHost(), g_pClient->GetPort(), g_pClient->GetPassword());
+		pNetworkManager->Connect();
 
 		// Disable the menu
 		CGame::SetState(GAME_STATE_INGAME);
-		g_pChatWindow->SetEnabled(true);
+		g_pClient->GetChatWindow()->SetEnabled(true);
 	}
 	else
 	{
@@ -389,7 +374,7 @@ void CMainMenu::OnMasterListQuery(int iType)
 	if(!m_pMasterListQuery->Query(iType))
 	{
 		String strError("Failed to contact the master list (%s).\nPlease check your internet connection.", CMainMenu::GetSingleton()->m_pMasterListQuery->GetHttpClient()->GetLastErrorString().Get());
-		g_pGUI->ShowMessageBox(strError.Get(), "Error");
+		g_pClient->GetGUI()->ShowMessageBox(strError.Get(), "Error");
 	}
 }
 
@@ -463,7 +448,7 @@ bool CMainMenu::OnServerBrowserWindowConnectButtonClick(const CEGUI::EventArgs &
 
 	if(!GetHostAndPort(pHost->getText().c_str(), strHost, usPort))
 	{
-		g_pGUI->ShowMessageBox("You must enter a valid host and port!", "Error!");
+		g_pClient->GetGUI()->ShowMessageBox("You must enter a valid host and port!", "Error!");
 		return false;
 	}
 
@@ -502,7 +487,7 @@ bool CMainMenu::OnQuickConnectIPEditBoxKeyUp(const CEGUI::EventArgs &eventArgs)
 
 		if(!GetHostAndPort(m_pQuickConnectWindowIPEditBox->getText().c_str(), strHost, usPort))
 		{
-			g_pGUI->ShowMessageBox("You must enter a valid host and port.", "Error");
+			g_pClient->GetGUI()->ShowMessageBox("You must enter a valid host and port.", "Error");
 			return false;
 		}
 
@@ -532,7 +517,7 @@ bool CMainMenu::OnQuickConnectWindowConnectButtonClick(const CEGUI::EventArgs &e
 
 	if(!GetHostAndPort(m_pQuickConnectWindowIPEditBox->getText().c_str(), strHost, usPort))
 	{
-		g_pGUI->ShowMessageBox("You must enter a valid host and port.", "Error");
+		g_pClient->GetGUI()->ShowMessageBox("You must enter a valid host and port.", "Error");
 		return false;
 	}
 
@@ -565,7 +550,7 @@ bool CMainMenu::OnSettingsWindowSaveButtonClick(const CEGUI::EventArgs &eventArg
 	CEGUI::Checkbox * pCheckBox = (CEGUI::Checkbox *)m_pSettingsWindowWindowedCheckBox;
 	bool bWindowed = pCheckBox->isSelected();
 	CEGUI::Checkbox * pCheckBox2 = (CEGUI::Checkbox *)m_pSettingsWindowFPSCheckBox;
-	g_bFPSToggle = pCheckBox2->isSelected();
+	g_pClient->SetFPSToggle(pCheckBox2->isSelected());
 	String strFont(m_pSettingsWindowChatFont->getText().c_str());
 	String strFontSize(m_pSettingsWindowChatFontSize->getText().c_str());
 	String strBackgroundAlpha(m_pSettingsWindowChatBGColorA->getText().c_str());
@@ -573,11 +558,11 @@ bool CMainMenu::OnSettingsWindowSaveButtonClick(const CEGUI::EventArgs &eventArg
 	String strBackgroundGreen(m_pSettingsWindowChatBGColorG->getText().c_str());
 	String strBackgroundBlue(m_pSettingsWindowChatBGColorB->getText().c_str());
 
-	if(bWindowed != g_bWindowedMode)
-		g_pGUI->ShowMessageBox("You must restart IV:MP for the windowed mode option to take effect", "Information.");
+	if(bWindowed != g_pClient->IsWindowedMode())
+		g_pClient->GetGUI()->ShowMessageBox("You must restart IV:MP for the windowed mode option to take effect", "Information.");
 
 	CVAR_SET_BOOL("windowed", bWindowed);
-	CVAR_SET_BOOL("fps", g_bFPSToggle);
+	CVAR_SET_BOOL("fps", g_pClient->GetFPSToggle());
 	CVAR_SET_INTEGER("chatfont", strFont.ToInteger());
 	CVAR_SET_INTEGER("chatsize", strFontSize.ToInteger());
 	CVAR_SET_INTEGER("chatbga", strBackgroundAlpha.ToInteger());
@@ -586,7 +571,7 @@ bool CMainMenu::OnSettingsWindowSaveButtonClick(const CEGUI::EventArgs &eventArg
 	CVAR_SET_INTEGER("chatbgb", strBackgroundBlue.ToInteger());
 
 	// Init the chat window font and background
-	g_pChatWindow->InitFontAndBackground();
+	g_pClient->GetChatWindow()->InitFontAndBackground();
 
 	// Hide the settings window
 	SetSettingsWindowVisible(false);
@@ -597,15 +582,17 @@ bool CMainMenu::OnSettingsWindowSaveButtonClick(const CEGUI::EventArgs &eventArg
 	if(bNameChanged)
 	{
 		CVAR_SET_STRING("nick", m_pSettingsWindowNickEditBox->getText().c_str());
-		g_strNick.Set(m_pSettingsWindowNickEditBox->getText().c_str());
+		g_pClient->SetNick(m_pSettingsWindowNickEditBox->getText().c_str());
 	}
 
-	if(g_pNetworkManager && g_pNetworkManager->IsConnected() && bNameChanged)
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+	if(pNetworkManager && pNetworkManager->IsConnected() && bNameChanged)
 	{
 		// Send the name change request
 		CBitStream bsSend;
 		bsSend.Write(String(m_pSettingsWindowNickEditBox->getText().c_str()));
-		g_pNetworkManager->RPC(RPC_NameChange, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
+		pNetworkManager->RPC(RPC_NameChange, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 	}
 
 	return true;
@@ -638,16 +625,19 @@ CMainMenu::CMainMenu()
 	// Set the server query handler
 	m_pServerQuery->SetServerQueryHandler(ServerQueryHandler);
 
+	// Get our GUI instance
+	CGUI * pGUI = g_pClient->GetGUI();
+
 	// jenksta: why was this put here?
-	g_pGUI->GetDefaultWindow()->setAlpha(1.0f);
+	pGUI->GetDefaultWindow()->setAlpha(1.0f);
 
 	// Reset the show stuff
 	m_bCameraState = 1;
 	m_bCameraStateTime = 1;
 
 	// Main Menu
-	float fWidth = (float)g_pGUI->GetDisplayWidth();
-	float fHeight = (float)g_pGUI->GetDisplayHeight();
+	float fWidth = (float)pGUI->GetDisplayWidth();
+	float fHeight = (float)pGUI->GetDisplayHeight();
 	float fX = -2.0f;
 	float fY = 0.5f;
 
@@ -679,7 +669,7 @@ CMainMenu::CMainMenu()
 	}
 
 	//IV:MP Menu Background
-	m_pBackground = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pBackground = pGUI->CreateGUIStaticImage(pGUI->GetDefaultWindow());
 	m_pBackground->setProperty("FrameEnabled", "false");
 	m_pBackground->setProperty("BackgroundEnabled", "false");
 	m_pBackground->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
@@ -689,7 +679,7 @@ CMainMenu::CMainMenu()
 	m_pBackground->setVisible(false);
 
 	//IV:MP Loading Background
-	m_pLoadingBackground = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pLoadingBackground = pGUI->CreateGUIStaticImage(pGUI->GetDefaultWindow());
 	m_pLoadingBackground->setProperty("FrameEnabled", "false");
 	m_pLoadingBackground->setProperty("BackgroundEnabled", "false");
 	m_pLoadingBackground->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
@@ -703,7 +693,7 @@ CMainMenu::CMainMenu()
 	float width = fWidth/(float)1.6; // (float) disable warning (double into ?)
 
 	//IV:MP Loading Logo
-	m_pLoadingLogo = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pLoadingLogo = pGUI->CreateGUIStaticImage(pGUI->GetDefaultWindow());
 	m_pLoadingLogo->setProperty("FrameEnabled", "false");
 	m_pLoadingLogo->setProperty("BackgroundEnabled", "false");
 	m_pLoadingLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
@@ -715,7 +705,7 @@ CMainMenu::CMainMenu()
 	//RakNet Loading Logo
 	height = 44;
 	width = 134;
-	m_pRaknetLogo = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pRaknetLogo = pGUI->CreateGUIStaticImage(pGUI->GetDefaultWindow());
 	m_pRaknetLogo->setProperty("FrameEnabled", "false");
 	m_pRaknetLogo->setProperty("BackgroundEnabled", "false");
 	m_pRaknetLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
@@ -725,17 +715,17 @@ CMainMenu::CMainMenu()
 	m_pRaknetLogo->setSize(CEGUI::UVector2(CEGUI::UDim(0, width), CEGUI::UDim(0, height)));
 
 	//Loading label
-	m_pLoadingText = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pLoadingText = pGUI->CreateGUIStaticText(pGUI->GetDefaultWindow());
 	m_pLoadingText->setText("IV:MP is loading, please wait ...");
 	m_pLoadingText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pLoadingText->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/8)), CEGUI::UDim(0, (fHeight/2-60))));
 	m_pLoadingText->setProperty("FrameEnabled", "false");
 	m_pLoadingText->setProperty("BackgroundEnabled", "false");
-	m_pLoadingText->setFont(g_pGUI->GetFont("pricedown",24U));
+	m_pLoadingText->setFont(pGUI->GetFont("pricedown",24U));
 	m_pLoadingText->setVisible(false);
 
 	//IV:MP Logo
-	m_pLogo = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+	m_pLogo = pGUI->CreateGUIStaticImage(pGUI->GetDefaultWindow());
 	m_pLogo->setProperty("FrameEnabled", "false");
 	m_pLogo->setProperty("BackgroundEnabled", "false");
 	m_pLogo->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
@@ -752,58 +742,58 @@ CMainMenu::CMainMenu()
 	fX += 0.30f;
 
 	//Set network stuff
-	m_pHost = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pHost = pGUI->CreateGUIStaticText(pGUI->GetDefaultWindow());
 	m_pHost->setText("-");
 	m_pHost->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pHost->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)+fWidth/8.75f)),  CEGUI::UDim(0, (fY-10.0f))));
 	m_pHost->setProperty("FrameEnabled", "false");
 	m_pHost->setProperty("BackgroundEnabled", "false");
-	m_pHost->setFont(g_pGUI->GetFont("electronichighwaysign",21U));
+	m_pHost->setFont(pGUI->GetFont("electronichighwaysign",21U));
 	m_pBackground->addChildWindow( m_pHost );
 
-	m_pPlayers = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pPlayers = pGUI->CreateGUIStaticText(pGUI->GetDefaultWindow());
 	m_pPlayers->setText("-");
 	m_pPlayers->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pPlayers->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)+fWidth/8.75f)),  CEGUI::UDim(0, (fY+20.0f))));
 	m_pPlayers->setProperty("FrameEnabled", "false");
 	m_pPlayers->setProperty("BackgroundEnabled", "false");
-	m_pPlayers->setFont(g_pGUI->GetFont("electronichighwaysign",21U));
+	m_pPlayers->setFont(pGUI->GetFont("electronichighwaysign",21U));
 	m_pBackground->addChildWindow( m_pPlayers );
 
-	m_pMyName = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pMyName = pGUI->CreateGUIStaticText(pGUI->GetDefaultWindow());
 	m_pMyName->setText("-");
 	m_pMyName->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pMyName->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)+fWidth/8.75f)),  CEGUI::UDim(0, (fY+50.0f)))); //(fWidth/2)+fWidth/8.5f)
 	m_pMyName->setProperty("FrameEnabled", "false");
 	m_pMyName->setProperty("BackgroundEnabled", "false");
-	m_pMyName->setFont(g_pGUI->GetFont("electronichighwaysign",21U));
+	m_pMyName->setFont(pGUI->GetFont("electronichighwaysign",21U));
 	m_pBackground->addChildWindow( m_pMyName );
 
-	m_pHostDesc = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pHostDesc = pGUI->CreateGUIStaticText(pGUI->GetDefaultWindow());
 	m_pHostDesc->setText("CONNECTED TO:");
 	m_pHostDesc->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pHostDesc->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/4.75f)),  CEGUI::UDim(0, (fY-10.0f))));
 	m_pHostDesc->setProperty("FrameEnabled", "false");
 	m_pHostDesc->setProperty("BackgroundEnabled", "false");
-	m_pHostDesc->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
+	m_pHostDesc->setFont(pGUI->GetFont("electronichighwaysign",20U));
 	m_pBackground->addChildWindow( m_pHostDesc );
 
-	m_pPlayersDesc = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pPlayersDesc = pGUI->CreateGUIStaticText(pGUI->GetDefaultWindow());
 	m_pPlayersDesc->setText("PLAYERS ONLINE:");
 	m_pPlayersDesc->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pPlayersDesc->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/4.75f)),  CEGUI::UDim(0, (fY+20.0f))));
 	m_pPlayersDesc->setProperty("FrameEnabled", "false");
 	m_pPlayersDesc->setProperty("BackgroundEnabled", "false");
-	m_pPlayersDesc->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
+	m_pPlayersDesc->setFont(pGUI->GetFont("electronichighwaysign",20U));
 	m_pBackground->addChildWindow( m_pPlayersDesc );
 
-	m_pMyNameDesc = g_pGUI->CreateGUIStaticText(g_pGUI->GetDefaultWindow());
+	m_pMyNameDesc = pGUI->CreateGUIStaticText(pGUI->GetDefaultWindow());
 	m_pMyNameDesc->setText("MY NAME:");
 	m_pMyNameDesc->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pMyNameDesc->setPosition(CEGUI::UVector2(CEGUI::UDim(0, ((fWidth/2)-fWidth/4.75f)),  CEGUI::UDim(0, fY+50.0f)));
 	m_pMyNameDesc->setProperty("FrameEnabled", "false");
 	m_pMyNameDesc->setProperty("BackgroundEnabled", "false");
-	m_pMyNameDesc->setFont(g_pGUI->GetFont("electronichighwaysign",20U));
+	m_pMyNameDesc->setFont(pGUI->GetFont("electronichighwaysign",20U));
 	m_pBackground->addChildWindow( m_pMyNameDesc );
 
 	fX = 0.10f;
@@ -857,14 +847,14 @@ CMainMenu::CMainMenu()
 	m_pBackground->addChildWindow( m_pQuitButton );
 
 	// Server Browser Window
-	m_serverBrowser.pWindow = g_pGUI->CreateGUIFrameWindow();
+	m_serverBrowser.pWindow = pGUI->CreateGUIFrameWindow();
 	m_pBackground->addChildWindow(m_serverBrowser.pWindow);
 	m_serverBrowser.pWindow->setText("Server Browser");
 	m_serverBrowser.pWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0, 1050), CEGUI::UDim(0, 585)));
 	m_serverBrowser.pWindow->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserWindowCloseClick, this));
 	m_serverBrowser.pWindow->setVisible(false);
 
-	m_serverBrowser.pServerMultiColumnList = g_pGUI->CreateGUIMultiColumnList(m_serverBrowser.pWindow);
+	m_serverBrowser.pServerMultiColumnList = pGUI->CreateGUIMultiColumnList(m_serverBrowser.pWindow);
 	m_serverBrowser.pServerMultiColumnList->setText("Server Browser");
 	m_serverBrowser.pServerMultiColumnList->setSize(CEGUI::UVector2(CEGUI::UDim(0.9f, 0), CEGUI::UDim(0.8f, 0)));
 	m_serverBrowser.pServerMultiColumnList->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05f, 0), CEGUI::UDim(0.08f, 0)));
@@ -876,29 +866,29 @@ CMainMenu::CMainMenu()
 	// jenksta: width of below header is set to 0.159 due to the fact if all column widths add up to 1.0
 	// then an automaic scroll bar is added
 	m_serverBrowser.pServerMultiColumnList->setProperty("ColumnHeader", "text:Passworded width:{0.159,0} id:5");
-	m_serverBrowser.pServerMultiColumnList->setFont(g_pGUI->GetFont("tahoma-bold", 10));
+	m_serverBrowser.pServerMultiColumnList->setFont(pGUI->GetFont("tahoma-bold", 10));
 	//m_pServerBrowserWindowServerMultiColumnList->setProperty("TextColours", "tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF");
 	m_serverBrowser.pServerMultiColumnList->subscribeEvent(CEGUI::Window::EventMouseClick, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserWindowRowClick, this));
 
-	m_serverBrowser.pRefreshButton = g_pGUI->CreateGUIButton(m_serverBrowser.pWindow);
+	m_serverBrowser.pRefreshButton = pGUI->CreateGUIButton(m_serverBrowser.pWindow);
 	m_serverBrowser.pRefreshButton->setText("Internet");
 	m_serverBrowser.pRefreshButton->setSize(CEGUI::UVector2(CEGUI::UDim(0.15f, 0), CEGUI::UDim(0.05f, 0)));
 	m_serverBrowser.pRefreshButton->setPosition(CEGUI::UVector2(CEGUI::UDim(0.12f, 0), CEGUI::UDim(0.9f, 0)));
 	m_serverBrowser.pRefreshButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserWindowRefreshButtonClick, this));
 
-	m_serverBrowser.pSponsoredButton = g_pGUI->CreateGUIButton(m_serverBrowser.pWindow);
+	m_serverBrowser.pSponsoredButton = pGUI->CreateGUIButton(m_serverBrowser.pWindow);
 	m_serverBrowser.pSponsoredButton->setText("Sponsored");
 	m_serverBrowser.pSponsoredButton->setSize(CEGUI::UVector2(CEGUI::UDim(0.15f, 0), CEGUI::UDim(0.05f, 0)));
 	m_serverBrowser.pSponsoredButton->setPosition(CEGUI::UVector2(CEGUI::UDim(0.32f, 0), CEGUI::UDim(0.9f, 0)));
 	m_serverBrowser.pSponsoredButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserWindowSponsoredButtonClick, this));
 
-	m_serverBrowser.pFeaturedButton = g_pGUI->CreateGUIButton(m_serverBrowser.pWindow);
+	m_serverBrowser.pFeaturedButton = pGUI->CreateGUIButton(m_serverBrowser.pWindow);
 	m_serverBrowser.pFeaturedButton->setText("Featured");
 	m_serverBrowser.pFeaturedButton->setSize(CEGUI::UVector2(CEGUI::UDim(0.15f, 0), CEGUI::UDim(0.05f, 0)));
 	m_serverBrowser.pFeaturedButton->setPosition(CEGUI::UVector2(CEGUI::UDim(0.52f, 0), CEGUI::UDim(0.9f, 0)));
 	m_serverBrowser.pFeaturedButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserWindowFeaturedButtonClick, this));
 
-	m_serverBrowser.pConnectButton = g_pGUI->CreateGUIButton(m_serverBrowser.pWindow);
+	m_serverBrowser.pConnectButton = pGUI->CreateGUIButton(m_serverBrowser.pWindow);
 	m_serverBrowser.pConnectButton->setText("Connect");
 	m_serverBrowser.pConnectButton->setSize(CEGUI::UVector2(CEGUI::UDim(0.15f, 0), CEGUI::UDim(0.05f, 0)));
 	m_serverBrowser.pConnectButton->setPosition(CEGUI::UVector2(CEGUI::UDim(0.8f, 0), CEGUI::UDim(0.9f, 0)));
@@ -906,189 +896,191 @@ CMainMenu::CMainMenu()
 	m_serverBrowser.pConnectButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&CMainMenu::OnServerBrowserWindowConnectButtonClick, this));
 
 	// Quick Connect Window
-	m_pQuickConnectWindow = g_pGUI->CreateGUIFrameWindow();
+	m_pQuickConnectWindow = pGUI->CreateGUIFrameWindow();
 	m_pBackground->addChildWindow( m_pQuickConnectWindow );
 	m_pQuickConnectWindow->setText("Quick Connect");
 	m_pQuickConnectWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0, 520), CEGUI::UDim(0, 390)));
 	m_pQuickConnectWindow->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectWindowCloseClick, this));
 	m_pQuickConnectWindow->setVisible(false);
 
-	m_pQuickConnectWindowIPStaticText = g_pGUI->CreateGUIStaticText(m_pQuickConnectWindow);
+	m_pQuickConnectWindowIPStaticText = pGUI->CreateGUIStaticText(m_pQuickConnectWindow);
 	m_pQuickConnectWindowIPStaticText->setText("IP Address");
 	m_pQuickConnectWindowIPStaticText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pQuickConnectWindowIPStaticText->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.2f, 0)));
 	m_pQuickConnectWindowIPStaticText->setProperty("FrameEnabled", "false");
 	m_pQuickConnectWindowIPStaticText->setProperty("BackgroundEnabled", "false");
-	m_pQuickConnectWindowIPStaticText->setFont(g_pGUI->GetFont("tahoma-bold"));
+	m_pQuickConnectWindowIPStaticText->setFont(pGUI->GetFont("tahoma-bold"));
 
-	m_pQuickConnectWindowIPEditBox = g_pGUI->CreateGUIEditBox(m_pQuickConnectWindow);
-	char szHost[256];
-	sprintf_s(szHost, 256, "%s:%d", g_strHost.C_String(), g_usPort);
-	m_pQuickConnectWindowIPEditBox->setText(szHost);
+	m_pQuickConnectWindowIPEditBox = pGUI->CreateGUIEditBox(m_pQuickConnectWindow);
+	m_pQuickConnectWindowIPEditBox->setText(String("%s:%d", g_pClient->GetHost().Get(), g_pClient->GetPort()).Get());
 	m_pQuickConnectWindowIPEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pQuickConnectWindowIPEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.3f, 0)));
 	m_pQuickConnectWindowIPEditBox->subscribeEvent(CEGUI::Editbox::EventKeyUp, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectIPEditBoxKeyUp, this));
 
-	m_pQuickConnectWindowPasswordStaticText = g_pGUI->CreateGUIStaticText(m_pQuickConnectWindow);
+	m_pQuickConnectWindowPasswordStaticText = pGUI->CreateGUIStaticText(m_pQuickConnectWindow);
 	m_pQuickConnectWindowPasswordStaticText->setText("Password (Blank for none)");
 	m_pQuickConnectWindowPasswordStaticText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pQuickConnectWindowPasswordStaticText->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.5f, 0)));
 	m_pQuickConnectWindowPasswordStaticText->setProperty("FrameEnabled", "false");
 	m_pQuickConnectWindowPasswordStaticText->setProperty("BackgroundEnabled", "false");
-	m_pQuickConnectWindowPasswordStaticText->setFont(g_pGUI->GetFont("tahoma-bold"));
+	m_pQuickConnectWindowPasswordStaticText->setFont(pGUI->GetFont("tahoma-bold"));
 
-	m_pQuickConnectWindowPasswordEditBox = g_pGUI->CreateGUIEditBox(m_pQuickConnectWindow);
-	m_pQuickConnectWindowPasswordEditBox->setText(g_strPassword.C_String());
+	m_pQuickConnectWindowPasswordEditBox = pGUI->CreateGUIEditBox(m_pQuickConnectWindow);
+	m_pQuickConnectWindowPasswordEditBox->setText(g_pClient->GetPassword().Get());
 	m_pQuickConnectWindowPasswordEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pQuickConnectWindowPasswordEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.6f, 0)));
 	m_pQuickConnectWindowPasswordEditBox->subscribeEvent(CEGUI::Editbox::EventKeyUp, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectIPEditBoxKeyUp, this));
 
-	m_pQuickConnectWindowConnectButton = g_pGUI->CreateGUIButton(m_pQuickConnectWindow);
+	m_pQuickConnectWindowConnectButton = pGUI->CreateGUIButton(m_pQuickConnectWindow);
 	m_pQuickConnectWindowConnectButton->setText("Connect");
 	m_pQuickConnectWindowConnectButton->setSize(CEGUI::UVector2(CEGUI::UDim(0.4f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pQuickConnectWindowConnectButton->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3f, 0), CEGUI::UDim(0.8f, 0)));
 	m_pQuickConnectWindowConnectButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&CMainMenu::OnQuickConnectWindowConnectButtonClick, this));
 
 	// Settings Window
-	m_pSettingsWindow = g_pGUI->CreateGUIFrameWindow();
+	m_pSettingsWindow = pGUI->CreateGUIFrameWindow();
 	m_pSettingsWindow->setText("Settings");
 	m_pBackground->addChildWindow( m_pSettingsWindow );
 	m_pSettingsWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0, 520), CEGUI::UDim(0, 390)));
 	m_pSettingsWindow->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked, CEGUI::Event::Subscriber(&CMainMenu::OnSettingsWindowCloseClick, this));
 	m_pSettingsWindow->setVisible(false);
 
-	m_pSettingsTabControl = g_pGUI->CreateGUITabControl();
+	m_pSettingsTabControl = pGUI->CreateGUITabControl();
 	m_pSettingsWindow->addChildWindow( m_pSettingsTabControl );
 	m_pSettingsTabControl->setSize(CEGUI::UVector2(CEGUI::UDim(1, 0), CEGUI::UDim(0.8f, 0)));
 
-	m_pSettingsWindowGeneral = g_pGUI->CreateGUITabContentPane();
+	m_pSettingsWindowGeneral = pGUI->CreateGUITabContentPane();
 	m_pSettingsWindowGeneral->setText("General");
 	m_pSettingsTabControl->addChildWindow( m_pSettingsWindowGeneral );
 	m_pSettingsWindowGeneral->setSize(CEGUI::UVector2(CEGUI::UDim(1, 0), CEGUI::UDim(1, 0)));
 
-	m_pSettingsWindowChat = g_pGUI->CreateGUITabContentPane();
+	m_pSettingsWindowChat = pGUI->CreateGUITabContentPane();
 	m_pSettingsWindowChat->setText("Chat");
 	m_pSettingsTabControl->addChildWindow( m_pSettingsWindowChat );
 	m_pSettingsWindowChat->setSize(CEGUI::UVector2(CEGUI::UDim(1, 0), CEGUI::UDim(1, 0)));
 
-	m_pSettingsWindowNickStaticText = g_pGUI->CreateGUIStaticText(m_pSettingsWindowGeneral);
+	m_pSettingsWindowNickStaticText = pGUI->CreateGUIStaticText(m_pSettingsWindowGeneral);
 	m_pSettingsWindowNickStaticText->setText("Name");
 	m_pSettingsWindowNickStaticText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowNickStaticText->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.2f, 0)));
 	m_pSettingsWindowNickStaticText->setProperty("FrameEnabled", "false");
 	m_pSettingsWindowNickStaticText->setProperty("BackgroundEnabled", "false");
-	m_pSettingsWindowNickStaticText->setFont(g_pGUI->GetFont("tahoma-bold"));
+	m_pSettingsWindowNickStaticText->setFont(pGUI->GetFont("tahoma-bold"));
 
-	m_pSettingsWindowNickEditBox = g_pGUI->CreateGUIEditBox(m_pSettingsWindowGeneral);
-	m_pSettingsWindowNickEditBox->setText(CGUI::AnsiToCeguiFriendlyString(g_strNick.C_String(), g_strNick.GetLength()));
+	m_pSettingsWindowNickEditBox = pGUI->CreateGUIEditBox(m_pSettingsWindowGeneral);
+	m_pSettingsWindowNickEditBox->setText(CGUI::AnsiToCeguiFriendlyString(g_pClient->GetNick()));
 	m_pSettingsWindowNickEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowNickEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.3f, 0)));
 
-	m_pSettingsWindowWindowedStaticText = g_pGUI->CreateGUIStaticText(m_pSettingsWindowGeneral);
+	m_pSettingsWindowWindowedStaticText = pGUI->CreateGUIStaticText(m_pSettingsWindowGeneral);
 	m_pSettingsWindowWindowedStaticText->setText("Windowed");
 	m_pSettingsWindowWindowedStaticText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowWindowedStaticText->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.5f, 0)));
 	m_pSettingsWindowWindowedStaticText->setProperty("FrameEnabled", "false");
 	m_pSettingsWindowWindowedStaticText->setProperty("BackgroundEnabled", "false");
-	m_pSettingsWindowWindowedStaticText->setFont(g_pGUI->GetFont("tahoma-bold"));
+	m_pSettingsWindowWindowedStaticText->setFont(pGUI->GetFont("tahoma-bold"));
 
-	m_pSettingsWindowWindowedCheckBox = g_pGUI->CreateGUICheckBox(m_pSettingsWindowGeneral);
+	m_pSettingsWindowWindowedCheckBox = pGUI->CreateGUICheckBox(m_pSettingsWindowGeneral);
 	CEGUI::Checkbox * pCheckBox = (CEGUI::Checkbox *)m_pSettingsWindowWindowedCheckBox;
-	pCheckBox->setSelected(g_bWindowedMode);
+	pCheckBox->setSelected(g_pClient->IsWindowedMode());
 	m_pSettingsWindowWindowedCheckBox->setText("");
 	m_pSettingsWindowWindowedCheckBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowWindowedCheckBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15f, 0), CEGUI::UDim(0.5f, 0)));
 
-	m_pSettingsWindowFPSStaticText = g_pGUI->CreateGUIStaticText(m_pSettingsWindowGeneral);
+	m_pSettingsWindowFPSStaticText = pGUI->CreateGUIStaticText(m_pSettingsWindowGeneral);
 	m_pSettingsWindowFPSStaticText->setText("Show FPS");
 	m_pSettingsWindowFPSStaticText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowFPSStaticText->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.6f, 0)));
 	m_pSettingsWindowFPSStaticText->setProperty("FrameEnabled", "false");
 	m_pSettingsWindowFPSStaticText->setProperty("BackgroundEnabled", "false");
-	m_pSettingsWindowFPSStaticText->setFont(g_pGUI->GetFont("tahoma-bold"));
+	m_pSettingsWindowFPSStaticText->setFont(pGUI->GetFont("tahoma-bold"));
 
-	m_pSettingsWindowFPSCheckBox = g_pGUI->CreateGUICheckBox(m_pSettingsWindowGeneral);
+	m_pSettingsWindowFPSCheckBox = pGUI->CreateGUICheckBox(m_pSettingsWindowGeneral);
 	CEGUI::Checkbox * pCheckBox2 = (CEGUI::Checkbox *)m_pSettingsWindowFPSCheckBox;
-	pCheckBox2->setSelected(g_bFPSToggle);
+	pCheckBox2->setSelected(g_pClient->GetFPSToggle());
 	m_pSettingsWindowFPSCheckBox->setText("");
 	m_pSettingsWindowFPSCheckBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowFPSCheckBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15f, 0), CEGUI::UDim(0.6f, 0)));
 
 
-	m_pSettingsWindowChatFontSizeStaticText = g_pGUI->CreateGUIStaticText(m_pSettingsWindowChat);
+	m_pSettingsWindowChatFontSizeStaticText = pGUI->CreateGUIStaticText(m_pSettingsWindowChat);
 	m_pSettingsWindowChatFontSizeStaticText->setText("Chatfont/Fontsize");
 	m_pSettingsWindowChatFontSizeStaticText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowChatFontSizeStaticText->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.2f, 0)));
 	m_pSettingsWindowChatFontSizeStaticText->setProperty("FrameEnabled", "false");
 	m_pSettingsWindowChatFontSizeStaticText->setProperty("BackgroundEnabled", "false");
-	m_pSettingsWindowChatFontSizeStaticText->setFont(g_pGUI->GetFont("tahoma-bold"));
+	m_pSettingsWindowChatFontSizeStaticText->setFont(pGUI->GetFont("tahoma-bold"));
 
-	m_pSettingsWindowChatFont = g_pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
+	m_pSettingsWindowChatFont = pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
 	m_pSettingsWindowChatFont->setText(CVAR_GET_STRING("chatfont").Get());
 	m_pSettingsWindowChatFont->setSize(CEGUI::UVector2(CEGUI::UDim(0.4f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowChatFont->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.3f, 0)));
 
-	m_pSettingsWindowChatFontSize = g_pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
+	m_pSettingsWindowChatFontSize = pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
 	m_pSettingsWindowChatFontSize->setText(CVAR_GET_EX("chatsize").Get());
 	m_pSettingsWindowChatFontSize->setSize(CEGUI::UVector2(CEGUI::UDim(0.1f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowChatFontSize->setPosition(CEGUI::UVector2(CEGUI::UDim(0.65f, 0), CEGUI::UDim(0.3f, 0)));
 
-	m_pSettingsWindowChatBackgroundStaticText = g_pGUI->CreateGUIStaticText(m_pSettingsWindowChat);
+	m_pSettingsWindowChatBackgroundStaticText = pGUI->CreateGUIStaticText(m_pSettingsWindowChat);
 	m_pSettingsWindowChatBackgroundStaticText->setText("Background (A,R,G,B)");
 	m_pSettingsWindowChatBackgroundStaticText->setSize(CEGUI::UVector2(CEGUI::UDim(0.6f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowChatBackgroundStaticText->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.4f, 0)));
 	m_pSettingsWindowChatBackgroundStaticText->setProperty("FrameEnabled", "false");
 	m_pSettingsWindowChatBackgroundStaticText->setProperty("BackgroundEnabled", "false");
-	m_pSettingsWindowChatBackgroundStaticText->setFont(g_pGUI->GetFont("tahoma-bold"));
+	m_pSettingsWindowChatBackgroundStaticText->setFont(pGUI->GetFont("tahoma-bold"));
 
-	m_pSettingsWindowChatBGColorA = g_pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
+	m_pSettingsWindowChatBGColorA = pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
 	m_pSettingsWindowChatBGColorA->setText(CVAR_GET_EX("chatbga").Get());
 	m_pSettingsWindowChatBGColorA->setSize(CEGUI::UVector2(CEGUI::UDim(0.1f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowChatBGColorA->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.5f, 0)));
 
-	m_pSettingsWindowChatBGColorR = g_pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
+	m_pSettingsWindowChatBGColorR = pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
 	m_pSettingsWindowChatBGColorR->setText(CVAR_GET_EX("chatbgr").Get());
 	m_pSettingsWindowChatBGColorR->setSize(CEGUI::UVector2(CEGUI::UDim(0.1f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowChatBGColorR->setPosition(CEGUI::UVector2(CEGUI::UDim(0.35f, 0), CEGUI::UDim(0.5f, 0)));
 
-	m_pSettingsWindowChatBGColorG = g_pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
+	m_pSettingsWindowChatBGColorG = pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
 	m_pSettingsWindowChatBGColorG->setText(CVAR_GET_EX("chatbgg").Get());
 	m_pSettingsWindowChatBGColorG->setSize(CEGUI::UVector2(CEGUI::UDim(0.1f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowChatBGColorG->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5f, 0), CEGUI::UDim(0.5f, 0)));
 
-	m_pSettingsWindowChatBGColorB = g_pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
+	m_pSettingsWindowChatBGColorB = pGUI->CreateGUIEditBox(m_pSettingsWindowChat);
 	m_pSettingsWindowChatBGColorB->setText(CVAR_GET_EX("chatbgb").Get());
 	m_pSettingsWindowChatBGColorB->setSize(CEGUI::UVector2(CEGUI::UDim(0.1f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowChatBGColorB->setPosition(CEGUI::UVector2(CEGUI::UDim(0.65f, 0), CEGUI::UDim(0.5f, 0)));
 
-	m_pSettingsWindowSaveButton = g_pGUI->CreateGUIButton(m_pSettingsWindow);
+	m_pSettingsWindowSaveButton = pGUI->CreateGUIButton(m_pSettingsWindow);
 	m_pSettingsWindowSaveButton->setText("Save");
 	m_pSettingsWindowSaveButton->setSize(CEGUI::UVector2(CEGUI::UDim(0.4f, 0), CEGUI::UDim(0.1f, 0)));
 	m_pSettingsWindowSaveButton->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3f, 0), CEGUI::UDim(0.8f, 0)));
 	m_pSettingsWindowSaveButton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&CMainMenu::OnSettingsWindowSaveButtonClick, this));
 
-	m_pLoadingTune = new CAudio(false, false, true, "IVMP_LOADING_TUNE_1.mp3");
+	m_pLoadingTune = new CAudio("IVMP_LOADING_TUNE_1.mp3", true, false, true);
+	m_pLoadingTune->Load();
 
 	OnResetDevice();
 }
 
 CMainMenu::~CMainMenu()
 {
+	// Get our GUI instance
+	CGUI * pGUI = g_pClient->GetGUI();
+
 	// Settings Window
 	if(m_pSettingsWindow)
-		g_pGUI->RemoveGUIWindow(m_pSettingsWindow);
+		pGUI->RemoveGUIWindow(m_pSettingsWindow);
 
 	// Quick Connect Window
 	if(m_pQuickConnectWindow)
-		g_pGUI->RemoveGUIWindow(m_pQuickConnectWindow);
+		pGUI->RemoveGUIWindow(m_pQuickConnectWindow);
 
 	// Server Browser Window
 	if(m_serverBrowser.pWindow)
-		g_pGUI->RemoveGUIWindow(m_serverBrowser.pWindow);
+		pGUI->RemoveGUIWindow(m_serverBrowser.pWindow);
 
 	// Main Menu
 	if(m_pBackground)
-		g_pGUI->RemoveGUIWindow(m_pBackground);
+		pGUI->RemoveGUIWindow(m_pBackground);
 
 	// Delete the server query instance
 	SAFE_DELETE(m_pServerQuery);
@@ -1099,9 +1091,12 @@ CMainMenu::~CMainMenu()
 
 void CMainMenu::OnResetDevice()
 {
+	// Get our GUI instance
+	CGUI * pGUI = g_pClient->GetGUI();
+
 	// jenksta: Now this is why we should use relative positions...
-	float fWidth = (float)g_pGUI->GetDisplayWidth();
-	float fHeight = (float)g_pGUI->GetDisplayHeight();
+	float fWidth = (float)pGUI->GetDisplayWidth();
+	float fHeight = (float)pGUI->GetDisplayHeight();
 
 	m_pBackground->setSize(CEGUI::UVector2(CEGUI::UDim(0, fWidth), CEGUI::UDim(0, fHeight)));
 
@@ -1121,13 +1116,16 @@ void CMainMenu::OnResetDevice()
 
 CGUIStaticText * CMainMenu::CreateButton(char * szText, CEGUI::UVector2 vecSize, CEGUI::UVector2 vecPosition)
 {
-	CGUIStaticText * pButton = g_pGUI->CreateGUIStaticText();
+	// Get our GUI instance
+	CGUI * pGUI = g_pClient->GetGUI();
+
+	CGUIStaticText * pButton = pGUI->CreateGUIStaticText();
 	pButton->setText(CGUI::AnsiToCeguiFriendlyString(szText, strlen(szText)));
 	pButton->setSize(vecSize);
 	pButton->setPosition(vecPosition);
 	pButton->setProperty("FrameEnabled", "false");
 	pButton->setProperty("BackgroundEnabled", "false");
-	pButton->setFont(g_pGUI->GetFont("pricedown", 20));
+	pButton->setFont(pGUI->GetFont("pricedown", 20));
 	pButton->setProperty("TextColours", "tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF");
 	return pButton;
 }
@@ -1151,7 +1149,7 @@ void CMainMenu::SetVisible(bool bVisible)
 	}
 	m_pHost->setVisible(true);
 	m_bVisible = bVisible;
-	g_pGUI->SetCursorVisible(bVisible);
+	g_pClient->GetGUI()->SetCursorVisible(bVisible);
 	m_pBackground->setVisible(bVisible);
 
 	if(CGame::IsGameLoaded()) 
@@ -1209,46 +1207,61 @@ void CMainMenu::Process()
 	// Process the server query
 	m_pServerQuery->Process();
 
+	// Get our graphics
+	CGraphics * pGraphics = g_pClient->GetGraphics();
+
 	// Process the background
-	if(CGame::IsGameLoaded() && g_pGraphics) {
-		if(m_pBackground->isVisible()) {
+	if(CGame::IsGameLoaded() && pGraphics)
+	{
+		if(m_pBackground->isVisible())
+		{
+			// Get our GUI instance
+			CGUI * pGUI = g_pClient->GetGUI();
+
 			float x,y,x1,y1;
-			x1 = (float)g_pGUI->GetDisplayWidth();
-			y1 = (float)(g_pGUI->GetDisplayHeight()/8);
+			x1 = (float)pGUI->GetDisplayWidth();
+			y1 = (float)(pGUI->GetDisplayHeight()/8);
 			x = 0.0;
 			y = 0.0;
-			g_pGraphics->DrawRect(x, y, x1, y1, ( PAUSE_MENU_BACKGROUND >> 8 ) + ( ( PAUSE_MENU_BACKGROUND & 0xFF ) << 24 ));
-			y1 = (float)(g_pGUI->GetDisplayHeight()/4);
-			y = (float)((g_pGUI->GetDisplayHeight()/(float)4)*3.4);
-			g_pGraphics->DrawRect(x, y, x1, y1, ( PAUSE_MENU_BACKGROUND >> 8 ) + ( ( PAUSE_MENU_BACKGROUND & 0xFF ) << 24 ));
+			pGraphics->DrawRect(x, y, x1, y1, ( PAUSE_MENU_BACKGROUND >> 8 ) + ( ( PAUSE_MENU_BACKGROUND & 0xFF ) << 24 ));
+			y1 = (float)(pGUI->GetDisplayHeight()/4);
+			y = (float)((pGUI->GetDisplayHeight()/(float)4)*3.4);
+			pGraphics->DrawRect(x, y, x1, y1, ( PAUSE_MENU_BACKGROUND >> 8 ) + ( ( PAUSE_MENU_BACKGROUND & 0xFF ) << 24 ));
 		}
 	}
 }
 
 void CMainMenu::ShowLoadingScreen()
 {
-	m_pLoadingLogo->setVisible(true);
-	m_pRaknetLogo->setVisible(true);
-	m_pLoadingText->setVisible(true);
-	m_pLoadingBackground->setVisible(true);
-	m_bLoadingScreenActive = true;
+	if(!m_bLoadingScreenActive)
+	{
+		m_pLoadingLogo->setVisible(true);
+		m_pRaknetLogo->setVisible(true);
+		m_pLoadingText->setVisible(true);
+		m_pLoadingBackground->setVisible(true);
+		m_bLoadingScreenActive = true;
 
-	/*if(m_pLoadingTune) {
-		m_pLoadingTune->Play();
-		m_pLoadingTune->SetVolume(0.3f);
-		m_pLoadingTune->UsePositionSystem(false);
-	}*/
+		/*if(m_pLoadingTune)
+		{
+			m_pLoadingTune->Play();
+			m_pLoadingTune->SetVolume(0.3f);
+			m_pLoadingTune->UsePositionSystem(false);
+		}*/
+	}
 }
 void CMainMenu::HideLoadingScreen()
 {
-	m_pLoadingLogo->setVisible(false);
-	m_pRaknetLogo->setVisible(false);
-	m_pLoadingText->setVisible(false);
-	m_pLoadingBackground->setVisible(false);
-	m_bLoadingScreenActive = false;
+	if(m_bLoadingScreenActive)
+	{
+		m_pLoadingLogo->setVisible(false);
+		m_pRaknetLogo->setVisible(false);
+		m_pLoadingText->setVisible(false);
+		m_pLoadingBackground->setVisible(false);
+		m_bLoadingScreenActive = false;
 
-	//if(m_pLoadingTune)
-		//m_pLoadingTune->Stop();
+		//if(m_pLoadingTune)
+			//m_pLoadingTune->Stop();
+	}
 }
 
 void CMainMenu::SetNetworkStats(String strHost,int players, int maxplayers, String strName)
@@ -1274,7 +1287,7 @@ void CMainMenu::ShowMessageBox(const char * szMessage, const char * szHeader, bo
 		CGame::SetState(GAME_STATE_MAIN_MENU);
 
 	if(bResetGame)
-		InternalResetGame(bAllowReconnect);
+		g_pClient->ResetGame(true, bAllowReconnect);
 
-	g_pGUI->ShowMessageBox(szMessage,szHeader);
+	g_pClient->GetGUI()->ShowMessageBox(szMessage,szHeader);
 }

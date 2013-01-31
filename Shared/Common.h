@@ -275,6 +275,7 @@ struct AimSyncData
 	CVector3 vecAimTarget;		// aim target
 	CVector3 vecShotSource;		// shot source
 	CVector3 vecShotTarget;		// shot target
+	// jenksta: remove this or use it for head sync or something
 	CVector3 vecLookAt;			// look at position
 };
 

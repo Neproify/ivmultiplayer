@@ -9,16 +9,16 @@
 // TODO: Create local player in CNetworkPlayer
 
 #include "ScriptHook.h"
+#include "CClient.h"
 #include "COffsets.h"
 #include "CGame.h"
 #include "Scripting.h"
 #include <Patcher/CPatcher.h>
 
-GtaThread * m_pScriptThread = NULL;
-bool        g_bScriptLoaded = false;
+extern CClient * g_pClient;
 
-void GameLoad();
-void GameScriptProcess();
+GtaThread      * m_pScriptThread = NULL;
+bool             g_bScriptLoaded = false;
 
 void _declspec(naked) GetRunningScriptThread_Hook()
 {
@@ -57,8 +57,7 @@ void CScriptVM__Process()
 		//g_pClient->GetGame()->FadeScreen(FADE_TYPE_IN, 0);
 
 		// Call the game load callback
-		GameLoad();
-		//g_pClient->OnGameLoad();
+		g_pClient->OnGameLoad();
 
 		CGame::SetState(GAME_STATE_INGAME);
 
@@ -68,8 +67,7 @@ void CScriptVM__Process()
 	else
 	{
 		// Call the game process callback
-		GameScriptProcess();
-		//g_pClient->OnGameProcess();
+		g_pClient->OnGameProcess();
 	}
 
 	if(iFrames < 2)

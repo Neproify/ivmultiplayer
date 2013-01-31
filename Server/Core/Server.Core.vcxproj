@@ -260,6 +260,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Shared\CEvents.cpp" />
     <ClCompile Include="C3DLabels.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="CModule.cpp" />

@@ -8,18 +8,13 @@
 //==============================================================================
 
 #include <stdio.h>
-#include "CChatWindow.h"
-#include "CLocalPlayer.h"
-#include "CPlayerManager.h"
-#include <CLogFile.h>
-#include "CGraphics.h"
-#include <CSettings.h>
 #include <string.h>
+#include <CLogFile.h>
+#include <CSettings.h>
+#include "CChatWindow.h"
+#include "CClient.h"
 
-extern CGUI * g_pGUI;
-extern CGraphics * g_pGraphics;
-extern CLocalPlayer * g_pLocalPlayer;
-extern CPlayerManager * g_pPlayerManager;
+extern CClient * g_pClient;
 
 CChatWindow::CChatWindow()
 	: m_bEnabled(true),
@@ -36,11 +31,14 @@ CChatWindow::~CChatWindow()
 
 void CChatWindow::Draw()
 {
+	// Get our GUI
+	CGUI * pGUI = g_pClient->GetGUI();
+
 	// Are we enabled and do we have a valid GUI instance?
-	if(m_bEnabled && g_pGUI)
+	if(m_bEnabled && pGUI)
 	{
 		// Draw the chat background
-		g_pGraphics->DrawRect(5, 5, 500, 30 + MAX_DISPLAYED_MESSAGES * 20, m_ulBackgroundColor);
+		g_pClient->GetGraphics()->DrawRect(5, 5, 500, 30 + MAX_DISPLAYED_MESSAGES * 20, m_ulBackgroundColor);
 
 		// Do we have a valid font?
 		if(m_pFont)
@@ -54,24 +52,24 @@ void CChatWindow::Draw()
 				if(m_chatMessages[iCurrentMessage - x].fNameExtent)
 				{
 					// Draw a name shadow
-					g_pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szName, CEGUI::Vector2(26.0f, fY + 1), MESSAGE_BACKGROUND_COLOR, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting, false);
+					pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szName, CEGUI::Vector2(26.0f, fY + 1), MESSAGE_BACKGROUND_COLOR, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting, false);
 
 					// Draw the name
-					g_pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szName, CEGUI::Vector2(25.0f, fY), m_chatMessages[iCurrentMessage - x].nameColor, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting);
+					pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szName, CEGUI::Vector2(25.0f, fY), m_chatMessages[iCurrentMessage - x].nameColor, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting);
 
 					// Draw a text shadow
-					g_pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szMessage, CEGUI::Vector2(26.0f + m_chatMessages[iCurrentMessage - x].fNameExtent, fY + 1), MESSAGE_BACKGROUND_COLOR, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting);
+					pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szMessage, CEGUI::Vector2(26.0f + m_chatMessages[iCurrentMessage - x].fNameExtent, fY + 1), MESSAGE_BACKGROUND_COLOR, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting);
 
 					// Draw the text
-					g_pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szMessage, CEGUI::Vector2(25.0f + m_chatMessages[iCurrentMessage - x].fNameExtent, fY), m_chatMessages[iCurrentMessage - x].messageColor, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting);
+					pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szMessage, CEGUI::Vector2(25.0f + m_chatMessages[iCurrentMessage - x].fNameExtent, fY), m_chatMessages[iCurrentMessage - x].messageColor, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting);
 				}
 				else
 				{
 					// Draw a shadow
-					g_pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szMessage, CEGUI::Vector2(26.0f, fY + 1), MESSAGE_BACKGROUND_COLOR, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting, false);
+					pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szMessage, CEGUI::Vector2(26.0f, fY + 1), MESSAGE_BACKGROUND_COLOR, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting, false);
 
 					// Draw the text
-					g_pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szMessage, CEGUI::Vector2(25.0f, fY), m_chatMessages[iCurrentMessage - x].messageColor, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting);
+					pGUI->DrawText(m_chatMessages[iCurrentMessage - x].szMessage, CEGUI::Vector2(25.0f, fY), m_chatMessages[iCurrentMessage - x].messageColor, m_pFont, m_chatMessages[iCurrentMessage - x].bAllowFormatting);
 				}
 
 				fY += 20;
@@ -129,7 +127,7 @@ void CChatWindow::AddChatMessage(EntityId playerId, const char * szMessage)
 	else
 		strcpy(szMessageToSet,szMessage);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(!pPlayer)
 		return;
@@ -294,12 +292,15 @@ void CChatWindow::PageDown()
 
 void CChatWindow::InitFontAndBackground()
 {
+	// Get our GUI
+	CGUI * pGUI = g_pClient->GetGUI();
+
 	// Load our chat font
-	m_pFont = g_pGUI->GetFont(CVAR_GET_STRING("chatfont").Get(), CVAR_GET_INTEGER("chatsize"));
+	m_pFont = pGUI->GetFont(CVAR_GET_STRING("chatfont").Get(), CVAR_GET_INTEGER("chatsize"));
 
 	// Do we not have a valid font?
 	if(!m_pFont)
-		g_pGUI->ShowMessageBox("Invalid chat font.\nPlease set a valid font in the Chat tab of the Settings menu.", "Warning");
+		pGUI->ShowMessageBox("Invalid chat font.\nPlease set a valid font in the Chat tab of the Settings menu.", "Warning");
 
 	// Set our background colors
 	m_ulBackgroundColor = D3DCOLOR_ARGB(CVAR_GET_INTEGER("chatbga"), 

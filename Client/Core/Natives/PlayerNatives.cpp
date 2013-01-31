@@ -14,21 +14,10 @@
 #include "Squirrel/sqstate.h"
 #include "Squirrel/sqvm.h"
 #include "Squirrel/sqstring.h"
-#include "../CNetworkManager.h"
-#include "../CVehicleManager.h"
-#include "../CPlayerManager.h"
+#include "../CClient.h"
 #include "../CRemotePlayer.h"
-#include "../CNetworkManager.h"
-#include "../CChatWindow.h"
-#include "../CLocalPlayer.h"
-#include "../CGUI.h"
 
-extern CPlayerManager  * g_pPlayerManager;
-extern CVehicleManager * g_pVehicleManager;
-extern CNetworkManager * g_pNetworkManager;
-extern CChatWindow     * g_pChatWindow;
-extern CLocalPlayer    * g_pLocalPlayer;
-extern CGUI            * g_pGUI;
+extern CClient * g_pClient;
 
 // Player functions
 
@@ -75,15 +64,18 @@ SQInteger CPlayerNatives::IsConnected(SQVM * pVM)
 {
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
-	sq_pushbool(pVM, g_pPlayerManager->DoesExist(playerId));
+	sq_pushbool(pVM, g_pClient->GetPlayerManager()->DoesExist(playerId));
 	return 1;
 }
 
 // getLocalPlayer()
 SQInteger CPlayerNatives::GetLocal(SQVM * pVM)
 {
-	if(g_pLocalPlayer->IsNetworkPlayer())
-		sq_pushentity(pVM, g_pLocalPlayer->GetPlayerId());
+	// Get our local player
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
+	if(pLocalPlayer->IsNetworkPlayer())
+		sq_pushentity(pVM, pLocalPlayer->GetPlayerId());
 	else
 		sq_pushinteger(pVM,-1);
 	
@@ -96,7 +88,7 @@ SQInteger CPlayerNatives::GetName(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -114,7 +106,7 @@ SQInteger CPlayerNatives::GetHealth(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -132,7 +124,7 @@ SQInteger CPlayerNatives::GetArmour(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -150,7 +142,7 @@ SQInteger CPlayerNatives::GetCoordinates(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -174,7 +166,7 @@ SQInteger CPlayerNatives::GetVelocity(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -198,7 +190,7 @@ SQInteger CPlayerNatives::IsInAnyVehicle(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -218,7 +210,7 @@ SQInteger CPlayerNatives::IsInVehicle(SQVM * pVM)
 	sq_getentity(pVM, -2, &playerId);
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -241,7 +233,7 @@ SQInteger CPlayerNatives::GetVehicleId(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -265,7 +257,7 @@ SQInteger CPlayerNatives::GetSeatId(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer && pPlayer->IsInVehicle())
 	{
@@ -283,7 +275,7 @@ SQInteger CPlayerNatives::IsOnFoot(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -301,7 +293,7 @@ SQInteger CPlayerNatives::GetModel(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -319,7 +311,7 @@ SQInteger CPlayerNatives::IsSpawned(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -337,7 +329,7 @@ SQInteger CPlayerNatives::GetHeading(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -355,7 +347,7 @@ SQInteger CPlayerNatives::GetMoney(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -373,7 +365,7 @@ SQInteger CPlayerNatives::GetState(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer && !pPlayer->IsLocalPlayer())
 	{
@@ -401,7 +393,7 @@ SQInteger CPlayerNatives::GetWeapon(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -422,7 +414,7 @@ SQInteger CPlayerNatives::GetAmmoInClip(SQVM * pVM)
 	int iWeaponId;
 	sq_getinteger(pVM, -1, &iWeaponId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -440,7 +432,7 @@ SQInteger CPlayerNatives::GetAmmo(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -458,7 +450,7 @@ SQInteger CPlayerNatives::GetInterior(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -476,7 +468,7 @@ SQInteger CPlayerNatives::GetControlState(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -566,7 +558,7 @@ SQInteger CPlayerNatives::GetPreviousControlState(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -656,12 +648,15 @@ SQInteger CPlayerNatives::GetPing(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);
 
-	if(g_pLocalPlayer->GetPlayerId() == playerId) {
-		sq_pushinteger(pVM,g_pLocalPlayer->GetPing());
+	// Get our local player
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
+	if(pLocalPlayer->GetPlayerId() == playerId) {
+		sq_pushinteger(pVM, pLocalPlayer->GetPing());
 		return 1;
 	}
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 	if(pPlayer)
 	{
 		sq_pushinteger(pVM, pPlayer->GetPing());
@@ -678,7 +673,7 @@ SQInteger CPlayerNatives::GetColor(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, 2, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -696,7 +691,7 @@ SQInteger CPlayerNatives::IsDucking(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -714,7 +709,7 @@ SQInteger CPlayerNatives::IsJackingAVehicle(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -735,7 +730,7 @@ SQInteger CPlayerNatives::GetWeaponSlot(SQVM * pVM)
 	int iSlot;
 	sq_getinteger(pVM, -1, &iSlot);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
@@ -771,7 +766,7 @@ SQInteger CPlayerNatives::SetDoorLockState(SQVM * pVM)
 	float fSwing;
 	sq_getfloat(pVM, -1, &fSwing);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 	if(pPlayer)
 	{
 		DWORD dwHash = Scripting::GetHashKey(szString);
@@ -789,30 +784,43 @@ SQInteger CPlayerNatives::TogglePhysics(SQVM * pVM)
 	SQBool bWindScreen = false;
 	SQBool bNockedOffBike = false;
 
-	if(g_pLocalPlayer && g_pLocalPlayer->IsSpawned()) {
+	// Get the local player
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
+	if(pLocalPlayer && pLocalPlayer->IsSpawned())
+	{
 		bool bToggle = (bInvincible != 0);
-		Scripting::SetCharInvincible(g_pLocalPlayer->GetScriptingHandle(), bToggle);
+		Scripting::SetCharInvincible(pLocalPlayer->GetScriptingHandle(), bToggle);
 		bToggle = (bWindScreen != 0);
-		Scripting::SetCharWillFlyThroughWindscreen(g_pLocalPlayer->GetScriptingHandle(), bToggle);
+		Scripting::SetCharWillFlyThroughWindscreen(pLocalPlayer->GetScriptingHandle(), bToggle);
 		bToggle = (bNockedOffBike != 0);
-		Scripting::SetCharCanBeKnockedOffBike(g_pLocalPlayer->GetScriptingHandle(), bToggle);
+		Scripting::SetCharCanBeKnockedOffBike(pLocalPlayer->GetScriptingHandle(), bToggle);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
 
 SQInteger CPlayerNatives::GetWayPointCoords(SQVM * pVM)
 {
-	if(g_pLocalPlayer && g_pLocalPlayer->IsSpawned()) {
+	// Get the local player
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
+	if(pLocalPlayer && pLocalPlayer->IsSpawned())
+	{
 		unsigned int uiWayPointHandle = -1;
 		Scripting::GetFirstBlipInfoId(Scripting::BLIP_WAYPOINT);
-		if(uiWayPointHandle != -1) {
+
+		if(uiWayPointHandle != -1)
+		{
 			CVector3 vecPos;
 			Scripting::GetBlipCoords(uiWayPointHandle, &vecPos);
+
 			if(vecPos.fZ == 0.0)
 				Scripting::GetGroundZFor3DCoord(vecPos.fX, vecPos.fY, 1000, &vecPos.fZ);
+
 			CSquirrelArguments args;
 			args.push(vecPos.fX);
 			args.push(vecPos.fY);
@@ -820,9 +828,8 @@ SQInteger CPlayerNatives::GetWayPointCoords(SQVM * pVM)
 			sq_pusharg(pVM, CSquirrelArgument(args, true));
 			return 1;
 		}
-		sq_pushbool(pVM, false);
-		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }

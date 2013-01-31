@@ -15,10 +15,8 @@
 #include <stdio.h>
 #include <process.h>
 #include "CGame.h"
+#include "CClient.h"
 #include "Scripting.h"
-#include "CGUI.h"
-#include "CChatWindow.h"
-#include "CInputWindow.h"
 #include "KeySync.h"
 #include "AimSync.h"
 #include "Indicators.h"
@@ -26,14 +24,9 @@
 #include "ScriptHook.h"
 #include "COffsets.h"
 #include "CPools.h"
-#include "CClientTaskManager.h"
-#include "CCredits.h"
 #include "CContextDataManager.h"
-#include "CAudio.h"
 #include "AimSync.h"
-#include "CMainMenu.h"
 #include "AnimGroups.h"
-#include "CCamera.h"
 #include "CHooks.h"
 #include <SharedUtility.h>
 
@@ -46,12 +39,7 @@
 #define IVMP_TRAINS
 #endif*/
 
-extern CChatWindow        * g_pChatWindow;
-extern CInputWindow       * g_pInputWindow;
-extern CClientTaskManager * g_pClientTaskManager;
-extern CCredits           * g_pCredits;
-extern CMainMenu		  * g_pMainMenu;
-extern CCamera			  * g_pCamera;
+extern CClient * g_pClient;
 
 unsigned int   CGame::m_uiBaseAddress = 0;
 bool           CGame::m_bInputState = false;
@@ -81,16 +69,23 @@ void CGame::SetFocused(bool bFocused)
 	{
 		// Enable input
 		SetInputState(true);
-		CAudioManager::RestoreAllVolume();
 
-		if(g_pMainMenu)
-			g_pMainMenu->HideLoadingScreen();
+		// Unmute our audio
+		g_pClient->GetAudioManager()->UnmuteAll();
+
+		// Hide our loading screen
+		CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+
+		if(pMainMenu)
+			pMainMenu->HideLoadingScreen();
 	}
 	else // We do not have focus
 	{
 		// Disable input
 		SetInputState(false);
-		CAudioManager::SetAllVolume(0.0f);
+
+		// Mute our audio
+		g_pClient->GetAudioManager()->MuteAll();
 	}
 }
 
@@ -335,10 +330,10 @@ void _declspec(naked) CTask__Destructor_Hook()
 
 
 	// Do we have a client task manager?
-	if(g_pClientTaskManager)
+	if(g_pClient->GetClientTaskManager())
 	{
 		// Let the client task manager handle this task deletion
-		g_pClientTaskManager->HandleTaskDelete(___pTask);
+		g_pClient->GetClientTaskManager()->HandleTaskDelete(___pTask);
 	}
 
 	_asm
@@ -1140,7 +1135,7 @@ void CGame::ResetScrollBars(unsigned char ucScrollbar)
 	if(ucScrollbar == 2 || ucScrollbar == 0xFF)
 	{
 		// Get the credits string
-		String strCredits = g_pCredits->GetCreditsString();
+		String strCredits = g_pClient->GetCredits()->GetCreditsString();
 
 		// Append the clock to the credits string
 		strCredits.Append("  ~~~~       ");
@@ -1256,15 +1251,13 @@ bool CGame::GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector
 			mov eax, [esp+4]
 			mov iOnScreen, eax
 	}
+
 	CVector3 vecScreenPos;
-	bool onScreen = false;
-	if(g_pCamera)
-		onScreen = g_pCamera->IsOnScreen(vecWorldPosition);
 	
 	/*vecScreenPosition.X = vecScreenPos.fX;
 	vecScreenPosition.Y = vecScreenPos.fY;*/
 
-	return onScreen;
+	return g_pClient->GetCamera()->IsOnScreen(vecWorldPosition);
 	//CLogFile::Printf("[W2S]WORLD(%f,%f,%f),SCREEN(%f,%f), BOOLOnSCREEN(%d,%d)",vecWorldPosition.fX,vecWorldPosition.fY,vecWorldPosition.fZ,fX,fY,iOnScreen,iResult);
 }
 

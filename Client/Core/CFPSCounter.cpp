@@ -10,10 +10,10 @@
 // TODO: SetVisible(SetEnabled?) function
 
 #include "CFPSCounter.h"
+#include "CClient.h"
 #include <SharedUtility.h>
 
-extern CGUI * g_pGUI;
-extern bool g_bFPSToggle;
+extern CClient * g_pClient;
 
 CFPSCounter::CFPSCounter()
 	: m_ulLastTime(0),
@@ -48,18 +48,21 @@ void CFPSCounter::Pulse()
 		m_ulLastTime = ulCurrentTime;
 	}
 
+	// Get our GUI
+	CGUI * pGUI = g_pClient->GetGUI();
+
 	// Do we have a valid GUI instance?
-	if(g_pGUI)
+	if(pGUI)
 	{
 		// Get the font
-		CEGUI::Font * pFont = g_pGUI->GetFont("tahoma-bold");
+		CEGUI::Font * pFont = pGUI->GetFont("tahoma-bold");
 
 		// Draw the current fps if needed
-		if(pFont && g_bFPSToggle)
-			g_pGUI->DrawText(String("FPS: %d", m_uiTotalFramesPerSecond), CEGUI::Vector2(5, 5), CEGUI::colour(0xFFFFFFFF), pFont);
+		if(pFont && g_pClient->GetFPSToggle())
+			pGUI->DrawText(String("FPS: %d", m_uiTotalFramesPerSecond), CEGUI::Vector2(5, 5), CEGUI::colour(0xFFFFFFFF), pFont);
 
 		// workaround for not drawing rect on Windows 8
 		if(pFont)
-			g_pGUI->DrawText(String(""), CEGUI::Vector2(5, 5), CEGUI::colour(0xFFFFFFFF), pFont);
+			pGUI->DrawText(String(""), CEGUI::Vector2(5, 5), CEGUI::colour(0xFFFFFFFF), pFont);
 	}
 }

@@ -8,14 +8,11 @@
 //==============================================================================
 
 #include "CGUI.h"
-#include "CChatWindow.h"
 #include <CLogFile.h>
 #include "CGame.h"
 #include "SharedUtility.h"
 #include "CGraphics.h"
 #include "CSettings.h"
-
-extern CChatWindow * g_pChatWindow;
 
 // TODO: Make CGUI message box members
 bool m_bMessageBoxHideCursor = false;
@@ -1293,14 +1290,21 @@ CEGUI::Font * CGUI::GetFont(String strFont, unsigned int uiSize, bool bScaled)
 	return NULL;
 }
 
-CEGUI::String CGUI::AnsiToCeguiFriendlyString(const char* ansi, int len)
+CEGUI::String CGUI::AnsiToCeguiFriendlyString(const char * szAnsiString, unsigned int uiLength)
 {
-	wchar_t *Unicode = new wchar_t[len + 1];
-	SharedUtility::AnsiToUnicode(ansi, -1, Unicode, len);
+	wchar_t * wcUnicode = new wchar_t[uiLength + 1];
+	SharedUtility::AnsiToUnicode(szAnsiString, -1, wcUnicode, uiLength);
 	CEGUI::String strCegui;
-	strCegui.resize(len);
-	for(size_t i = 0; i < (unsigned int)len; i++)
-		strCegui[i] = (CEGUI::utf32)Unicode[i];
-	delete[] Unicode;
+	strCegui.resize(uiLength);
+
+	for(size_t i = 0; i < uiLength; i++)
+		strCegui[i] = (CEGUI::utf32)wcUnicode[i];
+
+	delete[] wcUnicode;
 	return strCegui;
+}
+
+CEGUI::String CGUI::AnsiToCeguiFriendlyString(String strAnsiString)
+{
+	return AnsiToCeguiFriendlyString(strAnsiString.Get(), strAnsiString.GetLength());
 }

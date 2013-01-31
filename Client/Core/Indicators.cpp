@@ -9,12 +9,12 @@
 //==============================================================================
 
 #include "CIVVehicle.h"
+#include "CClient.h"
 #include "COffsets.h"
 #include "Patcher/CPatcher.h"
 #include "CNetworkVehicle.h"
-#include "CStreamer.h"
 
-extern CStreamer * g_pStreamer;
+extern CClient * g_pClient;
 
 IVVehicle * pIndicatorIVVehicle;
 int         iIndicatorType;
@@ -28,7 +28,7 @@ bool GetIndicatorState(IVVehicle * pGameVehicle, int iIndicatorNumber)
 	if(iIndicatorNumber < 0 || iIndicatorNumber > 3)
 		return false;
 
-	CNetworkVehicle * pVehicle = g_pStreamer->GetVehicleFromGameVehicle(pGameVehicle);
+	CNetworkVehicle * pVehicle = g_pClient->GetStreamer()->GetVehicleFromGameVehicle(pGameVehicle);
 
 	if(!pVehicle)
 		return false;
@@ -41,7 +41,7 @@ bool AreIndicatorsOn(IVVehicle * pGameVehicle)
 	if(!pGameVehicle)
 		return false;
 
-	CNetworkVehicle * pVehicle = g_pStreamer->GetVehicleFromGameVehicle(pGameVehicle);
+	CNetworkVehicle * pVehicle = g_pClient->GetStreamer()->GetVehicleFromGameVehicle(pGameVehicle);
 
 	if(!pVehicle)
 		return false;

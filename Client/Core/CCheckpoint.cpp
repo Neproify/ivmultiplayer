@@ -10,12 +10,10 @@
 
 #include "CCheckpoint.h"
 #include "COffsets.h"
-#include "CLocalPlayer.h"
-#include "CNetworkManager.h"
+#include "CClient.h"
 #include "CPools.h"
 
-extern CNetworkManager * g_pNetworkManager;
-extern CLocalPlayer * g_pLocalPlayer;
+extern CClient * g_pClient;
 
 CCheckpoint::CCheckpoint(EntityId checkpointId, eCheckpointType type, CVector3 vecPosition, CVector3 vecTargetPosition, float fRadius)
 	: CStreamableEntity(STREAM_ENTITY_CHECKPOINT, 5.0f * fRadius + 150.0f),
@@ -130,7 +128,7 @@ void CCheckpoint::Pulse()
 		return;
 
 	CVector3 vecPosition;
-	g_pLocalPlayer->GetPosition(vecPosition);
+	g_pClient->GetLocalPlayer()->GetPosition(vecPosition);
 
 	CVector3 vecDistance((m_vecPosition.fX - vecPosition.fX), (m_vecPosition.fY - vecPosition.fY), (m_vecPosition.fZ - vecPosition.fZ));
 
@@ -141,7 +139,7 @@ void CCheckpoint::Pulse()
 		{
 			CBitStream  bsSend;
 			bsSend.Write(m_checkpointId);
-			g_pNetworkManager->RPC(RPC_CheckpointEntered, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
+			g_pClient->GetNetworkManager()->RPC(RPC_CheckpointEntered, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 			m_bInCheckpoint = true;
 		}
 	}
@@ -151,7 +149,7 @@ void CCheckpoint::Pulse()
 		{
 			CBitStream  bsSend;
 			bsSend.Write(m_checkpointId);
-			g_pNetworkManager->RPC(RPC_CheckpointLeft, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
+			g_pClient->GetNetworkManager()->RPC(RPC_CheckpointLeft, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 			m_bInCheckpoint = false;
 		}
 	}

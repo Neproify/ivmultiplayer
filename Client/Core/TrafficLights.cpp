@@ -7,11 +7,13 @@
 //
 //==============================================================================
 
-#include "patcher/CPatcher.h"
-#include "COffsets.h"
+#include "CClient.h"
+#include <Patcher/CPatcher.h>
 #include <Game/CTrafficLights.h>
+#include "COffsets.h"
 
-extern CTrafficLights * g_pTrafficLights;
+extern CClient * g_pClient;
+
 CTrafficLights::eGTATrafficLightState dwTrafficLightState;
 
 /*
@@ -42,7 +44,7 @@ void __declspec(naked) GetTrafficLightState1()
 		pushad;
 	}
 
-	dwTrafficLightState = g_pTrafficLights->GetTrafficLightState();
+	dwTrafficLightState = g_pClient->GetTrafficLights()->GetTrafficLightState();
 
 	_asm
 	{
@@ -59,7 +61,7 @@ void __declspec(naked) GetTrafficLightState2()
 		pushad;
 	}
 
-	dwTrafficLightState = g_pTrafficLights->GetTrafficLightAltState();
+	dwTrafficLightState = g_pClient->GetTrafficLights()->GetTrafficLightAltState();
 
 	_asm
 	{
@@ -71,6 +73,6 @@ void __declspec(naked) GetTrafficLightState2()
 
 void InstallTrafficLightHooks()
 {
-	CPatcher::InstallJmpPatch(COffsets::FUNC_GetTrafficLightState1, (DWORD)GetTrafficLightState1, 5);
-	CPatcher::InstallJmpPatch(COffsets::FUNC_GetTrafficLightState2, (DWORD)GetTrafficLightState2, 5);
+	CPatcher::InstallJmpPatch(COffsets::FUNC_GetTrafficLightState1, (DWORD)GetTrafficLightState1);
+	CPatcher::InstallJmpPatch(COffsets::FUNC_GetTrafficLightState2, (DWORD)GetTrafficLightState2);
 }

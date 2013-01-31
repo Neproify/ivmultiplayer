@@ -7,64 +7,18 @@
 //
 //==============================================================================
 
+#include "CClient.h"
 #include "CNetworkPlayer.h"
 #include "CRemotePlayer.h"
-#include "CNetworkManager.h"
-#include "CChatWindow.h"
-#include "CPlayerManager.h"
-#include "CVehicleManager.h"
-#include "CObjectManager.h"
-#include "CBlipManager.h"
-#include "CActorManager.h"
-#include "CCheckpointManager.h"
-#include "CPickupManager.h"
-#include "CModelManager.h"
-#include "CMainMenu.h"
-#include "CClientScriptManager.h"
 #include <CSettings.h>
-#include "CFileTransferManager.h"
-#include <Game/CTime.h>
-#include <Game/CTrafficLights.h>
-#include "CLocalPlayer.h"
 #include "Scripting.h"
-#include <Scripting/CScriptingManager.h>
 #include <SharedUtility.h>
-#include <CEvents.h>
-#include "CNameTags.h"
 #include "COffsets.h"
 #include "CIVWeather.h"
-#include "CCamera.h"
 #include "CFireManager.h"
 #include "CGame.h"
-#include "CStreamer.h"
-#include "C3DLabels.h"
 
-extern String                 g_strNick;
-extern String                 g_strHost;
-extern CLocalPlayer         * g_pLocalPlayer;
-extern CNetworkManager      * g_pNetworkManager;
-extern CChatWindow          * g_pChatWindow;
-extern CPlayerManager       * g_pPlayerManager;
-extern CVehicleManager      * g_pVehicleManager;
-extern CObjectManager       * g_pObjectManager;
-extern CBlipManager         * g_pBlipManager;
-extern CActorManager        * g_pActorManager;
-extern CCheckpointManager   * g_pCheckpointManager;
-extern CPickupManager       * g_pPickupManager;
-extern CModelManager        * g_pModelManager;
-extern CMainMenu            * g_pMainMenu;
-extern CClientScriptManager * g_pClientScriptManager;
-extern CFileTransferManager * g_pFileTransfer;
-extern CTime                * g_pTime;
-extern CTrafficLights       * g_pTrafficLights;
-extern CScriptingManager    * g_pScriptingManager;
-extern CTime                * g_pTime;
-extern CEvents              * g_pEvents;
-extern CNameTags            * g_pNameTags;
-extern CCamera              * g_pCamera;
-extern CFireManager		    * g_pFireManager;
-extern CStreamer			* g_pStreamer;
-extern C3DLabelManager		* g_p3DLabelManager;
+extern CClient * g_pClient;
 
 bool m_bControlsDisabled = false;
 
@@ -104,61 +58,70 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	else
 		uiMinuteDuration = CTime::DEFAULT_MINUTE_DURATION;
 
-	g_pTrafficLights->Reset();
+	CTrafficLights * pTrafficLights = g_pClient->GetTrafficLights();
+	pTrafficLights->Reset();
 	pBitStream->Read(ucTrafficLightState);
 	pBitStream->Read(uiTrafficLightTimePassed);
 
 	if(ucTrafficLightState != CTrafficLights::TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)
 	{
-		g_pTrafficLights->SetLocked(pBitStream->ReadBit());
+		pTrafficLights->SetLocked(pBitStream->ReadBit());
 
 		if(pBitStream->ReadBit())
 		{
 			if(ucTrafficLightState >= CTrafficLights::TRAFFIC_LIGHT_STATE_FLASHING_FLASHING)
 			{
 				pBitStream->Read(uiYellowDuration);
-				g_pTrafficLights->SetGreenDuration(uiYellowDuration);
+				pTrafficLights->SetGreenDuration(uiYellowDuration);
 			}
 			else
 			{
 				pBitStream->Read(uiGreenDuration);
 				pBitStream->Read(uiYellowDuration);
 				pBitStream->Read(uiRedDuration);
-				g_pTrafficLights->SetGreenDuration(uiGreenDuration);
-				g_pTrafficLights->SetYellowDuration(uiYellowDuration);
-				g_pTrafficLights->SetRedDuration(uiRedDuration);
+				pTrafficLights->SetGreenDuration(uiGreenDuration);
+				pTrafficLights->SetYellowDuration(uiYellowDuration);
+				pTrafficLights->SetRedDuration(uiRedDuration);
 			}
 		}
 	}
 
-	g_pTrafficLights->SetState((CTrafficLights::eTrafficLightState)ucTrafficLightState);
-	g_pTrafficLights->SetTimeThisCycle(uiTrafficLightTimePassed);
+	pTrafficLights->SetState((CTrafficLights::eTrafficLightState)ucTrafficLightState);
+	pTrafficLights->SetTimeThisCycle(uiTrafficLightTimePassed);
 
-	g_pFileTransfer->SetHost(sHttpServer.IsEmpty() ? g_strHost : sHttpServer);
-	g_pFileTransfer->SetPort(usHttpPort);
+	// Get our file transfer manager
+	CFileTransferManager * pFileTransferManager = g_pClient->GetFileTransfer();
+	pFileTransferManager->SetHost(sHttpServer.IsEmpty() ? g_pClient->GetHost() : sHttpServer);
+	pFileTransferManager->SetPort(usHttpPort);
 
 	CGame::SetNameTags(bGUINametags);
 	CGame::SetSpecialData(bSpecialData1, bSpecialData2);
 	CGame::SetHeadMovement(bHeadMovement);
-	g_pNetworkManager->SetHostName(sHostName);
-	g_pNetworkManager->SetMaxPlayers(uiMaxPlayers);
-	g_pPlayerManager->SetLocalPlayer(playerId, g_pLocalPlayer);
-	g_pLocalPlayer->SetName(g_strNick);
-	g_pLocalPlayer->SetColor(uiColor);
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	pNetworkManager->SetHostName(sHostName);
+	pNetworkManager->SetMaxPlayers(uiMaxPlayers);
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+	g_pClient->GetPlayerManager()->SetLocalPlayer(playerId, pLocalPlayer);
+	pLocalPlayer->SetName(g_pClient->GetNick());
+	pLocalPlayer->SetColor(uiColor);
 	Scripting::SetNoResprays(!bPayAndSpray);
 	Scripting::DisablePlayerLockon(0, !bAutoAim);
 	CGame::GetWeather()->SetWeather((eWeather)(ucWeather - 1));
-	g_pTime->SetMinuteDuration(uiMinuteDuration);
-	g_pTime->SetTime(ucHour, ucMinute);
-	g_pNetworkManager->SetJoinedServer(true);
+
+	// Get our time
+	CTime * pTime = g_pClient->GetTime();
+	pTime->SetMinuteDuration(uiMinuteDuration);
+	pTime->SetTime(ucHour, ucMinute);
+
+	g_pClient->GetNetworkManager()->SetJoinedServer(true);
 
 	// Set the disconnect button visible
-	g_pMainMenu->SetDisconnectButtonVisible(true);
+	g_pClient->GetMainMenu()->SetDisconnectButtonVisible(true);
 
 	CGame::SetInputState(true);
 	CGame::SetKickedFromServer(false);
 	CGame::SetState(GAME_STATE_INGAME);
-	g_pChatWindow->AddInfoMessage("Successfully joined %s.", sHostName.C_String());
+	g_pClient->GetChatWindow()->AddInfoMessage("Successfully joined %s.", sHostName.C_String());
 }
 
 void CClientRPCHandler::NewPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -179,9 +142,12 @@ void CClientRPCHandler::NewPlayer(CBitStream * pBitStream, CPlayerSocket * pSend
 	String sPlayerName;
 	pBitStream->Read(sPlayerName);
 
+	// Get our player manager
+	CPlayerManager * pPlayerManager = g_pClient->GetPlayerManager();
+
 	// Add the player to the player manager
-	g_pPlayerManager->Add(playerId, sPlayerName);
-	g_pPlayerManager->GetAt(playerId)->SetColor(color);
+	pPlayerManager->Add(playerId, sPlayerName);
+	pPlayerManager->GetAt(playerId)->SetColor(color);
 }
 
 void CClientRPCHandler::DeletePlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -195,7 +161,7 @@ void CClientRPCHandler::DeletePlayer(CBitStream * pBitStream, CPlayerSocket * pS
 	pBitStream->ReadCompressed(playerId);
 
 	// Remove the player from the player manager
-	g_pPlayerManager->Remove(playerId);
+	g_pClient->GetPlayerManager()->Remove(playerId);
 }
 
 void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -302,7 +268,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 		pBitStream->Read(ucVariation);
 
 	// Create the new vehicle
-	CNetworkVehicle * pVehicle = new CNetworkVehicle(g_pModelManager->VehicleIdToModelHash(iModelId), iModelId);
+	CNetworkVehicle * pVehicle = new CNetworkVehicle(g_pClient->GetModelManager()->VehicleIdToModelHash(iModelId), iModelId);
 	
 	// Set the vehicle spawn position
 	pVehicle->SetSpawnPosition(vecPosition);
@@ -311,7 +277,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	pVehicle->SetSpawnRotation(vecRotation);
 
 	// Add the vehicle to the vehicle manager
-	g_pVehicleManager->Add(vehicleId, pVehicle);
+	g_pClient->GetVehicleManager()->Add(vehicleId, pVehicle);
 
 	// Set the vehicle id
 	pVehicle->SetVehicleId(vehicleId);
@@ -391,9 +357,12 @@ void CClientRPCHandler::DeleteVehicle(CBitStream * pBitStream, CPlayerSocket * p
 	EntityId vehicleId;
 	pBitStream->ReadCompressed(vehicleId);
 
+	// Get our vehicle manager
+	CVehicleManager * pVehicleManager = g_pClient->GetVehicleManager();
+
 	// If the vehicle exists remove it from the vehicle manager
-	if(g_pVehicleManager->Exists(vehicleId))
-		g_pVehicleManager->Delete(vehicleId);
+	if(pVehicleManager->Exists(vehicleId))
+		pVehicleManager->Delete(vehicleId);
 }
 
 void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -453,7 +422,7 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 		CObject * pObject = new CObject(dwModelHash, vecPos, vecRot);
 
 		// Add the object to the object manager
-		g_pObjectManager->Add(objectId, pObject);
+		g_pClient->GetObjectManager()->Add(objectId, pObject);
 
 		// Flag the object as can be streamed in
 		pObject->SetCanBeStreamedIn(true);
@@ -463,29 +432,27 @@ void CClientRPCHandler::NewObject(CBitStream * pBitStream, CPlayerSocket * pSend
 		{
 			if(bVehicleAttached)
 			{
-				if(g_pVehicleManager->Exists(uiVehiclePlayerId))
-				{
-					CNetworkVehicle * pVehicle = g_pVehicleManager->Get(uiVehiclePlayerId);
+				CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(uiVehiclePlayerId);
 
-					if(pVehicle)
-						Scripting::AttachObjectToCar(pObject->GetHandle(),pVehicle->GetScriptingHandle(),0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ);
-					
+				if(pVehicle)
+				{
+					Scripting::AttachObjectToCar(pObject->GetHandle(),pVehicle->GetScriptingHandle(),0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ);
 					pObject->SetAttached(true);
 				}
 			}
 			else if(!bVehicleAttached)
 			{
-				if(g_pPlayerManager->DoesExist(uiVehiclePlayerId))
+				// Get the player
+				CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(uiVehiclePlayerId);
+
+				if(pPlayer && pPlayer->IsSpawned())
 				{
-					CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(uiVehiclePlayerId);
-					
-					if(pPlayer && pPlayer->IsSpawned()) {
-						if(iBone != -1)
-							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)iBone,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
-						else
-							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
-						pObject->SetAttached(true);
-					}
+					if(iBone != -1)
+						Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)iBone,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+					else
+						Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+
+					pObject->SetAttached(true);
 				}
 			}
 		}
@@ -504,16 +471,17 @@ void CClientRPCHandler::DetachObject(CBitStream * pBitStream, CPlayerSocket * pS
 		return;
 
 	EntityId objectId;
-	while(pBitStream->ReadCompressed(objectId))
+	pBitStream->ReadCompressed(objectId);
+	CObject * pObject = g_pClient->GetObjectManager()->Get(objectId);
+
+	if(pObject)
 	{
-		CObject * pObject = g_pObjectManager->Get(objectId);
-		if(pObject) {
-			Scripting::DetachObject(g_pObjectManager->Get(objectId)->GetHandle(), true);
-			CVector3 vecPos; pObject->GetPosition(vecPos);
-			pObject->SetPosition(vecPos);
-		}
+		Scripting::DetachObject(pObject->GetHandle(), true);
+		CVector3 vecPos; pObject->GetPosition(vecPos);
+		pObject->SetPosition(vecPos);
 	}
 }
+
 void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -530,10 +498,10 @@ void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pS
 
 	while(pBitStream->ReadCompressed(objectId))
 	{
-		CObject * pObject = g_pObjectManager->Get(objectId);
+		CObject * pObject = g_pClient->GetObjectManager()->Get(objectId);
+
 		if(pObject)
 		{
-
 			// Read the attached state
 			pBitStream->Read(bAttached);
 
@@ -558,29 +526,26 @@ void CClientRPCHandler::AttachObject(CBitStream * pBitStream, CPlayerSocket * pS
 			{
 				if(bVehicleAttached)
 				{
-					if(g_pVehicleManager->Exists(uiVehiclePlayerId))
-					{
-						CNetworkVehicle * pVehicle = g_pVehicleManager->Get(uiVehiclePlayerId);
+					CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(uiVehiclePlayerId);
 
-						if(pVehicle) {
-							Scripting::AttachObjectToCar(pObject->GetHandle(),pVehicle->GetScriptingHandle(),0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ);
-							pObject->SetAttached(true);
-						}
+					if(pVehicle)
+					{
+						Scripting::AttachObjectToCar(pObject->GetHandle(),pVehicle->GetScriptingHandle(),0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ);
+						pObject->SetAttached(true);
 					}
 				}
 				else if(!bVehicleAttached)
 				{
-					if(g_pPlayerManager->DoesExist(uiVehiclePlayerId))
+					CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(uiVehiclePlayerId);
+
+					if(pPlayer)
 					{
-						CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(uiVehiclePlayerId);
-					
-						if(pPlayer) {
-							if(iBone != -1)
-								Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)iBone,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
-							else
-								Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
-							pObject->SetAttached(true);
-						}
+						if(iBone != -1)
+							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)iBone,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+						else
+							Scripting::AttachObjectToPed(pObject->GetHandle(),pPlayer->GetScriptingHandle(),(Scripting::ePedBone)0,vecAttachPosition.fX,vecAttachPosition.fY,vecAttachPosition.fZ,vecAttachRotation.fX,vecAttachRotation.fY,vecAttachRotation.fZ,0);
+
+						pObject->SetAttached(true);
 					}
 				}
 			}
@@ -598,15 +563,18 @@ void CClientRPCHandler::DeleteObject(CBitStream * pBitStream, CPlayerSocket * pS
 	EntityId objectId;
 	pBitStream->ReadCompressed(objectId);
 
-	// Does the object exist?
-	if(g_pObjectManager->Exists(objectId)) {
+	CObjectManager * pObjectManager = g_pClient->GetObjectManager();
+	CObject * pObject = pObjectManager->Get(objectId);
 
+	// Does the object exist?
+	if(pObject)
+	{
 		// Is the object attached?
-		if(g_pObjectManager->Get(objectId)->IsAttached()) 
-			Scripting::DetachObject(g_pObjectManager->Get(objectId)->GetHandle(),true);
+		if(pObject->IsAttached()) 
+			Scripting::DetachObject(pObject->GetHandle(), true);
 
 		// Delete the object from the object manager
-		g_pObjectManager->Delete(objectId);
+		pObjectManager->Delete(objectId);
 	}
 }
 
@@ -646,7 +614,7 @@ void CClientRPCHandler::NewPickup(CBitStream * pBitStream, CPlayerSocket * pSend
 		CPickup * pPickup = new CPickup(dwModelHash, ucType, uiValue, vecPos, vecRot);
 
 		// Add the pickup to the pickup manager
-		g_pPickupManager->Add(pickupId, pPickup);
+		g_pClient->GetPickupManager()->Add(pickupId, pPickup);
 
 		// Flag the pickup as can be streamed in
 		pPickup->SetCanBeStreamedIn(true);
@@ -664,7 +632,7 @@ void CClientRPCHandler::DeletePickup(CBitStream * pBitStream, CPlayerSocket * pS
 	pBitStream->ReadCompressed(pickupId);
 
 	// Delete the object from the object manager
-	g_pPickupManager->Delete(pickupId);
+	g_pClient->GetPickupManager()->Delete(pickupId);
 }
 
 
@@ -712,14 +680,17 @@ void CClientRPCHandler::NewBlip(CBitStream * pBitStream, CPlayerSocket * pSender
 		// Read the name
 		pBitStream->Read(strName);
 
+		// Get our blip manager
+		CBlipManager * pBlipManager = g_pClient->GetBlipManager();
+
 		// Create the blip in the blip manager
-		g_pBlipManager->Create(blipId, iSpriteId, vecPosition);
-		g_pBlipManager->SetSize(blipId, fSize);
-		g_pBlipManager->ToggleShortRange(blipId, bShortRange);
-		g_pBlipManager->ToggleRouteBlip(blipId, bRouteBlip);
-		g_pBlipManager->Show(blipId, bShow);
-		g_pBlipManager->SetName(blipId, strName);
-		g_pBlipManager->SetColor(blipId, uiColor); 
+		pBlipManager->Create(blipId, iSpriteId, vecPosition);
+		pBlipManager->SetSize(blipId, fSize);
+		pBlipManager->ToggleShortRange(blipId, bShortRange);
+		pBlipManager->ToggleRouteBlip(blipId, bRouteBlip);
+		pBlipManager->Show(blipId, bShow);
+		pBlipManager->SetName(blipId, strName);
+		pBlipManager->SetColor(blipId, uiColor); 
 	}
 }
 
@@ -734,7 +705,7 @@ void CClientRPCHandler::DeleteBlip(CBitStream * pBitStream, CPlayerSocket * pSen
 	pBitStream->ReadCompressed(blipId);
 
 	// Delete the blip from the blip manager
-	g_pBlipManager->Delete(blipId);
+	g_pClient->GetBlipManager()->Delete(blipId);
 }
 
 void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -769,7 +740,7 @@ void CClientRPCHandler::NewActor(CBitStream * pBitStream, CPlayerSocket * pSende
 		pBitStream->Read(vehicleId);
 		pBitStream->Read(iSeat);
 
-		g_pActorManager->Create(actorId, iModelId, vecPosition, fHeading, name, togglename, color, frozen, helmet, bBlip);
+		g_pClient->GetActorManager()->Create(actorId, iModelId, vecPosition, fHeading, name, togglename, color, frozen, helmet, bBlip);
 		//g_pActorManager->DriveToPoint(actorId, vehicleId, vecDrivePosition, vecDriveRotation, vecDriveFinalPosition, bDriveStop);
 	}
 }
@@ -786,7 +757,7 @@ void CClientRPCHandler::ScriptingSetActorName(CBitStream * pBitStream, CPlayerSo
 	String name;
 	pBitStream->Read(name);
 
-	g_pActorManager->SetName(actorId, name);
+	g_pClient->GetActorManager()->SetName(actorId, name);
 }
 
 void CClientRPCHandler::ScriptingWarpActorIntoVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -804,10 +775,13 @@ void CClientRPCHandler::ScriptingWarpActorIntoVehicle(CBitStream * pBitStream, C
 	int iSeatid;
 	pBitStream->Read(iSeatid);
 
-	if(g_pActorManager->DoesExist(actorId))
+	// Get our actor manager
+	CActorManager * pActorManager = g_pClient->GetActorManager();
+
+	if(pActorManager->DoesExist(actorId))
 	{
-		if(g_pVehicleManager->Exists(vehicleId))
-			g_pActorManager->WarpIntoVehicle(actorId, vehicleId, iSeatid);
+		if(g_pClient->GetVehicleManager()->Exists(vehicleId))
+			pActorManager->WarpIntoVehicle(actorId, vehicleId, iSeatid);
 	}
 }
 
@@ -820,8 +794,11 @@ void CClientRPCHandler::ScriptingRemoveActorFromVehicle(CBitStream * pBitStream,
 	EntityId actorId;
 	pBitStream->Read(actorId);
 
-	if(g_pActorManager->DoesExist(actorId))
-		g_pActorManager->RemoveFromVehicle(actorId);
+	// Get our actor manager
+	CActorManager * pActorManager = g_pClient->GetActorManager();
+
+	if(pActorManager->DoesExist(actorId))
+		pActorManager->RemoveFromVehicle(actorId);
 }
 
 void CClientRPCHandler::ScriptingToggleActorNametag(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -836,7 +813,7 @@ void CClientRPCHandler::ScriptingToggleActorNametag(CBitStream * pBitStream, CPl
 	bool bShow;
 	pBitStream->Read(bShow);
 
-	g_pActorManager->ToggleNametag(actorId,bShow);
+	g_pClient->GetActorManager()->ToggleNametag(actorId,bShow);
 }
 
 void CClientRPCHandler::ScriptingToggleActorBlip(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -851,7 +828,7 @@ void CClientRPCHandler::ScriptingToggleActorBlip(CBitStream * pBitStream, CPlaye
 	bool bShow;
 	pBitStream->Read(bShow);
 
-	g_pActorManager->ToggleBlip(actorId,bShow);
+	g_pClient->GetActorManager()->ToggleBlip(actorId,bShow);
 }
 
 void CClientRPCHandler::ScriptingSetActorColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -867,7 +844,7 @@ void CClientRPCHandler::ScriptingSetActorColor(CBitStream * pBitStream, CPlayerS
 	pBitStream->Read(color);
 	//CLogFile::Printf("Got color: 0x%X", color);
 
-	g_pActorManager->SetColor(actorId,color);
+	g_pClient->GetActorManager()->SetColor(actorId,color);
 }
 
 void CClientRPCHandler::ScriptingToggleActorFrozen(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -882,7 +859,7 @@ void CClientRPCHandler::ScriptingToggleActorFrozen(CBitStream * pBitStream, CPla
 	bool frozen;
 	pBitStream->Read(frozen);
 
-	g_pActorManager->ToggleFrozen(actorId,frozen);
+	g_pClient->GetActorManager()->ToggleFrozen(actorId,frozen);
 }
 
 void CClientRPCHandler::ScriptingToggleActorHelmet(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -897,7 +874,7 @@ void CClientRPCHandler::ScriptingToggleActorHelmet(CBitStream * pBitStream, CPla
 	bool helmet;
 	pBitStream->Read(helmet);
 
-	g_pActorManager->ToggleHelmet(actorId,helmet);
+	g_pClient->GetActorManager()->ToggleHelmet(actorId,helmet);
 }
 
 void CClientRPCHandler::DeleteActor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -908,7 +885,7 @@ void CClientRPCHandler::DeleteActor(CBitStream * pBitStream, CPlayerSocket * pSe
 
 	EntityId actorId;
 	pBitStream->Read(actorId);
-	g_pActorManager->Delete(actorId);
+	g_pClient->GetActorManager()->Delete(actorId);
 }
 
 void CClientRPCHandler::NewCheckpoint(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -934,7 +911,7 @@ void CClientRPCHandler::NewCheckpoint(CBitStream * pBitStream, CPlayerSocket * p
 		CCheckpoint * pCheckpoint = new CCheckpoint(checkpointId, (eCheckpointType)wType, vecPosition, vecTargetPosition, fRadius);
 
 		// Add the checkpoint to the checkpoint manager
-		g_pCheckpointManager->Add(checkpointId, pCheckpoint);
+		g_pClient->GetCheckpointManager()->Add(checkpointId, pCheckpoint);
 
 		// Flag the checkpoint as can be streamed in
 		pCheckpoint->SetCanBeStreamedIn(true);
@@ -949,7 +926,7 @@ void CClientRPCHandler::DeleteCheckpoint(CBitStream * pBitStream, CPlayerSocket 
 
 	EntityId checkpointId;
 	pBitStream->Read(checkpointId);
-	g_pCheckpointManager->Delete(checkpointId);
+	g_pClient->GetCheckpointManager()->Delete(checkpointId);
 }
 
 void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -960,16 +937,22 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 
 	EntityId playerId;
 	pBitStream->ReadCompressed(playerId);
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	// Get our player manager and local player
+	CPlayerManager * pPlayerManager = g_pClient->GetPlayerManager();
+	CNetworkPlayer * pPlayer = pPlayerManager->GetAt(playerId);
 
 	// Is the player valid and active?
-	if(pPlayer && g_pPlayerManager->IsActive(pPlayer->GetPlayerId()))
+	if(pPlayer && pPlayerManager->IsActive(pPlayer->GetPlayerId()))
 	{
 		// Is it the local player?
 		if(pPlayer->IsLocalPlayer())
 		{
-			if(g_pFileTransfer->IsComplete() && g_pLocalPlayer->IsConnectFinished())
-				g_pLocalPlayer->Respawn();
+			// Get our local player
+			CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
+			if(g_pClient->GetFileTransfer()->IsComplete() && pLocalPlayer->IsConnectFinished())
+				pLocalPlayer->Respawn();
 		}
 		else
 		{
@@ -1000,7 +983,7 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pPlayer->ClearDieTask();
 
 			// Spawn player
-			g_pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
+			pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
 
 			DWORD dwModelHash = SkinIdToModelHash(iModelId);
 			if(pPlayer)
@@ -1030,7 +1013,7 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 				pPlayer->GiveHelmet();
 
 			pBitStream->Read(vehicleId);
-			CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+			CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 			// Is the player driver or passenger?
 			if(pVehicle)
@@ -1048,7 +1031,7 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 				for(unsigned char uc = 0; uc < 11; ++ uc)
 				{
 					pBitStream->Read(ucClothes);
-					g_pPlayerManager->GetAt(playerId)->SetClothes(uc, ucClothes);
+					pPlayerManager->GetAt(playerId)->SetClothes(uc, ucClothes);
 				}
 			}
 		}
@@ -1062,7 +1045,7 @@ void CClientRPCHandler::PlayerDeath(CBitStream * pBitStream, CPlayerSocket * pSe
 
 	EntityId playerId;
 	pBitStream->ReadCompressed(playerId);
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer && !pPlayer->IsLocalPlayer())
 		pPlayer->Kill();
@@ -1076,7 +1059,7 @@ void CClientRPCHandler::ScriptingSetPlayerDucking(CBitStream * pBitStream, CPlay
 
 	bool bDucking;
 	pBitStream->Read(bDucking);
-	g_pLocalPlayer->SetDucking(bDucking);
+	g_pClient->GetLocalPlayer()->SetDucking(bDucking);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerInvincible(CBitStream * pBitStream, CPlayerSocket * senderSocket)
@@ -1087,7 +1070,7 @@ void CClientRPCHandler::ScriptingSetPlayerInvincible(CBitStream * pBitStream, CP
 
 	bool bInvincible;
 	pBitStream->Read(bInvincible);
-	Scripting::SetCharInvincible(g_pLocalPlayer->GetScriptingHandle(), bInvincible);
+	Scripting::SetCharInvincible(g_pClient->GetLocalPlayer()->GetScriptingHandle(), bInvincible);
 }
 
 void CClientRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1102,8 +1085,8 @@ void CClientRPCHandler::Chat(CBitStream * pBitStream, CPlayerSocket * pSenderSoc
 	pBitStream->ReadCompressed(playerId);
 	pBitStream->Read(sChat);
 
-	if(g_pPlayerManager->DoesExist(playerId))
-		g_pChatWindow->AddChatMessage(playerId, sChat);
+	if(g_pClient->GetPlayerManager()->DoesExist(playerId))
+		g_pClient->GetChatWindow()->AddChatMessage(playerId, sChat);
 }
 
 void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1128,10 +1111,12 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 	if(bHasAimSyncData)
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer && pPlayer->IsSpawned())
 	{
-		if(!pPlayer->IsLocalPlayer()) {
+		if(!pPlayer->IsLocalPlayer())
+		{
 			pPlayer->SetPing(usPing);
 			CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
 			if(pRemotePlayer)
@@ -1146,7 +1131,8 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 				pRemotePlayer->StoreOnFootSync(&syncPacket, bHasAimSyncData);
 			}
 		}
-		else { if(g_pLocalPlayer->GetPlayerId() == pPlayer->GetPlayerId()) { g_pLocalPlayer->SetPing(usPing); } }
+		else
+			g_pClient->GetLocalPlayer()->SetPing(usPing);
 	}
 }
 
@@ -1173,7 +1159,8 @@ void CClientRPCHandler::InVehicleSync(CBitStream * pBitStream, CPlayerSocket * p
 	if(bHasAimSyncData)
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer && pPlayer->IsSpawned())
 	{
 		pPlayer->SetPing(usPing);
@@ -1218,7 +1205,8 @@ void CClientRPCHandler::PassengerSync(CBitStream * pBitStream, CPlayerSocket * p
 	if(bHasAimSyncData)
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer && pPlayer->IsSpawned())
 	{
 		
@@ -1239,7 +1227,8 @@ void CClientRPCHandler::PassengerSync(CBitStream * pBitStream, CPlayerSocket * p
 				pRemotePlayer->StorePassengerSync(vehicleId, &syncPacket);
 			}
 		}
-		else { if(g_pLocalPlayer->GetPlayerId() == pPlayer->GetPlayerId()) { g_pLocalPlayer->SetPing(usPing); } }
+		else
+			g_pClient->GetLocalPlayer()->SetPing(usPing);
 	}
 }
 
@@ -1259,7 +1248,8 @@ void CClientRPCHandler::SmallSync(CBitStream * pBitStream, CPlayerSocket * pSend
 	if(bHasAimSyncData)
 		pBitStream->Read((char *)&aimSyncPacket, sizeof(AimSyncData));
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer && pPlayer->IsSpawned())
 	{
 		// Todo: Local player stuff...
@@ -1303,7 +1293,7 @@ void CClientRPCHandler::Message(CBitStream * pBitStream, CPlayerSocket * pSender
 	pBitStream->Read(dwColor);
 	pBitStream->Read(sMessage);
 	pBitStream->Read(bAllowFormatting);
-	g_pChatWindow->AddMessage(dwColor, bAllowFormatting, sMessage);
+	g_pClient->GetChatWindow()->AddMessage(dwColor, bAllowFormatting, sMessage);
 }
 
 void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1329,8 +1319,8 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
 		strReason = "Connection aborted by script.";
  
  	// Disconnect from the server & show the message
- 	g_pNetworkManager->Disconnect();
-	g_pMainMenu->ShowMessageBox(strReason.C_String(),"Connection failed", true, true, false);
+ 	g_pClient->GetNetworkManager()->Disconnect();
+	g_pClient->GetMainMenu()->ShowMessageBox(strReason.C_String(),"Connection failed", true, true, false);
 }
 
 
@@ -1374,19 +1364,7 @@ void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 	CLogFile::Printf("VehicleEntryExit(Player %d, Reply %d, Type %d, Vehicle %d, Seat %d)", playerId, bReply, byteEnterExitVehicleType, vehicleId, byteSeatId);
 
 	// Get the player pointer
-	CNetworkPlayer * pPlayer = NULL;
-
-	// Is it for us?
-	if(g_pLocalPlayer->GetPlayerId() == playerId)
-	{
-		// Get the local player pointer
-		pPlayer = g_pLocalPlayer;
-	}
-	else
-	{
-		// Get the remote player pointer
-		pPlayer = g_pPlayerManager->GetAt(playerId);
-	}
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	// Is the player pointer invalid?
 	if(!pPlayer)
@@ -1399,7 +1377,7 @@ void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 	pPlayer->SetRequestingVehicleEnterExit(false);
 
 	// Get the vehicle pointer
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	// Is the vehicle pointer invalid?
 	if(!pVehicle)
@@ -1453,8 +1431,11 @@ void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 	pBitStream->Read(vecAim.fY);
 	pBitStream->Read(vecAim.fZ);
 
-	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->GetAt(playerId)->IsSpawned())
-		g_pPlayerManager->GetAt(playerId)->TaskLookAtCoord(vecAim.fX, vecAim.fY, vecAim.fZ);
+	// Get the player
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
+	if(pPlayer && pPlayer->IsSpawned())
+		pPlayer->TaskLookAtCoord(vecAim.fX, vecAim.fY, vecAim.fZ);
 }
 
 void CClientRPCHandler::NameChange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1469,19 +1450,18 @@ void CClientRPCHandler::NameChange(CBitStream * pBitStream, CPlayerSocket * pSen
 	String strName;
 	pBitStream->Read(strName);
 
-	if(playerId == g_pLocalPlayer->GetPlayerId())
-	{
-		g_strNick = strName;
-		g_pLocalPlayer->SetName(strName);
-		g_pMainMenu->m_pSettingsWindowNickEditBox->setText(strName.Get());
-		CVAR_SET_STRING("nick", strName);
-	}
-	else
-	{
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
-		if(pPlayer)
-			pPlayer->SetName(strName);
+	if(pPlayer)
+	{
+		pPlayer->SetName(strName);
+
+		if(pPlayer->IsLocalPlayer())
+		{
+			g_pClient->SetNick(strName);
+			g_pClient->GetMainMenu()->m_pSettingsWindowNickEditBox->setText(strName.Get());
+			CVAR_SET_STRING("nick", strName);
+		}
 	}
 }
 
@@ -1506,7 +1486,7 @@ void CClientRPCHandler::NewFile(CBitStream * pBitStream, CPlayerSocket * pSender
 		pBitStream->Read((char *)&fileChecksum, sizeof(CFileChecksum));
 
 		// Add the file to the file transfer manager
-		g_pFileTransfer->Add(!bIsScript, strFileName, fileChecksum);
+		g_pClient->GetFileTransfer()->Add(!bIsScript, strFileName, fileChecksum);
 	}
 }
 
@@ -1525,11 +1505,12 @@ void CClientRPCHandler::DeleteFile(CBitStream * pBitStream, CPlayerSocket * pSen
 	pBitStream->Read(strFileName);
 
 	//CLogFile::Printf(__FILE__,__LINE__,"Delete File: %s", strFileName.C_String());
+	CClientScriptManager * pClientScriptManager = g_pClient->GetClientScriptManager();
 
-	if(bIsScript && g_pClientScriptManager->Exists(strFileName))
+	if(bIsScript && pClientScriptManager->Exists(strFileName))
 	{
-		g_pClientScriptManager->Unload(strFileName);
-		g_pClientScriptManager->RemoveScript(strFileName);
+		pClientScriptManager->Unload(strFileName);
+		pClientScriptManager->RemoveScript(strFileName);
 	}
 }
 
@@ -1541,7 +1522,7 @@ void CClientRPCHandler::ScriptingSetPlayerHealth(CBitStream * pBitStream, CPlaye
 
 	unsigned int uHealth;
 	pBitStream->Read(uHealth);
-	g_pLocalPlayer->SetHealth(uHealth + 100);
+	g_pClient->GetLocalPlayer()->SetHealth(uHealth + 100);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1552,7 +1533,7 @@ void CClientRPCHandler::ScriptingSetPlayerCoordinates(CBitStream * pBitStream, C
 
 	CVector3 vecPosition;
 	pBitStream->Read(vecPosition);
-	g_pLocalPlayer->Teleport(vecPosition);
+	g_pClient->GetLocalPlayer()->Teleport(vecPosition);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerTime(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1567,11 +1548,14 @@ void CClientRPCHandler::ScriptingSetPlayerTime(CBitStream * pBitStream, CPlayerS
 	pBitStream->Read(ucHour);
 	pBitStream->Read(ucMinute);
 
-	g_pTime->SetTime(ucHour, ucMinute);
+	// Get our time
+	CTime * pTime = g_pClient->GetTime();
+	pTime->SetTime(ucHour, ucMinute);
+
 	if(pBitStream->Read(uiMinuteDuration))
-		g_pTime->SetMinuteDuration(uiMinuteDuration);
+		pTime->SetMinuteDuration(uiMinuteDuration);
 	else
-		g_pTime->SetMinuteDuration(CTime::DEFAULT_MINUTE_DURATION);
+		pTime->SetMinuteDuration(CTime::DEFAULT_MINUTE_DURATION);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerWeather(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1616,7 +1600,7 @@ void CClientRPCHandler::ScriptingGivePlayerWeapon(CBitStream * pBitStream, CPlay
 	int weapon, ammo;
 	pBitStream->Read(weapon);
 	pBitStream->Read(ammo);
-	g_pLocalPlayer->GiveWeapon(weapon, ammo);
+	g_pClient->GetLocalPlayer()->GiveWeapon(weapon, ammo);
 }
 
 void CClientRPCHandler::ScriptingSetSpawnLocation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1629,7 +1613,7 @@ void CClientRPCHandler::ScriptingSetSpawnLocation(CBitStream * pBitStream, CPlay
 	float r;
 	pBitStream->Read(vecPos);
 	pBitStream->Read(r);
-	g_pLocalPlayer->SetSpawnLocation(vecPos, r);
+	g_pClient->GetLocalPlayer()->SetSpawnLocation(vecPos, r);
 }
 
 void CClientRPCHandler::ScriptingSetModel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1644,7 +1628,7 @@ void CClientRPCHandler::ScriptingSetModel(CBitStream * pBitStream, CPlayerSocket
 	pBitStream->Read(iModelId);
 	DWORD dwModelHash = SkinIdToModelHash(iModelId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 	if(pPlayer)
 	{
 		CNetworkVehicle * pVehicle = NULL;
@@ -1677,7 +1661,7 @@ void CClientRPCHandler::ScriptingToggleControls(CBitStream * pBitStream, CPlayer
 	bool bToggle;
 	pBitStream->Read(bToggle);
 
-	g_pLocalPlayer->SetControl(bToggle);
+	g_pClient->GetLocalPlayer()->SetControl(bToggle);
 
 	CGame::SetInputState(bToggle);
 	m_bControlsDisabled = !bToggle;
@@ -1692,7 +1676,7 @@ void CClientRPCHandler::ScriptingSetHeading(CBitStream * pBitStream, CPlayerSock
 
 	float heading;
 	pBitStream->Read(heading);
-	g_pLocalPlayer->SetCurrentHeading(heading);
+	g_pClient->GetLocalPlayer()->SetCurrentHeading(heading);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1703,7 +1687,7 @@ void CClientRPCHandler::ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlay
 
 	float grav;
 	pBitStream->Read(grav);
-	Scripting::SetCharGravity(g_pLocalPlayer->GetScriptingHandle(), grav);
+	Scripting::SetCharGravity(g_pClient->GetLocalPlayer()->GetScriptingHandle(), grav);
 }
 
 /*void CClientRPCHandler::SetPlayerDrunk(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1753,7 +1737,7 @@ void CClientRPCHandler::ScriptingSetVehicleIndicators(CBitStream * pBitStream, C
 	bool bIndicatorStateBackRight  = ( ucState & 0x8 ) != 0;
 
 	// Set the vehicle indicators
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 	if(pVehicle)
 		pVehicle->SetIndicatorState(bIndicatorStateFrontLeft, bIndicatorStateFrontRight, bIndicatorStateBackLeft, bIndicatorStateBackRight);
 }
@@ -1770,7 +1754,7 @@ void CClientRPCHandler::ScriptingSoundVehicleHorn(CBitStream * pBitStream, CPlay
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(iDuration);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SoundHorn(iDuration);
@@ -1788,7 +1772,7 @@ void CClientRPCHandler::ScriptingSetVehicleDirtLevel(CBitStream * pBitStream, CP
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(fLevel);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetDirtLevel(fLevel);
@@ -1805,7 +1789,7 @@ void CClientRPCHandler::ScriptingSetVehicleSirenState(CBitStream * pBitStream, C
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(bState);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetSirenState(bState);
@@ -1822,7 +1806,7 @@ void CClientRPCHandler::ScriptingSetVehicleEngineState(CBitStream * pBitStream, 
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(bState);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetEngineState(bState);
@@ -1839,7 +1823,7 @@ void CClientRPCHandler::ScriptingTurnTaxiLights(CBitStream * pBitStream, CPlayer
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(bState);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetTaxiLightsState(bState);
@@ -1860,7 +1844,7 @@ void CClientRPCHandler::ScriptingControlCar(CBitStream * pBitStream, CPlayerSock
 	pBitStream->Read(bState);
 	pBitStream->Read(fAngle);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetCarDoorAngle(iDoor,bState,fAngle);
@@ -1878,7 +1862,7 @@ void CClientRPCHandler::ScriptingSetVehicleLights(CBitStream * pBitStream, CPlay
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(bLights);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetLightsState(bLights);
@@ -1893,7 +1877,7 @@ void CClientRPCHandler::ScriptingRepairVehicleTyres(CBitStream * pBitStream, CPl
 	EntityId vehicleId;
 	pBitStream->Read(vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -1915,7 +1899,7 @@ void CClientRPCHandler::ScriptingRepairVehicleWindows(CBitStream * pBitStream, C
 	EntityId vehicleId;
 	pBitStream->Read(vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -1933,7 +1917,7 @@ void CClientRPCHandler::ScriptingSetVehicleCoordinates(CBitStream * pBitStream, 
 	CVector3 vecPos;
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(vecPos);
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetPosition(vecPos);
@@ -1949,7 +1933,7 @@ void CClientRPCHandler::ScriptingSetVehicleRotation(CBitStream * pBitStream, CPl
 	CVector3 vecRotation;
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(vecRotation);
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetRotation(vecRotation);
@@ -1965,7 +1949,7 @@ void CClientRPCHandler::ScriptingSetVehicleColor(CBitStream * pBitStream, CPlaye
 	BYTE byteColors[4];
 	pBitStream->Read(vehicleId);
 	pBitStream->Read((char *)byteColors, sizeof(byteColors));
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetColors(byteColors[0], byteColors[1], byteColors[2], byteColors[3]);
@@ -1979,7 +1963,7 @@ void CClientRPCHandler::ScriptingToggleRagdoll(CBitStream * pBitStream, CPlayerS
 
 	bool bToggle;
 	pBitStream->Read(bToggle);
-	g_pLocalPlayer->ToggleRagdoll(bToggle);
+	g_pClient->GetLocalPlayer()->ToggleRagdoll(bToggle);
 }
 
 void CClientRPCHandler::ScriptingGivePlayerMoney(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1990,7 +1974,7 @@ void CClientRPCHandler::ScriptingGivePlayerMoney(CBitStream * pBitStream, CPlaye
 
 	int amount;
 	pBitStream->Read(amount);
-	g_pLocalPlayer->GiveMoney(amount);
+	g_pClient->GetLocalPlayer()->GiveMoney(amount);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerMoney(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2001,7 +1985,7 @@ void CClientRPCHandler::ScriptingSetPlayerMoney(CBitStream * pBitStream, CPlayer
 
 	int amount;
 	pBitStream->Read(amount);
-	g_pLocalPlayer->SetMoney(amount);
+	g_pClient->GetLocalPlayer()->SetMoney(amount);
 }
 
 float fTextPos[2];
@@ -2047,7 +2031,7 @@ void CClientRPCHandler::ScriptingToggleFrozen(CBitStream * pBitStream, CPlayerSo
 	bool bCameraFrozen;
 	pBitStream->Read(bFrozen);
 	pBitStream->Read(bCameraFrozen);
-	g_pLocalPlayer->SetPlayerControlAdvanced(!bFrozen, !bCameraFrozen);
+	g_pClient->GetLocalPlayer()->SetPlayerControlAdvanced(!bFrozen, !bCameraFrozen);
 }
 
 void CClientRPCHandler::ScriptingSetVehicleHealth(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2060,7 +2044,7 @@ void CClientRPCHandler::ScriptingSetVehicleHealth(CBitStream * pBitStream, CPlay
 	unsigned int uHealth;
 	pBitStream->ReadCompressed(vehicleId);
 	pBitStream->Read(uHealth);
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetHealth(uHealth);
@@ -2074,7 +2058,7 @@ void CClientRPCHandler::ScriptingSetPlayerArmour(CBitStream * pBitStream, CPlaye
 
 	unsigned int uArmour;
 	pBitStream->Read(uArmour);
-	g_pLocalPlayer->SetArmour(uArmour);
+	g_pClient->GetLocalPlayer()->SetArmour(uArmour);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerMoveSpeed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2085,7 +2069,7 @@ void CClientRPCHandler::ScriptingSetPlayerMoveSpeed(CBitStream * pBitStream, CPl
 
 	CVector3 vecMoveSpeed;
 	pBitStream->Read(vecMoveSpeed);
-	g_pLocalPlayer->SetMoveSpeed(vecMoveSpeed);
+	g_pClient->GetLocalPlayer()->SetMoveSpeed(vecMoveSpeed);
 }
 
 void CClientRPCHandler::ScriptingSetVehicleMoveSpeed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2098,7 +2082,7 @@ void CClientRPCHandler::ScriptingSetVehicleMoveSpeed(CBitStream * pBitStream, CP
 	CVector3 vecMoveSpeed;
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(vecMoveSpeed);
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetMoveSpeed(vecMoveSpeed);
@@ -2114,7 +2098,7 @@ void CClientRPCHandler::ScriptingSetVehicleTurnSpeed(CBitStream * pBitStream, CP
 	CVector3 vecTurnSpeed;
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(vecTurnSpeed);
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 		pVehicle->SetTurnSpeed(vecTurnSpeed);
@@ -2122,7 +2106,7 @@ void CClientRPCHandler::ScriptingSetVehicleTurnSpeed(CBitStream * pBitStream, CP
 
 void CClientRPCHandler::ScriptingRemoveWeapons(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pLocalPlayer->RemoveAllWeapons();
+	g_pClient->GetLocalPlayer()->RemoveAllWeapons();
 }
 
 void CClientRPCHandler::ScriptingSetWantedLevel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2146,10 +2130,10 @@ void CClientRPCHandler::ScriptingWarpPlayerIntoVehicle(CBitStream * pBitStream, 
 	BYTE byteSeatId;
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(byteSeatId);
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
-		g_pLocalPlayer->PutInVehicle(pVehicle, byteSeatId);
+		g_pClient->GetLocalPlayer()->PutInVehicle(pVehicle, byteSeatId);
 }
 
 void CClientRPCHandler::ScriptingRemovePlayerFromVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2161,14 +2145,14 @@ void CClientRPCHandler::ScriptingRemovePlayerFromVehicle(CBitStream * pBitStream
 	bool bGraceful = pBitStream->ReadBit();
 
 	if(bGraceful)
-		g_pLocalPlayer->ExitVehicle(EXIT_VEHICLE_NORMAL);
+		g_pClient->GetLocalPlayer()->ExitVehicle(EXIT_VEHICLE_NORMAL);
 	else
-		g_pLocalPlayer->RemoveFromVehicle();
+		g_pClient->GetLocalPlayer()->RemoveFromVehicle();
 }
 
 void CClientRPCHandler::ScriptingSetCameraBehindPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pLocalPlayer->SetCameraBehind();
+	g_pClient->GetLocalPlayer()->SetCameraBehind();
 }
 
 void CClientRPCHandler::ScriptingSetActorCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2186,7 +2170,7 @@ void CClientRPCHandler::ScriptingSetActorCoordinates(CBitStream * pBitStream, CP
 	pBitStream->Read(vecPosition);
 
 	// Set the actor position
-	g_pActorManager->SetPosition(actorId, vecPosition);
+	g_pClient->GetActorManager()->SetPosition(actorId, vecPosition);
 }
 
 void CClientRPCHandler::ScriptingSetActorHeading(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2204,7 +2188,7 @@ void CClientRPCHandler::ScriptingSetActorHeading(CBitStream * pBitStream, CPlaye
 	pBitStream->Read(fHeading);
 
 	// Set the actor heading
-	g_pActorManager->SetHeading(actorId, fHeading);
+	g_pClient->GetActorManager()->SetHeading(actorId, fHeading);
 }
 
 void CClientRPCHandler::ScriptingActorWalkToCoordinates(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2227,10 +2211,13 @@ void CClientRPCHandler::ScriptingActorWalkToCoordinates(CBitStream * pBitStream,
 	int iType;
 	pBitStream->Read(iType);
 
-	// Apply the walk task to the actor
-	if(g_pActorManager->DoesExist(actorId))
+	// Get our actor manager
+	CActorManager * pActorManager = g_pClient->GetActorManager();
+
+	if(pActorManager->DoesExist(actorId))
 	{
-		unsigned int ped = g_pActorManager->GetScriptingHandle(actorId);
+		// Apply the walk task to the actor
+		unsigned int ped = pActorManager->GetScriptingHandle(actorId);
 		Scripting::TaskGoStraightToCoord(ped, x, y, z, 2, 45000);
 	}
 }
@@ -2250,7 +2237,7 @@ void CClientRPCHandler::ScriptingSetBlipColor(CBitStream * pBitStream, CPlayerSo
 	pBitStream->Read(uiColor);
 
 	// Set the blip color
-	g_pBlipManager->SetColor(blipId, uiColor);
+	g_pClient->GetBlipManager()->SetColor(blipId, uiColor);
 }
 
 void CClientRPCHandler::ScriptingSetBlipSize(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2268,7 +2255,7 @@ void CClientRPCHandler::ScriptingSetBlipSize(CBitStream * pBitStream, CPlayerSoc
 	pBitStream->Read(fSize);
 
 	// Set the blip size
-	g_pBlipManager->SetSize(blipId, fSize);
+	g_pClient->GetBlipManager()->SetSize(blipId, fSize);
 }
 
 void CClientRPCHandler::ScriptingToggleBlipShortRange(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2286,7 +2273,7 @@ void CClientRPCHandler::ScriptingToggleBlipShortRange(CBitStream * pBitStream, C
 	pBitStream->Read(bShortRange);
 
 	//Set shortRange
-	g_pBlipManager->ToggleShortRange(blipId, bShortRange);
+	g_pClient->GetBlipManager()->ToggleShortRange(blipId, bShortRange);
 }
 
 void CClientRPCHandler::ScriptingToggleBlipRoute(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2304,7 +2291,7 @@ void CClientRPCHandler::ScriptingToggleBlipRoute(CBitStream * pBitStream, CPlaye
 	pBitStream->Read(bRouteBlip);
 
 	//Set shortRange
-	g_pBlipManager->ToggleRouteBlip(blipId, bRouteBlip);
+	g_pClient->GetBlipManager()->ToggleRouteBlip(blipId, bRouteBlip);
 }
 
 void CClientRPCHandler::ScriptingSetBlipName(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2322,7 +2309,7 @@ void CClientRPCHandler::ScriptingSetBlipName(CBitStream * pBitStream, CPlayerSoc
 	pBitStream->Read(strName);
 
 	//Set the blip name
-	g_pBlipManager->SetName(blipId, strName);
+	g_pClient->GetBlipManager()->SetName(blipId, strName);
 }
 
 void CClientRPCHandler::ScriptingSetBlipIcon(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2335,7 +2322,7 @@ void CClientRPCHandler::ScriptingSetBlipIcon(CBitStream * pBitStream, CPlayerSoc
 	pBitStream->Read(blipId);
 	bool bShow;
 	pBitStream->Read(bShow);
-	g_pBlipManager->Show(blipId, bShow);
+	g_pClient->GetBlipManager()->Show(blipId, bShow);
 
 }
 
@@ -2355,8 +2342,10 @@ void CClientRPCHandler::ScriptingShowCheckpointForPlayer(CBitStream * pBitStream
 	pBitStream->Read(vecTargetPosition);
 
 	// Set the checkpoint to visible
-	CCheckpoint* pCheckpoint = g_pCheckpointManager->Get(checkpointId);
-	if(pCheckpoint) {
+	CCheckpoint * pCheckpoint = g_pClient->GetCheckpointManager()->Get(checkpointId);
+
+	if(pCheckpoint)
+	{
 		pCheckpoint->Show();
 		pCheckpoint->SetPosition(vecPosition);
 		pCheckpoint->SetTargetPosition(vecTargetPosition);
@@ -2374,7 +2363,8 @@ void CClientRPCHandler::ScriptingHideCheckpointForPlayer(CBitStream * pBitStream
 	pBitStream->Read(checkpointId);
 
 	// Set the checkpoint to not visible
-	CCheckpoint* pCheckpoint = g_pCheckpointManager->Get(checkpointId);
+	CCheckpoint * pCheckpoint = g_pClient->GetCheckpointManager()->Get(checkpointId);
+
 	if(pCheckpoint)
 		pCheckpoint->Hide();
 }
@@ -2408,9 +2398,7 @@ void CClientRPCHandler::ScriptingToggleRadar(CBitStream * pBitStream, CPlayerSoc
 	// Set the radar visibility
 	CGame::SetRadarVisible(bToggle);
 	Scripting::DisplayRadar(bToggle);
-
-	if(g_pLocalPlayer)
-		g_pLocalPlayer->SetRadarVisible(bToggle);
+	g_pClient->GetLocalPlayer()->SetRadarVisible(bToggle);
 }
 
 void CClientRPCHandler::ScriptingToggleNames(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2424,7 +2412,7 @@ void CClientRPCHandler::ScriptingToggleNames(CBitStream * pBitStream, CPlayerSoc
 	pBitStream->Read(bToggle);
 
 	// Set the player names visibility
-	g_pNameTags->SetEnabled(bToggle);
+	g_pClient->GetNameTags()->SetEnabled(bToggle);
 }
 
 void CClientRPCHandler::ScriptingToggleAreaNames(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2456,7 +2444,7 @@ void CClientRPCHandler::ScriptingEventCall(CBitStream * pBitStream, CPlayerSocke
 		const char* szEventName = pEventName->data.str->C_String();
 		pArgs->pop_front();
 
-		g_pEvents->Call(szEventName, pArgs);
+		g_pClient->GetEvents()->Call(szEventName, pArgs);
 	}
 
 	delete pEventName;
@@ -2477,7 +2465,8 @@ void CClientRPCHandler::ScriptingSetPlayerColor(CBitStream * pBitStream, CPlayer
 	unsigned int uiColor;
 	pBitStream->Read(uiColor);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer)
 		pPlayer->SetColor(uiColor);
 }
@@ -2497,7 +2486,7 @@ void CClientRPCHandler::ScriptingSetVehicleLocked(CBitStream * pBitStream, CPlay
 	// Convert int to dword
 	DWORD dwLockState = static_cast<DWORD>(iLocked);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 	if(pVehicle)
 		pVehicle->SetDoorLockState(dwLockState);
 }
@@ -2518,7 +2507,8 @@ void CClientRPCHandler::ScriptingSetPlayerClothes(CBitStream * pBitStream, CPlay
 	pBitStream->Read(ucClothes);
 
 	// Set the clothes
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer)
 		pPlayer->SetClothes(ucBodyPart, ucClothes);
 }
@@ -2534,10 +2524,13 @@ void CClientRPCHandler::ScriptingResetPlayerClothes(CBitStream * pBitStream, CPl
 	pBitStream->Read(playerId);
 
 	// Remove the clothes
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer)
+	{
 		for(unsigned char uc = 0; uc < 11; ++ uc)
 			pPlayer->SetClothes(uc, 0);
+	}
 }
 
 void CClientRPCHandler::ScriptingGiveHelmet(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2551,7 +2544,7 @@ void CClientRPCHandler::ScriptingGiveHelmet(CBitStream * pBitStream, CPlayerSock
 	pBitStream->Read(playerId);
 
 	// Give the helmet
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 		pPlayer->GiveHelmet();
@@ -2568,7 +2561,7 @@ void CClientRPCHandler::ScriptingRemoveHelmet(CBitStream * pBitStream, CPlayerSo
 	pBitStream->Read(playerId);
 
 	// Remove the helmet
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 		pPlayer->RemoveHelmet();
@@ -2587,19 +2580,21 @@ void CClientRPCHandler::ScriptingSetTrafficLightState(CBitStream * pBitStream, C
 	pBitStream->Read(ucState);
 	eState = (CTrafficLights::eTrafficLightState)ucState;
 
+	CTrafficLights * pTrafficLights = g_pClient->GetTrafficLights();
+
 	if(eState != CTrafficLights::TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)
 	{
 		// set locked
-		g_pTrafficLights->SetLocked(pBitStream->ReadBit());
+		pTrafficLights->SetLocked(pBitStream->ReadBit());
 
 		unsigned int uiYellowDuration;
 		if(eState >= CTrafficLights::TRAFFIC_LIGHT_STATE_FLASHING_FLASHING && eState < CTrafficLights::TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)
 		{
 			// yellow flashing duration
 			if(pBitStream->Read(uiYellowDuration))
-				g_pTrafficLights->SetYellowDuration(uiYellowDuration);
+				pTrafficLights->SetYellowDuration(uiYellowDuration);
 			else
-				g_pTrafficLights->SetYellowDuration(CTrafficLights::DEFAULT_YELLOW_DURATION);
+				pTrafficLights->SetYellowDuration(CTrafficLights::DEFAULT_YELLOW_DURATION);
 		}
 		else if(eState < CTrafficLights::TRAFFIC_LIGHT_STATE_TO_GREEN_RED)
 		{
@@ -2609,19 +2604,20 @@ void CClientRPCHandler::ScriptingSetTrafficLightState(CBitStream * pBitStream, C
 			{
 				pBitStream->Read(uiYellowDuration);
 				pBitStream->Read(uiRedDuration);
-				g_pTrafficLights->SetGreenDuration(uiGreenDuration);
-				g_pTrafficLights->SetYellowDuration(uiYellowDuration);
-				g_pTrafficLights->SetRedDuration(uiRedDuration);
+				pTrafficLights->SetGreenDuration(uiGreenDuration);
+				pTrafficLights->SetYellowDuration(uiYellowDuration);
+				pTrafficLights->SetRedDuration(uiRedDuration);
 			}
 			else
 			{
-				g_pTrafficLights->SetGreenDuration(CTrafficLights::DEFAULT_GREEN_DURATION);
-				g_pTrafficLights->SetYellowDuration(CTrafficLights::DEFAULT_YELLOW_DURATION);
-				g_pTrafficLights->SetRedDuration(CTrafficLights::DEFAULT_RED_DURATION);
+				pTrafficLights->SetGreenDuration(CTrafficLights::DEFAULT_GREEN_DURATION);
+				pTrafficLights->SetYellowDuration(CTrafficLights::DEFAULT_YELLOW_DURATION);
+				pTrafficLights->SetRedDuration(CTrafficLights::DEFAULT_RED_DURATION);
 			}
 		}
 	}
-	g_pTrafficLights->SetState(eState);
+
+	pTrafficLights->SetState(eState);
 }
 
 void CClientRPCHandler::ScriptingSetVehicleComponents(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2634,7 +2630,7 @@ void CClientRPCHandler::ScriptingSetVehicleComponents(CBitStream * pBitStream, C
 	EntityId vehicleId;
 	pBitStream->Read(vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 	if(pVehicle)
 	{
 		// Read the component values
@@ -2656,7 +2652,7 @@ void CClientRPCHandler::ScriptingSetVehicleVariation(CBitStream * pBitStream, CP
 	EntityId vehicleId;
 	pBitStream->Read(vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 	if(pVehicle)
 	{
 		// Read the variation
@@ -2675,8 +2671,8 @@ void CClientRPCHandler::ScriptingSetObjectPosition(CBitStream * pBitStream, CPla
 	// Read the object id
 	EntityId objectId;
 	pBitStream->ReadCompressed(objectId);
+	CObject * pObject = g_pClient->GetObjectManager()->Get(objectId);
 
-	CObject* pObject = g_pObjectManager->Get(objectId);
 	if(pObject)
 	{
 		// Read the position
@@ -2697,8 +2693,8 @@ void CClientRPCHandler::ScriptingSetObjectRotation(CBitStream * pBitStream, CPla
 	// Read the object id
 	EntityId objectId;
 	pBitStream->ReadCompressed(objectId);
+	CObject * pObject = g_pClient->GetObjectManager()->Get(objectId);
 
-	CObject* pObject = g_pObjectManager->Get(objectId);
 	if(pObject)
 	{
 		// Read the rotation
@@ -2720,7 +2716,8 @@ void CClientRPCHandler::ScriptingSetPickupPosition(CBitStream * pBitStream, CPla
 	EntityId objectId;
 	pBitStream->ReadCompressed(objectId);
 
-	CPickup* pPickup = g_pPickupManager->Get(objectId);
+	CPickup * pPickup = g_pClient->GetPickupManager()->Get(objectId);
+
 	if(pPickup)
 	{
 		// Read the position
@@ -2742,7 +2739,8 @@ void CClientRPCHandler::ScriptingSetPickupRotation(CBitStream * pBitStream, CPla
 	EntityId objectId;
 	pBitStream->ReadCompressed(objectId);
 
-	CPickup* pPickup = g_pPickupManager->Get(objectId);
+	CPickup * pPickup = g_pClient->GetPickupManager()->Get(objectId);
+
 	if(pPickup)
 	{
 		// Read the rotation
@@ -2764,7 +2762,8 @@ void CClientRPCHandler::ScriptingSetPickupValue(CBitStream * pBitStream, CPlayer
 	EntityId objectId;
 	pBitStream->ReadCompressed(objectId);
 
-	CPickup* pPickup = g_pPickupManager->Get(objectId);
+	CPickup * pPickup = g_pClient->GetPickupManager()->Get(objectId);
+
 	if(pPickup)
 	{
 		// Read the value
@@ -2789,7 +2788,7 @@ void CClientRPCHandler::ScriptingSetPlayerCameraPos(CBitStream * pBitStream, CPl
 		return;
 
 	// Set the camera position
-	g_pCamera->SetPosition(vecPosition);
+	g_pClient->GetCamera()->SetPosition(vecPosition);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2805,13 +2804,13 @@ void CClientRPCHandler::ScriptingSetPlayerCameraLookAt(CBitStream * pBitStream, 
 		return;
 
 	// Set the camera look at
-	g_pCamera->SetLookAt(vecLookAt);
+	g_pClient->GetCamera()->SetLookAt(vecLookAt);
 }
 
 void CClientRPCHandler::ScriptingResetPlayerCamera(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Reset the camera
-	g_pCamera->Reset();
+	g_pClient->GetCamera()->Reset();
 }
 
 void CClientRPCHandler::ScriptingCreateFire(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2829,7 +2828,7 @@ void CClientRPCHandler::ScriptingCreateFire(CBitStream * pBitStream, CPlayerSock
 	float fdensity;
 	pBitStream->Read(fdensity);
 
-	g_pFireManager->Create(fireId,vecPos,fdensity);
+	g_pClient->GetFireManager()->Create(fireId,vecPos,fdensity);
 }
 
 void CClientRPCHandler::ScriptingDeleteFire(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2841,7 +2840,7 @@ void CClientRPCHandler::ScriptingDeleteFire(CBitStream * pBitStream, CPlayerSock
 	EntityId fireId;
 	pBitStream->Read(fireId);
 
-	g_pFireManager->Delete(fireId);
+	g_pClient->GetFireManager()->Delete(fireId);
 }
 
 void CClientRPCHandler::ScriptingCreateExplosion(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2871,11 +2870,10 @@ void CClientRPCHandler::ScriptingForcePlayerAnimation(CBitStream * pBitStream, C
 	pBitStream->Read(strGroup);
 	pBitStream->Read(strAnim);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && pPlayer->IsSpawned() && !pPlayer->IsLocalPlayer())
-		Scripting::TaskPlayAnim(pPlayer->GetScriptingHandle(),strAnim.C_String(), strGroup.C_String(),(float)8,0,0,0,0,-1);
-	else if(pPlayer && pPlayer->IsSpawned() && pPlayer->IsLocalPlayer())
-		Scripting::TaskPlayAnim(g_pLocalPlayer->GetScriptingHandle(),strAnim.C_String(), strGroup.C_String(),(float)8,0,0,0,0,-1);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
+	if(pPlayer && pPlayer->IsSpawned())
+		Scripting::TaskPlayAnim(pPlayer->GetScriptingHandle(), strAnim.Get(), strGroup.Get(), (float)8, 0, 0, 0, 0, -1);
 }
 
 void CClientRPCHandler::ScriptingForceActorAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2892,8 +2890,11 @@ void CClientRPCHandler::ScriptingForceActorAnimation(CBitStream * pBitStream, CP
 	pBitStream->Read(strGroup);
 	pBitStream->Read(strAnim);
 
-	if(g_pActorManager->DoesExist(actorId))
-		g_pActorManager->ForceAnimation(actorId,strGroup.Get(),strAnim.Get());
+	// Get our actor manager
+	CActorManager * pActorManager = g_pClient->GetActorManager();
+
+	if(pActorManager->DoesExist(actorId))
+		pActorManager->ForceAnimation(actorId, strGroup.Get(), strAnim.Get());
 }
 
 void CClientRPCHandler::ScriptingBlockWeaponScroll(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2905,7 +2906,7 @@ void CClientRPCHandler::ScriptingBlockWeaponScroll(CBitStream * pBitStream, CPla
 	bool bToggle;
 	pBitStream->Read(bToggle);
 
-	Scripting::BlockPedWeaponSwitching(g_pLocalPlayer->GetScriptingHandle(),bToggle);
+	Scripting::BlockPedWeaponSwitching(g_pClient->GetLocalPlayer()->GetScriptingHandle(),bToggle);
 }
 
 void CClientRPCHandler::ScriptingBlockWeaponDrop(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2917,7 +2918,7 @@ void CClientRPCHandler::ScriptingBlockWeaponDrop(CBitStream * pBitStream, CPlaye
 	bool bToggle;
 	pBitStream->Read(bToggle);
 
-	Scripting::SetCharDropsWeaponsWhenDead(g_pLocalPlayer->GetScriptingHandle(),bToggle);
+	Scripting::SetCharDropsWeaponsWhenDead(g_pClient->GetLocalPlayer()->GetScriptingHandle(),bToggle);
 }
 
 void CClientRPCHandler::ScriptingFadeScreenIn(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3045,20 +3046,22 @@ void CClientRPCHandler::ScriptingAttachCam(CBitStream * pBitStream, CPlayerSocke
 	pBitStream->Read(iPointType);
 	bVehicleOrPlayer = pBitStream->ReadBit();
 
-	if(g_pCamera)
+	if(bVehicleOrPlayer)
 	{
-		if(bVehicleOrPlayer)
-		{
-			if(g_pVehicleManager->Exists(attachId))
-				uiHandle = g_pVehicleManager->Get(attachId)->GetScriptingHandle();
-		}
-		else
-		{
-			if(g_pPlayerManager->DoesExist(attachId))
-				uiHandle = g_pPlayerManager->GetAt(attachId)->GetScriptingHandle();
-		}
-		g_pCamera->Attach(uiHandle, bVehicleOrPlayer, iPointType, vecOffset);
+		CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(attachId);
+
+		if(pVehicle)
+			uiHandle = pVehicle->GetScriptingHandle();
 	}
+	else
+	{
+		CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(attachId);
+
+		if(pPlayer)
+			uiHandle = pPlayer->GetScriptingHandle();
+	}
+
+	g_pClient->GetCamera()->Attach(uiHandle, bVehicleOrPlayer, iPointType, vecOffset);
 }
 
 void CClientRPCHandler::ScriptingDisplayHudNotification(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3085,7 +3088,7 @@ void CClientRPCHandler::ScriptingSetVehicleFollowMode(CBitStream * pBitStream, C
 	int iMode;
 	pBitStream->Read(iMode);
 
-	if(!g_pLocalPlayer->IsOnFoot())
+	if(g_pClient->GetLocalPlayer()->IsInVehicle())
 		Scripting::SetFollowVehicleCamSubmode(iMode);
 }
 
@@ -3101,8 +3104,10 @@ void CClientRPCHandler::ScriptingSetVehicleFollowOffset(CBitStream * pBitStream,
 	CVector3 vecPos;
 	pBitStream->Read(vecPos);
 
-	if(g_pVehicleManager->Exists(vehicleId))
-		Scripting::SetFollowVehicleCamOffset(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(), vecPos.fX, vecPos.fY, vecPos.fZ);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
+	if(pVehicle)
+		Scripting::SetFollowVehicleCamOffset(pVehicle->GetScriptingHandle(), vecPos.fX, vecPos.fY, vecPos.fZ);
 }
 
 void CClientRPCHandler::ScriptingSetAmmoInClip(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
@@ -3114,7 +3119,7 @@ void CClientRPCHandler::ScriptingSetAmmoInClip(CBitStream * pBitStream, CPlayerS
 	unsigned int uiAmmoInClip;
 	pBitStream->Read(uiAmmoInClip);
 
-	g_pLocalPlayer->SetAmmoInClip(uiAmmoInClip);
+	g_pClient->GetLocalPlayer()->SetAmmoInClip(uiAmmoInClip);
 }
 
 void CClientRPCHandler::ScriptingSetAmmo(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
@@ -3127,7 +3132,7 @@ void CClientRPCHandler::ScriptingSetAmmo(CBitStream * pBitStream, CPlayerSocket 
 	pBitStream->Read(uiWeapon);
 	pBitStream->Read(uiAmmo);
 
-	g_pLocalPlayer->SetAmmo(uiWeapon, uiAmmo);
+	g_pClient->GetLocalPlayer()->SetAmmo(uiWeapon, uiAmmo);
 }
 
 void CClientRPCHandler::ScriptingCreatePlayerBlip(CBitStream * pBitStream, CPlayerSocket * senderSocket)	
@@ -3146,7 +3151,8 @@ void CClientRPCHandler::ScriptingCreatePlayerBlip(CBitStream * pBitStream, CPlay
 	pBitStream->Read(bShortRange);
 	pBitStream->Read(bShow);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer)
 	{
 		if(!pPlayer->GetBlipActivity() && !pPlayer->IsLocalPlayer())
@@ -3172,7 +3178,8 @@ void CClientRPCHandler::ScriptingRemovePlayerBlip(CBitStream * pBitStream, CPlay
 
 	pBitStream->ReadCompressed(playerId);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer)
 	{
 		if(pPlayer->GetBlipActivity())
@@ -3200,7 +3207,8 @@ void CClientRPCHandler::ScriptingChangePlayerBlip(CBitStream * pBitStream, CPlay
 	pBitStream->Read(bShortRange);
 	pBitStream->Read(bShow);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer)
 	{
 		if(!pPlayer->GetBlipActivity())
@@ -3234,7 +3242,7 @@ void CClientRPCHandler::ScriptingSetVehicleGPSState(CBitStream *pBitStream, CPla
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(bState);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 	if(pVehicle)
 		pVehicle->SetVehicleGPSState(bState);
 }
@@ -3250,7 +3258,7 @@ void CClientRPCHandler::ScriptingSetVehicleAlarm(CBitStream *pBitStream, CPlayer
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(iDuration);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 	if(pVehicle)
 		pVehicle->GetGameVehicle()->SetAlarmDuration(iDuration);
 }
@@ -3266,7 +3274,8 @@ void CClientRPCHandler::ScriptingSetVehiclePetrolTankHealth(CBitStream *pBitStre
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(fPetrol);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
 	if(pVehicle)
 		pVehicle->SetPetrolTankHealth(fPetrol);
 }
@@ -3284,7 +3293,8 @@ void CClientRPCHandler::ScriptingSetVehicleTyreState(CBitStream *pBitStream, CPl
 	pBitStream->Read(iTyre);
 	pBitStream->Read(bState);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
 	if(pVehicle)
 	{
 		//TODO
@@ -3304,7 +3314,8 @@ void CClientRPCHandler::ScriptingSetVehicleWindowState(CBitStream *pBitStream, C
 	pBitStream->Read(iWindow);
 	pBitStream->Read(bState);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
 	if(pVehicle)
 	{
 		//TODO
@@ -3322,11 +3333,11 @@ void CClientRPCHandler::ScriptingSetPlayerUseMobilePhone(CBitStream *pBitStream,
 	pBitStream->Read(playerId);
 	pBitStream->Read(bUse);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-//	if(pPlayer && !pPlayer->IsLocalPlayer())
-//		pPlayer->UseMobilePhone(bUse);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
+	// jenksta: why is this only enabled for the local player?
 	if(pPlayer && pPlayer->IsLocalPlayer())
-		Scripting::TaskUseMobilePhone(g_pLocalPlayer->GetScriptingHandle(),bUse);
+		Scripting::TaskUseMobilePhone(pPlayer->GetScriptingHandle(), bUse);
 }
 
 void CClientRPCHandler::ScriptingStopActorDriving(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
@@ -3337,7 +3348,7 @@ void CClientRPCHandler::ScriptingStopActorDriving(CBitStream *pBitStream, CPlaye
 	EntityId actorId;
 	pBitStream->Read(actorId);
 
-	g_pActorManager->DriveToPoint(actorId,-1,CVector3(),CVector3(),CVector3(),false);
+	g_pClient->GetActorManager()->DriveToPoint(actorId, -1, CVector3(), CVector3(), CVector3(), false);
 }
 
 void CClientRPCHandler::ScriptingActorDriveToCoords(CBitStream *pBitStream, CPlayerSocket *pPlayerSocket)
@@ -3351,8 +3362,11 @@ void CClientRPCHandler::ScriptingActorDriveToCoords(CBitStream *pBitStream, CPla
 	CVector3 vecPos;
 	pBitStream->Read(vecPos);
 
-	if(g_pActorManager->DoesExist(actorId))
-		g_pActorManager->DriveToPoint(actorId,g_pActorManager->GetVehicleId(actorId),g_pActorManager->GetPosition(actorId),CVector3(),vecPos,true);
+	// Get our actor manager
+	CActorManager * pActorManager = g_pClient->GetActorManager();
+
+	if(pActorManager->DoesExist(actorId))
+		pActorManager->DriveToPoint(actorId, pActorManager->GetVehicleId(actorId), pActorManager->GetPosition(actorId), CVector3(), vecPos, true);
 }
 void CClientRPCHandler::ScriptingMarkVehicleAsActorVehicle(CBitStream * pBitStream, CPlayerSocket *pSenderSocket)
 {
@@ -3365,7 +3379,8 @@ void CClientRPCHandler::ScriptingMarkVehicleAsActorVehicle(CBitStream * pBitStre
 	bool bToggle;
 	pBitStream->Read(bToggle);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
 	if(pVehicle)
 		pVehicle->MarkAsActorVehicle(bToggle);
 }
@@ -3383,11 +3398,10 @@ void CClientRPCHandler::ScriptingForcePlayerSpeech(CBitStream * pBitStream, CPla
 	pBitStream->Read(strVoice);
 	pBitStream->Read(strText);
 
-	CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-	if(pPlayer && pPlayer->IsSpawned() && !pPlayer->IsLocalPlayer())
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
+	if(pPlayer && pPlayer->IsSpawned())
 		Scripting::SayAmbientSpeechWithVoice(pPlayer->GetScriptingHandle(), strText.Get(), strVoice.Get(), 1, 1, 0);
-	else if(pPlayer && pPlayer->IsSpawned() && pPlayer->IsLocalPlayer())
-		Scripting::SayAmbientSpeechWithVoice(g_pLocalPlayer->GetScriptingHandle(), strText.Get(), strVoice.Get(), 1, 1, 0);
 }
 
 void CClientRPCHandler::ScriptingForceActorSpeech(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3403,8 +3417,11 @@ void CClientRPCHandler::ScriptingForceActorSpeech(CBitStream * pBitStream, CPlay
 	pBitStream->Read(strVoice);
 	pBitStream->Read(strText);
 
-	if(g_pActorManager->DoesExist(actorId))
-		Scripting::SayAmbientSpeechWithVoice(g_pActorManager->GetScriptingHandle(actorId), strText.Get(), strVoice.Get(), 1, 1, 0);
+	// Get our actor manager
+	CActorManager * pActorManager = g_pClient->GetActorManager();
+
+	if(pActorManager->DoesExist(actorId))
+		Scripting::SayAmbientSpeechWithVoice(pActorManager->GetScriptingHandle(actorId), strText.Get(), strVoice.Get(), 1, 1, 0);
 }
 
 void CClientRPCHandler::ScriptingLetPlayerDriveAutomatic(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3424,8 +3441,10 @@ void CClientRPCHandler::ScriptingLetPlayerDriveAutomatic(CBitStream * pBitStream
 	pBitStream->Read(fSpeed);
 	pBitStream->Read(iDrivingStyle);
 
-	if(playerId == g_pLocalPlayer->GetPlayerId() && g_pLocalPlayer->GetVehicle()->GetVehicleId() == vehicleId)
-		Scripting::TaskCarDriveToCoord(g_pLocalPlayer->GetScriptingHandle(),g_pLocalPlayer->GetVehicle()->GetScriptingHandle(),vecPos.fX,vecPos.fY,vecPos.fZ, fSpeed, iDrivingStyle, 1, iDrivingStyle, 5.0f, -1);
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
+	if(playerId == pLocalPlayer->GetPlayerId() && pLocalPlayer->GetVehicle()->GetVehicleId() == vehicleId)
+		Scripting::TaskCarDriveToCoord(pLocalPlayer->GetScriptingHandle(), pLocalPlayer->GetVehicle()->GetScriptingHandle(), vecPos.fX, vecPos.fY, vecPos.fZ, fSpeed, iDrivingStyle, 1, iDrivingStyle, 5.0f, -1);
 }
 
 void CClientRPCHandler::ScriptingSetPlayerDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3439,13 +3458,12 @@ void CClientRPCHandler::ScriptingSetPlayerDimension(CBitStream * pBitStream, CPl
 	pBitStream->Read(playerId);
 	pBitStream->Read(Dimension);
 
-	if(playerId == g_pLocalPlayer->GetPlayerId()) {
-		g_pLocalPlayer->SetDimension(Dimension);
-	} else if(g_pPlayerManager->GetAt(playerId) != NULL) {
-		g_pPlayerManager->GetAt(playerId)->SetDimension(Dimension);
-	}
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
-	g_pStreamer->Pulse();
+	if(pPlayer)
+		pPlayer->SetDimension(Dimension);
+
+	g_pClient->GetStreamer()->Pulse();
 }
 
 void CClientRPCHandler::ScriptingSetVehicleDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3454,14 +3472,15 @@ void CClientRPCHandler::ScriptingSetVehicleDimension(CBitStream * pBitStream, CP
 		return;
 
 	EntityId vehicleId;
-	SQInteger Dimension;
-	
+	SQInteger Dimension;	
 	pBitStream->Read(vehicleId);
 	pBitStream->Read(Dimension);
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
-	if(pVehicle != NULL) {
+
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
+	if(pVehicle)
 		pVehicle->SetDimension(Dimension);
-	}
+
 	//g_pStreamer->Pulse();
 }
 
@@ -3473,10 +3492,10 @@ void CClientRPCHandler::ResetVehicleEnterExit(CBitStream * pBitStream, CPlayerSo
 
 	EntityId playerId;
 	pBitStream->Read(playerId);
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
 
-	if(playerId == g_pLocalPlayer->GetPlayerId()) {
-		g_pLocalPlayer->ResetVehicleEnterExit();
-	}
+	if(playerId == pLocalPlayer->GetPlayerId())
+		pLocalPlayer->ResetVehicleEnterExit();
 }
 
 void CClientRPCHandler::ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3490,20 +3509,22 @@ void CClientRPCHandler::ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStr
 	pBitStream->Read(playerId);
 	pBitStream->Read(bToggle);
 
-	if(g_pPlayerManager->DoesExist(playerId)) {
-		CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-		if(pPlayer && pPlayer->IsSpawned()) {
-			if(!bToggle)
-				Scripting::RemoveFakeNetworkNameFromPed(pPlayer->GetScriptingHandle());
-			else {
-				char red = (pPlayer->GetColor() & 0xFF000000) >> 24;
-				char green = (pPlayer->GetColor() & 0x00FF0000) >> 16;
-				char blue = (pPlayer->GetColor() & 0x0000FF00) >> 8;
-				char alpha = (pPlayer->GetColor() & 0x000000FF);
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
+	if(pPlayer && pPlayer->IsSpawned())
+	{
+		// jenksta: TODO: CNetworkPlayer::ToggleNametag, as name tags are now drawn by us and not the game
+		/*if(!bToggle)
+			Scripting::RemoveFakeNetworkNameFromPed(pPlayer->GetScriptingHandle());
+		else
+		{
+			char red = (pPlayer->GetColor() & 0xFF000000) >> 24;
+			char green = (pPlayer->GetColor() & 0x00FF0000) >> 16;
+			char blue = (pPlayer->GetColor() & 0x0000FF00) >> 8;
+			char alpha = (pPlayer->GetColor() & 0x000000FF);
 					
-				Scripting::GivePedFakeNetworkName(pPlayer->GetColor(), pPlayer->GetName().C_String(),red,green,blue,alpha);
-			}
-		}
+			Scripting::GivePedFakeNetworkName(pPlayer->GetColor(), pPlayer->GetName().C_String(),red,green,blue,alpha);
+		}*/
 	}
 }
 
@@ -3515,8 +3536,10 @@ void CClientRPCHandler::ScriptingFixVehicle(CBitStream * pBitStream, CPlayerSock
 	EntityId vehicleId;
 	pBitStream->Read(vehicleId);
 
-	if(g_pVehicleManager->Exists(vehicleId))
-		Scripting::FixCar(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle());
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
+	if(pVehicle)
+		Scripting::FixCar(pVehicle->GetScriptingHandle());
 }
 
 
@@ -3538,7 +3561,7 @@ void CClientRPCHandler::ScriptingMoveObject(CBitStream * pBitStream, CPlayerSock
 	if(bHasRotation = pBitStream->ReadBit())
 		pBitStream->Read(vecMoveRotation);
 
-	CObject *pObject = g_pObjectManager->Get(objectId);
+	CObject * pObject = g_pClient->GetObjectManager()->Get(objectId);
 
 	if(pObject)
 	{
@@ -3562,7 +3585,7 @@ void CClientRPCHandler::ScriptingRotateObject(CBitStream * pBitStream, CPlayerSo
 	pBitStream->Read(vecMoveRotation);
 	pBitStream->Read(iTime);
 
-	CObject *pObject = g_pObjectManager->Get(objectId);
+	CObject * pObject = g_pClient->GetObjectManager()->Get(objectId);
 
 	if(pObject)
 		pObject->Rotate(vecMoveRotation, (unsigned int)iTime);
@@ -3579,10 +3602,10 @@ void CClientRPCHandler::ScriptingSetObjectDimension(CBitStream * pBitStream, CPl
 	unsigned char ucDimension;
 	pBitStream->Read(ucDimension);
 
-	CObject *pObject = g_pObjectManager->Get(objectId);
-	if(pObject) {
+	CObject * pObject = g_pClient->GetObjectManager()->Get(objectId);
+
+	if(pObject)
 		pObject->SetDimension(ucDimension);
-	}
 }
 
 
@@ -3597,10 +3620,10 @@ void CClientRPCHandler::ScriptingSetCheckpointDimension(CBitStream * pBitStream,
 	unsigned char ucDimension;
 	pBitStream->Read(ucDimension);
 
-	CCheckpoint *pCheckpoint = g_pCheckpointManager->Get(checkpointId);
-	if(pCheckpoint) {
+	CCheckpoint * pCheckpoint = g_pClient->GetCheckpointManager()->Get(checkpointId);
+
+	if(pCheckpoint)
 		pCheckpoint->SetDimension(ucDimension);
-	}
 }
 
 void CClientRPCHandler::ScriptingSetObjectInterior(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3614,8 +3637,10 @@ void CClientRPCHandler::ScriptingSetObjectInterior(CBitStream * pBitStream, CPla
 	int iInterior;
 	pBitStream->Read(iInterior);
 
-	if(g_pObjectManager->Exists(objectId))
-		Scripting::AddObjectToInteriorRoomByKey(g_pObjectManager->Get(objectId)->GetHandle(),(Scripting::eInteriorRoomKey)iInterior);
+	CObject * pObject = g_pClient->GetObjectManager()->Get(objectId);
+
+	if(pObject)
+		Scripting::AddObjectToInteriorRoomByKey(pObject->GetHandle(), (Scripting::eInteriorRoomKey)iInterior);
 }
 
 void CClientRPCHandler::ScriptingExplodeCar(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3626,11 +3651,12 @@ void CClientRPCHandler::ScriptingExplodeCar(CBitStream * pBitStream, CPlayerSock
 	EntityId vehicleId;
 	pBitStream->Read(vehicleId);
 
-	if(g_pVehicleManager->Exists(vehicleId))
-		Scripting::ExplodeCar(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),true,false);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
+	if(pVehicle)
+		Scripting::ExplodeCar(pVehicle->GetScriptingHandle(), true, false);
 }
-#include "CChatWindow.h"
-extern CChatWindow* g_pChatWindow;
+
 void CClientRPCHandler::New3DLabel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	/*  Server structure
@@ -3665,9 +3691,9 @@ void CClientRPCHandler::New3DLabel(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	bool bVisible = pBitStream->ReadBit();
 
-	g_pChatWindow->AddInfoMessage("New Label(%s, %i, %f)", text.Get(), bVisible, fStreamingDistance);
-	LabelId id = g_p3DLabelManager->Add(text.Get(), vecPosition, dwColor, bVisible, fStreamingDistance);
-	g_p3DLabelManager->GetAt(id)->SetDimension(dimensionId);
+	g_pClient->GetChatWindow()->AddInfoMessage("New Label(%s, %i, %f)", text.Get(), bVisible, fStreamingDistance);
+	LabelId id = g_pClient->Get3DLabelManager()->Add(text.Get(), vecPosition, dwColor, bVisible, fStreamingDistance);
+	g_pClient->Get3DLabelManager()->GetAt(id)->SetDimension(dimensionId);
 }
 
 void CClientRPCHandler::Delete3DLabel(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3677,7 +3703,7 @@ void CClientRPCHandler::Delete3DLabel(CBitStream * pBitStream, CPlayerSocket * p
 
 	LabelId labelId;
 	pBitStream->ReadCompressed(labelId);
-	g_p3DLabelManager->Remove(labelId);
+	g_pClient->Get3DLabelManager()->Remove(labelId);
 }
 
 void CClientRPCHandler::ScriptingSet3DLabelPosition(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3691,9 +3717,10 @@ void CClientRPCHandler::ScriptingSet3DLabelPosition(CBitStream * pBitStream, CPl
 	CVector3 vecPosition;
 	pBitStream->Read(vecPosition);
 
-	if(g_p3DLabelManager->GetAt(labelId)) {
-		g_p3DLabelManager->GetAt(labelId)->SetPosition(vecPosition);
-	}
+	C3DLabel * pLabel = g_pClient->Get3DLabelManager()->GetAt(labelId);
+
+	if(pLabel)
+		pLabel->SetPosition(vecPosition);
 }
 
 void CClientRPCHandler::ScriptingSet3DLabelText(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3707,9 +3734,10 @@ void CClientRPCHandler::ScriptingSet3DLabelText(CBitStream * pBitStream, CPlayer
 	String text;
 	pBitStream->Read(text);
 
-	if(g_p3DLabelManager->GetAt(labelId)) {
-		g_p3DLabelManager->GetAt(labelId)->SetText(text);
-	}
+	C3DLabel * pLabel = g_pClient->Get3DLabelManager()->GetAt(labelId);
+
+	if(pLabel)
+		pLabel->SetText(text);
 }
 
 void CClientRPCHandler::ScriptingSet3DLabelColor(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3722,10 +3750,11 @@ void CClientRPCHandler::ScriptingSet3DLabelColor(CBitStream * pBitStream, CPlaye
 
 	DWORD dwColor;
 	pBitStream->Read(dwColor);
+
+	C3DLabel * pLabel = g_pClient->Get3DLabelManager()->GetAt(labelId);
 	
-	if(g_p3DLabelManager->GetAt(labelId)) {
-		g_p3DLabelManager->GetAt(labelId)->SetColor(dwColor);
-	}
+	if(pLabel)
+		pLabel->SetColor(dwColor);
 }
 
 void CClientRPCHandler::ScriptingSet3DLabelVisible(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3738,9 +3767,10 @@ void CClientRPCHandler::ScriptingSet3DLabelVisible(CBitStream * pBitStream, CPla
 
 	bool bVisible = pBitStream->ReadBit();
 
-	if(g_p3DLabelManager->GetAt(labelId)) {
-		g_p3DLabelManager->GetAt(labelId)->SetVisible(bVisible);
-	}
+	C3DLabel * pLabel = g_pClient->Get3DLabelManager()->GetAt(labelId);
+
+	if(pLabel)
+		pLabel->SetVisible(bVisible);
 }
 
 void CClientRPCHandler::ScriptingSet3DLabelStreamingDistance(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3754,9 +3784,10 @@ void CClientRPCHandler::ScriptingSet3DLabelStreamingDistance(CBitStream * pBitSt
 	float fStreamingDistance;
 	pBitStream->Read(fStreamingDistance);
 
-	if(g_p3DLabelManager->GetAt(labelId)) {
-		g_p3DLabelManager->GetAt(labelId)->SetStreamingDistance(fStreamingDistance);
-	}
+	C3DLabel * pLabel = g_pClient->Get3DLabelManager()->GetAt(labelId);
+
+	if(pLabel)
+		pLabel->SetStreamingDistance(fStreamingDistance);
 }
 
 void CClientRPCHandler::ScriptingSet3DLabelDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -3770,9 +3801,10 @@ void CClientRPCHandler::ScriptingSet3DLabelDimension(CBitStream * pBitStream, CP
 	DimensionId dimensionId;
 	pBitStream->Read(dimensionId);
 
-	if(g_p3DLabelManager->GetAt(labelId)) {
-		g_p3DLabelManager->GetAt(labelId)->SetDimension(dimensionId);
-	}
+	C3DLabel * pLabel = g_pClient->Get3DLabelManager()->GetAt(labelId);
+
+	if(pLabel)
+		pLabel->SetDimension(dimensionId);
 }
 
 void CClientRPCHandler::Register()

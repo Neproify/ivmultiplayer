@@ -10,20 +10,12 @@
 //==============================================================================
 
 #include "CRemotePlayer.h"
-#include "CChatWindow.h"
-#include "CVehicleManager.h"
-#include "CPlayerManager.h"
+#include "CClient.h"
 #include "Scripting.h"
-#include "CLocalPlayer.h"
 #include "CGame.h"
 #include "CPlayerManager.h"
-#include "CStreamer.h"
 
-extern CChatWindow     * g_pChatWindow;
-extern CVehicleManager * g_pVehicleManager;
-extern CLocalPlayer    * g_pLocalPlayer;
-extern CPlayerManager  * g_pPlayerManager;
-extern CStreamer       * g_pStreamer;
+extern CClient * g_pClient;
 
 CRemotePlayer::CRemotePlayer()
 	: CNetworkPlayer(),
@@ -46,12 +38,12 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 		if(IsSpawned())
 			return false;
 		
-		g_pStreamer->ForceStreamIn(this);
+		g_pClient->GetStreamer()->ForceStreamIn(this);
 		SetCanBeStreamedIn(true);
 
 		if(!IsSpawned())
 		{
-			g_pChatWindow->AddNetworkMessage("[NETWORK] Failed to spawn remote player %s.", GetName().Get());
+			g_pClient->GetChatWindow()->AddNetworkMessage("[NETWORK] Failed to spawn remote player %s.", GetName().Get());
 			return false;
 		}
 
@@ -101,7 +93,7 @@ void CRemotePlayer::Init()
 void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData)
 {
 	// Check if the player isn't available
-	if(!g_pPlayerManager->IsActive(GetPlayerId()))
+	if(!g_pClient->GetPlayerManager()->IsActive(GetPlayerId()))
 		return;
 	
 	// If we are in a vehicle remove ourselves from it
@@ -236,11 +228,11 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * syncPacket)
 {
 	// Check if the player isn't available
-	if(!g_pPlayerManager->IsActive(GetPlayerId()))
+	if(!g_pClient->GetPlayerManager()->IsActive(GetPlayerId()))
 		return;
 
 	// Get the vehicle
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	// Does the vehicle exist and is it spawned?
 	if(pVehicle && pVehicle->IsStreamedIn())
@@ -248,19 +240,22 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 		// Store the vehicle id
 		m_vehicleId = vehicleId;
 
+		// Get our local player
+		CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
 		// If they have just warped into the vehicle and the local player
 		// is driving it eject the local player
-		if(m_stateType != STATE_TYPE_INVEHICLE && pVehicle->GetDriver() == g_pLocalPlayer)
+		if(m_stateType != STATE_TYPE_INVEHICLE && pVehicle->GetDriver() == pLocalPlayer)
 		{
-			g_pLocalPlayer->RemoveFromVehicle();
-			g_pChatWindow->AddInfoMessage("Car Jacked");
+			pLocalPlayer->RemoveFromVehicle();
+			g_pClient->GetChatWindow()->AddInfoMessage("Car Jacked");
 		}
 
 		// If they are not in the vehicle put them in it
 		if(GetVehicle() != pVehicle)
 		{
-			if(g_pLocalPlayer->GetVehicle() == pVehicle && !g_pLocalPlayer->IsAPassenger())
-				g_pLocalPlayer->RemoveFromVehicle();
+			if(pLocalPlayer->GetVehicle() == pVehicle && !pLocalPlayer->IsAPassenger())
+				pLocalPlayer->RemoveFromVehicle();
 
 			PutInVehicle(pVehicle, 0);
 		}
@@ -379,11 +374,11 @@ void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * s
 void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * syncPacket)
 {
 	// Check if the player isn't avaiable(disconnect etc)
-	if(!g_pPlayerManager->IsActive(GetPlayerId()))
+	if(!g_pClient->GetPlayerManager()->IsActive(GetPlayerId()))
 		return;
 
 	// Get the vehicle
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	// Does the vehicle exist and is it spawned?
 	if(pVehicle && pVehicle->IsStreamedIn())
@@ -429,7 +424,7 @@ void CRemotePlayer::StorePassengerSync(EntityId vehicleId, PassengerSyncData * s
 void CRemotePlayer::StoreSmallSync(SmallSyncData * syncPacket)
 {
 	// Check if the player isn't avaiable(disconnect etc)
-	if(!g_pPlayerManager->IsActive(GetPlayerId()))
+	if(!g_pClient->GetPlayerManager()->IsActive(GetPlayerId()))
 		return;
 
 	// Set their control state

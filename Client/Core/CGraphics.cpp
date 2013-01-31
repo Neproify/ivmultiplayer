@@ -8,14 +8,14 @@
 //==============================================================================
 
 #include "CGraphics.h"
+#include "CClient.h"
 #include "CChatWindow.h"
 #include <CLogFile.h>
 #include "CGame.h"
 #include "SharedUtility.h"
-#include "CGUI.h"
 #include <CSettings.h>
 
-extern CGUI * g_pGUI;
+extern CClient * g_pClient;
 const unsigned char g_szPixel [] = { 0x42, 0x4D, 0x3A, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0, 0x28, 0, 0,
                                     0, 0x1, 0, 0, 0, 0x1, 0, 0, 0, 0x1, 0, 0x18, 0, 0, 0, 0, 0,
                                     0x4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -206,7 +206,7 @@ void CGraphics::DrawBox( float fLeft, float fTop, float fWidth, float fHeight, D
 float CGraphics::GetFontHeight( float fScale )
 {
 	// Get the font
-	CEGUI::Font* pFont = g_pGUI->GetFont( CVAR_GET_STRING("chatfont") );
+	CEGUI::Font* pFont = g_pClient->GetGUI()->GetFont( CVAR_GET_STRING("chatfont") );
 
 	// Is the font valid?
 	if( pFont )

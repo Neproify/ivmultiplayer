@@ -8,13 +8,13 @@
 //==============================================================================
 
 #include "CIVPedTaskManager.h"
+#include "CClient.h"
 #include "CIVTask.h"
-#include "CClientTaskManager.h"
 #include "CGame.h"
 #include "COffsets.h"
 #include <CLogFile.h>
 
-extern CClientTaskManager * g_pClientTaskManager;
+extern CClient * g_pClient;
 
 CIVPedTaskManager::CIVPedTaskManager(IVPedTaskManager * pPedTaskManager, CIVPed * pPed)
 	: m_pPedTaskManager(pPedTaskManager),
@@ -75,7 +75,7 @@ CIVTask * CIVPedTaskManager::GetTask(int iType)
 	{
 		// Ensure the task type is valid
 		if(iType < TASK_PRIORITY_MAX)
-			return g_pClientTaskManager->GetClientTaskFromGameTask(m_pPedTaskManager->m_primaryTasks[iType]);
+			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_primaryTasks[iType]);
 	}
 
 	return NULL;
@@ -129,7 +129,7 @@ CIVTask * CIVPedTaskManager::GetTaskSecondary(int iType)
 	{
 		// Ensure the task type is valid
 		if(iType < TASK_SECONDARY_MAX)
-			return g_pClientTaskManager->GetClientTaskFromGameTask(m_pPedTaskManager->m_secondaryTasks[iType]);
+			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_secondaryTasks[iType]);
 	}
 
 	return NULL;
@@ -183,7 +183,7 @@ CIVTask * CIVPedTaskManager::GetTaskMovement(int iType)
 	{
 		// Ensure the task type is valid
 		if(iType < TASK_MOVEMENT_MAX)
-			return g_pClientTaskManager->GetClientTaskFromGameTask(m_pPedTaskManager->m_movementTasks[iType]);
+			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_movementTasks[iType]);
 	}
 
 	return NULL;

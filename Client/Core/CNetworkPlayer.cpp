@@ -7,32 +7,20 @@
 //
 //==============================================================================
 
-#include "CNetworkManager.h"
 #include "CNetworkPlayer.h"
-#include "CVehicleManager.h"
+#include "CClient.h"
 #include <Patcher/CPatcher.h>
 #include "KeySync.h"
-#include "CPlayerManager.h"
 #include "CLocalPlayer.h"
 #include <SharedUtility.h>
 #include "COffsets.h"
 #include "CPools.h"
-#include "CCamera.h"
-#include "CModelManager.h"
-#include "CChatWindow.h"
 
-extern CNetworkManager * g_pNetworkManager;
-extern CVehicleManager * g_pVehicleManager;
-extern CPlayerManager  * g_pPlayerManager;
-extern CLocalPlayer    * g_pLocalPlayer;
-extern CCamera         * g_pCamera;
-extern CStreamer       * g_pStreamer;
-extern CModelManager   * g_pModelManager;
+extern CClient * g_pClient;
 extern bool              m_bControlsDisabled;
-extern CChatWindow     * g_pChatWindow;
 
-#define THIS_CHECK(func) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[WARNING] Internal error occured in %s[ Type 1 | Func %s() ]",__FILE__,func); } return; }
-#define THIS_CHECK_R(func,x) if(!this) { if(g_pChatWindow) { g_pChatWindow->AddErrorMessage("[WARNING] Internal error occured in %s [ Type 2 | Func %s() ]",__FILE__,func); } return x; }
+#define THIS_CHECK(func) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s[ Type 1 | Func %s() ]",__FILE__,func); } return; }
+#define THIS_CHECK_R(func,x) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s [ Type 2 | Func %s() ]",__FILE__,func); } return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
@@ -228,7 +216,7 @@ bool CNetworkPlayer::Create()
 	SetHealth(200);
 
 	// Set the interior
-	SetInterior(g_pLocalPlayer->GetInterior());
+	SetInterior(g_pClient->GetLocalPlayer()->GetInterior());
 
 	// Remember that we might have clothes
 	m_bUseCustomClothesOnSpawn = true;
@@ -327,7 +315,7 @@ void CNetworkPlayer::StreamOut()
 	THIS_CHECK(__FUNCTION__);
 
 	// Check if the camera is attached to our player
-	if(g_pLocalPlayer->IsCameraAttachedToEntity(GetScriptingHandle()))
+	if(g_pClient->GetLocalPlayer()->IsCameraAttachedToEntity(GetScriptingHandle()))
 		return;
 
 	GetPosition(m_vecPos);
@@ -453,35 +441,30 @@ bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId, Enti
 		// Loop through all players
 		for(EntityId i = 0; i < MAX_PLAYERS; i++)
 		{
-			// Is this player connected?
-			if(g_pPlayerManager->DoesExist(i))
-			{
-				// Get this players CNetworkPlayer pointer
-				CNetworkPlayer * pPlayer = g_pPlayerManager->GetAt(i);
+			// Is this player connected and spawned?
+			CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(i);
 
-				// Is the CNetworkPlayer pointer valid and is this player spawned?
-				if(pPlayer && pPlayer->IsSpawned())
+			if(pPlayer && pPlayer->IsSpawned())
+			{
+				// Is this player the last damage entity?
+				if(GetLastDamageEntity() == (IVEntity *)pPlayer->GetGamePlayerPed()->GetPed())
 				{
-					// Is this player the last damage entity?
-					if(GetLastDamageEntity() == (IVEntity *)pPlayer->GetGamePlayerPed()->GetPed())
+					// This player killed us
+					*playerId = i;
+					*weaponId = pPlayer->GetCurrentWeapon();
+					break;
+				}
+				else
+				{
+					// Is this players vehicle the last damage entity?
+					if(pPlayer->IsInVehicle() && !pPlayer->IsAPassenger() && 
+						(GetLastDamageEntity() == (IVEntity *)pPlayer->GetVehicle()))
 					{
-						// This player killed us
+						// This player killed us with their vehicle
 						*playerId = i;
 						*weaponId = pPlayer->GetCurrentWeapon();
+						*vehicleId = i;
 						break;
-					}
-					else
-					{
-						// Is this players vehicle the last damage entity?
-						if(pPlayer->IsInVehicle() && !pPlayer->IsAPassenger() && 
-							(GetLastDamageEntity() == (IVEntity *)pPlayer->GetVehicle()))
-						{
-							// This player killed us with their vehicle
-							*playerId = i;
-							*weaponId = pPlayer->GetCurrentWeapon();
-							*vehicleId = i;
-							break;
-						}
 					}
 				}
 			}
@@ -491,7 +474,7 @@ bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId, Enti
 		if(*playerId == INVALID_ENTITY_ID && *vehicleId == INVALID_ENTITY_ID)
 		{
 			// Loop through all streamed in vehicles
-			std::list<CStreamableEntity *> * streamedVehicles = g_pStreamer->GetStreamedInEntitiesOfType(STREAM_ENTITY_VEHICLE);
+			std::list<CStreamableEntity *> * streamedVehicles = g_pClient->GetStreamer()->GetStreamedInEntitiesOfType(STREAM_ENTITY_VEHICLE);
 
 			for(std::list<CStreamableEntity *>::iterator iter = streamedVehicles->begin(); iter != streamedVehicles->end(); ++iter)
 			{
@@ -551,7 +534,7 @@ CNetworkVehicle * CNetworkPlayer::InternalGetVehicle()
 	THIS_CHECK_R(__FUNCTION__,NULL)
 	// Are we spawned and in a vehicle?
 	if(IsSpawned() && InternalIsInVehicle())
-		return g_pStreamer->GetVehicleFromGameVehicle(m_pPlayerPed->GetCurrentVehicle());
+		return g_pClient->GetStreamer()->GetVehicleFromGameVehicle(m_pPlayerPed->GetCurrentVehicle());
 
 	return NULL;
 }
@@ -770,7 +753,7 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 			if(!IsLocalPlayer())
 			{
 				// Get the local players interior
-				unsigned int uiLocalPlayerInterior = g_pLocalPlayer->GetInterior();
+				unsigned int uiLocalPlayerInterior = g_pClient->GetLocalPlayer()->GetInterior();
 
 				// If our interior is not the same as the local players interior force it
 				// to the same as the local players
@@ -1321,11 +1304,11 @@ void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 		// Get the aim source
 		GetShotSource(aimSyncData->vecShotSource);
 
-		// Get the aim target
+		// Get the shot target
 		GetShotTarget(aimSyncData->vecShotTarget);
 
 		// Get the look at pos
-		g_pCamera->GetLookAt(aimSyncData->vecLookAt);
+		g_pClient->GetCamera()->GetLookAt(aimSyncData->vecLookAt);
 	}
 }
 
@@ -1640,7 +1623,7 @@ void CNetworkPlayer::SetCameraBehind()
 {
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
-		g_pCamera->SetBehindPed(m_pPlayerPed);
+		g_pClient->GetCamera()->SetBehindPed(m_pPlayerPed);
 }
 
 void CNetworkPlayer::Pulse()
@@ -1687,7 +1670,7 @@ void CNetworkPlayer::Pulse()
 						{
 							CBitStream bsDeath;
 							bsDeath.Write(m_pVehicle->GetVehicleId());
-							g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+							g_pClient->GetNetworkManager()->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
 							m_bVehicleDeathCheck = false;
 						}
 					}
@@ -1885,7 +1868,7 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 		GetPosition(vecPlayerPos);
 
 		// Loop through all streamed in vehicles
-		std::list<CStreamableEntity *> * streamedVehicles = g_pStreamer->GetStreamedInEntitiesOfType(STREAM_ENTITY_VEHICLE);
+		std::list<CStreamableEntity *> * streamedVehicles = g_pClient->GetStreamer()->GetStreamedInEntitiesOfType(STREAM_ENTITY_VEHICLE);
 
 		for(std::list<CStreamableEntity *>::iterator iter = streamedVehicles->begin(); iter != streamedVehicles->end(); ++iter)
 		{
@@ -1966,7 +1949,7 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			if(IsLocalPlayer())
 			{
 				// Force the vehicle to stream in
-				g_pStreamer->ForceStreamIn(pVehicle);
+				g_pClient->GetStreamer()->ForceStreamIn(pVehicle);
 			}
 		}
 
@@ -2040,7 +2023,7 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 			int iExitMode = 0xF; 
 
 			m_pVehicle->GetMoveSpeed(vecMoveSpeed);
-			modelId = g_pModelManager->ModelHashToVehicleId(m_pVehicle->GetModelInfo()->GetHash());
+			modelId = g_pClient->GetModelManager()->ModelHashToVehicleId(m_pVehicle->GetModelInfo()->GetHash());
 
 			if(exitmode == EXIT_VEHICLE_NORMAL)
 			{
@@ -2096,7 +2079,7 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 			{
 				CBitStream bsDeath;
 				bsDeath.Write(m_pVehicle->GetVehicleId());
-				g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+				g_pClient->GetNetworkManager()->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
 				m_bVehicleDeathCheck = false;
 			}
 		}
@@ -2128,7 +2111,7 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			if(IsLocalPlayer())
 			{
 				// Force the vehicle to stream in
-				g_pStreamer->ForceStreamIn(pVehicle);
+				g_pClient->GetStreamer()->ForceStreamIn(pVehicle);
 			}
 			else
 				return;
@@ -2161,7 +2144,7 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 			bitStream.Write((BYTE)VEHICLE_ENTRY_COMPLETE);
 			bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
 			bitStream.Write(m_byteVehicleSeatId);
-			g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+			g_pClient->GetNetworkManager()->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 		}
 	}
 }
@@ -2220,7 +2203,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 						bitStream.WriteCompressed(GetPlayerId());
 						bitStream.Write((BYTE)VEHICLE_EXIT_REQUEST);
 						bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
-						g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+						g_pClient->GetNetworkManager()->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 						m_vehicleEnterExit.bRequesting = true;
 					}
 					else
@@ -2303,7 +2286,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 								bsSend.Write((BYTE)VEHICLE_ENTRY_REQUEST);
 								bsSend.WriteCompressed(pVehicle->GetVehicleId());
 								bsSend.Write(byteSeatId);
-								g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+								g_pClient->GetNetworkManager()->RPC(RPC_VehicleEnterExit, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 								m_vehicleEnterExit.bRequesting = true;
 							}
 							else
@@ -2355,7 +2338,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 						bitStream.Write((BYTE)VEHICLE_ENTRY_COMPLETE);
 						bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
 						bitStream.Write(m_byteVehicleSeatId);
-						g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+						g_pClient->GetNetworkManager()->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 					}
 
 					// Restore engine state
@@ -2395,7 +2378,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 							bitStream.Write((BYTE)VEHICLE_ENTRY_CANCELLED);
 							bitStream.WriteCompressed(m_vehicleEnterExit.pVehicle->GetVehicleId());
 							bitStream.Write(m_byteVehicleSeatId);
-							g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+							g_pClient->GetNetworkManager()->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 
 							CLogFile::Printf("VehicleEntryCancelled(LocalPlayer)");
 						}
@@ -2441,7 +2424,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 						bitStream.WriteCompressed(GetPlayerId());
 						bitStream.Write((BYTE)VEHICLE_EXIT_COMPLETE);
 						bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
-						g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+						g_pClient->GetNetworkManager()->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 					}
 
 					// Vehicle exit is complete
@@ -2482,7 +2465,7 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 						bitStream.WriteCompressed(GetPlayerId());
 						bitStream.Write((BYTE)VEHICLE_EXIT_FORCEFUL);
 						bitStream.WriteCompressed(m_pVehicle->GetVehicleId());
-						g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+						g_pClient->GetNetworkManager()->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 					}
 
 					// Player has forcefully exited the vehicle (out of windscreen, e.t.c.)

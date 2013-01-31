@@ -2,13 +2,15 @@
 //
 // File: CAudio.h
 // Project: Client.Core
-// Author(s): RootKiller, FRi
+// Author(s): RootKiller
+//            FRi
 // License: See LICENSE in root directory
 //
 //==============================================================================
+
 #include <String.h>
 #include <CLibrary.h>
-#include "Common.h"
+#include <Common.h>
 #include <list>
 
 #pragma once
@@ -16,59 +18,38 @@
 class CAudio
 {
 private:
-	bool				m_bPlayed;
-	int					m_iRepeatsNum;
-	float				m_fOldVolume;
-
-	CVector3			m_vecPosition;
-	float				m_fRange;
-	bool				m_bUrl;
-	bool				m_bReplay;
-	bool			    m_bUsingPositionSystem;
-	char 				m_szSoundFile[MAX_PATH+64];
-	DWORD				m_dwChannel;
+	String   m_strStreamName;
+	bool     m_bReplay;
+	bool     m_bIsOnlineStream;
+	bool     m_bIsGameFile;
+	bool     m_bUsePosition;
+	CVector3 m_vecPosition;
+	float    m_fRange;
+	float    m_fVolume;
+	bool     m_bIsMuted;
+	DWORD    m_dwChannel;
 
 public:
+	CAudio(String strStreamName, bool bReplay = false, bool bIsOnlineStream = false, bool bIsGameFile = false);
+	~CAudio();
 
-	CAudio	(bool bUrl, bool bReplay, bool bGameFile, const char * szSoundFile );
-	~CAudio ( );
-
-	// Functions
-	void	Play ( );
-	void	Stop ( );
-	void	Pause ( );
-	bool	IsStarted ( );
-	bool	IsPlaying ( );
-	bool	IsPaused ( );
-	bool	IsStalled ( );
-	void	SetVolume ( float fVolume );
-	void	RestoreVolume ( );
-	float	GetVolume ( );
-	void	ClearPosition();
-	void	SetPosition ( CVector3 &vecPositon, float fRange );
-	void	UsePositionSystem( bool bUse );
-	void	Process ();
-	DWORD	GetChannel() { return m_dwChannel; }
-	char	GetSoundfile() { return m_szSoundFile[MAX_PATH+64]; }
-	void	SetChannel(DWORD dwChannel) { m_dwChannel = dwChannel; }
-	bool	IsUrlUsed() { return m_bUrl; }
-};
-
-class CAudioManager
-{
-private:
-	static CLibrary		*	m_pLibrary;
-	static bool				m_bActive;
-public:
-	CAudioManager::CAudioManager();
-	CAudioManager::~CAudioManager();
-
-	static std::list<CAudio *> m_Audio;
-	static void Init();
-	static void AddToList ( CAudio *pAudio );
-	static void RemoveAll ( );
-	static void SetAllVolume ( float fVolume );
-	static void RestoreAllVolume ( );
-	static void Process ( );
-	static void ProcessThread( );
+	bool  Load();
+	bool  IsLoaded() { return (m_dwChannel != 0); }
+	void  Unload();
+	bool  Play();
+	void  Pause();
+	bool  IsPlaying();
+	bool  IsPaused();
+	bool  IsStalled();
+	void  Stop();
+	void  SetUsePosition(bool bUsePosition);
+	bool  GetUsePosition();
+	void  SetPosition(CVector3 vecPosition, float fRange);
+	void  GetPosition(CVector3& vecPosition, float& fRange);
+	void  SetVolume(float fVolume);
+	float GetVolume();
+	void  Mute();
+	bool  IsMuted();
+	void  Unmute();
+	void  Process();
 };

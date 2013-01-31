@@ -9,17 +9,11 @@
 //==============================================================================
 
 #include "CPlayerManager.h"
+#include "CClient.h"
 #include "CRemotePlayer.h"
-#include "CChatWindow.h"
 #include <CLogFile.h>
-#include "Scripting/CScriptingManager.h"
-#include "CEvents.h"
-#include "CStreamer.h"
 
-extern CChatWindow * g_pChatWindow;
-extern CScriptingManager * g_pScriptingManager;
-extern CEvents * g_pEvents;
-extern CStreamer * g_pStreamer;
+extern CClient * g_pClient;
 
 DWORD dwPlayerModelHashes[] = 
 {
@@ -234,8 +228,9 @@ CPlayerManager::~CPlayerManager()
 
 void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 {
-	if(IsPlayerLimitReached()) {
-		g_pChatWindow->AddErrorMessage("[WARNING] Failed to add player %d(%s), playerlimit already reached[FUNC:%s()]",playerId,sPlayerName.Get(),__FUNCTION__);
+	if(IsPlayerLimitReached())
+	{
+		g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Failed to add player %d(%s), playerlimit already reached[FUNC:%s()]",playerId,sPlayerName.Get(),__FUNCTION__);
 		return;
 	}
 
@@ -251,12 +246,13 @@ void CPlayerManager::Add(EntityId playerId, String sPlayerName)
 	m_pPlayers[playerId]->SetPlayerId(playerId);
 	m_pPlayers[playerId]->SetName(sPlayerName);
 	m_bActive[playerId] = true;
+	CEvents * pEvents = g_pClient->GetEvents();
 
-	if(g_pEvents)
+	if(pEvents)
 	{
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
-		g_pEvents->Call("playerConnect", &pArguments);
+		pEvents->Call("playerConnect", &pArguments);
 	}
 }
 
@@ -323,11 +319,13 @@ void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos
 	}
 	}*/
 
-	if(g_pEvents)
+	CEvents * pEvents = g_pClient->GetEvents();
+
+	if(pEvents)
 	{
 		CSquirrelArguments pArguments;
 		pArguments.push(playerId);
-		g_pEvents->Call("playerSpawn", &pArguments);
+		pEvents->Call("playerSpawn", &pArguments);
 	}
 }
 
@@ -389,7 +387,7 @@ void CPlayerManager::SetLocalPlayer(EntityId playerId, CNetworkPlayer * pPlayer)
 	m_bActive[playerId] = true;
 	m_bCreated[playerId] = true;
 	m_pPlayers[playerId] = pPlayer;
-	g_pLocalPlayer->SetPlayerId(playerId);
+	g_pClient->GetLocalPlayer()->SetPlayerId(playerId);
 }
 
 bool CPlayerManager::IsPlayerLimitReached( void )

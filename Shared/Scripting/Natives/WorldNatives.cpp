@@ -12,9 +12,6 @@
 #include "../../Game/CTrafficLights.h"
 #include "../../CLogFile.h"
 
-extern CTime * g_pTime;
-extern CTrafficLights * g_pTrafficLights;
-
 void CWorldNatives::Register(CScriptingManager * pScriptingManager)
 {
 	pScriptingManager->RegisterFunction("setTime", SetTime, 2, "ii");
@@ -39,9 +36,10 @@ SQInteger CWorldNatives::SetTime(SQVM * pVM)
 	SQInteger iMinute;
 	sq_getinteger(pVM, 2, &iHour);
 	sq_getinteger(pVM, 3, &iMinute);
+
 	if(iHour >= 0 && iHour <= 23 && iMinute >= 0 && iMinute <= 59)
 	{
-		g_pTime->SetTime(iHour, iMinute);
+		CTime::GetInstance()->SetTime(iHour, iMinute);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -54,7 +52,7 @@ SQInteger CWorldNatives::SetTime(SQVM * pVM)
 SQInteger CWorldNatives::GetTime(SQVM * pVM)
 {
 	unsigned char ucHour = 0, ucMinute = 0;
-	g_pTime->GetTime(&ucHour, &ucMinute);
+	CTime::GetInstance()->GetTime(&ucHour, &ucMinute);
 
 	sq_newarray(pVM, 0);
 
@@ -72,25 +70,27 @@ SQInteger CWorldNatives::SetMinuteDuration(SQVM * pVM)
 {
 	SQInteger iMinuteDuration;
 	sq_getinteger(pVM, 2, &iMinuteDuration);
+
 	if(iMinuteDuration > 0)
 	{
-		g_pTime->SetMinuteDuration(iMinuteDuration);
+		CTime::GetInstance()->SetMinuteDuration(iMinuteDuration);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
 	else if(iMinuteDuration < 1)
 	{
-		CLogFile::Printf("Failed to set MinuteDuration for %d ms(Minimum 1ms)",iMinuteDuration);
+		CLogFile::Printf("Failed to set MinuteDuration for %d ms(Minimum 1ms)", iMinuteDuration);
 		sq_pushbool(pVM, false);
 		return 1;
 	}
+
 	return 1;
 }
 
 // getMinuteDuration()
 SQInteger CWorldNatives::GetMinuteDuration(SQVM * pVM)
 {
-	sq_pushinteger(pVM, g_pTime->GetMinuteDuration());
+	sq_pushinteger(pVM, CTime::GetInstance()->GetMinuteDuration());
 	return 1;
 }
 
@@ -99,9 +99,10 @@ SQInteger CWorldNatives::SetDayOfWeek(SQVM * pVM)
 {
 	SQInteger iDay;
 	sq_getinteger(pVM, 2, &iDay);
+
 	if(iDay >= 0 && iDay <= 6)
 	{
-		g_pTime->SetDayOfWeek(iDay);
+		CTime::GetInstance()->SetDayOfWeek(iDay);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -113,7 +114,7 @@ SQInteger CWorldNatives::SetDayOfWeek(SQVM * pVM)
 // getDayOfWeek()
 SQInteger CWorldNatives::GetDayOfWeek(SQVM * pVM)
 {
-	sq_pushinteger(pVM, g_pTime->GetDayOfWeek());
+	sq_pushinteger(pVM, CTime::GetInstance()->GetDayOfWeek());
 	return 1;
 }
 
@@ -124,7 +125,7 @@ SQInteger CWorldNatives::SetTrafficLightsState(SQVM * pVM)
 	sq_getinteger(pVM, 2, &iState);
 	if(iState > 0 && iState <= 3)
 	{
-		sq_pushbool(pVM, g_pTrafficLights->SetState((CTrafficLights::eTrafficLightState)iState));
+		sq_pushbool(pVM, CTrafficLights::GetInstance()->SetState((CTrafficLights::eTrafficLightState)iState));
 		return 1;
 	}
 	else
@@ -138,7 +139,7 @@ SQInteger CWorldNatives::SetTrafficLightsState(SQVM * pVM)
 // getTrafficLightsState()
 SQInteger CWorldNatives::GetTrafficLightsState(SQVM * pVM)
 {
-	sq_pushinteger(pVM, (int)g_pTrafficLights->GetState());
+	sq_pushinteger(pVM, (int)CTrafficLights::GetInstance()->GetState());
 	return 1;
 }
 
@@ -148,7 +149,7 @@ SQInteger CWorldNatives::SetTrafficLightsLocked(SQVM * pVM)
 	SQBool b;
 	sq_getbool(pVM, 2, &b);
 	
-	g_pTrafficLights->SetLocked(b != 0);
+	CTrafficLights::GetInstance()->SetLocked(b != 0);
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -156,7 +157,7 @@ SQInteger CWorldNatives::SetTrafficLightsLocked(SQVM * pVM)
 // areTrafficLightsLocked()
 SQInteger CWorldNatives::AreTrafficLightsLocked(SQVM * pVM)
 {
-	sq_pushbool(pVM, g_pTrafficLights->IsLocked());
+	sq_pushbool(pVM, CTrafficLights::GetInstance()->IsLocked());
 	return 1;
 }
 
@@ -174,15 +175,16 @@ SQInteger CWorldNatives::SetTrafficLightsPhaseDuration(SQVM * pVM)
 			switch(iPhase)
 			{
 				case 1:
-					g_pTrafficLights->SetGreenDuration(iDuration);
+					CTrafficLights::GetInstance()->SetGreenDuration(iDuration);
 					break;
 				case 2:
-					g_pTrafficLights->SetYellowDuration(iDuration);
+					CTrafficLights::GetInstance()->SetYellowDuration(iDuration);
 					break;
 				case 3:
-					g_pTrafficLights->SetRedDuration(iDuration);
+					CTrafficLights::GetInstance()->SetRedDuration(iDuration);
 					break;
 			}
+
 			sq_pushbool(pVM, true);
 			return 1;
 		}
@@ -193,12 +195,9 @@ SQInteger CWorldNatives::SetTrafficLightsPhaseDuration(SQVM * pVM)
 			return 1;
 		}
 	}
-	else
-	{
-		CLogFile::Printf("Failed to set TrafficLightsPhaseDuration from the trafficlight %d to %d ms(Minimum duration: 1ms)",iPhase,iDuration);
-		sq_pushbool(pVM, false);
-		return 1;
-	}
+
+	CLogFile::Printf("Failed to set TrafficLightsPhaseDuration from the trafficlight %d to %d ms(Minimum duration: 1ms)",iPhase,iDuration);
+	sq_pushbool(pVM, false);
 	return 1;
 }
 
@@ -207,16 +206,16 @@ SQInteger CWorldNatives::GetTrafficLightsPhaseDuration(SQVM * pVM)
 {
 	sq_newarray(pVM, 0);
 
-	sq_pushbool(pVM, g_pTrafficLights->IsUsingDefaultDurations());
+	sq_pushbool(pVM, CTrafficLights::GetInstance()->IsUsingDefaultDurations());
 	sq_arrayappend(pVM, -2);
 
-	sq_pushinteger(pVM, g_pTrafficLights->GetGreenDuration());
+	sq_pushinteger(pVM, CTrafficLights::GetInstance()->GetGreenDuration());
 	sq_arrayappend(pVM, -2);
 
-	sq_pushinteger(pVM, g_pTrafficLights->GetYellowDuration());
+	sq_pushinteger(pVM, CTrafficLights::GetInstance()->GetYellowDuration());
 	sq_arrayappend(pVM, -2);
 
-	sq_pushinteger(pVM, g_pTrafficLights->GetRedDuration());
+	sq_pushinteger(pVM, CTrafficLights::GetInstance()->GetRedDuration());
 	sq_arrayappend(pVM, -2);
 
 	return 1;
@@ -225,7 +224,7 @@ SQInteger CWorldNatives::GetTrafficLightsPhaseDuration(SQVM * pVM)
 // resetTrafficLightsPhaseDuration()
 SQInteger CWorldNatives::ResetTrafficLightsPhaseDuration(SQVM * pVM)
 {
-	g_pTrafficLights->ResetDefaultDurations();
+	CTrafficLights::GetInstance()->ResetDefaultDurations();
 	sq_pushbool(pVM, true);
 	return 1;
 }

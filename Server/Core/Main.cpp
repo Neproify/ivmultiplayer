@@ -52,44 +52,43 @@
 			strcat(stringname, "-"); \
 	}
 
-CNetworkManager    * g_pNetworkManager = NULL;
-CPlayerManager     * g_pPlayerManager = NULL;
-CVehicleManager    * g_pVehicleManager = NULL;
-CObjectManager     * g_pObjectManager = NULL;
-CBlipManager       * g_pBlipManager = NULL;
-CActorManager      * g_pActorManager = NULL;
-CPickupManager     * g_pPickupManager = NULL;
-CCheckpointManager * g_pCheckpointManager = NULL;
-CScriptingManager  * g_pScriptingManager = NULL;
-CClientFileManager * g_pClientScriptFileManager = NULL;
-CClientFileManager * g_pClientResourceFileManager = NULL;
-CModuleManager     * g_pModuleManager = NULL;
-CMasterList        * g_pMasterList = NULL;
-CWebServer         * g_pWebserver = NULL;
-CTime              * g_pTime = NULL;
-CTrafficLights     * g_pTrafficLights = NULL;
-CEvents            * g_pEvents = NULL;
-unsigned long        g_ulStartTick = 0;
-CMutex               consoleInputQueueMutex;
-std::queue<String>   consoleInputQueue;
-CQuery             * g_pQuery = NULL;
+CNetworkManager                   * g_pNetworkManager = NULL;
+CPlayerManager                    * g_pPlayerManager = NULL;
+CVehicleManager                   * g_pVehicleManager = NULL;
+CObjectManager                    * g_pObjectManager = NULL;
+CBlipManager                      * g_pBlipManager = NULL;
+CActorManager                     * g_pActorManager = NULL;
+CPickupManager                    * g_pPickupManager = NULL;
+CCheckpointManager                * g_pCheckpointManager = NULL;
+CScriptingManager                 * g_pScriptingManager = NULL;
+CScriptTimerManager               * g_pScriptTimerManager = NULL;
+CClientFileManager                * g_pClientScriptFileManager = NULL;
+CClientFileManager                * g_pClientResourceFileManager = NULL;
+CModuleManager                    * g_pModuleManager = NULL;
+CMasterList                       * g_pMasterList = NULL;
+CWebServer                        * g_pWebserver = NULL;
+CTime                             * g_pTime = NULL;
+CTrafficLights                    * g_pTrafficLights = NULL;
+CEvents                           * g_pEvents = NULL;
+unsigned long                       g_ulStartTick = 0;
+CMutex                              consoleInputQueueMutex;
+std::queue<String>                  consoleInputQueue;
+CQuery                            * g_pQuery = NULL;
 
-C3DLabelManager		* g_p3DLabelManager = NULL;
+C3DLabelManager		              * g_p3DLabelManager = NULL;
 
-extern CScriptTimerManager * g_pScriptTimerManager;
-
-Modules::CActorModuleNatives * g_pActorModuleNatives;
-Modules::CBlipModuleNatives * g_pBlipModuleNatives;
+Modules::CActorModuleNatives      * g_pActorModuleNatives;
+Modules::CBlipModuleNatives       * g_pBlipModuleNatives;
 Modules::CCheckpointModuleNatives * g_pCheckpointModuleNatives;
-Modules::CObjectModuleNatives * g_pObjectModuleNatives;
-Modules::CPickupModuleNatives * g_pPickupModuleNatives;
-Modules::CPlayerModuleNatives * g_pPlayerModuleNatives;
-Modules::CServerModuleNatives * g_pServerModuleNatives;
-Modules::CVehicleModuleNatives * g_pVehicleModuleNatives;
-Modules::CScriptModuleNatives * g_pScriptModuleNatives;
-Modules::CAreaModuleNatives * g_pAreaModuleNatives;
-Modules::CHashModuleNatives * g_pHashModuleNatives;
-Modules::CWorldModuleNatives * g_pWorldModuleNatives;
+Modules::CObjectModuleNatives     * g_pObjectModuleNatives;
+Modules::CPickupModuleNatives     * g_pPickupModuleNatives;
+Modules::CPlayerModuleNatives     * g_pPlayerModuleNatives;
+Modules::CServerModuleNatives     * g_pServerModuleNatives;
+Modules::CVehicleModuleNatives    * g_pVehicleModuleNatives;
+Modules::CScriptModuleNatives     * g_pScriptModuleNatives;
+Modules::CAreaModuleNatives       * g_pAreaModuleNatives;
+Modules::CHashModuleNatives       * g_pHashModuleNatives;
+Modules::CWorldModuleNatives      * g_pWorldModuleNatives;
 
 void SendConsoleInput(String strInput)
 {

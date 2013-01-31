@@ -231,9 +231,11 @@ SQInteger CObjectNatives::AttachPed(SQVM *pVM)
 	if(g_pObjectManager->DoesExist(objectId))
 	{
 		g_pObjectManager->AttachToPlayer(objectId,playerId,vecPos,vecRot);
-		sq_pushbool(pVM,true);
+		sq_pushbool(pVM, true);
+		return 1;
 	}
-	sq_pushbool(pVM,false);
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
 
@@ -259,7 +261,9 @@ SQInteger CObjectNatives::AttachPedBone(SQVM *pVM)
 	{
 		g_pObjectManager->AttachToPlayer(objectId,playerId,vecPos,vecRot, iBone);
 		sq_pushbool(pVM,true);
+		return 1;
 	}
+
 	sq_pushbool(pVM,false);
 	return 1;
 }
@@ -283,9 +287,11 @@ SQInteger CObjectNatives::AttachVehicle(SQVM * pVM)
 	if(g_pObjectManager->DoesExist(objectId))
 	{
 		g_pObjectManager->AttachToVehicle(objectId,vehicleId,vecPos,vecRot);
-		sq_pushbool(pVM,true);
+		sq_pushbool(pVM, true);
+		return 1;
 	}
-	sq_pushbool(pVM,false);
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
 
@@ -293,11 +299,14 @@ SQInteger CObjectNatives::DetachObject(SQVM *pVM)
 {
 	EntityId	objectId;
 	sq_getentity(pVM, -1, &objectId);
+
 	if(g_pObjectManager->DoesExist(objectId) && g_pObjectManager->GetAttachState(objectId))
 	{
 		g_pObjectManager->Detach(objectId);
-		sq_pushbool(pVM,true);
+		sq_pushbool(pVM, true);
+		return 1;
 	}
+
 	sq_pushbool(pVM,false);
 	return 1;
 }
@@ -406,11 +415,13 @@ SQInteger CObjectNatives::SetInterior(SQVM * pVM)
 	sq_getentity(pVM, -2, &objectId);
 	sq_getinteger(pVM, -1, &iInterior);
 
-	if(g_pObjectManager->DoesExist(objectId)) {
+	if(g_pObjectManager->DoesExist(objectId))
+	{
 		g_pObjectManager->SetInterior(objectId, iInterior);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
+
 	sq_pushbool(pVM, false);
 	return 1;
 }

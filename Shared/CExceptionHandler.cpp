@@ -104,19 +104,20 @@ void CExceptionHandler::WriteExceptionReport()
 	if(fFile)
 	{
 		// Write the unhandled exception report start notice to the log file
-		fprintf(fFile, "-- Unhandled Exception Report Start --\n");
+		String strReportData;
+		strReportData += "-- Unhandled Exception Report Start --\n";
 
 #ifdef WIN32
 		// Write the exception code and exception code string to the log file
-		fprintf(fFile, "Exception code: 0x%p (%s)\n", ExceptionInfo->ExceptionRecord->ExceptionCode, 
+		strReportData.AppendF("Exception code: 0x%p (%s)\n", ExceptionInfo->ExceptionRecord->ExceptionCode, 
 			ExceptionCodeToString(ExceptionInfo->ExceptionRecord->ExceptionCode));
 
 		// Write the exception address to the log file
 #ifndef _SERVER
-		fprintf(fFile, "Exception address: 0x%p (0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, CGame::GetBase());
-		fprintf(fFile, "Exception real-add: 0x%p / 0x%p\n", ((int)ExceptionInfo->ExceptionRecord->ExceptionAddress-CGame::GetBase()), (CGame::GetBase()-(int)ExceptionInfo->ExceptionRecord->ExceptionAddress));
+		strReportData.AppendF("Exception address: 0x%p (0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, CGame::GetBase());
+		strReportData.AppendF("Exception real-add: 0x%p / 0x%p\n", ((int)ExceptionInfo->ExceptionRecord->ExceptionAddress-CGame::GetBase()), (CGame::GetBase()-(int)ExceptionInfo->ExceptionRecord->ExceptionAddress));
 #else
-		fprintf(fFile, "Exception address: 0x%p\n", ExceptionInfo->ExceptionRecord->ExceptionAddress);
+		strReportData.AppendF("Exception address: 0x%p\n", ExceptionInfo->ExceptionRecord->ExceptionAddress);
 #endif
 		// Create a tool help 32 process snapshot
 		HANDLE hModuleSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
@@ -134,41 +135,14 @@ void CExceptionHandler::WriteExceptionReport()
 					// See if exception was within this module
 					if((ExceptionInfo->ContextRecord->Eip >= (DWORD)ModuleEntry.modBaseAddr) && (ExceptionInfo->ContextRecord->Eip <= ((DWORD)ModuleEntry.modBaseAddr + ModuleEntry.modBaseSize)))
 					{
-						fprintf(fFile, "Exception module: %s (+0x%p)\n", ModuleEntry.szModule, (ExceptionInfo->ContextRecord->Eip - (DWORD)ModuleEntry.modBaseAddr));
+						strReportData.AppendF("Exception module: %s (+0x%p)\n", ModuleEntry.szModule, (ExceptionInfo->ContextRecord->Eip - (DWORD)ModuleEntry.modBaseAddr));
 						break;
 					}
 				}
 			}
 		}
-		fprintf(fFile, "--Unhandled Exception Report End --\n");
 
-		fclose(fFile);
-		// Print a message in the log file
-		CLogFile::Printf("IV:MP has crashed. Please see %s for more information.", strLogPath.Get());
-
-
-		FILE * pFile;
-
-		pFile = fopen (strLogPath, "r");
-		if (pFile != NULL)
-		{
-			fseek(pFile ,0 , SEEK_END);
-			int lSize = ftell (pFile);
-			char* buffer = (char*) malloc (sizeof(char)*lSize);
-			if (buffer == NULL) {
-				fclose(pFile);
-			} else {
-				fseek(pFile, 0, SEEK_SET);
-				size_t result = fread (buffer, 1, lSize, pFile);
-				reportData = buffer;
-				fclose(pFile);
-			}
-		}
-
-#ifdef WIN32
-		WinExec((SharedUtility::GetAbsolutePath("crashreporter.exe ") + reportData).Get(), SW_SHOW);
-		return;
-#endif
+		strReportData += "--Unhandled Exception Report End --\n";
 
 		// Write the registers segment header
 		fprintf(fFile, "Exception registers: \n");
@@ -209,38 +183,23 @@ void CExceptionHandler::WriteExceptionReport()
 			fprintf(fFile, "[Backtrace %d]: %s\n", szMessages[i]);
 #endif
 
+		fprintf(fFile, strReportData.Get());
+
+		// Print a message in the log file
+		CLogFile::Printf("IV:MP has crashed. Please see %s for more information.", strLogPath.Get());
+
+		// TODO: Move this to the client exception handler callback
+#ifdef WIN32
+		WinExec((SharedUtility::GetAbsolutePath("Client.CrashReporter" DEBUG_SUFFIX ".exe ") + reportData).Get(), SW_SHOW);
+		return;
+#endif
+
 		// If we have a callback call it
 		if(m_pfnCallback)
 			m_pfnCallback(fFile);
 
 		// Write the unhandled exception report end notice to the log file
 		fprintf(fFile, "--Unhandled Exception Report End --\n");
-		
-#ifndef _SERVER
-#ifdef _CLIENT_LOG_REPORT
-		fprintf(fFile, "\n\n------------------------- Client Log -------------------------\n\n\n");
-		FILE * pFile;
-		String strClientLogOrgPath("%sClient.log",SharedUtility::GetAppPath());
-
-		pFile = fopen (strClientLogOrgPath.Get(), "r");
-		if (pFile != NULL)
-		{
-			fseek(pFile ,0 , SEEK_END);
-			int lSize = ftell (pFile);
-			char* buffer = (char*) malloc (sizeof(char)*lSize);
-			if (buffer == NULL) {
-				fclose(pFile);
-			} else {
-				fseek(pFile, 0, SEEK_SET);
-				size_t result = fread (buffer, 1, lSize, pFile);
-
-				fprintf(fFile, "%s\n\n", buffer);
-				fprintf(fFile, "---------------------- Client Log End -----------------------\n");
-				fclose(pFile);
-			}
-		}
-#endif
-#endif
 	}
 
 	// Close the log file

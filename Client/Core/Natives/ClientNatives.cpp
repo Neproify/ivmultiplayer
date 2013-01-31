@@ -10,30 +10,14 @@
 //==============================================================================
 
 #include "../Natives.h"
-#include "Scripting/CScriptingManager.h"
 #include "Squirrel/sqstate.h"
 #include "Squirrel/sqvm.h"
 #include "Squirrel/sqstring.h"
-#include "../CNetworkManager.h"
-#include "../CChatWindow.h"
-#include "../CGUI.h"
+#include "../CClient.h"
 #include "../Scripting.h"
-#include "../CGraphics.h"
-#include "../CModelManager.h"
-#include "../CLocalPlayer.h"
-#include "../CFPSCounter.h"
 #include "../CIVWeather.h"
-#include "../CActorManager.h"
 
-extern CNetworkManager * g_pNetworkManager;
-extern CChatWindow * g_pChatWindow;
-extern CGUI * g_pGUI;
-extern CGraphics * g_pGraphics;
-extern CScriptingManager * g_pScriptingManager;
-extern CModelManager * g_pModelManager;
-extern CLocalPlayer * g_pLocalPlayer;
-extern CFPSCounter * g_pFPSCounter;
-extern CActorManager * g_pActorManager;
+extern CClient * g_pClient;
 
 // Client functions
 
@@ -100,7 +84,7 @@ int sq_addChatMessage(SQVM * pVM)
 		}
 	}
 
-	g_pChatWindow->AddMessage(color, (bAllowFormatting != 0), text);
+	g_pClient->GetChatWindow()->AddMessage(color, (bAllowFormatting != 0), text);
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -110,7 +94,7 @@ int sq_toggleChatWindow(SQVM * pVM)
 {
 	SQBool bToggle;
 	sq_getbool(pVM, 2, &bToggle);
-	g_pChatWindow->SetEnabled(bToggle != 0);
+	g_pClient->GetChatWindow()->SetEnabled(bToggle != 0);
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -118,7 +102,7 @@ int sq_toggleChatWindow(SQVM * pVM)
 // isChatWindowVisible()
 int sq_isChatWindowVisible(SQVM * pVM)
 {
-	sq_pushbool(pVM, g_pChatWindow->IsEnabled());
+	sq_pushbool(pVM, g_pClient->GetChatWindow()->IsEnabled());
 	return 1;
 }
 
@@ -144,7 +128,7 @@ int sq_guiShowMessageBox(SQVM * pVM)
 	sq_getstring(pVM, -1, &title);
 	sq_pushbool(pVM, true);
 
-	g_pGUI->ShowMessageBox(text, title);
+	g_pClient->GetGUI()->ShowMessageBox(text, title);
 	CGame::SetInputState(false);
 	return 1;
 }	
@@ -156,8 +140,11 @@ int sq_guiToggleCursor(SQVM * pVM)
 	sq_getbool(pVM, -1, &sbBool);
 	bool bBool = (sbBool != 0);
 
-	g_pGUI->SetScriptedCursorVisible(bBool);
-	g_pGUI->SetCursorVisible(bBool);
+	// Get our GUI instance
+	CGUI * pGUI = g_pClient->GetGUI();
+
+	pGUI->SetScriptedCursorVisible(bBool);
+	pGUI->SetCursorVisible(bBool);
 
 	sq_pushbool(pVM, true);
 	return 1;
@@ -166,7 +153,7 @@ int sq_guiToggleCursor(SQVM * pVM)
 // isCursorVisible()
 int sq_guiIsCursorVisible(SQVM * pVM)
 {
-	sq_pushbool(pVM, g_pGUI->IsCursorVisible(true));
+	sq_pushbool(pVM, g_pClient->GetGUI()->IsCursorVisible(true));
 	return 1;
 }
 
@@ -177,7 +164,7 @@ int sq_guiSetCursorPosition(SQVM * pVM)
 	sq_getfloat(pVM, -2, &posX);
 	sq_getfloat(pVM, -1, &posY);
 
-	g_pGUI->SetCursorPosition(posX, posY);
+	g_pClient->GetGUI()->SetCursorPosition(posX, posY);
 	return 1;
 }
 
@@ -186,7 +173,7 @@ int sq_guiGetCursorPosition(SQVM * pVM)
 {	
 	// Returning mouse cursor position to script vm:
 	// Cursor position is array [X, Y]
-	RECT curPos = g_pGUI->GetCursorPosition();
+	RECT curPos = g_pClient->GetGUI()->GetCursorPosition();
 	CSquirrelArguments args;
 	args.push(curPos.left);
 	args.push(curPos.top);
@@ -197,10 +184,13 @@ int sq_guiGetCursorPosition(SQVM * pVM)
 // guiGetScreenSize()
 int sq_guiGetScreenSize(SQVM * pVM)
 {
+	// Get our GUI instance
+	CGUI * pGUI = g_pClient->GetGUI();
+
 	sq_newarray(pVM, 0);
-	sq_pushfloat(pVM, (float)g_pGUI->GetDisplayWidth());
+	sq_pushfloat(pVM, (float)pGUI->GetDisplayWidth());
 	sq_arrayappend(pVM, -2);
-	sq_pushfloat(pVM, (float)g_pGUI->GetDisplayHeight());
+	sq_pushfloat(pVM, (float)pGUI->GetDisplayHeight());
 	sq_arrayappend(pVM, -2);
 	return 1;
 }
@@ -222,13 +212,16 @@ int sq_guiDrawRectangle(SQVM * pVM)
 
 	if(bRelative)
 	{
-		x *= g_pGUI->GetDisplayHeight();
-		y *= g_pGUI->GetDisplayHeight();
-		x1 *= g_pGUI->GetDisplayWidth();
-		y1 *= g_pGUI->GetDisplayHeight();
+		// Get our GUI instance
+		CGUI * pGUI = g_pClient->GetGUI();
+
+		x *= pGUI->GetDisplayHeight();
+		y *= pGUI->GetDisplayHeight();
+		x1 *= pGUI->GetDisplayWidth();
+		y1 *= pGUI->GetDisplayHeight();
 	}
 
-	g_pGraphics->DrawRect(x, y, x1, y1, ( color >> 8 ) + ( ( color & 0xFF ) << 24 ));
+	g_pClient->GetGraphics()->DrawRect(x, y, x1, y1, ( color >> 8 ) + ( ( color & 0xFF ) << 24 ));
 	sq_pushbool(pVM, true);
 	return 1;
 }	
@@ -244,7 +237,7 @@ int sq_triggerServerEvent(SQVM * pVM)
 
 	CBitStream bsSend;
 	arguments.serialize(&bsSend);
-	g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, PACKET_CHANNEL_SCRIPT);
+	g_pClient->GetNetworkManager()->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, PACKET_CHANNEL_SCRIPT);
 	return 1;
 }
 
@@ -260,7 +253,7 @@ void RegisterScriptNatives(CScriptingManager * pScriptingManager)
 int sq_getScripts(SQVM * pVM)
 {
 	sq_newarray(pVM, 0);
-	std::list<CSquirrel*>* scripts = g_pScriptingManager->GetScriptList();
+	std::list<CSquirrel*>* scripts = g_pClient->GetScriptingManager()->GetScriptList();
 	for(std::list<CSquirrel*>::iterator iter = scripts->begin(); iter != scripts->end(); ++ iter)
 	{
 		sq_pushstring(pVM, (*iter)->GetName().C_String(), (*iter)->GetName().GetLength());
@@ -272,7 +265,8 @@ int sq_getScripts(SQVM * pVM)
 // getScriptName()
 int sq_getScriptName(SQVM * pVM)
 {
-	sq_pushstring(pVM, g_pScriptingManager->Get(pVM)->GetName().C_String(), g_pScriptingManager->Get(pVM)->GetName().GetLength());
+	String strName = g_pClient->GetScriptingManager()->Get(pVM)->GetName();
+	sq_pushstring(pVM, strName.Get(), strName.GetLength());
 	return 1;
 }
 
@@ -365,7 +359,7 @@ int sq_getGameScrollBarColor(SQVM * pVM)
 // getMoney()
 int sq_getMoney(SQVM * pVM)
 {
-	sq_pushinteger(pVM, g_pLocalPlayer->GetMoney());
+	sq_pushinteger(pVM, g_pClient->GetLocalPlayer()->GetMoney());
 	return 1;
 }
 
@@ -419,7 +413,7 @@ int sq_getVehicleName(SQVM * pVM)
 // getFPS()
 int sq_getFPS(SQVM * pVM)
 {
-	sq_pushinteger(pVM, g_pFPSCounter->Get());
+	sq_pushinteger(pVM, g_pClient->GetFPSCounter()->Get());
 	return 1;
 }
 
@@ -481,19 +475,22 @@ int sq_getActorCoordinates(SQVM * pVM)
 	EntityId actorId;
 	sq_getentity(pVM,-1,&actorId);
 
-	if(g_pActorManager->DoesExist(actorId))
+	// Get our actor manager
+	CActorManager * pActorManager = g_pClient->GetActorManager();
+
+	if(pActorManager->DoesExist(actorId))
 	{
 		CVector3 vecPosition;
-		Scripting::GetCharCoordinates(g_pActorManager->GetScriptingHandle(actorId),&vecPosition.fX,&vecPosition.fY,&vecPosition.fZ);
+		Scripting::GetCharCoordinates(pActorManager->GetScriptingHandle(actorId), &vecPosition.fX, &vecPosition.fY, &vecPosition.fZ);
 		CSquirrelArguments args;
 		args.push(vecPosition.fX);
 		args.push(vecPosition.fY);
 		args.push(vecPosition.fZ);
 		sq_pusharg(pVM, CSquirrelArgument(args, true));
+		return 1;
 	}
-	else
-		sq_pushbool(pVM,false);
 
+	sq_pushbool(pVM,false);
 	return 1;
 }
 
@@ -591,8 +588,8 @@ int sq_importAndLoadGameFile(SQVM * pVM)
 		else if(!strcmp(szFile,"RadioLogo.dat"))
 			strCopyPath.Append("\\RadioLogo_ivmp.dat");
 
-		if(g_pChatWindow)
-			g_pChatWindow->AddInfoMessage("IMPORT from: %s | to: %s",strFolderName.Get(), strCopyPath.Get());
+		if(g_pClient->GetChatWindow())
+			g_pClient->GetChatWindow()->AddInfoMessage("IMPORT from: %s | to: %s",strFolderName.Get(), strCopyPath.Get());
 
 		if(CopyFileA(strFolderName.Get(),strCopyPath.Get(),false))
 		{

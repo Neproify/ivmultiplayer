@@ -9,10 +9,9 @@
 
 
 #include "C3DLabels.h"
+#include "CClient.h"
 
-extern CGUI           * g_pGUI;
-extern CCamera		  * g_pCamera;
-extern CGraphics	  * g_pGraphics;
+extern CClient * g_pClient;
 
 C3DLabel::C3DLabel()
 	: CStreamableEntity(STREAM_ENTITY_LABEL, 300.0f),
@@ -49,12 +48,15 @@ void C3DLabel::Render()
 	if(!CGame::GetScreenPositionFromWorldPosition(m_vecPosition, vecScreenPosition))
 		return;
 
-	if(g_pGUI)
+	// Get our GUI
+	CGUI * pGUI = g_pClient->GetGUI();
+
+	if(pGUI)
 	{
-		CEGUI::Font * pFont = g_pGUI->GetFont("tahoma-bold");
+		CEGUI::Font * pFont = g_pClient->GetGUI()->GetFont("tahoma-bold");
 
 		if(pFont)
-			g_pGUI->DrawText(m_strText.Get(), CEGUI::Vector2(vecScreenPosition.fX, vecScreenPosition.fY), CEGUI::colour(m_dwColor), pFont, false);
+			pGUI->DrawText(m_strText.Get(), CEGUI::Vector2(vecScreenPosition.fX, vecScreenPosition.fY), CEGUI::colour(m_dwColor), pFont, false);
 	}
 }
 
