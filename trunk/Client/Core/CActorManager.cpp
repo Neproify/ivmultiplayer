@@ -7,21 +7,16 @@
 // License: See LICENSE in root directory
 //
 //==============================================================================
+// jenksta: TODO: CNetworkActor class!
 
 #include "CActorManager.h"
+#include "CClient.h"
 #include "CChatWindow.h"
-#include "CModelmanager.h"
-#include "CVehicleManager.h"
-#include "CNetworkManager.h"
 #include <CLogfile.h>
-#include "CGame.h"
 #include "CIVPool.h"
 #include "CPools.h"
 
-extern CModelManager * g_pModelManager;
-extern CVehicleManager * g_pVehicleManager;
-extern CNetworkManager * g_pNetworkManager;
-extern CGame * g_pGame;
+extern CClient * g_pClient;
 
 CActorManager::CActorManager()
 	: bGameFocused(true), 
@@ -219,25 +214,29 @@ bool CActorManager::ToggleHelmet(EntityId actorId, bool bHelmet)
 
 void CActorManager::WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iSeatId)
 {
-	if(m_bActive[actorId] && g_pVehicleManager->Exists(vehicleId))
+	if(!m_bActive[actorId])
+		return;
+
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
+	if(pVehicle && pVehicle->IsSpawned())
 	{
-		CVector3 vecPos, vecCarPos; 
+		CVector3 vecPos, vecCarPos;
+		pVehicle->GetPosition(vecCarPos);
 
-		Scripting::GetCarCoordinates(g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),&vecCarPos.fX,&vecCarPos.fY,&vecCarPos.fZ);
-
-		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,false);
-		Scripting::SetCharCoordinates(m_Actors[actorId].uiActorIndex,vecCarPos.fX,(vecCarPos.fY+2.0f), vecCarPos.fZ);
+		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex, false);
+		Scripting::SetCharCoordinates(m_Actors[actorId].uiActorIndex, vecCarPos.fX, (vecCarPos.fY+2.0f), vecCarPos.fZ);
 
 		if(iSeatId > 0 && iSeatId <= 3 && vehicleId != -1)
 		{
-			Scripting::WarpCharIntoCarAsPassenger(m_Actors[actorId].uiActorIndex, g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(), (iSeatId - 1));
+			Scripting::WarpCharIntoCarAsPassenger(m_Actors[actorId].uiActorIndex, pVehicle->GetScriptingHandle(), (iSeatId - 1));
 			m_Actors[actorId].vehicleId = vehicleId;
 			m_Actors[actorId].iSeatid = iSeatId;
 			m_Actors[actorId].bStateincar = true;
 		}
 		else if(iSeatId == 0 && vehicleId != -1)
 		{
-			Scripting::WarpCharIntoCar(m_Actors[actorId].uiActorIndex, g_pVehicleManager->Get(vehicleId)->GetScriptingHandle());
+			Scripting::WarpCharIntoCar(m_Actors[actorId].uiActorIndex, pVehicle->GetScriptingHandle());
 			m_Actors[actorId].vehicleId = vehicleId;
 			m_Actors[actorId].iSeatid = iSeatId;
 			m_Actors[actorId].bStateincar = true;
@@ -247,12 +246,18 @@ void CActorManager::WarpIntoVehicle(EntityId actorId, EntityId vehicleId, int iS
 
 void CActorManager::RemoveFromVehicle(EntityId actorId)
 {
-	if(m_bActive[actorId] && g_pVehicleManager->Exists(m_Actors[actorId].vehicleId))
+	if(!m_bActive[actorId])
+		return;
+
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(m_Actors[actorId].vehicleId);
+
+	if(pVehicle && pVehicle->IsSpawned())
 	{
-		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,true);
+		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex, true);
+
 		if(m_Actors[actorId].bStateincar)
 		{
-			Scripting::TaskLeaveCar(m_Actors[actorId].uiActorIndex, g_pVehicleManager->Get(m_Actors[actorId].vehicleId)->GetScriptingHandle());
+			Scripting::TaskLeaveCar(m_Actors[actorId].uiActorIndex, pVehicle->GetScriptingHandle());
 			m_Actors[actorId].vehicleId = -1;
 			m_Actors[actorId].iSeatid = -1;
 			m_Actors[actorId].bStateincar = false;
@@ -316,61 +321,62 @@ void CActorManager::DriveToPoint(EntityId actorId, EntityId vehicleId, CVector3 
 	{
 		if(bDrive)
 		{
-			// Apply coords
-			m_Actors[actorId].vecDriveFinalPos = vecFinalPos;
-			g_pVehicleManager->Get(m_Actors[actorId].vehicleId)->GetPosition(vecPos);
-			m_Actors[actorId].vecDrivePos = vecPos;
-			m_Actors[actorId].vehicleId = vehicleId;
+			CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
-			if(!g_pVehicleManager->Exists(vehicleId) || !g_pVehicleManager->Get(vehicleId)->IsSpawned() || !g_pVehicleManager->Get(vehicleId)->IsStreamedIn())
-			{	
-				m_Actors[actorId].bFailedEnterVehicle = true;
-			}
-			else
+			if(pVehicle)
 			{
-				Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,false);
-				WarpIntoVehicle(actorId,m_Actors[actorId].vehicleId, m_Actors[actorId].iSeatid);
-				
-				g_pVehicleManager->Get(vehicleId)->SetPosition(vecPos);
+				// Apply coords
+				m_Actors[actorId].vecDriveFinalPos = vecFinalPos;
+				pVehicle->GetPosition(vecPos);
+				m_Actors[actorId].vecDrivePos = vecPos;
+				m_Actors[actorId].vehicleId = vehicleId;
 
-				g_pVehicleManager->Get(vehicleId)->GetRotation(vecRot);
-				g_pVehicleManager->Get(vehicleId)->SetRotation(vecRot);
-
-				unsigned int uiVehicle = g_pVehicleManager->Get(vehicleId)->GetScriptingHandle();
-				unsigned int uiPlayer = m_Actors[actorId].uiActorIndex;
-				float pX = vecFinalPos.fX;
-				float pY = vecFinalPos.fY;
-				float pZ = vecFinalPos.fZ;
-				DWORD dwFunc = (CGame::GetBase() + 0xB87200);
-				float f1 = 5.0;
-				float f2 = 10.0;
-				/*(signed int a1, signed int a2, float a3, float a4, int a5, int a6, int a7, int a8, int a9, float a10, int a11, char a12)*/
-				_asm
+				if(pVehicle->IsSpawned())
 				{
-					push 0
-					push 1
-					push f1
-					push 0
-					push 0
-					push 0
-					push f2
-					push pZ
-					push pY
-					push pX
-					push uiVehicle
-					push uiPlayer
-					call dwFunc
+					Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex,false);
+					WarpIntoVehicle(actorId,m_Actors[actorId].vehicleId, m_Actors[actorId].iSeatid);
+				
+					pVehicle->SetPosition(vecPos);
+
+					pVehicle->GetRotation(vecRot);
+					pVehicle->SetRotation(vecRot);
+
+					unsigned int uiVehicle = pVehicle->GetScriptingHandle();
+					unsigned int uiPlayer = m_Actors[actorId].uiActorIndex;
+					float pX = vecFinalPos.fX;
+					float pY = vecFinalPos.fY;
+					float pZ = vecFinalPos.fZ;
+					DWORD dwFunc = (CGame::GetBase() + 0xB87200);
+					float f1 = 5.0;
+					float f2 = 10.0;
+					/*(signed int a1, signed int a2, float a3, float a4, int a5, int a6, int a7, int a8, int a9, float a10, int a11, char a12)*/
+					_asm
+					{
+						push 0
+						push 1
+						push f1
+						push 0
+						push 0
+						push 0
+						push f2
+						push pZ
+						push pY
+						push pX
+						push uiVehicle
+						push uiPlayer
+						call dwFunc
+					}
+					//Scripting::TaskCarDriveToCoord(m_Actors[actorId].uiActorIndex,g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),vecFinalPos.fX,vecFinalPos.fY,vecFinalPos.fZ, 10.0f, 0, 0, 0, 5.0f, -1);
+					m_Actors[actorId].bRender = true;
 				}
-				//Scripting::TaskCarDriveToCoord(m_Actors[actorId].uiActorIndex,g_pVehicleManager->Get(vehicleId)->GetScriptingHandle(),vecFinalPos.fX,vecFinalPos.fY,vecFinalPos.fZ, 10.0f, 0, 0, 0, 5.0f, -1);
-				m_Actors[actorId].bRender = true;
+				else
+					m_Actors[actorId].bFailedEnterVehicle = true;
 			}
 		}
 		else
 			m_Actors[actorId].bRender = false;
 	}
 }
-
-CBitStream		bsSend;
 
 void CActorManager::Process()
 {
@@ -379,6 +385,8 @@ void CActorManager::Process()
 	{
 		if(CGame::IsFocused())
 		{
+			CBitStream bsSend;
+
 			for(EntityId i = 0; i < MAX_ACTORS; i++)
 			{
 				if(m_bActive[i] && m_Actors[i].bRender)
@@ -386,15 +394,18 @@ void CActorManager::Process()
 					bsSend.Reset();
 
 					bsSend.Write(i);
-					g_pNetworkManager->RPC(RPC_RequestActorUpdate, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+					g_pClient->GetNetworkManager()->RPC(RPC_RequestActorUpdate, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 				}
 			}
 		}
 	}
+
 	if(bMenuFocused)
 	{
 		if(!CGame::IsMenuActive())
 		{
+			CBitStream bsSend;
+
 			for(EntityId i = 0; i < MAX_ACTORS; i++)
 			{
 				if(m_bActive[i] && m_Actors[i].bRender)
@@ -402,7 +413,7 @@ void CActorManager::Process()
 					bsSend.Reset();
 
 					bsSend.Write(i);
-					g_pNetworkManager->RPC(RPC_RequestActorUpdate, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+					g_pClient->GetNetworkManager()->RPC(RPC_RequestActorUpdate, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 				}
 			}
 		}
@@ -415,18 +426,10 @@ void CActorManager::Process()
 	{
 		if(m_bActive[i] && m_Actors[i].bRender)
 		{
-			if(g_pVehicleManager->Exists(m_Actors[i].vehicleId))
+			CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(m_Actors[i].vehicleId);
+
+			if(pVehicle && pVehicle->IsSpawned())
 			{
-				// Reset stuff
-				bsSend.Reset();
-
-				CNetworkVehicle * pVehicle = g_pVehicleManager->Get(m_Actors[i].vehicleId);
-				if(!pVehicle)
-					return;
-
-				if(!pVehicle->IsSpawned() || !pVehicle->IsStreamedIn())
-					return;
-
 				ActorSyncData actorSync;
 				actorSync.actorId = i;
 				actorSync.vehicleId = m_Actors[i].vehicleId;
@@ -438,23 +441,25 @@ void CActorManager::Process()
 				else
 					actorSync.bDriving = false;
 
+				CBitStream bsSend;
 				bsSend.Write((char *)&actorSync, sizeof(ActorSyncData));
-				g_pNetworkManager->RPC(RPC_SyncActor, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+				g_pClient->GetNetworkManager()->RPC(RPC_SyncActor, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 			}
 			else
 			{
-				// Reset stuff
-				bsSend.Reset();
 				ActorSyncData actorSync;
-
 				actorSync.bDriving = false;
+
+				CBitStream bsSend;
 				bsSend.Write((char *)&actorSync, sizeof(ActorSyncData));
-				g_pNetworkManager->RPC(RPC_SyncActor, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+				g_pClient->GetNetworkManager()->RPC(RPC_SyncActor, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 			}
 		}
 		else if(m_bActive[i] && m_Actors[i].bFailedEnterVehicle)
 		{
-			if(g_pVehicleManager->Exists(m_Actors[i].vehicleId) && g_pVehicleManager->Get(m_Actors[i].vehicleId)->IsSpawned() && g_pVehicleManager->Get(m_Actors[i].vehicleId)->IsStreamedIn())
+			CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(m_Actors[i].vehicleId);
+
+			if(pVehicle && pVehicle->IsSpawned())
 			{
 				m_Actors[i].bFailedEnterVehicle = false;
 				DriveToPoint(i, m_Actors[i].vehicleId, m_Actors[i].vecDrivePos, CVector3(), m_Actors[i].vecDriveFinalPos, true);

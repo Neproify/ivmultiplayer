@@ -12,7 +12,6 @@
 #include "CGUI.h"
 #include <Common.h>
 
-extern CGUI * g_pGUI;
 //extern CD3D9WebKit * g_pWebkit;
 
 CClientScriptGUIManager::CClientScriptGUIManager()

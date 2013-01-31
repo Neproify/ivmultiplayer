@@ -12,39 +12,17 @@
 //==============================================================================
 
 #include "CLocalPlayer.h"
-#include "CPlayerManager.h"
-#include "CNetworkManager.h"
-#include "CVehicleManager.h"
-#include "CStreamer.h"
-#include "CChatWindow.h"
-#include "CInputWindow.h"
+#include "CClient.h"
 #include "KeySync.h"
 #include "Patcher/CPatcher.h"
 #include "CCutsceneInteriors.h"
 #include "COffsets.h"
-#include "CCamera.h"
-#include "CClientScriptManager.h"
-#include "CFireManager.h"
-#include "CFileTransferManager.h"
-#include "CCamera.h"
 
-extern CNetworkManager		* g_pNetworkManager;
-extern CPlayerManager		* g_pPlayerManager;
-extern CVehicleManager		* g_pVehicleManager;
-extern CStreamer			* g_pStreamer;
-extern CChatWindow			* g_pChatWindow;
-extern CInputWindow			* g_pInputWindow;
-extern CCamera				* g_pCamera;
+extern CClient * g_pClient;
 extern bool					m_bControlsDisabled;
-extern CClientScriptManager * g_pClientScriptManager;
-extern CFireManager			* g_pFireManager;
-extern CFileTransferManager * g_pFileTransfer;
 
 void * pAddress = NULL;
 void * pReturnAddress = NULL;
-
-extern CLocalPlayer * g_pLocalPlayer;
-extern CCamera * g_pCamera;
 
 void GetLocalPlayerSpawnPosition(int, CVector3 * vecSpawnPosition, float * fAngle)
 {
@@ -54,10 +32,10 @@ void GetLocalPlayerSpawnPosition(int, CVector3 * vecSpawnPosition, float * fAngl
 	}
 
 	// Get the saved spawn position
-	g_pLocalPlayer->GetSpawnPosition(vecSpawnPosition);
+	g_pClient->GetLocalPlayer()->GetSpawnPosition(vecSpawnPosition);
 
 	// Get the desired angle
-	*fAngle = g_pLocalPlayer->GetSpawnRotation();
+	*fAngle = g_pClient->GetLocalPlayer()->GetSpawnRotation();
 
 	_asm
 	{
@@ -74,7 +52,7 @@ void __declspec(naked) HandleLocalPlayerSpawn()
 		pushad
 	}
 
-	g_pLocalPlayer->HandleSpawn();
+	g_pClient->GetLocalPlayer()->HandleSpawn();
 
 	_asm
 	{
@@ -122,12 +100,12 @@ void CLocalPlayer::HandleSpawn()
 
 	// If we're already spawned(min. one time death), recreate fire(deleted after respawn)
 	if(m_bFirstSpawn)
-		g_pFireManager->ReCreateAllFire();
+		g_pClient->GetFireManager()->ReCreateAllFire();
 
 	CLogFile::Printf("HandleSpawn(LocalPlayer)");
 
 	// Enable input if needed
-	if(!g_pInputWindow->IsEnabled() && !m_bControlsDisabled)
+	if(!g_pClient->GetInputWindow()->IsEnabled() && !m_bControlsDisabled)
 		CGame::SetInputState(true);
 
 	CLogFile::Printf("Reset vehicle entry/exit flags");
@@ -152,13 +130,13 @@ void CLocalPlayer::HandleSpawn()
 
 	CLogFile::Printf("Reset the camera");
 	// Reset the camera
-	g_pCamera->Reset();
+	g_pClient->GetCamera()->Reset();
 
 	if(m_bFinishedInitialize && m_bFirstSpawn && m_bSpawnMarked) {
 		// Send the spawn notification to the server
 		CBitStream bsSend;
 		bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
-		g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+		g_pClient->GetNetworkManager()->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 	}
 	else
 	{
@@ -193,7 +171,7 @@ void CLocalPlayer::DoDeathCheck()
 		bsSend.WriteCompressed(playerId);
 		bsSend.WriteCompressed(vehicleId);
 		bsSend.WriteCompressed(weaponId);
-		g_pNetworkManager->RPC(RPC_Death, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
+		g_pClient->GetNetworkManager()->RPC(RPC_Death, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 
 		// Mark ourselves as dead
 		m_bIsDead = true;
@@ -207,24 +185,29 @@ void CLocalPlayer::Pulse()
 {
 	CNetworkPlayer::Pulse();
 
-	if(g_pFileTransfer && g_pNetworkManager)
+	CFileTransferManager * pFileTransferManager = g_pClient->GetFileTransfer();
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+	if(pFileTransferManager && pNetworkManager)
 	{
-		if(g_pFileTransfer->IsComplete() && !m_bFinishedInitialize)
+		if(pFileTransferManager->IsComplete() && !m_bFinishedInitialize)
 		{
 			m_bFinishedInitialize = true;
 
-			g_pNetworkManager->RPC(RPC_PlayerJoinComplete, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+			pNetworkManager->RPC(RPC_PlayerJoinComplete, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 			CLogFile::Print("HandleLocalPlayerSpawn(#1, send join notification to the server)");
-			if(!m_bSpawnMarked) {
+
+			if(!m_bSpawnMarked)
+			{
 				CLogFile::Print("HandleLocalPlayerSpawn(#2, loading scripts)");
-				g_pClientScriptManager->LoadAll();
+				g_pClient->GetClientScriptManager()->LoadAll();
 				m_bFirstSpawn = true;
 
 				// Send the spawn notification to the server
 				// NOTE: don't call it there, we're using HandleSpawn function .. ;)
 				//CBitStream bsSend;
 				//bsSend.Write(ModelHashToSkinId(GetModelInfo()->GetHash()));
-				//g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+				//pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 					
 				CLogFile::Print("HandleLocalPlayerSpawn(#3, spawn player)");
 
@@ -239,7 +222,7 @@ void CLocalPlayer::Pulse()
 		}
 	}
 
-	if(g_pNetworkManager->IsConnected())
+	if(g_pClient->GetNetworkManager()->IsConnected())
 	{
 		if(IsSpawned())
 		{
@@ -296,7 +279,7 @@ void CLocalPlayer::Pulse()
 					CCutsceneInteriors::Update(m_uiLastInterior);
 
 					// Update all interiors
-					g_pStreamer->UpdateInterior(m_uiLastInterior);
+					g_pClient->GetStreamer()->UpdateInterior(m_uiLastInterior);
 				}
 			}
 		}
@@ -371,7 +354,7 @@ void CLocalPlayer::SendOnFootSync()
 		bsSend.Write0();
 	}
 
-	g_pNetworkManager->RPC(RPC_OnFootSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+	g_pClient->GetNetworkManager()->RPC(RPC_OnFootSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
 	// jenksta: this doesn't need to be sent every update, should be sent every x 
 	// amount of time, fix it
@@ -379,11 +362,11 @@ void CLocalPlayer::SendOnFootSync()
 	if(CGame::GetHeadMovement() && IsSpawned()) 
 	{
 		CVector3 vecLookAt; 
-		g_pCamera->GetLookAt(vecLookAt);
+		g_pClient->GetCamera()->GetLookAt(vecLookAt);
 
 		CBitStream bsSend;
 		bsSend.Write(vecLookAt);
-		g_pNetworkManager->RPC(RPC_HeadMovement, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+		g_pClient->GetNetworkManager()->RPC(RPC_HeadMovement, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 	}
 }
 
@@ -512,7 +495,7 @@ void CLocalPlayer::SendInVehicleSync()
 			bsSend.Write0();
 		}
 
-		g_pNetworkManager->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+		g_pClient->GetNetworkManager()->RPC(RPC_InVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 
 		// jenksta: this is completely wrong, fix/remove it
 		// Check if our car is dead(exploded or in water)
@@ -520,7 +503,7 @@ void CLocalPlayer::SendInVehicleSync()
 		{
 			CBitStream bsDeath;
 			bsDeath.Write(pVehicle->GetVehicleId());
-			g_pNetworkManager->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
+			g_pClient->GetNetworkManager()->RPC(RPC_ScriptingVehicleDeath, &bsDeath, PRIORITY_HIGH, RELIABILITY_UNRELIABLE_SEQUENCED);
 		}
 	}
 }
@@ -579,7 +562,7 @@ void CLocalPlayer::SendPassengerSync()
 			bsSend.Write0();
 		}
 
-		g_pNetworkManager->RPC(RPC_PassengerSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+		g_pClient->GetNetworkManager()->RPC(RPC_PassengerSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 	}
 }
 
@@ -623,7 +606,7 @@ void CLocalPlayer::SendSmallSync()
 		bsSend.Write0();
 	}
 
-	g_pNetworkManager->RPC(RPC_SmallSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
+	g_pClient->GetNetworkManager()->RPC(RPC_SmallSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 }
 
 bool CLocalPlayer::IsPureSyncNeeded()
@@ -661,7 +644,7 @@ bool CLocalPlayer::IsSmallSyncNeeded()
 
 unsigned short CLocalPlayer::GetPing()
 {
-	return (unsigned short)g_pNetworkManager->GetNetClient()->GetLastPing();
+	return (unsigned short)g_pClient->GetNetworkManager()->GetNetClient()->GetLastPing();
 }
 
 void CLocalPlayer::SetControl(bool control)
@@ -688,57 +671,52 @@ void CLocalPlayer::SetAnimation(const char * strGroup, const char * strAnim)
 // TODO: or just sync nearest vehicle?
 void CLocalPlayer::SendEmptyVehicleSync()
 {
-	EMPTYVEHICLESYNCPACKET syncPacket;
+	/*EMPTYVEHICLESYNCPACKET syncPacket;
 	CBitStream bsSend;
 	int uiOccupants = 0;
 
-	if(IsSpawned() && g_pVehicleManager && g_pNetworkManager->IsConnected())
-	{
-		for(EntityId iD = 0; iD < g_pVehicleManager->GetCount(); iD++)
-		{
-			if(g_pVehicleManager->Exists(iD))
-			{
-				if(g_pVehicleManager->Get(iD)->IsSpawned() && g_pVehicleManager->Get(iD)->IsStreamedIn())
-				{
-					// Reset stuff
-					uiOccupants = 0;
-					bsSend.Reset();
+	// Get our vehicle manager
+	CVehicleManager * pVehicleManager = g_pClient->GetVehicleManager();
 
-					for(BYTE i = 0; i < g_pVehicleManager->Get(iD)->GetMaxPassengers(); i++)
+	if(IsSpawned() && pVehicleManager && g_pClient->GetNetworkManager()->IsConnected())
+	{
+		for(EntityId i = 0; i < MAX_VEHICLES; i++)
+		{
+			CNetworkVehicle * pVehicle = pVehicleManager->Get(i);
+
+			if(pVehicle && pVehicle->IsSpawned())
+			{
+				if(!pVehicle->IsOccupied())
+				{
+					if(pVehicle->StoreEmptySync(&syncPacket))
 					{
-						// Does this passenger seat contain a passenger?
-						if(g_pVehicleManager->Get(iD)->GetPassenger(i))
-						{
-							uiOccupants = 1;
-							break;
-						}
-					}
-					if(uiOccupants == 0)
-					{
-						if(g_pVehicleManager->Get(iD)->StoreEmptySync(&syncPacket)) {
-			
-							bsSend.Write((char *)&syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
-							g_pNetworkManager->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
-						}
+						bsSend.Write((char *)&syncPacket,sizeof(EMPTYVEHICLESYNCPACKET));
+						g_pClient->GetNetworkManager()->RPC(RPC_EmptyVehicleSync, &bsSend, PRIORITY_LOW, RELIABILITY_UNRELIABLE_SEQUENCED);
 					}
 				}
 			}
 		}
-	}
+	}*/
 }
 			
 bool CLocalPlayer::IsCameraAttachedToEntity(unsigned int uiHandle)
 {
-	if(IsSpawned() && g_pCamera)
+	// Get our camera
+	CCamera * pCamera = g_pClient->GetCamera();
+
+	if(IsSpawned() && pCamera)
 	{
-		if(g_pCamera->IsCameraAttached() > 0) {
-			if(g_pCamera->GetCameraAttachedHandle() == uiHandle)
+		if(pCamera->IsCameraAttached() > 0)
+		{
+			if(pCamera->GetCameraAttachedHandle() == uiHandle)
 				return true;
 			else
 				return false;
 		}
+
 		return false;
 	}
+
 	return false;
 }
 

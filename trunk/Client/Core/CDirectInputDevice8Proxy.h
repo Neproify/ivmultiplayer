@@ -11,7 +11,7 @@
 
 #define DIRECTINPUT_VERSION 0x0800
 
-#include "DXSDK/Include/dinput.h"
+#include <DXSDK/Include/dinput.h>
 
 enum eDIDeviceType
 {

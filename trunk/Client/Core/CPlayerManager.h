@@ -11,10 +11,7 @@
 #pragma once
 
 #include "CNetworkPlayer.h"
-#include "CLocalPlayer.h"
 #include "CIVPed.h"
-
-extern CLocalPlayer * g_pLocalPlayer;
 
 DWORD SkinIdToModelHash(int modelid);
 int ModelHashToSkinId(DWORD modelhash);

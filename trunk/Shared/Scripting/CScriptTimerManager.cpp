@@ -11,7 +11,19 @@
 
 #include "CScriptTimerManager.h"
 
-CScriptTimerManager * g_pScriptTimerManager = NULL;
+CScriptTimerManager * CScriptTimerManager::m_pInstance = NULL;
+
+CScriptTimerManager::CScriptTimerManager()
+{
+	// Set our instance
+	m_pInstance = this;
+}
+
+CScriptTimerManager::~CScriptTimerManager()
+{
+	// Reset our instance
+	m_pInstance = NULL;
+}
 
 void CScriptTimerManager::Pulse()
 {

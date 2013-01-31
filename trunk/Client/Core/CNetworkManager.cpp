@@ -9,36 +9,15 @@
 //==============================================================================
 
 #include "CNetworkManager.h"
-#include "CChatWindow.h"
-#include "CPlayerManager.h"
-#include "CVehicleManager.h"
-#include "CObjectManager.h"
-#include "CBlipManager.h"
+#include "CClient.h"
 #include "CActorManager.h"
-#include "CCheckpointManager.h"
-#include "CLocalPlayer.h"
-#include "CStreamer.h"
-#include "Scripting/CScriptTimerManager.h"
 #include <Network/CNetworkModule.h>
-#include "CFileTransferManager.h"
 #include "CAudio.h"
-#include "CActorManager.h"
 #include <Network/PacketIdentifiers.h>
 
-extern String                 g_strNick;
-extern CLocalPlayer         * g_pLocalPlayer;
-extern CChatWindow          * g_pChatWindow;
-extern CPlayerManager       * g_pPlayerManager;
-extern CVehicleManager      * g_pVehicleManager;
-extern CObjectManager       * g_pObjectManager;
-extern CBlipManager         * g_pBlipManager;
-extern CActorManager        * g_pActorManager;
-extern CCheckpointManager   * g_pCheckpointManager;
-extern CStreamer            * g_pStreamer;
-extern CScriptTimerManager  * g_pScriptTimerManager;
-extern CNetworkManager      * g_pNetworkManager;
-extern CFileTransferManager * g_pFileTransfer;
-extern CActorManager        * g_pActorManager;
+extern CClient * g_pClient;
+
+CNetworkManager * CNetworkManager::m_pInstance = NULL;
 
 CNetworkManager::CNetworkManager()
 	: m_pNetClient(CNetworkModule::GetNetClientInterface()),
@@ -47,12 +26,15 @@ CNetworkManager::CNetworkManager()
 	m_bJoinedServer(false),
 	m_bJoinedGame(false)
 {
+	// Set our instance
+	m_pInstance = this;
+
 	// Set the default host name
 	m_sHostName.Set("IV:MP");
 
 	// Set the net client packet handler function
 	m_pNetClient->SetPacketHandler(PacketHandler);
-	g_pChatWindow->AddInfoMessage(VERSION_IDENTIFIER_2 " Initialized");
+	g_pClient->GetChatWindow()->AddInfoMessage(VERSION_IDENTIFIER_2 " Initialized");
 }
 
 CNetworkManager::~CNetworkManager()
@@ -74,6 +56,9 @@ CNetworkManager::~CNetworkManager()
 
 	// Destroy the net client instance
 	CNetworkModule::DestroyNetClientInterface(m_pNetClient);
+
+	// Reset our instance
+	m_pInstance = NULL;
 }
 
 void CNetworkManager::Startup(String strHost, unsigned short usPort, String strPassword)
@@ -99,16 +84,15 @@ void CNetworkManager::Startup(String strHost, unsigned short usPort, String strP
 
 void CNetworkManager::PacketHandler(CPacket * pPacket)
 {
-	// Get the network manager pointer
-	CNetworkManager * pNetworkManager = g_pNetworkManager;
+	CNetworkManager * pInstance = GetInstance();
 
-	if(!g_pNetworkManager)
+	if(!pInstance)
 		return;
 
 	// Pass it to the packet handler, if that doesn't handle it, pass it to the rpc handler
-	if(!pNetworkManager->m_pClientPacketHandler->HandlePacket(pPacket) && !pNetworkManager->m_pClientRPCHandler->HandlePacket(pPacket)) 
+	if(!pInstance->m_pClientPacketHandler->HandlePacket(pPacket) && !pInstance->m_pClientRPCHandler->HandlePacket(pPacket)) 
 	{
-		if(g_pChatWindow)
+		if(g_pClient->GetChatWindow())
 		{
 			if(pPacket->packetId == PACKET_RPC)
 			{
@@ -118,31 +102,37 @@ void CNetworkManager::PacketHandler(CPacket * pPacket)
 
 				// Read the rpc id
 				if(bitStream.Read(rpcId))
-					g_pChatWindow->AddNetworkMessage("[NETWORK] Unhandled RPC (Type: %d)", rpcId);
+					g_pClient->GetChatWindow()->AddNetworkMessage("[NETWORK] Unhandled RPC (Type: %d)", rpcId);
 			}
 			else
-				g_pChatWindow->AddNetworkMessage("[NETWORK] Unhandled packet (Type: %d)", pPacket->packetId);
+				g_pClient->GetChatWindow()->AddNetworkMessage("[NETWORK] Unhandled packet (Type: %d)", pPacket->packetId);
 		} 
 	}
 }
 
 void CNetworkManager::Process()
 {
+	// Get our file transfer manager
+	CFileTransferManager * pFileTransferManager = g_pClient->GetFileTransfer();
+
 	// If our file transfer class exists process it
-	if(g_pFileTransfer)
-		g_pFileTransfer->Process();
+	if(pFileTransferManager)
+		pFileTransferManager->Process();
 
 	// Have we joined a server and not joined a game yet?
 	if(m_bJoinedServer && !m_bJoinedGame)
 	{
+		// Get our local player
+		CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
 		// Is the file transfer list empty?
-		if(g_pFileTransfer->IsComplete() && g_pLocalPlayer->IsConnectFinished())
+		if(pFileTransferManager->IsComplete() && pLocalPlayer->IsConnectFinished())
 		{
 			// Flag ourselves as joined a game
 			m_bJoinedGame = true;
 
 			// Respawn the local player
-			g_pLocalPlayer->Respawn();
+			pLocalPlayer->Respawn();
 		}
 	}
 
@@ -156,34 +146,51 @@ void CNetworkManager::Process()
 	if(m_pNetClient->IsConnected())
 	{
 		// If our streamer exists, process it
-		if(g_pStreamer)
-			g_pStreamer->Pulse();
+		CStreamer * pStreamer = g_pClient->GetStreamer();
+
+		if(pStreamer)
+			pStreamer->Pulse();
 
 		// Is our script timer manager exists, process it
-		if(g_pScriptTimerManager)
-			g_pScriptTimerManager->Pulse();
+		CScriptTimerManager * pScriptTimerManager = g_pClient->GetClientScriptManager()->GetScriptTimerManager();
+		if(pScriptTimerManager)
+			pScriptTimerManager->Pulse();
 
 		// If our player manager exists process it
-		if(g_pPlayerManager)
-			g_pPlayerManager->Pulse();
+		CPlayerManager * pPlayerManager = g_pClient->GetPlayerManager();
+
+		if(pPlayerManager)
+			pPlayerManager->Pulse();
 
 		// If our vehicle manager exists process it
-		if(g_pVehicleManager)
-			g_pVehicleManager->Pulse();
+		CVehicleManager * pVehicleManager = g_pClient->GetVehicleManager();
+
+		if(pVehicleManager)
+			pVehicleManager->Pulse();
 
 		// If our checkpoint manager exists process it
-		if(g_pCheckpointManager)
-			g_pCheckpointManager->Pulse();
+		CCheckpointManager * pCheckpointManager = g_pClient->GetCheckpointManager();
+
+		if(pCheckpointManager)
+			pCheckpointManager->Pulse();
 
 		// If our object manager exists process it
-		if(g_pObjectManager)
-			g_pObjectManager->Process();
+		CObjectManager * pObjectManager = g_pClient->GetObjectManager();
+
+		if(pObjectManager)
+			pObjectManager->Process();
 
 		// Process the audio manager
-		CAudioManager::Process();
+		CAudioManager * pAudioManager = g_pClient->GetAudioManager();
+
+		if(pAudioManager)
+			pAudioManager->Process();
 
 		// Process the actor manager
-		g_pActorManager->Process();
+		CActorManager * pActorManager = g_pClient->GetActorManager();
+
+		if(pActorManager)
+			pActorManager->Process();
 	}
 }
 
@@ -198,25 +205,25 @@ void CNetworkManager::Connect()
 		switch(connectionAttemptResult)
 		{
 		case CONNECTION_ATTEMPT_STARTED:
-			g_pChatWindow->AddInfoMessage("Establishing connection to %s:%d...", m_pNetClient->GetHost(), m_pNetClient->GetPort());
+			g_pClient->GetChatWindow()->AddInfoMessage("Establishing connection to %s:%d...", m_pNetClient->GetHost(), m_pNetClient->GetPort());
 			break;
 		case INVALID_PARAMETER:
-			g_pChatWindow->AddInfoMessage("Connection failed! (Invalid Parameter(Different Client-Server version))");
+			g_pClient->GetChatWindow()->AddInfoMessage("Connection failed! (Invalid Parameter(Different Client-Server version))");
 			break;
 		case CANNOT_RESOLVE_DOMAIN_NAME:
-			g_pChatWindow->AddInfoMessage("Connection failed! (Cannot Resolve Domain Name)");
+			g_pClient->GetChatWindow()->AddInfoMessage("Connection failed! (Cannot Resolve Domain Name)");
 			break;
 		case ALREADY_CONNECTED_TO_ENDPOINT:
-			g_pChatWindow->AddInfoMessage("Connection failed! (Already Connected To Endpoint)");
+			g_pClient->GetChatWindow()->AddInfoMessage("Connection failed! (Already Connected To Endpoint)");
 			break;
 		case CONNECTION_ATTEMPT_ALREADY_IN_PROGRESS:
-			g_pChatWindow->AddInfoMessage("Connection failed! (Connection Attempt Already In Progress)");
+			g_pClient->GetChatWindow()->AddInfoMessage("Connection failed! (Connection Attempt Already In Progress)");
 			break;
 		case SECURITY_INITIALIZATION_FAILED:
-			g_pChatWindow->AddInfoMessage("Connection failed! (Security Initialization Failed)");
+			g_pClient->GetChatWindow()->AddInfoMessage("Connection failed! (Security Initialization Failed)");
 			break;
 		case NO_HOST_SET:
-			g_pChatWindow->AddInfoMessage("Connection failed! (No Host Set)");
+			g_pClient->GetChatWindow()->AddInfoMessage("Connection failed! (No Host Set)");
 			break;
 		}
 	}
@@ -235,9 +242,8 @@ void CNetworkManager::Disconnect()
 		// Disconnect from the server
 		m_pNetClient->Disconnect();
 
-		// Delete and stop all Audio Client elements.
-		CAudioManager::SetAllVolume(0.0f);
-		CAudioManager::RemoveAll();
+		// Remove all audio
+		g_pClient->GetAudioManager()->RemoveAll();
 
 		// Flag ourselves as not joined a server or game
 		m_bJoinedServer = false;

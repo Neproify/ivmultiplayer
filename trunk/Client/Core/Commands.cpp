@@ -7,29 +7,19 @@
 //
 //==============================================================================
 
-#include "CInputWindow.h"
-#include "CChatWindow.h"
-#include "CNetworkManager.h"
-#include "CPlayerManager.h"
-#include "CVehicleManager.h"
-#include "CModelManager.h"
+#include "CClient.h"
 #include "SharedUtility.h"
-#include "CFPSCounter.h"
 
-extern CInputWindow * g_pInputWindow;
-extern CChatWindow * g_pChatWindow;
-extern CLocalPlayer * g_pLocalPlayer;
-extern CNetworkManager * g_pNetworkManager;
-extern CPlayerManager * g_pPlayerManager;
-extern CVehicleManager * g_pVehicleManager;
-extern CModelManager * g_pModelManager;
-extern CFPSCounter * g_pFPSCounter;
+extern CClient * g_pClient;
 
 void AddNetworkPlayer(char * szParams)
 {
+	// Get our player manager
+	CPlayerManager * pPlayerManager = g_pClient->GetPlayerManager();
+
 	EntityId playerId = -1;
 	for(EntityId i = 0; i < MAX_PLAYERS; i++) {
-		if(!g_pPlayerManager->DoesExist(i)) {
+		if(!pPlayerManager->DoesExist(i)) {
 			playerId = i;
 			break;
 		}
@@ -37,27 +27,29 @@ void AddNetworkPlayer(char * szParams)
 
 	if(playerId != -1) {
 		// Add the player to the player manager
-		g_pPlayerManager->Add(playerId, "IV:MP NetworkPlayer");
-		if(g_pPlayerManager->DoesExist(playerId)) {
-			CVector3 vecPos; g_pLocalPlayer->GetPosition(vecPos);
-			g_pPlayerManager->GetAt(playerId)->SetColor((unsigned int)0xFFFFFFAA);
-			g_pPlayerManager->GetAt(playerId)->SetPosition(vecPos);
-			g_pPlayerManager->GetAt(playerId)->SetModel(7);
-			g_pChatWindow->AddInfoMessage("Networkplayer Added");
+		pPlayerManager->Add(playerId, "IV:MP NetworkPlayer");
+		if(pPlayerManager->DoesExist(playerId)) {
+			CVector3 vecPos; g_pClient->GetLocalPlayer()->GetPosition(vecPos);
+			pPlayerManager->GetAt(playerId)->SetColor((unsigned int)0xFFFFFFAA);
+			pPlayerManager->GetAt(playerId)->SetPosition(vecPos);
+			pPlayerManager->GetAt(playerId)->SetModel(7);
+			g_pClient->GetChatWindow()->AddInfoMessage("Networkplayer Added");
 		}
 	}
 	else
-		g_pChatWindow->AddInfoMessage("Couldn't find free player slot..");
+		g_pClient->GetChatWindow()->AddInfoMessage("Couldn't find free player slot..");
 }
 
 void QuitCommand(char * szParams)
 {
 	// If we are connected to a server, disconnect
-	if(g_pNetworkManager && g_pNetworkManager->IsConnected())
-		g_pNetworkManager->Disconnect();
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+	if(pNetworkManager && pNetworkManager->IsConnected())
+		pNetworkManager->Disconnect();
 	
 	// Delete the network manager interface
-	SAFE_DELETE(g_pNetworkManager);
+	SAFE_DELETE(pNetworkManager);
 
 	// Exit
 	TerminateProcess(GetCurrentProcess(), 0);
@@ -65,20 +57,22 @@ void QuitCommand(char * szParams)
 
 void QuickQuitCommand(char * szParams)
 {
-	if(g_pNetworkManager)
-		g_pNetworkManager->Disconnect();
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+	if(pNetworkManager)
+		pNetworkManager->Disconnect();
 
 	TerminateProcess(GetCurrentProcess(), 0);
 }
 
 void GetPing(char * szParams)
 {
-	g_pChatWindow->AddInfoMessage("Your current [FFFFFFAA]Ping: [F60000FF]%d",g_pLocalPlayer->GetPing());
+	g_pClient->GetChatWindow()->AddInfoMessage("Your current [FFFFFFAA]Ping: [F60000FF]%d", g_pClient->GetLocalPlayer()->GetPing());
 }
 
 void GetFPS(char * szParams)
 {
-	g_pChatWindow->AddInfoMessage("Your current [FFFFFFAA]FPS: [F60000FF]%d",g_pFPSCounter->Get());
+	g_pClient->GetChatWindow()->AddInfoMessage("Your current [FFFFFFAA]FPS: [F60000FF]%d", g_pClient->GetFPSCounter()->Get());
 }
 
 void SavePosCommand(char * szParams)
@@ -86,15 +80,18 @@ void SavePosCommand(char * szParams)
 	FILE * file = fopen(SharedUtility::GetAbsolutePath("SavedData.txt"), "a");
 	if(!file)
 	{
-		g_pChatWindow->AddInfoMessage("Failed to open 'SavedData.txt'");
+		g_pClient->GetChatWindow()->AddInfoMessage("Failed to open 'SavedData.txt'");
 		return;
 	}
 
 	CVector3 vecPosition;
 
-	if(g_pLocalPlayer->IsInVehicle())
+	// Get our local player
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
+	if(pLocalPlayer->IsInVehicle())
 	{
-		CNetworkVehicle * pVehicle = g_pLocalPlayer->GetVehicle();
+		CNetworkVehicle * pVehicle = pLocalPlayer->GetVehicle();
 
 		if(pVehicle)
 		{
@@ -103,45 +100,44 @@ void SavePosCommand(char * szParams)
 			pVehicle->GetRotation(vecRotation);
 			BYTE byteColors[4];
 			pVehicle->GetColors(byteColors[0], byteColors[1], byteColors[2], byteColors[3]);
-			fprintf(file, "createVehicle(%d, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d);%s%s\n", g_pModelManager->ModelHashToVehicleId(pVehicle->GetModelInfo()->GetHash()), vecPosition.fX, vecPosition.fY, vecPosition.fZ, vecRotation.fX, vecRotation.fY, vecRotation.fZ, byteColors[0], byteColors[1], byteColors[2], byteColors[3], szParams ? " // " : "", szParams ? szParams : "");
+			fprintf(file, "createVehicle(%d, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d);%s%s\n", g_pClient->GetModelManager()->ModelHashToVehicleId(pVehicle->GetModelInfo()->GetHash()), vecPosition.fX, vecPosition.fY, vecPosition.fZ, vecRotation.fX, vecRotation.fY, vecRotation.fZ, byteColors[0], byteColors[1], byteColors[2], byteColors[3], szParams ? " // " : "", szParams ? szParams : "");
 		}
 	}
 	else
 	{
-		g_pLocalPlayer->GetPosition(vecPosition);
-		int iModelId = ModelHashToSkinId(g_pLocalPlayer->GetModelInfo()->GetHash());
-		fprintf(file, "PlayerData(%d, %f, %f, %f, %f(%f));%s%s\n", iModelId, vecPosition.fX, vecPosition.fY, vecPosition.fZ, g_pLocalPlayer->GetCurrentHeading(), g_pLocalPlayer->GetDesiredHeading(),szParams ? " // " : "", szParams ? szParams : "");
+		pLocalPlayer->GetPosition(vecPosition);
+		int iModelId = ModelHashToSkinId(pLocalPlayer->GetModelInfo()->GetHash());
+		fprintf(file, "PlayerData(%d, %f, %f, %f, %f(%f));%s%s\n", iModelId, vecPosition.fX, vecPosition.fY, vecPosition.fZ, pLocalPlayer->GetCurrentHeading(), pLocalPlayer->GetDesiredHeading(),szParams ? " // " : "", szParams ? szParams : "");
 	}
 
 	fclose(file);
-	g_pChatWindow->AddInfoMessage("Position data saved to 'SavedData.txt'");
+	g_pClient->GetChatWindow()->AddInfoMessage("Position data saved to 'SavedData.txt'");
 }
 
 void DisableVehicleInfos(char * szParams)
 {
-	bool bState = g_pLocalPlayer->GetVehicleInfos();
-	
-	if(bState)
-		g_pLocalPlayer->SetVehicleInfos(false);
-	else
-		g_pLocalPlayer->SetVehicleInfos(true);
+	// Get our local player
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+	pLocalPlayer->SetVehicleInfos(!pLocalPlayer->GetVehicleInfos());
 }
 #ifdef DEBUG_COMMANDS_ENABLED
-DWORD SkinIdToModelHash(int modelid);
 
 void AddPlayerCommand(char * szParams)
 {
+	// Get our player manager
+	CPlayerManager * pPlayerManager = g_pClient->GetPlayerManager();
+
 	int playerId = 0;
 	sscanf(szParams, "%d", &playerId);
-	g_pPlayerManager->Add(playerId, "jenkstax");
-	g_pPlayerManager->Spawn(playerId, 35, CVector3(-341.36f, 1144.80f, 14.79f), 40.114815f);
+	pPlayerManager->Add(playerId, "jenkstax");
+	pPlayerManager->Spawn(playerId, 35, CVector3(-341.36f, 1144.80f, 14.79f), 40.114815f);
 }
 
 void DeletePlayerCommand(char * szParams)
 {
 	int playerId = 0;
 	sscanf(szParams, "%d", &playerId);
-	g_pPlayerManager->Remove(playerId);
+	g_pClient->GetPlayerManager()->Remove(playerId);
 }
 
 /*void AddVehicleCommand(char * szParams)
@@ -275,12 +271,12 @@ void VehicleToMe(char * szParams)
 {
 	int vehicleId = 0;
 	sscanf(szParams, "%d", &vehicleId);
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
 		CVector3 vecPosition;
-		g_pLocalPlayer->GetPosition(&vecPosition);
+		g_pClient->GetLocalPlayer()->GetPosition(&vecPosition);
 		pVehicle->GetGameVehicle()->SetPosition(&vecPosition);
 		pVehicle->GetGameVehicle()->RemoveFromWorld();
 		pVehicle->GetGameVehicle()->AddToWorld();
@@ -290,27 +286,30 @@ void VehicleToMe(char * szParams)
 
 void RegisterCommands()
 {
-	g_pInputWindow->RegisterCommand("q", QuitCommand);
-	g_pInputWindow->RegisterCommand("quit", QuitCommand);
-	g_pInputWindow->RegisterCommand("qq", QuickQuitCommand);
-	g_pInputWindow->RegisterCommand("quickquit", QuickQuitCommand);
-	g_pInputWindow->RegisterCommand("savepos", SavePosCommand);
-	g_pInputWindow->RegisterCommand("ping", GetPing);
-	g_pInputWindow->RegisterCommand("fps", GetFPS);
-	g_pInputWindow->RegisterCommand("dvi", DisableVehicleInfos);
-	g_pInputWindow->RegisterCommand("anp", AddNetworkPlayer);
+	// Get our input window
+	CInputWindow * pInputWindow = g_pClient->GetInputWindow();
+
+	pInputWindow->RegisterCommand("q", QuitCommand);
+	pInputWindow->RegisterCommand("quit", QuitCommand);
+	pInputWindow->RegisterCommand("qq", QuickQuitCommand);
+	pInputWindow->RegisterCommand("quickquit", QuickQuitCommand);
+	pInputWindow->RegisterCommand("savepos", SavePosCommand);
+	pInputWindow->RegisterCommand("ping", GetPing);
+	pInputWindow->RegisterCommand("fps", GetFPS);
+	pInputWindow->RegisterCommand("dvi", DisableVehicleInfos);
+	pInputWindow->RegisterCommand("anp", AddNetworkPlayer);
 	#ifdef DEBUG_COMMANDS_ENABLED
-	g_pInputWindow->RegisterCommand("ap", AddPlayerCommand);
-	g_pInputWindow->RegisterCommand("dp", DeletePlayerCommand);
-	/*g_pInputWindow->RegisterCommand("av", AddVehicleCommand);
-	g_pInputWindow->RegisterCommand("dv", DeleteVehicleCommand);*/
-	/*g_pInputWindow->RegisterCommand("ppiv", PutPlayerInVehicle);
-	g_pInputWindow->RegisterCommand("pev", PlayerEnterVehicle);*/
-	/*g_pInputWindow->RegisterCommand("gpw", GivePlayerWeapon);
-	g_pInputWindow->RegisterCommand("ns", NetworkSettings);
-	g_pInputWindow->RegisterCommand("lde", LastDamageEntity);*/
-	/*g_pInputWindow->RegisterCommand("ape", AddPlayerEntity);
-	g_pInputWindow->RegisterCommand("rpe", RemovePlayerEntity);*/
-	g_pInputWindow->RegisterCommand("vtm", VehicleToMe);
+	pInputWindow->RegisterCommand("ap", AddPlayerCommand);
+	pInputWindow->RegisterCommand("dp", DeletePlayerCommand);
+	/*pInputWindow->RegisterCommand("av", AddVehicleCommand);
+	pInputWindow->RegisterCommand("dv", DeleteVehicleCommand);*/
+	/*pInputWindow->RegisterCommand("ppiv", PutPlayerInVehicle);
+	pInputWindow->RegisterCommand("pev", PlayerEnterVehicle);*/
+	/*pInputWindow->RegisterCommand("gpw", GivePlayerWeapon);
+	pInputWindow->RegisterCommand("ns", NetworkSettings);
+	pInputWindow->RegisterCommand("lde", LastDamageEntity);*/
+	/*pInputWindow->RegisterCommand("ape", AddPlayerEntity);
+	pInputWindow->RegisterCommand("rpe", RemovePlayerEntity);*/
+	pInputWindow->RegisterCommand("vtm", VehicleToMe);
 	#endif
 }

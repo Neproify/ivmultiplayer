@@ -17,6 +17,8 @@
 extern CNetworkManager * g_pNetworkManager;
 #endif
 
+CTrafficLights * CTrafficLights::m_pInstance;
+
 CTrafficLights::CTrafficLights()
 	: 	m_ulTimeSet(SharedUtility::GetTime()),
 	m_bIsLocked(false),
@@ -25,6 +27,14 @@ CTrafficLights::CTrafficLights()
 	m_uiYellowDuration(DEFAULT_YELLOW_DURATION),
 	m_uiRedDuration(DEFAULT_RED_DURATION)
 {
+	// Set our instance
+	m_pInstance = this;
+}
+
+CTrafficLights::~CTrafficLights()
+{
+	// Reset our instance
+	m_pInstance = NULL;
 }
 
 void CTrafficLights::Reset()
@@ -36,10 +46,6 @@ void CTrafficLights::Reset()
 	m_uiYellowDuration = DEFAULT_YELLOW_DURATION;
 	m_uiRedDuration = DEFAULT_RED_DURATION;
 	CalculateCycleTime();
-}
-
-CTrafficLights::~CTrafficLights()
-{
 }
 
 bool CTrafficLights::SetState(eTrafficLightState state)

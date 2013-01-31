@@ -14,8 +14,6 @@
 #include "../CScriptingManager.h"
 #include "CEvents.h"
 
-extern CEvents * g_pEvents;
-
 // Event functions
 
 void CEventNatives::Register(CScriptingManager * pScriptingManager)
@@ -33,7 +31,7 @@ SQInteger CEventNatives::Add(SQVM * pVM)
 	sq_getstring(pVM, 2, &szEventName);
 	pFunction = stack_get(pVM, 3);
 
-	sq_pushbool(pVM, g_pEvents->Add(szEventName, new CSquirrelEventHandler(pVM, pFunction)));
+	sq_pushbool(pVM, CEvents::GetInstance()->Add(szEventName, new CSquirrelEventHandler(pVM, pFunction)));
 	return 1;
 }
 
@@ -56,7 +54,7 @@ SQInteger CEventNatives::Call(SQVM * pVM)
 		pArguments.pushFromStack(pVM, i);
 
 	// Call the event
-	CSquirrelArgument pReturn = g_pEvents->Call(szEventName, &pArguments);
+	CSquirrelArgument pReturn = CEvents::GetInstance()->Call(szEventName, &pArguments);
 	pReturn.push(pVM);
 	return 1;
 }
@@ -69,6 +67,6 @@ SQInteger CEventNatives::Remove(SQVM * pVM)
 	sq_getstring(pVM, -2, &szEventName);
 	pFunction = stack_get(pVM, -1);
 
-	sq_pushbool(pVM, g_pEvents->Remove(szEventName, &CSquirrelEventHandler(pVM, pFunction)));
+	sq_pushbool(pVM, CEvents::GetInstance()->Remove(szEventName, &CSquirrelEventHandler(pVM, pFunction)));
 	return 1;
 }

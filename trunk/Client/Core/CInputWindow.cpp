@@ -10,22 +10,12 @@
 #include "CInputWindow.h"
 #include <CLogFile.h>
 #include "Scripting.h"
-#include "CNetworkManager.h"
-#include "CChatWindow.h"
-#include "CGUI.h"
+#include "CClient.h"
 #include "CDirectInput8Proxy.h"
-#include <Scripting\CScriptingManager.h>
-#include <CEvents.h>
 #include <CSettings.h>
-#include "CGraphics.h"
 
-extern CNetworkManager * g_pNetworkManager;
-extern CChatWindow * g_pChatWindow;
-extern CScriptingManager * g_pScriptingManager;
-extern CGUI * g_pGUI;
-extern CEvents * g_pEvents;
+extern CClient * g_pClient;
 extern bool m_bControlsDisabled;
-extern CGraphics * g_pGraphics;
 
 CInputWindow::CInputWindow()
 	: m_bEnabled(false),
@@ -36,16 +26,19 @@ CInputWindow::CInputWindow()
 	memset(m_szCurrent, 0, sizeof(m_szCurrent));
 	memset(m_szHistory, 0, sizeof(m_szHistory));
 
-	if(g_pGUI && g_pGUI->IsInitialized())
+	// Get our GUI
+	CGUI * pGUI = g_pClient->GetGUI();
+
+	if(pGUI && pGUI->IsInitialized())
 	{
-		m_pEditBox = g_pGUI->CreateGUIEditBox(g_pGUI->GetDefaultWindow());
+		m_pEditBox = pGUI->CreateGUIEditBox(pGUI->GetDefaultWindow());
 		m_pEditBox->setText("");
 		m_pEditBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0f, 75.0f), CEGUI::UDim(0.0f, ((20.0f * MAX_DISPLAYED_MESSAGES) + 30.0f))));
 		m_pEditBox->setSize(CEGUI::UVector2(CEGUI::UDim(0.25f, 0), CEGUI::UDim(0.03375f, 0)));
-		m_pEditBox->setFont(g_pGUI->GetFont(CVAR_GET_STRING("chatfont"),CVAR_GET_INTEGER("chatsize")));
+		m_pEditBox->setFont(pGUI->GetFont(CVAR_GET_STRING("chatfont"),CVAR_GET_INTEGER("chatsize")));
 		m_pEditBox->setVisible(false);
 
-		m_pEditBoxImage = g_pGUI->CreateGUIStaticImage(g_pGUI->GetDefaultWindow());
+		m_pEditBoxImage = pGUI->CreateGUIStaticImage(pGUI->GetDefaultWindow());
 		m_pEditBoxImage->setProperty("FrameEnabled", "false");
 		m_pEditBoxImage->setProperty("BackgroundEnabled", "false");
 		m_pEditBoxImage->setProperty("Image", "set:Chat image:full_image");
@@ -64,9 +57,12 @@ CInputWindow::~CInputWindow()
 
 void CInputWindow::Draw()
 {
-	if(m_bEnabled && g_pGUI)
+	// Get our GUI
+	CGUI * pGUI = g_pClient->GetGUI();
+
+	if(m_bEnabled && pGUI)
 	{
-		CEGUI::Font * pFont = g_pGUI->GetFont(CVAR_GET_STRING("chatfont"),CVAR_GET_INTEGER("chatsize"));
+		CEGUI::Font * pFont = pGUI->GetFont(CVAR_GET_STRING("chatfont"),CVAR_GET_INTEGER("chatsize"));
 		
 		if(pFont)
 		{
@@ -80,7 +76,7 @@ void CInputWindow::Draw()
 				usAlphaColor = CVAR_GET_INTEGER("chatbga") + 55;
 			m_ulChatLineBgColor = D3DCOLOR_ARGB(usAlphaColor,CVAR_GET_INTEGER("chatbgr"),
 												CVAR_GET_INTEGER("chatbgg"),CVAR_GET_INTEGER("chatbgb"));
-			g_pGraphics->DrawRect(5 , 35 + MAX_DISPLAYED_MESSAGES * 20 , 450 , 25 , m_ulChatLineBgColor);
+			g_pClient->GetGraphics()->DrawRect(5 , 35 + MAX_DISPLAYED_MESSAGES * 20 , 450 , 25 , m_ulChatLineBgColor);
 		}
 	}
 }
@@ -164,7 +160,7 @@ void CInputWindow::ProcessInput()
 			sprintf(m_szInput,"%s",GetChatBoxText().C_String());
 		else
 		{
-			g_pChatWindow->AddInfoMessage("INFO: Text input too long(Got %d(max. 128))",strlen(GetChatBoxText()));
+			g_pClient->GetChatWindow()->AddInfoMessage("INFO: Text input too long(Got %d(max. 128))",strlen(GetChatBoxText()));
 			return;
 		}
 		if(m_szInput[0] == COMMAND_CHAR)
@@ -201,21 +197,26 @@ void CInputWindow::ProcessInput()
 						}
 					}
 				}
+
 				// Check if we are connected
-				if(g_pNetworkManager && g_pNetworkManager->IsConnected())
+				CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+				if(pNetworkManager && pNetworkManager->IsConnected())
 				{
 					// Event for client-side commands
-					if(g_pEvents)
+					CEvents * pEvents = g_pClient->GetEvents();
+
+					if(pEvents)
 					{
 						CSquirrelArguments pArguments;
 						pArguments.push(szInput);
-						g_pEvents->Call("playerCommand", &pArguments);
+						pEvents->Call("playerCommand", &pArguments);
 					}
 
 					// Send the command to the server
 					CBitStream bsSend;
 					bsSend.Write(String(m_szInput));
-					g_pNetworkManager->RPC(RPC_Command, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+					pNetworkManager->RPC(RPC_Command, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 				}
 			}
 		}
@@ -223,11 +224,15 @@ void CInputWindow::ProcessInput()
 		{
 			// Add the text to the history
 			AddToHistory(m_szInput);
-			if(g_pNetworkManager && g_pNetworkManager->IsConnected())
+
+			CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+
+
+			if(pNetworkManager && pNetworkManager->IsConnected())
 			{
 				CBitStream bsSend;
 				bsSend.Write(String(m_szInput));
-				g_pNetworkManager->RPC(RPC_Chat, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
+				pNetworkManager->RPC(RPC_Chat, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE);
 			}
 		}
 
@@ -244,7 +249,7 @@ bool CInputWindow::IsEnabled()
 
 void CInputWindow::Enable()
 {
-	g_pGUI->SetCursorVisible(true);
+	g_pClient->GetGUI()->SetCursorVisible(true);
 	CGame::SetInputState(false);
 
 	// Disable it again
@@ -270,7 +275,7 @@ void CInputWindow::Disable()
 	m_pEditBox->setVisible(false);
 	m_pEditBoxImage->setVisible(false);
 	m_pEditBox->deactivate();
-	g_pGUI->SetCursorVisible(false);
+	g_pClient->GetGUI()->SetCursorVisible(false);
 
 	m_bEnabled = false;
 }
@@ -364,7 +369,11 @@ void CInputWindow::UnregisterCommand(char * szCommandName)
 void CInputWindow::ClearInput()
 {
 	memset(m_szInput, 0, sizeof(m_szInput));
-	if(m_pEditBox && g_pGUI && g_pGUI->IsInitialized())
+
+	// Get our GUI
+	CGUI * pGUI = g_pClient->GetGUI();
+
+	if(m_pEditBox && pGUI && pGUI->IsInitialized())
 		m_pEditBox->setText("");
 }
 

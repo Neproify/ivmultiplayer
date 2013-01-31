@@ -23,7 +23,7 @@
 extern CModuleManager * g_pModuleManager;
 #endif
 
-extern CEvents* g_pEvents;
+CScriptingManager * CScriptingManager::m_pInstance = NULL;
 
 #if 0
 #include <SharedUtility.h>
@@ -246,13 +246,13 @@ private:
 		tmp[len - offend] = '\0';
 
 		// TODO: Parse it and change the format of script error (e.g. onScriptError(filename, line, e.t.c.))
-		CSquirrel * pScript = g_pScriptingManager->Get(vm);
+		CSquirrel * pScript = CScriptingManager::GetInstance()->Get(vm);
 		if(pScript)
 		{
 			CSquirrelArguments pArguments;
 			pArguments.push(tmp);
 
-			if(g_pEvents->Call("scriptError", &pArguments, pScript).GetInteger() == 1)
+			if(g_pClient->GetEvents()->Call("scriptError", &pArguments, pScript).GetInteger() == 1)
 				CLogFile::Print(tmp);
 		}*/
 	}
@@ -665,6 +665,18 @@ CSquirrelArgument TestNative(CNewSquirrel * pSquirrel, CSquirrelArguments * pArg
 }
 #endif
 
+CScriptingManager::CScriptingManager()
+{
+	// Set our instance
+	m_pInstance = this;
+}
+
+CScriptingManager::~CScriptingManager()
+{
+	// Reset our instance
+	m_pInstance = NULL;
+}
+
 CSquirrel * CScriptingManager::Load(String strName, String strPath)
 {
 #if 0
@@ -779,11 +791,12 @@ CSquirrel * CScriptingManager::Load(String strName, String strPath)
 		return NULL;
 	}
 
-	g_pEvents->Call("scriptInit", pScript);
+	CEvents * pEvents = CEvents::GetInstance();
+	pEvents->Call("scriptInit", pScript);
 
 	CSquirrelArguments arguments;
 	arguments.push(strName);
-	g_pEvents->Call("scriptLoad", &arguments);
+	pEvents->Call("scriptLoad", &arguments);
 	return pScript;
 }
 
@@ -807,12 +820,13 @@ bool CScriptingManager::Unload(String strName)
 
 	if(pScript)
 	{
-		g_pEvents->Call("scriptExit", pScript);
+		CEvents * pEvents = CEvents::GetInstance();
+		pEvents->Call("scriptExit", pScript);
 
 		CSquirrelArguments pArguments;
 		pArguments.push(strName);
-		g_pEvents->Call("scriptUnload", &pArguments);
-		g_pEvents->RemoveScript(pScript->GetVM());
+		pEvents->Call("scriptUnload", &pArguments);
+		pEvents->RemoveScript(pScript->GetVM());
 		
 #ifdef _SERVER
 		if(g_pModuleManager)

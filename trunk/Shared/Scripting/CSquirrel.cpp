@@ -24,9 +24,6 @@
 #include "../CLogFile.h"
 #include "CSquirrel.h"
 
-extern CScriptingManager * g_pScriptingManager;
-extern CEvents * g_pEvents;
-
 void CSquirrel::PrintFunction(SQVM * pVM, const char * szFormat, ...)
 {
 	va_list args;
@@ -89,14 +86,14 @@ void CSquirrel::ErrorFunction(SQVM * pVM, const char * szFormat, ...)
 	tmp[len - offend] = '\0';
 
 	// TODO: Parse it and change the format of script error (e.g. onScriptError(filename, line, e.t.c.))
-	CSquirrel * pScript = g_pScriptingManager->Get(pVM);
+	CSquirrel * pScript = CScriptingManager::GetInstance()->Get(pVM);
 
 	if(pScript)
 	{
 		CSquirrelArguments pArguments;
 		pArguments.push(tmp);
 
-		if(g_pEvents->Call("scriptError", &pArguments, pScript).GetInteger() == 1)
+		if(CEvents::GetInstance()->Call("scriptError", &pArguments, pScript).GetInteger() == 1)
 			CLogFile::Print(tmp);
 	}
 }
@@ -104,7 +101,7 @@ void CSquirrel::ErrorFunction(SQVM * pVM, const char * szFormat, ...)
 void CSquirrel::CompilerErrorFunction(SQVM * pVM, const char * szError, const char * szSource, int iLine, int iColumn)
 {
 	// Find the script
-	CSquirrel * pScript = g_pScriptingManager->Get(pVM);
+	CSquirrel * pScript = CScriptingManager::GetInstance()->Get(pVM);
 
 	if(pScript)
 	{
@@ -115,7 +112,7 @@ void CSquirrel::CompilerErrorFunction(SQVM * pVM, const char * szError, const ch
 		arguments.push(iLine);
 		arguments.push(iColumn);
 
-		if(g_pEvents->Call("compilerError", &arguments, pScript).GetInteger() == 1)
+		if(CEvents::GetInstance()->Call("compilerError", &arguments, pScript).GetInteger() == 1)
 			CLogFile::Printf("Error: Failed to compile script %s on Line %d Column %d (%s).", pScript->GetName().Get(), iLine, iColumn, szError);
 	}
 }

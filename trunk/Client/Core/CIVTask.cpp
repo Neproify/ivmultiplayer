@@ -9,12 +9,12 @@
 //==============================================================================
 
 #include "CIVTask.h"
-#include "CClientTaskManager.h"
+#include "CClient.h"
 #include <CString.h>
 #include "CPools.h"
 #include <CLogFile.h>
 
-extern CClientTaskManager * g_pClientTaskManager;
+extern CClient * g_pClient;
 
 struct TaskName
 {
@@ -300,7 +300,7 @@ void CIVTask::Create()
 		m_pTask = CGame::GetPools()->GetTaskPool()->Allocate();
 
 		// Add ourselves to the client task manager
-		g_pClientTaskManager->AddTask(this);
+		g_pClient->GetClientTaskManager()->AddTask(this);
 	}
 }
 
@@ -328,7 +328,7 @@ CIVTask * CIVTask::GetParent()
 	CLogFile::Printf(__FUNCSIG__);
 #endif
 	if(m_pTask)
-		return g_pClientTaskManager->GetClientTaskFromGameTask(m_pTask->m_pParent);
+		return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pTask->m_pParent);
 
 	return NULL;
 }
@@ -349,7 +349,7 @@ CIVTask * CIVTask::Clone()
 			call dwFunc
 			mov pCloneTask, eax
 		}
-		return g_pClientTaskManager->GetClientTaskFromGameTask(pCloneTask);
+		return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(pCloneTask);
 	}
 
 	return NULL;
@@ -461,7 +461,7 @@ void CIVTask::SetAsPedTask(CIVPed * pPed, int iTaskPriority, bool bForceNewTask)
 	if(m_pTask)
 	{
 		// Get the game task pointer
-		CIVTask * pClientTask = g_pClientTaskManager->GetClientTaskFromGameTask(m_pTask);
+		CIVTask * pClientTask = g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pTask);
 
 		// Set the task as the ped task
 		pPed->GetPedTaskManager()->SetTask(pClientTask, iTaskPriority, bForceNewTask);
@@ -476,7 +476,7 @@ void CIVTask::SetAsPedTaskSecondary(CIVPed * pPed, int iTaskPriority)
 	if(m_pTask)
 	{
 		// Get the game task pointer
-		CIVTask * pClientTask = g_pClientTaskManager->GetClientTaskFromGameTask(m_pTask);
+		CIVTask * pClientTask = g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pTask);
 
 		// Set the task as the ped task
 		pPed->GetPedTaskManager()->SetTaskSecondary(pClientTask, iTaskPriority);
@@ -513,7 +513,7 @@ CIVTask * CIVTaskComplex::GetSubTask()
 	IVTaskComplex * pTask = (IVTaskComplex *)GetTask();
 
 	if(pTask)
-		return g_pClientTaskManager->GetClientTaskFromGameTask(pTask->m_pSubTask);
+		return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(pTask->m_pSubTask);
 
 	return NULL;
 }
@@ -557,7 +557,7 @@ CIVTask * CIVTaskComplex::CreateNextSubTask(CIVPed * pPed)
 			call dwFunc
 			mov pSubTask, eax
 		}
-		return g_pClientTaskManager->GetClientTaskFromGameTask(pSubTask);
+		return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(pSubTask);
 	}
 
 	return NULL;
@@ -582,7 +582,7 @@ CIVTask * CIVTaskComplex::CreateFirstSubTask(CIVPed * pPed)
 			call dwFunc
 			mov pSubTask, eax
 		}
-		return g_pClientTaskManager->GetClientTaskFromGameTask(pSubTask);
+		return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(pSubTask);
 	}
 
 	return NULL;
@@ -607,7 +607,7 @@ CIVTask * CIVTaskComplex::ControlSubTask(CIVPed * pPed)
 			call dwFunc
 			mov pSubTask, eax
 		}
-		return g_pClientTaskManager->GetClientTaskFromGameTask(pSubTask);
+		return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(pSubTask);
 	}
 
 	return NULL;

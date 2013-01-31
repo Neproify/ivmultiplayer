@@ -9,16 +9,17 @@
 //==============================================================================
 
 #include "CStreamer.h"
-#include "CLocalPlayer.h"
+#include "CClient.h"
 #include "CPlayerManager.h"
 #include "CVehicleManager.h"
 #include <SharedUtility.h>
 
-extern CLocalPlayer * g_pLocalPlayer;
-extern CStreamer    * g_pStreamer;
-
 #define IS_VEHICLE(entity) ((entity)->GetType() == STREAM_ENTITY_VEHICLE)
 #define IS_PLAYER(entity) ((entity)->GetType() == STREAM_ENTITY_PLAYER)
+
+extern CClient              * g_pClient;
+
+CStreamer * CStreamer::m_pInstance = NULL;
 
 CStreamableEntity::CStreamableEntity(eStreamEntityType eType, float fDistance)
 	: m_eType(eType),
@@ -27,9 +28,8 @@ CStreamableEntity::CStreamableEntity(eStreamEntityType eType, float fDistance)
 	m_pDimensionId(0), /* INVALID_DIMENSION_ID = always streamed in */
 	m_bCanBeStreamedIn(false)
 {
-
-	// add it to the streamer
-	g_pStreamer->push_back(this);
+	// Add it to the streamer
+	CStreamer::GetInstance()->push_back(this);
 }
 
 CStreamableEntity::~CStreamableEntity()
@@ -55,13 +55,16 @@ void CStreamableEntity::SetDimension(DimensionId dimensionId)
 {
 	// NOTE: This should trigger an instant restream of ourselves
 	m_pDimensionId = dimensionId;
-	if(this->GetType() == STREAM_ENTITY_PLAYER) {
+
+	if(this->GetType() == STREAM_ENTITY_PLAYER)
+	{
 		CNetworkPlayer* pPlayer = dynamic_cast<CNetworkPlayer*>(this);
-		if(pPlayer->IsLocalPlayer()) {
-			g_pStreamer->m_dimensionId = dimensionId;
-		}
+
+		if(pPlayer->IsLocalPlayer())
+			CStreamer::GetInstance()->m_dimensionId = dimensionId;
 	}
-	g_pStreamer->Pulse();
+
+	CStreamer::GetInstance()->Pulse();
 }
 
 void CStreamableEntity::StreamInInternal()
@@ -97,13 +100,16 @@ void CStreamableEntity::StreamOutInternal()
 void CStreamableEntity::OnDelete()
 {
 	// remove it from the streamer
-	g_pStreamer->remove(this);
+	CStreamer::GetInstance()->remove(this);
 }
 
 // --
 
 CStreamer::CStreamer()
 {
+	// Set our instance
+	m_pInstance = this;
+
 	// Set the streaming limits (Adjust if needed)
 	m_uiStreamingLimits[STREAM_ENTITY_VEHICLE] = 256; // no more than vehicle pool size
 	m_uiStreamingLimits[STREAM_ENTITY_PICKUP] = 128; // no more than pickup pool size
@@ -114,6 +120,12 @@ CStreamer::CStreamer()
 
 	// Reset the streamer
 	Reset();
+}
+
+CStreamer::~CStreamer()
+{
+	// Reset our instance
+	m_pInstance = NULL;
 }
 
 void CStreamer::Reset()
@@ -150,7 +162,7 @@ inline bool SortStreamableEntites(CStreamableEntity * pEntity, CStreamableEntity
 {
 	// Get the local player position
 	CVector3 vecPlayerPos;
-	g_pLocalPlayer->GetPosition(vecPlayerPos);
+	g_pClient->GetLocalPlayer()->GetPosition(vecPlayerPos);
 
 	// Get the first entities position
 	CVector3 vecPos;
@@ -176,7 +188,7 @@ void CStreamer::Pulse()
 		std::list<CStreamableEntity *> newEntities[STREAM_ENTITY_MAX];
 
 		CVector3 vecPlayerPos;
-		g_pLocalPlayer->GetPosition(vecPlayerPos);
+		g_pClient->GetLocalPlayer()->GetPosition(vecPlayerPos);
 
 		// Loop through all streamable elements
 		for(iterator iter = begin(); iter != end(); ++ iter)

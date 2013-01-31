@@ -16,7 +16,8 @@
 class CTime/* : public CTimeInterface*/
 {
 public:
-	static const unsigned int DEFAULT_MINUTE_DURATION = 2000;
+	static CTime            * m_pInstance;
+	static const unsigned int DEFAULT_MINUTE_DURATION;
 
 private:
 	unsigned long m_ulTimeSet;
@@ -27,6 +28,8 @@ private:
 public:
 	CTime();
 	~CTime();
+
+	static CTime * GetInstance() { return m_pInstance; }
 
 	void SetTime(const unsigned char ucHour, const unsigned char ucMinute);
 	void GetTime(unsigned char * ucHour, unsigned char * ucMinute);

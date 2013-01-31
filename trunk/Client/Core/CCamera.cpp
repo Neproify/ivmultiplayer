@@ -8,17 +8,14 @@
 //==============================================================================
 
 #include "CCamera.h"
+#include "CClient.h"
 #include "CGame.h"
 #include "CPools.h"
 #include <CLogFile.h>
 #include "Scripting.h"
-#include "CLocalPlayer.h"
 #include <Math/CMath.h>
-#include "CGraphics.h"
 
-extern CGraphics* g_pGraphics;
-
-extern CLocalPlayer * g_pLocalPlayer;
+extern CClient * g_pClient;
 
 CCamera::CCamera()
 	: m_bScriptCamActive(false)
@@ -96,7 +93,7 @@ void CCamera::Reset()
 		DeactivateScriptCam();
 
 	// Set the camera behind the local player
-	g_pLocalPlayer->SetCameraBehind();
+	g_pClient->GetLocalPlayer()->SetCameraBehind();
 }
 
 void CCamera::SetBehindPed(CIVPed * pPed)
@@ -213,10 +210,6 @@ void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer, int iPointTyp
 		//Scripting::SetCamAttachOffset(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecOffset.fX, vecOffset.fY, vecOffset.fZ);
 	}
 }
-#include "d3d9.h"
-#include "CChatWindow.h"
-
-extern CChatWindow* g_pChatWindow;
 
 bool CCamera::IsOnScreen(const CVector3& vecPosition)
 {
@@ -232,7 +225,7 @@ bool CCamera::IsOnScreen(const CVector3& vecPosition)
 	D3DXMatrixLookAtLH(&matView, CVEC_TO_D3DVEC(vecCamPos), CVEC_TO_D3DVEC(vecCamLookAt), &D3DXVECTOR3(0, 0, 1));
 
 	D3DVIEWPORT9 viewport;
-	g_pGraphics->GetDevice()->GetViewport(&viewport);
+	g_pClient->GetGraphics()->GetDevice()->GetViewport(&viewport);
 
 	DWORD dwLenX = viewport.Width;
 	DWORD dwLenY = viewport.Height;
@@ -246,7 +239,7 @@ bool CCamera::IsOnScreen(const CVector3& vecPosition)
 	D3DXVECTOR3 vecSPos;
 	D3DXVec3Project(&vecSPos, CVEC_TO_D3DVEC(vecPosition), &viewport, &matProj, &matView, &matWorld);
 
-	//g_pChatWindow->AddInfoMessage("W2S (%f|%f|%f)", vecSPos.x, vecSPos.y, vecSPos.z);
+	//g_pClient->GetChatWindow()->AddInfoMessage("W2S (%f|%f|%f)", vecSPos.x, vecSPos.y, vecSPos.z);
 
 	return ( vecSPos.z < 1.f );
 }

@@ -8,13 +8,12 @@
 // License: See LICENSE in root directory
 //
 //==============================================================================
+// jenksta: TODO: CBlip class!
 
 #include "CBlipManager.h"
-#include "CChatWindow.h"
-#include "CModelmanager.h"
-#include "CVehicleManager.h"
+#include "CClient.h"
 
-extern CVehicleManager * g_pVehicleManager;
+extern CClient * g_pClient;
 
 CBlipManager::CBlipManager()
 {
@@ -181,10 +180,10 @@ void CBlipManager::AttachToVehicle(EntityId blipId, EntityId vehicleId)
 {
 	if(m_bActive[blipId])
 	{
-		if(g_pVehicleManager->Exists(vehicleId)) 
+		CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
+		if(pVehicle && pVehicle->IsSpawned()) 
 		{
-			CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
-			
 			//Remove the position blip
 			Scripting::RemoveBlip(m_Blips[blipId].uiBlipIndex);
 

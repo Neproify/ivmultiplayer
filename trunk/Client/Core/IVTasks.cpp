@@ -8,12 +8,9 @@
 //==============================================================================
 
 #include "IVTasks.h"
-#include "CClientTaskManager.h"
 #include "CGame.h"
 #include "COffsets.h"
 #include <CLogFile.h>
-
-extern CClientTaskManager * g_pClientTaskManager;
 
 CIVTaskComplexNewGetInVehicle::CIVTaskComplexNewGetInVehicle(CIVVehicle * pVehicle, int a3, int a4, unsigned int a5, float a6) : CIVTaskComplex()
 {

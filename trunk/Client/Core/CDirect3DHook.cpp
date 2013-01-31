@@ -6,24 +6,21 @@
 // License: See LICENSE in root directory
 //
 //==============================================================================
+
 #include "CDirect3DHook.h"
-#include "Patcher/CPatcher.h"
+#include <Patcher/CPatcher.h>
 #include <windowsx.h>
 #include <CLogFile.h>
 #include "Input.h"
+#include "CClient.h"
+
+extern CClient * g_pClient;
 
 bool CDirect3DHook::m_bHookInstalled = false;
 bool CDirect3DHook::m_bInitialized = false;
 
 CDirect3DHook::Reset_t CDirect3DHook::m_pReset;
 CDirect3DHook::EndScene_t CDirect3DHook::m_pEndScene;
-
-extern IDirect3DDevice9 * g_pDevice;
-extern bool               g_bWindowedMode;
-
-void Direct3DRender();
-void Direct3DInvalidate();
-void Direct3DReset();
 
 extern WNDPROC m_wWndProc;
 
@@ -97,7 +94,8 @@ bool bReset = false;
 
 HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 {
-	if(m_bInitialized == false) {
+	if(m_bInitialized == false)
+	{
 		HWND hFocusWindow = FindWindow(NULL,"GTAIV");
 		if(hFocusWindow != NULL) {
 			SetWindowText(hFocusWindow, MOD_NAME DEBUG_IDENTIFIER);
@@ -109,28 +107,33 @@ HRESULT WINAPI CDirect3DHook::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 			{
 				CLogFile::Printf("SubclassWindow");
 				m_wWndProc = SubclassWindow(hFocusWindow, WndProc_Hook);
-				Direct3DInvalidate();
-				Direct3DReset();
+				// jenksta: wtf?
+				g_pClient->OnD3DLostDevice();
+				g_pClient->OnD3DResetDevice();
 				m_bInitialized = true;
 			}
 		}
 	}
+
 	if(!bReset)
-		Direct3DRender();
-	return m_pEndScene(g_pDevice);
+		g_pClient->OnD3DEndScene();
+
+	return m_pEndScene(g_pClient->GetDevice());
 }
+
 D3DPRESENT_PARAMETERS parameters;
 HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	if(g_pDevice == NULL)
-		g_pDevice = pDevice;
+	// jenksta: todo: CreateDevice hook that sets this
+	if(!g_pClient->GetDevice())
+		g_pClient->SetDevice(pDevice);
 
 	CLogFile::Printf("PreD3DReset");
 	
 	// Call our lost device function
-	Direct3DInvalidate();
+	g_pClient->OnD3DLostDevice();
 	
-	if(g_bWindowedMode)
+	if(g_pClient->IsWindowedMode())
 	{
 		pPresentationParameters->Windowed = 1;
 		pPresentationParameters->Flags = 0;
@@ -141,12 +144,12 @@ HRESULT WINAPI CDirect3DHook::hkReset(LPDIRECT3DDEVICE9 pDevice,D3DPRESENT_PARAM
 		SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_NOTOPMOST, 0, 0, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight, SWP_SHOWWINDOW);
 	}
 
-	HRESULT hr = m_pReset(g_pDevice, pPresentationParameters);
+	HRESULT hr = m_pReset(g_pClient->GetDevice(), pPresentationParameters);
 
 	if(SUCCEEDED(hr))
 	{
 		// Call our reset device function
-		Direct3DReset();
+		g_pClient->OnD3DResetDevice();
 
 		CLogFile::Printf("PostD3DReset(1)");
 	}

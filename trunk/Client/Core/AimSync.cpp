@@ -8,12 +8,15 @@
 //==============================================================================
 
 #include "AimSync.h"
+#include "CClient.h"
 #include "COffsets.h"
 #include <Patcher/CPatcher.h>
 #include "CIVPed.h"
 #include "CIVPlayerPed.h"
 #include "CContextDataManager.h"
 #include <CLogFile.h>
+
+extern CClient * g_pClient;
 
 DWORD      dwFunc = NULL;
 IVPed    * g_pIKPed = NULL;
@@ -22,9 +25,6 @@ CVector3 * g_vecWeaponAimTarget = NULL;
 IVPed    * g_pWeaponPed = NULL;
 CVector3 * g_vecWeaponShotSource = NULL;
 CVector3 * g_vecWeaponShotTarget = NULL;
-
-#include "CChatWindow.h"
-extern CChatWindow * g_pChatWindow;
 
 void StoreAimTarget(IVPed * pPed, CVector3 * vecWeaponTarget)
 {
@@ -41,12 +41,12 @@ void StoreAimTarget(IVPed * pPed, CVector3 * vecWeaponTarget)
 			if(pContextData->GetPlayerInfo()->GetPlayerNumber() == 0)
 			{
 				pContextData->SetWeaponAimTarget(*vecWeaponTarget);
-				g_pChatWindow->AddInfoDebugMessage("StoreAimTargetLocal(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
+				g_pClient->GetChatWindow()->AddInfoDebugMessage("StoreAimTargetLocal(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
 			}
 			else
 			{
 				pContextData->GetWeaponAimTarget(*vecWeaponTarget);
-				g_pChatWindow->AddInfoDebugMessage("StoreAimTarget(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
+				g_pClient->GetChatWindow()->AddInfoDebugMessage("StoreAimTarget(0x%x, (%f, %f, %f))", pPed, vecWeaponTarget->fX, vecWeaponTarget->fY, vecWeaponTarget->fZ);
 			}
 		}
 		else

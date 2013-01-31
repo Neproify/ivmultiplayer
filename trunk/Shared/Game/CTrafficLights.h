@@ -7,6 +7,8 @@
 //
 //==============================================================================
 
+#pragma once
+
 // FIXUPDATE
 // jenksta: this is kinda hacky :/
 #include "../Server/Core/Main.h"
@@ -14,21 +16,23 @@
 
 class CTrafficLights : public CTrafficLightsInterface
 {
-public:
-
 private:
-	unsigned long m_ulTimeSet;
-	bool m_bIsLocked;
-	eTrafficLightState m_eStateSet;
-	unsigned int m_uiGreenDuration;
-	unsigned int m_uiYellowDuration;
-	unsigned int m_uiRedDuration;
-	unsigned int m_uiTotalDuration;
+	static CTrafficLights * m_pInstance;
+	unsigned long           m_ulTimeSet;
+	bool                    m_bIsLocked;
+	eTrafficLightState      m_eStateSet;
+	unsigned int            m_uiGreenDuration;
+	unsigned int            m_uiYellowDuration;
+	unsigned int            m_uiRedDuration;
+	unsigned int            m_uiTotalDuration;
 
 public:
 	CTrafficLights();
-	void Reset();
 	~CTrafficLights();
+
+	static CTrafficLights * GetInstance() { return m_pInstance; }
+
+	void Reset();
 
 	bool SetState(eTrafficLightState state);
 	eTrafficLightState GetState();

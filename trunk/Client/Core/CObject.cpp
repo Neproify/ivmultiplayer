@@ -9,10 +9,10 @@
 //==============================================================================
 
 #include "CObject.h"
-#include "CLocalPlayer.h"
+#include "CClient.h"
 #include <SharedUtility.h>
 
-extern CLocalPlayer * g_pLocalPlayer;
+extern CClient * g_pClient;
 
 CObject::CObject(DWORD dwModelHash, CVector3 vecPosition, CVector3 vecRotation)
 	: CStreamableEntity(STREAM_ENTITY_OBJECT, 400.0f),
@@ -38,7 +38,7 @@ bool CObject::Create()
 	{
 		Scripting::CreateObjectNoOffset((Scripting::eModel)m_dwModelHash, m_vecPosition.fX, m_vecPosition.fY, m_vecPosition.fZ, &m_uiObjectHandle, true);
 		Scripting::FreezeObjectPosition(m_uiObjectHandle, true);
-		Scripting::AddObjectToInteriorRoomByKey(m_uiObjectHandle, (Scripting::eInteriorRoomKey)g_pLocalPlayer->GetInterior());
+		Scripting::AddObjectToInteriorRoomByKey(m_uiObjectHandle, (Scripting::eInteriorRoomKey)g_pClient->GetLocalPlayer()->GetInterior());
 		return true;
 	}
 
@@ -61,7 +61,7 @@ void CObject::SetPosition(const CVector3& vecPosition)
 	if(IsStreamedIn())
 	{
 		Scripting::SetObjectCoordinates(m_uiObjectHandle, vecPosition.fX, vecPosition.fY, vecPosition.fZ);
-		Scripting::AddObjectToInteriorRoomByKey(m_uiObjectHandle, (Scripting::eInteriorRoomKey)g_pLocalPlayer->GetInterior());
+		Scripting::AddObjectToInteriorRoomByKey(m_uiObjectHandle, (Scripting::eInteriorRoomKey)g_pClient->GetLocalPlayer()->GetInterior());
 	}
 
 	m_vecPosition = vecPosition;

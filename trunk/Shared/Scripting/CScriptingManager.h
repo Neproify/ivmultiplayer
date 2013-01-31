@@ -92,21 +92,26 @@ struct ScriptingConstant
 class CScriptingManager
 {
 private:
+	static CScriptingManager     * m_pInstance;
 	std::list<CSquirrel *>         m_scripts;
 	std::list<ScriptingFunction *> m_funcs;
 	std::list<SquirrelClassDecl *> m_classes;
 	std::list<ScriptingConstant *> m_constants;
 
 public:
-	CSquirrel              * Load(String strName, String strPath);
-	bool                     Unload(String strName);
-	void                     UnloadAll();
-	void                     RegisterFunction(String strFunctionName, SQFUNCTION pfnFunction, int iParameterCount, String strFunctionTemplate);
-	void                     RegisterClass(SquirrelClassDecl * pClassDeclaration);
-	void                     RegisterConstant(String strConstantName, CSquirrelArgument value);
-	void                     RegisterDefaultConstants();
-	CSquirrel              * Get(String strName);
-	CSquirrel              * Get(SQVM * pVM);
-	std::list<CSquirrel *> * GetScriptList() { return &m_scripts; }
-	unsigned int             GetScriptCount() { return m_scripts.size(); }
+	CScriptingManager();
+	~CScriptingManager();
+
+	static CScriptingManager * GetInstance() { return m_pInstance; }
+	CSquirrel                * Load(String strName, String strPath);
+	bool                       Unload(String strName);
+	void                       UnloadAll();
+	void                       RegisterFunction(String strFunctionName, SQFUNCTION pfnFunction, int iParameterCount, String strFunctionTemplate);
+	void                       RegisterClass(SquirrelClassDecl * pClassDeclaration);
+	void                       RegisterConstant(String strConstantName, CSquirrelArgument value);
+	void                       RegisterDefaultConstants();
+	CSquirrel                * Get(String strName);
+	CSquirrel                * Get(SQVM * pVM);
+	std::list<CSquirrel *>   * GetScriptList() { return &m_scripts; }
+	unsigned int               GetScriptCount() { return m_scripts.size(); }
 };

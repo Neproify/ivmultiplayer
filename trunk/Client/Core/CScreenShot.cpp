@@ -9,14 +9,15 @@
 // Parts taken from code found on the Irrlicht forums
 
 #include "CScreenShot.h"
-#include "../../Vendor/lpng142/png.h"
-#include "DXSDK/Include/d3d9.h"
-#include "SharedUtility.h"
-#include "CGame.h"
-#include "CGUI.h"
+#include <lpng142/png.h>
+#include <DXSDK/Include/d3d9.h>
+#include <SharedUtility.h>
+#include "CClient.h"
 
 #define SCREEN_SHOT_FORMAT D3DFMT_A8R8G8B8
 #define SCREEN_SHOT_FORMAT_BYTES_PER_PIXEL (32 / 8)
+
+extern CClient * g_pClient;
 
 unsigned long           CScreenShot::m_ulLastScreenShotTime = 0;
 CThread                 CScreenShot::m_writeThread;
@@ -24,9 +25,6 @@ unsigned char         * CScreenShot::m_ucData = NULL;
 unsigned int            CScreenShot::m_uiScreenWidth = 0;
 unsigned int            CScreenShot::m_uiScreenHeight = 0;
 CScreenShot::ThreadData CScreenShot::m_threadData;
-
-extern IDirect3DDevice9 * g_pDevice;
-extern CGUI             * g_pGUI;
 
 CScreenShot::CScreenShot()
 {
@@ -105,42 +103,49 @@ int GetBitsPerPixel ( D3DFORMAT Format )
 
 void CScreenShot::GetFrontBufferPixels(UINT uiSizeX, UINT uiSizeY,unsigned char* buffer)
 {
-	IDirect3DSurface9* pSurface = 0;
-	
+	// Get our d3d device
+	IDirect3DDevice9 * pDevice = g_pClient->GetDevice();
+
+	// Get our display mode
 	D3DDISPLAYMODE displayMode;
-	g_pDevice->GetDisplayMode(0, &displayMode);
+	pDevice->GetDisplayMode(0, &displayMode);
 
-	HRESULT hr = S_OK;
+	// Create our surface
+	IDirect3DSurface9 * pSurface = NULL;
+	pDevice->CreateOffscreenPlainSurface(displayMode.Width, displayMode.Height, SCREEN_SHOT_FORMAT, D3DPOOL_SCRATCH, &pSurface, NULL);
 
-	g_pDevice->CreateOffscreenPlainSurface (displayMode.Width, displayMode.Height, SCREEN_SHOT_FORMAT, D3DPOOL_SCRATCH, &pSurface, NULL );
-	g_pDevice->GetFrontBufferData(0, pSurface);
-
-	// Create the client rect
-	RECT clientRect;
+	if(pSurface)
 	{
-		POINT clientPoint;
-		clientPoint.x = 0;
-		clientPoint.y = 0;
-		ClientToScreen(CGame::GetHWnd(), &clientPoint);
-		clientRect.left   = clientPoint.x;
-		clientRect.top	  = clientPoint.y;
-		clientRect.right  = (clientRect.left + displayMode.Width);
-		clientRect.bottom = (clientRect.top  + displayMode.Height);
-	}
+		pDevice->GetFrontBufferData(0, pSurface);
 
-	D3DLOCKED_RECT lockedRect;
-	hr = pSurface->LockRect(&lockedRect, NULL, D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK | D3DLOCK_DONOTWAIT);
+		// Create the client rect
+		RECT clientRect;
+		{
+			POINT clientPoint;
+			clientPoint.x = 0;
+			clientPoint.y = 0;
+			ClientToScreen(CGame::GetHWnd(), &clientPoint);
+			clientRect.left   = clientPoint.x;
+			clientRect.top	  = clientPoint.y;
+			clientRect.right  = (clientRect.left + displayMode.Width);
+			clientRect.bottom = (clientRect.top  + displayMode.Height);
+		}
+
+		D3DLOCKED_RECT lockedRect;
+		HRESULT hr = pSurface->LockRect(&lockedRect, NULL, D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK | D3DLOCK_DONOTWAIT);
 	
-	if(SUCCEEDED(hr)) {
-		void* pBits = lockedRect.pBits;
-		UINT ms_ulPitch = lockedRect.Pitch;
+		if(SUCCEEDED(hr))
+		{
+			void* pBits = lockedRect.pBits;
+			UINT ms_ulPitch = lockedRect.Pitch;
 
-		for (unsigned int i = 0; i < displayMode.Height; ++i)
-            memcpy(buffer + (displayMode.Width * 4) * i, (BYTE*)pBits + i * ms_ulPitch, (displayMode.Width * 4));
+			for(unsigned int i = 0; i < displayMode.Height; ++i)
+				memcpy(buffer + (displayMode.Width * 4) * i, (BYTE*)pBits + i * ms_ulPitch, (displayMode.Width * 4));
+		}
+
+		pSurface->UnlockRect();
+		pSurface->Release();
 	}
-
-	pSurface->UnlockRect();
-	pSurface->Release();
 }
 
 void CScreenShot::WriteImageToFile(CThread * pThread)
@@ -148,7 +153,7 @@ void CScreenShot::WriteImageToFile(CThread * pThread)
 	m_threadData.bWriting = true;
 
 	D3DDISPLAYMODE displayMode;
-	g_pDevice->GetDisplayMode(0, &displayMode);
+	g_pClient->GetDevice()->GetDisplayMode(0, &displayMode);
 
 	UINT uiScreenWidth = displayMode.Width;
 	UINT uiScreenHeight = displayMode.Height;

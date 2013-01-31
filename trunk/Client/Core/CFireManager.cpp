@@ -6,11 +6,9 @@
 // License: See LICENSE in root directory
 //
 //==============================================================================
-#include "CFireManager.h"
-#include "CGame.h"
-#include "Scripting.h"
 
-extern CGame * g_pGame;
+#include "CFireManager.h"
+#include "Scripting.h"
 
 CFireManager::CFireManager()
 {

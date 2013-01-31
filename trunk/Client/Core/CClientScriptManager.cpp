@@ -8,13 +8,9 @@
 //==============================================================================
 
 #include "CClientScriptManager.h"
-#include "SharedUtility.h"
+#include <SharedUtility.h>
 #include "Natives.h"
 #include <CLogFile.h>
-#include "Scripting/CScriptTimerManager.h"
-
-extern CScriptingManager * g_pScriptingManager;
-extern CScriptTimerManager * g_pScriptTimerManager;
 
 // GUIFont
 _BEGIN_CLASS(GUIFont)
@@ -123,13 +119,11 @@ _MEMBER_FUNCTION(Audio, clearPosition, 0, NULL)
 _MEMBER_FUNCTION(Audio, usePositionSystem, 1, "b")
 _END_CLASS(Audio)
 
-
 CClientScriptManager::CClientScriptManager()
 {
 	m_pScripting = new CScriptingManager();
-	g_pScriptingManager = m_pScripting;
+	m_pScriptTimerManager = new CScriptTimerManager();
 	m_pGUIManager = new CClientScriptGUIManager();
-	g_pScriptTimerManager = new CScriptTimerManager();
 
 	// Register the client natives
 	RegisterClientNatives(m_pScripting);
@@ -188,7 +182,7 @@ CClientScriptManager::CClientScriptManager()
 CClientScriptManager::~CClientScriptManager()
 {
 	RemoveAll();
-	SAFE_DELETE(g_pScriptTimerManager);
+	SAFE_DELETE(m_pScriptTimerManager);
 	SAFE_DELETE(m_pScripting);
 	SAFE_DELETE(m_pGUIManager);
 }
@@ -248,6 +242,7 @@ void CClientScriptManager::Unload(String strName)
 
 		if(pClientScript->strName == strName)
 		{
+			m_pScriptTimerManager->HandleScriptUnload(m_pScripting->Get(strName));
 			m_pScripting->Unload(strName);
 			CLogFile::Printf("ClientScript %s unloaded.", strName.Get());
 			return;

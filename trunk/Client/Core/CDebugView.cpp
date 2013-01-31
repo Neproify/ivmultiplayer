@@ -8,19 +8,12 @@
 //==============================================================================
 
 #include "CDebugView.h"
-#include "CChatWindow.h"
-#include "CGUI.h"
-#include "CLocalPlayer.h"
-#include "CPlayerManager.h"
+#include "CClient.h"
 #include "CNetworkPlayer.h"
-#include "CMainMenu.h"
 
 #define DEBUG_TEXT_TOP (5.0f/* + (MAX_DISPLAYED_MESSAGES * 20)*/)
 
-extern CGUI         * g_pGUI;
-extern CLocalPlayer * g_pLocalPlayer;
-extern CPlayerManager * g_pPlayerManager;
-extern CMainMenu	* g_pMainMenu;
+extern CClient * g_pClient;
 
 CDebugView::CDebugView()
 	: m_fDebugTextTop(0)
@@ -34,11 +27,14 @@ CDebugView::~CDebugView()
 
 void CDebugView::DrawText(String strText, DWORD dwColor)
 {
+	// Get our GUI
+	CGUI * pGUI = g_pClient->GetGUI();
+
 	// Get the font
-	CEGUI::Font * pFont = g_pGUI->GetFont("tahoma", 10);
+	CEGUI::Font * pFont = pGUI->GetFont("tahoma", 10);
 
 	// Draw the text
-	g_pGUI->DrawText(strText, CEGUI::Vector2((float)g_pGUI->GetDisplayWidth()-400.0f, m_fDebugTextTop), CEGUI::colour(dwColor), pFont);
+	pGUI->DrawText(strText, CEGUI::Vector2((float)pGUI->GetDisplayWidth()-400.0f, m_fDebugTextTop), CEGUI::colour(dwColor), pFont);
 
 	// Increment the text top
 	m_fDebugTextTop += 14.0f;
@@ -117,7 +113,7 @@ void CDebugView::DumpPlayer(CNetworkPlayer * pPlayer)
 	// Camera data
 	// TODO: Make player specific
 #if 0
-	CIVCam * pGameCam = g_pCamera->GetGameCam();
+	CIVCam * pGameCam = g_pClient->GetCamera()->GetGameCam();
 	CVector3 vecCamPosition;
 	pGameCam->GetPosition(vecCamPosition);
 	CVector3 vecCamForward;
@@ -172,29 +168,30 @@ void CDebugView::DumpPlayer(CNetworkPlayer * pPlayer)
 
 void CDebugView::Draw()
 {
-	if(g_pGUI && g_pLocalPlayer && g_pPlayerManager)
+	// Get our player manager and local player
+	CPlayerManager * pPlayerManager = g_pClient->GetPlayerManager();
+	CLocalPlayer * pLocalPlayer = g_pClient->GetLocalPlayer();
+
+	if(g_pClient->GetGUI() && pLocalPlayer && pPlayerManager)
 	{
-		if(!g_pLocalPlayer->IsSpawned())
+		if(!pLocalPlayer->IsSpawned())
 			return;
 
-		if(g_pMainMenu->IsVisible())
+		if(g_pClient->GetMainMenu()->IsVisible())
 			return;
 
 		m_fDebugTextTop = DEBUG_TEXT_TOP;
 
-		if(g_pLocalPlayer)
-			DumpPlayer(g_pLocalPlayer);
+		DumpPlayer(pLocalPlayer);
 
-		if(g_pPlayerManager->GetAt(0)) {
-			if(g_pLocalPlayer->GetPlayerId() == g_pPlayerManager->GetAt(0)->GetPlayerId()) {
-				if(g_pPlayerManager->GetAt(1)) {
-					if(g_pPlayerManager->GetAt(1)->IsSpawned())
-						DumpPlayer(g_pPlayerManager->GetAt(1));
-				}
-			}
-			else {
-				if(g_pPlayerManager->GetAt(0)->IsSpawned())
-					DumpPlayer(g_pPlayerManager->GetAt(0));
+		for(EntityId i = 0; i < MAX_PLAYERS; i++)
+		{
+			CNetworkPlayer * pPlayer = pPlayerManager->GetAt(i);
+
+			if(pPlayer && pPlayer->IsSpawned() && !pPlayer->IsLocalPlayer())
+			{
+				DumpPlayer(pPlayer);
+				break;
 			}
 		}
 	}

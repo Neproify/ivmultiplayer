@@ -57,7 +57,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor\bass; ..\..\Vendor;..\..\Vendor\Squirrel;..\..\Client\Core\EA;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;IVMP_WEBKIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -126,6 +126,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AimSync.h" />
+    <ClInclude Include="CAudioManager.h" />
+    <ClInclude Include="CClient.h" />
     <ClInclude Include="CFileTransferManager.h" />
     <ClInclude Include="CHooks.h" />
     <ClInclude Include="CD3D9Webkit.hpp" />
@@ -307,8 +309,11 @@
     <ClInclude Include="CDirectInputHook.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Shared\CEvents.cpp" />
     <ClCompile Include="AimSync.cpp" />
     <ClCompile Include="C3DLabels.cpp" />
+    <ClCompile Include="CAudioManager.cpp" />
+    <ClCompile Include="CClient.cpp" />
     <ClCompile Include="CFileTransferManager.cpp" />
     <ClCompile Include="CHooks.cpp" />
     <ClCompile Include="CDebugView.cpp" />

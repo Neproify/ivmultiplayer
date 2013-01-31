@@ -106,6 +106,18 @@ void CServerRPCHandler::PlayerConnect(CBitStream * pBitStream, CPlayerSocket * p
 		return;
 	}
 
+	CSquirrelArguments nameCheckArguments;
+	nameCheckArguments.push(playerId);
+	nameCheckArguments.push(strName);
+
+	if(g_pEvents->Call("playerNameCheck", &nameCheckArguments).GetInteger() != 1)
+	{
+		bsSend.Write(REFUSE_REASON_NAME_INVALID);
+		g_pNetworkManager->RPC(RPC_ConnectionRefused, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
+		CLogFile::Printf("[Connect] Authorization for %s (%s) failed (name invalid).", strIP.Get(), strName.Get());
+		return;
+	}
+
 	// Call the playerAuth event, and process the return value
 	CSquirrelArguments playerAuthArguments;
 	playerAuthArguments.push(playerId);

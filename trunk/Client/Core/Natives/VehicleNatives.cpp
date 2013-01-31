@@ -14,11 +14,9 @@
 #include "Squirrel/sqstate.h"
 #include "Squirrel/sqvm.h"
 #include "Squirrel/sqstring.h"
-#include "../CVehicleManager.h"
-#include "../CModelManager.h"
+#include "../CClient.h"
 
-extern CVehicleManager * g_pVehicleManager;
-extern CModelManager * g_pModelManager;
+extern CClient * g_pClient;
 
 // Vehicle functions
 
@@ -49,7 +47,7 @@ SQInteger CVehicleNatives::GetCoordinates(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -73,21 +71,18 @@ SQInteger CVehicleNatives::GetRotation(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	if(g_pVehicleManager->Exists(vehicleId))
-	{
-		CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
-		if(pVehicle)
-		{
-			CVector3 vecRotation;
-			pVehicle->GetRotation(vecRotation);
-			CSquirrelArguments args;
-			args.push(vecRotation.fX);
-			args.push(vecRotation.fY);
-			args.push(vecRotation.fZ);
-			sq_pusharg(pVM, CSquirrelArgument(args, true));
-			return 1;
-		}
+	if(pVehicle)
+	{
+		CVector3 vecRotation;
+		pVehicle->GetRotation(vecRotation);
+		CSquirrelArguments args;
+		args.push(vecRotation.fX);
+		args.push(vecRotation.fY);
+		args.push(vecRotation.fZ);
+		sq_pusharg(pVM, CSquirrelArgument(args, true));
+		return 1;
 	}
 
 	sq_pushbool(pVM, false);
@@ -99,7 +94,7 @@ SQInteger CVehicleNatives::IsValid(SQVM * pVM)
 {
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
-	sq_pushbool(pVM, g_pVehicleManager->Exists(vehicleId));
+	sq_pushbool(pVM, g_pClient->GetVehicleManager()->Exists(vehicleId));
 	return 1;
 }
 
@@ -109,7 +104,7 @@ SQInteger CVehicleNatives::GetColor(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -134,11 +129,11 @@ SQInteger CVehicleNatives::GetModel(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
-		sq_pushinteger(pVM, g_pModelManager->ModelHashToVehicleId(pVehicle->GetModelInfo()->GetHash()));
+		sq_pushinteger(pVM, g_pClient->GetModelManager()->ModelHashToVehicleId(pVehicle->GetModelInfo()->GetHash()));
 		return 1;
 	}
 
@@ -152,7 +147,7 @@ SQInteger CVehicleNatives::GetHealth(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -170,7 +165,7 @@ SQInteger CVehicleNatives::GetEngineHealth(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -189,7 +184,7 @@ SQInteger CVehicleNatives::GetVelocity(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -213,7 +208,7 @@ SQInteger CVehicleNatives::GetAngularVelocity(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -237,7 +232,7 @@ SQInteger CVehicleNatives::GetLocked(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -255,7 +250,7 @@ SQInteger CVehicleNatives::GetDirtLevel(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -274,7 +269,7 @@ SQInteger CVehicleNatives::GetSirenState(SQVM * pVM)
 
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -292,7 +287,7 @@ SQInteger CVehicleNatives::IsOccupied(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -310,7 +305,7 @@ SQInteger CVehicleNatives::GetOccupants(SQVM * pVM)
 	EntityId vehicleId;
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -338,7 +333,7 @@ SQInteger CVehicleNatives::GetEngineStatus(SQVM * pVM)
 
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{
@@ -357,7 +352,7 @@ SQInteger CVehicleNatives::GetGpsState(SQVM *pVM)
 
 	sq_getentity(pVM, -1, &vehicleId);
 
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
 	{

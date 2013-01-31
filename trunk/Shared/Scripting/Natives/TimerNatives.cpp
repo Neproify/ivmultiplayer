@@ -18,9 +18,6 @@
 #include "../CSquirrelArguments.h"
 #include "../CScriptTimer.h"
 
-extern CScriptTimerManager * g_pScriptTimerManager;
-extern CScriptingManager * g_pScriptingManager;
-
 // Timer functions
 _BEGIN_CLASS(timer)
 _MEMBER_FUNCTION(timer, constructor, -1, NULL)
@@ -38,7 +35,7 @@ _MEMBER_FUNCTION_RELEASE_HOOK(timer)
 {
 	CScriptTimer * pTimer = (CScriptTimer *)pInst;
 
-	if(pTimer != NULL && g_pScriptTimerManager->contains(pTimer))
+	if(pTimer != NULL && CScriptTimerManager::GetInstance()->contains(pTimer))
 		pTimer->Kill();
 
 	return 1;
@@ -70,7 +67,7 @@ _MEMBER_FUNCTION_IMPL(timer, constructor)
 	pFunction = stack_get(pVM, 2);
 	CSquirrelArguments * pArguments = new CSquirrelArguments(pVM, 5);
 
-	CScriptTimer * pTimer = new CScriptTimer(g_pScriptingManager->Get(pVM), pFunction, interval, repeations, pArguments);
+	CScriptTimer * pTimer = new CScriptTimer(CScriptingManager::GetInstance()->Get(pVM), pFunction, interval, repeations, pArguments);
 
 	if(SQ_FAILED(sq_setinstance(pVM, pTimer)))
 	{
@@ -80,7 +77,7 @@ _MEMBER_FUNCTION_IMPL(timer, constructor)
 		return 1;
 	}
 
-	g_pScriptTimerManager->push_back(pTimer);
+	CScriptTimerManager::GetInstance()->push_back(pTimer);
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -96,7 +93,7 @@ _MEMBER_FUNCTION_IMPL(timer, isActive)
 		return 1;
 	}
 
-	if(g_pScriptTimerManager->contains(pTimer))
+	if(CScriptTimerManager::GetInstance()->contains(pTimer))
 	{
 		if(pTimer->IsDead())
 		{
@@ -124,7 +121,7 @@ _MEMBER_FUNCTION_IMPL(timer, kill)
 		return 1;
 	}
 
-	if(g_pScriptTimerManager->contains(pTimer) && !pTimer->IsDead())
+	if(CScriptTimerManager::GetInstance()->contains(pTimer) && !pTimer->IsDead())
 	{
 		pTimer->Kill();
 		sq_pushbool(pVM, true);
@@ -147,7 +144,7 @@ _MEMBER_FUNCTION_IMPL(timer, setTraditionalBehavior)
 		return 1;
 	}
 
-	if(pTimer != 0 && g_pScriptTimerManager->contains(pTimer) && !pTimer->IsDead())
+	if(pTimer != 0 && CScriptTimerManager::GetInstance()->contains(pTimer) && !pTimer->IsDead())
 	{
 		bool b;
 		sq_getbool(pVM, 2, (SQBool*)&b);

@@ -10,7 +10,8 @@
 #pragma once
 
 #include <list>
-#include "..\Shared\Scripting\CScriptingManager.h"
+#include <Scripting\CScriptingManager.h>
+#include <Scripting\CScriptTimerManager.h>
 #include "CClientScriptGUIManager.h"
 
 struct ClientScript
@@ -24,6 +25,7 @@ class CClientScriptManager
 private:
 	std::list<ClientScript *> m_clientScripts;
 	CScriptingManager       * m_pScripting;
+	CScriptTimerManager     * m_pScriptTimerManager;
 	CClientScriptGUIManager * m_pGUIManager;
 
 public:
@@ -31,7 +33,9 @@ public:
 	~CClientScriptManager();
 
 	CScriptingManager       * GetScriptingManager() { return m_pScripting; }
+	CScriptTimerManager     * GetScriptTimerManager() { return m_pScriptTimerManager; }
 	CClientScriptGUIManager * GetGUIManager() { return m_pGUIManager; }
+
 	void                      AddScript(String strName, String strPath);
 	void                      RemoveScript(String strName);
 	void                      Load(String strName);

@@ -18,7 +18,15 @@
 
 class CScriptTimerManager : public std::list<CScriptTimer *>
 {
+private:
+	static CScriptTimerManager * m_pInstance;
+
 public:
+	CScriptTimerManager();
+	~CScriptTimerManager();
+
+	static CScriptTimerManager * GetInstance() { return m_pInstance; }
+
 	void Pulse();
 	void HandleScriptUnload(CSquirrel * pScript);
 	bool contains(CScriptTimer* pTimer);

@@ -17,23 +17,23 @@
 
 _MEMBER_FUNCTION_IMPL(Audio, constructor)
 {
-	SQBool bUrl;
-	sq_getbool(pVM,-3,&bUrl);
+	SQBool sqbIsOnlineStream;
+	sq_getbool(pVM, -3, &sqbIsOnlineStream);
+	bool bIsOnlineStream = (sqbIsOnlineStream != 0);
 
-	SQBool bReplay;
-	sq_getbool(pVM,-2,&bReplay);
+	SQBool sqbReplay;
+	sq_getbool(pVM, -2, &sqbReplay);
+	bool bReplay = (sqbReplay != 0);
 
-	const char *szSoundName;
-	sq_getstring ( pVM, -1, &szSoundName );
+	const char * szSoundName;
+	sq_getstring(pVM, -1, &szSoundName);
 
-	bool bToggle = (bUrl != 0);
-	bool bToggle2 = (bReplay != 0);
+	CAudio * pAudio = new CAudio(szSoundName, bReplay, bIsOnlineStream);
 
-	CAudio * pAudio = new CAudio(bToggle, bToggle2, false, szSoundName);
-
-	if(!pAudio || SQ_FAILED(sq_setinstance(pVM, pAudio)))
+	if(!pAudio || !pAudio->Load() || SQ_FAILED(sq_setinstance(pVM, pAudio)))
 	{
 		CLogFile::Printf("Failed to load audio from file %s",szSoundName);
+		SAFE_DELETE(pAudio);
 		sq_pushbool(pVM, false);
 		return 1;
 	}
@@ -85,7 +85,7 @@ _MEMBER_FUNCTION_IMPL(Audio, pause)
 _MEMBER_FUNCTION_IMPL(Audio, isStarted)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
-	sq_pushbool ( pVM, pAudio->IsStarted ( ) );
+	sq_pushbool(pVM, (pAudio->IsPlaying() || pAudio->IsStalled()));
 	return 1;
 }
 
@@ -126,7 +126,7 @@ _MEMBER_FUNCTION_IMPL(Audio, restoreVolume)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
 
-	pAudio->RestoreVolume ( );
+	pAudio->Unmute( );
 
 	sq_pushbool ( pVM, true );
 	return 1;
@@ -160,7 +160,7 @@ _MEMBER_FUNCTION_IMPL(Audio, clearPosition)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
 
-	pAudio->ClearPosition();
+	pAudio->SetUsePosition(false);
 
 	sq_pushbool(pVM, true);
 	return 1;
@@ -173,7 +173,7 @@ _MEMBER_FUNCTION_IMPL(Audio, usePositionSystem)
 	sq_getbool(pVM, -1, &bGet );
 	bool bToggle = (bGet != 0);
 	
-	pAudio->UsePositionSystem(bToggle);
+	pAudio->SetUsePosition(bToggle);
 
 	sq_pushbool ( pVM, true );
 	return 1;
