@@ -173,7 +173,8 @@ void CAudio::Mute()
 	if(!m_bIsMuted)
 	{
 		// Set our volume to 0
-		BASS_ChannelSetAttribute(m_dwChannel, BASS_ATTRIB_VOL, 0.0f);
+		if(m_dwChannel != 0)
+			BASS_ChannelSetAttribute(m_dwChannel, BASS_ATTRIB_VOL, 0.0f);
 
 		// Flag ourselves as muted
 		m_bIsMuted = true;
@@ -191,7 +192,8 @@ void CAudio::Unmute()
 	if(m_bIsMuted)
 	{
 		// Restore our volume
-		BASS_ChannelSetAttribute(m_dwChannel, BASS_ATTRIB_VOL, (m_fVolume * 0.01f));
+		if(m_dwChannel != 0)
+			BASS_ChannelSetAttribute(m_dwChannel, BASS_ATTRIB_VOL, (m_fVolume * 0.01f));
 
 		// Flag ourselves as not muted
 		m_bIsMuted = false;

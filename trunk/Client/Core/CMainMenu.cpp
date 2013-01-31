@@ -1057,6 +1057,7 @@ CMainMenu::CMainMenu()
 
 	m_pLoadingTune = new CAudio("IVMP_LOADING_TUNE_1.mp3", true, false, true);
 	m_pLoadingTune->Load();
+	g_pClient->GetAudioManager()->Add(m_pLoadingTune);
 
 	OnResetDevice();
 }
