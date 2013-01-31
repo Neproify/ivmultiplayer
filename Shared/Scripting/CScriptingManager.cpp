@@ -800,34 +800,18 @@ CSquirrel * CScriptingManager::Load(String strName, String strPath)
 	return pScript;
 }
 
-bool CScriptingManager::Unload(String strName)
+bool CScriptingManager::Unload(CSquirrel * pScript)
 {
-	CSquirrel * pScript = NULL;
-
-	if(m_scripts.size() > 0)
-	{
-		std::list<CSquirrel *>::iterator iter;
-
-		for(iter = m_scripts.begin(); iter != m_scripts.end(); iter++)
-		{
-			if((*iter)->GetName() == strName)
-			{
-				pScript = (*iter);
-				break;
-			}
-		}
-	}
-
 	if(pScript)
 	{
 		CEvents * pEvents = CEvents::GetInstance();
 		pEvents->Call("scriptExit", pScript);
 
 		CSquirrelArguments pArguments;
-		pArguments.push(strName);
+		pArguments.push(pScript->GetName());
 		pEvents->Call("scriptUnload", &pArguments);
 		pEvents->RemoveScript(pScript->GetVM());
-		
+
 #ifdef _SERVER
 		if(g_pModuleManager)
 			g_pModuleManager->ScriptUnload(pScript->GetVM());
@@ -838,6 +822,16 @@ bool CScriptingManager::Unload(String strName)
 		delete pScript;
 		return true;
 	}
+
+	return false;
+}
+
+bool CScriptingManager::Unload(String strName)
+{
+	CSquirrel * pScript = Get(strName);
+
+	if(pScript)
+		return Unload(pScript);
 
 	return false;
 }

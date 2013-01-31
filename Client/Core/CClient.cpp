@@ -916,15 +916,8 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	CLogFile::Printf("Reset world");
 
 	// Destroy the camera and create it again
-	if(m_pCamera)
-	{
-		// jenksta: wtf?
-		m_pCamera->~CCamera();
-		SAFE_DELETE(m_pCamera);
-		m_pCamera = new CCamera(); 
-	}
-	else if(!m_pCamera)
-		m_pCamera = new CCamera(); 
+	SAFE_DELETE(m_pCamera);
+	m_pCamera = new CCamera();
 
 	CLogFile::Printf("Created/Reseted camera instance");
 

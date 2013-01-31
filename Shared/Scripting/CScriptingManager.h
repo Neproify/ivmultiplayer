@@ -104,6 +104,7 @@ public:
 
 	static CScriptingManager * GetInstance() { return m_pInstance; }
 	CSquirrel                * Load(String strName, String strPath);
+	bool                       Unload(CSquirrel * pScript);
 	bool                       Unload(String strName);
 	void                       UnloadAll();
 	void                       RegisterFunction(String strFunctionName, SQFUNCTION pfnFunction, int iParameterCount, String strFunctionTemplate);
