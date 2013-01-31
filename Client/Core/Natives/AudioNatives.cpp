@@ -6,14 +6,16 @@
 // License: See LICENSE in root directory
 //
 //==============================================================================
+
 #include "../Natives.h"
-#include "../CAudio.h"
 #include "AudioNatives.h"
 #include <Scripting/CScriptingManager.h>
-#include "../CClientScriptManager.h"
 #include <Squirrel/sqstate.h>
 #include <Squirrel/sqvm.h>
 #include <Squirrel/sqstring.h>
+#include "../CClient.h"
+
+extern CClient * g_pClient;
 
 _MEMBER_FUNCTION_IMPL(Audio, constructor)
 {
@@ -38,6 +40,7 @@ _MEMBER_FUNCTION_IMPL(Audio, constructor)
 		return 1;
 	}
 
+	g_pClient->GetAudioManager()->Add(pAudio);
 	sq_pushbool(pVM, true);
 	return 1;
 }
@@ -45,40 +48,31 @@ _MEMBER_FUNCTION_IMPL(Audio, constructor)
 _MEMBER_FUNCTION_IMPL(Audio, deleteSound)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
-
-	SAFE_DELETE(pAudio);
-	sq_pushbool ( pVM, true );
+	g_pClient->GetAudioManager()->Remove(pAudio);
+	sq_pushbool(pVM, true);
 	return 1;
-}
-
-void PlayAudioThread(LPVOID lpAudio)
-{
-	((CAudio*)lpAudio)->Play();
-}
-
-void StopAudioThread(LPVOID lpAudio)
-{
-	((CAudio*)lpAudio)->Stop();
 }
 
 _MEMBER_FUNCTION_IMPL(Audio, play)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
-	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)PlayAudioThread, pAudio, NULL, NULL);
+	sq_pushbool(pVM, pAudio->Play());
 	return 1;
 }
 
 _MEMBER_FUNCTION_IMPL(Audio, stop)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
-	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)StopAudioThread, pAudio, NULL, NULL);
+	pAudio->Stop();
+	sq_pushbool(pVM, true);
 	return 1;
 }
 
 _MEMBER_FUNCTION_IMPL(Audio, pause)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
-	pAudio->Pause ( );
+	pAudio->Pause();
+	sq_pushbool(pVM, true);
 	return 1;
 }
 

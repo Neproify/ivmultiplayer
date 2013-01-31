@@ -4,6 +4,7 @@
 // Project: Client.Core
 // Author(s): RootKiller
 //            FRi
+//            jenksta
 // License: See LICENSE in root directory
 //
 //==============================================================================
