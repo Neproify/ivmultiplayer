@@ -161,12 +161,6 @@ bool CClient::OnLoad()
 	// Initialize the client task manager
 	m_pClientTaskManager = new CClientTaskManager();
 
-	// Initialize the audio manager
-	m_pAudioManager = new CAudioManager();
-
-	if(!m_pAudioManager->Initialize())
-		return false;
-
 	// Initialize the game
 	CGame::Initialize();
 
@@ -722,6 +716,12 @@ void CClient::OnGameLoad()
 	// Initialize the pools
 	CGame::GetPools()->Initialize();
 	CLogFile::Printf("Initialized pools");
+
+	// Initialize the audio manager
+	m_pAudioManager = new CAudioManager();
+
+	if(!m_pAudioManager->Initialize())
+		CLogFile::Printf("CAudioManager::Initialize failed");
 
 	// Reset the game
 	InternalResetGame(true);
