@@ -621,6 +621,15 @@ void CClient::OnD3DLostDevice()
 
 void CClient::OnD3DResetDevice()
 {
+	// If our audio manager does not exist create it
+	if(!m_pAudioManager)
+	{
+		m_pAudioManager = new CAudioManager();
+
+		if(!m_pAudioManager->Initialize())
+			CLogFile::Printf("CAudioManager::Initialize failed");
+	}
+
 	// If our GUI instance does not exist create it
 	if(!m_pGUI)
 	{
@@ -716,12 +725,6 @@ void CClient::OnGameLoad()
 	// Initialize the pools
 	CGame::GetPools()->Initialize();
 	CLogFile::Printf("Initialized pools");
-
-	// Initialize the audio manager
-	m_pAudioManager = new CAudioManager();
-
-	if(!m_pAudioManager->Initialize())
-		CLogFile::Printf("CAudioManager::Initialize failed");
 
 	// Reset the game
 	InternalResetGame(true);
