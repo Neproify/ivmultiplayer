@@ -33,6 +33,7 @@ CClient::CClient() : m_pDevice(NULL), m_pChatWindow(NULL), m_pInputWindow(NULL),
 					 m_pMainMenu(NULL), m_pFPSCounter(NULL), m_pDebugView(NULL), m_pVersionIdentifier(NULL), 
 					 m_pFileTransfer(NULL), m_pStreamer(NULL), m_pTime(NULL), m_pEvents(NULL), m_pTrafficLights(NULL), 
 					 m_pCredits(NULL), m_pNameTags(NULL), m_pClientTaskManager(NULL), m_pFireManager(NULL), m_p3DLabelManager(NULL), 
+					 m_pAudioManager(NULL), 
 #ifdef IVMP_WEBKIT
 					 m_pWebKit(NULL), m_pWebView(NULL), 
 #endif
