@@ -840,9 +840,7 @@ void CScriptingManager::UnloadAll()
 {
 	if(m_scripts.size() > 0)
 	{
-		std::list<CSquirrel*>::iterator iter;
-
-		for(iter = m_scripts.begin(); iter != m_scripts.end(); iter++)
+		for(std::list<CSquirrel *>::iterator iter = m_scripts.begin(); iter != m_scripts.end(); iter++)
 		{
 			Unload((*iter)->GetName());
 			iter = m_scripts.begin();
@@ -851,6 +849,7 @@ void CScriptingManager::UnloadAll()
 
 	m_scripts.clear();
 }
+
 void CScriptingManager::RegisterFunction(String strFunctionName, SQFUNCTION pfnFunction, int iParameterCount, String strFunctionTemplate)
 {
 	ScriptingFunction * pFunction = new ScriptingFunction;
