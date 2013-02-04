@@ -53,6 +53,9 @@ bool CClient::OnLoad()
 	// Install the exception handler
 	CExceptionHandler::Install();
 
+	// Set our exception handler callback
+	CExceptionHandler::SetCallback(ExceptionHandlerCallback);
+
 	// jenksta: wtf?
 	// Delete chatlog
 	CLogFile::Open("Chatlog.log");
@@ -790,6 +793,19 @@ void CClient::OnGameProcess()
 		else
 			iTextTime = 0;
 	}
+}
+
+void CClient::ExceptionHandlerCallback(String& strReportData)
+{
+	// Get our crash reporter path
+	String strApplicationPath = SharedUtility::GetAbsolutePath("Client.CrashReporter" DEBUG_SUFFIX ".exe ");
+
+	// Generate the command line
+	String strCommandLine("%s %s", strApplicationPath.Get(), strReportData.Get());
+
+	// Start our crash reporter
+	if(!CreateProcess(strApplicationPath.Get(), (char *)strCommandLine.Get(), NULL, NULL, TRUE, NULL, NULL, SharedUtility::GetAppPath(), NULL, NULL))
+		CLogFile::Printf("Failed to start crash reporter.");
 }
 
 void CClient::InternalResetGame(bool bAutoConnect)
