@@ -129,20 +129,14 @@ Section "Install" SecDummy
 	
 	File ..\..\Binary\bass.dll
 	
-	SetOutPath "$GTAIVDirectory\common\data\"
-	File ..\..\Binary\gameplay_files\loadingscreen\loadingscreens_ivmp.dat
-	
-	SetOutPath "$GTAIVDirectory\pc\textures\"
-	File ..\..\Binary\gameplay_files\loadingscreen\loadingscreens_ivmp_textures.wtd
-	
 	SetOutPath "$INSTDIR"
 
 	File ..\LICENSE
 	File ..\..\Binary\Client.Launcher.exe
-	File ..\..\Binary\crashreporter.exe
 	File ..\..\Binary\Client.LaunchHelper.dll
 	File ..\..\Binary\Client.Core.dll
 	File ..\..\Binary\Network.Core.dll
+	File ..\..\Binary\Client.CrashReporter.exe
 
 	CreateDirectory "$INSTDIR\CEGUI"
 	CreateDirectory "$INSTDIR\CEGUI\fonts"
@@ -214,16 +208,17 @@ Section "Uninstall"
 	Delete "$INSTDIR\Client.LaunchHelper.dll"
 	Delete "$INSTDIR\Client.Core.dll"
 	Delete "$INSTDIR\Network.Core.dll"
+	Delete "$INSTDIR\Binary\Client.CrashReporter.exe"
 
 	; Remove Directories
 
-	RMDIR "$INSTDIR\CEGUI"
 	RMDIR "$INSTDIR\CEGUI\fonts"
 	RMDIR "$INSTDIR\CEGUI\imagesets"
 	RMDIR "$INSTDIR\CEGUI\layouts"
 	RMDIR "$INSTDIR\CEGUI\looknfeel"
 	RMDIR "$INSTDIR\CEGUI\schemes"
 	RMDIR "$INSTDIR\CEGUI\xml_schemas"
+	RMDIR "$INSTDIR\CEGUI"
 
 	; Remove Program Files Folder
 
@@ -237,8 +232,11 @@ Section "Uninstall"
 
 	Delete "$DESKTOP\${NAME}.lnk"
 	
-	; Delete the bass library
+	; Delete the bass library and load screen files
+
 	Delete "$GTAIVDirectory\bass.dll"
+	Delete "$GTAIVDirectory\common\data\loadingscreens_ivmp.dat"
+	Delete "$GTAIVDirectory\pc\textures\loadingscreens_ivmp_textures.wtd"
 	
 	; Delete Installer
 

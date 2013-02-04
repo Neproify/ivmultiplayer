@@ -12,7 +12,7 @@
 #include "Common.h"
 #include <stdio.h>
 
-typedef void (* ExceptionHandlerCallback_t)(FILE * fFile);
+typedef void (* ExceptionHandlerCallback_t)(String& strReportData);
 
 class CExceptionHandler
 {

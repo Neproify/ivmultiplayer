@@ -98,14 +98,14 @@ void CExceptionHandler::WriteExceptionReport()
 	// Open the log file
 	FILE * fFile = fopen(strLogPath, "w");
 	CLogFile::Printf(strLogPath);
-	String reportData;
 
 	// Did the log file open successfully?
 	if(fFile)
 	{
-		// Write the unhandled exception report start notice to the log file
 		String strReportData;
-		strReportData += "-- Unhandled Exception Report Start --\n";
+
+		// Write the unhandled exception report start notice to the log file
+		fprintf(fFile, "-- Unhandled Exception Report Start --\n");
 
 #ifdef WIN32
 		// Write the exception code and exception code string to the log file
@@ -142,8 +142,6 @@ void CExceptionHandler::WriteExceptionReport()
 			}
 		}
 
-		strReportData += "--Unhandled Exception Report End --\n";
-
 		// Write the registers segment header
 		fprintf(fFile, "Exception registers: \n");
 
@@ -176,34 +174,26 @@ void CExceptionHandler::WriteExceptionReport()
 		}
 #else
 		void * pArray[50];
-		int size = backtrace(pArray, 50);
-		char ** szMessages = backtrace_symbols(pArray, size);
+		int iSize = backtrace(pArray, 50);
+		char ** szMessages = backtrace_symbols(pArray, iSize);
 
-		for(int i = 0; i < size && szMessages != NULL; i++)
-			fprintf(fFile, "[Backtrace %d]: %s\n", szMessages[i]);
-#endif
-
-		fprintf(fFile, strReportData.Get());
-
-		// Print a message in the log file
-		CLogFile::Printf("IV:MP has crashed. Please see %s for more information.", strLogPath.Get());
-
-		// TODO: Move this to the client exception handler callback
-#ifdef WIN32
-		WinExec((SharedUtility::GetAbsolutePath("Client.CrashReporter" DEBUG_SUFFIX ".exe ") + reportData).Get(), SW_SHOW);
-		return;
+		for(int i = 0; i < iSize && (szMessages[i] != NULL); i++)
+			strReportData.AppendF("[Backtrace %d]: %s\n", i, szMessages[i]);
 #endif
 
 		// If we have a callback call it
 		if(m_pfnCallback)
-			m_pfnCallback(fFile);
+			m_pfnCallback(strReportData);
+
+		// Print the report data to the log file
+		fprintf(fFile, strReportData.Get());
 
 		// Write the unhandled exception report end notice to the log file
 		fprintf(fFile, "--Unhandled Exception Report End --\n");
-	}
 
-	// Close the log file
-	fclose(fFile);
+		// Close the log file
+		fclose(fFile);
+	}
 
 #ifdef WIN32
 	// Get the minidump file path
@@ -231,10 +221,6 @@ void CExceptionHandler::WriteExceptionReport()
 
 	// Print a message in the log file
 	CLogFile::Printf("IV:MP has crashed. Please see %s for more information.", strLogPath.Get());
-
-#ifdef WIN32
-	CreateProcess(SharedUtility::GetAbsolutePath("crashreporter.exe"), (LPSTR)strPath.Get(), NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-#endif
 }
 
 #ifdef WIN32
@@ -251,7 +237,7 @@ void CExceptionHandler::ExceptionHandler(int iSignal)
 #ifndef WIN32
 	exit(0);
 #else
-	SharedUtility::_TerminateProcess("GTAIV.exe");
+	TerminateProcess(GetCurrentProcess(), 0);
 
 	return EXCEPTION_EXECUTE_HANDLER;	
 #endif

@@ -100,7 +100,7 @@ private:
 
 	CHttpClient          * m_pHttpClient;
 
-	void InternalResetGame(bool bAutoConnect);
+	void                   InternalResetGame(bool bAutoConnect);
 
 public:
 	CClient();
@@ -161,13 +161,14 @@ public:
 	void                   SetPassword(String strPassword) { m_strPassword = strPassword; }
 	String                 GetPassword() { return m_strPassword; }
 
-	bool OnLoad();
-	void OnUnload();
-	void OnD3DEndScene();
-	void OnD3DLostDevice();
-	void OnD3DResetDevice();
-	void OnGameLoad();
-	void OnGameProcess();
+	bool                   OnLoad();
+	void                   OnUnload();
+	void                   OnD3DEndScene();
+	void                   OnD3DLostDevice();
+	void                   OnD3DResetDevice();
+	void                   OnGameLoad();
+	void                   OnGameProcess();
+	static void            ExceptionHandlerCallback(String& strReportData);
 
-	void ResetGame(bool bResetNow = false, bool bAutoConnect = false);
+	void                   ResetGame(bool bResetNow = false, bool bAutoConnect = false);
 };
