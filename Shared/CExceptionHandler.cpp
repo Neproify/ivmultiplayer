@@ -81,9 +81,9 @@ void CExceptionHandler::WriteExceptionReport()
 
 	// Append the client or server string to the path
 #ifdef _SERVER
-	strPath.Append("/Server");
+	strPath.Append("\Server");
 #else
-	strPath.Append("/Client");
+	strPath.Append("\Client");
 #endif
 
 	// Append the operating system string to the path
@@ -97,7 +97,6 @@ void CExceptionHandler::WriteExceptionReport()
 
 	// Open the log file
 	FILE * fFile = fopen(strLogPath, "w");
-	CLogFile::Printf(strLogPath);
 
 	// Did the log file open successfully?
 	if(fFile)
@@ -143,12 +142,12 @@ void CExceptionHandler::WriteExceptionReport()
 		}
 
 		// Write the registers segment header
-		fprintf(fFile, "Exception registers: \n");
+		strReportData.AppendF("Exception registers: \n");
 
 		// If we have segments context information then write it to the log file
 		if(ExceptionInfo->ContextRecord->ContextFlags & CONTEXT_SEGMENTS)
 		{
-			fprintf(fFile, "GS=0x%p FS=0x%p ES=0x%p DS=0x%p\n", ExceptionInfo->ContextRecord->SegGs, 
+			strReportData.AppendF("GS=0x%p FS=0x%p ES=0x%p DS=0x%p\n", ExceptionInfo->ContextRecord->SegGs, 
 				ExceptionInfo->ContextRecord->SegFs, ExceptionInfo->ContextRecord->SegEs, 
 				ExceptionInfo->ContextRecord->SegDs);
 		}
@@ -156,20 +155,20 @@ void CExceptionHandler::WriteExceptionReport()
 		// If we have integer context information then write it to the log file
 		if(ExceptionInfo->ContextRecord->ContextFlags & CONTEXT_INTEGER)
 		{
-			fprintf(fFile, "EDI=0x%p ESI=0x%p EBX=0x%p EDX=0x%p\n", ExceptionInfo->ContextRecord->Edi, 
+			strReportData.AppendF("EDI=0x%p ESI=0x%p EBX=0x%p EDX=0x%p\n", ExceptionInfo->ContextRecord->Edi, 
 				ExceptionInfo->ContextRecord->Esi, ExceptionInfo->ContextRecord->Ebx,
 				ExceptionInfo->ContextRecord->Edx);
-			fprintf(fFile, "ECX=0x%p EAX=0x%p\n", ExceptionInfo->ContextRecord->Ecx, 
+			strReportData.AppendF("ECX=0x%p EAX=0x%p\n", ExceptionInfo->ContextRecord->Ecx, 
 				ExceptionInfo->ContextRecord->Eax);
 		}
 
 		// If we have control context information then write it to the log file
 		if(ExceptionInfo->ContextRecord->ContextFlags & CONTEXT_CONTROL)
 		{
-			fprintf(fFile, "EBP=0x%p EIP=0x%p CS=0x%p EFLAGS=0x%p\n", ExceptionInfo->ContextRecord->Ebp, 
+			strReportData.AppendF("EBP=0x%p EIP=0x%p CS=0x%p EFLAGS=0x%p\n", ExceptionInfo->ContextRecord->Ebp, 
 				ExceptionInfo->ContextRecord->Eip, ExceptionInfo->ContextRecord->SegCs, 
 				ExceptionInfo->ContextRecord->EFlags);
-			fprintf(fFile, "ESP=0x%p SS=0x%p\n", ExceptionInfo->ContextRecord->Esp, 
+			strReportData.AppendF("ESP=0x%p SS=0x%p\n", ExceptionInfo->ContextRecord->Esp, 
 				ExceptionInfo->ContextRecord->SegSs);
 		}
 #else
@@ -194,6 +193,8 @@ void CExceptionHandler::WriteExceptionReport()
 		// Close the log file
 		fclose(fFile);
 	}
+	else
+		CLogFile::Printf("Failed to open the crash log file.");
 
 #ifdef WIN32
 	// Get the minidump file path
@@ -212,11 +213,14 @@ void CExceptionHandler::WriteExceptionReport()
 		exceptionInfo.ClientPointers = FALSE;
 
 		// Write the minidump to the minidump file
-		bool bWritten = (MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &exceptionInfo, NULL, NULL) != 0);
+		if(!MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &exceptionInfo, NULL, NULL))
+			CLogFile::Printf("Failed to write the minidump file.");
 
 		// Close the minidump file
 		CloseHandle(hFile);
 	}
+	else
+		CLogFile::Printf("Failed to open the minidump file.");
 #endif
 
 	// Print a message in the log file
