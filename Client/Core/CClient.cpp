@@ -865,6 +865,7 @@ void CClient::InternalResetGame(bool bAutoConnect)
 
 			if(pVehicle)
 				pVehicle->MarkAsActorVehicle(false);
+		}
 	}
 
 	SAFE_DELETE(m_pVehicleManager);
@@ -951,7 +952,8 @@ void CClient::InternalResetGame(bool bAutoConnect)
 
 	CLogFile::Printf("Created/Reseted camera instance");
 
-	if(m_pCamera) {
+	if(m_pCamera)
+	{
 		m_pCamera->ActivateScriptCam();
 		m_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
 		//if(!m_pNetworkManager->IsConnected())

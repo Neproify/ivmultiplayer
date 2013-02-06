@@ -1328,7 +1328,7 @@ void CNetworkVehicle::SetComponentState(unsigned char ucSlot, bool bComponent)
 	}
 }
 
-int CNetworkVehicle::GetComponentState(unsigned char ucSlot)
+bool CNetworkVehicle::GetComponentState(unsigned char ucSlot)
 {
 	THIS_CHECK_R(__FUNCTION__,false)
 	if(ucSlot <= 8)
