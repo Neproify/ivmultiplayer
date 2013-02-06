@@ -250,4 +250,7 @@ void CFileTransferManager::TransferThread(CThread * pCreator)
 		// Lock our transfer list mutex
 		pThis->m_transferListMutex.Lock();
 	}
+
+	// Unlock our transfer list mutex
+	pThis->m_transferListMutex.Unlock();
 }
