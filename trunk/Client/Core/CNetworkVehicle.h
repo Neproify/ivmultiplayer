@@ -68,7 +68,7 @@ private:
 	unsigned int     m_uiHealth;
 	unsigned int	 m_uiInterior;
 	int				 m_iVehicleType;
-	int				 m_iComponents[9];
+	bool			 m_bComponents[9];
 	EMPTYVEHICLESYNCPACKET	m_oldEmptySyncData;
 
 	bool             Create(bool bStreamIn = false);
@@ -178,8 +178,8 @@ public:
 	void             SetIndicatorState(bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight);
 	bool             GetIndicatorState(unsigned char ucSlot);
 
-	void             SetComponentState(unsigned char ucSlot, int iComponent);
-	int              GetComponentState(unsigned char ucSlot);
+	void             SetComponentState(unsigned char ucSlot, bool bState);
+	bool             GetComponentState(unsigned char ucSlot);
 
 	void             SetVariation(unsigned char ucVariation);
 	unsigned char    GetVariation();

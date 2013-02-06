@@ -43,7 +43,7 @@ CVehicle::~CVehicle()
 void CVehicle::Reset()
 {
 	m_pDriver = NULL;
-	memset(m_pPassengers, 0, sizeof(m_pPassengers));
+	memset(&m_pPassengers, 0, sizeof(m_pPassengers));
 	m_uiHealth = 1000;
 	m_fPetrolTankHealth = 1000.0f;
 	m_vecPosition = m_vecSpawnPosition;
@@ -66,17 +66,9 @@ void CVehicle::Reset()
 	m_fDoor[3] = 0.0f;
 	m_fDoor[4] = 0.0f;
 	m_fDoor[5] = 0.0f;
-	m_bWindow[0] = false;
-	m_bWindow[1] = false;
-	m_bWindow[2] = false;
-	m_bWindow[3] = false;
+	memset(&m_bWindow, 0, sizeof(m_bWindow));
 	m_bTaxiLight = true;
-	m_bTyre[0] = false;
-	m_bTyre[1] = false;
-	m_bTyre[2] = false;
-	m_bTyre[3] = false;
-	m_bTyre[4] = false;
-	m_bTyre[5] = false;
+	memset(&m_bTyre, 0, sizeof(m_bTyre));
 	m_bGpsState = false;
 }
 
@@ -129,16 +121,13 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 	bsSend.Write(m_iLocked);
 	bsSend.Write(m_bEngineStatus);
 	bsSend.Write(m_bLights);
-	bsSend.Write(m_fDoor[0]);
-	bsSend.Write(m_fDoor[1]);
-	bsSend.Write(m_fDoor[2]);
-	bsSend.Write(m_fDoor[3]);
-	bsSend.Write(m_fDoor[4]);
-	bsSend.Write(m_fDoor[5]);
-	bsSend.Write(m_bWindow[0]);
-	bsSend.Write(m_bWindow[1]);
-	bsSend.Write(m_bWindow[2]);
-	bsSend.Write(m_bWindow[3]);
+
+	for(int i = 0; i < 6; i++)
+		bsSend.Write(m_fDoor[i]);
+
+	for(int i = 0; i < 4; i++)
+		bsSend.Write(m_bWindow[i]);
+
 	bsSend.Write(m_bTaxiLight);
 	bsSend.Write(m_bGpsState);
 

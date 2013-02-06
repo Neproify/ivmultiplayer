@@ -61,7 +61,7 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash, int iModelId)
 
 	m_iVehicleType = iModelId;
 
-	memset(m_iComponents, 0, sizeof(m_iComponents));
+	memset(m_bComponents, 0, sizeof(m_bComponents));
 	m_interp.pos.ulFinishTime = 0;
 	m_interp.rot.ulFinishTime = 0;
 	
@@ -262,7 +262,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 			// Fix missing components at nrg, helicopter etc.
 			if(m_iVehicleType > 104 && m_iVehicleType < 116)
-				SetComponentState(0, 1);
+				SetComponentState(0, true);
 
 			m_bActive = true;
 			return true;
@@ -305,7 +305,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 		// Fix missing components at nrg, helicopter etc.
 		if(m_iVehicleType > 104 && m_iVehicleType < 116)
-			SetComponentState(0, 1);
+			SetComponentState(0, true);
 
 		m_bActive = true;
 		return true;
@@ -434,12 +434,12 @@ void CNetworkVehicle::StreamIn()
 
 		// Fix missing components at nrg, helicopter etc.
 		if(m_iVehicleType > 104 && m_iVehicleType < 116)
-			SetComponentState(0, 1);
+			SetComponentState(0, true);
 		else
 		{
 			// Set the extras
-			for(int i = 0; i <= 8; ++ i)
-				SetComponentState(i, m_iComponents[i]);
+			for(int i = 0; i <= 8; ++i)
+				SetComponentState(i, m_bComponents[i]);
 		}
 
 		// Restore the variation
@@ -1315,25 +1315,24 @@ bool CNetworkVehicle::GetIndicatorState(unsigned char ucSlot)
 	return false;
 }
 
-void CNetworkVehicle::SetComponentState(unsigned char ucSlot, int iComponent)
+void CNetworkVehicle::SetComponentState(unsigned char ucSlot, bool bComponent)
 {
 	THIS_CHECK(__FUNCTION__);
-	if(ucSlot >= 0 && ucSlot <= 8)
+	if(ucSlot <= 8)
 	{
-		m_iComponents[ucSlot] = iComponent;
+		m_bComponents[ucSlot] = bComponent;
 
 		// Are we spawned?
-		if(IsSpawned()) {
-			m_pVehicle->SetComponentState( (ucSlot + 1), iComponent ? true : false );
-		}
+		if(IsSpawned())
+			m_pVehicle->SetComponentState((ucSlot + 1), bComponent);
 	}
 }
 
 int CNetworkVehicle::GetComponentState(unsigned char ucSlot)
 {
 	THIS_CHECK_R(__FUNCTION__,false)
-	if(ucSlot >= 0 && ucSlot <= 8)
-		return m_iComponents[ucSlot];
+	if(ucSlot <= 8)
+		return m_bComponents[ucSlot];
 
 	return false;
 }

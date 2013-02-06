@@ -308,7 +308,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// Set the components
 	for(int i = 0; i < 9; ++ i)
-		pVehicle->SetComponentState(i, (int)bComponents[i]);
+		pVehicle->SetComponentState(i, bComponents[i]);
 
 	// Sound horn if needed
 	pVehicle->SoundHorn(iHornDuration);
@@ -344,7 +344,6 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// Flag the vehicle as can be streamed in
 	pVehicle->SetCanBeStreamedIn(true);
-	
 }
 
 void CClientRPCHandler::DeleteVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -2636,8 +2635,8 @@ void CClientRPCHandler::ScriptingSetVehicleComponents(CBitStream * pBitStream, C
 		// Read the component values
 		for(unsigned char i = 0; i < 9; ++ i)
 		{
-			bool bOn = pBitStream->ReadBit();
-			pVehicle->SetComponentState(i, bOn);
+			bool bState = pBitStream->ReadBit();
+			pVehicle->SetComponentState(i, bState);
 		}
 	}
 }

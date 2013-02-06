@@ -81,9 +81,9 @@ void CExceptionHandler::WriteExceptionReport()
 
 	// Append the client or server string to the path
 #ifdef _SERVER
-	strPath.Append("\Server");
+	strPath.Append("\\Server");
 #else
-	strPath.Append("\Client");
+	strPath.Append("\\Client");
 #endif
 
 	// Append the operating system string to the path
@@ -113,7 +113,7 @@ void CExceptionHandler::WriteExceptionReport()
 
 		// Write the exception address to the log file
 #ifndef _SERVER
-		strReportData.AppendF("Exception address: 0x%p (0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, CGame::GetBase());
+		strReportData.AppendF("Exception address: 0x%p (Game base: 0x%p)\n", ExceptionInfo->ExceptionRecord->ExceptionAddress, CGame::GetBase());
 		strReportData.AppendF("Exception real-add: 0x%p / 0x%p\n", ((int)ExceptionInfo->ExceptionRecord->ExceptionAddress-CGame::GetBase()), (CGame::GetBase()-(int)ExceptionInfo->ExceptionRecord->ExceptionAddress));
 #else
 		strReportData.AppendF("Exception address: 0x%p\n", ExceptionInfo->ExceptionRecord->ExceptionAddress);
@@ -243,7 +243,7 @@ void CExceptionHandler::ExceptionHandler(int iSignal)
 #else
 	TerminateProcess(GetCurrentProcess(), 0);
 
-	return EXCEPTION_EXECUTE_HANDLER;	
+	return EXCEPTION_EXECUTE_HANDLER;
 #endif
 }
 

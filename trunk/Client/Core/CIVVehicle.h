@@ -251,7 +251,7 @@ public:
 	void        SetEngineStatus(bool bStatus, bool bUnknown);
 	bool        GetEngineStatus();
 	void        SoundHorn(int iDuration);
-	void        SetComponentState(int iComponent, bool bState);
+	void        SetComponentState(BYTE byteComponent, bool bState);
 	BYTE        GetTextureVariationCount();
 	void        SetTextureVariation(int iVariation);
 	int         GetTextureVariation();
@@ -261,7 +261,6 @@ public:
 	bool		GetGPSState();
 	void		BurstCarTyre(int iTyre);
 	void		GetDeformation(CVector3& vecPos);
-
 	void		SetCarCanBeDamaged(bool bDamage);
 	void		RemoveCarWindow(int iWindow);
 	void		SetLightsState(int iState);
