@@ -18,7 +18,8 @@ extern CClient * g_pClient;
 
 CAudio::CAudio(String strStreamName, bool bReplay, bool bIsOnlineStream, bool bIsGameFile) : 
 			   m_strStreamName(strStreamName), m_bReplay(bReplay), m_bIsOnlineStream(bIsOnlineStream), 
-			   m_bIsGameFile(bIsGameFile), m_bUsePosition(false)
+			   m_bIsGameFile(bIsGameFile), m_bUsePosition(false), m_fRange(0.0f), m_fVolume(100.0f),
+			   m_bIsMuted(false), m_dwChannel(0)
 {
 	
 }

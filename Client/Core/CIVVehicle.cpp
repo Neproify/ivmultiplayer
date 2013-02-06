@@ -513,7 +513,7 @@ void CIVVehicle::SoundHorn(int iDuration)
 		pVehicle->m_dwHorn = 30 * iDuration / 1000;
 }
 
-void CIVVehicle::SetComponentState(int iComponent, bool bState)
+void CIVVehicle::SetComponentState(BYTE byteComponent, bool bState)
 {
 #ifdef EXT_LOG
 	CLogFile::Printf(__FUNCSIG__);
@@ -523,11 +523,13 @@ void CIVVehicle::SetComponentState(int iComponent, bool bState)
 
 	if(pVehicle)
 	{
-		if((iComponent - 1) <= 8)
+		byteComponent += 1;
+
+		if((byteComponent - 1) <= 8)
 		{
-			DWORD dwFunc = (CGame::GetBase() + 0x9C65B0);
+			DWORD dwFunc = (CGame::GetBase() + 0x9C65B0); // CVehicle::SetComponentDisabled(int iComponent, bool bDisabled)
 			bool _bState = !bState;
-			int _iComponent = (iComponent + 0x58);
+			int _iComponent = (byteComponent + 88);
 			_asm
 			{
 				push _bState

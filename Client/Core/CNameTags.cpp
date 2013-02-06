@@ -137,7 +137,7 @@ void CNameTags::Draw()
 			CNetworkPlayer * pPlayer = pPlayerManager->GetAt(i);
 
 			// Is the current player spawned and not the local player?
-			if(pPlayer->IsSpawned() && !pPlayer->IsLocalPlayer())
+			if(pPlayer && pPlayer->IsSpawned() && !pPlayer->IsLocalPlayer())
 			{
 				// Get the player position + add z coord
 				pPlayer->GetPosition(vecWorldPosition);

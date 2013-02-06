@@ -804,7 +804,13 @@ void CClient::ExceptionHandlerCallback(String& strReportData)
 	String strCommandLine("%s %s", strApplicationPath.Get(), strReportData.Get());
 
 	// Start our crash reporter
-	if(!CreateProcess(strApplicationPath.Get(), (char *)strCommandLine.Get(), NULL, NULL, TRUE, NULL, NULL, SharedUtility::GetAppPath(), NULL, NULL))
+	STARTUPINFO siStartupInfo;
+	PROCESS_INFORMATION piProcessInfo;
+	memset(&siStartupInfo, 0, sizeof(siStartupInfo));
+	memset(&piProcessInfo, 0, sizeof(piProcessInfo));
+	siStartupInfo.cb = sizeof(siStartupInfo);
+
+	if(!CreateProcess(strApplicationPath.Get(), (char *)strCommandLine.Get(), NULL, NULL, TRUE, NULL, NULL, SharedUtility::GetAppPath(), &siStartupInfo, &piProcessInfo))
 		CLogFile::Printf("Failed to start crash reporter.");
 }
 
@@ -854,7 +860,11 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	if(m_pVehicleManager)
 	{
 		for(EntityId i = 0; i < MAX_PLAYERS; i++)
-			m_pVehicleManager->Get(i)->MarkAsActorVehicle(false);
+		{
+			CNetworkVehicle * pVehicle = m_pVehicleManager->Get(i);
+
+			if(pVehicle)
+				pVehicle->MarkAsActorVehicle(false);
 	}
 
 	SAFE_DELETE(m_pVehicleManager);

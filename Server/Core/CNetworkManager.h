@@ -34,7 +34,7 @@ public:
 	bool                  Startup(int iPort, int iMaxPlayers, String strPassword, String strHostAddress);
 	static void           PacketHandler(CPacket * pPacket);
 	void                  Process();
-	void                  RPC(RPCIdentifier rpcId, CBitStream * pBitStream, ePacketPriority priority, ePacketReliability reliability, EntityId playerId, bool bBroadcast, char cOrderingChannel = PACKET_CHANNEL_DEFAULT);
+	void                  RPC(RPCIdentifier rpcId, CBitStream * pBitStream, ePacketPriority priority, ePacketReliability reliability, EntityId playerId = INVALID_ENTITY_ID, bool bBroadcast = true, char cOrderingChannel = PACKET_CHANNEL_DEFAULT);
 	String                GetPlayerIp(EntityId playerId);
 	unsigned short        GetPlayerPort(EntityId playerId);
 	String                GetPlayerSerial(EntityId playerId);
