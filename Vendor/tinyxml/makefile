@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -Wall -D_SERVER -static
+CFLAGS=-m32 -c -Wall -D_SERVER -static
 LDFLAGS=-lpthread -static
 SOURCES=$(wildcard *.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
