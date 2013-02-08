@@ -8,7 +8,7 @@
 //==============================================================================
 
 #include "../Natives.h"
-#include "..\C3DLabels.h"
+#include "../C3DLabels.h"
 #include <SharedUtility.h>
 
 

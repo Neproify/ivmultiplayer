@@ -30,13 +30,6 @@
 #include <errno.h>
 #include "SharedUtility.h"
 #include <stdio.h>
-#undef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-#pragma warning(disable:4996)
-#ifndef __NETWORKCORE
-#include "..\Network\Core\RakNet\gettimeofday.h"
-#include "..\Network\Core\RakNet\gettimeofday.cpp"
-#endif
 
 #ifndef _WIN32
 #define MAX_PATH PATH_MAX
@@ -427,13 +420,7 @@ namespace SharedUtility
 	unsigned long GetTime()
 	{
 #ifdef WIN32
-#ifndef __NETWORKCORE
-		timeval ts;
-		gettimeofday(&ts,0);
-		return (DWORD)(ts.tv_sec * 1000 + (ts.tv_usec / 1000));
-#else
 		return timeGetTime();
-#endif
 #else
 		timeval ts;
 		gettimeofday(&ts,0);
