@@ -45,6 +45,7 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash, int iModelId)
 	m_bActive(false),
 	m_iVehicleType(-1)
 {
+	m_iVehicleType = iModelId;
 
 	for(int i = 0; i < 8; i++)
 		m_pPassengers[i] = NULL;
@@ -54,22 +55,16 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash, int iModelId)
 	memset(&m_vecRotation, 0, sizeof(CVector3));
 	memset(&m_vecMoveSpeed, 0, sizeof(CVector3));
 	memset(&m_vecTurnSpeed, 0, sizeof(CVector3));
-	memset(m_byteColors, 0, sizeof(m_byteColors));
-	
-	memset(m_bIndicatorState, 0, sizeof(m_bIndicatorState));
-	SetIndicatorState(false, false, false, false);
+	memset(&m_byteColors, 0, sizeof(m_byteColors));
+	memset(&m_bIndicatorState, 0, sizeof(m_bIndicatorState));
+	memset(&m_bComponents, 0, sizeof(m_bComponents));
+	memset(&m_bWindow, 0, sizeof(m_bWindow));
 
-	m_iVehicleType = iModelId;
-
-	memset(m_bComponents, 0, sizeof(m_bComponents));
-	m_interp.pos.ulFinishTime = 0;
-	m_interp.rot.ulFinishTime = 0;
-	
 	for(int i = 0; i < 6; i++)
 		m_fDoor[i] = 0.0f;
-	
-	for(int i = 0; i < 4; i++)
-		m_bWindow[i] = false;
+
+	m_interp.pos.ulFinishTime = 0;
+	m_interp.rot.ulFinishTime = 0;
 }
 CNetworkVehicle::~CNetworkVehicle()
 {
@@ -226,7 +221,8 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 		if(!m_pVehicle)
 			return false;
 		
-		if(bStreamIn) {
+		if(bStreamIn)
+		{
 			// Set initial colors
 			SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
 
@@ -1542,8 +1538,9 @@ void CNetworkVehicle::SetEngineState(bool bState)
 {
 	THIS_CHECK(__FUNCTION__);
 	// Are we spawned?
-	if(IsSpawned() && GetEngineState() != bState) {
-		m_pVehicle->SetEngineStatus(bState ? 1 : 0, 1);
+	if(IsSpawned())
+	{
+		m_pVehicle->SetEngineStatus(bState, 1);
 		m_bEngineStatus = bState;
 	}
 }

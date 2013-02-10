@@ -198,3 +198,17 @@ CIVTaskSimpleTriggerLookAt::CIVTaskSimpleTriggerLookAt(CIVEntity * pEntity, int 
 		call COffsets::FUNC_CTaskSimpleTriggerLookAt__Constructor
 	}
 }
+
+CIVTaskComplexPlayerOnFoot::CIVTaskComplexPlayerOnFoot()
+{
+	// Create the task
+	Create();
+
+	// Call the task constructor
+	IVTask * pTask = GetTask();
+	_asm
+	{
+		mov ecx, pTask
+		call COffsets::FUNC_CTaskComplexPlayerOnFoot__Constructor
+	}
+}

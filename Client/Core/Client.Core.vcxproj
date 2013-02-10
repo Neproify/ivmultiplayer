@@ -134,6 +134,7 @@
     <ClInclude Include="AnimGroups.h" />
     <ClInclude Include="CDebugView.h" />
     <ClInclude Include="CIVTrain.h" />
+    <ClInclude Include="CIVWeapon.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="CTrains.h" />
     <ClInclude Include="Input.h" />
@@ -318,6 +319,7 @@
     <ClCompile Include="CHooks.cpp" />
     <ClCompile Include="CDebugView.cpp" />
     <ClCompile Include="CIVTrain.cpp" />
+    <ClCompile Include="CIVWeapon.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="CTrains.cpp" />
     <ClCompile Include="Input.cpp" />

@@ -10,23 +10,27 @@
 #pragma once
 
 #include "IVCommon.h"
+#include "CIVWeapon.h"
 #include "CIVPedWeaponSlot.h"
 
 #pragma pack(1)
 class IVPedWeapons
 {
 public:
-	PAD(IVPedWeapons, pad0, 0x38);              // 000-038
-	DWORD m_pWeapon;                            // 038-03C (CWeapon * m_pWeapon)
+	PAD(IVPedWeapons, pad0, 0x18);              // 000-018
+	eWeaponSlot m_currentWeaponSlot;            // 018-01C
+	PAD(IVPedWeapons, pad1, 0x10);              // 01C-02C
+	DWORD m2C;                                  // 02C-030
+	PAD(IVPedWeapons, pad2, 0x8);               // 030-038
+	IVWeapon * m_pCurrentWeapon;                // 038-03C
 	IVPedWeaponSlot m_weapons[WEAPON_SLOT_MAX]; // 03C-0B4
+	// jenksta: not sure if this below is right
 	IVPedWeaponSlot m_weapon;                   // 0B4-0C0
-	PAD(IVPedWeapons, pad1, 0x18);              // 0C0-0D8
+	PAD(IVPedWeapons, pad3, 0x18);              // 0C0-0D8
 	BYTE m_byteShootRate;                       // 0D8-0D9
 	BYTE m_byteAccuracy;                        // 0D9-0DA
 	// 0xF8 - Target Entity?
-	PAD(IVPedWeapons, pad2, 0x3E);              // 0DA-118
-	BYTE m_byteCurrentWeaponSlot;               // 118-119 (See eWeaponSlot)
-	PAD(IVPedWeapons, pad3, 0x1);               // 119-11A
+	PAD(IVPedWeapons, pad4, 0x40);              // 0DA-11A
 };
 #pragma pack()
 
@@ -37,7 +41,8 @@ class CIVPedWeapons
 private:
 	IVPedWeapons     * m_pPedWeapons;
 	CIVPed           * m_pPed;
-	CIVPedWeaponSlot * m_pWeapons[WEAPON_SLOT_MAX];
+	CIVWeapon        * m_pCurrentWeapon;
+	CIVPedWeaponSlot * m_pWeaponSlots[WEAPON_SLOT_MAX];
 	CIVPedWeaponSlot * m_pWeapon;
 
 public:
@@ -48,13 +53,22 @@ public:
 	IVPedWeapons     * GetPedWeapons() { return m_pPedWeapons; }
 	void               SetPed(CIVPed * pPed) { m_pPed = pPed; }
 	CIVPed           * GetPed() { return m_pPed; }
-	CIVPedWeaponSlot * GetWeapon(eWeaponSlot slot) { return m_pWeapons[slot]; }
+	CIVWeapon        * GetCurrentWeapon() { return m_pCurrentWeapon; }
+	CIVPedWeaponSlot * GetWeapon(eWeaponSlot slot) { return m_pWeaponSlots[slot]; }
 	CIVPedWeaponSlot * GetWeapon() { return m_pWeapon; }
 
+	eWeaponType        GetWeaponInSlot(eWeaponSlot weaponSlot);
 	eWeaponSlot        GetCurrentWeaponSlot();
-	void               SetCurrentWeapon(eWeaponType weapon, bool bUnknown = true);
-	CIVPedWeaponSlot * GetCurrentWeapon();
-	eWeaponType        GetCurrentWeaponType();;
-	void               RemoveWeapon(eWeaponType weapon, int iUnknown = 1);
+	eWeaponType        GetCurrentWeaponType();
+	void               SetCurrentWeaponBySlot(eWeaponSlot weaponSlot);
+	void               SetCurrentWeaponByType(eWeaponType weaponType);
+	void               RemoveWeapon(eWeaponType weaponType, int iUnknown = 1);
 	void               RemoveAllWeapons();
+	void               SetCurrentWeaponVisible(bool bVisible);
+	DWORD              GetAmmoBySlot(eWeaponSlot weaponSlot);
+	DWORD              GetAmmoByType(eWeaponType weaponType);
+	void               SetAmmoBySlot(eWeaponSlot weaponSlot, DWORD dwAmmo);
+	void               SetAmmoByType(eWeaponType weaponType, DWORD dwAmmo);
+	DWORD              GetAmmoInClip();
+	void               SetAmmoInClip(DWORD dwAmmoInClip);
 };

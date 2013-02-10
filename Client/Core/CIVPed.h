@@ -117,6 +117,9 @@ public:
 	PAD(IVPed, pad4, 0x43);                 // 26D-2B0
 	IVPedWeapons m_weapons;                 // 2B0-3CA
 	// 0x3A8 - IVEntity * pTargetEntity;
+	// 0x3D0 - audPedAudioEntity
+	// 0x580 - audSpeechAudioEntity
+	// 0x790 - audPlaceableTracker
 	PAD(IVPed, pad5, 0x1B6);                // 3CA-580
 	void * m_pPedAudio;                     // 580-584 // (CPedAudio (audSpeechAudioEntity))
 	PAD(IVPed, pad6, 0x98);                 // 584-61C

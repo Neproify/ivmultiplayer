@@ -58,8 +58,6 @@ bool           CGame::m_bHeadMovement = true;
 bool           CGame::m_bSpecialData[2] = {false, true};
 bool           CGame::m_bKickedFromServer = false;
 
-
-
 void CGame::SetFocused(bool bFocused)
 {
 	// Set the focused flag
@@ -167,6 +165,8 @@ void CGame::Initialize()
 	assert(sizeof(IVVehicle) == 0x20D0);
 	assert(sizeof(IVWeaponInfo) == 0x110);
 	assert(sizeof(CSimpleCollection<void>) == 0x8);
+	assert(sizeof(IVaudWeaponAudioEntity) == 0x18);
+	assert(sizeof(IVWeapon) == 0x70);
 
 	// Get the process base address
 	m_uiBaseAddress = (unsigned int)GetModuleHandle(NULL);
