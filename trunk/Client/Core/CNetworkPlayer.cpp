@@ -170,22 +170,6 @@ bool CNetworkPlayer::Create()
 		call COffsets::FUNC_SetupPedIntelligence
 	}
 
-
-	// Assign initial ped move blend task
-	_asm
-	{
-		mov eax, pPlayerPed
-		mov ecx, [eax+0A90h]
-		mov edx, [ecx]
-		mov eax, [edx+1Ch]
-		call eax
-		push 0 ; force new task
-		push 4 ; type
-		push eax ; task
-		mov eax, pPlayerPed
-		call COffsets::FUNC_CPedTaskManager__SetTaskPriority
-	}
-
 	// Set our player info ped pointer
 	m_pPlayerInfo->SetPlayerPed(pPlayerPed);
 
@@ -217,6 +201,12 @@ bool CNetworkPlayer::Create()
 
 	// Set the interior
 	SetInterior(g_pClient->GetLocalPlayer()->GetInterior());
+
+	// Assign our default task
+	// (Part of player ped creation)
+	CIVTaskComplexPlayerOnFoot * pTask = new CIVTaskComplexPlayerOnFoot();
+	if(pTask)
+		pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
 
 	// Remember that we might have clothes
 	m_bUseCustomClothesOnSpawn = true;
@@ -653,21 +643,24 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			unsigned int uiArmour = GetArmour();
 			float fHeading = GetCurrentHeading();
 			unsigned int uiInterior = GetInterior();
-			unsigned int uiWeap[13], uiAmmo[13], uiUnknown[13];
-			unsigned int uiCurrWeap = GetCurrentWeapon();
-			unsigned int uiAmmoInClip = GetAmmoInClip(uiCurrWeap);
-			for(unsigned int ui = 1; ui < 12; ++ui)
-				GetWeaponInSlot(ui, uiWeap[ui], uiAmmo[ui], uiUnknown[ui]);
+			unsigned int uiCurrentWeapon = GetCurrentWeapon();
+			unsigned int uiAmmoInClip = GetAmmoInClip();
+			unsigned int uiWeaponInfo[WEAPON_SLOT_MAX][2];
+
+			for(unsigned int i = 0; i < WEAPON_SLOT_MAX; i++)
+				GetWeaponInSlot(i, uiWeaponInfo[i][0], uiWeaponInfo[i][1]);
+
 			Scripting::ChangePlayerModel(m_byteGamePlayerNumber, (Scripting::eModel)dwModelHash);
 			m_pPlayerPed->SetPed(m_pPlayerInfo->GetPlayerPed());
 			SetHealth(uiHealth);
 			SetArmour(uiArmour);
 			SetCurrentHeading(fHeading);
 			SetInterior(uiInterior);
-			for(unsigned int ui = 1; ui < 12; ++ui)
-				GiveWeapon(uiWeap[ui], uiAmmo[ui]);
-			SetAmmo(uiCurrWeap, GetAmmo(uiCurrWeap)-uiAmmoInClip+GetMaxAmmoInClip(uiCurrWeap));
-			SetCurrentWeapon(uiCurrWeap);
+
+			for(unsigned int i = 0; i < WEAPON_SLOT_MAX; i++)
+				GiveWeapon(uiWeaponInfo[i][0], (uiWeaponInfo[i][1] + uiAmmoInClip));
+
+			SetCurrentWeapon(uiCurrentWeapon);
 			SetAmmoInClip(uiAmmoInClip);
 		}
 		// End hacky code that needs to be changed
@@ -982,23 +975,17 @@ void CNetworkPlayer::SetCurrentWeapon(unsigned int uiWeaponId)
 {
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
-		m_pPlayerPed->GetPedWeapons()->SetCurrentWeapon((eWeaponType)uiWeaponId);
+	{
+		m_pPlayerPed->GetPedWeapons()->SetCurrentWeaponByType((eWeaponType)uiWeaponId);
+		m_pPlayerPed->GetPedWeapons()->SetCurrentWeaponVisible(true);
+	}
 }
 
 unsigned int CNetworkPlayer::GetCurrentWeapon()
 {
 	THIS_CHECK_R(__FUNCTION__,0)
 	if(IsSpawned())
-	{
-		// TODO: Fix, IVPedWeapons::m_byteCurrentWeaponSlot isn't right
-		/*CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
-
-		if(pWeapon)
-			return pWeapon->GetType();*/
-		unsigned int uiWeaponId;
-		Scripting::GetCurrentCharWeapon(GetScriptingHandle(), (Scripting::eWeapon *)&uiWeaponId);
-		return uiWeaponId;
-	}
+		return (unsigned int)m_pPlayerPed->GetPedWeapons()->GetCurrentWeaponType();
 
 	return 0;
 }
@@ -1007,58 +994,34 @@ void CNetworkPlayer::SetAmmo(unsigned int uiWeaponId, unsigned int uiAmmo)
 {
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
-	{
-		// TODO: Fix, IVPedWeapons::m_byteCurrentWeaponSlot isn't right
-		/*CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
-
-		if(pWeapon)
-			pWeapon->SetAmmo(uiAmmo);*/
-		if(uiAmmo < 0)
-			uiAmmo = 0;
-
-		if(uiWeaponId == GetCurrentWeapon() && GetAmmo(uiWeaponId) == GetAmmoInClip(uiWeaponId) && uiAmmo < GetAmmo(uiWeaponId)) 
-			SetAmmoInClip(uiAmmo);
-		else
-			Scripting::SetCharAmmo(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo);
-	}
+		m_pPlayerPed->GetPedWeapons()->SetAmmoByType((eWeaponType)uiWeaponId, uiAmmo);
 }
 
 unsigned int CNetworkPlayer::GetAmmo(unsigned int uiWeaponId)
 {
 	THIS_CHECK_R(__FUNCTION__,0)
 	if(IsSpawned())
-	{
-		// TODO: Create a function for SetAmmoInClip
-		//SetAmmoInClip()
-		// TODO: Fix, IVPedWeapons::m_byteCurrentWeaponSlot isn't right
-		/*CIVWeapon * pWeapon = m_pPlayerPed->GetPedWeapons()->GetCurrentWeapon();
-
-		if(pWeapon)
-			return pWeapon->GetAmmo();*/
-		unsigned int uiAmmo;
-		Scripting::GetAmmoInCharWeapon(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, &uiAmmo);
-		return uiAmmo;
-	}
+		return m_pPlayerPed->GetPedWeapons()->GetAmmoByType((eWeaponType)uiWeaponId);
 
 	return 0;
 }
 
-void CNetworkPlayer::GetWeaponInSlot(unsigned int uiWeaponSlot, unsigned int &uiWeaponId, unsigned int &uiAmmo, unsigned int &uiUnknown)
+void CNetworkPlayer::GetWeaponInSlot(unsigned int uiWeaponSlot, unsigned int &uiWeaponId, unsigned int &uiAmmo)
 {
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
-		Scripting::GetCharWeaponInSlot(GetScriptingHandle(), (Scripting::eWeaponSlot)uiWeaponSlot, (Scripting::eWeapon *)&uiWeaponId, &uiAmmo, &uiUnknown);
+	{
+		uiWeaponId = (unsigned int)m_pPlayerPed->GetPedWeapons()->GetWeaponInSlot((eWeaponSlot)uiWeaponSlot);
+		uiAmmo = m_pPlayerPed->GetPedWeapons()->GetAmmoBySlot((eWeaponSlot)uiWeaponSlot);
+	}
 }
 
-unsigned int CNetworkPlayer::GetAmmoInClip(unsigned int uiWeapon)
+unsigned int CNetworkPlayer::GetAmmoInClip()
 {
 	THIS_CHECK_R(__FUNCTION__,0)
 	if(IsSpawned())
-	{
-		unsigned int uiAmmoInClip;
-		Scripting::GetAmmoInClip(GetScriptingHandle(), (Scripting::eWeapon)uiWeapon, &uiAmmoInClip);
-		return uiAmmoInClip;
-	}
+		return m_pPlayerPed->GetPedWeapons()->GetAmmoInClip();
+
 	return 0;
 }
 
@@ -1066,14 +1029,7 @@ void CNetworkPlayer::SetAmmoInClip(unsigned int uiAmmoInClip)
 {
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
-	{
-		unsigned int uiWeapon = GetCurrentWeapon();
-		if(uiAmmoInClip < 0)
-			uiAmmoInClip = 0;
-		else if(uiAmmoInClip > GetMaxAmmoInClip(uiWeapon))
-			uiAmmoInClip = GetMaxAmmoInClip(uiWeapon);
-		Scripting::SetAmmoInClip(GetScriptingHandle(), (Scripting::eWeapon)uiWeapon, uiAmmoInClip);
-	}
+		m_pPlayerPed->GetPedWeapons()->SetAmmoInClip(uiAmmoInClip);
 }
 
 unsigned int CNetworkPlayer::GetMaxAmmoInClip(unsigned int uiWeapon)
@@ -1081,10 +1037,12 @@ unsigned int CNetworkPlayer::GetMaxAmmoInClip(unsigned int uiWeapon)
 	THIS_CHECK_R(__FUNCTION__,0)
 	if(IsSpawned())
 	{
-		unsigned int uiMaxAmmoInClip;
-		Scripting::GetMaxAmmoInClip(GetScriptingHandle(), (Scripting::eWeapon)uiWeapon, &uiMaxAmmoInClip);
-		return uiMaxAmmoInClip;
+		CIVWeaponInfo * pWeaponInfo = CGame::GetWeaponInfo((eWeaponType)uiWeapon);
+
+		if(pWeaponInfo)
+			return pWeaponInfo->GetWeaponInfo()->m_wClipSize;
 	}
+
 	return 0;
 }
 

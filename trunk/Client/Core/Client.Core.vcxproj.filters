@@ -729,6 +729,9 @@
     <ClInclude Include="CAudioManager.h">
       <Filter>Header Files\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="CIVWeapon.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">
@@ -1189,6 +1192,9 @@
     </ClCompile>
     <ClCompile Include="CAudioManager.cpp">
       <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVWeapon.cpp">
+      <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

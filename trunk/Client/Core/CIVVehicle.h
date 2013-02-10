@@ -199,6 +199,7 @@ public:
 	DWORD m_dwDoorLockState;      // 1320-1324 // 0 - Unlocked, 1+ - Locked
 	PAD(IVVehicle, pad20, 0x18);  // 1324-133C
 	// 0x1330 - float m_fLightMultiplier;
+	// 0x1337 - BYTE m_byteWeaponForVehicle;
 	DWORD m_dwHorn;               // 133C-1340
 	PAD(IVVehicle, pad21, 0xD90); // 1340-20D0
 	// 0x14C4 - BYTE m_byteUnknownFlags; // 8 - Not Damaged Upside Down, 64 - Firing Water Cannon

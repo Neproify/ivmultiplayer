@@ -61,3 +61,9 @@ public:
 	// Thanks mta
 	CIVTaskSimpleTriggerLookAt(CIVEntity * pEntity, int iTime, int iOffsetBoneTag, CVector3 * pOffsetPos, DWORD dwFlags = 0x20, float fSpeed = 0.25f, int iBlendTime = 1000, int iPriority = 2);
 };
+
+class CIVTaskComplexPlayerOnFoot : public CIVTaskComplex
+{
+public:
+	CIVTaskComplexPlayerOnFoot();
+};

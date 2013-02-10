@@ -95,5 +95,5 @@ void CIVPedWeaponSlot::SetCurrent()
 	CLogFile::Printf(__FUNCSIG__);
 #endif
 	if(m_pPedWeaponSlot)
-		m_pPedWeapons->SetCurrentWeapon(m_pPedWeaponSlot->m_type);
+		m_pPedWeapons->SetCurrentWeaponByType(m_pPedWeaponSlot->m_type);
 }

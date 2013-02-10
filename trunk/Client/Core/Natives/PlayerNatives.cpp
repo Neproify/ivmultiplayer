@@ -53,7 +53,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("isPlayerDucking", IsDucking, 1, "i");
 	pScriptingManager->RegisterFunction("isPlayerJackingAVehicle", IsJackingAVehicle, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerWeaponSlot", GetWeaponSlot, 2, "ii");
-	pScriptingManager->RegisterFunction("getPlayerAmmoInClip", GetAmmoInClip, 2, "ii");
+	pScriptingManager->RegisterFunction("getPlayerAmmoInClip", GetAmmoInClip, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerDoorLockState", SetDoorLockState, 7, "isfffbf");
 	pScriptingManager->RegisterFunction("switchPlayerPhysics", TogglePhysics, 3, "bbb");
 	pScriptingManager->RegisterFunction("getWayPointCoordinates", GetWayPointCoords, 0, NULL);
@@ -411,14 +411,11 @@ SQInteger CPlayerNatives::GetAmmoInClip(SQVM * pVM)
 	EntityId playerId;
 	sq_getentity(pVM, -2, &playerId);
 
-	int iWeaponId;
-	sq_getinteger(pVM, -1, &iWeaponId);
-
 	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
 	if(pPlayer)
 	{
-		sq_pushinteger(pVM, pPlayer->GetAmmoInClip(iWeaponId));
+		sq_pushinteger(pVM, pPlayer->GetAmmoInClip());
 		return 1;
 	}
 
@@ -734,9 +731,9 @@ SQInteger CPlayerNatives::GetWeaponSlot(SQVM * pVM)
 
 	if(pPlayer)
 	{
-		unsigned int uiWeap, uiAmmo, uiUnknown;
+		unsigned int uiWeap, uiAmmo;
 		CSquirrelArguments args;
- 		pPlayer->GetWeaponInSlot(iSlot, uiWeap, uiAmmo, uiUnknown);
+ 		pPlayer->GetWeaponInSlot(iSlot, uiWeap, uiAmmo);
 		args.push((int)uiWeap);
 		args.push((int)uiAmmo);
 		sq_pusharg(pVM, CSquirrelArgument(args, true));

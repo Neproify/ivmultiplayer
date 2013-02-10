@@ -227,6 +227,7 @@ public:
 	static unsigned int FUNC_CTaskSimpleStartWalking__Constructor;
 	static unsigned int FUNC_CTaskComplexJump__Constructor;
 	static unsigned int FUNC_CTaskSimpleTriggerLookAt__Constructor;
+	static unsigned int FUNC_CTaskComplexPlayerOnFoot__Constructor;
 
 	// Weapons
 	static unsigned int FUNC_CPedWeapons__RemoveWeapon;
