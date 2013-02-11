@@ -15,6 +15,7 @@
 
 CIVPedWeapons::CIVPedWeapons(IVPedWeapons * pPedWeapons, CIVPed * pPed) : m_pPedWeapons(pPedWeapons), m_pPed(pPed)
 {
+	m_pCurrentWeapon = new CIVWeapon(m_pPedWeapons->m_pCurrentWeapon);
 
 	for(int i = 0; i < WEAPON_SLOT_MAX; i++)
 		m_pWeaponSlots[i] = new CIVPedWeaponSlot(&m_pPedWeapons->m_weapons[i], this);
@@ -28,6 +29,7 @@ CIVPedWeapons::~CIVPedWeapons()
 		SAFE_DELETE(m_pWeaponSlots[i]);
 
 	SAFE_DELETE(m_pWeapon);
+	SAFE_DELETE(m_pCurrentWeapon);
 }
 
 eWeaponType CIVPedWeapons::GetWeaponInSlot(eWeaponSlot weaponSlot)

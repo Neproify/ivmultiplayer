@@ -21,7 +21,7 @@ class CMutex
 private:
 #ifdef _WIN32
 #ifdef USE_CRITICAL_SECTION
-	// This is (apparently, not done any actual tests) faster than a mutex
+	// Faster than a standard mutex (But not shared among processes)
 	CRITICAL_SECTION m_criticalSection;
 #else
 	HANDLE m_hMutex;
@@ -29,13 +29,12 @@ private:
 #else
 	pthread_mutex_t m_mutex;
 #endif
-	int m_iLockCount;
 
 public:
 	CMutex();
 	~CMutex();
 
 	void Lock();
-	bool TryLock(unsigned int uiTimeOutMilliseconds);
+	bool TryLock(unsigned int uiTimeOutMilliseconds = 0);
 	void Unlock();
 };

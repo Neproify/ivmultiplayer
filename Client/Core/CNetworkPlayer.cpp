@@ -658,7 +658,12 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			SetInterior(uiInterior);
 
 			for(unsigned int i = 0; i < WEAPON_SLOT_MAX; i++)
-				GiveWeapon(uiWeaponInfo[i][0], (uiWeaponInfo[i][1] + uiAmmoInClip));
+			{
+				if(uiWeaponInfo[i][0] == uiCurrentWeapon)
+					GiveWeapon(uiWeaponInfo[i][0], (uiWeaponInfo[i][1] + uiAmmoInClip));
+				else
+					GiveWeapon(uiWeaponInfo[i][0], uiWeaponInfo[i][1]);
+			}
 
 			SetCurrentWeapon(uiCurrentWeapon);
 			SetAmmoInClip(uiAmmoInClip);
