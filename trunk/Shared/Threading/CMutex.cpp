@@ -22,9 +22,6 @@ CMutex::CMutex()
 #else
 	pthread_mutex_init(&m_mutex, NULL);
 #endif
-
-	// Set the lock count to its default value
-	m_iLockCount = 0;
 }
 
 CMutex::~CMutex()
@@ -53,9 +50,6 @@ void CMutex::Lock()
 #else
 	pthread_mutex_lock(&m_mutex);
 #endif
-
-	// Increment the lock count
-	m_iLockCount++;
 }
 
 bool CMutex::TryLock(unsigned int uiTimeOutMilliseconds)
@@ -92,21 +86,11 @@ bool CMutex::TryLock(unsigned int uiTimeOutMilliseconds)
 	}
 #endif
 
-	// Did the mutex lock successfully?
-	if(bLocked)
-	{
-		// Increment the lock count
-		m_iLockCount++;
-	}
-
 	return bLocked;
 }
 
 void CMutex::Unlock()
 {
-	// Decrement the lock count
-	m_iLockCount--;
-
 	// Unlock the mutex
 #ifdef WIN32
 #ifdef USE_CRITICAL_SECTION
