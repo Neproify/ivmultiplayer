@@ -28,6 +28,7 @@ public:
 enum eWeaponState
 {
 	WEAPON_STATE_READY,
+	WEAPON_STATE_RELOADING = 2,
 	WEAPON_STATE_OUT_OF_AMMO = 4
 };
 
@@ -65,6 +66,7 @@ public:
 	void         Initialize(eWeaponType weaponType, DWORD dwAmmo, bool bIsPedWeapon);
 	eWeaponType  GetType();
 	void         SetType(eWeaponType weaponType);
+	eWeaponSlot  GetSlot();
 	eWeaponState GetState();
 	void         SetState(eWeaponState weaponState);
 	bool         IsPedWeapon();

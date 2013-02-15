@@ -13,6 +13,8 @@
 #include "CIVWeapon.h"
 #include "CIVPedWeaponSlot.h"
 
+class IVObject;
+
 #pragma pack(1)
 class IVPedWeapons
 {
@@ -20,20 +22,19 @@ public:
 	PAD(IVPedWeapons, pad0, 0x18);              // 000-018
 	eWeaponSlot m_currentWeaponSlot;            // 018-01C
 	PAD(IVPedWeapons, pad1, 0x10);              // 01C-02C
-	DWORD m2C;                                  // 02C-030
+	IVObject * m_pWeaponObject;                 // 02C-030
 	PAD(IVPedWeapons, pad2, 0x8);               // 030-038
-	IVWeapon * m_pCurrentWeapon;                // 038-03C
+	IVWeapon * m_pSpecialWeapon;                // 038-03C
 	IVPedWeaponSlot m_weapons[WEAPON_SLOT_MAX]; // 03C-0B4
-	// jenksta: not sure if this below is right
 	IVPedWeaponSlot m_weapon;                   // 0B4-0C0
 	PAD(IVPedWeapons, pad3, 0x18);              // 0C0-0D8
 	BYTE m_byteShootRate;                       // 0D8-0D9
 	BYTE m_byteAccuracy;                        // 0D9-0DA
-	// 0xF8 - Target Entity?
 	PAD(IVPedWeapons, pad4, 0x40);              // 0DA-11A
 };
 #pragma pack()
 
+class CIVObject;
 class CIVPed;
 
 class CIVPedWeapons
@@ -41,7 +42,8 @@ class CIVPedWeapons
 private:
 	IVPedWeapons     * m_pPedWeapons;
 	CIVPed           * m_pPed;
-	CIVWeapon        * m_pCurrentWeapon;
+	CIVObject        * m_pWeaponObject;
+	CIVWeapon        * m_pSpecialWeapon;
 	CIVPedWeaponSlot * m_pWeaponSlots[WEAPON_SLOT_MAX];
 	CIVPedWeaponSlot * m_pWeapon;
 
@@ -53,10 +55,11 @@ public:
 	IVPedWeapons     * GetPedWeapons() { return m_pPedWeapons; }
 	void               SetPed(CIVPed * pPed) { m_pPed = pPed; }
 	CIVPed           * GetPed() { return m_pPed; }
-	CIVWeapon        * GetCurrentWeapon() { return m_pCurrentWeapon; }
+	CIVWeapon        * GetCurrentWeapon();
 	CIVPedWeaponSlot * GetWeapon(eWeaponSlot slot) { return m_pWeaponSlots[slot]; }
 	CIVPedWeaponSlot * GetWeapon() { return m_pWeapon; }
 
+	void               GiveWeapon(eWeaponType weaponType, DWORD dwAmmo);
 	eWeaponType        GetWeaponInSlot(eWeaponSlot weaponSlot);
 	eWeaponSlot        GetCurrentWeaponSlot();
 	eWeaponType        GetCurrentWeaponType();

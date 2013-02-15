@@ -16,10 +16,10 @@
 class IVPedWeaponSlot
 {
 public:
-	eWeaponType           m_type;   // 00-04
-	FakeProtectedBuffer * m_pAmmo;  // 04-08
-	BYTE                  bytePad1; // 08-09
-	PAD(IVPedWeaponSlot, pad0, 3);  // 09-0C
+	eWeaponType           m_type;                  // 00-04
+	FakeProtectedBuffer * m_pAmmo;                 // 04-08
+	BYTE                  m_byteWeaponModelLoaded; // 08-09
+	PAD(IVPedWeaponSlot, pad0, 3);                 // 09-0C
 };
 
 class CIVPedWeapons;

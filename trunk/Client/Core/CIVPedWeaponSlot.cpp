@@ -65,7 +65,7 @@ void CIVPedWeaponSlot::Remove()
 #endif
 	if(m_pPedWeaponSlot)
 	{
-		if(m_pPedWeaponSlot->bytePad1)
+		if(m_pPedWeaponSlot->m_byteWeaponModelLoaded)
 		{
 			CIVWeaponInfo * pWeaponInfo = CGame::GetWeaponInfo(m_pPedWeaponSlot->m_type);
 
@@ -83,7 +83,7 @@ void CIVPedWeaponSlot::Remove()
 			}
 		}
 
-		m_pPedWeaponSlot->bytePad1 = 0;
+		m_pPedWeaponSlot->m_byteWeaponModelLoaded = 0;
 		m_pPedWeaponSlot->m_type = WEAPON_TYPE_UNARMED;
 		SetAmmo(0);
 	}

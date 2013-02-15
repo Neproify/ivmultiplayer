@@ -15,7 +15,8 @@
 
 enum ePedType
 {
-	PED_TYPE_PLAYER,
+	//PED_TYPE_PLAYER, // Either this, CIVMALE or CIVFEMALE shouldn't be here, 
+	                   // just commenting this one so the rest are correct (COP should be 2)
 	PED_TYPE_CIVMALE,
 	PED_TYPE_CIVFEMALE,
 	PED_TYPE_COP,
@@ -51,14 +52,14 @@ class IVPedIntelligence
 {
 public:
 	PAD(IVPedIntelligence, pad0, 0x44);   // 000-044
-	IVPedTaskManager * m_pPedTaskManager; // 044-048
+	IVPedTaskManager m_pedTaskManager;    // 044-084
 	// 0x84 = CEventGroup m_eventGroup; (size is 0x48 or 0x4C) (4C probs extra CEventGlobalGroup member)
 	// 0xF0 = BYTE m_byteEventId;
 	// 0xF1 = BYTE m_byteEventPriority;
 	// 0xF4 = CVehicleScanner m_vehicleScanner; (CEntityScanner (Size 0x5C))
 	// 0x150 = CPedScanner m_pedScanner;
 	// 0x1AC = CObjectScanner m_objectScanner;
-	PAD(IVPedIntelligence, pad1, 0x2A8);  // 048-2F0
+	PAD(IVPedIntelligence, pad1, 0x26C);  // 084-2F0
 };
 
 class IVEventHandler
@@ -81,7 +82,7 @@ class IVPedBase
 {
 public:
 	PAD(IVPedBase, pad0, 0x12C); // 000-12C
-	ePedType m_type;             // 12C-12D
+	ePedType m_type;             // 12C-12D (Set from CIVModelInfo + 0x90)
 	// TODO: Find size
 };
 

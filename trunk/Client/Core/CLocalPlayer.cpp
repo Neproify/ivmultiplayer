@@ -43,7 +43,7 @@ void GetLocalPlayerSpawnPosition(int, CVector3 * vecSpawnPosition, float * fAngl
 	}
 }
 
-// Params seem to be IVPed * ped, Vector3 position, float rotation
+// Params seem to be IVPlayerPed * pPlayerPed, Vector3 position, float rotation
 // (could prolly skip the GetLocalPlayerSpawnPosition but I didn't get it to work)
 void __declspec(naked) HandleLocalPlayerSpawn()
 {

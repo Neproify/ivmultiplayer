@@ -9,13 +9,15 @@
 
 #include "CIVPedWeapons.h"
 #include "CIVPed.h"
+#include "CIVObject.h"
 #include "CGame.h"
 #include "COffsets.h"
 #include <CLogFile.h>
 
 CIVPedWeapons::CIVPedWeapons(IVPedWeapons * pPedWeapons, CIVPed * pPed) : m_pPedWeapons(pPedWeapons), m_pPed(pPed)
 {
-	m_pCurrentWeapon = new CIVWeapon(m_pPedWeapons->m_pCurrentWeapon);
+	m_pWeaponObject = new CIVObject(pPedWeapons->m_pWeaponObject);
+	m_pSpecialWeapon = new CIVWeapon(m_pPedWeapons->m_pSpecialWeapon);
 
 	for(int i = 0; i < WEAPON_SLOT_MAX; i++)
 		m_pWeaponSlots[i] = new CIVPedWeaponSlot(&m_pPedWeapons->m_weapons[i], this);
@@ -29,7 +31,44 @@ CIVPedWeapons::~CIVPedWeapons()
 		SAFE_DELETE(m_pWeaponSlots[i]);
 
 	SAFE_DELETE(m_pWeapon);
-	SAFE_DELETE(m_pCurrentWeapon);
+	SAFE_DELETE(m_pSpecialWeapon);
+	SAFE_DELETE(m_pWeaponObject);
+}
+
+CIVWeapon * CIVPedWeapons::GetCurrentWeapon()
+{
+	if(m_pPedWeapons)
+	{
+		IVObject * pWeaponObject = m_pPedWeapons->m_pWeaponObject;
+
+		if(m_pWeaponObject->GetObject() != pWeaponObject)
+			m_pWeaponObject->SetObject(pWeaponObject);
+
+		if(pWeaponObject)
+			return m_pWeaponObject->GetWeapon();
+
+		eWeaponSlot weaponSlot = m_pPedWeapons->m_currentWeaponSlot;
+
+		if(weaponSlot == WEAPON_SLOT_UNARMED || weaponSlot == WEAPON_SLOT_OBJECT)
+		{
+			IVWeapon * pSpecialWeapon = m_pPedWeapons->m_pSpecialWeapon;
+
+			if(m_pSpecialWeapon->GetWeapon() != pSpecialWeapon)
+				m_pSpecialWeapon->SetWeapon(pSpecialWeapon);
+
+			return m_pSpecialWeapon;
+		}
+	}
+
+	return NULL;
+}
+
+void CIVPedWeapons::GiveWeapon(eWeaponType weaponType, DWORD dwAmmo)
+{
+	if(m_pPedWeapons)
+	{
+
+	}
 }
 
 eWeaponType CIVPedWeapons::GetWeaponInSlot(eWeaponSlot weaponSlot)
@@ -131,7 +170,7 @@ void CIVPedWeapons::SetCurrentWeaponVisible(bool bVisible)
 		}
 		else
 		{
-			if(pPedWeapons->m2C)
+			if(pPedWeapons->m_pWeaponObject)
 			{
 				DWORD dwFunc = (CGame::GetBase() + 0x9ABF00); // CPedWeapons::HideWeapon
 				_asm
@@ -191,15 +230,15 @@ DWORD CIVPedWeapons::GetAmmoBySlot(eWeaponSlot weaponSlot)
 {
 	IVPedWeapons * pPedWeapons = m_pPedWeapons;
 
-	if(pPedWeapons && pPedWeapons)
+	if(pPedWeapons)
 	{
 		if(weaponSlot >= WEAPON_SLOT_MAX)
 			return 0;
 
-		CIVWeaponInfo * pWeaponInfo = CGame::GetWeaponInfo(m_pWeaponSlots[weaponSlot]->GetType());
+		CIVWeapon * pCurrentWeapon = GetCurrentWeapon();
 
-		if(pWeaponInfo && pWeaponInfo->GetWeaponInfo()->m_slot == weaponSlot)
-			m_pWeaponSlots[weaponSlot]->SetAmmo(m_pCurrentWeapon->GetAmmoTotal());
+		if(pCurrentWeapon && pCurrentWeapon->GetSlot() == weaponSlot)
+			m_pWeaponSlots[weaponSlot]->SetAmmo(pCurrentWeapon->GetAmmoTotal());
 
 		return m_pWeaponSlots[weaponSlot]->GetAmmo();
 	}
@@ -242,7 +281,7 @@ void CIVPedWeapons::SetAmmoByType(eWeaponType weaponType, DWORD dwAmmo)
 
 	if(pPedWeapons)
 	{
-		DWORD dwFunc = (CGame::GetBase() + 0x9A9D60); // CPedWeapons::SetAmmo
+		DWORD dwFunc = (CGame::GetBase() + 0x9A9D60); // CPedWeapons::SetAmmoByType
 		_asm
 		{
 			push dwAmmo
@@ -255,40 +294,39 @@ void CIVPedWeapons::SetAmmoByType(eWeaponType weaponType, DWORD dwAmmo)
 
 DWORD CIVPedWeapons::GetAmmoInClip()
 {
-	if(m_pPedWeapons && m_pCurrentWeapon)
-		return m_pCurrentWeapon->GetAmmoInClip();
+	CIVWeapon * pCurrentWeapon = GetCurrentWeapon();
+
+	if(m_pPedWeapons && pCurrentWeapon)
+		return pCurrentWeapon->GetAmmoInClip();
 
 	return 0;
 }
 
 void CIVPedWeapons::SetAmmoInClip(DWORD dwAmmoInClip)
 {
-	if(m_pPedWeapons && m_pCurrentWeapon)
+	CIVWeapon * pCurrentWeapon = GetCurrentWeapon();
+
+	if(m_pPedWeapons && pCurrentWeapon)
 	{
-		CIVWeaponInfo * pWeaponInfo = CGame::GetWeaponInfo(m_pCurrentWeapon->GetType());
+		WORD wClipSize = pCurrentWeapon->GetClipSize();
 
-		if(pWeaponInfo)
-		{
-			WORD wClipSize = pWeaponInfo->GetWeaponInfo()->m_wClipSize;
+		if(dwAmmoInClip > wClipSize)
+			dwAmmoInClip = wClipSize;
 
-			if(dwAmmoInClip > wClipSize)
-				dwAmmoInClip = wClipSize;
+		DWORD dwCurrentAmmoInClip = pCurrentWeapon->GetAmmoInClip();
+		pCurrentWeapon->SetAmmoInClip(dwAmmoInClip);
 
-			DWORD dwCurrentAmmoInClip = m_pCurrentWeapon->GetAmmoInClip();
-			m_pCurrentWeapon->SetAmmoInClip(dwAmmoInClip);
+		DWORD dwCurrentAmmo = pCurrentWeapon->GetAmmoTotal();
+		DWORD dwDifference = (dwAmmoInClip - dwCurrentAmmoInClip);
 
-			DWORD dwCurrentAmmo = m_pCurrentWeapon->GetAmmoTotal();
-			DWORD dwDifference = (dwAmmoInClip - dwCurrentAmmoInClip);
+		if(dwDifference >= 25000)
+			pCurrentWeapon->SetAmmoTotal(25000);
 
-			if(dwDifference >= 25000)
-				m_pCurrentWeapon->SetAmmoTotal(25000);
+		DWORD dwNewAmmo = (dwCurrentAmmo + dwDifference);
 
-			DWORD dwNewAmmo = (dwCurrentAmmo + dwDifference);
-
-			if(dwNewAmmo <= 25000)
-				m_pCurrentWeapon->SetAmmoTotal(dwNewAmmo);
-			else
-				m_pCurrentWeapon->SetAmmoTotal(25000);
-		}
+		if(dwNewAmmo <= 25000)
+			pCurrentWeapon->SetAmmoTotal(dwNewAmmo);
+		else
+			pCurrentWeapon->SetAmmoTotal(25000);
 	}
 }

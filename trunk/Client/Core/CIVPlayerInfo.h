@@ -35,7 +35,7 @@ public:
 	PAD(IVPlayerInfo, pad2, 0x2E);          // 4AC-4DA
 	BYTE m_bytePlayerNumber;                // 4DA-4DB
 	PAD(IVPlayerInfo, pad3, 0x1);           // 4DB-4DC
-	DWORD m_dwState;                        // 4DC-4E0 - 2: spawned, 3: dead
+	DWORD m_dwState;                        // 4DC-4E0 - 2: spawned, 3: dead, 4: arrested
 	PAD(IVPlayerInfo, pad4, 0x66);          // 4E0-546
 	BYTE m_byteNeverGetsTired;              // 546-547
 	BYTE m_byteFastReload;                  // 547-548
@@ -50,7 +50,7 @@ public:
 	PAD(IVPlayerInfo, pad8, 0x2);           // 552-554
 	DWORD dwFlags1;                         // 554-558 - Bits 0: can use cover, 2: damaged at least one ped, 3: damaged at least one vehicle
 	PAD(IVPlayerInfo, pad9, 0x4);           // 558-55C
-	DWORD m_dwPlayerMood;                   // 55C-560
+	DWORD m_dwMood;                         // 55C-560
 	PAD(IVPlayerInfo, pad10, 0x10);         // 560-570
 	DWORD m_dwColour;                       // 570-574
 	DWORD m_dwTeam;                         // 574-578
