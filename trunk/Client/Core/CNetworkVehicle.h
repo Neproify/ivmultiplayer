@@ -212,6 +212,5 @@ public:
 	void			 SetVehicleGPSState(bool bState);
 	bool			 GetVehicleGPSState();
 
-	void			 FixCarFloating();
 	void			 MarkAsActorVehicle(bool bToggle) { m_bActorVehicle = bToggle; }
 };

@@ -220,6 +220,7 @@ public:
 	void        SetVehicle(IVVehicle * pVehicle);
 	IVVehicle * GetVehicle();
 
+	void        SetLoadCollision(bool bLoadCollision);
 	void        SetAlarmDuration(WORD wDuration);
 	WORD        GetAlarmDuration();
 	void        SetDriver(IVPed * pPed);

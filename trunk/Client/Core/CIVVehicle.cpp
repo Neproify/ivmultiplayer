@@ -41,6 +41,24 @@ IVVehicle * CIVVehicle::GetVehicle()
 	return (IVVehicle *)GetPhysical();
 }
 
+void CIVVehicle::SetLoadCollision(bool bLoadCollision)
+{
+	// Do we have a valid vehicle pointer?
+	IVVehicle * pVehicle = GetVehicle();
+
+	if(pVehicle)
+	{
+		bool _bLoadCollision = bLoadCollision;
+		_asm
+		{
+			push _bLoadCollision
+			push pVehicle
+			call COffsets::FUNC_CVehicle__SetLoadCollision
+			add esp, 8
+		}
+	}
+}
+
 void CIVVehicle::SetAlarmDuration(WORD wDuration)
 {
 #ifdef EXT_LOG

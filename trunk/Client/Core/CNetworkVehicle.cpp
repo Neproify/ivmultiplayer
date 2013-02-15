@@ -174,10 +174,6 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 		// Get our model index
 		int iModelIndex = m_pModelInfo->GetIndex();
 
-		//CLogFile::Printf("pModelInfo + 0x70 = %d", *(DWORD *)(m_pModelInfo->GetModelInfo() + 0x70));
-		//memset((void *)(CGame::GetBase() + 0x841808), 0x90, 5);
-		//memset((void *)(CGame::GetBase() + 0x8419B8), 0x90, 5);
-
 		// Create the vehicle
 		DWORD dwFunc = (CGame::GetBase() + 0x8415D0);
 		CVector3 * pVecPosition = &m_vecPosition;
@@ -205,38 +201,31 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 			add esp, 4
 		}
 
-		dwFunc = (CGame::GetBase() + 0xB77BB0);
-		_asm
-		{
-			push 0
-			push pVehicle
-			call dwFunc
-			add esp, 8
-		}
-
 		// Create the vehicle instance
 		m_pVehicle = new CIVVehicle(pVehicle);
 
 		// Invalid vehicle instance?
 		if(!m_pVehicle)
 			return false;
+
+		// Enable collision
+		m_pVehicle->SetLoadCollision(true);
+
+		// Add the vehicle to the world
+		m_pVehicle->AddToWorld();
+
+		// Set initial colors
+		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
+
+		// Disable automatic lights and enable GPS
+		Scripting::ForceCarLights(GetScriptingHandle(),1);
+
+		// Disable visible/"normal" damage
+		SetDamageable(false);
+		m_pVehicle->SetCanBeVisiblyDamaged(false);
 		
 		if(bStreamIn)
 		{
-			// Set initial colors
-			SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
-
-			// Disable automatic lights and enable GPS
-			Scripting::ForceCarLights(GetScriptingHandle(),1);
-
-			// Disable visible/"normal" damage
-			SetDamageable(false);
-			m_pVehicle->SetCanBeVisiblyDamaged(false);
-
-			// Add the vehicle to the world
-			// Not needed as native does it for us
-			//m_pVehicle->AddToWorld();
-
 			// Set the initial health(1000)
 			SetHealth(m_uiHealth);
 			SetPetrolTankHealth(m_fPetrolTankHealth);
@@ -253,9 +242,6 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 			// Set the proofs
 			Scripting::SetCarProofs(GetScriptingHandle(),false,false,false,false,false);
 
-			// Try fix floating bug
-			FixCarFloating();
-
 			// Fix missing components at nrg, helicopter etc.
 			if(m_iVehicleType > 104 && m_iVehicleType < 116)
 				SetComponentState(0, true);
@@ -263,20 +249,6 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 			m_bActive = true;
 			return true;
 		}
-		
-		// Set initial colors
-		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
-
-		// Disable automatic lights and enable GPS
-		Scripting::ForceCarLights(GetScriptingHandle(),1);
-
-		// Disable visible/"normal" damage
-		SetDamageable(false);
-		m_pVehicle->SetCanBeVisiblyDamaged(false);
-
-		// Add the vehicle to the world
-		// Not needed as native does it for us
-		//m_pVehicle->AddToWorld();
 
 		// Set the initial health(1000)
 		SetHealth(1000);
@@ -295,9 +267,6 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 		Scripting::SetCarProofs(GetScriptingHandle(),false,false,false,false,false);
 
 		memset(m_bIndicatorState, 0, sizeof(m_bIndicatorState));
-
-		// Try fix floating bug
-		FixCarFloating();
 
 		// Fix missing components at nrg, helicopter etc.
 		if(m_iVehicleType > 104 && m_iVehicleType < 116)
@@ -388,9 +357,6 @@ void CNetworkVehicle::StreamIn()
 		// Set the position
 		SetPosition(m_vecPosition);
 
-		// Try fix floating bug
-		FixCarFloating();
-
 		// Set the rotation
 		SetRotation(m_vecRotation);
 
@@ -463,9 +429,6 @@ void CNetworkVehicle::StreamIn()
 			if(m_pPassengers[i])
 				m_pPassengers[i]->InternalPutInVehicle(this, (i + 1));
 		}
-
-		// Try fix floating bug
-		FixCarFloating();
 	}
 }
 
@@ -1585,56 +1548,4 @@ bool CNetworkVehicle::GetVehicleGPSState()
 		return m_pVehicle->GetGPSState();
 	
 	return false;
-}
-
-void CNetworkVehicle::FixCarFloating()
-{
-	THIS_CHECK(__FUNCTION__);
-
-	// Check if we have a vehicle pointer
-	if( m_pVehicle == NULL )
-		return;
-
-	// Check if we have a helicopter(IDS (112, 113, 114, 115))
-	if( m_iVehicleType > 111 && m_iVehicleType < 116)
-		return;
-
-	// Unfreeze the car so we can put it on the ground
-	Scripting::FreezeCarPosition(GetScriptingHandle(),false);
-
-	CVector3 vecPos;
-	Scripting::GetCarCoordinates(GetScriptingHandle(),&vecPos.fX,&vecPos.fY,&vecPos.fZ);
-
-	CVector3 vecLastPosition;
-	m_pVehicle->GetPosition(vecLastPosition);
-
-	CVector3 vecSavedPosition;
-	vecSavedPosition = m_vecPosition;
-
-	if((vecPos-vecLastPosition).Length() > 0)
-	{
-		float fZ;
-		Scripting::GetGroundZFor3DCoord(vecPos.fX,vecPos.fY,vecPos.fZ,&fZ);
-		SetPosition(CVector3(vecPos.fX,vecPos.fY,fZ));
-		Scripting::SetCarOnGroundProperly(GetScriptingHandle());
-		return;
-	}
-
-	if((vecPos-vecSavedPosition).Length() > 0)
-	{
-		float fZ;
-		Scripting::GetGroundZFor3DCoord(vecPos.fX,vecPos.fY,vecPos.fZ,&fZ);
-		SetPosition(CVector3(vecPos.fX,vecPos.fY,fZ));
-		Scripting::SetCarOnGroundProperly(GetScriptingHandle());
-		return;
-	}
-
-	if((vecLastPosition-vecSavedPosition).Length() > 0)
-	{
-		float fZ;
-		Scripting::GetGroundZFor3DCoord(vecPos.fX,vecPos.fY,vecPos.fZ,&fZ);
-		SetPosition(CVector3(vecPos.fX,vecPos.fY,fZ));
-		Scripting::SetCarOnGroundProperly(GetScriptingHandle());
-		return;
-	}
 }
