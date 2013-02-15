@@ -29,6 +29,7 @@
 #include "AnimGroups.h"
 #include "CHooks.h"
 #include <SharedUtility.h>
+#include "CIVObject.h"
 
 // Enable one of them if we want/don't want trains
 #ifdef IVMP_TRAINS
@@ -167,6 +168,7 @@ void CGame::Initialize()
 	assert(sizeof(CSimpleCollection<void>) == 0x8);
 	assert(sizeof(IVaudWeaponAudioEntity) == 0x18);
 	assert(sizeof(IVWeapon) == 0x70);
+	assert(sizeof(IVObject) == 0x320);
 
 	// Get the process base address
 	m_uiBaseAddress = (unsigned int)GetModuleHandle(NULL);

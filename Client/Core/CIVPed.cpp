@@ -46,7 +46,7 @@ void CIVPed::SetPed(IVPed * pPed)
 	if(pPed)
 	{
 		// Create the ped task manager
-		m_pPedTaskManager = new CIVPedTaskManager((IVPedTaskManager *)&(pPed->m_pPedIntelligence->m_pPedTaskManager), this);
+		m_pPedTaskManager = new CIVPedTaskManager(&pPed->m_pPedIntelligence->m_pedTaskManager, this);
 
 		// Create the ped weapons
 		m_pPedWeapons = new CIVPedWeapons(&pPed->m_weapons, this);
@@ -82,7 +82,7 @@ ePedType CIVPed::GetType()
 	if(pPed)
 		return pPed->m_pPedBase->m_type;
 
-	return PED_TYPE_PLAYER;
+	return (ePedType)0/*PED_TYPE_PLAYER*/;
 }
 
 void CIVPed::SetPlayerInfo(IVPlayerInfo * pPlayerInfo)

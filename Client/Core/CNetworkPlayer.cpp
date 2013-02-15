@@ -148,6 +148,31 @@ bool CNetworkPlayer::Create()
 		call COffsets::FUNC_CPlayerPed__Constructor
 	}
 
+	/*
+	void SetupPed(CMatrix * pMatrix<edi>, CPed * pPed<esi>, int iModelIndex)
+	{
+		CPedMoveBlendOnFoot * pMoveBlendOnFoot = g_pPedMoveBlendPool->Allocate();
+
+		if(pMoveBlendOnFoot)
+		{
+			CPedMoveBlendOnFoot::CPedMoveBlendOnFoot(pMoveBlendOnFoot, pPed);
+			pPed->m_pMoveBlendOnFoot = pMoveBlendOnFoot;
+		}
+
+		if(pMatrix)
+			CMatrix::CopyFromMatrix(pPed->m_pMatrix, pMatrix);
+
+		CPlayerPed::SetModelIndex(pPed, iModelIndex);
+
+		CPedData * pPedData = g_pPedDataPool->Allocate();
+
+		if(pPedData)
+		{
+			CPedData::CPedData(pPedData);
+			pPed->m_pPedData = pPedData;
+		}
+	}
+	*/
 	Matrix34 * pMatrix = NULL;
 	_asm
 	{
@@ -163,6 +188,14 @@ bool CNetworkPlayer::Create()
 
 	*(DWORD *)(pPlayerPed + 0x260) |= 1u;
 
+	/*
+	pPlayerPed->m_byteCreatedBy = 2;
+	pPlayerPed->SetDefaultDecisionMaker();
+	pPlayerPed->GetPedIntelligence()->SetSenseRange1(30.0f);
+	pPlayerPed->GetPedIntelligence()->SetSenseRange0(30.0f);
+	sub_B2A8F0(pPlayerPed->m_pPortalTracker, 1);
+	sub_B29E50(pPlayerPed->m_pPortalTracker);
+	*/
 	_asm
 	{
 		push 2
@@ -959,7 +992,11 @@ void CNetworkPlayer::GiveWeapon(unsigned int uiWeaponId, unsigned int uiAmmo)
 {
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
+	{
 		Scripting::GiveWeaponToChar(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo, true);
+		/*m_pPlayerPed->GetPedWeapons()->GiveWeapon((eWeaponType)uiWeaponId, uiAmmo);
+		m_pPlayerPed->GetPedWeapons()->SetCurrentWeaponVisible(true);*/
+	}
 }
 
 void CNetworkPlayer::RemoveWeapon(unsigned int uiWeaponId)

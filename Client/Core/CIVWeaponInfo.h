@@ -90,6 +90,7 @@ enum eWeaponSlot
 	WEAPON_SLOT_HEAVY,
 	WEAPON_SLOT_THROWN,
 	WEAPON_SLOT_SPECIAL,
+	WEAPON_SLOT_OBJECT, // ??
 	WEAPON_SLOT_MAX
 };
 
@@ -222,23 +223,25 @@ public:
 	float m_fBlindFireRate;                                      // 030-034
 	float m_fAimingAccuracy;                                     // 034-038
 	float m_fAimingAccuracyFPS;                                  // 038-03C
-	// 0x40 - CVector m_vecAimingOffset;
-	// 0x50 - CVector m_vecAimingCrouchedOffset;
-	// 0x60 - float m_fUnknownPitch;
-	PAD(IVWeaponInfo, pad1, 0x28);                               // 03C-064
+	PAD(IVWeaponInfo, pad1, 0x4);                                // 03C-040
+	CVector3 m_vecAimingOffset;                                  // 040-04C
+	PAD(IVWeaponInfo, pad2, 0x4);                                // 04C-050
+	CVector3 m_vecAimingCrouchedOffset;                          // 050-05C
+	PAD(IVWeaponInfo, pad3, 0x4);                                // 05C-060
+	float m_fAimingPitch;                                        // 060-064
 	float m_fAimingReticuleStanding;                             // 064-068
 	float m_fAimingReticuleDucked;                               // 068-06C
 	float m_fAimingReticuleScale;                                // 06C-070
 	DWORD m_dwRumbleDuration;                                    // 070-074
 	float m_fRumbleIntensity;                                    // 074-078
 	DWORD m_dwPickupRegenTime;                                   // 078-07C
-	PAD(IVWeaponInfo, pad2, 0x4);                                // 07C-080
+	PAD(IVWeaponInfo, pad4, 0x4);                                // 07C-080
 	WORD m_wPickupAmmoOnStreet;                                  // 080-082
 	WORD m_wDamageBase;                                          // 082-084
 	WORD m_wDamageFPS;                                           // 084-086
 	WORD m_wClipSize;                                            // 086-088
 	WORD m_wAmmoMax;                                             // 088-08A
-	PAD(IVWeaponInfo, pad3, 0x2);                                // 08A-08C
+	PAD(IVWeaponInfo, pad5, 0x2);                                // 08A-08C
 	DWORD m_dwTimeBetweenShots;                                  // 08C-090
 	float m_fPhysicsForce;                                       // 090-094
 	DWORD m_dwReloadTime;                                        // 094-098
@@ -246,12 +249,12 @@ public:
 	DWORD m_dwCrouchReloadTime;                                  // 09C-0A0
 	DWORD m_dwProjectileType;                                    // 0A0-0A4
 	DWORD m_dwProjectileFuseTime;                                // 0A4-0A8
-	DWORD m_dwProjectTypeToCreate;                               // 0A8-0AC
+	DWORD m_dwProjectileTypeToCreate;                            // 0A8-0AC
 	eExplosionType m_explosionType;                              // 0AC-0B0
 	CVector3 m_vecProjectileOffset;                              // 0B0-0BC
-	PAD(IVWeaponInfo, pad4, 0x4);                                // 0BC-0C0
+	PAD(IVWeaponInfo, pad6, 0x4);                                // 0BC-0C0
 	CVector3 m_vecProjectileRotOffset;                           // 0C0-0CC
-	PAD(IVWeaponInfo, pad5, 0x4);                                // 0CC-0D0
+	PAD(IVWeaponInfo, pad7, 0x4);                                // 0CC-0D0
 	float m_fProjectilePhysicsExplodeImpactThreshold;            // 0D0-0D4
 	float m_fProjectilePhysicsExplodeImpactWithVehicleThreshold; // 0D4-0D8
 	float m_fProjectilePhysicsVehicleVelocity;                   // 0D8-0DC
@@ -264,7 +267,7 @@ public:
 	float m_fDamageNetworkPedMod;                                // 0F4-0F8
 	float m_fAimingAccuracyTime;                                 // 0F8-0FC
 	DWORD m_dwAimingPellets;                                     // 0FC-100
-	PAD(IVWeaponInfo, pad6, 0x10);                               // 100-110
+	PAD(IVWeaponInfo, pad8, 0x10);                               // 100-110
 };
 
 class CIVWeaponInfo

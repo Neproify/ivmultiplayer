@@ -732,6 +732,9 @@
     <ClInclude Include="CIVWeapon.h">
       <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
+    <ClInclude Include="CIVObject.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">
@@ -1194,6 +1197,9 @@
       <Filter>Source Files\Audio</Filter>
     </ClCompile>
     <ClCompile Include="CIVWeapon.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CIVObject.cpp">
       <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
   </ItemGroup>

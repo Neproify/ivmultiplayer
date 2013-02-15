@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "IVCommon.h"
+
 // From Multi Theft Auto
 // Priority task types
 enum eTaskPriority
@@ -44,16 +46,18 @@ enum eTaskMovement
 };
 
 class IVTask;
+class IVPed;
 class CIVTask;
 class CIVPed;
 
 class IVPedTaskManager
 {
 public:
-	IVTask * m_primaryTasks[TASK_PRIORITY_MAX];    // 00-14
-	IVTask * m_secondaryTasks[TASK_SECONDARY_MAX]; // 14-2C
-	IVTask * m_movementTasks[TASK_MOVEMENT_MAX];   // 2C-38
-	// TODO: Find size
+	IVTask * m_pPrimaryTasks[TASK_PRIORITY_MAX];    // 00-14
+	IVTask * m_pSecondaryTasks[TASK_SECONDARY_MAX]; // 14-2C
+	IVTask * m_pMovementTasks[TASK_MOVEMENT_MAX];   // 2C-38
+	IVPed * m_pPed;                                 // 38-3C
+	PAD(IVPedTaskManager, pad0, 0x4);               // 3C-40
 };
 
 class CIVPedTaskManager

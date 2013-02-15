@@ -133,6 +133,7 @@
     <ClInclude Include="CD3D9Webkit.hpp" />
     <ClInclude Include="AnimGroups.h" />
     <ClInclude Include="CDebugView.h" />
+    <ClInclude Include="CIVObject.h" />
     <ClInclude Include="CIVTrain.h" />
     <ClInclude Include="CIVWeapon.h" />
     <ClInclude Include="Commands.h" />
@@ -318,6 +319,7 @@
     <ClCompile Include="CFileTransferManager.cpp" />
     <ClCompile Include="CHooks.cpp" />
     <ClCompile Include="CDebugView.cpp" />
+    <ClCompile Include="CIVObject.cpp" />
     <ClCompile Include="CIVTrain.cpp" />
     <ClCompile Include="CIVWeapon.cpp" />
     <ClCompile Include="Commands.cpp" />

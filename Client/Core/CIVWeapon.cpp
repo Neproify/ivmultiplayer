@@ -48,6 +48,19 @@ void CIVWeapon::SetType(eWeaponType weaponType)
 		m_pWeapon->m_weaponType = weaponType;
 }
 
+eWeaponSlot CIVWeapon::GetSlot()
+{
+	if(m_pWeapon)
+	{
+		CIVWeaponInfo * pWeaponInfo = CGame::GetWeaponInfo(m_pWeapon->m_weaponType);
+
+		if(pWeaponInfo)
+			return pWeaponInfo->GetWeaponInfo()->m_slot;
+	}
+
+	return WEAPON_SLOT_UNARMED;
+}
+
 eWeaponState CIVWeapon::GetState()
 {
 	if(m_pWeapon)

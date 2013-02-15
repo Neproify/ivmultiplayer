@@ -12,7 +12,7 @@
 
 #include "IVCommon.h"
 
-#define NUM_ModelInfos 65535
+#define NUM_ModelInfos 31000
 #define ARRAY_ModelInfos 0x15F73B0
 // void CModelInfo::SetAnimation(this, char * szAnimationName)
 #define FUNC_CModelInfo__SetAnimation 0x98F3F0

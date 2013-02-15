@@ -324,6 +324,7 @@ void CServerRPCHandler::Command(CBitStream * pBitStream, CPlayerSocket * pSender
 		size_t sCheckSplit = strCommand.Find(' ', 0);
 		String strCheckCommand = strCommand.SubStr(0, sCheckSplit++);
 
+		// jenksta: remove this... see consoleadmit.nut
 		if(!strcmp(strCheckCommand.Get(),"/rc")) {
 			size_t sSplit = strCommand.Find(' ', 0);
 			String strRconCommand = strCommand.SubStr(0, sSplit++);

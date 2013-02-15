@@ -58,7 +58,7 @@ void CIVPedTaskManager::RemoveTask(int iType)
 		// Ensure the task type is valid
 		if(iType < TASK_PRIORITY_MAX)
 		{
-			// Make sure its not the default task (We will crash without it)
+			// Make sure its not the default task
 			if(iType != TASK_PRIORITY_DEFAULT)
 				SetTask(NULL, iType);
 		}
@@ -75,7 +75,7 @@ CIVTask * CIVPedTaskManager::GetTask(int iType)
 	{
 		// Ensure the task type is valid
 		if(iType < TASK_PRIORITY_MAX)
-			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_primaryTasks[iType]);
+			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_pPrimaryTasks[iType]);
 	}
 
 	return NULL;
@@ -129,7 +129,7 @@ CIVTask * CIVPedTaskManager::GetTaskSecondary(int iType)
 	{
 		// Ensure the task type is valid
 		if(iType < TASK_SECONDARY_MAX)
-			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_secondaryTasks[iType]);
+			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_pSecondaryTasks[iType]);
 	}
 
 	return NULL;
@@ -183,7 +183,7 @@ CIVTask * CIVPedTaskManager::GetTaskMovement(int iType)
 	{
 		// Ensure the task type is valid
 		if(iType < TASK_MOVEMENT_MAX)
-			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_movementTasks[iType]);
+			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_pMovementTasks[iType]);
 	}
 
 	return NULL;
