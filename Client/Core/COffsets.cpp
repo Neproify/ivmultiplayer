@@ -62,6 +62,7 @@ unsigned int COffsets::FUNC_CMatrix__ConvertFromQuaternion = 0;
 unsigned int COffsets::FUNC_CQuaternion__ConvertFromMatrix = 0;
 
 // Vehicle
+unsigned int COffsets::FUNC_CVehicle__SetLoadCollision = 0;
 unsigned int COffsets::FUNC_CVehicle__TurnEngineOn = 0;
 unsigned int COffsets::FUNC_CVehicle__TurnEngineOff = 0;
 unsigned int COffsets::FUNC_CVehicle__RefreshColours = 0;
@@ -275,6 +276,7 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CQuaternion__ConvertFromMatrix             = (uiBase + 0x506DB0);
 
 			// Vehicle
+			FUNC_CVehicle__SetLoadCollision                 = (uiBase + 0xB77BB0);
 			FUNC_CVehicle__TurnEngineOn						= (uiBase + 0x9D3600);
 			FUNC_CVehicle__TurnEngineOff                    = (uiBase + 0x9C6710);
 			FUNC_CVehicle__RefreshColours                   = (uiBase + 0x9C52E0);
