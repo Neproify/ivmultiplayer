@@ -49,7 +49,7 @@ CIVWeapon * CIVPedWeapons::GetCurrentWeapon()
 
 		eWeaponSlot weaponSlot = m_pPedWeapons->m_currentWeaponSlot;
 
-		if(weaponSlot == WEAPON_SLOT_UNARMED || weaponSlot == WEAPON_SLOT_OBJECT)
+		if(weaponSlot == WEAPON_SLOT_UNARMED || weaponSlot == WEAPON_SLOT_PARACHUTE)
 		{
 			IVWeapon * pSpecialWeapon = m_pPedWeapons->m_pSpecialWeapon;
 
