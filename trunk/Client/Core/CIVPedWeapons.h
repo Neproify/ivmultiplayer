@@ -25,9 +25,9 @@ public:
 	IVObject * m_pWeaponObject;                 // 02C-030
 	PAD(IVPedWeapons, pad2, 0x8);               // 030-038
 	IVWeapon * m_pSpecialWeapon;                // 038-03C
-	IVPedWeaponSlot m_weapons[WEAPON_SLOT_MAX]; // 03C-0B4
-	IVPedWeaponSlot m_weapon;                   // 0B4-0C0
-	PAD(IVPedWeapons, pad3, 0x18);              // 0C0-0D8
+	IVPedWeaponSlot m_weapons[WEAPON_SLOT_MAX]; // 03C-0C0
+	IVPedWeaponSlot m_weapon;                   // 0C0-0CC
+	PAD(IVPedWeapons, pad3, 0xC);               // 0C0-0D8
 	BYTE m_byteShootRate;                       // 0D8-0D9
 	BYTE m_byteAccuracy;                        // 0D9-0DA
 	PAD(IVPedWeapons, pad4, 0x40);              // 0DA-11A

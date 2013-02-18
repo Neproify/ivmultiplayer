@@ -52,7 +52,7 @@ void CDirect3DHook::Install()
 		HMODULE hModule = NULL;
 		char buffer[MAX_PATH];
 
-		// Getting path to system dir and to d3d8.dll
+		// Getting path to system dir and to d3d9.dll
 		::GetSystemDirectory(buffer,MAX_PATH);
 
 		// Append dll name
