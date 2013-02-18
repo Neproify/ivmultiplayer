@@ -111,9 +111,9 @@ String GetKeyNameByCode(DWORD dwCode)
 			strCode = "insert"; break;
 		case VK_DELETE:
 			strCode = "delete"; break;
-		case 0x1E:
+		case VK_BACK:
 			strCode = "backspace"; break;
-		case 0x01:
+		case VK_ESCAPE:
 			strCode = "esc"; break;
 		case VK_CAPITAL:
 			strCode = "capslock"; break;
