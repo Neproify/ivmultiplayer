@@ -7,7 +7,6 @@
 //
 //==============================================================================
 
-
 #include "C3DLabels.h"
 #include "CClient.h"
 
@@ -34,12 +33,10 @@ C3DLabel::C3DLabel(LabelId id, String text, CVector3 vecPosition, DWORD dwColor,
 	SetCanBeStreamedIn(true);
 }
 
-
 C3DLabel::~C3DLabel()
 {
 	OnDelete();
 }
-
 
 void C3DLabel::Render()
 {
@@ -60,7 +57,6 @@ void C3DLabel::Render()
 	}
 }
 
-
 //=================================================================
 //======================== C3DLabelManager ========================
 //=================================================================
@@ -68,28 +64,25 @@ void C3DLabel::Render()
 C3DLabelManager::C3DLabelManager()
 {
 	for(LabelId i = 0; i < MAX_3D_LABELS; i++) 
-	{
 		m_Labels[i] = NULL;
-	}
 }
-
 
 C3DLabelManager::~C3DLabelManager()
 {
 	Reset();
 }
 
-#include <CLogFile.h>
 LabelId C3DLabelManager::Add(String text, CVector3 vecPosition, DWORD dwColor, bool bVisible, float fStreamingDistance)
 {
 	for(LabelId i = 0; i < MAX_3D_LABELS; i++) 
 	{
-		if(!DoesExist(i)) {
-			CLogFile::Printf("New label(%i)", i);
+		if(!DoesExist(i))
+		{
 			m_Labels[i] = new C3DLabel(i, text, vecPosition, dwColor, bVisible, fStreamingDistance);
 			return i;
 		}
 	}
+
 	return MAX_3D_LABELS; /* INVALID ID */
 }
 
@@ -105,36 +98,31 @@ bool C3DLabelManager::DoesExist(LabelId labelId)
 void C3DLabelManager::Reset()
 {
 	for(LabelId i = 0; i < MAX_3D_LABELS; i++)
-	{
 		SAFE_DELETE(m_Labels[i]);
-	}
 }
-
 
 void C3DLabelManager::Remove(LabelId id)
 {
-	SAFE_DELETE(m_Labels[id]);
+	if(DoesExist(id))
+		SAFE_DELETE(m_Labels[id]);
 }
-
 
 void C3DLabelManager::Render()
 {
 	for(LabelId i = 0; i < MAX_3D_LABELS; i++)
 	{
-		if(DoesExist(i)) {
-			CLogFile::Printf("check streamed in (%i)", i);
-			if(m_Labels[i]->IsVisible() && m_Labels[i]->IsStreamedIn()) {
-				CLogFile::Printf("Render (%i)", i);
+		if(DoesExist(i))
+		{
+			if(m_Labels[i]->IsVisible() && m_Labels[i]->IsStreamedIn())
 				m_Labels[i]->Render();
-			}
 		}
 	}
 }
 
-
-C3DLabel* C3DLabelManager::GetAt(LabelId id)
+C3DLabel * C3DLabelManager::GetAt(LabelId id)
 {
-	if(id < MAX_3D_LABELS) {
+	if(id < MAX_3D_LABELS)
+	{
 		if(DoesExist(id))
 			return m_Labels[id];
 		else

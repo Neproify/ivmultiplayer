@@ -196,10 +196,11 @@ void CStreamer::Pulse()
 			// Can this entity be streamed in?
 			if((*iter)->CanBeStreamedIn())
 			{
-
 				bool bInRange = true;
 				float fDistance = -1;
-				if((*iter)->GetStreamingDistance() != -1) {
+
+				if((*iter)->GetStreamingDistance() != -1)
+				{
 					// check distance
 					CVector3 vecPos;
 					(*iter)->GetStreamPosition(vecPos);
