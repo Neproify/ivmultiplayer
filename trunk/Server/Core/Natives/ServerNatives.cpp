@@ -156,7 +156,7 @@ SQInteger CServerNatives::GetRule(SQVM * pVM)
 // shutdown()
 SQInteger CServerNatives::Shutdown(SQVM * pVM)
 {
-	g_pNetworkManager->bRunning = false;
+	g_pServer->SetActive(false);
 	sq_pushbool(pVM, true);
 	return 1;
 }
