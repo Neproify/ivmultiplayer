@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "Main.h"
+#include "CServer.h"
 #include "Interfaces/InterfaceCommon.h"
 
 struct _Actor

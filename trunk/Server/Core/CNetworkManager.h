@@ -13,7 +13,7 @@
 #include <windows.h>
 #endif
 
-#include "Main.h"
+#include "CServer.h"
 #include "Interfaces/InterfaceCommon.h"
 #include <Network/CNetServerInterface.h>
 #include "CServerPacketHandler.h"

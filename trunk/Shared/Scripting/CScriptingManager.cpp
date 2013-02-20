@@ -174,16 +174,17 @@ struct SquirrelParameterCheck
 {
 	int                       iMinimumParameters; // min amount of params (min 0)
 	int                       iMaximumParameters; // max amount of params (-1 for unlimited)
-	std::vector<SQObjectType> typeList; // parameter types
+	std::vector<SQObjectType> typeList;           // parameter types
 };
 
 class CNewSquirrel
 {
 private:
-	String                               m_strName;
-	String                               m_strPath;
-	SQVM                               * m_pVM;
-	std::map<String, SquirrelFunction_t> m_functionMap;
+	String                                                 m_strName;
+	String                                                 m_strPath;
+	SQVM                                                 * m_pVM;
+	std::map<String, SquirrelFunction_t>                   m_functionMap;
+	std::map<SquirrelFunction_t, SquirrelParameterCheck *> m_parameterMap;
 
 	static void PrintFunction(SQVM * pVM, const char * szFormat, ...)
 	{
@@ -195,66 +196,151 @@ private:
 		CLogFile::Print(szBuffer);
 	}
 
-	static void ErrorFunction(SQVM * pVM, const char * szFormat, ...)
+	static void CompileErrorFunction(SQVM * pVM, const char * szDescription, const char * szSource, int iLine, int iColumn)
 	{
-		va_list args;
-		char szBuffer[512];
-		va_start(args, szFormat);
-		vsnprintf(szBuffer, sizeof(szBuffer), szFormat, args);
-		va_end(args);
-		CLogFile::Print(szBuffer);
-		/*char *tmp = (char *)tmps;
+		CLogFile::Printf("Failed to compile %s: %s (Line %d, Column %d)", szSource, szDescription, iLine, iColumn);
+	}
 
-		size_t offstart = 0, offend = 0;
+	typedef std::pair<String, int> ErrorSourcePair;
+	typedef std::pair<String, ErrorSourcePair> ErrorCallstackPair;
+	typedef std::list<ErrorCallstackPair> ErrorCallstackList;
 
-		size_t len = strlen(tmp);
-		for (size_t i = 0; i < len; ++i)
+	typedef std::pair<String, CSquirrelArgument> ErrorLocalPair;
+	typedef std::list<ErrorLocalPair> ErrorLocalsList;
+
+	struct ErrorInfo
+	{
+		String strError;
+		ErrorCallstackList callstack;
+		ErrorLocalsList locals;
+	};
+
+	static SQInteger PrintErrorFunction(SQVM * pVM)
+	{
+		if(sq_gettop(pVM) >= 1)
 		{
-			switch (tmp[i])
+			const SQChar * szError = NULL;
+			sq_getstring(pVM, 2, &szError);
+				
+			ErrorInfo info;
+			info.strError = szError;
+
+			SQStackInfos si;
+			SQInteger level = 1; // 1 is to skip this function that is level 0
+			const SQChar *name = 0; 
+			SQInteger seq = 0;
+
+			while(SQ_SUCCEEDED(sq_stackinfos(pVM, level, &si)))
 			{
-			case ' ':
-			case '\r':
-			case '\n':
-			case '\t':
-				++offstart;
-				break;
-			default:
-				i = len - 1;
-				break;
+				const SQChar * fn = _SC("unknown");
+				const SQChar * src = _SC("unknown");
+				if(si.funcname) fn=si.funcname;
+				if(si.source) src=si.source;
+				info.callstack.push_back(ErrorCallstackPair(fn, ErrorSourcePair(src, si.line)));
+				level++;
 			}
+
+			for(level = 0; level < 10; level++)
+			{
+				seq = 0;
+
+				while((name = sq_getlocal(pVM, level, seq)))
+				{
+					seq++;
+					CSquirrelArgument arg;
+					arg.pushFromStack(pVM, -1);
+					info.locals.push_back(ErrorLocalPair(name, arg));
+					sq_pop(pVM, 1);
+				}
+			}
+
+			CLogFile::Printf("<Error (%s)>", info.strError.Get());
+
+			CLogFile::Printf("<Callstack>");
+			for(ErrorCallstackList::iterator iter = info.callstack.begin(); iter != info.callstack.end(); iter++)
+			{
+				String strFunction = iter->first;
+				String strSource = iter->second.first;
+				int iLine = iter->second.second;
+				CLogFile::Printf("<%s (%s, %d)>", strFunction.Get(), strSource.Get(), iLine);
+			}
+			CLogFile::Printf("</Callstack>");
+
+			CLogFile::Printf("<Locals>");
+			for(ErrorLocalsList::iterator iter = info.locals.begin(); iter != info.locals.end(); iter++)
+			{
+				String strName = iter->first;
+				CSquirrelArgument arg = iter->second;
+				CLogFile::Printf("<%s (%d)>", strName.Get(), arg.GetType());
+			}
+			CLogFile::Printf("</Locals>");
+
+			CLogFile::Printf("</Error>");
+
+			/*
+			switch(sq_gettype(v,-1))
+			{
+			case OT_NULL:
+			pf(v,_SC("[%s] NULL\n"),name);
+			break;
+			case OT_INTEGER:
+			sq_getinteger(v,-1,&i);
+			pf(v,_SC("[%s] %d\n"),name,i);
+			break;
+			case OT_FLOAT:
+			sq_getfloat(v,-1,&f);
+			pf(v,_SC("[%s] %.14g\n"),name,f);
+			break;
+			case OT_USERPOINTER:
+			pf(v,_SC("[%s] USERPOINTER\n"),name);
+			break;
+			case OT_STRING:
+			sq_getstring(v,-1,&s);
+			pf(v,_SC("[%s] \"%s\"\n"),name,s);
+			break;
+			case OT_TABLE:
+			pf(v,_SC("[%s] TABLE\n"),name);
+			break;
+			case OT_ARRAY:
+			pf(v,_SC("[%s] ARRAY\n"),name);
+			break;
+			case OT_CLOSURE:
+			pf(v,_SC("[%s] CLOSURE\n"),name);
+			break;
+			case OT_NATIVECLOSURE:
+			pf(v,_SC("[%s] NATIVECLOSURE\n"),name);
+			break;
+			case OT_GENERATOR:
+			pf(v,_SC("[%s] GENERATOR\n"),name);
+			break;
+			case OT_USERDATA:
+			pf(v,_SC("[%s] USERDATA\n"),name);
+			break;
+			case OT_THREAD:
+			pf(v,_SC("[%s] THREAD\n"),name);
+			break;
+			case OT_CLASS:
+			pf(v,_SC("[%s] CLASS\n"),name);
+			break;
+			case OT_INSTANCE:
+			pf(v,_SC("[%s] INSTANCE\n"),name);
+			break;
+			case OT_WEAKREF:
+			pf(v,_SC("[%s] WEAKREF\n"),name);
+			break;
+			case OT_BOOL:{
+			sq_getinteger(v,-1,&i);
+			pf(v,_SC("[%s] %s\n"),name,i?_SC("true"):_SC("false"));
+			}
+			break;
+			default: assert(0); break;
+			}
+			sq_pop(v,1);
+			}
+			*/
 		}
 
-		tmp += offstart;
-		len -= offstart;
-
-		for (size_t i = len - 1; i > 0; --i)
-		{
-			switch (tmp[i])
-			{
-			case ' ':
-			case '\r':
-			case '\n':
-			case '\t':
-				++offend;
-				break;
-			default:
-				i = 1;
-				break;
-			}
-		}
-
-		tmp[len - offend] = '\0';
-
-		// TODO: Parse it and change the format of script error (e.g. onScriptError(filename, line, e.t.c.))
-		CSquirrel * pScript = CScriptingManager::GetInstance()->Get(vm);
-		if(pScript)
-		{
-			CSquirrelArguments pArguments;
-			pArguments.push(tmp);
-
-			if(g_pClient->GetEvents()->Call("scriptError", &pArguments, pScript).GetInteger() == 1)
-				CLogFile::Print(tmp);
-		}*/
+		return 0;
 	}
 
 	static SQInteger DefaultFunction(SQVM * pVM)
@@ -299,7 +385,66 @@ private:
 
 		// Did we not find the function?
 		if(!pfnFunction)
+		{
+			CLogFile::Printf("Native function %s does not exist", strName.Get());
 			return 0;
+		}
+
+		// Get our parameter check
+		SquirrelParameterCheck * pParameterCheck = NULL;
+
+		for(std::map<SquirrelFunction_t, SquirrelParameterCheck *>::iterator iter = pThis->m_parameterMap.begin(); iter != pThis->m_parameterMap.end(); iter++)
+		{
+			// Is this the parameter check we are looking for?
+			if(iter->first == pfnFunction)
+			{
+				pParameterCheck = iter->second;
+				break;
+			}
+		}
+
+		// Did we not find the parameter check?
+		if(!pParameterCheck)
+		{
+			CLogFile::Printf("Native function %s does not have parameter check", strName.Get());
+			return 0;
+		}
+
+		// Ensure we have enough parameters
+		int iTop = (sq_gettop(pVM) - 1);
+
+		if(iTop < pParameterCheck->iMinimumParameters)
+		{
+			CLogFile::Printf("Call to function %s with not enough parameters (Expected %d+, Got %d)", strName.Get(), pParameterCheck->iMinimumParameters, iTop);
+			return 0;
+		}
+
+		// Ensure we don't have too many parameters
+		if(pParameterCheck->iMaximumParameters != -1 && iTop > pParameterCheck->iMaximumParameters)
+		{
+			CLogFile::Printf("Call to function %s with too many parameters (Expected %d, Got %d)", strName.Get(), pParameterCheck->iMaximumParameters, iTop);
+			return 0;
+		}
+
+		// Ensure we don't have any invalid types
+		int iParam = 0;
+
+		for(std::vector<SQObjectType>::iterator iter = pParameterCheck->typeList.begin(); iter != pParameterCheck->typeList.end(); iter++)
+		{
+			if(iParam > iTop)
+				break;
+
+			SQObjectType type = sq_gettype(pVM, (iParam + 2));
+
+			if(!(type & *iter))
+			{
+				CLogFile::Printf("Invalid type for function %s, parameter %d (Expected %d, Got %d)", strName.Get(), iParam, *iter, type);
+				return 0;
+			}
+
+			CLogFile::Printf("Valid type for param %d, in function %s (%d, %d)", iParam, strName.Get(), type, *iter);
+			iParam++;
+		}
 
 		// Create the arguments
 		CSquirrelArguments arguments(pVM, 2);
@@ -322,17 +467,17 @@ public:
 
 	~CNewSquirrel()
 	{
-		// Are we loaded?
-		if(IsLoaded())
+		// Are we started?
+		if(IsStarted())
 		{
-			// Unload
-			Unload();
+			// Stop
+			Stop();
 		}
 	}
 
-	bool IsLoaded() { return (m_pVM != NULL); }
+	bool IsStarted() { return (m_pVM != NULL); }
 
-	bool Load()
+	bool Start(bool bSystemLib = true, bool bIOLib = true)
 	{
 		// Create the squirrel VM with an initial stack size of 1024 bytes (will adjust stack size as needed)
 		m_pVM = sq_open(1024);
@@ -345,24 +490,20 @@ public:
 		m_pVM->_userpointer = (SQUserPointer)this;
 
 		// Register the default error handles
-		sqstd_seterrorhandlers(m_pVM);
+		//sqstd_seterrorhandlers(m_pVM);
 
 		// Set the print and error functions
-		sq_setprintfunc(m_pVM, PrintFunction, ErrorFunction);
+		sq_setprintfunc(m_pVM, PrintFunction, PrintFunction);
 
 		// Set the compile error handler
-		//sq_setcompilererrorhandler(m_pVM, SQCOMPILERERROR())
+		sq_setcompilererrorhandler(m_pVM, CompileErrorFunction);
+
+		// Set our error handler
+		sq_newclosure(m_pVM, PrintErrorFunction, 0);
+		sq_seterrorhandler(m_pVM);
 
 		// Push the root table onto the stack
 		sq_pushroottable(m_pVM);
-
-#ifdef _SERVER
-		// Register the system library
-		sqstd_register_systemlib(m_pVM);
-
-		// Register the input/out library
-		sqstd_register_iolib(m_pVM);
-#endif
 
 		// Register the string library
 		sqstd_register_stringlib(m_pVM);
@@ -373,15 +514,23 @@ public:
 		// Register the blob library
 		sqstd_register_bloblib(m_pVM);
 
+		// Register the system library
+		if(bSystemLib)
+			sqstd_register_systemlib(m_pVM);
+
+		// Register the input/out library
+		if(bIOLib)
+			sqstd_register_iolib(m_pVM);
+
 		// Pop the root table from the stack
 		sq_pop(m_pVM, 1);
 		return true;
 	}
 
-	bool Unload()
+	bool Stop()
 	{
-		// Are we loaded?
-		if(IsLoaded())
+		// Are we started?
+		if(IsStarted())
 		{
 			// Close the squirrel VM
 			sq_close(m_pVM);
@@ -389,7 +538,7 @@ public:
 			return true;
 		}
 
-		// Not loaded
+		// Not started
 		return false;
 	}
 
@@ -398,7 +547,7 @@ public:
 		// Does the script not exist?
 		if(!SharedUtility::Exists(strPath.Get()))
 		{
-			CLogFile::Printf("DoFile can't find the script(Path: '%s')!",strPath);
+			CLogFile::Printf("Script %s does not exist", strPath.Get());
 			return false;
 		}
 
@@ -414,7 +563,7 @@ public:
 		// Compile and load the script
 		if(SQ_FAILED(sqstd_dofile(m_pVM, strPath.Get(), SQFalse, SQTrue)))
 		{
-			CLogFile::Printf("DoFile can't compile and load the script(Path: '%s')!",strPath);
+			CLogFile::Printf("Failed to compile and load script %s", strPath.Get());
 			return false;
 		}
 
@@ -452,7 +601,7 @@ public:
 	// "i"   // expect 1 param (int)
 	// "is   // expect 2 param (int, string)
 	// "i?s" // expect 1 param (int) (optional string)
-	// "i??" // expect 1 param (int) (optional amount of args)
+	// "i??" // expect 1 param (int) (optional amount of args (for print functions e.t.c.))
 	SquirrelParameterCheck * GenerateParameterCheck(String strTemplate)
 	{
 		CLogFile::Printf("Compiling type mask %s", strTemplate.Get());
@@ -480,7 +629,7 @@ public:
 
 			switch(strTemplate[i])
 			{
-			case ' ': continue; // ignore spaces
+			case ' ': break; // ignore spaces
 			case '.': type = (SQObjectType)0; CLogFile::Printf("Added parameter with type ANY"); break;
 			case '?':
 				{
@@ -558,6 +707,7 @@ public:
 		GenerateParameterCheck("sif");
 		GenerateParameterCheck("sififififififififififi");
 		GenerateParameterCheck("??");
+		GenerateParameterCheck("sf??f");
 		GenerateParameterCheck("s?i");
 		GenerateParameterCheck("s?sss");
 		GenerateParameterCheck("is?f");
@@ -568,6 +718,12 @@ public:
 	{
 		// Does the function already exist?
 		if(m_functionMap[strName] != NULL)
+			return false;
+
+		// Generate our parameter check
+		SquirrelParameterCheck * pParameterCheck = GenerateParameterCheck(strParameterTemplate);
+
+		if(!pParameterCheck)
 			return false;
 
 		// Push the root table onto the stack if needed
@@ -583,22 +739,14 @@ public:
 		// Set the function name
 		sq_setnativeclosurename(m_pVM, -1, strName.Get());
 
-		// Set the function parameter count and parameter template
-		/*if(iParameterCount != -1)
-		{
-			String strTypeMask;
-
-			if(strParameterTemplate.IsNotEmpty())
-				strTypeMask.Format(".%s", strParameterTemplate.Get());
-
-			sq_setparamscheck(m_pVM, (iParameterCount + 1), strTypeMask.Get());
-		}*/
-
 		// Create a new slot
 		sq_createslot(m_pVM, -3);
 
 		// Add the function to the function map
 		m_functionMap[strName] = pfnFunction;
+
+		// Add the parameter check to the parameter map
+		m_parameterMap[pfnFunction] = pParameterCheck;
 
 		// Pop the root table from the stack if needed
 		if(bPushRootTable)
@@ -614,7 +762,7 @@ class CNewSquirrelClass
 private:
 	String      m_strName;
 	String      m_strBaseClassName;
-	//std::vector m_functions;
+	std::vector m_functions;
 
 	static CSquirrelArgument TypeOf(CNewSquirrel * pSquirrel, CSquirrelArguments * pArguments)
 	{
@@ -686,18 +834,19 @@ CSquirrel * CScriptingManager::Load(String strName, String strPath)
 		CLogFile::Printf("Step 1");
 		CNewSquirrel * pNewSquirrel = new CNewSquirrel();
 		CLogFile::Printf("Step 2");
-		pNewSquirrel->Load();
+		pNewSquirrel->Start();
 		CLogFile::Printf("Step 3");
-		pNewSquirrel->RegisterFunction("testNative", TestNative, "s");
+		pNewSquirrel->RegisterFunction("testNative", TestNative, "?s");
 		CLogFile::Printf("Step 33");
 		pNewSquirrel->DoFile("C:/test.nut");
 		CLogFile::Printf("Step 4");
-		pNewSquirrel->Unload();
+		pNewSquirrel->Stop();
 		CLogFile::Printf("Step 5");
 		delete pNewSquirrel;
 		CLogFile::Printf("Step 6");
 		CLogFile::Printf("Loaded new style squirrel");
 		bFirstLoad = false;
+		getc(stdin);
 	}
 #endif
 	CSquirrel * pScript = new CSquirrel();

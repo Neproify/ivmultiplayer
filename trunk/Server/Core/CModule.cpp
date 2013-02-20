@@ -7,7 +7,7 @@
 //
 //==============================================================================
 
-#include "Main.h"
+#include "CServer.h"
 #include "CModule.h"
 #include <SharedUtility.h>
 #include "CNetworkManager.h"

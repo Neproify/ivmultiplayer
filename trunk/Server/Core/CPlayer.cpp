@@ -70,7 +70,6 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_bDrop = false;
 	m_iWantedLevel = 0;
 	m_bJoined = false;
-	m_bRemoteControlLogedIn = false;
 }
 
 CPlayer::~CPlayer()

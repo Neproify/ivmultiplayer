@@ -10,6 +10,7 @@
 //==============================================================================
 
 #include "../Natives.h"
+#include "../CServer.h"
 #include "Scripting/CScriptTimerManager.h"
 #include "Scripting/CScriptingManager.h"
 #include "../CNetworkManager.h"
@@ -20,12 +21,11 @@
 #include "../CQuery.h"
 #include <SharedUtility.h>
 
+extern CServer           * g_pServer;
 extern CPlayerManager    * g_pPlayerManager;
 extern CNetworkManager   * g_pNetworkManager;
 extern CQuery            * g_pQuery;
 extern CScriptingManager * g_pScriptingManager;
-
-void SendConsoleInput(String strInput);
 
 // Server functions
 
@@ -279,7 +279,10 @@ SQInteger CServerNatives::SendInput(SQVM * pVM)
 {
 	const char * input;
 	sq_getstring(pVM, -1, &input);
-	SendConsoleInput((char*)input);
+
+	if(g_pServer)
+		g_pServer->SendInput(input);
+
 	return 1;
 }
 
