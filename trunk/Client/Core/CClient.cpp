@@ -179,10 +179,7 @@ bool CClient::OnLoad()
 
 	// Install the Cursor hook
 #ifdef IVMP_DEBUG
-	CCursorHook::Install();
-	m_pDebugView = new CDebugView();
-#endif
-#ifdef IVMP_DEV_VER
+	//CCursorHook::Install();
 	m_pDebugView = new CDebugView();
 #endif
 
@@ -263,10 +260,7 @@ void CClient::OnUnload()
 	// Delete our debug viewer
 	SAFE_DELETE(m_pDebugView);
 #endif
-#ifdef IVMP_DEV_VER
-	// Delete our debug viewer
-	SAFE_DELETE(m_pDebugView);
-#endif
+
 	// Delete our credits
 	SAFE_DELETE(m_pCredits);
 
@@ -302,7 +296,7 @@ void CClient::OnUnload()
 
 	// Uninstall the Cursor hook
 #ifdef IVMP_DEBUG
-	CCursorHook::Uninstall();
+	//CCursorHook::Uninstall();
 #endif
 
 	// Uninstall the DirectInput hook
@@ -422,7 +416,7 @@ void CClient::OnD3DEndScene()
 	if(m_pEvents && !m_pMainMenu->IsVisible())
 		m_pEvents->Call("frameRender");
 
-#ifdef IVMP_DEV_VER
+#ifdef IVMP_DEBUG
 	if(m_pDebugView && m_pGUI && m_pLocalPlayer)
 		m_pDebugView->Draw();
 #endif
@@ -499,7 +493,7 @@ void CClient::OnD3DEndScene()
 			if(strData->IsEmpty())
 				return;
 
-#ifndef IVMP_DEV_VER
+#ifndef IVMP_DEBUG
 			if(strcmp(strData->Get(), MOD_VERSION_STRING))
 			{
 				if(m_pGUI)
