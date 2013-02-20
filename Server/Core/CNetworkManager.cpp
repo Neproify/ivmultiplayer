@@ -35,16 +35,10 @@ CNetworkManager::CNetworkManager()
 
 	// Create the rpc handler instance
 	m_pServerRPCHandler = new CServerRPCHandler();
-
-	// Flag ourselves as running
-	bRunning = true;
 }
 
 CNetworkManager::~CNetworkManager()
 {
-	// Flag ourselves as not running
-	bRunning = false;
-
 	// Unregister the rpcs
 	m_pServerRPCHandler->Unregister();
 

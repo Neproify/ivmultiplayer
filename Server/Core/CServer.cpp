@@ -230,10 +230,12 @@ bool CServer::OnLoad(int argc, char ** argv)
 	{
 #ifdef WIN32
 		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
-		CLogFile::Print("\n============ Loading Modules ===========\n");
+		CLogFile::Print("");
+		CLogFile::Print("============ Loading Modules ===========");
 		SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
 #else
-		CLogFile::Print("\n============ Loading Modules ===========\n");
+		CLogFile::Print("");
+		CLogFile::Print("============ Loading Modules ===========");
 #endif
 
 		for(std::list<String>::iterator iter = modules.begin(); iter != modules.end(); ++iter)
@@ -309,10 +311,12 @@ bool CServer::OnLoad(int argc, char ** argv)
 
 #ifdef WIN32
 	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
-	CLogFile::Print("\n============ Loading Resources ===========\n");
+	CLogFile::Print("");
+	CLogFile::Print("============ Loading Resources ===========");
 	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
 #else
-	CLogFile::Print("\n============ Loading Resources ===========\n");
+	CLogFile::Print("");
+	CLogFile::Print("============ Loading Resources ===========");
 #endif
 
 	if(CVAR_GET_BOOL("query"))
@@ -372,10 +376,14 @@ bool CServer::OnLoad(int argc, char ** argv)
 
 #ifdef WIN32
 	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-	CLogFile::Print("\n====================================================================\n");
+	CLogFile::Print("");
+	CLogFile::Print("====================================================================");
+	CLogFile::Print("");
 	SetConsoleTextAttribute((HANDLE)GetStdHandle(STD_OUTPUT_HANDLE), wOldColAttr | FOREGROUND_INTENSITY);
 #else
-	CLogFile::Print("\n====================================================================\n");
+	CLogFile::Print("");
+	CLogFile::Print("====================================================================");
+	CLogFile::Print("");
 #endif
 	return true;
 }
@@ -677,7 +685,7 @@ void CServer::SendInput(String strInput)
 		}
 		else if(strCommand == "quit" || strCommand == "exit")
 		{
-			m_bActive = false;
+			SetActive(false);
 		}
 		else
 		{

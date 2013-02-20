@@ -18,15 +18,17 @@ CServerInterface * g_pServer = NULL;
 #ifdef WIN32
 BOOL WINAPI CtrlHandler(DWORD dwType)
 {
-	switch(dwType)
+	if(dwType >= 0 && dwType <= 6)
 	{
-	case CTRL_C_EVENT:
-	case CTRL_BREAK_EVENT:
-	case CTRL_CLOSE_EVENT:
-	case CTRL_LOGOFF_EVENT:
-	case CTRL_SHUTDOWN_EVENT:
 		// Flag the server core as inactive
 		g_pServer->SetActive(false);
+
+		// HACK: This delays the console closing immidiately
+		// which gives us some extra time to close properly
+		if(dwType == CTRL_CLOSE_EVENT)
+		{
+			while(true) { }
+		}
 		return TRUE;
 	}
 

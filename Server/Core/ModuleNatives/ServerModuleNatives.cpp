@@ -78,7 +78,7 @@ namespace Modules
 	// shutdown()
 	void CServerModuleNatives::Shutdown()
 	{
-		g_pNetworkManager->bRunning = false;
+		g_pServer->SetActive(false);
 	}
 
 	// setServerPassword(password)

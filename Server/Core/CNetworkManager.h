@@ -40,5 +40,4 @@ public:
 	String                GetPlayerSerial(EntityId playerId);
 	bool                  AddBan(String strIp, unsigned int uiSeconds);
 	bool                  LoadBans();
-	bool                  bRunning;
 };
