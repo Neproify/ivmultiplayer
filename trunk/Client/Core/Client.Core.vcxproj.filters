@@ -735,6 +735,9 @@
     <ClInclude Include="CIVObject.h">
       <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
+    <ClInclude Include="C3DLabels.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">

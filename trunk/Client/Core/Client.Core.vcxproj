@@ -126,6 +126,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AimSync.h" />
+    <ClInclude Include="C3DLabels.h" />
     <ClInclude Include="CAudioManager.h" />
     <ClInclude Include="CClient.h" />
     <ClInclude Include="CFileTransferManager.h" />

@@ -23,7 +23,7 @@ BOOL WINAPI CtrlHandler(DWORD dwType)
 		// Flag the server core as inactive
 		g_pServer->SetActive(false);
 
-		// HACK: This delays the console closing immidiately
+		// HACK: This delays the console closing immediately
 		// which gives us some extra time to close properly
 		if(dwType == CTRL_CLOSE_EVENT)
 		{

@@ -38,8 +38,6 @@ public:
 	C3DLabel(LabelId id, const String& text, const CVector3& vecPosition, DWORD dwColor, bool bVisible, float fStreamingDistance);
 	~C3DLabel();
 
-	/*void		Render();*/
-
 	void		SetPosition(const CVector3& vecPosition);
 	void		GetPosition(CVector3& vecPosition) { vecPosition = m_vecPosition; }
 	CVector3	GetPosition() { return m_vecPosition; }
@@ -64,7 +62,6 @@ public:
 	LabelId		GetId() { return m_labelId; }
 };
 
-
 class C3DLabelManager
 {
 private:
@@ -81,7 +78,6 @@ public:
 
 	void		Remove(LabelId id);
 	void		Reset();
-	/*void		Render();*/
 
 	void		HandleClientJoin(EntityId playerId);
 

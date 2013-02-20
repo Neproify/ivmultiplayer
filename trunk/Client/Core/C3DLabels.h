@@ -60,7 +60,6 @@ public:
 	LabelId GetId() { return m_labelId; }
 };
 
-
 class C3DLabelManager
 {
 private:
