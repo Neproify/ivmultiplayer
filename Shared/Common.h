@@ -26,9 +26,6 @@
 #include <Linux.h>
 #endif
 
-// Dev Stuff
-#define IVMP_DEV_VER 1
-
 // Compile modes
 #define COMPILE_MODE_CUSTOM 0
 #define COMPILE_MODE_RELEASE 1
@@ -37,7 +34,10 @@
 #define COMPILE_MODE COMPILE_MODE_RELEASE
 
 // Debug mode
-//#define IVMP_DEBUG 1
+// Uncomment this to force mod debug mode
+//#define FORCE_DEBUG
+// Uncomment this to force mod release mode
+//#define FORCE_RELEASE
 
 // If compiling in debug mode force mod debug mode
 #ifdef _DEBUG
@@ -45,11 +45,26 @@
 #define IVMP_DEBUG 1
 #endif
 
+// Forced debug
+#ifdef FORCE_DEBUG
+#ifndef IVMP_DEBUG
+#define IVMP_DEBUG 1
+#endif
+#endif
+
+// Forced release
+#ifdef FORCE_RELEASE
+#ifdef IVMP_DEBUG
+#undef IVMP_DEBUG
+#endif
+#endif
+
 // Network module version
 #define NETWORK_MODULE_VERSION 0x08
 
-// Network version - increment this when packet layouts change!
-#define NETWORK_VERSION 0x8B
+// Network version
+// Ensure you increment this when packet layouts change!
+#define NETWORK_VERSION 0x8C
 
 // Tick Rate
 #define TICK_RATE 100
@@ -65,8 +80,6 @@
 #define MAX_PICKUPS 0xFFFE // Streamed. Pickup Pool Size: TODO: 1500?
 #define MAX_FIRE 32
 #define MAX_ACTORS 85
-
-// TODO: RC2: Players: 128, Actors, 252
 
 // Max amount of characters a player can use in their name
 #define MAX_NAME_LENGTH 18
@@ -311,4 +324,3 @@ enum eStateType
 	STATE_TYPE_PASSENGER,
 	STATE_TYPE_EXITVEHICLE
 };
-
