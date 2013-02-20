@@ -971,11 +971,8 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	CGame::GetWeather()->SetWeather(WEATHER_SUNNY);
 	m_pTime->SetTime(0, 0);
 	CGame::SetTime(0, 0);
-	Scripting::SetTimeScale(1.0f);
 
-	CGame::InitializeDefaultGameComponents();
 	// TODO: Remove all gui stuff(images etc, after disconnect)
-	// XForce: OnResetDevice causes blackscreen at maximize
 
 	if(m_pLocalPlayer)
 		m_pLocalPlayer->SetControl(true);

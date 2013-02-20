@@ -151,7 +151,6 @@ public:
 	static bool			   IsKickedFromServer() { return m_bKickedFromServer; }
 	static DWORD		   GetNativeAddress(DWORD dwNative);
 	static void			   PatchWorldAndTrain();
-	static void			   InitializeDefaultGameComponents();
 	static void			   SetSpecialData(bool bData1, bool bData2) { m_bSpecialData[0] = bData1; m_bSpecialData[1] = bData2; }
 	static bool			   GetSpecialData(int iData) { return m_bSpecialData[iData]; }
 };

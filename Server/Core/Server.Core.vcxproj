@@ -17,13 +17,13 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
     <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
@@ -52,8 +52,8 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ivmp-svr.Debug</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ivmp-svr</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName).Debug</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -70,9 +70,9 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)\$(TargetName).exe</OutputFile>
+      <OutputFile>$(OutDir)\$(TargetName)$(TargetExt)</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
@@ -91,10 +91,10 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)\$(TargetName).exe</OutputFile>
+      <OutputFile>$(OutDir)\$(TargetName).dll</OutputFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
@@ -102,6 +102,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="C3DLabels.h" />
+    <ClInclude Include="CServer.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="CModule.h" />
     <ClInclude Include="CModuleManager.h" />
@@ -262,7 +263,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Shared\CEvents.cpp" />
     <ClCompile Include="C3DLabels.cpp" />
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="CServer.cpp" />
     <ClCompile Include="CModule.cpp" />
     <ClCompile Include="CModuleManager.cpp" />
     <ClCompile Include="CActorManager.cpp" />
@@ -313,6 +314,7 @@
     <ClCompile Include="..\..\Vendor\Squirrel\sqstdsystem.cpp" />
     <ClCompile Include="..\..\Vendor\Squirrel\sqtable.cpp" />
     <ClCompile Include="..\..\Vendor\Squirrel\sqvm.cpp" />
+    <ClCompile Include="Main.cpp" />
     <ClCompile Include="ModuleNatives\ActorModuleNatives.cpp" />
     <ClCompile Include="ModuleNatives\AreaModuleNatives.cpp" />
     <ClCompile Include="ModuleNatives\BlipModuleNatives.cpp" />
@@ -363,12 +365,6 @@
     <ClCompile Include="..\..\Shared\Game\CControlState.cpp" />
     <ClCompile Include="..\..\Shared\Game\CTime.cpp" />
     <ClCompile Include="..\..\Shared\Game\CTrafficLights.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Server.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Logo\icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

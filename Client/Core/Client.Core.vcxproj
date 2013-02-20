@@ -70,7 +70,7 @@
     <Link>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat_d.lib;pcre_d.lib;SILLY_d.lib;freetype_d.lib;libjpeg_d.lib;libpng_d.lib;zlib_d.lib;CEGUIBase_d.lib;CEGUIDirect3D9Renderer_d.lib;CEGUIExpatParser_d.lib;CEGUIFalagardWRBase_d.lib;CEGUISILLYImageCodec_d.lib;version.lib;bass.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)\$(TargetName).dll</OutputFile>
+      <OutputFile>$(OutDir)\$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>.\CEGUI\lib\;..\..\Vendor\lib\static;..\..\Vendor\expat-2.0.1\bin\Debug;..\..\Vendor\bass;..\..\Vendor\lpng142\projects\Debug;..\..\Vendor\zlib-1.2.5\projects\Debug;..\..\Vendor\jpeg-6b\projects\Debug;..\..\Vendor\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
@@ -108,7 +108,7 @@
     <Link>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat.lib;pcre.lib;SILLY.lib;freetype.lib;libjpeg.lib;libpng.lib;zlib.lib;CEGUIBase.lib;CEGUIDirect3D9Renderer.lib;CEGUIExpatParser.lib;CEGUIFalagardWRBase.lib;CEGUISILLYImageCodec.lib;version.lib;bass.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)\$(TargetName).dll</OutputFile>
+      <OutputFile>$(OutDir)\$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>.\CEGUI\lib\;..\..\Vendor\lib\static;..\..\Vendor\expat-2.0.1\bin\Release;..\..\Vendor\lpng142\projects\Release;..\..\Vendor\zlib-1.2.5\projects\Release;..\..\Vendor\jpeg-6b\projects\Release;..\..\Vendor\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;..\..\Vendor\bass\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>

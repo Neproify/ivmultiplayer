@@ -234,12 +234,8 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
 									if(pNetworkManager->IsConnected())
 										pMainMenu->SetNetworkStats(pNetworkManager->GetHostName(),players,pNetworkManager->GetMaxPlayers(),pLocalPlayer->GetName());
-									
-									if(pNetworkManager->IsConnected())
-										Scripting::SetTimeScale(0.5);
 
-									Scripting::DisplayRadar(false);
-
+									CGame::SetRadarVisible(false);
 									return 1;
 								}
 							}
@@ -252,12 +248,10 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 								CGame::SetInputState(pLocalPlayer->GetControl());
 								g_pClient->GetChatWindow()->SetEnabled(true);
 
-								if(g_pClient->GetNetworkManager()->IsConnected())
-									Scripting::SetTimeScale(1.0);
-
-								Scripting::DisplayRadar(true);
 								if(pLocalPlayer && !pLocalPlayer->IsRadarVisible())
-									Scripting::DisplayRadar(false);
+									CGame::SetRadarVisible(false);
+								else
+									CGame::SetRadarVisible(true);
 
 								return 1;
 							}

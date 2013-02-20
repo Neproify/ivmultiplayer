@@ -621,11 +621,11 @@
     <ClInclude Include="Natives\3DLabelNatives.h">
       <Filter>Header Files\Scripting\Natives</Filter>
     </ClInclude>
+    <ClInclude Include="CServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CModule.cpp">
       <Filter>Source Files\Modules</Filter>
     </ClCompile>
@@ -932,15 +932,11 @@
     <ClCompile Include="..\..\Shared\CEvents.cpp">
       <Filter>Source Files\Shared</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Server.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Logo\icon1.ico">
-      <Filter>Resource Files</Filter>
-    </None>
+    <ClCompile Include="CServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

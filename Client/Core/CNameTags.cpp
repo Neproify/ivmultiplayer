@@ -13,6 +13,7 @@
 #include "CClient.h"
 
 // Nametags definitions etc..
+#define nt_bg               (CEGUI::colour)D3DCOLOR_ARGB(120, 0, 0, 0)
 #define b_w					80
 #define	b_h					11
 #define b_i_p				2
@@ -39,9 +40,16 @@ CNameTags::~CNameTags()
 
 void CNameTags::DrawTag(String strName, unsigned int uiHealth, unsigned int uiArmour, Vector2 vecScreenPosition, DWORD dwColor)
 {
+	// Calculate the nametag position
+	CGUI * pGUI = g_pClient->GetGUI();
+	float fX = (vecScreenPosition.fX - (b_w / 2));
+	float fY = vecScreenPosition.fY;
+
+	// Draw the name tag background
+	pGUI->DrawText(strName, CEGUI::Vector2((fX + 1.0f), (fY + 1.0f)), nt_bg, m_pFont, false, false);
+
 	// Draw the name tag
-	g_pClient->GetGUI()->DrawText(strName, CEGUI::Vector2((vecScreenPosition.fX - (b_w / 2)), vecScreenPosition.fY), 
-					 CEGUI::colour(dwColor), m_pFont, false);
+	pGUI->DrawText(strName, CEGUI::Vector2(fX, fY), CEGUI::colour(dwColor), m_pFont, false, false);
 
 	// Ensure correct health and armor values
 	if(uiHealth < 0)
@@ -57,17 +65,19 @@ void CNameTags::DrawTag(String strName, unsigned int uiHealth, unsigned int uiAr
 		uiArmour = 100;
 
 	// Calculate the correct health and armor values
-	float m_fHealth = (h_b_w * ((float)uiHealth / 100));
-	float m_fArmour = (h_b_w * ((float)uiArmour / 100));
-	float fHealthWidth = Math::Clamp< float >( 0, (b_i_p + m_fHealth), 100 );
-	float fArmourWidth = Math::Clamp< float >( 0, (b_i_p + m_fArmour), 100 );
+	float fHealth = (h_b_w * ((float)uiHealth / 100));
+	float fArmour = (h_b_w * ((float)uiArmour / 100));
 
 	// Check the health and armor values
-	if(m_fHealth < 0)
-		m_fHealth = 0.0f;
+	if(fHealth < 0)
+		fHealth = 0.0f;
 
-	if(m_fArmour < 0)
-		m_fArmour = 0.0f;
+	if(fArmour < 0)
+		fArmour = 0.0f;
+
+	// Calculate the health and armour width
+	float fHealthWidth = Math::Clamp<float>(0.0f, (b_i_p + fHealth), 100.0f);
+	float fArmourWidth = Math::Clamp<float>(0.0f, (b_i_p + fArmour), 100.0f);
 
 	// Get our graphics
 	CGraphics * pGraphics = g_pClient->GetGraphics();

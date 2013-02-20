@@ -8,24 +8,3 @@
 //
 //==============================================================================
 
-#pragma once
-
-#ifndef WIN32
-#include <string.h>
-#include <sys/time.h>
-
-typedef bool BOOL;
-typedef unsigned long DWORD;
-typedef unsigned short WORD;
-typedef char *PCHAR;
-typedef void *PVOID;
-typedef unsigned char BYTE;
-
-#define TRUE (1)
-#define FALSE (0)
-
-#define stricmp strcasecmp
-#define Sleep(ms) usleep(ms * 1000)
-#endif
-
-typedef unsigned char DimensionId;

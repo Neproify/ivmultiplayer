@@ -8,7 +8,7 @@
 //==============================================================================
 
 #include <map>
-#include "Main.h"
+#include "CServer.h"
 #include <CFileChecksum.h>
 
 class CClientFileManager : public std::map<String, CFileChecksum>

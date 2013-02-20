@@ -7,7 +7,7 @@
 //
 //==============================================================================
 
-#include "Main.h"
+#include "CServer.h"
 #include "CModuleManager.h"
 
 CModuleManager::CModuleManager()

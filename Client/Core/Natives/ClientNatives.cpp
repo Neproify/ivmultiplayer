@@ -157,6 +157,7 @@ int sq_guiIsCursorVisible(SQVM * pVM)
 	return 1;
 }
 
+// setCursorPosition(float posX, float posY)
 int sq_guiSetCursorPosition(SQVM * pVM)
 {
 	float posX;

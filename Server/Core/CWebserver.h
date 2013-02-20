@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Main.h"
+#include "CServer.h"
 #include "SharedUtility.h"
 #include <mongoose/mongoose.h>
 #include <CFileChecksum.h>
