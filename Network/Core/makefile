@@ -19,4 +19,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -Rf *.o $(EXECUTABLE)
+	rm -Rf $(OBJECTS) $(EXECUTABLE)
