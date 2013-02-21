@@ -1325,7 +1325,6 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
 
 void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-
 	// Ensure we have a valid bitstream
 	if(!pBitStream)
 	{
@@ -1375,19 +1374,19 @@ void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 	// Set no longer requesting a vehicle entry/exit
 	pPlayer->SetRequestingVehicleEnterExit(false);
 
-	// Get the vehicle pointer
-	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
-
-	// Is the vehicle pointer invalid?
-	if(!pVehicle)
-	{
-		CLogFile::Printf("Warning: Invalid vehicle for VehicleEnterExit RPC\n");
-		return;
-	}
-
 	// Is the reply ok?
 	if(bReply)
 	{
+		// Get the vehicle pointer
+		CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
+
+		// Is the vehicle pointer invalid?
+		if(!pVehicle)
+		{
+			CLogFile::Printf("Warning: Invalid vehicle for VehicleEnterExit RPC\n");
+			return;
+		}
+
 		// Is it an entry reply
 		if(byteEnterExitVehicleType == VEHICLE_ENTRY_RETURN)
 		{

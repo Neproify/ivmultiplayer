@@ -15,12 +15,6 @@
 #include <list>
 #include "CIVVehicle.h"
 
-// Type used for dimension ids
-typedef unsigned char DimensionId;
-
-// Define used for invalid dimension ids
-#define INVALID_DIMENSION_ID 0xFF
-
 // TODO: Adjust?
 #define STREAMING_TICK 1000
 
