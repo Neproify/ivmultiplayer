@@ -1117,6 +1117,7 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 		if(!pPlayer->IsLocalPlayer())
 		{
 			pPlayer->SetPing(usPing);
+
 			CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer *>(pPlayer);
 			if(pRemotePlayer)
 			{
@@ -1124,6 +1125,7 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 				pPlayer->SetHelmet(bHelmet);
 																
 				// Store aimdata before updating foot stuff, otherwise the hitbox has moved
+				// jenksta: what??
 				if(bHasAimSyncData)
 					pRemotePlayer->SetAimSyncData(&aimSyncPacket);
 
@@ -1131,7 +1133,10 @@ void CClientRPCHandler::OnFootSync(CBitStream * pBitStream, CPlayerSocket * pSen
 			}
 		}
 		else
+		{
+			// jenksta: local player shouldn't be receiving full sync data from itself...
 			g_pClient->GetLocalPlayer()->SetPing(usPing);
+		}
 	}
 }
 

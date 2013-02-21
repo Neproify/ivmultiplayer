@@ -176,7 +176,6 @@ bool CSquirrelArgument::pushFromStack(SQVM * pVM, int idx)
 {
 	reset();
 	SQObjectPtr obj = stack_get(pVM, idx);
-	type = obj._type;
 
 	switch(obj._type)
 	{
@@ -210,11 +209,11 @@ bool CSquirrelArgument::pushFromStack(SQVM * pVM, int idx)
 					return false;
 				}
 
-				sq_pop(pVM,2);
+				sq_pop(pVM, 2);
 			}
 
-			sq_pop(pVM,2);
-			SetTable(pArguments);
+			sq_pop(pVM, 2);
+			data.pArray = pArguments;
 		}
 		break;
 	case OT_ARRAY:
@@ -232,22 +231,26 @@ bool CSquirrelArgument::pushFromStack(SQVM * pVM, int idx)
 					return false;
 				}
 
-				sq_pop(pVM,2);
+				sq_pop(pVM, 2);
 			}
 
-			sq_pop(pVM,2);
-			SetArray(pArguments);
+			sq_pop(pVM, 2);
+			data.pArray = pArguments;
 		}
 		break;
 	case OT_CLOSURE:
 	case OT_NATIVECLOSURE:
 		data.sqObject = SQObject(obj);
 		break;
+	case OT_INSTANCE:
+		data.pInstance = obj._unVal.pInstance;
+		break;
 	default:
-		type = OT_NULL;
 		return false;
+		break;
 	}
 
+	type = obj._type;
 	return true;
 }
 

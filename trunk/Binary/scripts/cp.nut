@@ -68,7 +68,6 @@ function onScriptInit()
 	blipcolortest = createBlip(78,1000.0,1000.0,0.0,true);
 	setBlipColor(blipcolortest,0xE59338FF,-1);
 	setBlipName(blipcolortest, "idk");
-	createVehicle();
 	return 1;
 }
 addEvent("scriptInit", onScriptInit);

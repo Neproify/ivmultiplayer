@@ -19,10 +19,7 @@
 #include "COffsets.h"
 
 extern CClient * g_pClient;
-extern bool					m_bControlsDisabled;
-
-void * pAddress = NULL;
-void * pReturnAddress = NULL;
+extern bool      m_bControlsDisabled;
 
 void GetLocalPlayerSpawnPosition(int, CVector3 * vecSpawnPosition, float * fAngle)
 {
