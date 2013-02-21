@@ -1182,7 +1182,7 @@ SQInteger CPlayerNatives::DisplayInfoTextForAll(SQVM * pVM)
 	CBitStream bsSend;
 	bsSend.Write(String(szText));
 	bsSend.Write((int)iTime);
-	g_pNetworkManager->RPC(RPC_ScriptingDisplayText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	g_pNetworkManager->RPC(RPC_ScriptingDisplayInfoText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	sq_pushbool(pVM, true);
 	return 1;
 }
