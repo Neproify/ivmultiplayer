@@ -124,7 +124,7 @@ public:
 	void		  SetAlarm(int iDuration);
 	void		  MarkVehicle(bool bToggle);
 	void		  RepairVehicle();
-	void		  SetDimension(DimensionId ucDimension) { m_ucDimension = ucDimension; }
+	void		  SetDimension(DimensionId ucDimension);
 	DimensionId   GetDimension() { return m_ucDimension; }
 	void		  SetLastTimeOccupied(unsigned long lastTimeOccupied) { m_lastTimeOccupied = lastTimeOccupied; }
 	unsigned long GetLastTimeOccupied() { return m_lastTimeOccupied; }
@@ -132,6 +132,5 @@ public:
 	int			  GetRespawnDelay() { return m_iRespawnDelay; }
 	void		  SetDeathTime(unsigned long time) { m_ulDeathTime = time; }
 	unsigned long GetDeathTime() { return m_ulDeathTime; }
-
 	void		  ExplodeCar(EntityId playerId);
 };

@@ -25,10 +25,12 @@ BOOL WINAPI CtrlHandler(DWORD dwType)
 
 		// HACK: This delays the console closing immediately
 		// which gives us some extra time to close properly
+		// (After around 6 seconds it will force close anyway)
 		if(dwType == CTRL_CLOSE_EVENT)
 		{
 			while(true) { }
 		}
+
 		return TRUE;
 	}
 

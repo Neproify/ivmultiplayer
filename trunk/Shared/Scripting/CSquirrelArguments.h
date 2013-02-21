@@ -27,7 +27,8 @@ class CSquirrelArgument
 {
 	SQObjectType type;
 public:
-	union {
+	union
+	{
 		int i;
 		bool b;
 		float f;
@@ -57,26 +58,27 @@ public:
 		NET_SQ_MAX
 	};
 
-	CSquirrelArgument(){type=OT_NULL;}
-	CSquirrelArgument(int i){type=OT_INTEGER; data.i=i;}
-	CSquirrelArgument(bool b){type=OT_BOOL; data.b=b;}
-	CSquirrelArgument(float f){type=OT_FLOAT; data.f=f;}
-	CSquirrelArgument(String str){type = OT_STRING; data.str = new String(str);}
-	CSquirrelArgument(String* str){type=OT_STRING; data.str=str;}
-	CSquirrelArgument(CSquirrelArguments array, bool isArray);
+	CSquirrelArgument() { type = OT_NULL; }
+	CSquirrelArgument(int i) { type = OT_INTEGER; data.i = i; }
+	CSquirrelArgument(bool b) { type = OT_BOOL; data.b = b; }
+	CSquirrelArgument(float f) { type = OT_FLOAT; data.f = f; }
+	CSquirrelArgument(String str) { type = OT_STRING; data.str = new String(str); }
+	CSquirrelArgument(String* str) { type = OT_STRING; data.str = str; }
+	CSquirrelArgument(const CSquirrelArguments &array, bool isArray);
 	CSquirrelArgument(CSquirrelArguments * pArray, bool isArray) { type = (isArray ? OT_ARRAY : OT_TABLE); data.pArray = pArray; }
 	CSquirrelArgument(SQObject o);
-	CSquirrelArgument(SQInstance * pInstance) {  }
+	CSquirrelArgument(SQInstance * pInstance) { type = OT_INSTANCE; data.pInstance = pInstance; }
 	CSquirrelArgument(CBitStream * pBitStream);
 	CSquirrelArgument(const CSquirrelArgument& p);
 	~CSquirrelArgument();
 
 	SQObjectType         GetType() const { return type; }
+	String               GetTypeString() const;
 
 	void                 reset();
 
-	bool                 push(SQVM* pVM);
-	bool                 pushFromStack(SQVM* pVM, int idx);
+	bool                 push(SQVM * pVM);
+	bool                 pushFromStack(SQVM * pVM, int idx);
 
 	void                 serialize(CBitStream * pBitStream);
 	void                 deserialize(CBitStream * pBitStream);
@@ -91,16 +93,16 @@ public:
 	void                 SetTable(CSquirrelArguments * pTable) { reset(); type = OT_TABLE; data.pArray = pTable; }
 	void                 SetInstance(SQInstance * pInstance) { reset(); type = OT_INSTANCE; data.pInstance = pInstance; }
 
-	int                  GetInteger() const { return type == OT_INTEGER ? data.i : 0; }
-	bool                 GetBool()    const { return type == OT_BOOL    ? data.b : false; }
-	float                GetFloat()   const { return type == OT_FLOAT   ? data.f : 0.0f; }
-	const char         * GetString()  const { return type == OT_STRING  ? data.str->Get() : NULL; }
-	CSquirrelArguments * GetTable() const { return type == OT_TABLE ? data.pArray : NULL; }
-	CSquirrelArguments * GetArray() const { return type == OT_ARRAY ? data.pArray : NULL; }
-	SQInstance         * GetInstance() const { return type == OT_INSTANCE ? data.pInstance : NULL; }
+	int                  GetInteger() const { return (type == OT_INTEGER) ? data.i : 0; }
+	bool                 GetBool()    const { return (type == OT_BOOL)    ? data.b : false; }
+	float                GetFloat()   const { return (type == OT_FLOAT)   ? data.f : 0.0f; }
+	const char         * GetString()  const { return (type == OT_STRING)  ? data.str->Get() : NULL; }
+	CSquirrelArguments * GetTable() const { return (type == OT_TABLE) ? data.pArray : NULL; }
+	CSquirrelArguments * GetArray() const { return (type == OT_ARRAY) ? data.pArray : NULL; }
+	SQInstance         * GetInstance() const { return (type == OT_INSTANCE) ? data.pInstance : NULL; }
 };
 
-class CSquirrelArguments : public std::list<CSquirrelArgument*>
+class CSquirrelArguments : public std::list<CSquirrelArgument *>
 #ifdef _SERVER
 	, public SquirrelArgumentsInterface
 #endif
@@ -114,7 +116,7 @@ public:
 
 	void reset();
 
-	void push_to_vm(SQVM* pVM);
+	void push_to_vm(SQVM * pVM);
 
 	void push();
 	void pushObject(SQObject o);
@@ -123,11 +125,14 @@ public:
 	void push(float f);
 	void push(const char* c);
 	void push(String str);
-	void push(CSquirrelArguments array, bool isArray);
+	void push(const CSquirrelArgument &arg);
+	void push(const CSquirrelArguments &array, bool isArray);
 	void push(CSquirrelArguments* pArray, bool isArray);
+	void pushVector3(const CVector3 &vec3);
 	bool pushFromStack(SQVM* pVM, int idx);
 
 	CSquirrelArgument pop();
+	bool popVector3(CVector3 &vec3);
 
 	void serialize(CBitStream * pBitStream);
 	void deserialize(CBitStream * pBitStream);
@@ -144,10 +149,10 @@ public:
 #ifdef _SERVER
 class CSquirrelArgumentManager : public SquirrelArgumentManager
 {
-	SquirrelArgumentInterface* CreateArgument() const { return new CSquirrelArgument; }
-	SquirrelArgumentsInterface* CreateArguments() const { return new CSquirrelArguments; }
+	SquirrelArgumentInterface *  CreateArgument() const { return new CSquirrelArgument; }
+	SquirrelArgumentsInterface * CreateArguments() const { return new CSquirrelArguments; }
 
-	void DeleteArgument(SquirrelArgumentInterface* p) const { delete reinterpret_cast<CSquirrelArgument*>(p); }
-	void DeleteArguments(SquirrelArgumentsInterface* p) const { delete reinterpret_cast<CSquirrelArguments*>(p); }
+	void                         DeleteArgument(SquirrelArgumentInterface* p) const { delete reinterpret_cast<CSquirrelArgument *>(p); }
+	void                         DeleteArguments(SquirrelArgumentsInterface* p) const { delete reinterpret_cast<CSquirrelArguments *>(p); }
 };
 #endif

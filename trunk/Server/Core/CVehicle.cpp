@@ -818,6 +818,16 @@ void CVehicle::RepairVehicle()
 	g_pNetworkManager->RPC(RPC_ScriptingFixVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
+void CVehicle::SetDimension(DimensionId ucDimension)
+{
+	m_ucDimension = ucDimension;
+
+	CBitStream bsSend;
+	bsSend.Write(m_vehicleId);
+	bsSend.Write(ucDimension);
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+}
+
 void CVehicle::ExplodeCar(EntityId playerId)
 {
 	CBitStream bsSend;

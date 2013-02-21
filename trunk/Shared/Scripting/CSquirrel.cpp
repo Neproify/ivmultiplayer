@@ -34,70 +34,6 @@ void CSquirrel::PrintFunction(SQVM * pVM, const char * szFormat, ...)
 	CLogFile::Print(szBuffer);
 }
 
-void CSquirrel::ErrorFunction(SQVM * pVM, const char * szFormat, ...)
-{
-	// TODO: Fix for clients
-	va_list args;
-	char szBuffer[512];
-	va_start(args, szFormat);
-	vsnprintf(szBuffer, sizeof(szBuffer), szFormat, args);
-	va_end(args);
-
-	char *tmp = (char *)szBuffer;
-
-	size_t offstart = 0, offend = 0;
-
-	size_t len = strlen(tmp);
-	for (size_t i = 0; i < len; ++i)
-	{
-		switch (tmp[i])
-		{
-		case ' ':
-		case '\r':
-		case '\n':
-		case '\t':
-			++offstart;
-			break;
-		default:
-			i = len - 1;
-			break;
-		}
-	}
-
-	tmp += offstart;
-	len -= offstart;
-
-	for (size_t i = len - 1; i > 0; --i)
-	{
-		switch (tmp[i])
-		{
-		case ' ':
-		case '\r':
-		case '\n':
-		case '\t':
-			++offend;
-			break;
-		default:
-			i = 1;
-			break;
-		}
-	}
-
-	tmp[len - offend] = '\0';
-
-	// TODO: Parse it and change the format of script error (e.g. onScriptError(filename, line, e.t.c.))
-	CSquirrel * pScript = CScriptingManager::GetInstance()->Get(pVM);
-
-	if(pScript)
-	{
-		CSquirrelArguments pArguments;
-		pArguments.push(tmp);
-
-		if(CEvents::GetInstance()->Call("scriptError", &pArguments, pScript).GetInteger() == 1)
-			CLogFile::Print(tmp);
-	}
-}
-
 void CSquirrel::CompilerErrorFunction(SQVM * pVM, const char * szError, const char * szSource, int iLine, int iColumn)
 {
 	// Find the script
@@ -105,7 +41,7 @@ void CSquirrel::CompilerErrorFunction(SQVM * pVM, const char * szError, const ch
 
 	if(pScript)
 	{
-		// Call the 'scriptError' event
+		// Call the 'compilerError' event
 		CSquirrelArguments arguments;
 		arguments.push(szError);
 		arguments.push(szSource);
@@ -113,8 +49,126 @@ void CSquirrel::CompilerErrorFunction(SQVM * pVM, const char * szError, const ch
 		arguments.push(iColumn);
 
 		if(CEvents::GetInstance()->Call("compilerError", &arguments, pScript).GetInteger() == 1)
-			CLogFile::Printf("Error: Failed to compile script %s on Line %d Column %d (%s).", pScript->GetName().Get(), iLine, iColumn, szError);
+			CLogFile::Printf("Error: Failed to compile script %s (Error: %s (Line %d, Column %d)).", pScript->GetName().Get(), szError, iLine, iColumn);
 	}
+}
+
+typedef std::pair<String, int> ErrorSourcePair;
+typedef std::pair<String, ErrorSourcePair> ErrorCallstackPair;
+typedef std::list<ErrorCallstackPair> ErrorCallstackList;
+
+typedef std::pair<String, CSquirrelArgument> ErrorLocalPair;
+typedef std::list<ErrorLocalPair> ErrorLocalsList;
+
+struct ErrorInfo
+{
+	String strError;
+	ErrorCallstackList callstack;
+	ErrorLocalsList locals;
+};
+
+SQInteger CSquirrel::PrintErrorFunction(SQVM * pVM)
+{
+	if(sq_gettop(pVM) >= 1)
+	{
+		const SQChar * szError = NULL;
+		sq_getstring(pVM, 2, &szError);
+				
+		ErrorInfo info;
+		info.strError = szError;
+
+		SQStackInfos si;
+		SQInteger level = 1; // 1 is to skip this function that is level 0
+		const SQChar *name = 0; 
+		SQInteger seq = 0;
+
+		while(SQ_SUCCEEDED(sq_stackinfos(pVM, level, &si)))
+		{
+			const SQChar * fn = _SC("unknown");
+			const SQChar * src = _SC("unknown");
+			if(si.funcname) fn = si.funcname;
+			if(si.source) src = si.source;
+			info.callstack.push_back(ErrorCallstackPair(fn, ErrorSourcePair(src, si.line)));
+			level++;
+		}
+
+		for(level = 0; level < 10; level++)
+		{
+			seq = 0;
+
+			while((name = sq_getlocal(pVM, level, seq)))
+			{
+				seq++;
+				CSquirrelArgument arg;
+				arg.pushFromStack(pVM, -1);
+				info.locals.push_back(ErrorLocalPair(name, arg));
+				sq_pop(pVM, 1);
+			}
+		}
+
+		CSquirrel * pScript = CScriptingManager::GetInstance()->Get(pVM);
+
+		if(pScript)
+		{
+			CSquirrelArguments arguments;
+			CSquirrelArguments tempArray;
+			CSquirrelArguments callstackTable;
+			CSquirrelArguments localsTable;
+			arguments.push(info.strError);
+
+			for(ErrorCallstackList::iterator iter = info.callstack.begin(); iter != info.callstack.end(); iter++)
+			{
+				String strFunction = iter->first;
+				String strSource = iter->second.first;
+				int iLine = iter->second.second;
+				callstackTable.push(strFunction);
+				tempArray.reset();
+				tempArray.push(strSource);
+				tempArray.push(iLine);
+				callstackTable.push(tempArray, true);
+			}
+
+			arguments.push(callstackTable, false);
+
+			for(ErrorLocalsList::iterator iter = info.locals.begin(); iter != info.locals.end(); iter++)
+			{
+				String strName = iter->first;
+				CSquirrelArgument arg = iter->second;
+				localsTable.push(strName);
+				localsTable.push(arg);
+			}
+
+			arguments.push(localsTable, false);
+
+			if(CEvents::GetInstance()->Call("scriptError", &arguments, pScript).GetInteger() == 1)
+			{
+				CLogFile::Printf("<Error (%s)>", info.strError.Get());
+
+				CLogFile::Printf("<Callstack>");
+				for(ErrorCallstackList::iterator iter = info.callstack.begin(); iter != info.callstack.end(); iter++)
+				{
+					String strFunction = iter->first;
+					String strSource = iter->second.first;
+					int iLine = iter->second.second;
+					CLogFile::Printf("<%s (%s, %d)>", strFunction.Get(), strSource.Get(), iLine);
+				}
+				CLogFile::Printf("</Callstack>");
+
+				CLogFile::Printf("<Locals>");
+				for(ErrorLocalsList::iterator iter = info.locals.begin(); iter != info.locals.end(); iter++)
+				{
+					String strName = iter->first;
+					CSquirrelArgument arg = iter->second;
+					CLogFile::Printf("<%s (%s)>", strName.Get(), arg.GetTypeString().Get());
+				}
+				CLogFile::Printf("</Locals>");
+
+				CLogFile::Printf("</Error>");
+			}
+		}
+	}
+
+	return 0;
 }
 
 bool CSquirrel::Load(String strName, String strPath)
@@ -136,10 +190,14 @@ bool CSquirrel::Load(String strName, String strPath)
 	sqstd_seterrorhandlers(m_pVM);
 
 	// Set the print function and error function
-	sq_setprintfunc(m_pVM, PrintFunction, ErrorFunction);
+	sq_setprintfunc(m_pVM, PrintFunction, PrintFunction);
 
 	// Set the compiler error function
 	sq_setcompilererrorhandler(m_pVM, CompilerErrorFunction);
+
+	// Set our error handler
+	sq_newclosure(m_pVM, PrintErrorFunction, 0);
+	sq_seterrorhandler(m_pVM);
 
 	// Push the root table onto the stack
 	sq_pushroottable(m_pVM);

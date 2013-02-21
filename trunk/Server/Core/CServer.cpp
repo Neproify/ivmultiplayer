@@ -471,10 +471,6 @@ void CServer::OnUnload()
 	SAFE_DELETE(g_pEvents);
 	CSettings::Close();
 	CLogFile::Close();
-	// HACK: To fix input thread not ending
-#ifdef WIN32
-	TerminateProcess(GetCurrentProcess(), 0);
-#endif
 }
 
 void CServer::SendInput(String strInput)

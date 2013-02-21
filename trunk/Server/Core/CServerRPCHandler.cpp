@@ -634,40 +634,42 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 		{
 			// Read the seat id
 			BYTE byteSeatId;
+
 			if(!pBitStream->Read(byteSeatId))
 				return;
 
-			// Is the vehicle fully locked?
-			if(pVehicle->GetLocked() == 1) {
-				CBitStream bitStream;
-				bitStream.Write(playerId);
-				g_pNetworkManager->RPC(RPC_ResetVehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
-				return;
-			}
-			// Get the reply
-			CSquirrelArguments arguments;
-			arguments.push(playerId);
-			arguments.push(vehicleId);
-			arguments.push(byteSeatId);
-			if(g_pEvents->Call("vehicleEntryRequest", &arguments).GetInteger() == 1)
-			{
-				// Reply to the vehicle entry request
-				CBitStream bitStream;
-				bitStream.WriteCompressed(playerId);
-				bitStream.WriteBit(true); // or just Write1()?
+			bool bReply = true;
 
+			// Is the vehicle fully locked?
+			if(pVehicle->GetLocked() == 1)
+				bReply = false;
+			else
+			{
+				// Get the reply
+				CSquirrelArguments arguments;
+				arguments.push(playerId);
+				arguments.push(vehicleId);
+				arguments.push(byteSeatId);
+				bReply = (g_pEvents->Call("vehicleEntryRequest", &arguments).GetInteger() == 1);
+			}
+
+			// Reply to the vehicle entry request
+			CBitStream bitStream;
+			bitStream.WriteCompressed(playerId);
+			bitStream.WriteBit(bReply);
+
+			//-Was the reply ok?
+			if(bReply)
+			{
 				bitStream.Write((BYTE)VEHICLE_ENTRY_RETURN);
 				bitStream.Write(vehicleId);
 				bitStream.Write(byteSeatId);
-				g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
 
 				// Set the player state
 				pPlayer->SetState(STATE_TYPE_ENTERVEHICLE);
-			} else {
-				CBitStream bitStream;
-				bitStream.Write(playerId);
-				g_pNetworkManager->RPC(RPC_ResetVehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
 			}
+
+			g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
 		}
 		// Is this an entry cancellation?
 		if(byteVehicleEntryExitType == VEHICLE_ENTRY_CANCELLED)
@@ -741,11 +743,12 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 			{
 				bitStream.Write((BYTE)VEHICLE_EXIT_RETURN);
 				bitStream.Write(vehicleId);
-				g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
 
 				// Set the player state
 				pPlayer->SetState(STATE_TYPE_EXITVEHICLE);
 			}
+
+			g_pNetworkManager->RPC(RPC_VehicleEnterExit, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE, INVALID_ENTITY_ID, true);
 		}
 		// Is this an exit completion?
 		else if(byteVehicleEntryExitType == VEHICLE_EXIT_COMPLETE)

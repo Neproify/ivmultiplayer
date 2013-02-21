@@ -231,14 +231,14 @@ public:
 
 	CSquirrelArgument Call(String strName, CSquirrel* pScript = NULL)
 	{
-		CSquirrelArgument pReturn(1);
+		CSquirrelArgument pReturn((int)1);
 		Call(strName, &CSquirrelArguments(), &pReturn, pScript);
 		return pReturn;
 	}
 
 	CSquirrelArgument Call(String strName, CSquirrelArguments* pArguments, CSquirrel* pScript = NULL)
 	{
-		CSquirrelArgument pReturn(1);
+		CSquirrelArgument pReturn((int)1);
 		Call(strName, pArguments, &pReturn, pScript);
 		return pReturn;
 	}

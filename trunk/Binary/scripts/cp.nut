@@ -23,6 +23,26 @@ function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4, respawn_delay
 	return vehicleId;
 }
 
+function onScriptError(name, callstack, locals)
+{
+	log("<scriptError (" + name + ")>");
+	log("<Callstack>");
+	foreach(name, info in callstack)
+	{
+		log("<" + name + " (" + info[0] + ", " + info[1] + ")>");
+	}
+	log("</Callstack>");
+	log("<Locals>");
+	foreach(name, type in locals)
+	{
+		log("<" + name + " (" + type + ")>");
+	}
+	log("</Locals>");
+	log("</scriptError>");
+	return 0; // Don't print error to console
+}
+addEvent("scriptError", onScriptError);
+
 function onScriptInit()
 {
 	createVehicle(50, 1682.030884, 415.455414, 28.492632, 359.998413, 358.788818, 47.536011, 1, 1, 1, 1, 30000); // car1
@@ -48,16 +68,18 @@ function onScriptInit()
 	blipcolortest = createBlip(78,1000.0,1000.0,0.0,true);
 	setBlipColor(blipcolortest,0xE59338FF,-1);
 	setBlipName(blipcolortest, "idk");
-
+	createVehicle();
 	return 1;
 }
 addEvent("scriptInit", onScriptInit);
 
 function onScriptExit()
 {	
+	log("scriptExit();");
 	for(local i = 0; i < vehicles.len(); i++)
 		deleteVehicle(vehicles[i]);
 
+	log("done scriptExit();");
 	return 1;
 }
 addEvent("scriptExit", onScriptExit);

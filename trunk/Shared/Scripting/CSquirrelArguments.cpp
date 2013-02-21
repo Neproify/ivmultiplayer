@@ -12,7 +12,7 @@
 #include <Squirrel/sqvm.h>
 #include <Squirrel/sqstring.h>
 
-CSquirrelArgument::CSquirrelArgument(CSquirrelArguments array, bool isArray)
+CSquirrelArgument::CSquirrelArgument(const CSquirrelArguments &array, bool isArray)
 {
 	type = (isArray ? OT_ARRAY : OT_TABLE);
 	data.pArray = new CSquirrelArguments(array);
@@ -61,6 +61,39 @@ CSquirrelArgument::~CSquirrelArgument()
 	reset();
 }
 
+String CSquirrelArgument::GetTypeString() const
+{
+	switch(type)
+	{
+	case OT_NULL:
+		return "Null";
+		break;
+	case OT_INTEGER:
+		return "Integer";
+		break;
+	case OT_BOOL:
+		return "Boolean";
+		break;
+	case OT_FLOAT:
+		return "Floating Point";
+		break;
+	case OT_STRING:
+		return "String";
+		break;
+	case OT_NATIVECLOSURE:
+		return "Native Closure";
+		break;
+	case OT_CLOSURE:
+		return "Closure";
+		break;
+	case OT_INSTANCE:
+		return "Instance";
+		break;
+	}
+
+	return "Unknown";
+}
+
 void CSquirrelArgument::reset()
 {
 	if(type == OT_STRING)
@@ -71,7 +104,7 @@ void CSquirrelArgument::reset()
 	type = OT_NULL;
 }
 
-bool CSquirrelArgument::push(SQVM* pVM)
+bool CSquirrelArgument::push(SQVM * pVM)
 {
 	switch(type)
 	{
@@ -99,6 +132,7 @@ bool CSquirrelArgument::push(SQVM* pVM)
 					(*iter)->push(pVM);
 					sq_arrayappend(pVM, -2);
 				}
+
 				break;
 			}
 		case OT_TABLE:
@@ -113,6 +147,7 @@ bool CSquirrelArgument::push(SQVM* pVM)
 					(*iter)->push(pVM);
 					sq_createslot(pVM, -3);
 				}
+
 				break;
 			}
 			break;
@@ -133,60 +168,48 @@ bool CSquirrelArgument::push(SQVM* pVM)
 			assert(0);
 			return false;
 	}
+
 	return true;
 }
 
-bool CSquirrelArgument::pushFromStack(SQVM* pVM, int idx)
+bool CSquirrelArgument::pushFromStack(SQVM * pVM, int idx)
 {
-	SQObjectType _type = sq_gettype(pVM, idx);
+	reset();
+	SQObjectPtr obj = stack_get(pVM, idx);
+	type = obj._type;
 
-	switch(_type)
+	switch(obj._type)
 	{
 	case OT_NULL:
-		SetNull();
+		// Nothing needed
 		break;
 	case OT_INTEGER:
-		{
-			SQInteger i;
-			sq_getinteger(pVM, idx, &i);
-			SetInteger((int)i);
-		}
+		data.i = obj._unVal.nInteger;
 		break;
 	case OT_BOOL:
-		{
-			SQBool b;
-			sq_getbool(pVM, idx, &b);
-			SetBool(b != 0);
-		}
+		data.b = (obj._unVal.nInteger != 0);
 		break;
 	case OT_FLOAT:
-		{
-			float f;
-			sq_getfloat(pVM, idx, &f);
-			SetFloat(f);
-		}
+		data.f = obj._unVal.fFloat;
 		break;
 	case OT_STRING:
-		{
-			const char* szTemp;
-			sq_getstring(pVM, idx, &szTemp);
-			SetString(szTemp);
-		}
+		data.str = new String(obj._unVal.pString->_val);
 		break;
 	case OT_TABLE:
 		{
-			CSquirrelArguments* pArguments = new CSquirrelArguments();
+			CSquirrelArguments * pArguments = new CSquirrelArguments();
 			sq_push(pVM, idx);
 			sq_pushnull(pVM);
 
-			while(SQ_SUCCEEDED(sq_next(pVM,-2)))
+			while(SQ_SUCCEEDED(sq_next(pVM, -2)))
 			{
-				if(!pArguments->pushFromStack(pVM, -2) || !pArguments->pushFromStack(pVM,-1))
+				if(!pArguments->pushFromStack(pVM, -2) || !pArguments->pushFromStack(pVM, -1))
 				{
-					sq_pop(pVM,4);
+					sq_pop(pVM, 4);
 					delete pArguments;
 					return false;
 				}
+
 				sq_pop(pVM,2);
 			}
 
@@ -196,18 +219,19 @@ bool CSquirrelArgument::pushFromStack(SQVM* pVM, int idx)
 		break;
 	case OT_ARRAY:
 		{
-			CSquirrelArguments* pArguments = new CSquirrelArguments();
+			CSquirrelArguments * pArguments = new CSquirrelArguments();
 			sq_push(pVM, idx);
 			sq_pushnull(pVM);
 
-			while(SQ_SUCCEEDED(sq_next(pVM,-2)))
+			while(SQ_SUCCEEDED(sq_next(pVM, -2)))
 			{
-				if(!pArguments->pushFromStack(pVM,-1))
+				if(!pArguments->pushFromStack(pVM, -1))
 				{
-					sq_pop(pVM,4);
+					sq_pop(pVM, 4);
 					delete pArguments;
 					return false;
 				}
+
 				sq_pop(pVM,2);
 			}
 
@@ -217,12 +241,10 @@ bool CSquirrelArgument::pushFromStack(SQVM* pVM, int idx)
 		break;
 	case OT_CLOSURE:
 	case OT_NATIVECLOSURE:
-		{
-			type = _type;
-			data.sqObject = SQObject(stack_get(pVM, idx));
-		}
+		data.sqObject = SQObject(obj);
 		break;
 	default:
+		type = OT_NULL;
 		return false;
 	}
 
@@ -470,7 +492,9 @@ void CSquirrelArgument::set(const CSquirrelArgument& p)
 
 CSquirrelArguments::CSquirrelArguments(SQVM * pVM, int idx)
 {
-	for(int i = idx; i <= sq_gettop(pVM); i++)
+	int top = sq_gettop(pVM);
+
+	for(int i = idx; i <= top; i++)
 		pushFromStack(pVM, i);
 }
 
@@ -539,7 +563,12 @@ void CSquirrelArguments::push(String str)
 	push_back(new CSquirrelArgument(new String(str)));
 }
 
-void CSquirrelArguments::push(CSquirrelArguments array, bool isArray)
+void CSquirrelArguments::push(const CSquirrelArgument &arg)
+{
+	push_back(new CSquirrelArgument(arg));
+}
+
+void CSquirrelArguments::push(const CSquirrelArguments &array, bool isArray)
 {
 	push_back(new CSquirrelArgument(array, isArray));
 }
@@ -549,17 +578,25 @@ void CSquirrelArguments::push(CSquirrelArguments* pArray, bool isArray)
 	push_back(new CSquirrelArgument(pArray, isArray));
 }
 
+void CSquirrelArguments::pushVector3(const CVector3 &vec3)
+{
+	push_back(new CSquirrelArgument(vec3.fX));
+	push_back(new CSquirrelArgument(vec3.fY));
+	push_back(new CSquirrelArgument(vec3.fZ));
+}
+
 bool CSquirrelArguments::pushFromStack(SQVM* pVM, int idx)
 {
 	CSquirrelArgument * arg = new CSquirrelArgument();
-	bool bValid = arg->pushFromStack(pVM, idx);
 
-	if(bValid)
+	if(arg->pushFromStack(pVM, idx))
+	{
 		push_back(arg);
-	else
-		delete arg;
+		return true;
+	}
 
-	return bValid;
+	delete arg;
+	return false;
 }
 
 CSquirrelArgument CSquirrelArguments::pop()
@@ -583,6 +620,36 @@ CSquirrelArgument CSquirrelArguments::pop()
 
 	// Nothing we can do, return a NULL argument
 	return CSquirrelArgument();
+}
+
+bool CSquirrelArguments::popVector3(CVector3 &vec3)
+{
+	// Do we have 3 arguments to pop?
+	if(size() >= 3)
+	{
+		// Get 3 arguments from the front
+		CSquirrelArgument * pArguments[3];
+
+		for(int i = 0; i < 3; i++)
+		{
+			pArguments[i] = front();
+
+			// Ensure this argument is a floating point value
+			if(pArguments[i]->GetType() != OT_FLOAT)
+				return false;
+
+			pop_front();
+		}
+
+		// Set the vector
+		vec3.fX = pArguments[0]->GetFloat();
+		vec3.fY = pArguments[1]->GetFloat();
+		vec3.fZ = pArguments[2]->GetFloat();
+		return true;
+	}
+
+	// Not enough arguments
+	return false;
 }
 
 void CSquirrelArguments::serialize(CBitStream * pBitStream)
