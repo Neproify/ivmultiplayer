@@ -225,7 +225,7 @@ public:
 	void                     RemoveTargetRotation();
 
 	bool                     HasTargetPosition() { return (m_interp.pos.ulFinishTime != 0); }
-	bool                     HasTargetRotation() { return (m_interp.pos.ulFinishTime != 0); }
+	bool                     HasTargetRotation() { return (m_interp.rot.ulFinishTime != 0); }
 
 	virtual void             SetColor(unsigned int uiColor);
 	unsigned int             GetColor();

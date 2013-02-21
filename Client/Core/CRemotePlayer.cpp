@@ -106,91 +106,10 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 	else
 		return;*/
 
-#if 0
-	if(!bHasAimSyncData)
-	{
-		if(syncPacket->vecMoveSpeed.Length() < 0.75)
-		{
-			SetTargetPosition(syncPacket->vecPos,TICK_RATE*2);
-			SetCurrentSyncHeading(syncPacket->fHeading);
-
-			if(m_iOldMoveStyle != 0) {
-				// Stop wakling, stand still and delete tasks
-				unsigned int uiPlayerIndex = GetScriptingHandle();
-				DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
-				_asm
-				{
-					push 17
-					push 0
-					push uiPlayerIndex
-					call dwAddress
-				}
-				/*dwAddress = (CGame::GetBase() + 0xB868E0);
-				_asm
-				{
-					push 1
-					push uiPlayerIndex
-					call dwAddress
-				}*/
-			}
-			SetMoveSpeed(syncPacket->vecMoveSpeed);
-			SetTurnSpeed(syncPacket->vecTurnSpeed);
-			m_iOldMoveStyle = 0;
-		}
-		else if(syncPacket->vecMoveSpeed.Length() < 3.0 && syncPacket->vecMoveSpeed.Length() >= 0.75) {
-			SetTargetPosition(syncPacket->vecPos,TICK_RATE);
-			SetMoveToDirection(syncPacket->vecPos, syncPacket->vecMoveSpeed, 2);
-			m_iOldMoveStyle = 1;
-		}
-		else if(syncPacket->vecMoveSpeed.Length() < 5.0 && syncPacket->vecMoveSpeed.Length() > 3.0) {
-			SetTargetPosition(syncPacket->vecPos,TICK_RATE);
-			SetMoveToDirection(syncPacket->vecPos, syncPacket->vecMoveSpeed, 3);
-			m_iOldMoveStyle = 2;
-		}
-		else {
-			SetTargetPosition(syncPacket->vecPos, (TICK_RATE/4)*3);
-			SetMoveToDirection(syncPacket->vecPos, syncPacket->vecMoveSpeed, 4);
-			m_iOldMoveStyle = 3;
-		}
-	}
-	else
-	{
-		// If we start aiming/shoting, stop walking, set stand still and delete task
-		if(!m_bStoreOnFootSwitch) {
-			m_bStoreOnFootSwitch = true;
-			unsigned int uiPlayerIndex = GetScriptingHandle();
-			DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
-			_asm
-			{
-				push 17
-				push 0
-				push uiPlayerIndex
-				call dwAddress
-			}
-			uiPlayerIndex = GetScriptingHandle();
-			dwAddress = (CGame::GetBase() + 0xB868E0);
-			_asm
-			{
-				push 1
-				push uiPlayerIndex
-				call dwAddress
-			}
-		}
-#endif
-		SetTargetPosition(syncPacket->vecPos, TICK_RATE);
-		SetTargetRotation(syncPacket->fHeading, TICK_RATE);
-		SetMoveSpeed(syncPacket->vecMoveSpeed);
-		SetTurnSpeed(syncPacket->vecTurnSpeed);
-#if 0
-	}
-
-	// Simulate jump(while walking/running)
-	if(!m_bStoreOnFootSwitch && syncPacket->vecMoveSpeed.Length() > 1.0 && syncPacket->controlState.IsJumping())
-	{
-		// Start the jump task
-		Jump(true);
-	}
-#endif
+	SetTargetPosition(syncPacket->vecPos, TICK_RATE);
+	SetTargetRotation(syncPacket->fHeading, TICK_RATE);
+	SetMoveSpeed(syncPacket->vecMoveSpeed);
+	SetTurnSpeed(syncPacket->vecTurnSpeed);
 
 	// Set our control state
 	SetControlState(&syncPacket->controlState);

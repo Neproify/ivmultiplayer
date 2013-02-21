@@ -1380,10 +1380,6 @@ void CNetworkPlayer::UpdateTargetPosition()
 	{
 		unsigned long ulCurrentTime = SharedUtility::GetTime();
 
-		// Get our position
-		CVector3 vecCurrentPosition;
-		GetPosition(vecCurrentPosition);
-
 		// Get the factor of time spent from the interpolation start
 		// to the current time.
 		float fAlpha = Math::Unlerp(m_interp.pos.ulStartTime, ulCurrentTime, m_interp.pos.ulFinishTime);
@@ -1401,6 +1397,10 @@ void CNetworkPlayer::UpdateTargetPosition()
 		// If we finished compensating the error, finish it for the next pulse
 		if(fAlpha == 1.0f)
 			m_interp.pos.ulFinishTime = 0;
+
+		// Get our position
+		CVector3 vecCurrentPosition;
+		GetPosition(vecCurrentPosition);
 
 		// Calculate the new position
 		CVector3 vecNewPosition = (vecCurrentPosition + vecCompensation);
@@ -1425,9 +1425,6 @@ void CNetworkPlayer::UpdateTargetRotation()
 	{
 		unsigned long ulCurrentTime = SharedUtility::GetTime();
 
-		// Get our rotation
-		float fCurrentHeading = GetCurrentHeading();
-
 		// Get the factor of time spent from the interpolation start
 		// to the current time.
 		float fAlpha = Math::Unlerp(m_interp.rot.ulStartTime, ulCurrentTime, m_interp.rot.ulFinishTime);
@@ -1446,6 +1443,9 @@ void CNetworkPlayer::UpdateTargetRotation()
 		if(fAlpha == 1.0f)
 			m_interp.rot.ulFinishTime = 0;
 
+		// Get our rotation
+		float fCurrentHeading = GetCurrentHeading();
+
 		// Calculate the new rotation
 		float fNewRotation = (fCurrentHeading + fCompensation);
 
@@ -1458,6 +1458,7 @@ void CNetworkPlayer::Interpolate()
 {
 	THIS_CHECK(__FUNCTION__);
 	// Are we not getting in/out of a vehicle?
+	// jenksta: why is this vehicle entry/exit check disabled?
 	if(true)
 	{
 		UpdateTargetPosition();
