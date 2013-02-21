@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-inline char* itoa(int value, char* str, int radix);
+char* itoa(int value, char* str, int radix);
 #define _itoa itoa
 #endif
 

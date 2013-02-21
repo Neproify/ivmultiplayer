@@ -23,6 +23,6 @@
 #include <CString.h>
 #include <SharedUtility.h>
 #include <CLibrary.h>
-#include <Threading\CMutex.h>
-#include <Threading\CThread.h>
-#include <Server\CServerInterface.h>
+#include <Threading/CMutex.h>
+#include <Threading/CThread.h>
+#include <Server/CServerInterface.h>

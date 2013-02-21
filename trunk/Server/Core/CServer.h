@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include <Server\CServerInterface.h>
-#include <Threading\CMutex.h>
+#include <Server/CServerInterface.h>
+#include <Threading/CMutex.h>
 #include <queue>
 
 // move start

@@ -39,7 +39,7 @@ bool CLibrary::Load(const char * szPath)
 
 		if(!m_pLibrary)
 		{
-/*                      char * szErrorMessage = NULL;
+                      char * szErrorMessage = NULL;
 #ifdef WIN32
                         FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, 
                                 GetLastError(), 0, (char *)&szErrorMessage, 0, NULL);
@@ -63,10 +63,10 @@ bool CLibrary::Load(const char * szPath)
                                 }
                         }
 
-
+			printf("error: %s\n", szErrorMessage);
 #ifdef WIN32
                         LocalFree(szErrorMessage);
-#endif*/
+#endif
 			return false;
 		}
 
