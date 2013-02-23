@@ -961,7 +961,8 @@ SQInteger CPlayerNatives::GetIp(SQVM * pVM)
 
 	if(pPlayer)
 	{
-		sq_pushstring(pVM, pPlayer->GetIp(), -1);
+		String ip = pPlayer->GetIp();
+		sq_pushstring(pVM, ip.Get(), ip.GetLength());
 		return 1;
 	}
 
