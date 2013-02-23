@@ -288,9 +288,9 @@ function onPlayerCommand(playerid, command)
 	{
 		setPlayerAmmo(playerid,cmd[1].tointeger(),cmd[2].tointeger());
 	}
-	if(cmd[0] == "/setammoinclip")
+	if(cmd[0] == "/12")
 	{
-		setPlayerAmmoInClip(playerid,cmd[1].tointeger());
+		sendPlayerMessage(playerid, getPlayerIp(playerid));
 	}
 	if(cmd[0] == "/displayHudMessage")
 	{

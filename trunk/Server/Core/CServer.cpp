@@ -485,120 +485,137 @@ void CServer::SendInput(String strInput)
 		String strCommand = strInput.SubStr(0, sSplit++);
 		String strParameters = strInput.SubStr(sSplit, (strInput.GetLength() - sSplit));
 
-		// Is the command empty?
+		// Execute predefined command, or call script event:
 		if(strCommand.IsEmpty())
 			return;
-
+		else if(strCommand == "help" || strCommand == "?" || strCommand == "--usage")
+		{
+			printf("========== Available console commands: ==========\n");
+			printf("say <text>\n");
+			printf("uptime\n");
+			printf("scripts\n");
+			printf("players\n");
+			printf("loadscript <name>\n");
+			printf("loadclientscript <name>\n");
+			printf("loadresource <name>\n");
+			printf("reloadscript <name>\n");
+			printf("reloadclientscript <name>\n");
+			printf("reloadresource <name>\n");
+			printf("unloadscript <name>\n");
+			printf("unloadclientscript <name>\n");
+			printf("unloadresource <name>\n");
+			printf("exit\n");
+		}
 		if(strCommand == "say" || strCommand == "echo" || strCommand == "print")
 		{
 			if(strParameters.IsNotEmpty())
 			{
 				CBitStream bsSend;
-				bsSend.Write((DWORD)0xFFFFFFAA);
-				bsSend.Write(String("Server says: %s",strParameters.Get()));
+				bsSend.Write((DWORD)0x00c83d);
+				bsSend.Write(String("Server: %s",strParameters.Get()));
 				g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
-				CLogFile::Printf("Server says: %s", strParameters.Get());
+				CLogFile::Printf("[Server] Sent message to all players: 'Server: %s'", strParameters.Get());
 			}
 		}
 		else if(strCommand == "loadscript")
 		{
 			if(strParameters.IsNotEmpty())
 			{
-				CLogFile::Printf("Loading script %s.", strParameters.Get());
+				CLogFile::Printf("[Server] Loading script %s.", strParameters.Get());
 
 				if(g_pScriptingManager->Get(strParameters))
-					CLogFile::Printf("Failed to load script %s (Script is already loaded).", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to load script %s (Script is already loaded).", strParameters.Get());
 				else
 				{
 					String strPath(SharedUtility::GetAbsolutePath("scripts/%s", strParameters.Get()));
 					CSquirrel * pScript = g_pScriptingManager->Load(strParameters, strPath);
 
 					if(!pScript)
-						CLogFile::Printf("Failed to load script %s (Script does not exist/Script compilation failed).", strParameters.Get());
+						CLogFile::Printf("[Server] Failed to load script %s (Script does not exist/Script compilation failed).", strParameters.Get());
 					else
-						CLogFile::Printf("Loaded script %s.", strParameters.Get());
+						CLogFile::Printf("[Server] Loaded script %s.", strParameters.Get());
 				}
 			}
 		}
-		else if(strCommand == "loadclientscript")
+		else if(strCommand == "loadclientscript" || strCommand == "loadcs")
 		{
 			if(strParameters.IsNotEmpty())
 			{
-				CLogFile::Printf("Loading client script %s.", strParameters.Get());
+				CLogFile::Printf("[Server] Loading client script %s.", strParameters.Get());
 
 				if(g_pClientScriptFileManager->Exists(strParameters))
-					CLogFile::Printf("Failed to load client script %s (Script is already loaded).", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to load client script %s (Script is already loaded).", strParameters.Get());
 				else if(!g_pClientScriptFileManager->Start(strParameters))
-					CLogFile::Printf("Failed to load client script %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to load client script %s.", strParameters.Get());
 				else
-					CLogFile::Printf("Loaded client script %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Loaded client script %s.", strParameters.Get());
 			}
 		}
-		else if(strCommand == "loadresource")
+		else if(strCommand == "loadresource" || strCommand == "loadres")
 		{
 			if(strParameters.IsNotEmpty())
 			{
-				CLogFile::Printf("Loading client resource %s.", strParameters.Get());
+				CLogFile::Printf("[Server] Loading client resource %s.", strParameters.Get());
 
 				if(g_pClientResourceFileManager->Exists(strParameters))
-					CLogFile::Printf("Failed to load client resource %s (Resource is already loaded).", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to load client resource %s (Resource is already loaded).", strParameters.Get());
 				else if(!g_pClientResourceFileManager->Start(strParameters))
-					CLogFile::Printf("Failed to load client resource %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to load client resource %s.", strParameters.Get());
 				else
-					CLogFile::Printf("Loaded client resource %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Loaded client resource %s.", strParameters.Get());
 			}
 		}
 		else if(strCommand == "unloadscript")
 		{
 			if(strParameters.IsNotEmpty())
 			{
-				CLogFile::Printf("Unloading script %s.", strParameters.Get());
+				CLogFile::Printf("[Server] Unloading script %s.", strParameters.Get());
 				CSquirrel * pScript = g_pScriptingManager->Get(strParameters);
 
 				if(pScript)
 				{
 					g_pScriptTimerManager->HandleScriptUnload(pScript);
 					g_pScriptingManager->Unload(strParameters);
-					CLogFile::Printf("Unloaded script %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Unloaded script %s.", strParameters.Get());
 				}
 				else
-					CLogFile::Printf("Failed to unload script %s (Script is not loaded).", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to unload script %s (Script is not loaded).", strParameters.Get());
 
 			}
 		}
-		else if(strCommand == "unloadclientscript")
+		else if(strCommand == "unloadclientscript" || strCommand == "unloadcs")
 		{
 			if(strParameters.IsNotEmpty())
 			{
-				CLogFile::Printf("Unloading client script %s.", strParameters.Get());
+				CLogFile::Printf("[Server] Unloading client script %s.", strParameters.Get());
 
 				if(!g_pClientScriptFileManager->Exists(strParameters))
-					CLogFile::Printf("Unloading to load client script %s (Script is not loaded).", strParameters.Get());
+					CLogFile::Printf("[Server] Unloading to load client script %s (Script is not loaded).", strParameters.Get());
 				else if(!g_pClientScriptFileManager->Stop(strParameters))
-					CLogFile::Printf("Failed to unload client script %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to unload client script %s.", strParameters.Get());
 				else
-					CLogFile::Printf("Unloaded client script %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Unloaded client script %s.", strParameters.Get());
 			}
 		}
-		else if(strCommand == "unloadresource")
+		else if(strCommand == "unloadresource" || strCommand == "unloadres")
 		{
 			if(strParameters.IsNotEmpty())
 			{
-				CLogFile::Printf("Unloading client resource %s.", strParameters.Get());
+				CLogFile::Printf("[Server] Unloading client resource %s.", strParameters.Get());
 
 				if(!g_pClientResourceFileManager->Exists(strParameters))
-					CLogFile::Printf("Unloading to load client resource %s (Resource is not loaded).", strParameters.Get());
+					CLogFile::Printf("[Server] Unloading to load client resource %s (Resource is not loaded).", strParameters.Get());
 				else if(!g_pClientResourceFileManager->Stop(strParameters))
-					CLogFile::Printf("Failed to unload client resource %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to unload client resource %s.", strParameters.Get());
 				else
-					CLogFile::Printf("Unloaded client resource %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Unloaded client resource %s.", strParameters.Get());
 			}
 		}
 		else if(strCommand == "reloadscript")
 		{
 			if(strParameters.IsNotEmpty())
 			{
-				CLogFile::Printf("Reloading script %s.", strParameters.Get());
+				CLogFile::Printf("[Server] Reloading script %s.", strParameters.Get());
 				CSquirrel * pScript = g_pScriptingManager->Get(strParameters);
 
 				if(pScript)
@@ -611,76 +628,92 @@ void CServer::SendInput(String strInput)
 						pScript = g_pScriptingManager->Load(strParameters, strPath);
 
 						if(pScript)
-							CLogFile::Printf("Reloaded script %s.", strParameters.Get());
+							CLogFile::Printf("[Server] Reloaded script %s.", strParameters.Get());
 						else
-							CLogFile::Printf("Failed to reload script %s (Failed to load script).", strParameters.Get());
+							CLogFile::Printf("[Server] Failed to reload script %s (Failed to load script).", strParameters.Get());
 					}
 					else
-						CLogFile::Printf("Failed to reload script %s (Failed to unload script).", strParameters.Get());
+						CLogFile::Printf("[Server] Failed to reload script %s (Failed to unload script).", strParameters.Get());
 				}
 				else
-					CLogFile::Printf("Failed to reload script %s (Script is not loaded).", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to reload script %s (Script is not loaded).", strParameters.Get());
 			}
 		}
-		else if(strCommand == "reloadclientscript")
+		else if(strCommand == "reloadclientscript" || strCommand == "reloadcs")
 		{
 			if(strParameters.IsNotEmpty())
 			{
-				CLogFile::Printf("Reloading client script %s.", strParameters.Get());
+				CLogFile::Printf("[Server] Reloading client script %s.", strParameters.Get());
 
 				if(!g_pClientScriptFileManager->Exists(strParameters))
-					CLogFile::Printf("Failed to reload script %s (Script is not loaded).", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to reload script %s (Script is not loaded).", strParameters.Get());
 				else if(!g_pClientScriptFileManager->Restart(strParameters))
-					CLogFile::Printf("Failed to reload client script %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to reload client script %s.", strParameters.Get());
 				else
-					CLogFile::Printf("Reloaded client script %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Reloaded client script %s.", strParameters.Get());
 			}
 		}
-		else if(strCommand == "reloadresource")
+		else if(strCommand == "reloadresource" || strCommand == "reloadres")
 		{
 			if(strParameters.IsNotEmpty())
 			{
-				CLogFile::Printf("Reloading client resource %s.", strParameters.Get());
+				CLogFile::Printf("[Server] Reloading client resource %s.", strParameters.Get());
 
 				if(!g_pClientResourceFileManager->Exists(strParameters))
-					CLogFile::Printf("Failed to reload resource %s (Resource is not loaded).", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to reload resource %s (Resource is not loaded).", strParameters.Get());
 				else if(!g_pClientResourceFileManager->Restart(strParameters))
-					CLogFile::Printf("Failed to reload client resource %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Failed to reload client resource %s.", strParameters.Get());
 				else
-					CLogFile::Printf("Reloaded client script %s.", strParameters.Get());
+					CLogFile::Printf("[Server] Reloaded client script %s.", strParameters.Get());
 			}
 		}
-		else if(strCommand == "scriptinfo")
+		else if(strCommand == "players")
+		{
+			int iPlayersCount = g_pPlayerManager->GetPlayerCount();
+			for(int i = 0; i < MAX_PLAYERS; i++)
+			{
+				CPlayer* pPlayer = g_pPlayerManager->GetAt(i);
+				if(!pPlayer)
+					continue;
+
+				CLogFile::Printf("[Server] Player: %s(%d, %s)", pPlayer->GetName().Get(), i, pPlayer->GetIp().Get());
+			}
+
+			CLogFile::Printf("[Server] Players online: %d/%d", iPlayersCount, CVAR_GET_INTEGER("maxplayers"));
+		}
+		else if(strCommand == "scripts")
 		{
 			int iScriptsLoaded = 0;
 			int iClientScriptsLoaded = 0;
+			int iResourcesLoaded = 0;
 
 			for(std::list<CSquirrel *>::iterator iter = g_pScriptingManager->GetScriptList()->begin(); iter != g_pScriptingManager->GetScriptList()->end(); iter++)
 			{
-				CLogFile::Printf("Script: %s (0x%p)", (*iter)->GetName().Get(), (*iter));
+				CLogFile::Printf("[Server] Script: %s", (*iter)->GetName().Get());
 				iScriptsLoaded++;
 			}
 
 			for(CClientFileManager::iterator iter = g_pClientScriptFileManager->begin(); iter != g_pClientScriptFileManager->end(); ++ iter)
 			{
-				CLogFile::Printf("Client Script: %s (Checksum: 0x%p)", (*iter).first.Get(), (*iter).second.GetChecksum());
+				CLogFile::Printf("[Server] Client script: %s (Checksum: 0x%p)", (*iter).first.Get(), (*iter).second.GetChecksum());
 				iClientScriptsLoaded++;
 			}
 
 			for(CClientFileManager::iterator iter = g_pClientResourceFileManager->begin(); iter != g_pClientResourceFileManager->end(); ++ iter)
 			{
-				CLogFile::Printf("Resource: %s (Checksum: 0x%p)", (*iter).first.Get(), (*iter).second.GetChecksum());
-				iClientScriptsLoaded++;
+				CLogFile::Printf("[Server] Client resource: %s (Checksum: 0x%p)", (*iter).first.Get(), (*iter).second.GetChecksum());
+				iResourcesLoaded++;
 			}
 
-			CLogFile::Printf("%d script(s) and %d client script(s) loaded.", iScriptsLoaded, iClientScriptsLoaded);
+			CLogFile::Printf("[Server] %d script(s), %d client script(s) and %d resources loaded.", iScriptsLoaded, iClientScriptsLoaded, iResourcesLoaded);
 		}
 		else if(strCommand == "uptime")
 		{
-			CLogFile::Printf("Server has been online for %s.", SharedUtility::GetTimePassedFromTime(g_ulStartTick).Get());
+			CLogFile::Printf("[Server] Server has been online for %s.", SharedUtility::GetTimePassedFromTime(g_ulStartTick).Get());
 		}
 		else if(strCommand == "quit" || strCommand == "exit")
 		{
+			CLogFile::Print("[Server] Server is going to shutdown NOW ....");
 			SetActive(false);
 		}
 		else

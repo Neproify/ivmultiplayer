@@ -77,6 +77,7 @@ function onKeyPress(key, status)
 			toggleChatWindow(true);
 			showscoreboard = false;
 		}
+		addChatMessage("script name: " + getScriptName());
 	}
 	
 	// engine start code...
