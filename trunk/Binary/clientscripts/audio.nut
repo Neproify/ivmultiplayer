@@ -2,8 +2,9 @@
 
 //Definitions
 // Audio(url or resource, replay, url to file or add only name from the ressource)
-local audiourl = Audio(true,false,"http://files.seti.ee/music/one/SETI_ee_ti_feat_rihanna_-_live_your_life.mp3");
-local audiourlposition = Audio(true,false,"http://files.seti.ee/music/one/SETI_ee_ti_feat_rihanna_-_live_your_life.mp3");
+local url = "http://dl.dropbox.com/u/28171641/sounds/the_boondocks_-_riley%27s_theme.mp3"; // "http://files.seti.ee/music/one/SETI_ee_ti_feat_rihanna_-_live_your_life.mp3"
+local audiourl = Audio(true,false,url);
+local audiourlposition = Audio(true,false,url);
 audiourl.play();
 
 function onKeyPress(key, status)
