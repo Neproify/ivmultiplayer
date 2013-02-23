@@ -265,9 +265,9 @@ int sq_getScripts(SQVM * pVM)
 
 // getScriptName()
 int sq_getScriptName(SQVM * pVM)
-{
-	String strName = g_pClient->GetScriptingManager()->Get(pVM)->GetName();
-	sq_pushstring(pVM, strName.Get(), strName.GetLength());
+{	
+	String strScriptName = g_pClient->GetScriptingManager()->Get(pVM)->GetName();
+	sq_pushstring(pVM, strScriptName.Get(), strScriptName.GetLength());
 	return 1;
 }
 

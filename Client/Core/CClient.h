@@ -121,7 +121,7 @@ public:
 	CCamera              * GetCamera() { return m_pCamera; }
 	CGUI                 * GetGUI() { return m_pGUI; }
 	CGraphics            * GetGraphics() { return m_pGraphics; }
-	CScriptingManager    * GetScriptingManager() { return m_pScriptingManager; }
+	CScriptingManager    * GetScriptingManager() { return m_pScriptingManager->GetInstance(); }
 	CClientScriptManager * GetClientScriptManager() { return m_pClientScriptManager; }
 	CMainMenu            * GetMainMenu() { return m_pMainMenu; }
 	CFPSCounter          * GetFPSCounter() { return m_pFPSCounter; }

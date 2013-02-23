@@ -291,6 +291,10 @@ function onPlayerCommand(playerid, command)
 	if(cmd[0] == "/12")
 	{
 		sendPlayerMessage(playerid, getPlayerIp(playerid));
+	}	
+	if(cmd[0] == "/setammoinclip")
+	{
+		setPlayerAmmoInClip(playerid,cmd[1].tointeger());
 	}
 	if(cmd[0] == "/displayHudMessage")
 	{
