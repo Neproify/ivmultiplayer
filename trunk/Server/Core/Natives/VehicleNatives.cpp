@@ -80,66 +80,53 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 }
 
 // createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4, respawn_delay)
+// WIP: Rotation and colors optional
 SQInteger CVehicleNatives::Create(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Ensure we have the least required arguments
-	if(arguments.size() < 4)
-	{
-		CLogFile::Printf("createVehicle: Native requires at least 4 parameters.");
-		sq_pushinteger(pVM, INVALID_ENTITY_ID);
-		return 1;
-	}
-
-	// Get the model id
-	int iModelId = arguments.pop().GetInteger();
+	SQInteger iModelId;
+	CVector3 vecPosition;
+	CVector3 vecRotation;
+	SQInteger respawn_delay = -1;
+	SQInteger color1, color2, color3 = 0, color4 = 0;
+	sq_getinteger(pVM, 2, &iModelId);
 
 	if(iModelId < 0 || iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111 || iModelId > 123)
 	{
-		CLogFile::Printf("createVehicle: Invalid vehicle model (%d).", iModelId);
+		#ifdef IVMP_DEBUG
+			CLogFile::Printf("Invalid vehicle model (%d)", iModelId);
+		#endif
 		sq_pushinteger(pVM, INVALID_ENTITY_ID);
 		return 1;
 	}
-
-	// Get the position
-	CVector3 vecPosition;
-	arguments.popVector3(vecPosition);
-
-	// Do we have any more parameters?
-	CVector3 vecRotation;
-	int iRespawnDelay = -1;
-	int iColors[4];
-
-	if(arguments.size() >= 3)
+	
+	sq_getvector3(pVM, 3, &vecPosition); // 3..5
+	
+	if(sq_gettop(pVM) >= 6)
 	{
-		// Get the rotation
-		arguments.popVector3(vecRotation);
+		sq_getvector3(pVM, 6, &vecRotation); // 6..8
 
-		// Do we have any more parameters?
-		if(arguments.size() >= 4)
+		if(sq_gettop(pVM) >= 12)
 		{
-			iColors[0] = arguments.pop().GetInteger();
-			iColors[1] = arguments.pop().GetInteger();
-			iColors[2] = arguments.pop().GetInteger();
-			iColors[3] = arguments.pop().GetInteger();
+			sq_getinteger(pVM, 9, &color1);
+			sq_getinteger(pVM, 10, &color2);
+			sq_getinteger(pVM, 11, &color3);
+			sq_getinteger(pVM, 12, &color4);
 
-			// Do we have any more parameters?
-			if(arguments.size() == 1)
-				iRespawnDelay = arguments.pop().GetInteger();
+			if(sq_gettop(pVM) >= 13)
+			{
+				sq_getinteger(pVM, 13, &respawn_delay);
+				//CLogFile::Printf("Set respawn_delay to (%i)", respawn_delay);
+			}
 		}
 	}
 
 	if(iModelId >= 0 && iModelId <= 125)
 	{
-		EntityId vehicleId =  g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, iColors[0], iColors[1], 
-													 iColors[2], iColors[3], iRespawnDelay);
-		sq_pushinteger(pVM, vehicleId);
+		EntityId vehicleId =  g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4, respawn_delay);
+		sq_pushinteger(pVM,vehicleId);
 		return 1;
 	}
 
-	CLogFile::Printf("createVehicle: Invalid vehicle model (%d).", iModelId);
 	sq_pushinteger(pVM, INVALID_ENTITY_ID);
 	return 1;
 }
@@ -147,19 +134,14 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 // deleteVehicle(vehicleid)
 SQInteger CVehicleNatives::Delete(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	if(g_pVehicleManager->DoesExist(vehicleId))
+	SQInteger vehicleid;
+	sq_getinteger(pVM, 2, &vehicleid);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		g_pVehicleManager->Remove(vehicleId);
+		g_pVehicleManager->Remove(vehicleid);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
-
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -167,21 +149,23 @@ SQInteger CVehicleNatives::Delete(SQVM * pVM)
 // setVehicleCoordinates(vehicleid, x, y, z)
 SQInteger CVehicleNatives::SetCoordinates(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	SQInteger vehicleid;
+	float x, y, z;
+	sq_getinteger(pVM, -4, &vehicleid);
+	sq_getfloat(pVM, -3, &x);
+	sq_getfloat(pVM, -2, &y);
+	sq_getfloat(pVM, -1, &z);
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	CVector3 vecPosition;
-	arguments.popVector3(vecPosition);
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-		
-	if(pVehicle)
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		pVehicle->SetPosition(vecPosition);
-		sq_pushbool(pVM, true);
-		return 1;
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
+		
+		if(pVehicle)
+		{
+			pVehicle->SetPosition(CVector3(x, y, z));
+			sq_pushbool(pVM, true);
+			return 1;
+		}
 	}
 
 	sq_pushbool(pVM, false);
@@ -191,23 +175,23 @@ SQInteger CVehicleNatives::SetCoordinates(SQVM * pVM)
 // getVehicleCoordinates(vehicleid)
 SQInteger CVehicleNatives::GetCoordinates(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		CVector3 vecPosition;
-		pVehicle->GetPosition(vecPosition);
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
-		CSquirrelArguments retargs;
-		retargs.pushVector3(vecPosition);
-		sq_pusharg(pVM, CSquirrelArgument(retargs, true));
-		return 1;
+		if(pVehicle)
+		{
+			CVector3 vecPosition;
+			pVehicle->GetPosition(vecPosition);
+			CSquirrelArguments args;
+			args.push(vecPosition.fX);
+			args.push(vecPosition.fY);
+			args.push(vecPosition.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
+			return 1;
+		}
 	}
 
 	sq_pushbool(pVM, false);
@@ -217,21 +201,21 @@ SQInteger CVehicleNatives::GetCoordinates(SQVM * pVM)
 // setVehicleRotation(vehicleid, rotation)
 SQInteger CVehicleNatives::SetRotation(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
 	CVector3 vecRotation;
-	arguments.popVector3(vecRotation);
+	sq_getentity(pVM, -4, &vehicleId);
+	sq_getvector3(pVM, -3, &vecRotation);
 
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	if(g_pVehicleManager->DoesExist(vehicleId))
 	{
-		pVehicle->SetRotation(vecRotation);
-		sq_pushbool(pVM, true);
-		return 1;
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			pVehicle->SetRotation(vecRotation);
+			sq_pushbool(pVM, true);
+			return 1;
+		}
 	}
 
 	sq_pushbool(pVM, false);
@@ -241,33 +225,35 @@ SQInteger CVehicleNatives::SetRotation(SQVM * pVM)
 // setVehicleDirtLevel(vehicleid, level)
 SQInteger CVehicleNatives::SetDirtLevel(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	SQInteger vehicleid;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	float fDirtLevel = arguments.pop().GetFloat();
+	float fLevel;
 
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+	sq_getinteger(pVM, -2, &vehicleid);
 
-	if(pVehicle)
+	sq_getfloat(pVM, -1, &fLevel);
+
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		pVehicle->SetDirtLevel(fDirtLevel);
-		sq_pushbool(pVM, true);
-		return 1;
-	}
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
+		if(pVehicle)
+		{
+			pVehicle->SetDirtLevel(fLevel);
+
+			sq_pushbool(pVM, true);
+
+			return 1;
+		}
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }
 
 SQInteger CVehicleNatives::GetDirtLevel(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
@@ -284,18 +270,17 @@ SQInteger CVehicleNatives::GetDirtLevel(SQVM * pVM)
 // setVehicleSirenState(vehicleid, state)
 SQInteger CVehicleNatives::SetSirenState(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	SQBool sqbState;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	bool bSirenState = arguments.pop().GetBool();
+	sq_getentity(pVM, -2, &vehicleId);
+	sq_getbool(pVM, -1, &sqbState);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
-		pVehicle->SetSirenState(bSirenState);
+		pVehicle->SetSirenState(sqbState != 0);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -307,11 +292,9 @@ SQInteger CVehicleNatives::SetSirenState(SQVM * pVM)
 // getVehicleSirenState(vehicleid)
 SQInteger CVehicleNatives::GetSirenState(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
@@ -328,12 +311,11 @@ SQInteger CVehicleNatives::GetSirenState(SQVM * pVM)
 // soundVehicleHorn(vehicleid, duration)
 SQInteger CVehicleNatives::SoundHorn(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	SQInteger iDuration;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iDuration = arguments.pop().GetInteger();
+	sq_getentity(pVM, -2, &vehicleId);
+	sq_getinteger(pVM, -1, &iDuration);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
@@ -351,23 +333,24 @@ SQInteger CVehicleNatives::SoundHorn(SQVM * pVM)
 // getVehicleRotation(vehicleid)
 SQInteger CVehicleNatives::GetRotation(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	if(g_pVehicleManager->DoesExist(vehicleId))
 	{
-		CVector3 vecRotation;
-		pVehicle->GetRotation(vecRotation);
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
-		CSquirrelArguments retargs;
-		retargs.pushVector3(vecRotation);
-		sq_pusharg(pVM, CSquirrelArgument(retargs, true));
-		return 1;
+		if(pVehicle)
+		{
+			CVector3 vecRotation;
+			pVehicle->GetRotation(vecRotation);
+			CSquirrelArguments args;
+			args.push(vecRotation.fX);
+			args.push(vecRotation.fY);
+			args.push(vecRotation.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
+			return 1;
+		}
 	}
 
 	sq_pushbool(pVM, false);
@@ -377,12 +360,9 @@ SQInteger CVehicleNatives::GetRotation(SQVM * pVM)
 // isVehicleValid(vehicleid)
 SQInteger CVehicleNatives::IsValid(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	sq_pushbool(pVM, g_pVehicleManager->DoesExist(vehicleId));
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+	sq_pushbool(pVM, g_pVehicleManager->DoesExist(vehicleid));
 	return 1;
 }
 
@@ -390,40 +370,24 @@ SQInteger CVehicleNatives::IsValid(SQVM * pVM)
 // TODO: Only require two colors
 SQInteger CVehicleNatives::SetColor(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Ensure we have the least required arguments
-	if(arguments.size() < 3)
+	SQInteger vehicleid;
+	SQInteger colors[4];
+	sq_getinteger(pVM, -5, &vehicleid);
+	sq_getinteger(pVM, -4, &colors[0]);
+	sq_getinteger(pVM, -3, &colors[1]);
+	sq_getinteger(pVM, -2, &colors[2]);
+	sq_getinteger(pVM, -1, &colors[3]);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		CLogFile::Printf("setVehicleColor: Natives requires at least 3 arguments.");
-		sq_pushbool(pVM, false);
-		return 1;
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
+
+		if(pVehicle)
+		{
+			pVehicle->SetColors(colors[0], colors[1], colors[2], colors[3]);
+			sq_pushbool(pVM, true);
+			return 1;
+		}
 	}
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	int iColors[4];
-	memset(&iColors, 0, sizeof(iColors));
-	iColors[0] = arguments.pop().GetInteger();
-	iColors[1] = arguments.pop().GetInteger();
-
-	if(arguments.size() == 2)
-	{
-		iColors[2] = arguments.pop().GetInteger();
-		iColors[3] = arguments.pop().GetInteger();
-	}
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
-	{
-		pVehicle->SetColors(iColors[0], iColors[1], iColors[2], iColors[3]);
-		sq_pushbool(pVM, true);
-		return 1;
-	}
-
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -431,26 +395,24 @@ SQInteger CVehicleNatives::SetColor(SQVM * pVM)
 // getVehicleColor(vehicleid)
 SQInteger CVehicleNatives::GetColor(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		BYTE byteColors[4];
-		pVehicle->GetColors(byteColors[0], byteColors[1], byteColors[2], byteColors[3]);
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
-		CSquirrelArguments retargs;
-		retargs.push((int)byteColors[0]);
-		retargs.push((int)byteColors[1]);
-		retargs.push((int)byteColors[2]);
-		retargs.push((int)byteColors[3]);
-		sq_pusharg(pVM, CSquirrelArgument(retargs, true));
-		return 1;
+		if(pVehicle)
+		{
+			BYTE byteColors[4];
+			pVehicle->GetColors(byteColors[0], byteColors[1], byteColors[2], byteColors[3]);
+			CSquirrelArguments args;
+			args.push((int)byteColors[0]);
+			args.push((int)byteColors[1]);
+			args.push((int)byteColors[2]);
+			args.push((int)byteColors[3]);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
+			return 1;
+		}
 	}
 
 	sq_pushbool(pVM, false);
@@ -460,22 +422,21 @@ SQInteger CVehicleNatives::GetColor(SQVM * pVM)
 // setVehicleRespawnDelay(vehicleid, respawn_delay)
 SQInteger CVehicleNatives::SetRespawnDelay(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iRespawnDelay = arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	SQInteger vehicleid;
+	SQInteger respawn_delay;
+	sq_getinteger(pVM, -2, &vehicleid);
+	sq_getinteger(pVM, -1, &respawn_delay);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		pVehicle->SetRespawnDelay(iRespawnDelay);
-		sq_pushbool(pVM, true);
-		return 1;
-	}
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
+		if(pVehicle)
+		{
+			pVehicle->SetRespawnDelay(respawn_delay);
+			sq_pushbool(pVM, true);
+			return 1;
+		}
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -483,20 +444,18 @@ SQInteger CVehicleNatives::SetRespawnDelay(SQVM * pVM)
 // getVehicleRespawnDelay(vehicleid)
 SQInteger CVehicleNatives::GetRespawnDelay(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		sq_pushinteger(pVM, pVehicle->GetRespawnDelay());
-		return 1;
-	}
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
+		if(pVehicle)
+		{
+			sq_pushinteger(pVM, pVehicle->GetRespawnDelay());
+			return 1;
+		}
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -504,20 +463,18 @@ SQInteger CVehicleNatives::GetRespawnDelay(SQVM * pVM)
 // getVehicleModel(vehicleid)
 SQInteger CVehicleNatives::GetModel(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		sq_pushinteger(pVM, pVehicle->GetModel());
-		return 1;
-	}
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
+		if(pVehicle)
+		{
+			sq_pushinteger(pVM, pVehicle->GetModel());
+			return 1;
+		}
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -525,22 +482,21 @@ SQInteger CVehicleNatives::GetModel(SQVM * pVM)
 // setVehicleHealth(vehicleid, health)
 SQInteger CVehicleNatives::SetHealth(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iHealth = arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	SQInteger vehicleid;
+	SQInteger health;
+	sq_getinteger(pVM, -2, &vehicleid);
+	sq_getinteger(pVM, -1, &health);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		pVehicle->SetHealth(iHealth);
-		sq_pushbool(pVM, true);
-		return 1;
-	}
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
+		if(pVehicle)
+		{
+			pVehicle->SetHealth(health);
+			sq_pushbool(pVM, true);
+			return 1;
+		}
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -548,20 +504,18 @@ SQInteger CVehicleNatives::SetHealth(SQVM * pVM)
 // getVehicleHealth(vehicleid)
 SQInteger CVehicleNatives::GetHealth(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		sq_pushinteger(pVM, pVehicle->GetHealth());
-		return 1;
-	}
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
+		if(pVehicle)
+		{
+			sq_pushinteger(pVM, pVehicle->GetHealth());
+			return 1;
+		}
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -569,23 +523,22 @@ SQInteger CVehicleNatives::GetHealth(SQVM * pVM)
 // setVehicleEngineHealth(vehicleid, enginehealth)
 SQInteger CVehicleNatives::SetEngineHealth(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iHealth = arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	SQInteger vehicleid;
+	SQInteger health;
+	sq_getinteger(pVM, -2, &vehicleid);
+	sq_getinteger(pVM, -1, &health);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		CLogFile::Printf("Function setVehicleEngineHealth is depreciated: please use setVehicleHealth.");
-		pVehicle->SetHealth(iHealth);
-		sq_pushbool(pVM, true);
-		return 1;
-	}
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
+		if(pVehicle)
+		{
+			CLogFile::Printf("Function setVehicleEngineHealth is depreciated: please use setVehicleHealth.");
+			pVehicle->SetHealth(health);
+			sq_pushbool(pVM, true);
+			return 1;
+		}
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -593,21 +546,19 @@ SQInteger CVehicleNatives::SetEngineHealth(SQVM * pVM)
 // getVehicleEngineHealth(vehicleid)
 SQInteger CVehicleNatives::GetEngineHealth(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		CLogFile::Printf("Function getVehicleEngineHealth is depreciated: please use getVehicleHealth.");
-		sq_pushinteger(pVM, pVehicle->GetHealth());
-		return 1;
-	}
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
+		if(pVehicle)
+		{
+			CLogFile::Printf("Function getVehicleEngineHealth is depreciated: please use getVehicleHealth.");
+			sq_pushinteger(pVM, pVehicle->GetHealth());
+			return 1;
+		}
+	}
 	sq_pushbool(pVM, false);
 	return 1;
 }
@@ -615,23 +566,22 @@ SQInteger CVehicleNatives::GetEngineHealth(SQVM * pVM)
 // setVehicleVelocity(vehicleid, x, y, z)
 SQInteger CVehicleNatives::SetVelocity(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	SQInteger vehicleid;
 	CVector3 vecMoveSpeed;
-	arguments.popVector3(vecMoveSpeed);
+	sq_getinteger(pVM, -4, &vehicleid);
+	sq_getvector3(pVM, -3, &vecMoveSpeed);
 
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle && pVehicle->GetDriver())
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		if(pVehicle->GetDriver()->GetVehicle()->GetVehicleId() == pVehicle->GetVehicleId())
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
+
+		if(pVehicle && pVehicle->GetDriver())
 		{
-			pVehicle->SetMoveSpeed(vecMoveSpeed);
-			sq_pushbool(pVM, true);
-			return 1;
+			if(pVehicle->GetDriver()->GetVehicle()->GetVehicleId() == pVehicle->GetVehicleId()) {
+				pVehicle->SetMoveSpeed(vecMoveSpeed);
+				sq_pushbool(pVM, true);
+				return 1;
+			}
 		}
 	}
 
@@ -642,23 +592,24 @@ SQInteger CVehicleNatives::SetVelocity(SQVM * pVM)
 // getVehicleVelocity(vehicleid)
 SQInteger CVehicleNatives::GetVelocity(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		CVector3 vecMoveSpeed;
-		pVehicle->GetMoveSpeed(vecMoveSpeed);
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
-		CSquirrelArguments retargs;
-		retargs.pushVector3(vecMoveSpeed);
-		sq_pusharg(pVM, CSquirrelArgument(retargs, true));
-		return 1;
+		if(pVehicle)
+		{
+			CVector3 vecMoveSpeed;
+			pVehicle->GetMoveSpeed(vecMoveSpeed);
+			CSquirrelArguments args;
+			args.push(vecMoveSpeed.fX);
+			args.push(vecMoveSpeed.fY);
+			args.push(vecMoveSpeed.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
+			return 1;
+		}
 	}
 
 	sq_pushbool(pVM, false);
@@ -668,21 +619,21 @@ SQInteger CVehicleNatives::GetVelocity(SQVM * pVM)
 // setVehicleAngularVelocity(vehicleid, x, y, z)
 SQInteger CVehicleNatives::SetAngularVelocity(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	SQInteger vehicleid;
 	CVector3 vecTurnSpeed;
-	arguments.popVector3(vecTurnSpeed);
+	sq_getinteger(pVM, -4, &vehicleid);
+	sq_getvector3(pVM, -3, &vecTurnSpeed);
 
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		pVehicle->SetTurnSpeed(vecTurnSpeed);
-		sq_pushbool(pVM, true);
-		return 1;
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
+
+		if(pVehicle)
+		{
+			pVehicle->SetTurnSpeed(vecTurnSpeed);
+			sq_pushbool(pVM, true);
+			return 1;
+		}
 	}
 
 	sq_pushbool(pVM, false);
@@ -692,23 +643,24 @@ SQInteger CVehicleNatives::SetAngularVelocity(SQVM * pVM)
 // getVehicleAngularVelocity(vehicleid)
 SQInteger CVehicleNatives::GetAngularVelocity(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	SQInteger vehicleid;
+	sq_getinteger(pVM, -1, &vehicleid);
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	if(g_pVehicleManager->DoesExist(vehicleid))
 	{
-		CVector3 vecTurnSpeed;
-		pVehicle->GetTurnSpeed(vecTurnSpeed);
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleid);
 
-		CSquirrelArguments retargs;
-		retargs.pushVector3(vecTurnSpeed);
-		sq_pusharg(pVM, CSquirrelArgument(retargs, true));
-		return 1;
+		if(pVehicle)
+		{
+			CVector3 vecTurnSpeed;
+			pVehicle->GetTurnSpeed(vecTurnSpeed);
+			CSquirrelArguments args;
+			args.push(vecTurnSpeed.fX);
+			args.push(vecTurnSpeed.fY);
+			args.push(vecTurnSpeed.fZ);
+			sq_pusharg(pVM, CSquirrelArgument(args, true));
+			return 1;
+		}
 	}
 
 	sq_pushbool(pVM, false);
@@ -718,19 +670,19 @@ SQInteger CVehicleNatives::GetAngularVelocity(SQVM * pVM)
 // respawnVehicle(vehicleid)
 SQInteger CVehicleNatives::Respawn(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
+	if(g_pVehicleManager->DoesExist(vehicleId))
 	{
-		pVehicle->Respawn();
-		sq_pushbool(pVM, true);
-		return 1;
+		CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
+
+		if(pVehicle)
+		{
+			pVehicle->Respawn();
+			sq_pushbool(pVM, true);
+			return 1;
+		}
 	}
 
 	sq_pushbool(pVM, false);
@@ -740,11 +692,8 @@ SQInteger CVehicleNatives::Respawn(SQVM * pVM)
 // isVehicleOccupied(vehicleid)
 SQInteger CVehicleNatives::IsOccupied(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
@@ -761,26 +710,23 @@ SQInteger CVehicleNatives::IsOccupied(SQVM * pVM)
 // getVehicleOccupants(vehicleid)
 SQInteger CVehicleNatives::GetOccupants(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
-		CSquirrelArguments retargs;
+		CSquirrelArguments args;
 
 		for(BYTE i = 0; i < (MAX_VEHICLE_PASSENGERS + 1); i++)
 		{
-			retargs.push((int)(i + 1));
+			args.push((int)(i + 1));
 			CPlayer * pOccupant = pVehicle->GetOccupant(i);
-			retargs.push(pOccupant ? (int)pOccupant->GetPlayerId() : (int)INVALID_ENTITY_ID);
+			args.push(pOccupant ? (int)pOccupant->GetPlayerId() : (int)INVALID_ENTITY_ID);
 		}
 
-		sq_pusharg(pVM, CSquirrelArgument(retargs, false));
+		sq_pusharg(pVM, CSquirrelArgument(args, false));
 		return 1;
 	}
 
@@ -791,12 +737,11 @@ SQInteger CVehicleNatives::GetOccupants(SQVM * pVM)
 // setVehicleLocked(vehicleid, locked)
 SQInteger CVehicleNatives::SetLocked(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	int iLocked;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iLocked = arguments.pop().GetInteger();
+	sq_getentity(pVM, -2, &vehicleId);
+	sq_getinteger(pVM, -1, &iLocked);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
@@ -813,11 +758,8 @@ SQInteger CVehicleNatives::SetLocked(SQVM * pVM)
 // getVehicleLocked(vehicleid)
 SQInteger CVehicleNatives::GetLocked(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
@@ -834,15 +776,23 @@ SQInteger CVehicleNatives::GetLocked(SQVM * pVM)
 // setVehicleIndicators(vehicleid, frontleft, frontright, backleft, backright)
 SQInteger CVehicleNatives::SetIndicators(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	bool bFrontLeft, bFrontRight, bBackLeft, bBackRight;
+	SQBool sqbOn;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	bool bFrontLeft = arguments.pop().GetBool();
-	bool bFrontRight = arguments.pop().GetBool();
-	bool bBackLeft = arguments.pop().GetBool();
-	bool bBackRight = arguments.pop().GetBool();
+	sq_getentity(pVM, 2, &vehicleId);
+
+	sq_getbool(pVM, 3, &sqbOn);
+	bFrontLeft = sqbOn != 0;
+
+	sq_getbool(pVM, 4, &sqbOn);
+	bFrontRight = sqbOn != 0;
+
+	sq_getbool(pVM, 5, &sqbOn);
+	bBackLeft = sqbOn != 0;
+
+	sq_getbool(pVM, 6, &sqbOn);
+	bBackRight = sqbOn != 0;
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
@@ -859,22 +809,19 @@ SQInteger CVehicleNatives::SetIndicators(SQVM * pVM)
 
 SQInteger CVehicleNatives::GetIndicators(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, 2, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
-		CSquirrelArguments retargs;
-
+		sq_newarray(pVM, 0);
 		for(unsigned char uc = 0; uc <= 3; ++ uc)
-			retargs.push(pVehicle->GetIndicatorState(uc));
-
-		sq_pusharg(pVM, CSquirrelArgument(retargs, true));
+		{
+			sq_pushbool(pVM, pVehicle->GetIndicatorState(uc));
+			sq_arrayappend(pVM, -2);
+		}
 		return 1;
 	}
 
@@ -884,21 +831,21 @@ SQInteger CVehicleNatives::GetIndicators(SQVM * pVM)
 
 SQInteger CVehicleNatives::SetComponent(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iSlot = arguments.pop().GetInteger();
-	bool bOn = arguments.pop().GetBool();
+	EntityId vehicleId;
+	sq_getentity(pVM, 2, &vehicleId);
 	
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
 	if(pVehicle)
 	{
+		SQInteger iSlot;
+		SQBool bOn;
+		sq_getinteger(pVM, 3, &iSlot);
+		sq_getbool(pVM, 4, &bOn);
+		
 		if(iSlot >= 0 && iSlot <= 8)
 		{
-			pVehicle->SetComponentState((unsigned char)iSlot, bOn);
+			pVehicle->SetComponentState((unsigned char)iSlot, bOn != 0);
 			sq_pushbool(pVM, true);
 			return 1;
 		}
@@ -910,11 +857,8 @@ SQInteger CVehicleNatives::SetComponent(SQVM * pVM)
 
 SQInteger CVehicleNatives::ResetComponents(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, 2, &vehicleId);
 	
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
@@ -931,22 +875,19 @@ SQInteger CVehicleNatives::ResetComponents(SQVM * pVM)
 
 SQInteger CVehicleNatives::GetComponents(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, 2, &vehicleId);
 	
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
 	if(pVehicle)
 	{
-		CSquirrelArguments retargs;
-
+		sq_newarray(pVM, 0);
 		for(unsigned char i = 0; i < 9; ++ i)
-			retargs.push(pVehicle->GetComponentState(i));
-
-		sq_pusharg(pVM, CSquirrelArgument(retargs, true));
+		{
+			sq_pushbool(pVM, pVehicle->GetComponentState(i));
+			sq_arrayappend(pVM, -2);
+		}
 		return 1;
 	}
 
@@ -957,18 +898,17 @@ SQInteger CVehicleNatives::GetComponents(SQVM * pVM)
 // setVehicleVariation(vehicleid, variation)
 SQInteger CVehicleNatives::SetVariation(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iVariation = arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -2, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
+		SQInteger iVariation;
+		sq_getinteger(pVM, -1, &iVariation);
 		pVehicle->SetVariation((unsigned char)iVariation);
+
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -980,11 +920,8 @@ SQInteger CVehicleNatives::SetVariation(SQVM * pVM)
 // getVehicleVariation(vehicleid)
 SQInteger CVehicleNatives::GetVariation(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, 2, &vehicleId);
 	
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
@@ -1001,18 +938,17 @@ SQInteger CVehicleNatives::GetVariation(SQVM * pVM)
 // setVehicleEngineState(vehicleid, turned_on?)
 SQInteger CVehicleNatives::SetEngineStatus(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	bool bEngineStatus = arguments.pop().GetBool();
+	EntityId vehicleId;
+	sq_getentity(pVM, -2, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
-		pVehicle->SetEngineStatus(bEngineStatus);
+		SQBool bEngineStatusx;
+		sq_getbool(pVM, -1, &bEngineStatusx);
+		pVehicle->SetEngineStatus(bEngineStatusx != 0);
+
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -1024,11 +960,8 @@ SQInteger CVehicleNatives::SetEngineStatus(SQVM * pVM)
 // getVehicleEngineState(vehicleid)
 SQInteger CVehicleNatives::GetEngineStatus(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 	
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
@@ -1044,17 +977,17 @@ SQInteger CVehicleNatives::GetEngineStatus(SQVM * pVM)
 
 SQInteger CVehicleNatives::SwitchTaxiLights(SQVM *pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	sq_getentity(pVM,-2,&vehicleId);
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	bool bToggle = arguments.pop().GetBool();
+	SQBool check;
+	sq_getbool(pVM, -1, &check);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
 	if(pVehicle)
 	{
+		bool bToggle = (check != 0);
 		pVehicle->TurnTaxiLights(bToggle);
 		sq_pushbool(pVM,true);
 		return 1;
@@ -1067,21 +1000,24 @@ SQInteger CVehicleNatives::SwitchTaxiLights(SQVM *pVM)
 // controlCarDoors
 SQInteger CVehicleNatives::ControlCar(SQVM *pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	sq_getentity(pVM,-4,&vehicleId);
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iDoor = arguments.pop().GetInteger();
-	bool bToggle = arguments.pop().GetBool();
-	float fAngle = arguments.pop().GetFloat();
+	int iDoor;
+	sq_getinteger(pVM,-3,&iDoor);
+
+	SQBool bDoor;
+	sq_getbool(pVM,-2,&bDoor);
+
+	float fAngle;
+	sq_getfloat(pVM,-1,&fAngle); 
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 	
 	if(pVehicle)
 	{
-		pVehicle->SetCarDoorAngle(iDoor, bToggle, fAngle);
-		sq_pushbool(pVM, true);
+		bool bToggle = (bDoor != 0);
+		pVehicle->SetCarDoorAngle(iDoor,bToggle,fAngle);
 		return 1;
 	}
 
@@ -1091,17 +1027,16 @@ SQInteger CVehicleNatives::ControlCar(SQVM *pVM)
 
 SQInteger CVehicleNatives::SetLights(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	bool bToggle = arguments.pop().GetBool();
+	EntityId vehicleId;
+	sq_getentity(pVM, -2, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
+		SQBool bLights;
+		sq_getbool(pVM, -1, &bLights);
+		bool bToggle = (bLights != 0);
 		pVehicle->SetLights(bToggle);
 		sq_pushbool(pVM, true);
 		return 1;
@@ -1113,17 +1048,14 @@ SQInteger CVehicleNatives::SetLights(SQVM * pVM)
 
 SQInteger CVehicleNatives::GetLights(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
-		sq_pushbool(pVM, pVehicle->GetLights());
+		sq_pushbool(pVM,pVehicle->GetLights());
 		return 1;
 	}
 
@@ -1151,18 +1083,15 @@ SQInteger CVehicleNatives::GetTaxiLights(SQVM * pVM)
 // repairVehicleWheels(vehicleid)
 SQInteger CVehicleNatives::RepairWheels(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
 		pVehicle->RepairWheels();
-		sq_pushbool(pVM, true);
+		sq_pushbool(pVM,true);
 		return 1;
 	}
 
@@ -1173,18 +1102,15 @@ SQInteger CVehicleNatives::RepairWheels(SQVM * pVM)
 // repairVehicleWindows(vehicleid)
 SQInteger CVehicleNatives::RepairWindows(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
 
 	if(pVehicle)
 	{
 		pVehicle->RepairWindows();
-		sq_pushbool(pVM, true);
+		sq_pushbool(pVM,true);
 		return 1;
 	}
 
@@ -1195,18 +1121,16 @@ SQInteger CVehicleNatives::RepairWindows(SQVM * pVM)
 // setVehicleGpsState(vehicleid, state)
 SQInteger CVehicleNatives::SetGpsState(SQVM *pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	SQBool bState;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	bool bState = arguments.pop().GetBool();
+	sq_getentity(pVM, -1, &vehicleId);
+	sq_getbool(pVM, -2, &bState);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
 	if(pVehicle)
 	{
-		pVehicle->SetVehicleGPSState(bState);
+		pVehicle->SetVehicleGPSState((bState==SQTrue?true:false));
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -1218,14 +1142,11 @@ SQInteger CVehicleNatives::SetGpsState(SQVM *pVM)
 // getVehicleGpsState(vehicleid)
 SQInteger CVehicleNatives::GetGpsState(SQVM *pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
 	if(pVehicle)
 	{
 		sq_pushbool(pVM, pVehicle->GetVehicleGPSState());
@@ -1239,18 +1160,16 @@ SQInteger CVehicleNatives::GetGpsState(SQVM *pVM)
 // setVehicleAlarm(vehicleid, alarmduration)
 SQInteger CVehicleNatives::SetAlarm(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	sq_getentity(pVM,-2, &vehicleId);
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iDuration = arguments.pop().GetInteger();
+	SQInteger iDuration;
+	sq_getinteger(pVM, -1, &iDuration);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
 	if(pVehicle)
 	{
-		pVehicle->SetAlarm(iDuration);
+		pVehicle->SetAlarm((int)iDuration);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -1263,18 +1182,17 @@ SQInteger CVehicleNatives::SetAlarm(SQVM * pVM)
 // markVehicleAsActorVehicle(vehicleid)
 SQInteger CVehicleNatives::MarkVehicle(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
+	sq_getentity(pVM,-2, &vehicleId);
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	bool bToggle = arguments.pop().GetBool();
+	SQBool bToggle;
+	sq_getbool(pVM, -1, &bToggle);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
 	if(pVehicle)
 	{
-		pVehicle->MarkVehicle(bToggle);
+		bool bSwitch = (bToggle != 0);
+		pVehicle->MarkVehicle(bSwitch);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -1286,14 +1204,10 @@ SQInteger CVehicleNatives::MarkVehicle(SQVM * pVM)
 // repairVehicle(vehicleid)
 SQInteger CVehicleNatives::RepairVehicle(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
-
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	EntityId vehicleId;
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
 	if(pVehicle)
 	{
 		pVehicle->RepairVehicle();
@@ -1308,43 +1222,45 @@ SQInteger CVehicleNatives::RepairVehicle(SQVM * pVM)
 // setVehicleDimension(vehicleid, demnsion)
 SQInteger CVehicleNatives::SetDimension(SQVM * pVM)
 {
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	SQInteger iDimension;
+	EntityId playerId;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
-	int iDimension = arguments.pop().GetInteger();
+	sq_getinteger(pVM, -1, &iDimension);
+	sq_getentity(pVM, -2, &playerId);
 	
-	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
-	if(pVehicle)
-	{
-		pVehicle->SetDimension(iDimension);
-		sq_pushbool(pVM, true);
-		return 1;
+	CVehicle* pVehicle = g_pVehicleManager->GetAt(playerId);
+	if(pVehicle == NULL) {
+		sq_pushbool(pVM, false);
+		CLogFile::Print("SetDimension failed");
+		return false;
 	}
 
-	sq_pushbool(pVM, false);
+	pVehicle->SetDimension(iDimension);
+	CBitStream bsSend;
+	bsSend.Write(playerId);
+	bsSend.Write(iDimension);
+
+	//CLogFile::Printf("Set dimension of player(%i) to %i", (int)playerId, iDimension);
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	sq_pushbool(pVM, true);
 	return 1;
 }
 
 // getVehicleDimension(vehicleid)
 SQInteger CVehicleNatives::GetDimension(SQVM * pVM)
 { 
-	// Create the arguments
-	CSquirrelArguments arguments(pVM, 2);
+	EntityId vehicleId;
 
-	// Get the parameters
-	EntityId vehicleId = (EntityId)arguments.pop().GetInteger();
+	sq_getentity(pVM, -1, &vehicleId);
 
 	CVehicle * pVehicle = g_pVehicleManager->GetAt(vehicleId);
-
 	if(pVehicle)
 	{
 		sq_pushinteger(pVM, (SQInteger)pVehicle->GetDimension());
+		CLogFile::Printf("GetDimension %i", (SQInteger)pVehicle->GetDimension());
 		return 1;
 	}
 
-	sq_pushinteger(pVM, INVALID_DIMENSION_ID);
+	sq_pushinteger(pVM, -1);
 	return 1;
 }

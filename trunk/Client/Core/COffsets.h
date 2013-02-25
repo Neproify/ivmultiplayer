@@ -38,7 +38,7 @@ public:
 	static unsigned int VAR_Ped_Factory;
 	static unsigned int FUNC_Setup_Ped;
 	static unsigned int FUNC_CPlayerPed__Constructor;
-	static unsigned int FUNC_ShutdownPedIntelligence;
+	static unsigned int FUNC_CPedIntelligence__Reset;
 	static unsigned int FUNC_CPed__ScalarDeletingDestructor;
 
 	// Game

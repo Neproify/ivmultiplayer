@@ -297,38 +297,3 @@ public:
 		return matMatrix;
 	}
 };
-
-// TODO: Class'ify in its own file
-class Matrix34
-{
-public:
-	CVector3 vecRight;      // 00-0C
-	DWORD    dwPadRight;    // 0C-10
-	CVector3 vecForward;    // 10-1C
-	DWORD    dwPadFront;    // 1C-20
-	CVector3 vecUp;         // 20-2C
-	DWORD    dwPadUp;       // 2C-30
-	CVector3 vecPosition;   // 30-3C
-	DWORD    dwPadPosition; // 3C-40
-
-	Matrix34()
-	{
-		memset(this, 0, sizeof(Matrix34));
-	}
-
-	void ToMatrix(Matrix * matMatrix) const
-	{
-		memcpy(&matMatrix->vecRight, &vecRight, sizeof(CVector3));
-		memcpy(&matMatrix->vecForward, &vecForward, sizeof(CVector3));
-		memcpy(&matMatrix->vecUp, &vecUp, sizeof(CVector3));
-		memcpy(&matMatrix->vecPosition, &vecPosition, sizeof(CVector3));
-	}
-
-	void FromMatrix(Matrix * matMatrix)
-	{
-		memcpy(&vecRight, &matMatrix->vecRight, sizeof(CVector3));
-		memcpy(&vecForward, &matMatrix->vecForward, sizeof(CVector3));
-		memcpy(&vecUp, &matMatrix->vecUp, sizeof(CVector3));
-		memcpy(&vecPosition, &matMatrix->vecPosition, sizeof(CVector3));
-	}
-};

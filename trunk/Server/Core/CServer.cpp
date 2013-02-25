@@ -9,7 +9,6 @@
 // License: See LICENSE in root directory
 //
 //==============================================================================
-// TODO: Server socket natives?
 
 #include "CServer.h"
 #include <stdarg.h>
@@ -278,7 +277,7 @@ bool CServer::OnLoad(int argc, char ** argv)
 	CCheckpointNatives::Register(g_pScriptingManager);
 
 	// Register the pickup natives
-	RegisterPickupNatives(g_pScriptingManager);
+	CPickupNatives::Register(g_pScriptingManager);
 
 	// Register the area natives
 	CAreaNatives::Register(g_pScriptingManager);

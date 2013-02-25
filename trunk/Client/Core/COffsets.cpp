@@ -19,7 +19,7 @@ unsigned int COffsets::FUNC_CPlayerPed__SetModelIndex = 0;
 unsigned int COffsets::VAR_Ped_Factory = 0;
 unsigned int COffsets::FUNC_Setup_Ped = 0;
 unsigned int COffsets::FUNC_CPlayerPed__Constructor = 0;
-unsigned int COffsets::FUNC_ShutdownPedIntelligence = 0;
+unsigned int COffsets::FUNC_CPedIntelligence__Reset = 0;
 unsigned int COffsets::FUNC_CPed__ScalarDeletingDestructor = 0;
 
 // Game
@@ -233,7 +233,7 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CPlayerPed__Constructor					= (uiBase + 0x9C1910);
 			VAR_Ped_Factory									= (uiBase + 0x15E35A0);
 			FUNC_Setup_Ped									= (uiBase + 0x43A6A0);
-			FUNC_ShutdownPedIntelligence					= (uiBase + 0x9C4DF0);
+			FUNC_CPedIntelligence__Reset					= (uiBase + 0x9C4DF0);
 			FUNC_CPed__ScalarDeletingDestructor				= (uiBase + 0x8ACAC0);
 
 			// Game
@@ -424,11 +424,6 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_CTaskComplexJump__Constructor              = (uiBase +  0xAB4D90);
 			FUNC_CTaskSimpleTriggerLookAt__Constructor      = (uiBase +  0xA20FF0);
 			FUNC_CTaskComplexPlayerOnFoot__Constructor      = (uiBase +  0x9AD950);
-
-			// aim task simple constructor = 0xA5FD80|native address = 0xB89090(param size 5)|static task select id = 35
-			// aim and walk simple constructor = 0xA0E630|native address = 0xB89F50(param size 12)|static task select id = 47
-			// shot task simple constructor = 0xA5FD80|native address = 0xB89140(param size 6)|static task select id = 36
-			// shot and walk simple constructor = 0xA0E710|native address = 0xB88F30(paran size 9)|static task select id = 33
 
 			// Weapons
 			FUNC_CPedWeapons__RemoveWeapon                  = (uiBase +  0x9ABFD0);

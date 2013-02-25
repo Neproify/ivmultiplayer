@@ -15,24 +15,24 @@ extern CPickupManager * g_pPickupManager;
 
 // Pickup functions
 
-void RegisterPickupNatives(CScriptingManager * pScriptingManager)
+void CPickupNatives::Register(CScriptingManager * pScriptingManager)
 {
-	pScriptingManager->RegisterFunction("createPickup", sq_pickup_create, 9, "iiiffffff");
-	pScriptingManager->RegisterFunction("deletePickup", sq_pickup_delete, 1, "i");
-	pScriptingManager->RegisterFunction("getPickupModel", sq_pickup_getmodel, 1, "i");
-	pScriptingManager->RegisterFunction("getPickupType", sq_pickup_gettype, 1, "i");
-	pScriptingManager->RegisterFunction("setPickupValue", sq_pickup_setvalue, 2, "ii");
-	pScriptingManager->RegisterFunction("getPickupValue", sq_pickup_getvalue, 1, "i");
-	pScriptingManager->RegisterFunction("setPickupCoordinates", sq_pickup_setcoordinates, 4, "ifff");
-	pScriptingManager->RegisterFunction("getPickupCoordinates", sq_pickup_getcoordinates, 1, "i");
-	pScriptingManager->RegisterFunction("setPickupPosition", sq_pickup_setcoordinates, 4, "ifff");
-	pScriptingManager->RegisterFunction("getPickupPosition", sq_pickup_getcoordinates, 1, "i");
-	pScriptingManager->RegisterFunction("setPickupRotation", sq_pickup_setrotation, 4, "ifff");
-	pScriptingManager->RegisterFunction("getPickupRotation", sq_pickup_getrotation, 1, "i");
+	pScriptingManager->RegisterFunction("createPickup", Create, 9, "iiiffffff");
+	pScriptingManager->RegisterFunction("deletePickup", Delete, 1, "i");
+	pScriptingManager->RegisterFunction("getPickupModel", GetModel, 1, "i");
+	pScriptingManager->RegisterFunction("getPickupType", GetType, 1, "i");
+	pScriptingManager->RegisterFunction("setPickupValue", SetValue, 2, "ii");
+	pScriptingManager->RegisterFunction("getPickupValue", GetValue, 1, "i");
+	pScriptingManager->RegisterFunction("setPickupCoordinates", SetCoordinates, 4, "ifff");
+	pScriptingManager->RegisterFunction("getPickupCoordinates", GetCoordinates, 1, "i");
+	pScriptingManager->RegisterFunction("setPickupPosition", SetCoordinates, 4, "ifff");
+	pScriptingManager->RegisterFunction("getPickupPosition", GetCoordinates, 1, "i");
+	pScriptingManager->RegisterFunction("setPickupRotation", SetRotation, 4, "ifff");
+	pScriptingManager->RegisterFunction("getPickupRotation", GetRotation, 1, "i");
 }
 
 // createPickup(modelhash, type, value?, x, y, z, rx, ry, rz)
-SQInteger sq_pickup_create(SQVM * pVM)
+SQInteger CPickupNatives::Create(SQVM * pVM)
 {
 	SQInteger modelhash, type, value;
 	float x, y, z, rx, ry, rz;
@@ -50,7 +50,7 @@ SQInteger sq_pickup_create(SQVM * pVM)
 }
 
 // deletePickup(pickupid)
-SQInteger sq_pickup_delete(SQVM * pVM)
+SQInteger CPickupNatives::Delete(SQVM * pVM)
 {
 	SQInteger pickupid;
 	sq_getinteger(pVM, -1, &pickupid);
@@ -65,7 +65,7 @@ SQInteger sq_pickup_delete(SQVM * pVM)
 }
 
 // getPickupModel(pickupid)
-SQInteger sq_pickup_getmodel(SQVM * pVM)
+SQInteger CPickupNatives::GetModel(SQVM * pVM)
 {
 	SQInteger pickupid;
 	sq_getinteger(pVM, 2, &pickupid);
@@ -79,7 +79,7 @@ SQInteger sq_pickup_getmodel(SQVM * pVM)
 }
 
 // getPickupType(pickupid)
-SQInteger sq_pickup_gettype(SQVM * pVM)
+SQInteger CPickupNatives::GetType(SQVM * pVM)
 {
 	SQInteger pickupid;
 	sq_getinteger(pVM, 2, &pickupid);
@@ -93,7 +93,7 @@ SQInteger sq_pickup_gettype(SQVM * pVM)
 }
 
 // setPickupValue(pickupid, value)
-SQInteger sq_pickup_setvalue(SQVM * pVM)
+SQInteger CPickupNatives::SetValue(SQVM * pVM)
 {
 	SQInteger pickupid;
 	sq_getinteger(pVM, 2, &pickupid);
@@ -109,7 +109,7 @@ SQInteger sq_pickup_setvalue(SQVM * pVM)
 }
 
 // getPickupValue(pickupid)
-SQInteger sq_pickup_getvalue(SQVM * pVM)
+SQInteger CPickupNatives::GetValue(SQVM * pVM)
 {
 	SQInteger pickupid;
 	sq_getinteger(pVM, 2, &pickupid);
@@ -123,7 +123,7 @@ SQInteger sq_pickup_getvalue(SQVM * pVM)
 }
 
 // setPickupCoordinates(Pickupid, x, y, z)
-SQInteger sq_pickup_setcoordinates(SQVM * pVM)
+SQInteger CPickupNatives::SetCoordinates(SQVM * pVM)
 {
 	SQInteger pickupid;
 	sq_getinteger(pVM, 2, &pickupid);
@@ -139,7 +139,7 @@ SQInteger sq_pickup_setcoordinates(SQVM * pVM)
 }
 
 // getPickupCoordinates(Pickupid)
-SQInteger sq_pickup_getcoordinates(SQVM * pVM)
+SQInteger CPickupNatives::GetCoordinates(SQVM * pVM)
 {
 	SQInteger pickupid;
 	sq_getinteger(pVM, 2, &pickupid);
@@ -164,7 +164,7 @@ SQInteger sq_pickup_getcoordinates(SQVM * pVM)
 
 
 // setPickupRotation(Pickupid, x, y, z)
-SQInteger sq_pickup_setrotation(SQVM * pVM)
+SQInteger CPickupNatives::SetRotation(SQVM * pVM)
 {
 	SQInteger pickupid;
 	sq_getinteger(pVM, 2, &pickupid);
@@ -180,7 +180,7 @@ SQInteger sq_pickup_setrotation(SQVM * pVM)
 }
 
 // getPickupRotation(Pickupid)
-SQInteger sq_pickup_getrotation(SQVM * pVM)
+SQInteger CPickupNatives::GetRotation(SQVM * pVM)
 {
 	SQInteger pickupid;
 	sq_getinteger(pVM, 2, &pickupid);

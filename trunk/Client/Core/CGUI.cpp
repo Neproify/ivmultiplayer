@@ -8,6 +8,7 @@
 //==============================================================================
 
 #include "CGUI.h"
+#include <ShlObj.h>
 #include <CLogFile.h>
 #include "CGame.h"
 #include "SharedUtility.h"
@@ -128,6 +129,12 @@ bool CGUI::Initialize()
 		rp->setResourceGroupDirectory("looknfeels", SharedUtility::GetAbsolutePath("CEGUI/looknfeel/").Get());
 		rp->setResourceGroupDirectory("schemas", SharedUtility::GetAbsolutePath("CEGUI/xml_schemas/").Get());
 		rp->setResourceGroupDirectory("resources", SharedUtility::GetAbsolutePath("clientfiles/resources/").Get());
+
+		// Register the windows fonts directory as a resource group directory
+		char strFontPath[MAX_PATH];
+
+		if(SHGetSpecialFolderPath(NULL, strFontPath, CSIDL_FONTS, FALSE))
+			rp->setResourceGroupDirectory("winfonts", strFontPath);
 
 		// Set the default resource groups to be used
 		CEGUI::Imageset::setDefaultResourceGroup("imagesets");
@@ -903,6 +910,7 @@ void CGUI::SetCursorVisible(bool bVisible)
 			// We do not hide cursor if some script shown it.
 			return;
 		}
+
 		m_pCursor->setVisible(bVisible);
 		m_bCursorChangedForMessageBox = true;
 	}
@@ -1282,7 +1290,12 @@ CEGUI::Font * CGUI::GetFont(String strFont, unsigned int uiSize, bool bScaled)
 
 		// Attempt to create the font from the client resource directory
 		try {
-			return &CEGUI::FontManager::getSingleton().createFreeTypeFont(strInternalFont.C_String(), (float)uiSize, true, strName.Get(), "resources", bScaled);
+			return &CEGUI::FontManager::getSingleton().createFreeTypeFont(strInternalFont.Get(), (float)uiSize, true, strName.Get(), "resources", bScaled);
+		} catch(CEGUI::Exception e) {}
+
+		// Attempt to create the font from the windows fonts directory
+		try {
+			return &CEGUI::FontManager::getSingleton().createFreeTypeFont(strInternalFont.Get(), (float)uiSize, true, strName.Get(), "winfonts", bScaled);
 		} catch(CEGUI::Exception e) {}
 	}
 

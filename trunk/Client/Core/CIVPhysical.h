@@ -48,7 +48,7 @@ public:
 	// 0x1D0 - Quaternion quatAttachedOffset;
 	IVEntity * m_pLastDamageEntity; // 1E4-1E8
 	PAD(IVPhysical, pad1, 0x4);     // 1E8-1EC
-	eWeaponType m_lastDamageWeapon; // 1EC-1F0 // -1: None, WeaponId: Weapon, 56-57: Special (Possibly vehicle damage?)
+	eWeaponType m_lastDamageWeapon; // 1EC-1F0 // -1: None, eWeaponType: Weapon
 	float m_fHealth;                // 1F0-1F4
 	PAD(IVPhysical, pad3, 0x1C);    // 1F4-210
 };

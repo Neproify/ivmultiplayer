@@ -37,7 +37,7 @@ bool CNetworkModule::Init()
 	// Load the net module
 	if(!m_pLibrary->Load(SharedUtility::GetAbsolutePath(NETWORK_MODULE_NAME DEBUG_SUFFIX LIBRARY_EXTENSION)))
 	{
-		//CLogFile::Printf("Failed to load network module!\n");
+		CLogFile::Printf("Failed to load network module!\n");
 		return false;
 	}
 
@@ -60,12 +60,13 @@ bool CNetworkModule::Init()
 #ifndef _LINUX
 	|| !m_pfnGetNetClientInterface || 
 		!m_pfnDestroyNetClientInterface
-	#endif
+#endif
 	)
 	{
-		//CLogFile::Printf("Net module is corrupt!\n");
+		CLogFile::Printf("Net module is invalid!\n");
 		return false;
 	}
+
 	return true;
 }
 

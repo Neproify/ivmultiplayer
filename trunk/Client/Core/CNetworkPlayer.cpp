@@ -125,6 +125,9 @@ bool CNetworkPlayer::Create()
 	// Create a context data instance for this player
 	m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
 
+	// Set game player info pointer
+	CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, m_pPlayerInfo->GetPlayerInfo());
+
 	// Allocate the player ped
 	IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();
 
@@ -147,6 +150,9 @@ bool CNetworkPlayer::Create()
 		mov ecx, pPlayerPed
 		call COffsets::FUNC_CPlayerPed__Constructor
 	}
+
+	if(!pPlayerPed)
+		return false;
 
 	/*
 	void SetupPed(CMatrix * pMatrix<edi>, CPed * pPed<esi>, int iModelIndex)
@@ -183,10 +189,22 @@ bool CNetworkPlayer::Create()
 		call COffsets::FUNC_Setup_Ped
 	}
 
-	if(!pPlayerPed)
-		return false;
+	// Set our player info ped pointer
+	m_pPlayerInfo->SetPlayerPed(pPlayerPed);
 
-	*(DWORD *)(pPlayerPed + 0x260) |= 1u;
+	// Set our player info state
+	m_pPlayerInfo->GetPlayerInfo()->m_dwState = 2;
+
+	SET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
+
+	// Set our player peds player info pointer
+	pPlayerPed->m_pPlayerInfo = m_pPlayerInfo->GetPlayerInfo();
+
+	// Create player ped instance
+	m_pPlayerPed = new CIVPlayerPed(pPlayerPed);
+
+	// Set the context data player ped pointer
+	m_pContextData->SetPlayerPed(m_pPlayerPed);
 
 	/*
 	pPlayerPed->m_byteCreatedBy = 2;
@@ -202,21 +220,6 @@ bool CNetworkPlayer::Create()
 		mov ecx, pPlayerPed
 		call COffsets::FUNC_SetupPedIntelligence
 	}
-
-	// Set our player info ped pointer
-	m_pPlayerInfo->SetPlayerPed(pPlayerPed);
-
-	// Set our player peds player info pointer
-	pPlayerPed->m_pPlayerInfo = m_pPlayerInfo->GetPlayerInfo();
-
-	// Set game player info pointer
-	CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, m_pPlayerInfo->GetPlayerInfo());
-
-	// Create player ped instance
-	m_pPlayerPed = new CIVPlayerPed(pPlayerPed);
-
-	// Set the context data player ped pointer
-	m_pContextData->SetPlayerPed(m_pPlayerPed);
 
 	// Add to world
 	m_pPlayerPed->AddToWorld();
@@ -273,10 +276,10 @@ void CNetworkPlayer::Destroy()
 			{
 				push 0
 				mov ecx, pPedIntelligence
-				call COffsets::FUNC_ShutdownPedIntelligence
+				call COffsets::FUNC_CPedIntelligence__Reset
 			}
 
-			*(DWORD *)(pPlayerPed + 0x260) &= 0xFFFFFFFE;
+			UNSET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
 
 			// Remove the player ped from the world
 			m_pPlayerPed->RemoveFromWorld();
