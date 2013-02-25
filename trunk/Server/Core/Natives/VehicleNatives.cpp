@@ -87,7 +87,7 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 	CVector3 vecPosition;
 	CVector3 vecRotation;
 	SQInteger respawn_delay = -1;
-	SQInteger color1, color2, color3 = 0, color4 = 0;
+	SQInteger color1 = 0, color2 = 0, color3 = 0, color4 = 0;
 	sq_getinteger(pVM, 2, &iModelId);
 
 	if(iModelId < 0 || iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111 || iModelId > 123)
@@ -99,23 +99,24 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 		return 1;
 	}
 	
-	sq_getvector3(pVM, 3, &vecPosition); // 3..5
+	sq_getvector3(pVM, 3, &vecPosition); // 3.4.5
 	
-	if(sq_gettop(pVM) >= 6)
+	if(sq_gettop(pVM) >= 8)
 	{
-		sq_getvector3(pVM, 6, &vecRotation); // 6..8
+		sq_getvector3(pVM, 6, &vecRotation); // 6.7.8
 
-		if(sq_gettop(pVM) >= 12)
+		if(sq_gettop(pVM) >= 10)
 		{
 			sq_getinteger(pVM, 9, &color1);
 			sq_getinteger(pVM, 10, &color2);
-			sq_getinteger(pVM, 11, &color3);
-			sq_getinteger(pVM, 12, &color4);
 
-			if(sq_gettop(pVM) >= 13)
+			if(sq_gettop(pVM) >= 12)
 			{
-				sq_getinteger(pVM, 13, &respawn_delay);
-				//CLogFile::Printf("Set respawn_delay to (%i)", respawn_delay);
+				sq_getinteger(pVM, 11, &color3);
+				sq_getinteger(pVM, 12, &color4);
+
+				if(sq_gettop(pVM) >= 13)
+					sq_getinteger(pVM, 13, &respawn_delay);
 			}
 		}
 	}
