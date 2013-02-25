@@ -11,15 +11,20 @@
 
 #include "../Natives.h"
 
-void RegisterPickupNatives(CScriptingManager * pScriptingManager);
+class CPickupNatives
+{
+private:
+	static SQInteger Create(SQVM * pVM);
+	static SQInteger Delete(SQVM * pVM);
+	static SQInteger GetModel(SQVM * pVM);
+	static SQInteger GetType(SQVM * pVM);
+	static SQInteger SetValue(SQVM * pVM);
+	static SQInteger GetValue(SQVM * pVM);
+	static SQInteger SetCoordinates(SQVM * pVM);
+	static SQInteger GetCoordinates(SQVM * pVM);
+	static SQInteger SetRotation(SQVM * pVM);
+	static SQInteger GetRotation(SQVM * pVM);
 
-SQUIRREL_FUNCTION(pickup_create);
-SQUIRREL_FUNCTION(pickup_delete);
-SQUIRREL_FUNCTION(pickup_getmodel);
-SQUIRREL_FUNCTION(pickup_gettype);
-SQUIRREL_FUNCTION(pickup_setvalue);
-SQUIRREL_FUNCTION(pickup_getvalue);
-SQUIRREL_FUNCTION(pickup_setcoordinates);
-SQUIRREL_FUNCTION(pickup_getcoordinates);
-SQUIRREL_FUNCTION(pickup_setrotation);
-SQUIRREL_FUNCTION(pickup_getrotation);
+public:
+	static void      Register(CScriptingManager * pScriptingManager);
+};

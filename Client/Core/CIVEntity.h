@@ -72,37 +72,41 @@ class IVEntity
 {
 public:
 	IVEntityVFTable * m_VFTable; // 00-04
-	// 0x8 = DWORD
-	PAD(IVEntity, pad0, 0xC);    // 04-10
+	DWORD field_4;               // 04-08
+	DWORD field_8;               // 08-0C
+	DWORD field_C;               // 0C-10
 	CVector3 m_vecPosition;      // 10-1C
 	float m_fHeading;            // 1C-20
 	Matrix34 * m_pMatrix;        // 20-24
 	DWORD m_dwFlags1;            // 24-28 - Bits 0: has collision model, 1: use collision, 3: don't load collisions, 4: fixed, 5: is visible, 8: fixed waiting for collision, 12: draw last, 32: visible
 	DWORD m_dwFlags2;            // 28-2C - Bits 2: lights, 21: on fire
-	WORD m_w2C;                  // 2C-2E
+	WORD field_2C;               // 2C-2E
 	WORD m_wModelIndex;          // 2E-30
 	IVEntity * m_pReferences;    // 30-34
 	DWORD m_pLivery;             // 34-38 - Not sure about this, all i know is ((ent + 0x34) + 0xD8) = vehicle livery
 	DWORD m_pPhysics;            // 38-3C
-	// 0x3C = DWORD
-	// 0x40 = BYTE
-	// 0x41 = BYTE
-	// 0x42 = WORD
-	// 0x44 = WORD
-	PAD(IVEntity, pad3, 0xC);    // 3C-48
-	DWORD m_hInterior;           // 48-4C - Handle to current interior instance in the interior instance pool
-	PAD(IVEntity, pad4, 0x17);   // 4C-63
-	// 0x4C = DWORD
-	// 0x58 = DWORD
-	// 0x5C = WORD
-	// 0x5E = WORD
-	// 0x60 = BYTE
-	// 0x61 = BYTE
-	// 0x62 = BYTE
+	DWORD field_3C;              // 3C-40
+	BYTE field_40;               // 40-41
+	BYTE field_41;               // 41-42
+	WORD field_42;               // 42-44
+	WORD field_44;               // 48-46
+	BYTE field_46;               // 46-47
+	BYTE field_47;               // 47-48
+	DWORD m_dwInteriorHandle;    // 48-4C - Handle to current interior instance in the interior instance pool
+	DWORD field_4C;              // 4C-50
+	DWORD field_50;              // 50-54
+	DWORD field_54;              // 54-58
+	DWORD field_58;              // 58-5C
+	WORD field_5C;               // 5C-5E
+	WORD field_5E;               // 5E-60
+	BYTE field_60;               // 60-61
+	BYTE field_61;               // 61-62
+	BYTE field_62;               // 62-63
 	BYTE m_byteAlpha;            // 63-64
-	PAD(IVEntity, pad5, 0x8);    // 64-6C
-	DWORD m_dwNetObject;         // 6C-70
-	PAD(IVEntity, pad6, 0x4);    // 70-74
+	DWORD field_64;              // 64-68
+	DWORD field_68;              // 68-6C
+	DWORD m_pNetworkObject;      // 6C-70
+	DWORD field_70;              // 70-74
 };
 
 class CIVEntity

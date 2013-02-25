@@ -39,8 +39,8 @@ void CScriptVM__Process()
 		CSimpleCollection<GtaThread> * pThreads = (CSimpleCollection<GtaThread> *)COffsets::VAR_ScrVM__ThreadPool;
 
 		// Set the current script count and script thread pool size to 0
-		pThreads->Size = 0;
-		pThreads->Count = 0;
+		pThreads->usSize = 0;
+		pThreads->usCount = 0;
 
 		// Set the current script thread to ourselves
 		*(GtaThread **)COffsets::VAR_ScrVM__ActiveThread = m_pScriptThread;

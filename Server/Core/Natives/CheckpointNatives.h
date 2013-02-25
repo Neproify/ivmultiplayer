@@ -32,5 +32,5 @@ private:
 	static SQInteger GetDimension(SQVM * pVM);
 
 public:
-	static void Register(CScriptingManager * pScriptingManager);
+	static void      Register(CScriptingManager * pScriptingManager);
 };

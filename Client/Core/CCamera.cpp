@@ -160,7 +160,7 @@ void CCamera::GetLookAt(CVector3& vecLookAt)
 	CVector3 vecCamLookAt;
 
 	pGameCam->GetPosition(vecCamPosition);
-	vecCamForward = pGameCam->GetCam()->m_data1.m_matMatrix.vecForward;
+	pGameCam->GetCam()->m_data1.m_matMatrix.vecForward.ToVector3(vecCamForward);
 	vecCamLookAt.fX = vecCamPosition.fX + /*floatmul(*/vecCamForward.fX/*, fScale)*/;
 	vecCamLookAt.fY = vecCamPosition.fY + /*floatmul(*/vecCamForward.fY/*, fScale)*/;
 	vecCamLookAt.fZ = vecCamPosition.fZ + /*floatmul(*/vecCamForward.fZ/*, fScale)*/;
