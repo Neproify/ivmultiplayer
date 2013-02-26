@@ -92,13 +92,13 @@
 typedef unsigned short EntityId;
 
 // Define used for invalid entity ids
-#define INVALID_ENTITY_ID 0xFFFF
+#define INVALID_ENTITY_ID (EntityId)0xFFFF
 
 // Type used for dimension ids
 typedef unsigned char DimensionId;
 
 // Define used for invalid dimension ids
-#define INVALID_DIMENSION_ID 0xFF
+#define INVALID_DIMENSION_ID (DimensionId)0xFF
 
 // The Triangle Camera Coordinates
 #define TRIANGLE_CAMERA_POS_OLD -230.82f, 287.53f, 69.43f

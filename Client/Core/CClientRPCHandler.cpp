@@ -955,25 +955,17 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 		}
 		else
 		{
-			/* Serverside
-				bsSend.Write(m_iModelId);
-				bsSend.Write(m_bHelmet);
-				bsSend.Write(m_vecPosition);
-				bsSend.Write(m_fHeading);
-			Serverside end */
-
 			int iModelId;
 			bool bHelmet;
-			CVector3 vecSpawnPos;
+			CVector3 vecPosition;
 			float fHeading;
-
 			EntityId vehicleId;
 
 			pBitStream->Read(iModelId);
 			pBitStream->Read(bHelmet);
-			pBitStream->Read(vecSpawnPos);
+			pBitStream->Read(vecPosition);
 			pBitStream->Read(fHeading);
-
+			pBitStream->ReadCompressed(vehicleId);
 
 			// Reset health to 200(IV Health + 100), otherwise player is "dead"
 			pPlayer->SetHealth(200);
@@ -982,55 +974,37 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pPlayer->ClearDieTask();
 
 			// Spawn player
-			pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
-
-			DWORD dwModelHash = SkinIdToModelHash(iModelId);
-			if(pPlayer)
-			{
-				CNetworkVehicle * pVehicle = NULL;
-				BYTE byteVehicleSeatId = -1;
-
-				if(pPlayer->IsLocalPlayer() && pPlayer->IsInVehicle())
-				{
-					pVehicle = pPlayer->GetVehicle();
-					byteVehicleSeatId = pPlayer->GetVehicleSeatId();
-				}
-
-				pPlayer->SetModel(dwModelHash);
-
-				if(pPlayer->IsLocalPlayer())
-				{
-					if(pVehicle != NULL)
-						pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
-				}
-				else
-					pPlayer->Init();
-			}
+			pPlayerManager->Spawn(playerId, iModelId, vecPosition, fHeading);
 
 			// Is there a helmet?
 			if(bHelmet)
 				pPlayer->GiveHelmet();
 
-			pBitStream->Read(vehicleId);
+			// Do they have a vehicle?
 			CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
-			// Is the player driver or passenger?
 			if(pVehicle)
 			{
-				BYTE byteVehicleSeatId;
+				// Read the seat id
+				BYTE byteVehicleSeatId = -1;
 				pBitStream->Read(byteVehicleSeatId);
+
+				// Put them in the vehicle
 				pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
 			}
 
-			// Custom clothing
+			// Do we have custom clothing?
 			if(pBitStream->ReadBit())
 			{
 				unsigned char ucClothes = 0;
 
 				for(unsigned char uc = 0; uc < 11; ++ uc)
 				{
+					// Read the clothing item
 					pBitStream->Read(ucClothes);
-					pPlayerManager->GetAt(playerId)->SetClothes(uc, ucClothes);
+
+					// Set the players clothes
+					pPlayer->SetClothes(uc, ucClothes);
 				}
 			}
 		}
@@ -1632,27 +1606,9 @@ void CClientRPCHandler::ScriptingSetModel(CBitStream * pBitStream, CPlayerSocket
 	DWORD dwModelHash = SkinIdToModelHash(iModelId);
 
 	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
 	if(pPlayer)
-	{
-		CNetworkVehicle * pVehicle = NULL;
-		BYTE byteVehicleSeatId = -1;
-
-		if(pPlayer->IsLocalPlayer() && pPlayer->IsInVehicle())
-		{
-			pVehicle = pPlayer->GetVehicle();
-			byteVehicleSeatId = pPlayer->GetVehicleSeatId();
-		}
-
 		pPlayer->SetModel(dwModelHash);
-
-		if(pPlayer->IsLocalPlayer())
-		{
-			if(pVehicle != NULL)
-				pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
-		}
-		else
-			pPlayer->Init();
-	}
 }
 
 void CClientRPCHandler::ScriptingToggleControls(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

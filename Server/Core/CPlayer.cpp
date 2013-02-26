@@ -162,11 +162,11 @@ void CPlayer::SpawnForPlayer(EntityId playerId)
 
 	if(m_pVehicle)
 	{
-		bsSend.Write(m_pVehicle->GetVehicleId());
+		bsSend.WriteCompressed(m_pVehicle->GetVehicleId());
 		bsSend.Write(m_byteVehicleSeatId);
 	}
 	else
-		bsSend.Write(INVALID_ENTITY_ID);
+		bsSend.WriteCompressed(INVALID_ENTITY_ID);
 
 	bool bModifiedClothing = false;
 
