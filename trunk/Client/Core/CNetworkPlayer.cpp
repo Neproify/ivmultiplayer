@@ -41,7 +41,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	m_uiPlayerBlipHandle(NULL),
 	m_bHelmet(false),
 	m_bUseMobilePhone(false),
-	m_bUseCustomClothesOnSpawn(false)
+	m_bHasCustomClothes(false)
 	
 {
 	m_interp.pos.ulFinishTime = 0;
@@ -224,11 +224,6 @@ bool CNetworkPlayer::Create()
 	// Add to world
 	m_pPlayerPed->AddToWorld();
 
-	// jenksta: wtf is this doing here??
-	// Delete player helemt
-	m_bHelmet = false;
-	SetHelmet(m_bHelmet);
-
 	// Flag as spawned
 	m_bSpawned = true;
 
@@ -244,19 +239,9 @@ bool CNetworkPlayer::Create()
 	if(pTask)
 		pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
 
-	// Remember that we might have clothes
-	m_bUseCustomClothesOnSpawn = true;
-
 	// Reset interpolation
 	ResetInterpolation();
 	return true;
-}
-
-void CNetworkPlayer::Init()
-{
-	THIS_CHECK(__FUNCTION__);
-	// Set again model
-	//SetModel(m_pModelInfo->GetHash());
 }
 
 void CNetworkPlayer::Destroy()
@@ -329,10 +314,20 @@ void CNetworkPlayer::Destroy()
 void CNetworkPlayer::StreamIn()
 {
 	THIS_CHECK(__FUNCTION__);
+
 	if(Create())
 	{
 		SetPosition(m_vecPos);
 		SetHealth(m_uiHealth);
+		SetHelmet(m_bHelmet);
+
+		// Do we have any custom clothes?
+		if(m_bHasCustomClothes)
+		{
+			// Set our custom clothes
+			for(unsigned char u = 0; u < 11; u++)
+				SetClothes(u, m_ucClothes[u]);
+		}
 	}
 }
 
@@ -342,7 +337,10 @@ void CNetworkPlayer::StreamOut()
 
 	// Check if the camera is attached to our player
 	if(g_pClient->GetLocalPlayer()->IsCameraAttachedToEntity(GetScriptingHandle()))
+	{
+		CLogFile::Printf("Stream out on player that camera is attached to!");
 		return;
+	}
 
 	GetPosition(m_vecPos);
 	m_uiHealth = GetHealth();
@@ -634,18 +632,22 @@ unsigned int CNetworkPlayer::GetScriptingHandle()
 void CNetworkPlayer::SetModel(DWORD dwModelHash)
 {
 	THIS_CHECK(__FUNCTION__);
-	CLogFile::PrintDebugf("SETMODEL %p | PlayerId: %d",dwModelHash,m_playerId);
 
 	// Get the model index from the model hash
 	int iModelIndex = CGame::GetStreaming()->GetModelIndexFromHash(dwModelHash);
 
 	// Do we have an invalid model index?
 	if(iModelIndex == -1)
+	{
+		CLogFile::Printf("Invalid model hash 0x%x for player %d.", dwModelHash, m_playerId);
 		return;
+	}
 
 	// Has the model not changed?
 	if(m_pModelInfo->GetIndex() == iModelIndex)
 		return;
+
+	CLogFile::PrintDebugf("Setting player %d model to %d.", m_playerId, iModelIndex);
 
 	// Get the new model info
 	CIVModelInfo * pNewModelInfo = CGame::GetModelInfo(iModelIndex);
@@ -686,6 +688,9 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			for(unsigned int i = 0; i < WEAPON_SLOT_MAX; i++)
 				GetWeaponInSlot(i, uiWeaponInfo[i][0], uiWeaponInfo[i][1]);
 
+			CNetworkVehicle * pVehicle = GetVehicle();
+			BYTE byteVehicleSeatId = GetVehicleSeatId();
+
 			Scripting::ChangePlayerModel(m_byteGamePlayerNumber, (Scripting::eModel)dwModelHash);
 			m_pPlayerPed->SetPed(m_pPlayerInfo->GetPlayerPed());
 			SetHealth(uiHealth);
@@ -703,29 +708,19 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 
 			SetCurrentWeapon(uiCurrentWeapon);
 			SetAmmoInClip(uiAmmoInClip);
+
+			if(pVehicle && pVehicle->IsStreamedIn())
+				PutInVehicle(pVehicle, byteVehicleSeatId);
 		}
 		// End hacky code that needs to be changed
 
 		// Do we not have any custom clothes?
-		if(!m_bUseCustomClothesOnSpawn)
+		if(m_bHasCustomClothes)
 		{
-			// Set the default clothes variation
-			Scripting::SetCharDefaultComponentVariation(GetScriptingHandle());
-
 			// Reset our clothes
+			Scripting::SetCharDefaultComponentVariation(GetScriptingHandle());
 			memset(&m_ucClothes, 0, sizeof(m_ucClothes));
-		}
-		else // We have custom clothes
-		{
-			// Set our clothes
-			for(unsigned char uc = 0; uc < 11; ++uc)
-				SetClothes(uc, m_ucClothes[uc]);
-
-			// Flag ourselves as not having custom clothes
-			// jenksta: why does this reset here, surely if we have custom clothes
-			// we only want to reset them if the scripter requests it or if we change
-			// our model?
-			m_bUseCustomClothesOnSpawn = false;
+			m_bHasCustomClothes = false;
 		}
 	}
 }
@@ -825,8 +820,10 @@ void CNetworkPlayer::SetCurrentHeading(float fHeading)
 	THIS_CHECK(__FUNCTION__);
     if(IsSpawned())
     {
-            m_pPlayerPed->SetCurrentHeading(Math::ConvertDegreesToRadians(fHeading));
-            SetDesiredHeading(fHeading);
+		float fHeadingRadians = Math::ConvertDegreesToRadians(fHeading);
+		m_pPlayerPed->SetCurrentHeading(fHeadingRadians);
+		SetDesiredHeading(fHeading);
+		m_pPlayerPed->SetHeading(fHeadingRadians);
     }
 }
 
@@ -1583,6 +1580,7 @@ void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothe
 					//CLogFile::Printf(__FILE__,__LINE__,"CNetworkPlayer::SetClothes body: %d variat: %d text: %d", ucBodyPart, uiDrawable, uiTexture);
 					Scripting::SetCharComponentVariation(GetScriptingHandle(), (Scripting::ePedComponent)ucBodyPart, uiDrawable, uiTexture);
 					m_ucClothes[ucBodyPart] = ucClothes;
+					m_bHasCustomClothes = true;
 					return;
 				}
 
@@ -1595,7 +1593,10 @@ void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothe
 		m_ucClothes[ucBodyPart] = 0;
 	}
 	else
+	{
 		m_ucClothes[ucBodyPart] = ucClothes;
+		m_bHasCustomClothes = true;
+	}
 }
 
 unsigned char CNetworkPlayer::GetClothes(unsigned char ucBodyPart)

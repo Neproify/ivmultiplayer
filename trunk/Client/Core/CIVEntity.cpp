@@ -98,6 +98,19 @@ void CIVEntity::GetPosition(CVector3& vecPosition)
 	}
 }
 
+void CIVEntity::SetHeading(float fHeading)
+{
+	if(m_pEntity)
+	{
+		DWORD dwFunc = m_pEntity->m_VFTable->SetHeading;
+		_asm
+		{
+			push fHeading
+			call dwFunc
+		}
+	}
+}
+
 void CIVEntity::SetRoll(const CVector3& vecRoll)
 {
 #ifdef EXT_LOG

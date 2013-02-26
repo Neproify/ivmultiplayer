@@ -62,7 +62,7 @@ private:
 		} rot;
 	}                 m_interp;
 	unsigned char     m_ucClothes[11];
-	bool              m_bUseCustomClothesOnSpawn;
+	bool              m_bHasCustomClothes;
 	CControlState     m_previousControlState;
 	CControlState     m_currentControlState;
 	CVector3          m_vecAimTarget;
@@ -111,7 +111,6 @@ public:
 	void                     SetPing(unsigned short usPing) { m_usPing = usPing; }
 	unsigned short           GetPing() { return m_usPing; }
 	virtual bool             Create();
-	virtual void             Init();
 	virtual void             Destroy();
 
 	//
@@ -149,8 +148,6 @@ public:
 
 	void                     SetCurrentHeading(float fHeading);
 	float                    GetCurrentHeading();
-
-	void					 SetCurrentSyncHeading(float fHeading);
 
 	void                     SetDesiredHeading(float fHeading);
 	float                    GetDesiredHeading();

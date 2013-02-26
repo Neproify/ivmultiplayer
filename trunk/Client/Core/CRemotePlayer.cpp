@@ -53,6 +53,7 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 			m_bIsStreamedIn = true;*/
 	}
 
+	SetModel(SkinIdToModelHash(iModelId));
 	Teleport(vecSpawnPos);
 	SetCurrentHeading(fSpawnHeading);
 	Init();

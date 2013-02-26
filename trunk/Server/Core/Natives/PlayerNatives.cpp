@@ -1853,14 +1853,16 @@ SQInteger CPlayerNatives::GetPing(SQVM* pVM)
 
 SQInteger CPlayerNatives::SetClothes(SQVM * pVM)
 {
-	SQInteger iPlayerId, iBodyPart, iClothes;
-	sq_getinteger(pVM, 2, &iPlayerId);
+	SQInteger playerId, iBodyPart, iClothes;
+	sq_getinteger(pVM, 2, &playerId);
 	sq_getinteger(pVM, 3, &iBodyPart);
 	sq_getinteger(pVM, 4, &iClothes);
 
-	if(g_pPlayerManager->DoesExist(iPlayerId) && iBodyPart >= 0 && iBodyPart <= 10 && iClothes >= 0 && iClothes <= 255)
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer && (iBodyPart >= 0 && iBodyPart <= 10) && (iClothes >= 0 && iClothes <= 255))
 	{
-		g_pPlayerManager->GetAt(iPlayerId)->SetClothes((unsigned char)iBodyPart, (unsigned char)iClothes);
+		pPlayer->SetClothes((unsigned char)iBodyPart, (unsigned char)iClothes);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
