@@ -1,6 +1,7 @@
 @echo off
 SET /P VERSION=Please enter the IV:MP version (No spaces/invalid filename chars!): 
 7z a IVMP-%VERSION%-Server.zip ../Binary/ivmp-svr.exe
+7z a IVMP-%VERSION%-Server.zip ../Binary/Server.Core.dll
 7z a IVMP-%VERSION%-Server.zip ../Binary/Network.Core.dll
 7z a IVMP-%VERSION%-Server.zip ../Binary/settings.xml
 7z a -xr!?svn\ IVMP-%VERSION%-Server.zip ../Binary/files
