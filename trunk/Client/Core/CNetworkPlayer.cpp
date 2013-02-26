@@ -700,8 +700,9 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 
 			for(unsigned int i = 0; i < WEAPON_SLOT_MAX; i++)
 			{
+				// jenksta: remember to re-enable the + uiAmmoInClip when using reversed GiveWeapon code.
 				if(uiWeaponInfo[i][0] == uiCurrentWeapon)
-					GiveWeapon(uiWeaponInfo[i][0], (uiWeaponInfo[i][1] + uiAmmoInClip));
+					GiveWeapon(uiWeaponInfo[i][0], (uiWeaponInfo[i][1]/* + uiAmmoInClip*/));
 				else
 					GiveWeapon(uiWeaponInfo[i][0], uiWeaponInfo[i][1]);
 			}

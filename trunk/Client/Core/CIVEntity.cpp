@@ -102,10 +102,12 @@ void CIVEntity::SetHeading(float fHeading)
 {
 	if(m_pEntity)
 	{
+		IVEntity * pEntity = m_pEntity;
 		DWORD dwFunc = m_pEntity->m_VFTable->SetHeading;
 		_asm
 		{
 			push fHeading
+			mov ecx, pEntity
 			call dwFunc
 		}
 	}
@@ -154,11 +156,13 @@ void CIVEntity::SetModelIndex(WORD wModelIndex)
 #endif
 	if(m_pEntity)
 	{
+		IVEntity * pEntity = m_pEntity;
 		DWORD dwFunc = m_pEntity->m_VFTable->SetModelIndex;
 		int iModelIndex = wModelIndex;
 		_asm
 		{
 			push /*w*/iModelIndex
+			mov ecx, pEntity
 			call dwFunc
 			add esp, 4
 		}
