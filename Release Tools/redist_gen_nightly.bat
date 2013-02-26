@@ -11,6 +11,7 @@ cd "Release Tools"
 
 
 7z a IVMP-%VERSION%-Server.zip ../Binary/ivmp-svr.exe
+7z a IVMP-%VERSION%-Server.zip ../Binary/Server.Core.dll
 7z a IVMP-%VERSION%-Server.zip ../Binary/Network.Core.dll
 7z a IVMP-%VERSION%-Server.zip ../Binary/settings.xml
 7z a -xr!?svn\ IVMP-%VERSION%-Server.zip ../Binary/files
