@@ -19,8 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-char* itoa(int value, char* str, int radix);
-#define _itoa itoa
 #endif
 
 const unsigned int String::nPos = (unsigned int)-1;
@@ -377,7 +375,8 @@ int String::ToInteger() const
 void String::FromInteger(int iValue)
 {
 	char szBuffer[64];
-	Set(_itoa(iValue, szBuffer, 10));
+	sprintf(szBuffer, "%i", iValue);
+	Set(szBuffer);
 }
 
 float String::ToFloat() const
