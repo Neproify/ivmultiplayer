@@ -56,7 +56,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor\bass; ..\..\Vendor;..\..\Vendor\Squirrel;..\..\Client\Core\EA;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor\bass;..\..\Vendor;..\..\Vendor\Squirrel;..\..\Client\Core\EA;..\..\Vendor\libcurl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -68,10 +68,10 @@
       <DisableSpecificWarnings>4996;4409;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat_d.lib;pcre_d.lib;SILLY_d.lib;freetype_d.lib;libjpeg_d.lib;libpng_d.lib;zlib_d.lib;CEGUIBase_d.lib;CEGUIDirect3D9Renderer_d.lib;CEGUIExpatParser_d.lib;CEGUIFalagardWRBase_d.lib;CEGUISILLYImageCodec_d.lib;version.lib;bass.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/ignore:4099 /nodefaultlib:libcmtd.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat_d.lib;pcre_d.lib;SILLY_d.lib;freetype_d.lib;libjpeg_d.lib;libpng_d.lib;zlib_d.lib;CEGUIBase_d.lib;CEGUIDirect3D9Renderer_d.lib;CEGUIExpatParser_d.lib;CEGUIFalagardWRBase_d.lib;CEGUISILLYImageCodec_d.lib;version.lib;bass.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)\$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>.\CEGUI\lib\;..\..\Vendor\lib\static;..\..\Vendor\expat-2.0.1\bin\Debug;..\..\Vendor\bass;..\..\Vendor\lpng142\projects\Debug;..\..\Vendor\zlib-1.2.5\projects\Debug;..\..\Vendor\jpeg-6b\projects\Debug;..\..\Vendor\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\CEGUI\lib\;..\..\Vendor\lib\static;..\..\Vendor\expat-2.0.1\bin\Debug;..\..\Vendor\bass;..\..\Vendor\lpng142\projects\Debug;..\..\Vendor\zlib-1.2.5\projects\Debug;..\..\Vendor\jpeg-6b\projects\Debug;..\..\Vendor\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;..\..\Vendor\libcurl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
@@ -91,7 +91,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor;..\..\Vendor\Squirrel;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor;..\..\Vendor\Squirrel;..\..\Vendor\libcurl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -106,10 +106,10 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat.lib;pcre.lib;SILLY.lib;freetype.lib;libjpeg.lib;libpng.lib;zlib.lib;CEGUIBase.lib;CEGUIDirect3D9Renderer.lib;CEGUIExpatParser.lib;CEGUIFalagardWRBase.lib;CEGUISILLYImageCodec.lib;version.lib;bass.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/ignore:4099 /nodefaultlib:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>winmm.lib;d3dx9.lib;ws2_32.lib;comctl32.lib;dinput8.lib;dxguid.lib;libexpat.lib;pcre.lib;SILLY.lib;freetype.lib;libjpeg.lib;libpng.lib;zlib.lib;CEGUIBase.lib;CEGUIDirect3D9Renderer.lib;CEGUIExpatParser.lib;CEGUIFalagardWRBase.lib;CEGUISILLYImageCodec.lib;version.lib;bass.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)\$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>.\CEGUI\lib\;..\..\Vendor\lib\static;..\..\Vendor\expat-2.0.1\bin\Release;..\..\Vendor\lpng142\projects\Release;..\..\Vendor\zlib-1.2.5\projects\Release;..\..\Vendor\jpeg-6b\projects\Release;..\..\Vendor\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;..\..\Vendor\bass\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\CEGUI\lib\;..\..\Vendor\lib\static;..\..\Vendor\expat-2.0.1\bin\Release;..\..\Vendor\lpng142\projects\Release;..\..\Vendor\zlib-1.2.5\projects\Release;..\..\Vendor\jpeg-6b\projects\Release;..\..\Vendor\SILLY-0.1.0\bin;..\..\Vendor\DXSDK\Lib;..\..\Vendor\bass;..\..\Vendor\libcurl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>

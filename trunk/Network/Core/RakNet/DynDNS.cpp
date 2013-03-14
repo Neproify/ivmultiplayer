@@ -2,7 +2,7 @@
 #if _RAKNET_SUPPORT_DynDNS==1 && _RAKNET_SUPPORT_TCPInterface==1
 
 #include "TCPInterface.h"
-#include "SocketLayer.h"
+#include "RakNetSocket2.h"
 #include "DynDNS.h"
 #include "GetTime.h"
 #include "Base64Encoder.h"
@@ -205,8 +205,10 @@ void DynDNS::Update(void)
 				myIp.FromString(result);
 				myIp.ToString(false, myIPStr);
 
+				char existingHost[65];
+				existingHost[0]=0;
 				// Resolve DNS we are setting. If equal to current then abort
-				const char *existingHost = ( char* ) SocketLayer::DomainNameToIP( host.C_String() );
+				RakNetSocket2::DomainNameToIP(host.C_String(), existingHost);
 				if (existingHost && strcmp(existingHost, myIPStr)==0)
 				{
 					// DynDNS considers setting the IP to what it is already set abuse

@@ -124,7 +124,7 @@ static const unsigned int MAX_OFFLINE_DATA_LENGTH=400; // I set this because I l
 #pragma warning(disable:4309) // 'initializing' : truncation of constant value
 #endif
 // Make sure highest bit is 0, so isValid in DatagramHeaderFormat is false
-static const char OFFLINE_MESSAGE_DATA_ID[16]={0x00,0xFF,0xFF,0x00,0xFE,0xFE,0xFE,0xFE,0xFD,0xFD,0xFD,0xFD,0x12,0x34,0x56,0x78};
+static const unsigned char OFFLINE_MESSAGE_DATA_ID[16]={0x00,0xFF,0xFF,0x00,0xFE,0xFE,0xFE,0xFE,0xFD,0xFD,0xFD,0xFD,0x12,0x34,0x56,0x78};
 
 struct PacketFollowedByData
 {
@@ -207,6 +207,7 @@ RakPeer::RakPeer()
 	bytesSentPerSecond = bytesReceivedPerSecond = 0;
 	endThreads = true;
 	isMainLoopThreadActive = false;
+	incomingDatagramEventHandler=0;
 
 
 
@@ -363,9 +364,9 @@ StartupResult RakPeer::Startup( unsigned int maxConnections, SocketDescriptor *s
 
 	// Fill out ipList structure
 	unsigned int i;
-
+#if  !defined(WINDOWS_STORE_RT)
 	RakNetSocket2::GetMyIP( ipList );
-
+#endif
 
 	if (myGuid==UNASSIGNED_RAKNET_GUID)
 	{
@@ -449,6 +450,15 @@ StartupResult RakPeer::Startup( unsigned int maxConnections, SocketDescriptor *s
 		ncbp.port=socketDescriptors[i].port;
 		nativeClientSocket->Bind(&ncbp, _FILE_AND_LINE_);
 		#elif defined(WINDOWS_STORE_RT)
+		RNS2BindResult br;
+		((RNS2_WindowsStore8*) r2)->SetRecvEventHandler(this);
+		br = ((RNS2_WindowsStore8*) r2)->Bind(ref new Platform::String());
+		if (br!=BR_SUCCESS)
+		{
+			RakNetSocket2Allocator::DeallocRNS2(r2);
+			DerefAllSockets();
+			return SOCKET_FAILED_TO_BIND;
+		}
 		#else
 		if (r2->IsBerkleySocket())
 		{
@@ -546,7 +556,7 @@ StartupResult RakPeer::Startup( unsigned int maxConnections, SocketDescriptor *s
 		if (socketList[0]->IsBerkleySocket())
 		{
 			unsigned short port = ((RNS2_Berkley*)socketList[0])->GetBoundAddress().GetPort();
-			ipList[i].SetPort(port);
+			ipList[i].SetPortHostOrder(port);
 
 		}
 #endif
@@ -1666,6 +1676,9 @@ void RakPeer::CancelConnectionAttempt( const SystemAddress target )
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4702 ) // warning C4702: unreachable code
+#endif
 ConnectionState RakPeer::GetConnectionState(const AddressOrGUID systemIdentifier)
 {
 	if (systemIdentifier.systemAddress!=UNASSIGNED_SYSTEM_ADDRESS)
@@ -2883,6 +2896,11 @@ void RakPeer::SetUserUpdateThread(void (*_userUpdateThreadPtr)(RakPeerInterface 
 {
 	userUpdateThreadPtr=_userUpdateThreadPtr;
 	userUpdateThreadData=_userUpdateThreadData;
+}
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+void RakPeer::SetIncomingDatagramEventHandler( bool (*_incomingDatagramEventHandler)(RNS2RecvStruct *) )
+{
+	incomingDatagramEventHandler=_incomingDatagramEventHandler;
 }
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 bool RakPeer::SendOutOfBand(const char *host, unsigned short remotePort, const char *data, BitSize_t dataLength, unsigned connectionSocketIndex )
@@ -5460,7 +5478,8 @@ bool RakPeer::RunUpdateCycle(BitStream &updateBitStream )
 
 	// This is here so RecvFromBlocking actually gets data from the same thread
 
-	#if   defined(_WIN32)
+	#if   defined(WINDOWS_STORE_RT)
+	#elif defined(_WIN32)
 		if (socketList[0]->GetSocketType()==RNS2T_WINDOWS && ((RNS2_Windows*)socketList[0])->GetSocketLayerOverride())
 		{
 			int len;
@@ -6130,6 +6149,12 @@ bool RakPeer::RunUpdateCycle(BitStream &updateBitStream )
 
 void RakPeer::OnRNS2Recv(RNS2RecvStruct *recvStruct)
 {
+	if (incomingDatagramEventHandler)
+	{
+		if (incomingDatagramEventHandler(recvStruct)!=true)
+			return;
+	}
+
 	PushBufferedPacket(recvStruct);
 	quitAndDataEvents.SetEvent();
 }

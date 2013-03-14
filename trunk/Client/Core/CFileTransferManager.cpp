@@ -233,7 +233,18 @@ void CFileTransferManager::TransferThread(CThread * pCreator)
 	// Lock our transfer list mutex
 	pThis->m_transferListMutex.Lock();
 
+	// Ensure clientfiles directories exist:	
+	CLogFile::Print("TransferThread: Creating directories to download files to..");
+	String strFolderName = SharedUtility::GetAbsolutePath("clientfiles");
+	if(!SharedUtility::Exists(strFolderName))
+		SharedUtility::CreateDirectoryA(strFolderName);
+	if(!SharedUtility::Exists(strFolderName + "\\clientscripts"))
+		SharedUtility::CreateDirectoryA(strFolderName + "\\clientscripts");
+	if(!SharedUtility::Exists(strFolderName + "\\resources"))
+		SharedUtility::CreateDirectoryA(strFolderName + "\\resources");	
+
 	// Loop through our transfer list
+	CLogFile::Print("TransferThread: Downloading client files...");
 	for(std::list<CFileTransfer *>::iterator i = pThis->m_transferList.begin(); i != pThis->m_transferList.end(); i++)
 	{
 		// Get our file transfer pointer
@@ -243,13 +254,16 @@ void CFileTransferManager::TransferThread(CThread * pCreator)
 		pThis->m_transferListMutex.Unlock();
 
 		// Download our file
-		CLogFile::Printf("TransferThread->pFileTransfer(%s)->Download", pFileTransfer->GetName().Get());
-		pFileTransfer->Download();
-		CLogFile::Printf("TransferThread->pFileTransfer(%s)->Download Done", pFileTransfer->GetName().Get());
+		CLogFile::Printf("TransferThread: pFileTransfer(%s) Downloading...", pFileTransfer->GetName().Get());
+		if(pFileTransfer->Download())
+			CLogFile::Printf("TransferThread: pFileTransfer(%s) Done", pFileTransfer->GetName().Get());
+		else
+			CLogFile::Printf("TransferThread: pFileTransfer(%s) Failed: %s", pFileTransfer->GetName().Get(), pFileTransfer->GetError().Get());
 
 		// Lock our transfer list mutex
 		pThis->m_transferListMutex.Lock();
 	}
+	CLogFile::Print("TransferThread: Finished client files download");
 
 	// Unlock our transfer list mutex
 	pThis->m_transferListMutex.Unlock();

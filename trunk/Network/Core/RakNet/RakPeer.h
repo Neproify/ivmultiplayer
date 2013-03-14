@@ -558,6 +558,12 @@ public:
 	/// \param[in] _userUpdateThreadData Passed to C callback function
 	virtual void SetUserUpdateThread(void (*_userUpdateThreadPtr)(RakPeerInterface *, void *), void *_userUpdateThreadData);
 
+	/// Set a C callback to be called whenever a datagram arrives
+	/// Return true from the callback to have RakPeer handle the datagram. Return false and RakPeer will ignore the datagram.
+	/// This can be used to filter incoming datagrams by system, or to share a recvfrom socket with RakPeer
+	/// RNS2RecvStruct will only remain valid for the duration of the call
+	virtual void SetIncomingDatagramEventHandler( bool (*_incomingDatagramEventHandler)(RNS2RecvStruct *) );
+
 	// --------------------------------------------------------------------------------------------Network Simulator Functions--------------------------------------------------------------------------------------------
 	/// Adds simulated ping and packet loss to the outgoing data flow.
 	/// To simulate bi-directional ping and packet loss, you should call this on both the sender and the recipient, with half the total ping and packetloss value on each.
@@ -947,6 +953,8 @@ protected:
 	SystemAddress firstExternalID;
 	int splitMessageProgressInterval;
 	RakNet::TimeMS unreliableTimeout;
+
+	bool (*incomingDatagramEventHandler)(RNS2RecvStruct *);
 
 	// Systems in this list will not go through the secure connection process, even when secure connections are turned on. Wildcards are accepted.
 	DataStructures::List<RakNet::RakString> securityExceptionList;

@@ -1,3 +1,4 @@
+/*
 /// \file
 /// \brief Contains the class RelayPlugin
 ///
@@ -48,7 +49,24 @@ public:
 	/// \param[in] key A string to identify the target's RakNetGUID. This is so the sending system does not need to know the RakNetGUID of the target system. The key should be unique among all guids added. If the key is not unique, only one system will be sent to (at random).
 	/// \param[in] guid The RakNetGuid of the system to send to. If this system disconnects, it is removed from the internal hash 
 	/// \return true if the participant was added. False if the target \a guid is not connected
-	bool AddParticipant(const RakString &key, const RakNetGUID &guid);
+	bool AddParticipantOnServer(const RakString &key, const RakNetGUID &guid);
+
+	/// \brief Remove a chat participant
+	void RemoveParticipantOnServer(const RakNetGUID &guid);
+
+	/// \brief If true, then if the client calls AddParticipantRequestFromClient(), the server will call AddParticipantOnServer() automatically
+	/// Defaults to false
+	/// \param[in] accept true to accept, false to not.
+	void SetAcceptAddParticipantRequests(bool accept);
+
+	/// \brief Request from the client for the server to call AddParticipantOnServer()
+	/// \pre The server must have called SetAcceptAddParticipantRequests(true) or the request will be ignored
+	/// \param[in] key A string to identify out system. Passed to \a key on AddParticipantOnServer()
+	/// \param[in] relayPluginServerGuid the RakNetGUID of the system running RelayPlugin
+	void AddParticipantRequestFromClient(const RakString &key, const RakNetGUID &relayPluginServerGuid);
+
+	/// \brief Remove yourself as a participant
+	void RemoveParticipantRequestFromClient(const RakNetGUID &relayPluginServerGuid);
 
 	/// \brief Request that the server relay \a bitStream to the system designated by \a key
 	/// \param[in] relayPluginServerGuid the RakNetGUID of the system running RelayPlugin
@@ -59,21 +77,47 @@ public:
 	/// \param[in] orderingChannel See the parameter of the same name in RakPeerInterface::Send()
 	void SendToParticipant(const RakNetGUID &relayPluginServerGuid, const RakString &key, BitStream *bitStream, PacketPriority priority, PacketReliability reliability, char orderingChannel);
 
+	// TODO?
+	// Send chat room list on request from client
+	// Join chat room request from client. If doesn't exist, is created. If it does, give the name of everyone in the room
+
 	/// \internal
 	virtual PluginReceiveResult OnReceive(Packet *packet);
 	/// \internal
 	virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
+
+	struct StrAndGuidAndRoom
+	{
+		RakString str;
+		RakNetGUID guid;
+		RakString currentRoom;
+	};
 
 	struct StrAndGuid
 	{
 		RakString str;
 		RakNetGUID guid;
 	};
+
+	struct RP_ChatRoom
+	{
+		RakString roomName;
+		DataStructures::List<StrAndGuid> usersInRoom;
+	};
 	
 protected:
 
-	DataStructures::Hash<RakString, StrAndGuid*, 8096, RakNet::RakString::ToInteger> strToGuidHash;
-	DataStructures::Hash<RakNetGUID, StrAndGuid*, 8096, RakNet::RakNetGUID::ToUint32> guidToStrHash;
+	void JoinRoom(RakNetGUID userGuid, RakString roomName);
+	void JoinRoom(RP_ChatRoom* room, StrAndGuidAndRoom **strAndGuidSender);
+	void LeaveRoom(StrAndGuidAndRoom **strAndGuidSender);
+	void NotifyUsersInRoom(RP_ChatRoom *room, int msg, RakString str);
+	void SendMessageToRoom(StrAndGuidAndRoom **strAndGuidSender, RakString message);
+	void SendChatRoomsList(RakNetGUID target);
+
+	DataStructures::Hash<RakString, StrAndGuidAndRoom*, 8096, RakNet::RakString::ToInteger> strToGuidHash;
+	DataStructures::Hash<RakNetGUID, StrAndGuidAndRoom*, 8096, RakNet::RakNetGUID::ToUint32> guidToStrHash;
+	DataStructures::List<RP_ChatRoom*> chatRooms;
+	bool acceptAddParticipantRequests;
 
 };
 
@@ -86,3 +130,4 @@ protected:
 #endif
 
 #endif // _RAKNET_SUPPORT_*
+*/

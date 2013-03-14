@@ -266,7 +266,8 @@ struct RAK_DLL_EXPORT SystemAddress
 	unsigned short GetPortNetworkOrder(void) const;
 
 	/// Sets the port. The port value should be in host order (this is what you normally use)
-	void SetPort(unsigned short s);
+	/// Renamed from SetPort because of winspool.h http://edn.embarcadero.com/article/21494
+	void SetPortHostOrder(unsigned short s);
 
 	/// \internal Sets the port. The port value should already be in network order.
 	void SetPortNetworkOrder(unsigned short s);

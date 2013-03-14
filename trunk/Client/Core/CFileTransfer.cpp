@@ -15,29 +15,20 @@ CFileTransfer::CFileTransfer(bool bIsResource, String strHost, unsigned short us
 							  m_bComplete(false), m_bSucceeded(false), m_strError("None")
 {
 	// Set our http client host and port
-	m_httpClient.SetHost(strHost);
-	m_httpClient.SetPort(usPort);
+	m_strHostAddress = strHost;
+	m_usPort = usPort;
 
-	// Get the type name
-	String strTypeName;
-
+	// Directory for downloading this type of resources:
 	if(bIsResource)
-		strTypeName = "resources";
+		m_strFolderName = "resources";
 	else
-		strTypeName = "clientscripts";
+		m_strFolderName = "clientscripts";
 
-	// Set our http path
-	m_strHttpPath.Format("/%s/%s", strTypeName.Get(), strName.Get());
-
-	// Set our save path
-	m_strPath.Set(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", strTypeName.Get(), strName.Get()));
+	// Set paths:
+	m_strPath.Set(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", m_strFolderName.Get(), strName.Get()));
+	m_strHttpUrl.Format("http://%s:%d/%s/%s", m_strHostAddress.Get(), m_usPort, m_strFolderName.Get(), m_strName.Get());
 }
-
-CFileTransfer::~CFileTransfer()
-{
-
-}
-
+CFileTransfer::~CFileTransfer() { }
 bool CFileTransfer::Download()
 {
 	// Does the file already exist?
@@ -56,15 +47,6 @@ bool CFileTransfer::Download()
 		}
 	}
 
-	// Attempt to request our file transfer
-	if(!m_httpClient.Get(m_strHttpPath))
-	{
-		m_bComplete = true;
-		m_bSucceeded = false;
-		m_strError.Format("GET failed for file %s (%s)", m_strName.Get(), m_httpClient.GetLastErrorString().Get());
-		return false;
-	}
-
 	// Attempt to open our destination file
 	FILE * fFile = fopen(m_strPath.Get(), "wb");
 
@@ -76,12 +58,13 @@ bool CFileTransfer::Download()
 		return false;
 	}
 
-	// Set http download file
-	m_httpClient.SetFile(fFile);
-
-	// Process our http client
-	while(m_httpClient.IsBusy())
-		m_httpClient.Process();
+	// Download file with cURL:
+	CURLcode result = curlDownloadToFile(fFile, m_strHttpUrl.Get());
+	if(result != CURLE_OK)
+	{
+		m_strError.Format("cURL result code %d for %s, %s", result, m_strName.Get(), m_strHttpUrl.Get());
+		return false;
+	}
 
 	// Close our downloaded file
 	fclose(fFile);

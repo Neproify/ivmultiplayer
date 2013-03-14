@@ -9,4 +9,7 @@
 
 #pragma once
 
+#include <CString.h>
+
 LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+String GetKeyNameByCode(DWORD dwCode);

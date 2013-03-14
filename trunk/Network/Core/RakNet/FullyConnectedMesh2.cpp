@@ -310,7 +310,7 @@ void FullyConnectedMesh2::OnNewConnection(const SystemAddress &systemAddress, Ra
 	(void) rakNetGUID;
 	(void) systemAddress;
 
-	UpdateVerifiedJoinInProgressMember(systemAddress, rakNetGUID, JIPS_CONNECTED);
+	UpdateVerifiedJoinInProgressMember(rakNetGUID, rakNetGUID, JIPS_CONNECTED);
 
 	if (autoParticipateConnections)
 		AddParticipant(rakNetGUID);
@@ -319,7 +319,7 @@ void FullyConnectedMesh2::OnFailedConnectionAttempt(Packet *packet, PI2_FailedCo
 {
 	if (failedConnectionAttemptReason==FCAR_ALREADY_CONNECTED)
 	{
-		UpdateVerifiedJoinInProgressMember(packet->systemAddress, packet->guid, JIPS_CONNECTED);
+		UpdateVerifiedJoinInProgressMember(packet->guid, packet->guid, JIPS_CONNECTED);
 	}
 	else
 	{

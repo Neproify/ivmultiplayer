@@ -335,7 +335,7 @@ SystemAddress TCPInterface::Connect(const char* host, unsigned short remotePort,
 	{
 		SystemAddress systemAddress;
 		systemAddress.FromString(host);
-		systemAddress.SetPort(remotePort);
+		systemAddress.SetPortHostOrder(remotePort);
 		systemAddress.systemIndex=(SystemIndex) newRemoteClientIndex;
 		char buffout[128];
 		systemAddress.ToString(false,buffout);
@@ -963,15 +963,15 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop)
 		tv.tv_usec=30000;
 
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4127 ) // warning C4127: conditional expression is constant
+#endif
 		while (1)
 		{
 			// Reset readFD, writeFD, and exceptionFD since select seems to clear it
 			FD_ZERO(&readFD);
 			FD_ZERO(&exceptionFD);
 			FD_ZERO(&writeFD);
-#ifdef _MSC_VER
-#pragma warning( disable : 4127 ) // warning C4127: conditional expression is constant
-#endif
 			largestDescriptor=0;
 			if (sts->listenSocket!=0)
 			{

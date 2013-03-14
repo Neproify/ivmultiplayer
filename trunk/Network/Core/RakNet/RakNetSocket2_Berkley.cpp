@@ -1,3 +1,5 @@
+#include "EmptyHeader.h"
+
 #ifdef RAKNET_SOCKET_2_INLINE_FUNCTIONS
 
 #ifndef RAKNETSOCKET2_BERKLEY_CPP
@@ -41,6 +43,7 @@ void RNS2_Berkley::SetNonBlockingSocket(unsigned long nonblocking)
 
 
 #else
+	if (nonblocking)
 		fcntl( rns2Socket, F_SETFL, O_NONBLOCK );
 #endif
 }
@@ -134,6 +137,9 @@ void RNS2_Berkley::GetSystemAddressIPV4And6 ( RNS2Socket rns2Socket, SystemAddre
 #endif
 }
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4702 ) // warning C4702: unreachable code
+#endif
 RNS2BindResult RNS2_Berkley::BindSharedIPV4( RNS2_BerkleyBindParameters *bindParameters, const char *file, unsigned int line ) {
 
 	(void) file;
@@ -444,88 +450,6 @@ void RNS2_Berkley::RecvFromBlocking(RNS2RecvStruct *recvFromStruct)
 	return RecvFromBlockingIPV4(recvFromStruct);
 #endif
 }
-
-// Shared on most platforms, but excluded from the listed
-
-
-void DomainNameToIP_Berkley_IPV4And6( const char *domainName, char ip[65] )
-{
-#if RAKNET_SUPPORT_IPV6==1
-	struct addrinfo hints, *res, *p;
-	int status;
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
-	hints.ai_socktype = SOCK_DGRAM;
-
-	if ((status = getaddrinfo(domainName, NULL, &hints, &res)) != 0) {
-		memset(ip, 0, sizeof(ip));
-		return;
-	}
-
-	p=res;
-// 	for(p = res;p != NULL; p = p->ai_next) {
-		void *addr;
-//		char *ipver;
-
-		// get the pointer to the address itself,
-		// different fields in IPv4 and IPv6:
-		if (p->ai_family == AF_INET)
-		{
-			struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
-			addr = &(ipv4->sin_addr);
-			strcpy(ip, inet_ntoa( ipv4->sin_addr ));
-		} 
-		else
-		{
-			// TODO - test
-			struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
-			addr = &(ipv6->sin6_addr);
-			// inet_ntop function does not exist on windows
-			// http://www.mail-archive.com/users@ipv6.org/msg02107.html
-			getnameinfo((struct sockaddr *)ipv6, sizeof(struct sockaddr_in6), ip, 1, NULL, 0, NI_NUMERICHOST);
-		}
-		freeaddrinfo(res); // free the linked list
-//	}
-#else
-	(void) domainName;
-	(void) ip;
-#endif // #if RAKNET_SUPPORT_IPV6==1
-}
-
-void DomainNameToIP_Berkley_IPV4( const char *domainName, char ip[65] )
-{
-	static struct in_addr addr;
-	memset(&addr,0,sizeof(in_addr));
-	
-	// Use inet_addr instead? What is the difference?
-	struct hostent * phe = gethostbyname( domainName );
-
-	if ( phe == 0 || phe->h_addr_list[ 0 ] == 0 )
-	{
-		//cerr << "Yow! Bad host lookup." << endl;
-		memset(ip,0,sizeof(ip));
-		return;
-	}
-
-	if (phe->h_addr_list[ 0 ]==0)
-	{
-		memset(ip,0,sizeof(ip));
-		return;
-	}
-
-	memcpy( &addr, phe->h_addr_list[ 0 ], sizeof( struct in_addr ) );
-}
-
-void DomainNameToIP_Berkley( const char *domainName, char ip[65] )
-{
-#if RAKNET_SUPPORT_IPV6==1
-	return DomainNameToIP_Berkley_IPV4And6(domainName, ip);
-#else
-	return DomainNameToIP_Berkley_IPV4(domainName, ip);
-#endif
-}
-
-
 
 #endif // !defined(WINDOWS_STORE_RT) && !defined(__native_client__)
 

@@ -27,6 +27,12 @@
 extern CEvents * g_pEvents;
 CMutex           g_webMutex;
 
+/*int MongooseEventHandler(struct mg_connection* conn) {
+	g_webMutext.Lock();	
+	const struct mg_request_info *ri = mg_get_request_info(conn);
+	
+}*/
+#ifdef OLD_MONGOOSE
 void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn)
 {
 	if(event == MG_NEW_REQUEST)
@@ -61,6 +67,7 @@ void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn)
 	// Not handled
 	return NULL;
 }
+#endif
 
 CWebServer::CWebServer(unsigned short usHTTPPort) 
 {
@@ -75,6 +82,16 @@ CWebServer::CWebServer(unsigned short usHTTPPort)
 
 		for(int i = 0; i < 6; i++)
 			options[i] = new char[256];
+		
+		/*const char* options[] = {
+			"listening_ports",
+			String("%d", usHTTPPort).Get());
+			"document_root",
+			SharedUtility::GetAbsolutePath("webserver").Get(),
+			"num_threads",
+			"50",
+			NULL	
+		};*/
 
 		// Set the options
 		strcpy(options[0], "listening_ports");
@@ -85,8 +102,10 @@ CWebServer::CWebServer(unsigned short usHTTPPort)
 		strcpy(options[5], "50");
 		options[6] = NULL;
 
+		struct mg_callbacks callbacks;
+		memset(&callbacks, 0, sizeof(callbacks));
 		// Start the mongoose context
-		m_pMongooseContext = mg_start(MongooseEventHandler, 0, (const char **)options);
+		m_pMongooseContext = mg_start(&callbacks, NULL, (const char**)options);
 
 		// Free the options
 		for(int i = 0; i < 6; i++)

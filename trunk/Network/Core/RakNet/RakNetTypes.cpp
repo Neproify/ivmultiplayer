@@ -12,6 +12,7 @@
 #include "WindowsIncludes.h"
 #include "WSAStartupSingleton.h"
 #include "SocketDefines.h"
+#include "RakNetSocket2.h"
 
 
 #if   defined(_WIN32)
@@ -131,7 +132,7 @@ unsigned short SystemAddress::GetPortNetworkOrder(void) const
 {
 	return address.addr4.sin_port;
 }
-void SystemAddress::SetPort(unsigned short s)
+void SystemAddress::SetPortHostOrder(unsigned short s)
 {
 	address.addr4.sin_port=htons(s);
 	debugPort=s;
@@ -368,7 +369,7 @@ SystemAddress::SystemAddress()
 SystemAddress::SystemAddress(const char *str)
 {
 	address.addr4.sin_family=AF_INET;
-	SetPort(0);
+	SetPortHostOrder(0);
 	FromString(str);
 	systemIndex=(SystemIndex)-1;
 }
@@ -449,13 +450,16 @@ bool SystemAddress::SetBinaryAddress(const char *str, char portDelineator)
 
 			if (str[9])
 			{
-				SetPort((unsigned short) atoi(str+9));
+				SetPortHostOrder((unsigned short) atoi(str+9));
 			}
 			return true;
 		}
 
-		const char *ip = ( char* ) SocketLayer::DomainNameToIP( str );
-		if (ip)
+		//const char *ip = ( char* ) SocketLayer::DomainNameToIP( str );
+		char ip[65];
+		ip[0]=0;
+		RakNetSocket2::DomainNameToIP(str, ip);
+		if (ip[0])
 		{
 
 
@@ -534,6 +538,9 @@ bool SystemAddress::SetBinaryAddress(const char *str, char portDelineator)
 	return true;
 }
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4702 ) // warning C4702: unreachable code
+#endif
 bool SystemAddress::FromString(const char *str, char portDelineator, int ipVersion)
 {
 #if RAKNET_SUPPORT_IPV6!=1

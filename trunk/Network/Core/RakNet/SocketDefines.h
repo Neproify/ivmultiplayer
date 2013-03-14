@@ -44,17 +44,17 @@
 	#define closesocket__ WinRTClose
 	#define socket__ WinRTCreateDatagramSocket
 	#define bind__ WinRTBind
-	#define getsockname__ WinRTGetSockName
+	#define getsockname__ RNS2_WindowsStore8::WinRTGetSockName
 	#define getsockopt__ WinRTGetSockOpt
-	#define inet_addr__ WinRTInet_Addr
-	#define ioctlsocket__ WinRTIOCTLSocket
+	#define inet_addr__ RNS2_WindowsStore8::WinRTInet_Addr
+	#define ioctlsocket__ RNS2_WindowsStore8::WinRTIOCTLSocket
 	#define listen__ WinRTListen
 	#define recv__ WinRTRecv
 	#define recvfrom__ WinRTRecvFrom
 	#define select__ WinRTSelect
 	#define send__ WinRTSend
 	#define sendto__ WinRTSendTo
-	#define setsockopt__ WinRTSetSockOpt
+	#define setsockopt__ RNS2_WindowsStore8::WinRTSetSockOpt
 	#define shutdown__ WinRTShutdown
 	#define WSASendTo__ WinRTSendTo
 #else

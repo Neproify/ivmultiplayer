@@ -156,9 +156,10 @@ void PrepareAddrInfoHints(addrinfo *hints)
 }
 #endif
 
+/*
 // Frogwares: Define this
 // #define DEBUG_SENDTO_SPIKES
-
+#if !defined(WINDOWS_STORE_RT)
 bool SocketLayer::IsPortInUse_Old(unsigned short port, const char *hostAddress)
 {
 #ifdef __native_client__
@@ -170,11 +171,11 @@ bool SocketLayer::IsPortInUse_Old(unsigned short port, const char *hostAddress)
 	// Listen on our designated Port#
 	listenerSocketAddress.sin_port = htons( port );
 
-
-
-
+#if defined(SN_TARGET_PSP2)
+	listenSocket = socket__( AF_INET, SCE_NET_SOCK_DGRAM_P2P, 0 );
+#else
 	listenSocket = socket__( AF_INET, SOCK_DGRAM, 0 );
-
+#endif
 
 #if !defined(WINDOWS_STORE_RT)
 	if ( listenSocket == 0 )
@@ -187,35 +188,37 @@ bool SocketLayer::IsPortInUse_Old(unsigned short port, const char *hostAddress)
 	
 	if ( hostAddress && hostAddress[0] )
 	{
-
-
-
+#if defined(SN_TARGET_PSP2)
+		inet_addr__( hostAddress, &listenerSocketAddress.sin_addr );
+#else
 		listenerSocketAddress.sin_addr.s_addr = inet_addr__( hostAddress );
-
+#endif
 	}
 	else
 		listenerSocketAddress.sin_addr.s_addr = INADDR_ANY;
 
-
-
-
-
-
+#if defined(_PS3) || defined(__PS3__) || defined(SN_TARGET_PS3)
+	// Binding specific addresses doesn't work with the PS3
+	// The functions return success but broadcast messages, possibly more, never arrive
+	listenerSocketAddress.sin_addr.s_addr = INADDR_ANY;
+#endif
 
 	int ret = bind__( listenSocket, ( struct sockaddr * ) & listenerSocketAddress, sizeof( listenerSocketAddress ) );
 	closesocket__(listenSocket);
 
-
-
-
+#if defined(_PS3) || defined(__PS3__) || defined(SN_TARGET_PS3)
+	return ret == SYS_NET_EADDRINUSE;
+#else
 	// 	#if defined(_DEBUG)
 	// 	if (ret == -1)
 	// 		perror("Failed to bind to address:");
 	// 	#endif
 	return ret <= -1;
-
+#endif
 #endif
 }
+*/
+/*
 bool SocketLayer::IsSocketFamilySupported(const char *hostAddress, unsigned short socketFamily)
 {
 	(void) hostAddress;
@@ -258,6 +261,8 @@ bool SocketLayer::IsSocketFamilySupported(const char *hostAddress, unsigned shor
 	return false;
 #endif
 }
+*/
+/*
 bool SocketLayer::IsPortInUse(unsigned short port, const char *hostAddress, unsigned short socketFamily)
 {
 #if RAKNET_SUPPORT_IPV6!=1
@@ -311,6 +316,9 @@ bool SocketLayer::IsPortInUse(unsigned short port, const char *hostAddress, unsi
 	return true;
 #endif // #if RAKNET_SUPPORT_IPV6!=1
 }
+
+#endif // #if defined(WINDOWS_STORE_RT)
+*/
 /*
 void SocketLayer::SetDoNotFragment( RakNetSocket* listenSocket, int opt )
 {
@@ -680,7 +688,7 @@ void onRecvFrom(void* pData, int32_t dataSize)
 
 	if(ok)
 	{
-		sab->recvFromAddress.SetPort(pp::NetAddressPrivate::GetPort(addr));
+		sab->recvFromAddress.SetPortHostOrder(pp::NetAddressPrivate::GetPort(addr));
 
 		if(sab->peer)
 		{
@@ -1110,48 +1118,49 @@ RakNetSocket *SocketLayer::CreateBoundSocket( RakPeer *peer, unsigned short port
 #endif
 }
 */
+/*
 const char* SocketLayer::DomainNameToIP_Old( const char *domainName )
 {
 	static struct in_addr addr;
 	memset(&addr,0,sizeof(in_addr));
 
+#if defined(_XBOX) || defined(_XBOX_720_WITH_XBOX_LIVE) || defined(X360)
+	WSAEVENT hEvent = WSACreateEvent();
+	XNDNS* pDns = NULL;
 
+	HRESULT err = XNetDnsLookup( domainName, hEvent, &pDns );
+	WaitForSingleObject( hEvent, 1000 );
+	WSACloseEvent( hEvent );
 
+	if( pDns )
+	{
+		const unsigned int ADDR_BUFF_SIZE = 16;		//Enough room for "xxx.xxx.xxx.xxx\0"
+		static char addrBuff[ADDR_BUFF_SIZE] = {0};
 
+		if( pDns->iStatus == 0 )
+		{
+			memcpy( &addr, &pDns->aina[0].s_addr, sizeof( struct in_addr ) );
+			XNetInAddrToString(addr, addrBuff, ADDR_BUFF_SIZE);
+		}
+		else
+		{
+			//error "DNS lookup failed: %u", pDns->iStatus
+		}
+		XNetDnsRelease( pDns );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if   defined(WINDOWS_STORE_RT)
+		return addrBuff;
+	}
+	else
+	{
+		//error "DNS lookup failed: %u", err;
+	}
+#elif defined(WINDOWS_STORE_RT)
 	// Do I use http://msdn.microsoft.com/en-US/library/windows/apps/windows.networking.sockets.datagramsocketinformation for this?
 	// Perhaps DatagramSocket., followed by GetEndpointParisAsync
 	RakAssert("Not yet supported" && 0);
-
-
-
+#elif defined(SN_TARGET_PSP2)
+	inet_addr__(domainName, &addr);
+	return inet_ntoa( addr );
 #else
 	// Use inet_addr instead? What is the difference?
 	struct hostent * phe = gethostbyname( domainName );
@@ -1171,44 +1180,46 @@ const char* SocketLayer::DomainNameToIP_Old( const char *domainName )
 
 	return "";
 }
+*/
+/*
 const char* SocketLayer::DomainNameToIP( const char *domainName )
 {
 #if RAKNET_SUPPORT_IPV6!=1
 	return DomainNameToIP_Old(domainName);
 #else
 
+#if defined(_XBOX) || defined(_XBOX_720_WITH_XBOX_LIVE) || defined(X360)
+	struct in_addr addr;
+	WSAEVENT hEvent = WSACreateEvent();
+	XNDNS* pDns = NULL;
 
+	HRESULT err = XNetDnsLookup( domainName, hEvent, &pDns );
+	WaitForSingleObject( hEvent, 1000 );
+	WSACloseEvent( hEvent );
 
+	if( pDns )
+	{
+		const unsigned int ADDR_BUFF_SIZE = 16;		//Enough room for "xxx.xxx.xxx.xxx\0"
+		static char addrBuff[ADDR_BUFF_SIZE] = {0};
 
+		if( pDns->iStatus == 0 )
+		{
+			memcpy( &addr, &pDns->aina[0].s_addr, sizeof( struct in_addr ) );
+			XNetInAddrToString(addr, addrBuff, ADDR_BUFF_SIZE);
+		}
+		else
+		{
+			//error "DNS lookup failed: %u", pDns->iStatus
+		}
+		XNetDnsRelease( pDns );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		return addrBuff;
+	}
+	else
+	{
+		//error "DNS lookup failed: %u", err;
+	}
+#else
 
 	struct addrinfo hints, *res, *p;
 	int status;
@@ -1247,12 +1258,13 @@ const char* SocketLayer::DomainNameToIP( const char *domainName )
 		return ipstr;
 //	}
 
-
+#endif
 
 	return "";
 
 #endif // #if RAKNET_SUPPORT_IPV6!=1
 }
+*/
 
 /*
 void SocketLayer::Write( RakNetSocket*writeSocket, const char* data, const int length )
