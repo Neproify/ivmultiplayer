@@ -12,6 +12,7 @@
 #include <Squirrel/sqvm.h>
 #include <Squirrel/sqstring.h>
 #include "../CClient.h"
+#include "../Input.h"
 #include <SharedUtility.h>
 //#include "../CD3D9Webkit.hpp"
 
@@ -61,7 +62,7 @@ bool OnKeyPress(const CEGUI::KeyEventArgs &eArgs, String keyState)
 
 	CSquirrelArguments pArguments;
 	pArguments.push(eArgs.window->getName().c_str());
-	pArguments.push("FIXME key scancode to string?"); // FIXME
+	pArguments.push(GetKeyNameByCode(eArgs.scancode));
 	pArguments.push(keyState);
 
 	pEvents->Call(eventName, &pArguments, pScript);

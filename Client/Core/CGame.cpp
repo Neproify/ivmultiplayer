@@ -216,16 +216,6 @@ void CGame::Initialize()
 	SetInputState(true);
 	SetState(GAME_STATE_NONE);
 
-	// jenksta: this is nothing to do with the game so shouldn't be here, move it
-	CLogFile::Print("Creating directories to download files to..");
-	String strFolderName = SharedUtility::GetAbsolutePath("clientfiles");
-	if(!SharedUtility::Exists(strFolderName))
-		SharedUtility::CreateDirectoryA(strFolderName);
-	if(!SharedUtility::Exists(strFolderName + "\\clientscripts"))
-		SharedUtility::CreateDirectoryA(strFolderName + "\\clientscripts");
-	if(!SharedUtility::Exists(strFolderName + "\\resources"))
-		SharedUtility::CreateDirectoryA(strFolderName + "\\resources");	
-
 	// Create our pools class
 	m_pPools = new CPools();
 

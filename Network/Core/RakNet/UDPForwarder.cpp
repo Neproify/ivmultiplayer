@@ -1,8 +1,6 @@
 #include "UDPForwarder.h"
 
 #if _RAKNET_SUPPORT_UDPForwarder==1
-#define INVALID_SOCKET  (SOCKET)(~0)
-typedef unsigned int        SOCKET;
 
 #include "GetTime.h"
 #include "MTUSize.h"
@@ -14,6 +12,10 @@ typedef unsigned int        SOCKET;
 #include "SocketDefines.h"
 #include "VitaIncludes.h"
 #include "errno.h"
+
+#ifndef INVALID_SOCKET
+#define INVALID_SOCKET -1
+#endif
 
 using namespace RakNet;
 static const unsigned short DEFAULT_MAX_FORWARD_ENTRIES=64;
@@ -129,6 +131,9 @@ UDPForwarderResult UDPForwarder::StartForwarding(SystemAddress source, SystemAdd
 	sfis->inputId=inputId;
 	startForwardingInput.Push(sfis);
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4127 ) // warning C4127: conditional expression is constant
+#endif
 	while (1)
 	{
 		RakSleep(0);
@@ -358,6 +363,10 @@ void UDPForwarder::UpdateUDPForwarder(void)
 	sfos.forwardingPort=0;
 	sfos.inputId=0;
 	sfos.result=UDPFORWARDER_RESULT_COUNT;
+
+#ifdef _MSC_VER
+#pragma warning( disable : 4127 ) // warning C4127: conditional expression is constant
+#endif
 	while (1)
 	{
 		sfis = startForwardingInput.Pop();
@@ -499,6 +508,10 @@ void UDPForwarder::UpdateUDPForwarder(void)
 	}
 
 	StopForwardingStruct *sfs;
+
+#ifdef _MSC_VER
+#pragma warning( disable : 4127 ) // warning C4127: conditional expression is constant
+#endif
 	while (1)
 	{
 		sfs = stopForwardingCommands.Pop();

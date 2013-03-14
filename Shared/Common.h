@@ -64,7 +64,7 @@
 
 // Network version
 // Ensure you increment this when packet layouts change!
-#define NETWORK_VERSION 0x8C
+#define NETWORK_VERSION 0x8D
 
 // Tick Rate
 #define TICK_RATE 100

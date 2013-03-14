@@ -57,7 +57,7 @@
 	
 	<!-- The scripts the client will download and run -->
 	<clientscript>scoreboard.nut</clientscript>
-	<clientscript>audio.nut</clientscript>
+	<!-- clientscript>audio.nut</clientscript -->
 	<!-- clientscript>webbrowser.nut</clientscript -->
 	
 	<!-- The resources the client will download and used by clientscripts -->

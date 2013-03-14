@@ -872,9 +872,6 @@
     <ClCompile Include="..\..\Shared\Threading\CThread.cpp">
       <Filter>Source Files\Shared\Threading</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Vendor\md5\md5.cpp">
-      <Filter>Source Files\Shared\md5</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Shared\Game\CControlState.cpp">
       <Filter>Source Files\Game\Shared</Filter>
     </ClCompile>
@@ -937,6 +934,9 @@
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\md5\md5.cpp">
+      <Filter>Source Files\Shared\md5</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

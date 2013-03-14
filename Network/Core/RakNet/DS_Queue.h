@@ -236,7 +236,7 @@ namespace DataStructures
 
 			// Need to allocate more memory.
 			queue_type * new_array;
-			new_array = RakNet::OP_NEW_ARRAY<queue_type>(allocation_size * 2, file, line );
+			new_array = RakNet::OP_NEW_ARRAY<queue_type>((int)allocation_size * 2, file, line );
 #ifdef _DEBUG
 			RakAssert( new_array );
 #endif

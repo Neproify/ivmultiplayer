@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-m32 -c -g -w -shared -D_SERVER -D_LINUX -I../../Shared -I../../Vendor/Squirrel -I../../Vendor/ -I.
+CFLAGS=-m32 -c -g -w -shared -D_SERVER -D_LINUX -I../../Shared -I../../Vendor/Squirrel -I../../Vendor/libcurl -I../../Vendor/libcurl/include/curl -I../../Vendor/ -I.
 SOURCES=$(wildcard *.cpp)
 SOURCES+=$(wildcard ../../Vendor/tinyxml/*.cpp)
 SOURCES+=$(wildcard Natives/*.cpp)

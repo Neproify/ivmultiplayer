@@ -135,9 +135,6 @@
     <Filter Include="Source Files\Shared\Threading">
       <UniqueIdentifier>{486ec5f8-cf27-4b0a-a322-eb92209d92b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shared\md5">
-      <UniqueIdentifier>{d8224964-8bfa-4ea1-954b-e55c97a37b81}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Hooks">
       <UniqueIdentifier>{956a8a80-826a-40a5-8868-8e9092b54f66}</UniqueIdentifier>
     </Filter>
@@ -174,6 +171,27 @@
     </Filter>
     <Filter Include="Source Files\Audio">
       <UniqueIdentifier>{871a8206-c1f0-41de-90b9-abf739491992}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libcurl">
+      <UniqueIdentifier>{04b62ec6-b06b-44b4-86d4-dda4af047ba7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libcurl">
+      <UniqueIdentifier>{04b62ec6-b06b-44b4-86d4-dda4af047ba7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libcurl\header">
+      <UniqueIdentifier>{93a617e3-ab85-4a9e-9ae0-170d5a06bf13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libcurl\source">
+      <UniqueIdentifier>{2fc01058-b236-4c67-972e-eb01fa6d8afc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libcurl">
+      <UniqueIdentifier>{04b62ec6-b06b-44b4-86d4-dda4af047ba7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libcurl\header">
+      <UniqueIdentifier>{93a617e3-ab85-4a9e-9ae0-170d5a06bf13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libcurl\source">
+      <UniqueIdentifier>{2fc01058-b236-4c67-972e-eb01fa6d8afc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -666,9 +684,6 @@
     <ClInclude Include="..\..\Shared\Threading\CThread.h">
       <Filter>Header Files\Shared\Threading</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Vendor\md5\md5.h">
-      <Filter>Header Files\Shared\md5</Filter>
-    </ClInclude>
     <ClInclude Include="CXLiveHook.h">
       <Filter>Header Files\Hooks\XLiveHook</Filter>
     </ClInclude>
@@ -737,6 +752,9 @@
     </ClInclude>
     <ClInclude Include="C3DLabels.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Vendor\md5\md5.h">
+      <Filter>Header Files\Shared\md5</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1133,9 +1151,6 @@
     <ClCompile Include="..\..\Shared\Threading\CThread.cpp">
       <Filter>Source Files\Shared\Threading</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Vendor\md5\md5.cpp">
-      <Filter>Source Files\Shared\md5</Filter>
-    </ClCompile>
     <ClCompile Include="CXLiveHook.cpp">
       <Filter>Source Files\Hooks\XLiveHook</Filter>
     </ClCompile>
@@ -1204,6 +1219,9 @@
     </ClCompile>
     <ClCompile Include="CIVObject.cpp">
       <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\md5\md5.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -19,7 +19,7 @@ class CWebServer
 private:
 	mg_context * m_pMongooseContext;
 
-	static void * MongooseEventHandler(mg_event event, mg_connection * conn);
+	//static void * MongooseEventHandler(mg_event event, mg_connection * conn);
 
 public:
 	CWebServer(unsigned short usHTTPPort);

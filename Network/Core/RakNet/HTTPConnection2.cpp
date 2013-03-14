@@ -15,7 +15,7 @@ HTTPConnection2::~HTTPConnection2()
 {
 
 }
-bool HTTPConnection2::TransmitRequest(RakString stringToTransmit, RakString host, unsigned short port, int ipVersion, SystemAddress useAddress)
+bool HTTPConnection2::TransmitRequest(const char* stringToTransmit, const char* host, unsigned short port, int ipVersion, SystemAddress useAddress)
 {
 	Request request;
 	request.host=host;
@@ -27,10 +27,10 @@ bool HTTPConnection2::TransmitRequest(RakString stringToTransmit, RakString host
 	}
 	else
 	{
-		if (request.hostEstimatedAddress.FromString(host.C_String(), '|', ipVersion)==false)
+		if (request.hostEstimatedAddress.FromString(host, '|', ipVersion)==false)
 			return false;
 	}
-	request.hostEstimatedAddress.SetPort(port);
+	request.hostEstimatedAddress.SetPortHostOrder(port);
 	request.port=port;
 	request.stringToTransmit=stringToTransmit;
 	request.contentLength=-1;
@@ -56,7 +56,7 @@ bool HTTPConnection2::TransmitRequest(RakString stringToTransmit, RakString host
 
 		if (ipVersion!=6)
 		{
-			tcpInterface->Connect(host.C_String(), port, false, AF_INET);
+			tcpInterface->Connect(host, port, false, AF_INET);
 		}
 		else
 		{
@@ -82,6 +82,14 @@ bool HTTPConnection2::GetResponse( RakString &stringTransmitted, RakString &host
 		return true;
 	}
 	return false;
+}
+bool HTTPConnection2::IsBusy(void) const
+{
+	return pendingRequests.Size()>0 || sentRequests.Size()>0;
+}
+bool HTTPConnection2::HasResponse(void) const
+{
+	return completedRequests.Size()>0;
 }
 PluginReceiveResult HTTPConnection2::OnReceive(Packet *packet)
 {
@@ -133,6 +141,7 @@ PluginReceiveResult HTTPConnection2::OnReceive(Packet *packet)
 				}
 				else
 				{
+					sentRequests[i].contentOffset=-1;
 					completedRequests.Push(sentRequests[i], _FILE_AND_LINE_);
 					sentRequests.RemoveAtIndexFast(i);
 
