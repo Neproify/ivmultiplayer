@@ -9,9 +9,11 @@
 
 // FIXUPDATE
 // jenksta: this is kinda hacky :/
+
+#pragma once
+
 #include "../Server/Core/Main.h"
 #include "../Server/Core/Interfaces/InterfaceCommon.h"
-
 
 class CTime/* : public CTimeInterface*/
 {

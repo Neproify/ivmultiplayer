@@ -624,6 +624,12 @@
     <ClInclude Include="CServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Shared\CRijndael.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Natives\StaticPlayerNatives.h">
+      <Filter>Header Files\Scripting\Natives</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CModule.cpp">
@@ -937,6 +943,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Vendor\md5\md5.cpp">
       <Filter>Source Files\Shared\md5</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CRijndael.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Natives\StaticPlayerNatives.cpp">
+      <Filter>Source Files\Scripting\Natives</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

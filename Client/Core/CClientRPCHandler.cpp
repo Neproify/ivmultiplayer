@@ -3650,7 +3650,6 @@ void CClientRPCHandler::New3DLabel(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	bool bVisible = pBitStream->ReadBit();
 
-	g_pClient->GetChatWindow()->AddInfoMessage("New Label(%s, %i, %f)", text.Get(), bVisible, fStreamingDistance);
 	LabelId id = g_pClient->Get3DLabelManager()->Add(text.Get(), vecPosition, dwColor, bVisible, fStreamingDistance);
 	g_pClient->Get3DLabelManager()->GetAt(id)->SetDimension(dimensionId);
 }

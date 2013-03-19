@@ -187,6 +187,10 @@ public:
 	size_t        Find(const char * szString, size_t sPos = 0) const;
 	size_t        Find(const unsigned char ucChar, size_t sPos = 0) const;
 	size_t        Find(const String strString, size_t sPos = 0) const;
+	
+	// Returns true if string ends with specified string
+	// false if not
+	bool		  EndsWith(const String strSuffix) const;
 
 	// Return true if the string contains sz/strString after sPos, 
 	// false if not

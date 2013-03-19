@@ -534,6 +534,16 @@ size_t String::Find(const String strString, size_t sPos) const
 	return m_strString.find(strString.Get(), sPos);
 }
 
+bool String::EndsWith(const String strSuffix) const
+{
+    if (m_strString.length() >= strSuffix.GetLength()) {
+		return (0 == m_strString.compare (m_strString.length() - strSuffix.GetLength(), strSuffix.GetLength(), strSuffix.Get()));
+	}
+	else {
+		return false;
+	}
+}
+
 bool String::Contains(const char * szString, size_t sPos) const
 {
 	return (Find(szString, sPos) != nPos);
