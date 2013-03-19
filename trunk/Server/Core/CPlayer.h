@@ -51,8 +51,8 @@ private:
 	CVector3	  m_vecLastShot;
 	CVector3	  m_vecLastHeadMove;
 	DimensionId   m_ucDimension;
-	bool		  m_bDrop;
-	unsigned int  m_iWantedLevel;
+	bool		  m_bWeaponDropEnabled;
+	unsigned int  m_uiWantedLevel;
 	CheckGTAFiles m_FileCheck;
 
 public:
@@ -135,9 +135,9 @@ public:
 
 	void		   SetDimension(DimensionId ucDimension);
 	DimensionId    GetDimension() { return m_ucDimension; }
-	void		   SetBlockWeaponDrop(bool drop) { m_bDrop = drop; }
-	bool		   GetBlockWeaponDrop() { return m_bDrop; }
+	void		   SetBlockWeaponDrop(bool drop);
+	bool		   GetBlockWeaponDrop() { return m_bWeaponDropEnabled; }
 
-	void		   SetWantedLevel(int iWantedLevel) { m_iWantedLevel = iWantedLevel; }
-	int			   GetWantedLevel() { return m_iWantedLevel; }
+	void		   SetWantedLevel(unsigned int uiWantedLevel);
+	unsigned int   GetWantedLevel() { return m_uiWantedLevel; }
 };

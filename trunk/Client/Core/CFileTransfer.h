@@ -11,16 +11,15 @@
 #pragma once
 
 #include "CFileChecksum.h"
-#include <curl\curl.h>
+#include <Network\CHttpClient.h>
 
 class CFileTransfer
 {
 private:
 	bool			m_bIsResource;
 	String			m_strName;
-	unsigned short	m_usPort;
-	String			m_strHostAddress;
 	String			m_strFolderName;
+	CHttpClient		m_httpClient;
 	String			m_strHttpUrl;
 	String			m_strPath;
 	CFileChecksum	m_checksum;
@@ -40,25 +39,4 @@ public:
 	bool   HasSucceeded() { return m_bSucceeded; }
 	String GetError() { return m_strError; }
 	bool   Download();
-
-	static size_t curlWriteDataHandler(void* ptr, const size_t size, const size_t nmemb, FILE* stream)
-	{
-		// Save downloaded data to file:
-		return fwrite(ptr, size, nmemb, stream);
-	}
-	static CURLcode curlDownloadToFile(const FILE* fWriteTo, const char* szUrl)
-	{
-		CURLcode ret = CURLE_FAILED_INIT;
-		CURL* curl = curl_easy_init();
-		if (curl)
-		{
-			curl_easy_setopt(curl, CURLOPT_URL, szUrl);
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, fWriteTo);
-			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteDataHandler);
-
-			ret = curl_easy_perform(curl);
-			curl_easy_cleanup(curl);
-		}
-		return ret;
-	}
 };

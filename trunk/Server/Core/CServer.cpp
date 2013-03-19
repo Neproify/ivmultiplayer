@@ -240,7 +240,17 @@ bool CServer::OnLoad(int argc, char ** argv)
 		for(std::list<String>::iterator iter = modules.begin(); iter != modules.end(); ++iter)
 		{
 			CLogFile::Printf("Loading module %s.", iter->C_String());
-			CModule * pModule = g_pModuleManager->LoadModule(iter->C_String());
+			String strModule(iter->C_String());
+			if(!strModule.ToLower().EndsWith(".so") && !strModule.ToLower().EndsWith(".dll"))
+			{
+				// If no extension specified in module name string, load SO for linux and DLL for Win
+#ifdef WIN32
+				strModule.Append(".dll");
+#elif
+				strModule.Append(".so");
+#endif
+			}
+			CModule * pModule = g_pModuleManager->LoadModule(strModule);
 
 			if(!pModule)
 				CLogFile::Printf("Warning: Failed to load module %s.", iter->C_String());

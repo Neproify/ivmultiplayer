@@ -3,6 +3,7 @@
 // File: CFileTransfer.cpp
 // Project: Client.Core
 // Author(s):	jenksta
+//				CrackHD
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -14,21 +15,21 @@ CFileTransfer::CFileTransfer(bool bIsResource, String strHost, unsigned short us
 							: m_bIsResource(bIsResource), m_strName(strName), m_checksum(checksum), 
 							  m_bComplete(false), m_bSucceeded(false), m_strError("None")
 {
-	// Set our http client host and port
-	m_strHostAddress = strHost;
-	m_usPort = usPort;
-
-	// Directory for downloading this type of resources:
+	// Set up a local file/directory for this resource
+	String m_strFolderName = "clientscripts";
 	if(bIsResource)
 		m_strFolderName = "resources";
-	else
-		m_strFolderName = "clientscripts";
+	m_strPath.Set(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", m_strFolderName.Get(), m_strName.Get()));
 
-	// Set paths:
-	m_strPath.Set(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", m_strFolderName.Get(), strName.Get()));
-	m_strHttpUrl.Format("http://%s:%d/%s/%s", m_strHostAddress.Get(), m_usPort, m_strFolderName.Get(), m_strName.Get());
+	// Set up our http client:
+	m_httpClient = CHttpClient();
+	m_httpClient.SetHost(strHost);
+	m_httpClient.SetPort(usPort);
+	m_strHttpUrl.Format("/%s/%s", m_strFolderName.Get(), m_strName.Get());
 }
+
 CFileTransfer::~CFileTransfer() { }
+
 bool CFileTransfer::Download()
 {
 	// Does the file already exist?
@@ -49,7 +50,6 @@ bool CFileTransfer::Download()
 
 	// Attempt to open our destination file
 	FILE * fFile = fopen(m_strPath.Get(), "wb");
-
 	if(!fFile)
 	{
 		m_bComplete = true;
@@ -58,13 +58,19 @@ bool CFileTransfer::Download()
 		return false;
 	}
 
-	// Download file with cURL:
-	CURLcode result = curlDownloadToFile(fFile, m_strHttpUrl.Get());
-	if(result != CURLE_OK)
+	// Send a request:
+	if(!m_httpClient.Get(m_strHttpUrl))
 	{
-		m_strError.Format("cURL result code %d for %s, %s", result, m_strName.Get(), m_strHttpUrl.Get());
+		m_bComplete = true;
+		m_bSucceeded = false;
+		m_strError.Format("Http GET failed for file %s (%s)", m_strName.Get(), m_httpClient.GetLastErrorString().Get());
 		return false;
 	}
+
+	// Download data to file:
+	m_httpClient.SetFile(fFile);	
+	while(m_httpClient.IsBusy())
+		m_httpClient.Process();
 
 	// Close our downloaded file
 	fclose(fFile);

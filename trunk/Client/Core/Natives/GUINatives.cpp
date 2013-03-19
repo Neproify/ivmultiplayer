@@ -12,12 +12,308 @@
 #include <Squirrel/sqvm.h>
 #include <Squirrel/sqstring.h>
 #include "../CClient.h"
-#include "../Input.h"
 #include <SharedUtility.h>
 //#include "../CD3D9Webkit.hpp"
 
 extern CClient * g_pClient;
 //extern CD3D9WebKit * g_pWebkit;
+
+String GetKeyNameByScan(DWORD dwCode)
+{
+	switch(dwCode)
+	{
+	case 0x1:
+		return "escape";
+	case 0x2:
+		return "one";
+	case 0x3:
+		return "two";
+	case 0x4:
+		return "three";
+	case 0x5:
+		return "four";
+	case 0x6:
+		return "five";
+	case 0x7:
+		return "six";
+	case 0x8:
+		return "seven";
+	case 0x9:
+		return "eight";
+	case 0x0a:
+		return "nine";
+	case 0x0b:
+		return "zero";
+	case 0x0c:
+		return "minus";
+	case 0x0d:
+		return "equals";
+	case 0x0e:
+		return "backspace";
+	case 0x0f:
+		return "tab";
+	case 0x10:
+		return "q";
+	case 0x11:
+		return "w";
+	case 0x12:
+		return "e";
+	case 0x13:
+		return "r";
+	case 0x14:
+		return "t";
+	case 0x15:
+		return "y";
+	case 0x16:
+		return "u";
+	case 0x17:
+		return "i";
+	case 0x18:
+		return "o";
+	case 0x19:
+		return "p";
+	case 0x1a:
+		return "leftbracket";
+	case 0x1b:
+		return "rightbracket";
+	case 0x1c:
+		return "return ";
+	case 0x1d:
+		return "leftcontrol";
+	case 0x1e:
+		return "a";
+	case 0x1f:
+		return "s";
+	case 0x20:
+		return "d";
+	case 0x21:
+		return "f";
+	case 0x22:
+		return "g";
+	case 0x23:
+		return "h";
+	case 0x24:
+		return "j";
+	case 0x25:
+		return "k";
+	case 0x26:
+		return "l";
+	case 0x27:
+		return "semicolon";
+	case 0x28:
+		return "apostrophe";
+	case 0x29:
+		return "grave";
+	case 0x2a:
+		return "leftshift";
+	case 0x2b:
+		return "backslash";
+	case 0x2c:
+		return "z";
+	case 0x2d:
+		return "x";
+	case 0x2e:
+		return "c";
+	case 0x2f:
+		return "v";
+	case 0x30:
+		return "b";
+	case 0x31:
+		return "n";
+	case 0x32:
+		return "m";
+	case 0x33:
+		return "comma";
+	case 0x34:
+		return "period";
+	case 0x35:
+		return "slash";
+	case 0x36:
+		return "rightshift";
+	case 0x37:
+		return "multiply";
+	case 0x38:
+		return "leftalt";
+	case 0x39:
+		return "space";
+	case 0x3a:
+		return "capital";
+	case 0x3b:
+		return "f1";
+	case 0x3c:
+		return "f2";
+	case 0x3d:
+		return "f3";
+	case 0x3e:
+		return "f4";
+	case 0x3f:
+		return "f5";
+	case 0x40:
+		return "f6";
+	case 0x41:
+		return "f7";
+	case 0x42:
+		return "f8";
+	case 0x43:
+		return "f9";
+	case 0x44:
+		return "f10";
+	case 0x45:
+		return "numlock";
+	case 0x46:
+		return "scrolllock";
+	case 0x47:
+		return "numpad7";
+	case 0x48:
+		return "numpad8";
+	case 0x49:
+		return "numpad9";
+	case 0x4a:
+		return "subtract";
+	case 0x4b:
+		return "numpad4";
+	case 0x4c:
+		return "numpad5";
+	case 0x4d:
+		return "numpad6";
+	case 0x4e:
+		return "add";
+	case 0x4f:
+		return "numpad1";
+	case 0x50:
+		return "numpad2";
+	case 0x51:
+		return "numpad3";
+	case 0x52:
+		return "numpad0";
+	case 0x53:
+		return "decimal";
+	case 0x56:
+		return "oem_102";
+	case 0x57:
+		return "f11";
+	case 0x58:
+		return "f12";
+	case 0x64:
+		return "f13";
+	case 0x65:
+		return "f14";
+	case 0x66:
+		return "f15";
+	case 0x70:
+		return "kana";
+	case 0x73:
+		return "abnt_c1";
+	case 0x79:
+		return "convert";
+	case 0x7b:
+		return "noconvert";
+	case 0x7d:
+		return "yen";
+	case 0x7e:
+		return "abnt_c2";
+	case 0x8d:
+		return "numpadequals";
+	case 0x90:
+		return "prevtrack";
+	case 0x91:
+		return "at";
+	case 0x92:
+		return "colon";
+	case 0x93:
+		return "underline";
+	case 0x94:
+		return "kanji";
+	case 0x95:
+		return "stop";
+	case 0x96:
+		return "ax";
+	case 0x97:
+		return "unlabeled";
+	case 0x99:
+		return "nexttrack";
+	case 0x9c:
+		return "numpadenter";
+	case 0x9d:
+		return "rightcontrol";
+	case 0xa0:
+		return "mute";
+	case 0xa1:
+		return "calculator";
+	case 0xa2:
+		return "playpause";
+	case 0xa4:
+		return "mediastop";
+	case 0xae:
+		return "volumedown";
+	case 0xb0:
+		return "volumeup";
+	case 0xb2:
+		return "webhome";
+	case 0xb3:
+		return "numpadcomma";
+	case 0xb5:
+		return "divide";
+	case 0xb7:
+		return "sysrq";
+	case 0xb8:
+		return "rightalt";
+	case 0xc5:
+		return "pause";
+	case 0xc7:
+		return "home";
+	case 0xc8:
+		return "arrowup";
+	case 0xc9:
+		return "pageup";
+	case 0xcb:
+		return "arrowleft";
+	case 0xcd:
+		return "arrowright";
+	case 0xcf:
+		return "end";
+	case 0xd0:
+		return "arrowdown";
+	case 0xd1:
+		return "pagedown";
+	case 0xd2:
+		return "insert";
+	case 0xd3:
+		return "delete";
+	case 0xdb:
+		return "leftwindows";
+	case 0xdc:
+		return "rightwindows";
+	case 0xdd:
+		return "appmenu";
+	case 0xde:
+		return "power";
+	case 0xdf:
+		return "sleep";
+	case 0xe3:
+		return "wake";
+	case 0xe5:
+		return "websearch";
+	case 0xe6:
+		return "webfavorites";
+	case 0xe7:
+		return "webrefresh";
+	case 0xe8:
+		return "webstop";
+	case 0xe9:
+		return "webforward";
+	case 0xea:
+		return "webback";
+	case 0xeb:
+		return "mycomputer";
+	case 0xec:
+		return "mail";
+	case 0xed:
+		return "mediaselect";
+	default:
+		return "unknown";
+	}
+}
 
 // event guiVisibleChanged(string guiName)
 bool OnVisibleChanged(const CEGUI::EventArgs &eventArgs)
@@ -62,11 +358,11 @@ bool OnKeyPress(const CEGUI::KeyEventArgs &eArgs, String keyState)
 
 	CSquirrelArguments pArguments;
 	pArguments.push(eArgs.window->getName().c_str());
-	pArguments.push(GetKeyNameByCode(eArgs.scancode));
+	pArguments.push(GetKeyNameByScan(eArgs.scancode));
 	pArguments.push(keyState);
 
-	pEvents->Call(eventName, &pArguments, pScript);
-	return true;
+	CSquirrelArgument pReturn = pEvents->Call(eventName, &pArguments, pScript);
+	return pReturn.GetInteger();
 }
 bool OnKeyDown(const CEGUI::EventArgs &eventArgs)
 {

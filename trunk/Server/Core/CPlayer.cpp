@@ -67,8 +67,8 @@ CPlayer::CPlayer(EntityId playerId, String strName)
 	m_szAnimGroup = new char[256];
 	m_bMobilePhoneUse = false;
 	m_ucDimension = 0;
-	m_bDrop = false;
-	m_iWantedLevel = 0;
+	m_bWeaponDropEnabled = false;
+	m_uiWantedLevel = 0;
 	m_bJoined = false;
 }
 
@@ -592,10 +592,11 @@ float CPlayer::GetCurrentHeading()
 
 void CPlayer::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
-	m_vecMoveSpeed = vecMoveSpeed;
 	CBitStream bsSend;
 	bsSend.Write(vecMoveSpeed);
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerMoveSpeed, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
+
+	m_vecMoveSpeed = vecMoveSpeed;
 }
 
 void CPlayer::GetMoveSpeed(CVector3& vecMoveSpeed)
@@ -896,7 +897,8 @@ void CPlayer::SetDimension(unsigned char ucDimension)
 
 unsigned int CPlayer::GetFileChecksum(int iFile)
 {
-	if(iFile >= 0 && iFile < 2) {
+	if(iFile >= 0 && iFile < 2)
+	{
 		// handling.dat
 		if(iFile == 0)
 			return m_FileCheck.uiHandleFileChecksum;
@@ -904,9 +906,20 @@ unsigned int CPlayer::GetFileChecksum(int iFile)
 		// gta.dat
 		if(iFile == 1) 
 			return m_FileCheck.uiGTAFileChecksum;
-
-		return -1;
 	}
-	else
-		return -1;
+	return -1;
+}
+
+void CPlayer::SetWantedLevel(unsigned int uiWantedLevel)
+{
+	CBitStream bsSend;
+	bsSend.Write(uiWantedLevel);
+	g_pNetworkManager->RPC(RPC_ScriptingSetWantedLevel, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, m_playerId, false);
+	m_uiWantedLevel = uiWantedLevel;
+}
+
+void CPlayer::SetBlockWeaponDrop(bool drop)
+{
+	// TODO: rpc
+	m_bWeaponDropEnabled = drop;
 }

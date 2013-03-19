@@ -46,7 +46,6 @@ SQInteger _3DLabelNatives::Create(SQVM * pVM)
 	sq_getbool(pVM, -2, &bVisible);
 	sq_getfloat(pVM, -1, &fStreamingDistance);
 	bool bToggle = (bVisible != 0);
-	printf("New Label(%s, %i, %f)", szName, bToggle, fStreamingDistance);
 	sq_pushinteger(pVM, g_p3DLabelManager->Add(szName, vecPosition, iColor, bToggle, fStreamingDistance));
 
 	return 1;
