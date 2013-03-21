@@ -1301,7 +1301,6 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
 	g_pClient->GetMainMenu()->ShowMessageBox(strReason.C_String(),"Connection failed", true, true, false);
 }
 
-
 void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bitstream
@@ -1574,7 +1573,7 @@ void CClientRPCHandler::ScriptingGivePlayerWeapon(CBitStream * pBitStream, CPlay
 	if(!pBitStream)
 		return;
 
-	int weapon, ammo;
+	unsigned int weapon, ammo;
 	pBitStream->Read(weapon);
 	pBitStream->Read(ammo);
 	g_pClient->GetLocalPlayer()->GiveWeapon(weapon, ammo);
@@ -1644,38 +1643,23 @@ void CClientRPCHandler::ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlay
 	if(!pBitStream)
 		return;
 
+	// TODO FIXME: Seems like this native doesn't work.
 	float grav;
 	pBitStream->Read(grav);
 	Scripting::SetCharGravity(g_pClient->GetLocalPlayer()->GetScriptingHandle(), grav);
 }
 
-/*void CClientRPCHandler::SetPlayerDrunk(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+void CClientRPCHandler::TogglePlayerDrunk(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
+	// CrackHD: TODO: We should use 3 other scripting natives
 	bool bToggle;
 	bToggle = pBitStream->ReadBit();
-
-	Scripting::SetPedIsDrunk(g_pLocalPlayer->GetScriptingHandle(), !bToggle);
+	//Scripting::SetPedIsDrunk(g_pClient->GetLocalPlayer()->GetScriptingHandle(), bToggle);
 }
-
-void CClientRPCHandler::SetVehicleGravity(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
-{
-	// Ensure we have a valid bit stream
-	if(!pBitStream)
-		return;
-
-	EntityId vehicleId;
-	float grav;
-	pBitStream->Read(vehicleId);
-	pBitStream->Read(grav);
-	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
-
-	if(pVehicle)
-		//TODO
-}*/
 
 void CClientRPCHandler::ScriptingSetVehicleIndicators(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -1947,6 +1931,7 @@ void CClientRPCHandler::ScriptingSetPlayerMoney(CBitStream * pBitStream, CPlayer
 	g_pClient->GetLocalPlayer()->SetMoney(amount);
 }
 
+// CrackHD: What is that? move it from here.
 float fTextPos[2];
 String strTextText;
 int iTextTime = 0;

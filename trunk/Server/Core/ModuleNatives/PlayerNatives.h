@@ -28,7 +28,7 @@ namespace Modules
 		int GetHealth(EntityId playerId);
 		bool SetArmour(EntityId playerId, int iArmour);
 		int GetArmour(EntityId playerId);
-		bool SetCoordinates(EntityId playerId, CVector3 vecPos);
+		bool SetCoordinates(EntityId playerId, CVector3 vecCoordinates);
 		CVector3 GetCoordinates(EntityId playerId);
 		bool SetTime(EntityId playerId, unsigned char iHour, unsigned char iMinute);
 		bool SetWeather(EntityId playerId, unsigned char iWeather);
