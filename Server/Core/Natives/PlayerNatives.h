@@ -36,7 +36,7 @@ private:
 	static SQInteger IsOnFoot(SQVM * pVM);
 	static SQInteger TogglePayAndSpray(SQVM * pVM);
 	static SQInteger ToggleAutoAim(SQVM * pVM);
-	//static SQInteger SetPlayerDrunk(SQVM * pVM);
+	static SQInteger ToggleDrunk(SQVM * pVM);
 	static SQInteger GiveWeapon(SQVM * pVM);
 	static SQInteger RemoveWeapons(SQVM * pVM);
 	static SQInteger SetSpawnLocation(SQVM * pVM);
@@ -80,7 +80,7 @@ private:
 	static SQInteger GetEmptyControlState(SQVM * pVM);
 	static SQInteger GetPreviousControlState(SQVM * pVM);
 	static SQInteger GetControlState(SQVM * pVM);
-	static SQInteger TriggerEvent(SQVM * pVM);
+	static SQInteger TriggerClientEvent(SQVM * pVM);
 	static SQInteger ToggleNametagForPlayer(SQVM * pVM);
 	static SQInteger GetColor(SQVM * pVM);
 	static SQInteger SetColor(SQVM * pVM);
@@ -89,8 +89,6 @@ private:
 	static SQInteger GetClothes(SQVM * pVM);
 	static SQInteger ResetClothes(SQVM * pVM);
 	static SQInteger Respawn(SQVM * pVM);
-	static SQInteger GiveHelmet(SQVM * pVM);
-	static SQInteger RemoveHelmet(SQVM * pVM);
 	static SQInteger ToggleHelmet(SQVM * pVM);
 	static SQInteger SetCameraPos(SQVM * pVM);
 	static SQInteger SetCameraLookAt(SQVM * pVM);

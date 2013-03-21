@@ -246,7 +246,7 @@ bool CServer::OnLoad(int argc, char ** argv)
 				// If no extension specified in module name string, load SO for linux and DLL for Win
 #ifdef WIN32
 				strModule.Append(".dll");
-#elif
+#else
 				strModule.Append(".so");
 #endif
 			}
