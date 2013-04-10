@@ -85,14 +85,11 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 
 	if(pNetworkManager && pNetworkManager->IsConnected())
 	{
-		g_pClient->GetChatWindow()->SetEnabled(true);
+		g_pClient->GetChatWindow()->SetEnabled(false); //We don't want to show the chatbox anymore so we set it to FALSE not true derp
 
-		for(int i = 0; i < 10; i++)
-			g_pClient->GetChatWindow()->AddMessage(0xFFFFFFAA,false," ");
-
-		ShowMessageBox("Successfully disconnected from server","Disconnect",true,false,false);
 		g_pClient->ResetGame(true);
 		// jenksta: wtf?
+		// This is to give a quick timer, not to rush everything you know?
 		Sleep(500);
 		SetDisconnectButtonVisible(false);
 		SetVisible(true);
@@ -148,23 +145,28 @@ bool CMainMenu::OnAboutButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 	return true;
 }
 
+//Doesn't this look more organize and easier to understand eh?
 bool CMainMenu::OnQuitButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 {
 	// If we are connected to a server, disconnect
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
-
-	if(pNetworkManager && pNetworkManager->IsConnected())
-		pNetworkManager->Disconnect();
 	
-	// Delete the network manager interface
-	SAFE_DELETE(pNetworkManager);
-
-	// Delete the webkit interface
-	// SAFE_DELETE(g_pWebkit);
-
-	// Exit
-	ExitProcess(0);
-	return true;
+	if(pNetworkManager && pNetworkManager->IsConnected()) //If the player is connected to a server
+	{
+		pNetworkManager->Disconnect(); //Let's disconnect the player from server first
+		Sleep(500); //Add a quick timer to not rush the exit
+		SAFE_DELETE(pNetworkManager); //Now let's actually delete the NetworkManager
+		Sleep(100); //Another quick but very small timer to not rush the program exiting
+		//Do not use ExitProcess - Just Terminate it!
+		TerminateProcess(GetCurrentProcess(), 0);
+		return true; //Return it all to avoid a loop
+	}
+	else //If the player is not connected to any server
+	{
+		//Do not use ExitProcess - Just Terminate it!
+		TerminateProcess(GetCurrentProcess(), 0);
+		return true; //Return it all to avoid a loop
+	}	
 }
 
 // Server connect handler

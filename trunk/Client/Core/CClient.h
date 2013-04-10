@@ -171,4 +171,5 @@ public:
 	static void            ExceptionHandlerCallback(String& strReportData);
 
 	void                   ResetGame(bool bResetNow = false, bool bAutoConnect = false);
+	void				   ResetMainMenuCamera();
 };
