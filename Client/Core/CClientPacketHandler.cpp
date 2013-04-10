@@ -17,13 +17,11 @@ extern CClient * g_pClient;
 
 void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	//g_pClient->GetChatWindow()->AddInfoMessage("Connection failed! (Rejected)");
-	g_pClient->GetNetworkManager()->Disconnect();
-
-	// Get our main menu
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-
-	pMainMenu->ResetNetworkStats();
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	pNetworkManager->Disconnect();
+	g_pClient->GetMainMenu()->ResetNetworkStats();
+	g_pClient->ResetMainMenuCamera();
 	pMainMenu->ShowMessageBox("The server rejected your connection request!", "Connection failed", true, false, false);
 	pMainMenu->SetDisconnectButtonVisible(false);
 }
@@ -55,7 +53,6 @@ void CClientPacketHandler::ConnectionFailed(CBitStream * pBitStream, CPlayerSock
 
 void CClientPacketHandler::AlreadyConnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	//g_pClient->GetChatWindow()->AddInfoMessage("Connection failed(Already connected)!");
 	g_pClient->GetMainMenu()->ShowMessageBox("You're already on that server!", "Connection failed", true, false, false);
 }
 
@@ -64,48 +61,42 @@ void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * p
 	g_pClient->GetChatWindow()->AddInfoMessage("Connection failed (server is full), retrying...");
 	g_pClient->GetMainMenu()->ResetNetworkStats();
 	g_pClient->GetNetworkManager()->Connect();
-	//g_pClient->GetMainMenu()->ShowMessageBox("The server is full!", "Connection failed", true, false, false);
 }
 
 void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetChatWindow()->AddInfoMessage("Server closed the connection...");
-	g_pClient->GetMainMenu()->ResetNetworkStats();
-	CGame::SetKickedFromServer(true);
+	g_pClient->GetChatWindow()->AddInfoMessage("Server closed the connection.");
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
-
-	if(pNetworkManager->IsConnected())
+	
+	if(pNetworkManager && pNetworkManager->IsConnected())
+	{
 		pNetworkManager->Disconnect();
-
-	g_pClient->ResetGame(true);
-	//g_pClient->GetMainMenu()->ShowMessageBox("The server closed the connection!", "Disconnected", true, true, false);
-	g_pClient->GetMainMenu()->SetDisconnectButtonVisible(false);
-}
+		g_pClient->GetMainMenu()->ResetNetworkStats();
+		g_pClient->ResetMainMenuCamera();
+	}
+}	
 
 void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	//g_pClient->GetChatWindow()->AddInfoMessage("Connetion to the server lost, retrying ....");
-	g_pClient->ResetGame(true);
-
-	// Get our main menu
+	g_pClient->GetMainMenu()->ResetNetworkStats();
+	g_pClient->ResetMainMenuCamera();
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-
-	pMainMenu->ResetNetworkStats();
-	pMainMenu->ShowMessageBox("You have lost connection to the server!", "Lost connection", true, true, false);
+	pMainMenu->ShowMessageBox("The connection to the server has been lost!", "Connection lost...", false, false, false);
 	pMainMenu->SetDisconnectButtonVisible(false);
-}
+}	
 
 void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	//g_pClient->GetChatWindow()->AddInfoMessage("Connection failed(You're banned)!");
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	pMainMenu->ShowMessageBox("You are banned from this server!", "Connection failed", false, false, false);
-	pMainMenu->SetDisconnectButtonVisible(false);
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	pNetworkManager->Disconnect();
+	g_pClient->GetMainMenu()->ResetNetworkStats();
+	g_pClient->ResetMainMenuCamera();
 }
 
 void CClientPacketHandler::PasswordInvalid(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	//g_pClient->GetChatWindow()->AddInfoMessage("Connection failed(Wrong password)!");
 	g_pClient->GetMainMenu()->ShowMessageBox("Incorrect password!", "Connection failed", true, false, false);
 }
 

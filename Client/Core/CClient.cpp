@@ -970,7 +970,7 @@ void CClient::InternalResetGame(bool bAutoConnect)
 
 	CGame::SetGameLoaded(m_bGameLoaded);
 
-	// Reset the network stats
+	// Reset the network statsg
 	m_pMainMenu->ResetNetworkStats();
 
 	// Auto connect(if needed)
@@ -985,7 +985,24 @@ void CClient::ResetGame(bool bResetNow, bool bAutoConnect)
 {
 	// If requested reset the game now
 	if(bResetNow)
+	{
 		InternalResetGame(bAutoConnect);
-	else 
+	} else {	
 		m_bResetGame = true;
+	}	
 }
+	
+void CClient::ResetMainMenuCamera()
+{
+	SAFE_DELETE(m_pCamera);
+	m_pCamera = new CCamera();
+	
+	CLogFile::Printf("Attempting to reset the Main Menu Camera.");
+	if(m_pCamera)
+	{
+		m_pCamera->ActivateScriptCam();
+		m_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
+		m_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT),false);
+		CLogFile::Printf("Successfully Reset the Main Menu Camera.");
+	}	
+}	
