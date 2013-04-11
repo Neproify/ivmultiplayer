@@ -828,6 +828,66 @@ void CNetworkPlayer::SetCurrentHeading(float fHeading)
     }
 }
 
+void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
+{
+	THIS_CHECK(__FUNCTION__);
+	if(IsSpawned())
+	{
+		/*
+		float fHeadingFinal;
+		if(fHeading > GetCurrentHeading())
+			fHeadingFinal = fHeading-GetCurrentHeading();
+		else if(GetCurrentHeading() > fHeading)
+			fHeadingFinal = GetCurrentHeading()-fHeading;
+
+		// Check if we have to turn us
+		if(fHeadingFinal > 0.0 && fHeadingFinal < 0.1 || fHeadingFinal < 0.0 && fHeadingFinal > -0.1)
+			return;
+
+		for(int i = 0; i < 10; i++)
+		{
+			if(fHeading > GetCurrentHeading())
+				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
+			else if(GetCurrentHeading() > fHeading)
+				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
+		}*/
+		// Check if the player has already the same pos
+		if(GetCurrentHeading() == fHeading)
+			return;
+
+		// Check if the player isn't moving
+		CVector3 vecMoveSpeed; m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
+		if(vecMoveSpeed.Length() < 2.0f)
+		{
+			m_pPlayerPed->SetDesiredHeading(fHeading);
+			m_pPlayerPed->SetCurrentHeading(fHeading);
+		}
+		else if(!m_currentControlState.IsSprinting())
+		{
+			m_pPlayerPed->SetCurrentHeading(fHeading);
+			Sleep(10);
+			m_pPlayerPed->SetCurrentHeading(fHeading);
+		}
+		else
+		{
+			float fHeadingFinal;
+			if(fHeading > GetCurrentHeading())
+				fHeadingFinal = fHeading-GetCurrentHeading();
+			else if(GetCurrentHeading() > fHeading)
+				fHeadingFinal = GetCurrentHeading()-fHeading;
+
+			for(int i = 0; i < 10; i++)
+			{
+				if(fHeading > GetCurrentHeading())
+					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
+				else if(GetCurrentHeading() > fHeading)
+					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
+			}
+		}
+	}
+}
+
+
 float CNetworkPlayer::GetCurrentHeading()
 {
 	THIS_CHECK_R(__FUNCTION__,0)
@@ -1495,6 +1555,32 @@ void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned lon
 		m_interp.pos.fLastAlpha = 0.0f;
 	}
 }
+
+void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType)
+{
+	THIS_CHECK(__FUNCTION__);
+	if(IsSpawned()) {
+		
+		float tX = (vecPos.fX + (vecMove.fX * 10));
+		float tY = (vecPos.fY + (vecMove.fY * 10));
+		float tZ = (vecPos.fZ + (vecMove.fZ * 10));
+		unsigned int uiPlayerIndex = GetScriptingHandle();
+
+		// Create the task
+		DWORD dwAddress = (CGame::GetBase() + 0xB87480);
+		_asm
+		{
+			push 1000
+			push iMoveType
+			push tZ
+			push tY
+			push tX
+			push uiPlayerIndex
+			call dwAddress
+		}
+	}
+}
+
 
 void CNetworkPlayer::SetTargetRotation(float fHeading, unsigned long ulDelay)
 {
