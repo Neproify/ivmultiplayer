@@ -212,3 +212,47 @@ CIVTaskComplexPlayerOnFoot::CIVTaskComplexPlayerOnFoot()
 		call COffsets::FUNC_CTaskComplexPlayerOnFoot__Constructor
 	}
 }
+
+CIVTaskSimpleStartWalking::CIVTaskSimpleStartWalking(unsigned int playerIndex, float a1, float a2, float a3, int a4, int a5)
+{
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
+	 
+	// Create the task
+	Create();
+
+	IVTask * pTask = GetTask();
+	_asm
+	{
+		push TICK_RATE
+		push a3
+		push a2
+		push a1
+		push a4
+		mov ecx, pTask
+		call COffsets::FUNC_CTaskSimpleStartWalking__Constructor
+	}
+}
+
+CIVTaskSimpleStopWalking::CIVTaskSimpleStopWalking(unsigned int uiPlayerIndex, char iType)
+{
+#ifdef EXT_LOG
+	CLogFile::Printf(__FUNCSIG__);
+#endif
+	// Create the task
+	Create();
+
+	// Call the task constructor
+	IVTask * pTask = GetTask();
+	int fUnkown = (int)8.0; // maybe speed?
+	_asm
+	{
+		push fUnkown
+		push 0
+		push 0
+		push iType
+		mov ecx, pTask
+		call COffsets::FUNC_CTaskSimpleStopWalking__Constructor
+	}
+}

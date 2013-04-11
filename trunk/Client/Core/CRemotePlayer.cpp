@@ -111,7 +111,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 		m_bStoreOnFootSwitch = false;
 		if(syncPacket->vecMoveSpeed.Length() < 0.75) {
 			SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
-			SetCurrentHeading(syncPacket->fHeading);
+			SetCurrentSyncHeading(syncPacket->fHeading);
 			
 			if(m_iOldMoveStyle != 0) {
 				unsigned int uiPlayerIndex = GetScriptingHandle();
@@ -129,14 +129,17 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 		} else if(syncPacket->vecMoveSpeed.Length() < 3.0 && syncPacket->vecMoveSpeed.Length() >= 0.75) {
 			SetTargetPosition(syncPacket->vecPos,TICK_RATE);
 			SetTargetRotation(syncPacket->fHeading, TICK_RATE);
+			SetMoveToDirection(syncPacket->vecPos, syncPacket->vecMoveSpeed, 2);
 			m_iOldMoveStyle = 1;
 		} else if(syncPacket->vecMoveSpeed.Length() < 5.0 && syncPacket->vecMoveSpeed.Length() > 3.0) {
 			SetTargetPosition(syncPacket->vecPos,TICK_RATE);
 			SetTargetRotation(syncPacket->fHeading, TICK_RATE);
+			SetMoveToDirection(syncPacket->vecPos, syncPacket->vecMoveSpeed, 3);
 			m_iOldMoveStyle = 2;
 		} else {
 			SetTargetPosition(syncPacket->vecPos, (TICK_RATE/4)*3);
 			SetTargetRotation(syncPacket->fHeading, TICK_RATE);
+			SetMoveToDirection(syncPacket->vecPos, syncPacket->vecMoveSpeed, 4);
 			m_iOldMoveStyle = 3;
 		}
 	} else {
@@ -159,7 +162,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 			}
 		}
 		SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
-		SetCurrentHeading(syncPacket->fHeading);
+		SetCurrentSyncHeading(syncPacket->fHeading);
 		SetMoveSpeed(syncPacket->vecMoveSpeed);
 		SetTurnSpeed(syncPacket->vecTurnSpeed);
 	}

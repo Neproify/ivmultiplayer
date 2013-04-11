@@ -146,6 +146,7 @@ public:
 	void                     SetPosition(const CVector3& vecPosition, bool bResetInterpolation = true);
 	void                     GetPosition(CVector3& vecPosition);
 
+	void					 SetCurrentSyncHeading(float fHeading);	
 	void                     SetCurrentHeading(float fHeading);
 	float                    GetCurrentHeading();
 
@@ -216,6 +217,7 @@ public:
 	void                     ResetInterpolation();
 
 	void                     SetTargetPosition(const CVector3& vecPosition, unsigned long ulDelay);
+	void					 SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType);
 	void                     SetTargetRotation(float fHeading, unsigned long ulDelay);
 
 	void                     RemoveTargetPosition();
