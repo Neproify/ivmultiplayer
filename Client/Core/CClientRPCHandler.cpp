@@ -1410,7 +1410,7 @@ void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 	// Get the player
 	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
-	if(pPlayer && pPlayer->IsSpawned())
+	if(pPlayer && pPlayer->IsSpawned()) //ViruZz: Reverted back to 289 (Temporary till we fix everything properly with TESTING)
 		pPlayer->TaskLookAtCoord(vecAim.fX, vecAim.fY, vecAim.fZ);
 }
 
