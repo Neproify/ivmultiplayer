@@ -23,7 +23,7 @@ extern bool              m_bControlsDisabled;
 #define THIS_CHECK_R(func,x) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s [ Type 2 | Func %s() ]",__FILE__,func); } return x; }
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
-	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
+	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1), //ViruZz: Leave this to -1 until XForce Streamer is completely finished
 	m_bIsLocalPlayer(bIsLocalPlayer),
 	m_playerId(INVALID_ENTITY_ID),
 	m_pContextData(NULL),
@@ -833,24 +833,6 @@ void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
 	{
-		/*
-		float fHeadingFinal;
-		if(fHeading > GetCurrentHeading())
-			fHeadingFinal = fHeading-GetCurrentHeading();
-		else if(GetCurrentHeading() > fHeading)
-			fHeadingFinal = GetCurrentHeading()-fHeading;
-
-		// Check if we have to turn us
-		if(fHeadingFinal > 0.0 && fHeadingFinal < 0.1 || fHeadingFinal < 0.0 && fHeadingFinal > -0.1)
-			return;
-
-		for(int i = 0; i < 10; i++)
-		{
-			if(fHeading > GetCurrentHeading())
-				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
-			else if(GetCurrentHeading() > fHeading)
-				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
-		}*/
 		// Check if the player has already the same pos
 		if(GetCurrentHeading() == fHeading)
 			return;
@@ -892,7 +874,8 @@ float CNetworkPlayer::GetCurrentHeading()
 {
 	THIS_CHECK_R(__FUNCTION__,0)
 	if(IsSpawned())
-		return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetCurrentHeading());
+		return m_pPlayerPed->GetCurrentHeading();
+		//return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetCurrentHeading());
 
 	return 0.0f;
 }
@@ -901,14 +884,16 @@ void CNetworkPlayer::SetDesiredHeading(float fHeading)
 {
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
-		m_pPlayerPed->SetDesiredHeading(Math::ConvertDegreesToRadians(fHeading));
+		m_pPlayerPed->SetDesiredHeading(fHeading);
+		//m_pPlayerPed->SetDesiredHeading(Math::ConvertDegreesToRadians(fHeading));
 }
 
 float CNetworkPlayer::GetDesiredHeading()
 {
 	THIS_CHECK_R(__FUNCTION__,0)
 	if(IsSpawned())
-		return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetDesiredHeading());
+		return m_pPlayerPed->GetDesiredHeading();
+		//return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetDesiredHeading());
 
 	return 0.0f;
 }

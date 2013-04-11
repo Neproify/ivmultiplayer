@@ -99,7 +99,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 	
 	// If we are in a vehicle remove ourselves from it
 	if(IsInVehicle())
-		RemoveFromVehicle();
+			RemoveFromVehicle();
 
 	// If we have new sync data -> continue otherwise we don't need to update it
 	/*if(m_pLastSyncData != syncPacket)
