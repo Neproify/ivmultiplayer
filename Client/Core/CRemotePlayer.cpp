@@ -106,12 +106,73 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 		m_pLastSyncData = syncPacket;
 	else
 		return;*/
-
-	SetTargetPosition(syncPacket->vecPos, TICK_RATE);
-	SetTargetRotation(syncPacket->fHeading, TICK_RATE);
-	SetMoveSpeed(syncPacket->vecMoveSpeed);
-	SetTurnSpeed(syncPacket->vecTurnSpeed);
-
+	
+	if(!bHasAimSyncData) {
+		m_bStoreOnFootSwitch = false;
+		if(syncPacket->vecMoveSpeed.Length() < 0.75) {
+			SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
+			SetCurrentHeading(syncPacket->fHeading);
+			
+			if(m_iOldMoveStyle != 0) {
+				unsigned int uiPlayerIndex = GetScriptingHandle();
+				DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
+				_asm {
+					push 17
+					push 0
+					push uiPlayerIndex
+					call dwAddress
+				}
+			}
+			SetMoveSpeed(syncPacket->vecMoveSpeed);
+			SetTurnSpeed(syncPacket->vecTurnSpeed);
+			m_iOldMoveStyle = 0;
+		} else if(syncPacket->vecMoveSpeed.Length() < 3.0 && syncPacket->vecMoveSpeed.Length() >= 0.75) {
+			SetTargetPosition(syncPacket->vecPos,TICK_RATE);
+			SetTargetRotation(syncPacket->fHeading, TICK_RATE);
+			m_iOldMoveStyle = 1;
+		} else if(syncPacket->vecMoveSpeed.Length() < 5.0 && syncPacket->vecMoveSpeed.Length() > 3.0) {
+			SetTargetPosition(syncPacket->vecPos,TICK_RATE);
+			SetTargetRotation(syncPacket->fHeading, TICK_RATE);
+			m_iOldMoveStyle = 2;
+		} else {
+			SetTargetPosition(syncPacket->vecPos, (TICK_RATE/4)*3);
+			SetTargetRotation(syncPacket->fHeading, TICK_RATE);
+			m_iOldMoveStyle = 3;
+		}
+	} else {
+		if(!m_bStoreOnFootSwitch) {
+			m_bStoreOnFootSwitch = true;
+			unsigned int uiPlayerIndex = GetScriptingHandle();
+			DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
+			_asm {
+				push 17
+				push 0
+				push uiPlayerIndex
+				call dwAddress
+			}
+			uiPlayerIndex = GetScriptingHandle();
+			dwAddress = (CGame::GetBase() + 0xB868E0);
+			_asm {
+				push 1
+				push uiPlayerIndex
+				call dwAddress
+			}
+		}
+		SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
+		SetCurrentHeading(syncPacket->fHeading);
+		SetMoveSpeed(syncPacket->vecMoveSpeed);
+		SetTurnSpeed(syncPacket->vecTurnSpeed);
+	}
+	if(!m_bStoreOnFootSwitch && syncPacket->vecMoveSpeed.Length() > 1.0 && syncPacket->controlState.IsJumping()) {
+		unsigned int uiPlayerIndex = GetScriptingHandle();
+		char iJumpStyle = 1;
+		DWORD dwAddress = (CGame::GetBase() + 0xB86A20);
+		_asm {
+			push iJumpStyle
+			push uiPlayerIndex
+			call dwAddress
+		}
+	}
 	// Set our control state
 	SetControlState(&syncPacket->controlState);
 
@@ -129,20 +190,16 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 	unsigned int uiAmmo = ((syncPacket->uWeaponInfo << 12) >> 12);
 
 	// Do we not have the right weapon equipped?
-	if(GetCurrentWeapon() != uiWeapon)
-	{
+	if(GetCurrentWeapon() != uiWeapon) {
 		// Set our current weapon
 		GiveWeapon(uiWeapon, uiAmmo);
 	}
-
 	// Do we not have the right ammo?
-	if(GetAmmo(uiWeapon) != uiAmmo)
-	{
+	if(GetAmmo(uiWeapon) != uiAmmo) {
 		// Set our ammo
 		SetAmmo(uiWeapon, uiAmmo);
-	}
-
-	m_stateType = STATE_TYPE_ONFOOT;
+	}	
+	m_stateType = STATE_TYPE_ONFOOT;				
 }
 
 void CRemotePlayer::StoreInVehicleSync(EntityId vehicleId, InVehicleSyncData * syncPacket)
