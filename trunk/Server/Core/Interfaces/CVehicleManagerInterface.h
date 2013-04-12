@@ -15,7 +15,7 @@ class CPlayerInterface;
 class CVehicleManagerInterface
 {
 public:
-	virtual EntityId Add(int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4, int respawn_delay = 1) = 0;
+	virtual EntityId Add(int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4, int iDimension, int respawn_delay = 1) = 0;
 	virtual void Remove(EntityId vehicleId) = 0;
 	virtual bool DoesExist(EntityId vehicleId) = 0;
 	virtual int GetVehicleCount() = 0;

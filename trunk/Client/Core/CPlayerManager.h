@@ -29,7 +29,7 @@ public:
 
 	void             Add(EntityId playerId, String szPlayerName);
 	bool             Remove(EntityId playerId);
-	void             Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos, float fSpawnHeading);
+	void             Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, int ucDimension);
 	void             Pulse();
 	void             SetLocalPlayer(EntityId playerId, CNetworkPlayer * pPlayer);
 

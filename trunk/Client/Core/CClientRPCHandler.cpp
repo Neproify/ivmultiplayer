@@ -212,6 +212,9 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	// Read the dirt level
 	float fDirtLevel;
 	pBitStream->Read(fDirtLevel);
+	
+	int DimensionId;
+	pBitStream->Read(DimensionId);
 
 	// Read the indicator states
 	bool bIndicatorStateFrontLeft  = pBitStream->ReadBit();
@@ -344,6 +347,9 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	// Flag the vehicle as can be streamed in
 	pVehicle->SetCanBeStreamedIn(true);
+	
+	// Setting the Vehicle Dimension
+	pVehicle->SetDimension(DimensionId);
 }
 
 void CClientRPCHandler::DeleteVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -960,12 +966,14 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			CVector3 vecPosition;
 			float fHeading;
 			EntityId vehicleId;
-
+			int ucDimension;
+			
 			pBitStream->Read(iModelId);
 			pBitStream->Read(bHelmet);
 			pBitStream->Read(vecPosition);
 			pBitStream->Read(fHeading);
 			pBitStream->ReadCompressed(vehicleId);
+			pBitStream->Read(ucDimension);
 
 			// Reset health to 200(IV Health + 100), otherwise player is "dead"
 			pPlayer->SetHealth(200);
@@ -974,7 +982,10 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pPlayer->ClearDieTask();
 
 			// Spawn player
-			pPlayerManager->Spawn(playerId, iModelId, vecPosition, fHeading);
+			pPlayerManager->Spawn(playerId, iModelId, vecPosition, fHeading, ucDimension);
+			
+			// Flag the player to be streamed in
+			pPlayer->SetCanBeStreamedIn(true);
 
 			// Is there a helmet?
 			if(bHelmet)
@@ -3395,39 +3406,32 @@ void CClientRPCHandler::ScriptingSetPlayerDimension(CBitStream * pBitStream, CPl
 {
 	if(!pBitStream)
 		return;
-
+		
+	EntityId iModelId;
 	EntityId playerId;
-	SQInteger Dimension;
-	
+	SQInteger Dimension;	
+	pBitStream->Read(iModelId);
 	pBitStream->Read(playerId);
 	pBitStream->Read(Dimension);
-
-	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
-
-	if(pPlayer)
-		pPlayer->SetDimension(Dimension);
-
-	g_pClient->GetStreamer()->Pulse();
-}
-
-void CClientRPCHandler::ScriptingSetVehicleDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
-{
-	if(!pBitStream)
-		return;
-
-	EntityId vehicleId;
-	SQInteger Dimension;	
-	pBitStream->Read(vehicleId);
-	pBitStream->Read(Dimension);
-
-	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
-
-	if(pVehicle)
+	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(iModelId);
+		
+	if(pVehicle) //Detecting if the client is in any vehicle
+	{
 		pVehicle->SetDimension(Dimension);
-
-	//g_pStreamer->Pulse();
+			
+	} 
+	else //The player isn't in a vehicle so we're setting his normal dimension	 
+	{ 
+			
+		CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+			
+		if(pPlayer)
+		{
+			pPlayer->SetDimension(Dimension);
+		}
+		g_pClient->GetStreamer()->Pulse();
+	}
 }
-
 
 void CClientRPCHandler::ResetVehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -3910,7 +3914,7 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingPlayerSaySpeech, ScriptingForcePlayerSpeech);
 	AddFunction(RPC_ScriptingLetPlayerDriveAutomatic, ScriptingLetPlayerDriveAutomatic);
 	AddFunction(RPC_ScriptingSetPlayerDimension, ScriptingSetPlayerDimension);
-	AddFunction(RPC_ScriptingSetVehicleDimension, ScriptingSetVehicleDimension);
+	//AddFunction(RPC_ScriptingSetVehicleDimension, ScriptingSetVehicleDimension);
 	AddFunction(RPC_ResetVehicleEnterExit, ResetVehicleEnterExit);
 	AddFunction(RPC_ScriptingTogglePlayerLabelForPlayer, ScriptingTogglePlayerLabelForPlayer);
 	AddFunction(RPC_ScriptingFixVehicle, ScriptingFixVehicle);

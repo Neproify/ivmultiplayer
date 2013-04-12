@@ -53,8 +53,6 @@ void CSettings::LoadDefaults()
 #else
 	AddString("ip", "127.0.0.1");
 	AddInteger("port", 9999, 1024, 65535);
-	//AddString("nick", "kyefag");
-	//AddString("nick", "jenksta");
 	AddString("nick", "player");
 	AddString("pass", "");
 	AddBool("windowed", false);
