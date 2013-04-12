@@ -109,6 +109,7 @@ void CPlayer::SpawnForPlayer(EntityId playerId)
 	bsSend.Write(m_bHelmet);
 	bsSend.Write(m_vecPosition);
 	bsSend.Write(m_fHeading);
+	bsSend.Write(m_ucDimension);
 
 	if(m_pVehicle)
 	{
@@ -183,6 +184,9 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 
 	// Set the heading	
 	m_fHeading = syncPacket->fHeading;
+	
+	// Set the Dimension
+	m_ucDimension = syncPacket->ucDimension;
 
 	// Set the move speed
 	m_vecMoveSpeed = syncPacket->vecMoveSpeed;
@@ -880,7 +884,8 @@ void CPlayer::SetDimension(DimensionId ucDimension)
 	bsSend.Write(m_playerId);
 	bsSend.Write(ucDimension);
 	// TODO WTF ? Client shoud handle 1 rpc and detect if player in vehicle, set player's vehicle to same dimension	
-	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	// Done ^^ ViruZz*
+	//g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 
 	m_ucDimension = ucDimension;

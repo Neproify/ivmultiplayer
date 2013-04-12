@@ -95,7 +95,7 @@ typedef unsigned short EntityId;
 #define INVALID_ENTITY_ID (EntityId)0xFFFF
 
 // Type used for dimension ids
-typedef unsigned char DimensionId;
+typedef unsigned char DimensionId; 
 
 // Define used for invalid dimension ids
 #define INVALID_DIMENSION_ID (DimensionId)0xFF
@@ -220,6 +220,7 @@ struct OnFootSyncData
 	bool bDuckState : 1;             // ducking
 	unsigned int uHealthArmour : 32; // player health and armour (first 16bit Health last 16bit Armour)
 	unsigned int uWeaponInfo;        // player weapon and ammo
+	int ucDimension;				 // Not going to be unsigned since we only update it if it was changed - ViruZz*
 };
 
 struct InVehicleSyncData

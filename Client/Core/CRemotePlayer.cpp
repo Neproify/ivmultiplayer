@@ -31,7 +31,7 @@ CRemotePlayer::~CRemotePlayer()
 	Destroy();
 }
 
-bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate)
+bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, int ucDimension, bool bDontRecreate)
 {
 	if(!bDontRecreate)
 	{
@@ -56,6 +56,7 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 	SetModel(SkinIdToModelHash(iModelId));
 	Teleport(vecSpawnPos);
 	SetCurrentHeading(fSpawnHeading);
+	SetDimension(ucDimension);
 	Init();
 	return true;
 }

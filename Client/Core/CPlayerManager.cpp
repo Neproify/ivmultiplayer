@@ -297,7 +297,7 @@ bool CPlayerManager::Remove(EntityId playerId)
 	return true;
 }
 
-void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos, float fSpawnHeading)
+void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, int ucDimension)
 {
 	if(!DoesExist(playerId))
 		return;
@@ -311,7 +311,7 @@ void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos
 	}
 
 	CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(m_pPlayers[playerId]);
-	pRemotePlayer->Spawn(iModelId, vecSpawnPos, fSpawnHeading, true);
+	pRemotePlayer->Spawn(iModelId, vecSpawnPos, fSpawnHeading, ucDimension, true);
 
 	/*if(pRemotePlayer->GetGamePlayerPed() != NULL && pRemotePlayer->GetModelInfo() != NULL) {
 		if( ModelHashToSkinId(pRemotePlayer->GetModelInfo()->GetHash()) != iModelId) {

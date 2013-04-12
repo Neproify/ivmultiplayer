@@ -11,13 +11,13 @@ local cp1;
 local actor1;
 local blipcolortest;
 
-function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4, respawn_delay = -1)
+function createVehicle(model, x, y, z, rx, ry, rz, c1, c2, c3, c4, dimension, respawn_delay = -1)
 {
-	local vehicleId = createVehicle_Original(model, x, y, z, rx, ry, rz, c1, c2, c3, c4, respawn_delay);
+	local vehicleId = createVehicle_Original(model, x, y, z, rx, ry, rz, c1, c2, c3, c4, dimension, respawn_delay);
 
 	if(vehicleId != INVALID_VEHICLE_ID)
 	{
-		//log("Created a vehicle with id " + vehicleId + " (Model " + model + " (" + getVehicleName(model) + "))");
+		log("Created a vehicle with id " + vehicleId + " (Model " + model + " (" + getVehicleName(model) + ")) (Dimension: " + dimension + " )");
 		vehicles[vehicles.len()] <- vehicleId;
 	}
 	return vehicleId;
@@ -45,21 +45,21 @@ addEvent("scriptError", onScriptError);
 
 function onScriptInit()
 {
-	createVehicle(50, 1682.030884, 415.455414, 28.492632, 359.998413, 358.788818, 47.536011, 1, 1, 1, 1, 30000); // car1
-	createVehicle(27, 1667.659546, 432.233398, 28.631674, 0.607056, 351.466797, 88.324951, 1, 1, 1, 1); // car2
-	createVehicle(37, 1666.811768, 421.175903, 28.643723, 359.297852, 351.982788, 268.549927, 0, 0, 0, 0); // car3
-	createVehicle(40, 1657.118408, 421.462982, 28.569500, 359.828613, 352.884033, 267.583008, 0, 0, 0, 0); // car4
-	createVehicle(93, 1649.273560, 421.382935, 28.761145, 0.001465, 351.280945, 270.491577, 1, 1, 1, 1); // car5
-	createVehicle(28, 1641.365967, 421.592712, 28.691023, 359.782715, 352.587891, 269.953735, 131, 131, 131, 131); // car6
-	createVehicle(95, 1631.719482, 420.940094, 28.562838, 1.065430, 352.694153, 277.920654, 0, 0, 0, 0); // car7
-	createVehicle(91, 1628.712646, 430.695221, 28.632729, 359.860657, 352.000366, 96.860474, 0, 0, 0, 0); // car8
-	//createVehicle(12, 1644.682373, 443.919067, 28.959641, 0.186646, 359.772217, 181.766296, 1, 1, 1, 1); // car9
-	createVehicle(90, 1655.603516, 439.904358, 28.416683, 359.700562, 352.003357, 0.547791, 0, 0, 0, 0); // car10
-	createVehicle(18, 1655.166138, 448.823395, 28.452307, 0.021606, 352.756836, 358.443848, 0, 0, 0, 0); // car11
-	createVehicle(106, 1650.725464, 411.433807, 30.725628, 0.017944, 0.080933, 28.687622, 0, 0, 0, 0); // car12
-	createVehicle(108, 1647.794922, 411.647644, 30.763536, 359.298218, 2.161499, 335.835205, 1, 1, 1, 1); // car13
-	cp1 = createCheckpoint(3, -343.447662, 1171.119263, 14.146016, -343.447662, 1176.119263, 14.146016, 3.0);
-	//getVehicleDimension(vehicles[0]);
+	createVehicle(50, 1682.030884, 415.455414, 28.492632, 359.998413, 358.788818, 47.536011, 1, 1, 1, 1, 0, 30000); // car1
+	createVehicle(27, 1667.659546, 432.233398, 28.631674, 0.607056, 351.466797, 88.324951, 1, 1, 1, 0, 1); // car2
+	createVehicle(37, 1666.811768, 421.175903, 28.643723, 359.297852, 351.982788, 268.549927, 0, 0, 0, 0, 0); // car3
+	createVehicle(40, 1657.118408, 421.462982, 28.569500, 359.828613, 352.884033, 267.583008, 0, 0, 0, 0, 0); // car4
+	createVehicle(93, 1649.273560, 421.382935, 28.761145, 0.001465, 351.280945, 270.491577, 1, 1, 1, 1, 0); // car5
+	createVehicle(28, 1641.365967, 421.592712, 28.691023, 359.782715, 352.587891, 269.953735, 131, 131, 131, 131, 0); // car6
+	createVehicle(95, 1631.719482, 420.940094, 28.562838, 1.065430, 352.694153, 277.920654, 0, 0, 0, 0, 0); // car7
+	createVehicle(91, 1628.712646, 430.695221, 28.632729, 359.860657, 352.000366, 96.860474, 0, 0, 0, 0, 0); // car8
+	//createVehicle(12, 1644.682373, 443.919067, 28.959641, 0.186646, 359.772217, 181.766296, 1, 1, 1, 1, 0); // car9
+	createVehicle(90, 1655.603516, 439.904358, 28.416683, 359.700562, 352.003357, 0.547791, 0, 0, 0, 0, 0); // car10
+	createVehicle(18, 1655.166138, 448.823395, 28.452307, 0.021606, 352.756836, 358.443848, 0, 0, 0, 0, 0); // car11
+	createVehicle(106, 1650.725464, 411.433807, 30.725628, 0.017944, 0.080933, 28.687622, 0, 0, 0, 0, 0); // car12
+	createVehicle(108, 1647.794922, 411.647644, 30.763536, 359.298218, 2.161499, 335.835205, 1, 1, 1, 1, 0); // car13
+	//cp1 = createCheckpoint(3, -343.447662, 1171.119263, 14.146016, -343.447662, 1176.119263, 14.146016, 3.0);
+	getVehicleDimension(vehicles[0]);
 	//actor1 = createActor(242, -341.36, 1142.80, 14.79, 5.0);
 	log(_version_);
 	local config = getConfig();
@@ -148,6 +148,19 @@ function onPlayerCommand(playerid, command)
 {
 	local cmd = split(command, " ");
 
+	if(cmd[0] == "/mydimension")
+	{
+		sendPlayerMessage(playerid, "You're currently in dimension " + getPlayerDimension(playerid) + ".");
+	}
+	if(cmd[0] == "/setdimension")
+	{
+		if(cmd.len() < 2)
+			sendPlayerMessage(playerid, "USAGE: /setdimension [playerid]", 0xFFFFFFAA);
+		else {
+			setPlayerDimension(playerid, cmd[1].tointeger());
+			sendPlayerMessage(playerid, "You have set your dimension to " + cmd[1].tointeger() + ".", 0xFFFFFFAA);
+		}
+	}	
 	if(cmd[0] == "/label")
 	{
 		if(cmd.len() < 2) 
@@ -805,7 +818,7 @@ function onPlayerCommand(playerid, command)
 
 	if(cmd[0] == "/cptest")
 	{
-		hideCheckpointForAll(cp1);
+		//hideCheckpointForAll(cp1);
 	}
 	
 	if(cmd[0] == "/testcheckpoint")

@@ -35,7 +35,7 @@ CVehicleManager::~CVehicleManager()
 	}
 }
 
-EntityId CVehicleManager::Add(int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4, int respawn_delay)
+EntityId CVehicleManager::Add(int iModelId, CVector3 vecSpawnPosition, CVector3 vecSpawnRotation, BYTE byteColor1, BYTE byteColor2, BYTE byteColor3, BYTE byteColor4, int iDimension, int respawn_delay)
 {
 	for(EntityId x = 0; x < MAX_VEHICLES; x++)
 	{
@@ -45,11 +45,20 @@ EntityId CVehicleManager::Add(int iModelId, CVector3 vecSpawnPosition, CVector3 
 
 			if(m_pVehicles[x])
 			{
+				
 				m_bActive[x] = true;
 				m_pVehicles[x]->SetRespawnDelay(respawn_delay);
 				CSquirrelArguments pArguments;
 				pArguments.push(x);
 				g_pEvents->Call("vehicleCreate", &pArguments);
+				
+				
+				m_pVehicles[x]->SetDimension(iDimension);
+				CBitStream bsSend;
+				bsSend.Write(iModelId);
+				bsSend.Write(iDimension);
+				g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+				
 
 				return x;
 			}
