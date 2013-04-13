@@ -311,7 +311,7 @@ void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos
 	}
 
 	CRemotePlayer * pRemotePlayer = reinterpret_cast<CRemotePlayer*>(m_pPlayers[playerId]);
-	pRemotePlayer->Spawn(iModelId, vecSpawnPos, fSpawnHeading, ucDimension, true);
+	pRemotePlayer->Spawn(iModelId, vecSpawnPos, fSpawnHeading, true);
 	pRemotePlayer->SetModel(SkinIdToModelHash(iModelId));
 	
 	// CrackHD: prevents player to scream (voice) after spawn sometimes...
