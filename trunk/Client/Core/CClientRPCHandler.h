@@ -178,6 +178,7 @@ private:
 	static void ScriptingForceActorSpeech(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingLetPlayerDriveAutomatic(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	static void ScriptingSetVehicleDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ResetVehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingFixVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

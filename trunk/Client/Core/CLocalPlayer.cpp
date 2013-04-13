@@ -21,7 +21,6 @@
 extern CClient * g_pClient;
 extern bool      m_bControlsDisabled;
 
-// Hook for call to CRestarts::GetRestart(CVector3 * pvecPosition, CVector3_Pad * pvecRestartPosition, float * fRestartHeading)
 void GetLocalPlayerSpawnPosition(int, CVector3 * vecSpawnPosition, float * fAngle)
 {
 	_asm
@@ -41,7 +40,8 @@ void GetLocalPlayerSpawnPosition(int, CVector3 * vecSpawnPosition, float * fAngl
 	}
 }
 
-// Hook for call to CGameLogic::ResurrectPlayer(CPlayerPed *pPlayerPed, CVector3 * pvecPosition, float fHeading)
+// Params seem to be IVPlayerPed * pPlayerPed, Vector3 position, float rotation
+// (could prolly skip the GetLocalPlayerSpawnPosition but I didn't get it to work)
 void __declspec(naked) HandleLocalPlayerSpawn()
 {
 	_asm

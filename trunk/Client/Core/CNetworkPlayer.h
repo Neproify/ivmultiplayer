@@ -62,7 +62,7 @@ private:
 		} rot;
 	}                 m_interp;
 	unsigned char     m_ucClothes[11];
-	bool              m_bHasCustomClothes;
+	bool              m_bUseCustomClothesOnSpawn;
 	CControlState     m_previousControlState;
 	CControlState     m_currentControlState;
 	CVector3          m_vecAimTarget;
@@ -111,6 +111,7 @@ public:
 	void                     SetPing(unsigned short usPing) { m_usPing = usPing; }
 	unsigned short           GetPing() { return m_usPing; }
 	virtual bool             Create();
+	virtual void             Init();
 	virtual void             Destroy();
 
 	//
@@ -146,9 +147,10 @@ public:
 	void                     SetPosition(const CVector3& vecPosition, bool bResetInterpolation = true);
 	void                     GetPosition(CVector3& vecPosition);
 
-	void					 SetCurrentSyncHeading(float fHeading);	
 	void                     SetCurrentHeading(float fHeading);
 	float                    GetCurrentHeading();
+
+	void					 SetCurrentSyncHeading(float fHeading);
 
 	void                     SetDesiredHeading(float fHeading);
 	float                    GetDesiredHeading();
@@ -286,7 +288,4 @@ public:
 	void					 StreamIn();
 	void					 StreamOut();
 	void					 GetStreamPosition(CVector3& position) { GetPosition(position); }
-	
-	//
-	void					 Init();
 };

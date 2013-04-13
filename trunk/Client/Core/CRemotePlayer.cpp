@@ -31,7 +31,7 @@ CRemotePlayer::~CRemotePlayer()
 	Destroy();
 }
 
-bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, int ucDimension, bool bDontRecreate)
+bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate)
 {
 	if(!bDontRecreate)
 	{
@@ -56,7 +56,6 @@ bool CRemotePlayer::Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeadin
 	SetModel(SkinIdToModelHash(iModelId));
 	Teleport(vecSpawnPos);
 	SetCurrentHeading(fSpawnHeading);
-	SetDimension(ucDimension);
 	Init();
 	return true;
 }
@@ -100,7 +99,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 	
 	// If we are in a vehicle remove ourselves from it
 	if(IsInVehicle())
-			RemoveFromVehicle();
+		RemoveFromVehicle();
 
 	// If we have new sync data -> continue otherwise we don't need to update it
 	/*if(m_pLastSyncData != syncPacket)

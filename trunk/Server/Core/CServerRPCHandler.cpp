@@ -705,7 +705,14 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 
 			if(!pBitStream->Read(byteSeatId))
 				return;
-			
+
+			// Call the event
+			CSquirrelArguments arguments;
+			arguments.push(playerId);
+			arguments.push(vehicleId);
+			arguments.push(byteSeatId);
+			g_pEvents->Call("vehicleEntryComplete", &arguments);
+
 			// Set the player vehicle and seat id
 			pPlayer->SetVehicle(pVehicle);
 			pPlayer->SetVehicleSeatId(byteSeatId);
@@ -715,13 +722,6 @@ void CServerRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket 
 
 			// Set the player state
 			pPlayer->SetState(STATE_TYPE_INVEHICLE);
-
-			// Call the event
-			CSquirrelArguments arguments;
-			arguments.push(playerId);
-			arguments.push(vehicleId);
-			arguments.push(byteSeatId);
-			g_pEvents->Call("vehicleEntryComplete", &arguments);
 		}
 		// Is this an exit request?
 		else if(byteVehicleEntryExitType == VEHICLE_EXIT_REQUEST)

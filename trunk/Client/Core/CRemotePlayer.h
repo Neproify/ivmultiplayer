@@ -32,7 +32,7 @@ public:
 	CRemotePlayer();
 	~CRemotePlayer();	
 
-	bool         Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, int ucDimension, bool bDontRecreate = false);
+	bool         Spawn(int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, bool bDontRecreate = false);
 	void         Destroy();
 	void         Kill();
 	void         Init();

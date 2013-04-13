@@ -34,6 +34,7 @@ void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerS
 	bsSend.Write(g_pClient->GetNick());
 
 	// jenksta: wtf?
+	// Its checking if the client has modified files
 	CheckGTAFiles pCheckFiles;
 	pCheckFiles.uiHandleFileChecksum = CGameFileChecker::CheckGameFile(0);
 	pCheckFiles.uiGTAFileChecksum = CGameFileChecker::CheckGameFile(1);
@@ -65,30 +66,32 @@ void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * p
 
 void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetChatWindow()->AddInfoMessage("Server closed the connection.");
+	g_pClient->GetChatWindow()->AddInfoMessage("You have disconnected from the server!");
+	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
 	
 	if(pNetworkManager && pNetworkManager->IsConnected())
 	{
-		pNetworkManager->Disconnect();
-		g_pClient->GetMainMenu()->ResetNetworkStats();
-		g_pClient->ResetMainMenuCamera();
+		//pNetworkManager->Disconnect(); //Disconnect from the server *Disabled temporary, causing issues and will re-write it later.*
+		g_pClient->GetMainMenu()->ResetNetworkStats(); //Reset the Network Stats
+		g_pClient->ResetMainMenuCamera(); //Reset the Main Menu Camera
+		pMainMenu->ShowMessageBox("You have successfully disconnected!", "Disconnected.", true, false, false);
 	}
 }	
 
 void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetMainMenu()->ResetNetworkStats();
-	g_pClient->ResetMainMenuCamera();
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-	pMainMenu->ShowMessageBox("The connection to the server has been lost!", "Connection lost...", false, false, false);
+	pMainMenu->ShowMessageBox("The server has lost the connection...", "Lost Connection.", false, false, false);
+	g_pClient->GetMainMenu()->ResetNetworkStats();
+	g_pClient->ResetMainMenuCamera(); //Reset the Main Menu Camera
 	pMainMenu->SetDisconnectButtonVisible(false);
 }	
 
 void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-	pMainMenu->ShowMessageBox("You are banned from this server!", "Connection failed", false, false, false);
+	pMainMenu->ShowMessageBox("You are banned from this server!", "You're banned!", false, false, false);
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
 	pNetworkManager->Disconnect();
 	g_pClient->GetMainMenu()->ResetNetworkStats();
@@ -97,7 +100,7 @@ void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSend
 
 void CClientPacketHandler::PasswordInvalid(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetMainMenu()->ShowMessageBox("Incorrect password!", "Connection failed", true, false, false);
+	g_pClient->GetMainMenu()->ShowMessageBox("The password you entered does not match the server password!", "Incorrect Password.", true, false, false);
 }
 
 void CClientPacketHandler::Register()
