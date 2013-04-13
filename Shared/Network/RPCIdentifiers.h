@@ -185,7 +185,6 @@ enum eRPCIdentfiers
 	RPC_ScriptingActorSaySpeech,
 	RPC_ScriptingLetPlayerDriveAutomatic,
 	RPC_ScriptingSetPlayerDimension,
-	//RPC_ScriptingSetVehicleDimension,
 	RPC_ResetVehicleEnterExit,
 	RPC_ScriptingTogglePlayerLabelForPlayer,
 	RPC_ScriptingMoveObject,
@@ -202,5 +201,4 @@ enum eRPCIdentfiers
 	RPC_ScriptingSet3DLabelVisible,
 	RPC_ScriptingSet3DLabelStreamingDistance,
 	RPC_ScriptingSet3DLabelDimension,
-	RPC_ScriptingToggleDrunk,
 };

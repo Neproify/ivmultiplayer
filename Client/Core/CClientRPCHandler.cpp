@@ -215,7 +215,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	
 	int DimensionId;
 	pBitStream->Read(DimensionId);
-
+	
 	// Read the indicator states
 	bool bIndicatorStateFrontLeft  = pBitStream->ReadBit();
 	bool bIndicatorStateFrontRight = pBitStream->ReadBit();
@@ -348,7 +348,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	// Flag the vehicle as can be streamed in
 	pVehicle->SetCanBeStreamedIn(true);
 	
-	// Setting the Vehicle Dimension
+	// Setting the vehicle dimension
 	pVehicle->SetDimension(DimensionId);
 }
 
@@ -961,19 +961,25 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 		}
 		else
 		{
+			/* Serverside
+				bsSend.Write(m_iModelId);
+				bsSend.Write(m_bHelmet);
+				bsSend.Write(m_vecPosition);
+				bsSend.Write(m_fHeading);
+			Serverside end */
+
 			int iModelId;
 			bool bHelmet;
-			CVector3 vecPosition;
+			CVector3 vecSpawnPos;
 			float fHeading;
+
 			EntityId vehicleId;
-			int ucDimension;
-			
+
 			pBitStream->Read(iModelId);
 			pBitStream->Read(bHelmet);
-			pBitStream->Read(vecPosition);
+			pBitStream->Read(vecSpawnPos);
 			pBitStream->Read(fHeading);
-			pBitStream->ReadCompressed(vehicleId);
-			pBitStream->Read(ucDimension);
+
 
 			// Reset health to 200(IV Health + 100), otherwise player is "dead"
 			pPlayer->SetHealth(200);
@@ -982,40 +988,55 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pPlayer->ClearDieTask();
 
 			// Spawn player
-			pPlayerManager->Spawn(playerId, iModelId, vecPosition, fHeading, ucDimension);
-			
-			// Flag the player to be streamed in
-			pPlayer->SetCanBeStreamedIn(true);
+			pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
+
+			DWORD dwModelHash = SkinIdToModelHash(iModelId);
+			if(pPlayer)
+			{
+				CNetworkVehicle * pVehicle = NULL;
+				BYTE byteVehicleSeatId = -1;
+
+				if(pPlayer->IsLocalPlayer() && pPlayer->IsInVehicle())
+				{
+					pVehicle = pPlayer->GetVehicle();
+					byteVehicleSeatId = pPlayer->GetVehicleSeatId();
+				}
+
+				pPlayer->SetModel(dwModelHash);
+
+				if(pPlayer->IsLocalPlayer())
+				{
+					if(pVehicle != NULL)
+						pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
+				}
+				else
+					pPlayer->Init();
+			}
 
 			// Is there a helmet?
 			if(bHelmet)
 				pPlayer->GiveHelmet();
 
-			// Do they have a vehicle?
+			pBitStream->Read(vehicleId);
 			CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
+			// Is the player driver or passenger?
 			if(pVehicle)
 			{
-				// Read the seat id
-				BYTE byteVehicleSeatId = -1;
+				BYTE byteVehicleSeatId;
 				pBitStream->Read(byteVehicleSeatId);
-
-				// Put them in the vehicle
 				pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
 			}
 
-			// Do we have custom clothing?
+			// Custom clothing
 			if(pBitStream->ReadBit())
 			{
 				unsigned char ucClothes = 0;
 
 				for(unsigned char uc = 0; uc < 11; ++ uc)
 				{
-					// Read the clothing item
 					pBitStream->Read(ucClothes);
-
-					// Set the players clothes
-					pPlayer->SetClothes(uc, ucClothes);
+					pPlayerManager->GetAt(playerId)->SetClothes(uc, ucClothes);
 				}
 			}
 		}
@@ -1312,6 +1333,7 @@ void CClientRPCHandler::ConnectionRefused(CBitStream * pBitStream, CPlayerSocket
 	g_pClient->GetMainMenu()->ShowMessageBox(strReason.C_String(),"Connection failed", true, true, false);
 }
 
+
 void CClientRPCHandler::VehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bitstream
@@ -1421,7 +1443,7 @@ void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pS
 	// Get the player
 	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
 
-	if(pPlayer && pPlayer->IsSpawned()) //ViruZz: Reverted back to 289 (Temporary till we fix everything properly with TESTING)
+	if(pPlayer && pPlayer->IsSpawned())
 		pPlayer->TaskLookAtCoord(vecAim.fX, vecAim.fY, vecAim.fZ);
 }
 
@@ -1584,7 +1606,7 @@ void CClientRPCHandler::ScriptingGivePlayerWeapon(CBitStream * pBitStream, CPlay
 	if(!pBitStream)
 		return;
 
-	unsigned int weapon, ammo;
+	int weapon, ammo;
 	pBitStream->Read(weapon);
 	pBitStream->Read(ammo);
 	g_pClient->GetLocalPlayer()->GiveWeapon(weapon, ammo);
@@ -1616,9 +1638,27 @@ void CClientRPCHandler::ScriptingSetModel(CBitStream * pBitStream, CPlayerSocket
 	DWORD dwModelHash = SkinIdToModelHash(iModelId);
 
 	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
-
 	if(pPlayer)
+	{
+		CNetworkVehicle * pVehicle = NULL;
+		BYTE byteVehicleSeatId = -1;
+
+		if(pPlayer->IsLocalPlayer() && pPlayer->IsInVehicle())
+		{
+			pVehicle = pPlayer->GetVehicle();
+			byteVehicleSeatId = pPlayer->GetVehicleSeatId();
+		}
+
 		pPlayer->SetModel(dwModelHash);
+
+		if(pPlayer->IsLocalPlayer())
+		{
+			if(pVehicle != NULL)
+				pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
+		}
+		else
+			pPlayer->Init();
+	}
 }
 
 void CClientRPCHandler::ScriptingToggleControls(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
@@ -1654,23 +1694,38 @@ void CClientRPCHandler::ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlay
 	if(!pBitStream)
 		return;
 
-	// TODO FIXME: Seems like this native doesn't work.
 	float grav;
 	pBitStream->Read(grav);
 	Scripting::SetCharGravity(g_pClient->GetLocalPlayer()->GetScriptingHandle(), grav);
 }
 
-void CClientRPCHandler::TogglePlayerDrunk(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+/*void CClientRPCHandler::SetPlayerDrunk(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
 	if(!pBitStream)
 		return;
 
-	// CrackHD: TODO: We should use 3 other scripting natives
 	bool bToggle;
 	bToggle = pBitStream->ReadBit();
-	//Scripting::SetPedIsDrunk(g_pClient->GetLocalPlayer()->GetScriptingHandle(), bToggle);
+
+	Scripting::SetPedIsDrunk(g_pLocalPlayer->GetScriptingHandle(), !bToggle);
 }
+
+void CClientRPCHandler::SetVehicleGravity(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId vehicleId;
+	float grav;
+	pBitStream->Read(vehicleId);
+	pBitStream->Read(grav);
+	CNetworkVehicle * pVehicle = g_pVehicleManager->Get(vehicleId);
+
+	if(pVehicle)
+		//TODO
+}*/
 
 void CClientRPCHandler::ScriptingSetVehicleIndicators(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -1942,7 +1997,6 @@ void CClientRPCHandler::ScriptingSetPlayerMoney(CBitStream * pBitStream, CPlayer
 	g_pClient->GetLocalPlayer()->SetMoney(amount);
 }
 
-// CrackHD: What is that? move it from here.
 float fTextPos[2];
 String strTextText;
 int iTextTime = 0;
@@ -3406,32 +3460,32 @@ void CClientRPCHandler::ScriptingSetPlayerDimension(CBitStream * pBitStream, CPl
 {
 	if(!pBitStream)
 		return;
-		
-	EntityId iModelId;
+
+	EntityId iModelId;	
 	EntityId playerId;
-	SQInteger Dimension;	
+	SQInteger Dimension;
+	
 	pBitStream->Read(iModelId);
 	pBitStream->Read(playerId);
 	pBitStream->Read(Dimension);
+
 	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(iModelId);
-		
-	if(pVehicle) //Detecting if the client is in any vehicle
+	
+	if(pVehicle) //If the player is in any vehicle
 	{
 		pVehicle->SetDimension(Dimension);
-			
 	} 
-	else //The player isn't in a vehicle so we're setting his normal dimension	 
-	{ 
-			
+	else //The player isnt in any vehicle
+	{
 		CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
-			
+		
 		if(pPlayer)
 		{
 			pPlayer->SetDimension(Dimension);
 		}
 		g_pClient->GetStreamer()->Pulse();
 	}
-}
+}	
 
 void CClientRPCHandler::ResetVehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -3914,7 +3968,6 @@ void CClientRPCHandler::Register()
 	AddFunction(RPC_ScriptingPlayerSaySpeech, ScriptingForcePlayerSpeech);
 	AddFunction(RPC_ScriptingLetPlayerDriveAutomatic, ScriptingLetPlayerDriveAutomatic);
 	AddFunction(RPC_ScriptingSetPlayerDimension, ScriptingSetPlayerDimension);
-	//AddFunction(RPC_ScriptingSetVehicleDimension, ScriptingSetVehicleDimension);
 	AddFunction(RPC_ResetVehicleEnterExit, ResetVehicleEnterExit);
 	AddFunction(RPC_ScriptingTogglePlayerLabelForPlayer, ScriptingTogglePlayerLabelForPlayer);
 	AddFunction(RPC_ScriptingFixVehicle, ScriptingFixVehicle);

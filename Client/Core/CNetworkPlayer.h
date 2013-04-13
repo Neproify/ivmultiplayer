@@ -216,6 +216,7 @@ public:
 	void                     Interpolate();
 	void                     ResetInterpolation();
 
+	void					 SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType);
 	void                     SetTargetPosition(const CVector3& vecPosition, unsigned long ulDelay);
 	void					 SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType);
 	void                     SetTargetRotation(float fHeading, unsigned long ulDelay);
