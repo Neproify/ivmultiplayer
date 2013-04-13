@@ -679,7 +679,8 @@ void CPlayer::ToggleAutoAim(bool bToggle)
 {
 	CBitStream bsSend;
 	bsSend.Write(bToggle);
-	g_pNetworkManager->RPC(RPC_ScriptingToggleAutoAim, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, m_playerId, false);
+	//CrackHD needs to re-add this *Disabled for now*
+	//g_pNetworkManager->RPC(RPC_ScriptingToggleAutoAim, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, m_playerId, false);
 }
 void CPlayer::ToggleDrunk(bool bToggle)
 {
