@@ -60,7 +60,7 @@ private:
 	static void ScriptingSetPlayerWeather(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingTogglePayAndSpray(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingToggleAutoAim(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-	static void TogglePlayerDrunk(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
+	//static void SetPlayerDrunk(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingGivePlayerWeapon(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerGravity(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetSpawnLocation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
@@ -178,7 +178,6 @@ private:
 	static void ScriptingForceActorSpeech(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingLetPlayerDriveAutomatic(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingSetPlayerDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
-	//static void ScriptingSetVehicleDimension(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ResetVehicleEnterExit(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);
 	static void ScriptingFixVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket);

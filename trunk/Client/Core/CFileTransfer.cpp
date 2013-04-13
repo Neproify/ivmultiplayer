@@ -17,6 +17,7 @@ CFileTransfer::CFileTransfer(bool bIsResource, String strHost, unsigned short us
 {
 	// Set up a local file/directory for this resource
 	String m_strFolderName = "clientscripts";
+
 	if(bIsResource)
 		m_strFolderName = "resources";
 	m_strPath.Set(SharedUtility::GetAbsolutePath("clientfiles\\%s\\%s", m_strFolderName.Get(), m_strName.Get()));
@@ -50,6 +51,7 @@ bool CFileTransfer::Download()
 
 	// Attempt to open our destination file
 	FILE * fFile = fopen(m_strPath.Get(), "wb");
+
 	if(!fFile)
 	{
 		m_bComplete = true;
@@ -66,11 +68,11 @@ bool CFileTransfer::Download()
 		m_strError.Format("Http GET failed for file %s (%s)", m_strName.Get(), m_httpClient.GetLastErrorString().Get());
 		return false;
 	}
-
+	
 	// Download data to file:
-	m_httpClient.SetFile(fFile);	
+	m_httpClient.SetFile(fFile);
 	while(m_httpClient.IsBusy())
-		m_httpClient.Process();
+			m_httpClient.Process();
 
 	// Close our downloaded file
 	fclose(fFile);

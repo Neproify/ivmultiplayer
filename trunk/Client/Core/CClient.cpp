@@ -749,22 +749,29 @@ void CClient::OnGameProcess()
 	//Scripting::DisplayTextWithString(0.832f, 0.069f, "STRING", "SPECAL"); 
 	//Scripting::PrintHelpForever("TX_H07");
 
-	// Restore vehicle engine statuses:
 	// HACKY!
 	// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
 	//		       ...If the player is in the vehicle, it will turn it automatic on -.-
+	if(m_pLocalPlayer)
+	{
+		if(m_pLocalPlayer->GetVehicle())
+		{
+			// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
+			//		 ...If the player is in the vehicle, it will turn it automatic on -.-
+			// jenksta: Then find all references to CVehicle::TurnEngineOn and find which call is for when 
+			// the player enters the vehicle?
+			if(!m_pLocalPlayer->GetVehicle()->GetEngineState())
+				m_pLocalPlayer->GetVehicle()->SetEngineState(false);
+		}
+	}
 	for(EntityId playerId = 0; playerId < MAX_PLAYERS; playerId++)
 	{
-		// jenksta: Then find all references to CVehicle::TurnEngineOn and find which call is for when 
-		// the player enters the vehicle?
-		CNetworkPlayer* pPlayer = m_pPlayerManager->GetAt(playerId);
-		if(pPlayer)
+		if(m_pPlayerManager->DoesExist(playerId))
 		{
-			if(pPlayer->IsInVehicle())
+			if(m_pPlayerManager->GetAt(playerId)->GetVehicle() != NULL)
 			{
-				CNetworkVehicle* pVehicle = pPlayer->GetVehicle();
-				if(pVehicle->GetEngineState() == false)
-					pVehicle->SetEngineState(false);
+				if(!m_pPlayerManager->GetAt(playerId)->GetVehicle()->GetEngineState() != NULL)
+					m_pPlayerManager->GetAt(playerId)->GetVehicle()->SetEngineState(false);
 			}
 		}
 	}
@@ -970,7 +977,7 @@ void CClient::InternalResetGame(bool bAutoConnect)
 
 	CGame::SetGameLoaded(m_bGameLoaded);
 
-	// Reset the network statsg
+	// Reset the network stats
 	m_pMainMenu->ResetNetworkStats();
 
 	// Auto connect(if needed)
@@ -985,24 +992,24 @@ void CClient::ResetGame(bool bResetNow, bool bAutoConnect)
 {
 	// If requested reset the game now
 	if(bResetNow)
-	{
 		InternalResetGame(bAutoConnect);
-	} else {	
+	else 
 		m_bResetGame = true;
-	}	
 }
-	
+
 void CClient::ResetMainMenuCamera()
 {
 	SAFE_DELETE(m_pCamera);
 	m_pCamera = new CCamera();
 	
-	CLogFile::Printf("Attempting to reset the Main Menu Camera.");
+	CLogFile::Printf("Attempting to reset the Main Menu Camera...");
 	if(m_pCamera)
 	{
 		m_pCamera->ActivateScriptCam();
 		m_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
 		m_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT),false);
-		CLogFile::Printf("Successfully Reset the Main Menu Camera.");
-	}	
+		CLogFile::Printf("Successfully Reset the Main Menu Camera!");
+	} else {
+		CLogFile::Printf("Failed to Reset the Main Menu Camera!");
+	}
 }	
