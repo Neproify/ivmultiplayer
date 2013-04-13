@@ -41,7 +41,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	m_uiPlayerBlipHandle(NULL),
 	m_bHelmet(false),
 	m_bUseMobilePhone(false),
-	m_bHasCustomClothes(false)
+	m_bUseCustomClothesOnSpawn(false)
 	
 {
 	m_interp.pos.ulFinishTime = 0;
@@ -224,6 +224,11 @@ bool CNetworkPlayer::Create()
 	// Add to world
 	m_pPlayerPed->AddToWorld();
 
+	// jenksta: wtf is this doing here??
+	// Delete player helemt
+	m_bHelmet = false;
+	SetHelmet(m_bHelmet);
+
 	// Flag as spawned
 	m_bSpawned = true;
 
@@ -239,9 +244,19 @@ bool CNetworkPlayer::Create()
 	if(pTask)
 		pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
 
+	// Remember that we might have clothes
+	m_bUseCustomClothesOnSpawn = true;
+
 	// Reset interpolation
 	ResetInterpolation();
 	return true;
+}
+
+void CNetworkPlayer::Init()
+{
+	THIS_CHECK(__FUNCTION__);
+	// Set again model
+	//SetModel(m_pModelInfo->GetHash());
 }
 
 void CNetworkPlayer::Destroy()
@@ -314,20 +329,10 @@ void CNetworkPlayer::Destroy()
 void CNetworkPlayer::StreamIn()
 {
 	THIS_CHECK(__FUNCTION__);
-
 	if(Create())
 	{
 		SetPosition(m_vecPos);
 		SetHealth(m_uiHealth);
-		SetHelmet(m_bHelmet);
-
-		// Do we have any custom clothes?
-		if(m_bHasCustomClothes)
-		{
-			// Set our custom clothes
-			for(unsigned char u = 0; u < 11; u++)
-				SetClothes(u, m_ucClothes[u]);
-		}
 	}
 }
 
@@ -337,10 +342,7 @@ void CNetworkPlayer::StreamOut()
 
 	// Check if the camera is attached to our player
 	if(g_pClient->GetLocalPlayer()->IsCameraAttachedToEntity(GetScriptingHandle()))
-	{
-		CLogFile::Printf("Stream out on player that camera is attached to!");
 		return;
-	}
 
 	GetPosition(m_vecPos);
 	m_uiHealth = GetHealth();
@@ -632,22 +634,18 @@ unsigned int CNetworkPlayer::GetScriptingHandle()
 void CNetworkPlayer::SetModel(DWORD dwModelHash)
 {
 	THIS_CHECK(__FUNCTION__);
+	CLogFile::PrintDebugf("SETMODEL %p | PlayerId: %d",dwModelHash,m_playerId);
 
 	// Get the model index from the model hash
 	int iModelIndex = CGame::GetStreaming()->GetModelIndexFromHash(dwModelHash);
 
 	// Do we have an invalid model index?
 	if(iModelIndex == -1)
-	{
-		CLogFile::Printf("Invalid model hash 0x%x for player %d.", dwModelHash, m_playerId);
 		return;
-	}
 
 	// Has the model not changed?
 	if(m_pModelInfo->GetIndex() == iModelIndex)
 		return;
-
-	CLogFile::PrintDebugf("Setting player %d model to %d.", m_playerId, iModelIndex);
 
 	// Get the new model info
 	CIVModelInfo * pNewModelInfo = CGame::GetModelInfo(iModelIndex);
@@ -688,9 +686,6 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			for(unsigned int i = 0; i < WEAPON_SLOT_MAX; i++)
 				GetWeaponInSlot(i, uiWeaponInfo[i][0], uiWeaponInfo[i][1]);
 
-			CNetworkVehicle * pVehicle = GetVehicle();
-			BYTE byteVehicleSeatId = GetVehicleSeatId();
-
 			Scripting::ChangePlayerModel(m_byteGamePlayerNumber, (Scripting::eModel)dwModelHash);
 			m_pPlayerPed->SetPed(m_pPlayerInfo->GetPlayerPed());
 			SetHealth(uiHealth);
@@ -700,28 +695,37 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 
 			for(unsigned int i = 0; i < WEAPON_SLOT_MAX; i++)
 			{
-				// jenksta: remember to re-enable the + uiAmmoInClip when using reversed GiveWeapon code.
 				if(uiWeaponInfo[i][0] == uiCurrentWeapon)
-					GiveWeapon(uiWeaponInfo[i][0], (uiWeaponInfo[i][1]/* + uiAmmoInClip*/));
+					GiveWeapon(uiWeaponInfo[i][0], (uiWeaponInfo[i][1] + uiAmmoInClip));
 				else
 					GiveWeapon(uiWeaponInfo[i][0], uiWeaponInfo[i][1]);
 			}
 
 			SetCurrentWeapon(uiCurrentWeapon);
 			SetAmmoInClip(uiAmmoInClip);
-
-			if(pVehicle && pVehicle->IsStreamedIn())
-				PutInVehicle(pVehicle, byteVehicleSeatId);
 		}
 		// End hacky code that needs to be changed
 
 		// Do we not have any custom clothes?
-		if(m_bHasCustomClothes)
+		if(!m_bUseCustomClothesOnSpawn)
 		{
-			// Reset our clothes
+			// Set the default clothes variation
 			Scripting::SetCharDefaultComponentVariation(GetScriptingHandle());
+
+			// Reset our clothes
 			memset(&m_ucClothes, 0, sizeof(m_ucClothes));
-			m_bHasCustomClothes = false;
+		}
+		else // We have custom clothes
+		{
+			// Set our clothes
+			for(unsigned char uc = 0; uc < 11; ++uc)
+				SetClothes(uc, m_ucClothes[uc]);
+
+			// Flag ourselves as not having custom clothes
+			// jenksta: why does this reset here, surely if we have custom clothes
+			// we only want to reset them if the scripter requests it or if we change
+			// our model?
+			m_bUseCustomClothesOnSpawn = false;
 		}
 	}
 }
@@ -821,40 +825,22 @@ void CNetworkPlayer::SetCurrentHeading(float fHeading)
 	THIS_CHECK(__FUNCTION__);
     if(IsSpawned())
     {
-		float fHeadingRadians = Math::ConvertDegreesToRadians(fHeading);
-		m_pPlayerPed->SetCurrentHeading(fHeadingRadians);
-		SetDesiredHeading(fHeading);
-		m_pPlayerPed->SetHeading(fHeadingRadians);
+            float fHeadingRadians = Math::ConvertDegreesToRadians(fHeading);
+            m_pPlayerPed->SetCurrentHeading(fHeadingRadians);
+			SetDesiredHeading(fHeading);
+			m_pPlayerPed->SetHeading(fHeadingRadians);
     }
 }
 
 void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 {
-	THIS_CHECK(__FUNCTION__);
-	if(IsSpawned())
-	{
-		/*
-		float fHeadingFinal;
-		if(fHeading > GetCurrentHeading())
-			fHeadingFinal = fHeading-GetCurrentHeading();
-		else if(GetCurrentHeading() > fHeading)
-			fHeadingFinal = GetCurrentHeading()-fHeading;
-
-		// Check if we have to turn us
-		if(fHeadingFinal > 0.0 && fHeadingFinal < 0.1 || fHeadingFinal < 0.0 && fHeadingFinal > -0.1)
-			return;
-
-		for(int i = 0; i < 10; i++)
-		{
-			if(fHeading > GetCurrentHeading())
-				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
-			else if(GetCurrentHeading() > fHeading)
-				m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
-		}*/
+ 	THIS_CHECK(__FUNCTION__);
+ 	if(IsSpawned())
+ 	{
 		// Check if the player has already the same pos
-		if(GetCurrentHeading() == fHeading)
-			return;
-
+	 	if(GetCurrentHeading() == fHeading)
+				return;
+				
 		// Check if the player isn't moving
 		CVector3 vecMoveSpeed; m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
 		if(vecMoveSpeed.Length() < 2.0f)
@@ -872,27 +858,28 @@ void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 		{
 			float fHeadingFinal;
 			if(fHeading > GetCurrentHeading())
-				fHeadingFinal = fHeading-GetCurrentHeading();
+					fHeadingFinal = fHeading-GetCurrentHeading();
+			
 			else if(GetCurrentHeading() > fHeading)
-				fHeadingFinal = GetCurrentHeading()-fHeading;
-
+					fHeadingFinal = GetCurrentHeading()-fHeading;
+			
 			for(int i = 0; i < 10; i++)
 			{
-				if(fHeading > GetCurrentHeading())
+			if(fHeading > GetCurrentHeading())
 					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
-				else if(GetCurrentHeading() > fHeading)
+			else if(GetCurrentHeading() > fHeading)
 					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
 			}
 		}
 	}
 }
 
-
 float CNetworkPlayer::GetCurrentHeading()
 {
 	THIS_CHECK_R(__FUNCTION__,0)
 	if(IsSpawned())
-		return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetCurrentHeading());
+		return m_pPlayerPed->GetCurrentHeading();
+		//return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetCurrentHeading());
 
 	return 0.0f;
 }
@@ -901,14 +888,16 @@ void CNetworkPlayer::SetDesiredHeading(float fHeading)
 {
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
-		m_pPlayerPed->SetDesiredHeading(Math::ConvertDegreesToRadians(fHeading));
+		m_pPlayerPed->SetDesiredHeading(fHeading);
+		//m_pPlayerPed->SetDesiredHeading(Math::ConvertDegreesToRadians(fHeading));
 }
 
 float CNetworkPlayer::GetDesiredHeading()
 {
 	THIS_CHECK_R(__FUNCTION__,0)
 	if(IsSpawned())
-		return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetDesiredHeading());
+		return m_pPlayerPed->GetDesiredHeading();
+		//return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetDesiredHeading());
 
 	return 0.0f;
 }
@@ -1559,14 +1548,13 @@ void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned lon
 void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType)
 {
 	THIS_CHECK(__FUNCTION__);
-	if(IsSpawned()) {
-		
+	if(IsSpawned())
+	{
 		float tX = (vecPos.fX + (vecMove.fX * 10));
 		float tY = (vecPos.fY + (vecMove.fY * 10));
 		float tZ = (vecPos.fZ + (vecMove.fZ * 10));
 		unsigned int uiPlayerIndex = GetScriptingHandle();
-
-		// Create the task
+		//Create the task
 		DWORD dwAddress = (CGame::GetBase() + 0xB87480);
 		_asm
 		{
@@ -1579,8 +1567,7 @@ void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int i
 			call dwAddress
 		}
 	}
-}
-
+}	
 
 void CNetworkPlayer::SetTargetRotation(float fHeading, unsigned long ulDelay)
 {
@@ -1629,11 +1616,6 @@ void CNetworkPlayer::ResetInterpolation()
 	RemoveTargetRotation();
 }
 
-void CNetworkPlayer::Init()
-{
-	return;
-}	
-
 void CNetworkPlayer::SetColor(unsigned int uiColor)
 {
 	THIS_CHECK(__FUNCTION__);
@@ -1672,7 +1654,6 @@ void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothe
 					//CLogFile::Printf(__FILE__,__LINE__,"CNetworkPlayer::SetClothes body: %d variat: %d text: %d", ucBodyPart, uiDrawable, uiTexture);
 					Scripting::SetCharComponentVariation(GetScriptingHandle(), (Scripting::ePedComponent)ucBodyPart, uiDrawable, uiTexture);
 					m_ucClothes[ucBodyPart] = ucClothes;
-					m_bHasCustomClothes = true;
 					return;
 				}
 
@@ -1685,10 +1666,7 @@ void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothe
 		m_ucClothes[ucBodyPart] = 0;
 	}
 	else
-	{
 		m_ucClothes[ucBodyPart] = ucClothes;
-		m_bHasCustomClothes = true;
-	}
 }
 
 unsigned char CNetworkPlayer::GetClothes(unsigned char ucBodyPart)

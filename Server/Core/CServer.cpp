@@ -248,10 +248,10 @@ bool CServer::OnLoad(int argc, char ** argv)
 				strModule.Append(".dll");
 #else
 				strModule.Append(".so");
-#endif
+#endif		
 			}
 			CModule * pModule = g_pModuleManager->LoadModule(strModule);
-
+			
 			if(!pModule)
 				CLogFile::Printf("Warning: Failed to load module %s.", iter->C_String());
 		}

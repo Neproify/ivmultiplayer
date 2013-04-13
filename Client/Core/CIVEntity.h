@@ -129,11 +129,11 @@ public:
 	void       GetMatrix(Matrix& matMatrix);
 	void       SetPosition(const CVector3& vecPosition);
 	void       GetPosition(CVector3& vecPosition);
-	void	   SetHeading(float fHeading);
 	void       SetRoll(const CVector3& vecRoll);
 	void       GetRoll(CVector3& vecRoll);
 	void       SetDirection(const CVector3& vecDirection);
 	void       GetDirection(CVector3& vecDirection);
+	void       SetHeading(float fHeading);
 	void       SetModelIndex(WORD wModelIndex);
 	WORD       GetModelIndex();
 	void       SetAlpha(BYTE byteAlpha);

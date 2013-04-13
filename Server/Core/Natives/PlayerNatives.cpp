@@ -17,7 +17,6 @@
 #include "../CNetworkManager.h"
 #include <Game/CTime.h>
 #include "CEvents.h"
-#include "StaticPlayerNatives.h"
 
 extern CPlayerManager * g_pPlayerManager;
 extern CVehicleManager * g_pVehicleManager;
@@ -25,7 +24,8 @@ extern CNetworkManager * g_pNetworkManager;
 extern CTime * g_pTime;
 extern CEvents * g_pEvents;
 
-// Player scripting natives for Squirrel
+// Player functions
+
 void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 {
 	pScriptingManager->RegisterFunction("isPlayerConnected", IsConnected, 1, "i");
@@ -59,7 +59,7 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("isPlayerOnFoot", IsOnFoot, 1, "i");
 	pScriptingManager->RegisterFunction("togglePlayerPayAndSpray", TogglePayAndSpray, 2, "ib");
 	pScriptingManager->RegisterFunction("togglePlayerAutoAim", ToggleAutoAim, 2, "ib");
-	pScriptingManager->RegisterFunction("setPlayerDrunk", ToggleDrunk, 2, "ii");
+	//pScriptingManager->RegisterFunction("setPlayerDrunk", SetPlayerDrunk, 2, "ii");
 	pScriptingManager->RegisterFunction("givePlayerWeapon", GiveWeapon, 3, "iii");
 	pScriptingManager->RegisterFunction("removePlayerWeapons", RemoveWeapons, 1, "i");
 	pScriptingManager->RegisterFunction("setPlayerSpawnLocation", SetSpawnLocation, 5, "iffff");
@@ -109,6 +109,8 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("setPlayerColor", SetColor, 2, "ii");
 	pScriptingManager->RegisterFunction("getPlayerColor", GetColor, 1, "i");
 	pScriptingManager->RegisterFunction("getPlayerPing", GetPing, 1, "i");
+	pScriptingManager->RegisterFunction("givePlayerHelmet", GiveHelmet, 1, "i");
+	pScriptingManager->RegisterFunction("removePlayerHelmet", RemoveHelmet, 1, "i");
 	pScriptingManager->RegisterFunction("togglePlayerHelmet", ToggleHelmet, 2, "ib");
 	pScriptingManager->RegisterFunction("setPlayerClothes", SetClothes, 3, "iii");
 	pScriptingManager->RegisterFunction("getPlayerClothes", GetClothes, 1, "i");
@@ -138,433 +140,178 @@ void CPlayerNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("sayPlayerSpeech", SaySpeech, 3, "iss");
 	pScriptingManager->RegisterFunction("letPlayerDriveAutomaticAtCoords", DriveAutomatic, 7, "iiffffi");
 	pScriptingManager->RegisterFunction("togglePlayerNametagForPlayer",ToggleNametagForPlayer, 3, "iib");
-	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerClientEvent, -1, NULL);
+	pScriptingManager->RegisterFunction("triggerClientEvent", TriggerEvent, -1, NULL);
 	pScriptingManager->RegisterFunction("getPlayerFileChecksum", GetFileChecksum, 2, "ii");
 	
 	pScriptingManager->RegisterFunction("setPlayerDimension", SetDimension, 2, "ii");
 	pScriptingManager->RegisterFunction("getPlayerDimension", GetDimension, 1, "i");
 }
 
-// Set/Get
-SQInteger CPlayerNatives::SetName(SQVM * pVM)
+// isPlayerConnected(playerid)
+SQInteger CPlayerNatives::IsConnected(SQVM * pVM)
 {
-	// setPlayerName(playerid, name) : boolean
-	EntityId playerId;
-	const char* szName;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getstring(pVM, -1, &szName);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerName(playerId, String(szName)));
-	return 1;
-}
-SQInteger CPlayerNatives::GetName(SQVM * pVM)
-{
-	// getPlayerName(playerid) : string
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
-
-	String strPlayerName;
-	if(StaticNatives::GetPlayerName(playerId, strPlayerName))
-		sq_pushstring(pVM, strPlayerName, -1);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetWantedLevel(SQVM * pVM)
-{
-	// setPlayerWantedLevel(playerid, wantedlevel) : boolean
-	EntityId playerId;
-	SQInteger iWantedLevel;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getinteger(pVM, -1, &iWantedLevel);
-
-	if(StaticNatives::SetPlayerWantedLevel(playerId, (unsigned int)iWantedLevel))
+	if(g_pPlayerManager->DoesExist(playerId) && g_pPlayerManager->GetAt(playerId)->IsJoined())
 		sq_pushbool(pVM, true);
 	else
 		sq_pushbool(pVM, false);
 	return 1;
 }
-SQInteger CPlayerNatives::GetWantedLevel(SQVM * pVM)
+
+// getPlayerName(playerid)
+SQInteger CPlayerNatives::GetName(SQVM * pVM)
 {
-	// getPlayerWantedLevel(playerid, wantedlevel) : integer
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	unsigned int uiWantedLevel = 0;
-	if(StaticNatives::GetPlayerWantedLevel(playerId, uiWantedLevel))
-		sq_pushinteger(pVM, uiWantedLevel);
-	else
-		sq_pushbool(pVM, false);
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushstring(pVM, pPlayer->GetName(), -1);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+SQInteger CPlayerNatives::SetName(SQVM * pVM)
+{
+	EntityId playerId;
+	const char* szName;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getstring(pVM, -1, &szName);
+
+	CPlayer* pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		String Checkstring = szName;
+		CSquirrelArguments nameCheckArguments;
+		nameCheckArguments.push(playerId);
+		nameCheckArguments.push(Checkstring);
+
+		if(g_pEvents->Call("playerNameCheck", &nameCheckArguments).GetInteger() != 1)
+		{
+			CLogFile::Printf("Can't change the name from player %d (Invalid Characters)",playerId);
+
+			sq_pushbool(pVM, false);
+			return 0;
+		} 
+
+		sq_pushbool(pVM, pPlayer->SetName(szName));
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// givePlayerWeapon(playerid, weaponid, ammo)
+SQInteger CPlayerNatives::GiveWeapon(SQVM * pVM)
+{
+	EntityId playerId;
+	SQInteger iWeaponId;
+	SQInteger iAmmo;
+	sq_getentity(pVM, -3, &playerId);
+	sq_getinteger(pVM, -2, &iWeaponId);
+	sq_getinteger(pVM, -1, &iAmmo);
+
+	if(g_pPlayerManager->DoesExist(playerId) && iWeaponId > 0 && iWeaponId < 21 && iWeaponId != 6)
+	{
+		CBitStream bsSend;
+		bsSend.Write(iWeaponId);
+		bsSend.Write(iAmmo);
+		g_pNetworkManager->RPC(RPC_ScriptingGivePlayerWeapon, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// removePlayerWeapons(playerid)
+SQInteger CPlayerNatives::RemoveWeapons(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		g_pNetworkManager->RPC(RPC_ScriptingRemoveWeapons, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+//getPlayerWantedLevel(playerid, wantedlevel)
+SQInteger CPlayerNatives::GetWantedLevel(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		sq_pushinteger(pVM, g_pPlayerManager->GetAt(playerId)->GetWantedLevel());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+//setPlayerWantedLevel(playerid, wantedlevel)
+SQInteger CPlayerNatives::SetWantedLevel(SQVM * pVM)
+{
+	EntityId playerId;
+	SQInteger iWantedLevel;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getinteger(pVM, -1, &iWantedLevel);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		g_pPlayerManager->GetAt(playerId)->SetWantedLevel(iWantedLevel);
+		CBitStream bsSend;
+		bsSend.Write(iWantedLevel);
+		g_pNetworkManager->RPC(RPC_ScriptingSetWantedLevel, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerHealth(playerid, health)
 SQInteger CPlayerNatives::SetHealth(SQVM * pVM)
 {
-	// setPlayerHealth(playerid, health) : boolean
 	EntityId playerId;
 	SQInteger iHealth;
 	sq_getentity(pVM, -2, &playerId);
 	sq_getinteger(pVM, -1, &iHealth);
 
-	sq_pushbool(pVM, StaticNatives::SetPlayerHealth(playerId, iHealth));
-	return 1;
-}
-SQInteger CPlayerNatives::GetHealth(SQVM * pVM)
-{
-	// getPlayerHealth(playerid) : integer
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	int iHealth = -1;
-	if(StaticNatives::GetPlayerHealth(playerId, iHealth))
-		sq_pushinteger(pVM, iHealth);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetArmour(SQVM * pVM)
-{
-	// setPlayerArmour(playerid) : boolean
-	EntityId playerId;
-	SQInteger iArmour;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getinteger(pVM, -1, &iArmour);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerArmour(playerId, iArmour));	
-	return 1;
-}
-SQInteger CPlayerNatives::GetArmour(SQVM * pVM)
-{
-	// getPlayerArmour(playerid) : integer
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	unsigned int uiArmour = 0;
-	if(StaticNatives::GetPlayerArmour(playerId, uiArmour))
-		sq_pushinteger(pVM, uiArmour);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetCoordinates(SQVM * pVM)
-{
-	// setPlayerCoordinates(playerid, x, y, z) : boolean
-	EntityId playerId;
-	CVector3 vecPos;
-	sq_getentity(pVM, -4, &playerId);
-	sq_getvector3(pVM, -3, &vecPos);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerCoordinates(playerId, vecPos));
-	return 1;
-}
-SQInteger CPlayerNatives::GetCoordinates(SQVM * pVM)
-{
-	// getPlayerCoordinates(playerid) : array
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	CVector3 vecPos;
-	if(StaticNatives::GetPlayerCoordinates(playerId, vecPos))
+	if(g_pPlayerManager->DoesExist(playerId))
 	{
-		CSquirrelArguments args;
-		args.push(vecPos.fX);
-		args.push(vecPos.fY);
-		args.push(vecPos.fZ);
-		sq_pusharg(pVM, CSquirrelArgument(args, true));
-	}
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetModel(SQVM * pVM)
-{
-	// setPlayerModel(playerid, model) : boolean
-	EntityId playerId;
-	SQInteger iModelId;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getinteger(pVM, -1, &iModelId);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerModel(playerId, iModelId));
-	return 1;
-}
-SQInteger CPlayerNatives::GetModel(SQVM * pVM)
-{
-	// getPlayerModel(playerid) : integer
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	unsigned short usModelId;
-	if(StaticNatives::GetPlayerModel(playerId, usModelId))
-		sq_pushinteger(pVM, usModelId);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetHeading(SQVM * pVM)
-{
-	// setPlayerHeading(playerid, heading) : boolean
-	EntityId playerId;
-	float fHeading;
-	sq_getentity(pVM, -2, &playerId);
-	sq_getfloat(pVM, -1, &fHeading);	
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerHeading(playerId, fHeading));
-	return 1;
-}
-SQInteger CPlayerNatives::GetHeading(SQVM * pVM)
-{
-	// getPlayerHeading(playerid) : float
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	float fHeading;
-	if(StaticNatives::GetPlayerHeading(playerId, fHeading))
-		sq_pushfloat(pVM, fHeading);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetVelocity(SQVM * pVM)
-{
-	// setPlayerVelocity(playerId, x,y,z) : boolean
-	EntityId playerId;
-	CVector3 vecSpeed;
-	sq_getentity(pVM, -4, &playerId);
-	sq_getvector3(pVM, -3, &vecSpeed);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerVelocity(playerId, vecSpeed));
-	return 1;
-}
-SQInteger CPlayerNatives::GetVelocity(SQVM * pVM)
-{
-	// getPlayerVelocity(playerId) : array
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	CVector3 vecSpeed;
-	if(StaticNatives::SetPlayerVelocity(playerId, vecSpeed))
-	{
-		CSquirrelArguments args;
-		args.push(vecSpeed.fX);
-		args.push(vecSpeed.fY);
-		args.push(vecSpeed.fZ);
-		sq_pusharg(pVM, CSquirrelArgument(args, true));
-	}
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetDucking(SQVM * pVM)
-{
-	// setPlayerDucking(playerid, ducking) : boolean
-	EntityId playerId;
-	SQBool sqbDucking;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbDucking);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerDucking(playerId, sqbDucking != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::IsDucking(SQVM * pVM)
-{
-	// isPlayerDucking(playerid) : boolean
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	sq_pushbool(pVM,  StaticNatives::IsPlayerDucking(playerId));
-	return 1;
-}
-SQInteger CPlayerNatives::SetColor(SQVM * pVM)
-{
-	// setPlayerColor(playerid, rgba) : boolean
-	EntityId playerId;
-	SQInteger iColor;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getinteger(pVM, -1, &iColor);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerColor(playerId, iColor));
-	return 1;
-}
-SQInteger CPlayerNatives::GetColor(SQVM * pVM)
-{
-	// getPlayerColor(playerid) : integer
-	EntityId playerId;
-	sq_getentity(pVM, 2, &playerId);
-
-	unsigned int uiColor;
-	if(StaticNatives::GetPlayerColor(playerId, uiColor))
-		sq_pushinteger(pVM, uiColor);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetClothes(SQVM * pVM)
-{
-	// setPlayerClothes(playerId, iBodyPart, iClothes) : boolean
-	SQInteger playerId, iBodyPart, iClothes;
-	sq_getinteger(pVM, 2, &playerId);
-	sq_getinteger(pVM, 3, &iBodyPart);
-	sq_getinteger(pVM, 4, &iClothes);
-
-	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-
-	if(pPlayer && (iBodyPart >= 0 && iBodyPart <= 10) && (iClothes >= 0 && iClothes <= 255))
-	{
-		pPlayer->SetClothes((unsigned char)iBodyPart, (unsigned char)iClothes);
+		CBitStream bsSend;
+		bsSend.Write(iHealth);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerHealth, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
-	
+
 	sq_pushbool(pVM, false);
 	return 1;
 }
-SQInteger CPlayerNatives::GetClothes(SQVM * pVM)
+
+// getPlayerHealth(playerid)
+SQInteger CPlayerNatives::GetHealth(SQVM * pVM)
 {
-	// setPlayerClothes(playerId) : array
-	EntityId playerId;
-	sq_getentity(pVM, 2, &playerId);
-
-	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-
-	if(pPlayer)
-	{
-		sq_newarray(pVM, 0);
-
-		for(unsigned char uc = 0; uc < 11; uc ++ )
-		{
-			sq_pushinteger(pVM, pPlayer->GetClothes(uc));
-			sq_arrayappend(pVM, -2);
-		}
-
-		return 1;
-	}
-	
-	sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetDimension(SQVM * pVM)
-{
-	// setPlayerDimension(playerid, dimension) : boolean
-	SQInteger iDimension;
-	EntityId playerId;
-
-	sq_getinteger(pVM, -1, &iDimension);
-	sq_getentity(pVM, -2, &playerId);
-	
-	sq_pushbool(pVM, StaticNatives::SetPlayerDimension(playerId, iDimension));
-	return false;
-}
-SQInteger CPlayerNatives::GetDimension(SQVM * pVM)
-{ 
-	// getPlayerDimension(playerid) : integer
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	DimensionId ucDimension;
-	if(StaticNatives::GetPlayerDimension(playerId, ucDimension))
-		sq_pushinteger(pVM, ucDimension);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-
-// Weapons
-SQInteger CPlayerNatives::GiveWeapon(SQVM * pVM)
-{
-	// givePlayerWeapon(playerid, weaponid, ammo) : boolean
-	EntityId playerId;
-	SQInteger iWeaponId;
-	SQInteger iAmmo;
-
-	sq_getentity(pVM, -3, &playerId);
-	sq_getinteger(pVM, -2, &iWeaponId);
-	sq_getinteger(pVM, -1, &iAmmo);
-
-	sq_pushbool(pVM, StaticNatives::GivePlayerWeapon(playerId, iWeaponId, iAmmo));
-	return 1;
-}
-SQInteger CPlayerNatives::RemoveWeapons(SQVM * pVM)
-{
-	// removePlayerWeapons(playerid) : boolean
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	sq_pushbool(pVM, StaticNatives::RemovePlayerWeapons(playerId));
-	return 1;
-}
-SQInteger CPlayerNatives::GetWeapon(SQVM * pVM)
-{
-	// getPlayerWeapon(playerid) : integer
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	unsigned int uiWeaponModelId = 0;
-	if(StaticNatives::GetPlayerWeapon(playerId, uiWeaponModelId))
-		sq_pushinteger(pVM, uiWeaponModelId);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::GetAmmo(SQVM * pVM)
-{
-	// getPlayerAmmo(playerid) : integer
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	unsigned int iWeaponAmmo = 0;
-	if(StaticNatives::GetPlayerAmmo(playerId, iWeaponAmmo))
-		sq_pushinteger(pVM, iWeaponAmmo);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-
-// Money
-SQInteger CPlayerNatives::GiveMoney(SQVM * pVM)
-{
-	// givePlayerMoney(playerid, iAddMoney) : boolean
-	EntityId playerId;
-	SQInteger iAddMoney;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getinteger(pVM, -1, &iAddMoney);
-
-	sq_pushbool(pVM, StaticNatives::GivePlayerMoney(playerId, iAddMoney));
-	return 1;
-}
-SQInteger CPlayerNatives::SetMoney(SQVM * pVM)
-{
-	// setPlayerMoney(playerid, iMoney) : boolean
-	EntityId playerId;
-	SQInteger iMoney;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getinteger(pVM, -1, &iMoney);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerMoney(playerId, iMoney));
-	return 1;
-}
-SQInteger CPlayerNatives::GetMoney(SQVM * pVM)
-{
-	// getPlayerMoney(playerid) : integer
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	int iMoney;
-	if(StaticNatives::GetPlayerMoney(playerId, iMoney))
-		sq_pushinteger(pVM, iMoney);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::ResetMoney(SQVM * pVM)
-{
-	// resetPlayerMoney(playerid) : boolean
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
@@ -572,7 +319,7 @@ SQInteger CPlayerNatives::ResetMoney(SQVM * pVM)
 
 	if(pPlayer)
 	{
-		sq_pushbool(pVM, pPlayer->SetMoney(0));
+		sq_pushinteger(pVM, (pPlayer->GetHealth() - 100));
 		return 1;
 	}
 
@@ -580,377 +327,164 @@ SQInteger CPlayerNatives::ResetMoney(SQVM * pVM)
 	return 1;
 }
 
-// Toggles
-SQInteger CPlayerNatives::ToggleDrunk(SQVM * pVM)
+// setPlayerArmour(playerid)
+SQInteger CPlayerNatives::SetArmour(SQVM * pVM)
 {
-	// togglePlayerDrunk(playerId, bDrunkCamera, bDrunk) : boolean TODO
 	EntityId playerId;
-	SQBool sqbToggle;
-
+	SQInteger iArmour;
 	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbToggle);
-	
-	sq_pushbool(pVM, StaticNatives::TogglePlayerDrunk(playerId, sqbToggle != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::TogglePayAndSpray(SQVM * pVM)
-{
-	// togglePlayerPayAndSpray(playerid, bAllowedToPayAndSpray) : boolean
-	EntityId playerId;
-	SQBool sqbToggle;
+	sq_getinteger(pVM, -1, &iArmour);
 
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbToggle);
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(iArmour);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerArmour, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
 
-	sq_pushbool(pVM, StaticNatives::TogglePlayerPayAndSpray(playerId, sqbToggle != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::ToggleAutoAim(SQVM * pVM)
-{
-	// togglePlayerAutoAim(playerid, bEnabled) : boolean
-	// TODO: Check this function
-	EntityId playerId;
-	SQBool sqbToggle;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbToggle);
-
-	sq_pushbool(pVM, StaticNatives::TogglePlayerAutoAim(playerId, sqbToggle != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::ToggleControls(SQVM * pVM)
-{
-	// togglePlayerControls(playerid, toggle) : boolean
-	EntityId playerId;
-	SQBool sqbControls;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbControls);	
-
-	sq_pushbool(pVM, StaticNatives::TogglePlayerControls(playerId, sqbControls != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::TogglePhysics(SQVM * pVM)
-{
-	// TODO: Rename to 'togglePlayerRagdoll'  If it works i mean.
-	// togglePlayerPhysics(playerid, bEabled) : bool
-	EntityId playerId;
-	SQBool sqbToggle;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbToggle);	
-
-	sq_pushbool(pVM, StaticNatives::TogglePlayerPhysics(playerId, sqbToggle != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::ToggleFrozen(SQVM * pVM)
-{
-	// togglePlayerFrozen(playerid, bPlayerFrozen, bCameraFrozen) : boolean
-	EntityId playerId;
-	SQBool sqbPlayerFrozen;
-	SQBool sqbCameraFrozen;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbPlayerFrozen);
-	sq_getbool(pVM, -1, &sqbCameraFrozen);
-
-	sq_pushbool(pVM, StaticNatives::TogglePlayerFrozen(playerId, sqbPlayerFrozen != 0, sqbCameraFrozen != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::ToggleHUD(SQVM * pVM)
-{
-	// togglePlayerHUD(playerid, toggle) : boolean
-	EntityId playerId;
-	SQBool sqbToggle;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbToggle);
-
-	sq_pushbool(pVM, StaticNatives::TogglePlayerHUD(playerId, sqbToggle != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::ToggleRadar(SQVM * pVM)
-{
-	// togglePlayerRadar(playerid, toggle) : boolean
-	EntityId playerId;
-	SQBool sqbToggle;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbToggle);
-
-	sq_pushbool(pVM, StaticNatives::TogglePlayerRadar(playerId, sqbToggle != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::ToggleNames(SQVM * pVM)
-{
-	// togglePlayerNames(playerid, toggle) : boolean
-	// TODO: rename to 'togglePlayerNameTags'
-	EntityId playerId;
-	SQBool sqbToggle;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbToggle);
-
-	sq_pushbool(pVM, StaticNatives::TogglePlayerNameTags(playerId, sqbToggle != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::ToggleAreaNames(SQVM * pVM)
-{
-	// togglePlayerAreaNames(playerid, toggle) : boolean
-	EntityId playerId;
-	SQBool sqbToggle;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbToggle);
-
-	sq_pushbool(pVM, StaticNatives::TogglePlayerAreaNames(playerId, sqbToggle != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::ToggleHelmet(SQVM * pVM)
-{
-	// togglePlayerHelmet(playerid, toggle) : boolean
-	EntityId playerId;
-	SQBool sqbToggle;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbToggle);
-
-	sq_pushbool(pVM, StaticNatives::TogglePlayerHelmet(playerId, sqbToggle != 0));
+	sq_pushbool(pVM, false);
 	return 1;
 }
 
-// Camera
-SQInteger CPlayerNatives::SetCameraBehind(SQVM * pVM)
+// getPlayerArmour(playerid)
+SQInteger CPlayerNatives::GetArmour(SQVM * pVM)
 {
-	// setCameraBehindPlayer(playerid) : boolean
-	// TODO: remove it, use ResetPlayerCamera! same effect ???
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
-		
-	sq_pushbool(pVM, StaticNatives::SetPlayerCameraBehind(playerId));
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetArmour());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
-SQInteger CPlayerNatives::SetCameraPos(SQVM * pVM)
+
+// setPlayerCoordinates(playerid, x, y, z)
+SQInteger CPlayerNatives::SetCoordinates(SQVM * pVM)
 {
-	// setPlayerCameraPos(playerid, x, y, z) : boolean
 	EntityId playerId;
 	CVector3 vecPos;
-
 	sq_getentity(pVM, -4, &playerId);
 	sq_getvector3(pVM, -3, &vecPos);
 
-	sq_pushbool(pVM, StaticNatives::SetPlayerCameraPos(playerId, vecPos));
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(vecPos);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCoordinates, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
-SQInteger CPlayerNatives::SetCameraLookAt(SQVM * pVM)
-{
-	// setPlayerCameraLookAt(playerid, x, y, z) : boolean
-	EntityId playerId;
-	CVector3 vecLookAt;
 
-	sq_getentity(pVM, -4, &playerId);
-	sq_getvector3(pVM, -3, &vecLookAt);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerCameraLookAt(playerId, vecLookAt));
-	return 1;
-}
-SQInteger CPlayerNatives::ResetCamera(SQVM * pVM)
+// getPlayerCoordinates(playerid)
+SQInteger CPlayerNatives::GetCoordinates(SQVM * pVM)
 {
-	// resetPlayerCamera(playerid) : boolean
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	sq_pushbool(pVM, StaticNatives::ResetPlayerCamera(playerId));
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		CVector3 vecPosition;
+		pPlayer->GetPosition(vecPosition);
+		CSquirrelArguments args;
+		args.push(vecPosition.fX);
+		args.push(vecPosition.fY);
+		args.push(vecPosition.fZ);
+		sq_pusharg(pVM, CSquirrelArgument(args, true));
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
 
-// Screen text
-SQInteger CPlayerNatives::DisplayText(SQVM * pVM)
-{
-	// displayPlayerText(playerid, x, y, text, time) : boolean
-	EntityId playerId;
-	float fX, fY;
-	const char * szText;
-	SQInteger iTime;
-
-	sq_getentity(pVM, -5, &playerId);
-	sq_getfloat(pVM, -4, &fX);
-	sq_getfloat(pVM, -3, &fY);
-	sq_getstring(pVM, -2, &szText);
-	sq_getinteger(pVM, -1, &iTime);
-
-	sq_pushbool(pVM, StaticNatives::DisplayPlayerText(playerId, fX, fY, String(szText), iTime));
-	return 1;
-}
-SQInteger CPlayerNatives::DisplayTextForAll(SQVM * pVM)
-{
-	// displayTextForAll(x, y, text, time) : boolean
-	float fX, fY;
-	const char * szText;
-	SQInteger iTime;
-
-	sq_getfloat(pVM, -4, &fX);
-	sq_getfloat(pVM, -3, &fY);
-	sq_getstring(pVM, -2, &szText);
-	sq_getinteger(pVM, -1, &iTime);
-
-	sq_pushbool(pVM, StaticNatives::DisplayTextForAll(fX, fY, String(szText), iTime));
-	return 1;
-}
-SQInteger CPlayerNatives::DisplayInfoText(SQVM * pVM)
-{
-	// DisplayPlayerInfoText(playerId, text, time) : boolean
-	EntityId playerId;
-	const char * szText;
-	SQInteger iTime;
-
-	sq_getentity(pVM, -3, &playerId);
-	sq_getstring(pVM, -2, &szText);
-	sq_getinteger(pVM, -1, &iTime);
-
-	sq_pushbool(pVM, StaticNatives::DisplayPlayerInfoText(playerId, String(szText), iTime));
-	return 1;
-}
-SQInteger CPlayerNatives::DisplayInfoTextForAll(SQVM * pVM)
-{
-	// displayInfoTextForAll(text, time)
-	const char * szText;
-	SQInteger iTime;
-
-	sq_getstring(pVM, -2, &szText);
-	sq_getinteger(pVM, -1, &iTime);
-
-	sq_pushbool(pVM, StaticNatives::DisplayInfoTextForAll(String(szText), iTime));
-	return 1;
-}
-
-// Other functions
+// setPlayerTime(playerid, hour, minute)
 SQInteger CPlayerNatives::SetTime(SQVM * pVM)
 {
-	// setPlayerTime(playerid, hour, minute) : boolean
 	EntityId playerId;
 	SQInteger iHour;
 	SQInteger iMinute;
-
 	sq_getinteger(pVM, -1, &iMinute);
 	sq_getinteger(pVM, -2, &iHour);
 	sq_getentity(pVM, -3, &playerId);
 
-	sq_pushbool(pVM, StaticNatives::SetPlayerTime(playerId, (BYTE)iHour, (BYTE)iMinute));
+	if(g_pPlayerManager->DoesExist(playerId) && (iHour >= 0 && iHour < 24) && (iMinute >= 0 && iMinute < 60))
+	{
+		CBitStream bsSend;
+		bsSend.Write((unsigned char)iHour);
+		bsSend.Write((unsigned char)iMinute);
+		if(g_pTime->GetMinuteDuration() != CTime::DEFAULT_MINUTE_DURATION)
+			bsSend.Write(g_pTime->GetMinuteDuration());
+
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerTime, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// setPlayerTime(playerid, weather)
 SQInteger CPlayerNatives::SetWeather(SQVM * pVM)
 {
-	// setPlayerWeather(playerid, weatherid) : boolean
 	EntityId playerId;
 	SQInteger iWeather;
-
 	sq_getinteger(pVM, -1, &iWeather);
 	sq_getentity(pVM, -2, &playerId);
 
-	sq_pushbool(pVM, StaticNatives::SetPlayerWeather(playerId, (BYTE)iWeather));
+	if(g_pPlayerManager->DoesExist(playerId) && (iWeather >= 1 && iWeather < 10))
+	{
+		CBitStream bsSend;
+		bsSend.Write((unsigned char)iWeather);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerWeather, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// setPlayerGravity(playerid, gravity)
 SQInteger CPlayerNatives::SetGravity(SQVM * pVM)
 {
-	// setPlayerGravity(playerid, gravity) : boolean
-	// TODO: Doesn't work check rpc handling
 	EntityId playerId;
 	float fGravity;
-
 	sq_getentity(pVM, -2, &playerId);
-	sq_getfloat(pVM, -1, &fGravity);	
+	sq_getfloat(pVM, -1, &fGravity);
 
-	sq_pushbool(pVM, StaticNatives::SetPlayerGravity(playerId, fGravity));
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(fGravity);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerGravity, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
-SQInteger CPlayerNatives::IsConnected(SQVM * pVM)
-{
-	// isPlayerConnected(playerid) : boolean
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-	
-	sq_pushbool(pVM, StaticNatives::IsPlayerConnected(playerId));
-	return 1;
-}
-SQInteger CPlayerNatives::IsOnFoot(SQVM * pVM)
-{
-	// isPlayerOnFoot(playerid) : boolean
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
 
-	sq_pushbool(pVM, StaticNatives::IsPlayerOnFoot(playerId));
-	return 1;
-}
-SQInteger CPlayerNatives::IsInVehicle(SQVM * pVM)
-{
-	// isPlayerInVehicle(playerid, vehicleid) : boolean
-	EntityId playerId;
-	EntityId vehicleId;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getentity(pVM, -1, &vehicleId);
-	
-	sq_pushbool(pVM, StaticNatives::IsPlayerInVehicle(playerId, vehicleId));
-	return 1;
-}
-SQInteger CPlayerNatives::GetVehicleId(SQVM * pVM)
-{
-	// getPlayerVehicleId(playerid) : entityid
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	EntityId vehicleId = 0;
-	if(StaticNatives::GetPlayerVehicleId(playerId, vehicleId))
-		sq_pushentity(pVM, vehicleId);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::SetSpawnLocation(SQVM * pVM)
-{
-	// setPlayerSpawnLocation(playerid, x, y, z, fHeading) : boolean
-	EntityId playerId;
-	CVector3 vecCoords;
-	float fHeading;
-
-	sq_getentity(pVM, -5, &playerId);
-	sq_getvector3(pVM, -4, &vecCoords);
-	sq_getfloat(pVM, -1, &fHeading);	
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerSpawnLocation(playerId, vecCoords, fHeading));
-	return 1;
-}
-SQInteger CPlayerNatives::SetInvincible(SQVM * pVM)
-{
-	// setPlayerInvincible(playerid, invincible) : boolean
-	EntityId playerId;
-	SQBool sqbInvincible;
-
-	sq_getentity(pVM, -2, &playerId);
-	sq_getbool(pVM, -1, &sqbInvincible);
-
-	sq_pushbool(pVM, StaticNatives::SetPlayerInvincible(playerId, sqbInvincible != 0));
-	return 1;
-}
-SQInteger CPlayerNatives::GetSeatId(SQVM * pVM)
-{
-	// getPlayerSeatId(playerid) : integer
-	EntityId playerId;
-	sq_getentity(pVM, -1, &playerId);
-
-	BYTE byteSeat = 0;
-	if(StaticNatives::GetPlayerSeatId(playerId, byteSeat))
-		sq_pushinteger(pVM, byteSeat);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
+// sendPlayerMessage(playerid, message [, color = 0xFFFFFFAA, allowformatting = true])
 SQInteger CPlayerNatives::SendMessage(SQVM * pVM)
 {
-	// sendPlayerMessage(playerid, message [, color = 0xFFFFFFAA, allowformatting = true]) : boolean
-	// TODO: clean up. this code can be shorter.
 	SQInteger iTop = (sq_gettop(pVM) - 1);
+
 	if(iTop < 2 || iTop > 4)
 	{
 		CHECK_PARAMS("sendPlayerMessage", 2);
@@ -989,14 +523,25 @@ SQInteger CPlayerNatives::SendMessage(SQVM * pVM)
 		sq_getstring(pVM, -1, &szMessage);
 	}
 
-	bool bAllowFormatting = (sqbAllowFormatting != 0);
-	sq_pushbool(pVM, StaticNatives::SendPlayerMessage(playerId, String(szMessage), (DWORD)iColor, bAllowFormatting));
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write((DWORD)iColor);
+		bsSend.Write(String(szMessage));
+		bool bAllowFormatting = (sqbAllowFormatting != 0);
+		bsSend.Write(bAllowFormatting);
+		g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// sendMessageToAll(message [, color = 0xFFFFFFAA, allowformatting = true])
 SQInteger CPlayerNatives::SendMessageToAll(SQVM * pVM)
 {
-	// sendMessageToAll(message [, color = 0xFFFFFFAA, allowformatting = true]) : boolean
-	// TODO: clean up. this code can be shorter
 	SQInteger vtop = (sq_gettop(pVM) - 1);
 
 	if(vtop > 3 || vtop < 1)
@@ -1030,83 +575,667 @@ SQInteger CPlayerNatives::SendMessageToAll(SQVM * pVM)
 		sq_getstring(pVM, -1, &szMessage);
 	}
 
-	sq_pushbool(pVM, StaticNatives::SendMessageToAll(String(szMessage), (DWORD)iColor, sqbAllowFormatting != 0));
+	if(g_pPlayerManager->GetPlayerCount() > 0)
+	{
+		CBitStream bsSend;
+		bsSend.Write((DWORD)iColor);
+		bsSend.Write(String(szMessage));
+		bool bAllowFormatting = (sqbAllowFormatting != 0);
+		bsSend.Write(bAllowFormatting);
+		g_pNetworkManager->RPC(RPC_Message, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// isPlayerInAnyVehicle(playerid)
 SQInteger CPlayerNatives::IsInAnyVehicle(SQVM * pVM)
 {
-	// isPlayerInAnyVehicle(playerid) : boolean
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	sq_pushbool(pVM, StaticNatives::IsPlayerInAnyVehicle(playerId));
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->IsInVehicle());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// isPlayerInVehicle(playerid, vehicleid)
+SQInteger CPlayerNatives::IsInVehicle(SQVM * pVM)
+{
+	EntityId playerId;
+	EntityId vehicleId;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getentity(pVM, -1, &vehicleId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		if(pPlayer->IsInVehicle())
+		{
+			sq_pushbool(pVM, (pPlayer->GetVehicle()->GetVehicleId() == vehicleId));
+			return 1;
+		}
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getPlayerVehicleId(playerid)
+SQInteger CPlayerNatives::GetVehicleId(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		if(pPlayer->IsInVehicle())
+		{
+			sq_pushinteger(pVM, pPlayer->GetVehicle()->GetVehicleId());
+			return 1;
+		}
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getPlayerSeatId(playerid)
+SQInteger CPlayerNatives::GetSeatId(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer && pPlayer->IsInVehicle())
+	{
+		sq_pushinteger(pVM, pPlayer->GetVehicleSeatId());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// isPlayerOnFoot(playerid)
+SQInteger CPlayerNatives::IsOnFoot(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->IsOnFoot());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerPayAndSpray(playerid, toggle)
+SQInteger CPlayerNatives::TogglePayAndSpray(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbToggle;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbToggle);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bool bToggle = (sqbToggle != 0);
+		bsSend.Write(bToggle);
+		g_pNetworkManager->RPC(RPC_ScriptingTogglePayAndSpray, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerAutoAim(playerid, toggle)
+SQInteger CPlayerNatives::ToggleAutoAim(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbToggle;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbToggle);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bool bToggle = (sqbToggle != 0);
+		bsSend.Write(bToggle);
+		g_pNetworkManager->RPC(RPC_ScriptingToggleAutoAim, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerDrunk(playerid, toggle)
+/*SQInteger CPlayerNatives::SetPlayerDrunk(SQVM * pVM)
+{
+	SQInteger playerid;
+	bool toggle;
+	sq_getinteger(vm, -2, &playerid);
+	sq_getinteger(vm, -1, (int*)&toggle);
+	CBitStream bsSend;
+	bsSend.Write(toggle);
+	g_pNetworkManager->RPC("SetPlayerDrunk", &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerid, false);
+	sq_pushbool(vm, true);
+	return 1;
+}*/
+
+// setPlayerSpawnLocation(playerid, x, y, z, r)
+SQInteger CPlayerNatives::SetSpawnLocation(SQVM * pVM)
+{
+	EntityId playerId;
+	CVector3 vecPos;
+	float fRotation;
+	sq_getentity(pVM, -5, &playerId);
+	sq_getvector3(pVM, -4, &vecPos);
+	sq_getfloat(pVM, -1, &fRotation);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		pPlayer->SetSpawnLocation(vecPos, fRotation);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerModel(playerid, model)
+SQInteger CPlayerNatives::SetModel(SQVM * pVM)
+{
+	EntityId playerId;
+	SQInteger iModelId;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getinteger(pVM, -1, &iModelId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->SetModel(iModelId));
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getPlayerModel(playerid)
+SQInteger CPlayerNatives::GetModel(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetModel());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerControls(playerid, toggle)
+SQInteger CPlayerNatives::ToggleControls(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbControls;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbControls);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bool bControls = (sqbControls != 0);
+		bsSend.Write(bControls);
+		g_pNetworkManager->RPC(RPC_ScriptingToggleControls, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// isPlayerSpawned(playerid)
 SQInteger CPlayerNatives::IsSpawned(SQVM * pVM)
 {
-	// isPlayerSpawned(playerid) : boolean
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	sq_pushbool(pVM, StaticNatives::IsPlayerSpawned(playerId));
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->IsSpawned());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// setPlayerHeading(playerid, heading)
+SQInteger CPlayerNatives::SetHeading(SQVM * pVM)
+{
+	EntityId playerId;
+	float fHeading;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getfloat(pVM, -1, &fHeading);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(fHeading);
+		g_pNetworkManager->RPC(RPC_ScriptingSetHeading, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getPlayerHeading(playerid)
+SQInteger CPlayerNatives::GetHeading(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushfloat(pVM, pPlayer->GetCurrentHeading());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerPhysics(playerid, toggle)
+SQInteger CPlayerNatives::TogglePhysics(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbToggle;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbToggle);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bool bToggle = (sqbToggle != 0);
+		bsSend.Write(bToggle);
+		g_pNetworkManager->RPC(RPC_ScriptingToggleRagdoll, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// kickPlayer(playerid, sendkickmessage)
 SQInteger CPlayerNatives::Kick(SQVM * pVM)
 {
-	// kickPlayer(playerid, bSendKickMessage) : boolean
-	// TODO: Support for 1-argument only syntax
 	EntityId playerId;
 	SQBool sqbKickMessage;
-
 	sq_getentity(pVM, -2, &playerId);
 	sq_getbool(pVM, -1, &sqbKickMessage);
 
-	sq_pushbool(pVM, StaticNatives::KickPlayer(playerId, sqbKickMessage != 0));
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		pPlayer->Kick(sqbKickMessage != 0);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// banPlayer(playerid, milliseconds)
 SQInteger CPlayerNatives::Ban(SQVM * pVM)
 {
-	// banPlayer(playerid, uiMilliseconds) : boolean
 	EntityId playerId;
-	SQInteger iSeconds;
-
+	SQInteger uiSeconds;
 	sq_getentity(pVM, -2, &playerId);
-	sq_getinteger(pVM, -1, &iSeconds);
+	sq_getinteger(pVM, -1, &uiSeconds);
 
-	sq_pushbool(pVM, StaticNatives::BanPlayer(playerId, iSeconds));
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		pPlayer->Ban(uiSeconds);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// getPlayerIp(playerid)
 SQInteger CPlayerNatives::GetIp(SQVM * pVM)
 {
-	// getPlayerIp(playerid) : string
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	String strIp;
-	if(StaticNatives::GetPlayerIp(playerId, strIp))
-		sq_pushstring(pVM, strIp.Get(), strIp.GetLength());
-	else
-		sq_pushbool(pVM, false);
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		String ip = pPlayer->GetIp();
+		sq_pushstring(pVM, ip.Get(), ip.GetLength());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// givePlayerMoney(playerid, money)
+SQInteger CPlayerNatives::GiveMoney(SQVM * pVM)
+{
+	EntityId playerId;
+	SQInteger iMoney;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getinteger(pVM, -1, &iMoney);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->GiveMoney(iMoney));
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerMoney(playerid, money)
+SQInteger CPlayerNatives::SetMoney(SQVM * pVM)
+{
+	EntityId playerId;
+	SQInteger iMoney;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getinteger(pVM, -1, &iMoney);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->SetMoney(iMoney));
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// resetPlayerMoney(playerid)
+SQInteger CPlayerNatives::ResetMoney(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->SetMoney(0));
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getPlayerMoney(playerid)
+SQInteger CPlayerNatives::GetMoney(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetMoney());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+
+// togglePlayerFrozen(playerid, playerfrozen, camerafrozen)
+SQInteger CPlayerNatives::ToggleFrozen(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbPlayerFrozen;
+	SQBool sqbCameraFrozen;
+	sq_getentity(pVM, -2, &playerId);
+	// jenksta: is there a reason these are both the same?
+	sq_getbool(pVM, -1, &sqbPlayerFrozen);
+	sq_getbool(pVM, -1, &sqbCameraFrozen);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bool bPlayerFrozen = (sqbPlayerFrozen != 0);
+		bsSend.Write(bPlayerFrozen);
+		bool bCameraFrozen = (sqbCameraFrozen != 0);
+		bsSend.Write(bCameraFrozen);
+		g_pNetworkManager->RPC(RPC_ScriptingToggleFrozen, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getPlayerState(playerid)
 SQInteger CPlayerNatives::GetState(SQVM * pVM)
 {
-	// getPlayerState(playerid) : integer
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	eStateType state;
-	if(StaticNatives::GetPlayerState(playerId, state))
-		sq_pushinteger(pVM, state);
-	else
-		sq_pushbool(pVM, false);
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+		if(pPlayer)
+		{
+			sq_pushinteger(pVM, pPlayer->GetState());
+			return 1;
+		}
+	}
+	else if(playerId >= 0 && playerId < MAX_PLAYERS)
+	{
+		sq_pushinteger(pVM, STATE_TYPE_DISCONNECT);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// displayPlayerText(playerid, x, y, text, time)
+SQInteger CPlayerNatives::DisplayText(SQVM * pVM)
+{
+	EntityId playerId;
+	float fPos[2];
+	const char * szText;
+	SQInteger iTime;
+	sq_getentity(pVM, -5, &playerId);
+	sq_getfloat(pVM, -4, &fPos[0]);
+	sq_getfloat(pVM, -3, &fPos[1]);
+	sq_getstring(pVM, -2, &szText);
+	sq_getinteger(pVM, -1, &iTime);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(fPos[0]);
+		bsSend.Write(fPos[1]);
+		bsSend.Write(String(szText));
+		bsSend.Write((int)iTime);
+		g_pNetworkManager->RPC(RPC_ScriptingDisplayText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// displayTextForAll(x, y, text, time)
+SQInteger CPlayerNatives::DisplayTextForAll(SQVM * pVM)
+{
+	float fPos[2];
+	const char * szText;
+	SQInteger iTime;
+	sq_getfloat(pVM, -4, &fPos[0]);
+	sq_getfloat(pVM, -3, &fPos[1]);
+	sq_getstring(pVM, -2, &szText);
+	sq_getinteger(pVM, -1, &iTime);
+	CBitStream bsSend;
+	bsSend.Write(fPos[0]);
+	bsSend.Write(fPos[1]);
+	bsSend.Write(String(szText));
+	bsSend.Write((int)iTime);
+	g_pNetworkManager->RPC(RPC_ScriptingDisplayText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+// displayInfoText(playerid, text, time)
+SQInteger CPlayerNatives::DisplayInfoText(SQVM * pVM)
+{
+	EntityId playerId;
+	const char * szText;
+	SQInteger iTime;
+	sq_getentity(pVM, -3, &playerId);
+	sq_getstring(pVM, -2, &szText);
+	sq_getinteger(pVM, -1, &iTime);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(String(szText));
+		bsSend.Write((int)iTime);
+		g_pNetworkManager->RPC(RPC_ScriptingDisplayInfoText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// displayInfoTextForAll(playerid, text, time)
+SQInteger CPlayerNatives::DisplayInfoTextForAll(SQVM * pVM)
+{
+	const char * szText;
+	SQInteger iTime;
+	sq_getstring(pVM, -2, &szText);
+	sq_getinteger(pVM, -1, &iTime);
+	CBitStream bsSend;
+	bsSend.Write(String(szText));
+	bsSend.Write((int)iTime);
+	g_pNetworkManager->RPC(RPC_ScriptingDisplayInfoText, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+// setPlayerVelocity(playerid, x, y, z)
+SQInteger CPlayerNatives::SetVelocity(SQVM * pVM)
+{
+	EntityId playerId;
+	CVector3 vecMoveSpeed;
+	sq_getentity(pVM, -4, &playerId);
+	sq_getvector3(pVM, -3, &vecMoveSpeed);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(vecMoveSpeed);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerMoveSpeed, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getPlayerVelocity(playerid)
+SQInteger CPlayerNatives::GetVelocity(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		CVector3 vecMoveSpeed;
+		pPlayer->GetMoveSpeed(vecMoveSpeed);
+		CSquirrelArguments args;
+		args.push(vecMoveSpeed.fX);
+		args.push(vecMoveSpeed.fY);
+		args.push(vecMoveSpeed.fZ);
+		sq_pusharg(pVM, CSquirrelArgument(args, true));
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// warpPlayerIntoVehicle(playerid, vehicleid, seatid = 0)
 SQInteger CPlayerNatives::WarpIntoVehicle(SQVM * pVM)
 {
-	// warpPlayerIntoVehicle(playerId, vehicleId [, seatId = 0]) : boolean
-	// TODO: clean up this code. it can be shorter
-	// TODO: 'animated' parameter (and reverse it)
 	SQInteger iParams = sq_gettop(pVM) - 1;
 
 	CHECK_PARAMS_MIN("warpPlayerIntoVehicle", 2);
@@ -1126,13 +1255,23 @@ SQInteger CPlayerNatives::WarpIntoVehicle(SQVM * pVM)
 	sq_getentity(pVM, -iParams, &playerId);
 	sq_getentity(pVM, -iParams + 1, &vehicleId);
 
-	sq_pushbool(pVM, StaticNatives::WarpPlayerIntoVehicle(playerId, vehicleId, (BYTE)iSeatId));
+	if(g_pPlayerManager->DoesExist(playerId) && g_pVehicleManager->DoesExist(vehicleId))
+	{
+		CBitStream bsSend;
+		bsSend.Write((EntityId)vehicleId);
+		bsSend.Write((BYTE)iSeatId);
+		g_pNetworkManager->RPC(RPC_ScriptingWarpPlayerIntoVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// removePlayerFromVehicle(playerid)
 SQInteger CPlayerNatives::RemoveFromVehicle(SQVM * pVM)
 {
-	// removePlayerFromVehicle(playerid)
-	// TODO: Clean up this code (can be shorter)
 	CHECK_PARAMS_MIN("removePlayerFromVehicle", 1);
 	CHECK_TYPE("removePlayerFromVehicle", 1, 2, OT_INTEGER);
 
@@ -1145,63 +1284,245 @@ SQInteger CPlayerNatives::RemoveFromVehicle(SQVM * pVM)
 		return 1;
 	}
 
-	bool bAnimated = false;
+	bool bGraceful = false;
 	if(sq_gettop(pVM) >= 3)
 	{
 		CHECK_TYPE("removePlayerFromVehicle", 2, 3, OT_BOOL);
-		SQBool sqbAnimated;
-		sq_getbool(pVM, 3, &sqbAnimated);
-		bAnimated = (sqbAnimated != 0);
+		SQBool b;
+		sq_getbool(pVM, 3, &b);
+		bGraceful = (b != 0);
 	}
-		
-	sq_pushbool(pVM, StaticNatives::RemovePlayerFromVehicle(playerId, bAnimated));
+
+	CBitStream bsSend;
+	bsSend.WriteBit(bGraceful);
+	g_pNetworkManager->RPC(RPC_ScriptingRemovePlayerFromVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+	sq_pushbool(pVM, true);
 	return 1;
 }
-SQInteger CPlayerNatives::GetSerial(SQVM * pVM)
+
+// getPlayerWeapon(playerid)
+SQInteger CPlayerNatives::GetWeapon(SQVM * pVM)
 {
-	// getPlayerSerial(playerid) : string
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
-	String strSerial;
-	if(StaticNatives::GetPlayerSerial(playerId, strSerial))
-		sq_pushstring(pVM, strSerial.Get(), -1);
-	else
-		sq_pushbool(pVM, false);
-	return 1;
-}
-SQInteger CPlayerNatives::TriggerClientEvent(SQVM * pVM)
-{
-	// triggerClientEvent(playerid, eventname [, ...]) : boolean
-	CHECK_PARAMS_MIN("triggerClientEvent", 2);
-	CHECK_TYPE("triggerClientEvent", 1, 2, OT_INTEGER);
-	CHECK_TYPE("triggerClientEvent", 2, 3, OT_STRING);
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
 
-	SQInteger playerId;
-	sq_getinteger(pVM, 2, &playerId);
-	CSquirrelArguments sqArgs(pVM, 3);
-	
-	sq_pushbool(pVM, StaticNatives::TriggerPlayerClientEvent(playerId, sqArgs));
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetWeapon());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
-SQInteger CPlayerNatives::GetPing(SQVM* pVM)
+
+// getPlayerAmmo(playerid)
+SQInteger CPlayerNatives::GetAmmo(SQVM * pVM)
 {
 	EntityId playerId;
-	sq_getentity(pVM, 2, &playerId);
+	sq_getentity(pVM, -1, &playerId);
 
-	unsigned short usPing;
-	if(StaticNatives::GetPlayerPing(playerId, usPing))
-		sq_pushinteger(pVM, usPing);
-	else
-		sq_pushbool(pVM, false);
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetAmmo());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
 	return 1;
 }
 
-// TODO: Cleanup!
+// getPlayerSerial(playerid)
+SQInteger CPlayerNatives::GetSerial(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(!pPlayer)
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	sq_pushstring(pVM, pPlayer->GetSerial().Get(), -1);
+	return 1;
+}
+
+// setCameraBehindPlayer(playerid)
+SQInteger CPlayerNatives::SetCameraBehind(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	if(!g_pPlayerManager->DoesExist(playerId))
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	CBitStream bsSend;
+	g_pNetworkManager->RPC(RPC_ScriptingSetCameraBehindPlayer, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+	sq_pushbool(pVM, true);
+
+	return 1;
+}
+
+// setPlayerDucking(playerid, ducking)
+SQInteger CPlayerNatives::SetDucking(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbDucking;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbDucking);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(sqbDucking != 0);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDucking, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// isPlayerDucking(playerid)
+SQInteger CPlayerNatives::IsDucking(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushbool(pVM, pPlayer->IsDucking());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerInvincible(playerid, invincible)
+SQInteger CPlayerNatives::SetInvincible(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbInvincible;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbInvincible);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(sqbInvincible != 0);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerInvincible, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerHUD(playerid, toggle)
+SQInteger CPlayerNatives::ToggleHUD(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbToggle;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbToggle);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(sqbToggle != 0);
+		g_pNetworkManager->RPC(RPC_ScriptingToggleHUD, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerRadar(playerid, toggle)
+SQInteger CPlayerNatives::ToggleRadar(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbToggle;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbToggle);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bool bToggle = (sqbToggle != 0);
+		bsSend.Write(bToggle);
+		g_pNetworkManager->RPC(RPC_ScriptingToggleRadar, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerNames(playerid, toggle)
+SQInteger CPlayerNatives::ToggleNames(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbToggle;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbToggle);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bool bToggle = (sqbToggle != 0);
+		bsSend.Write(bToggle);
+		g_pNetworkManager->RPC(RPC_ScriptingToggleNames, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerAreaNames(playerid, toggle)
+SQInteger CPlayerNatives::ToggleAreaNames(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbToggle;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbToggle);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bool bToggle = (sqbToggle != 0);
+		bsSend.Write(bToggle);
+		g_pNetworkManager->RPC(RPC_ScriptingToggleAreaNames, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getEmptyPlayerControlState()
 SQInteger CPlayerNatives::GetEmptyControlState(SQVM * pVM)
 {
-	// getEmptyPlayerControlState()
-	// TODO: Clean up/remove this messed code.
 	// Create a new control state
 	CControlState controlState;
 
@@ -1276,9 +1597,10 @@ SQInteger CPlayerNatives::GetEmptyControlState(SQVM * pVM)
 	sq_pusharg(pVM, CSquirrelArgument(table, false));
 	return 1;
 }
+
+// getPlayerPreviousControlState(playerid)
 SQInteger CPlayerNatives::GetPreviousControlState(SQVM * pVM)
 {
-	// getPlayerPreviousControlState(playerid)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
@@ -1365,9 +1687,10 @@ SQInteger CPlayerNatives::GetPreviousControlState(SQVM * pVM)
 	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// getPlayerControlState(playerid)
 SQInteger CPlayerNatives::GetControlState(SQVM * pVM)
 {
-	// getPlayerControlState(playerid)
 	EntityId playerId;
 	sq_getentity(pVM, -1, &playerId);
 
@@ -1454,6 +1777,122 @@ SQInteger CPlayerNatives::GetControlState(SQVM * pVM)
 	sq_pushbool(pVM, false);
 	return 1;
 }
+
+// triggerClientEvent(playerid, eventname, ...)
+SQInteger CPlayerNatives::TriggerEvent(SQVM * pVM)
+{
+	CHECK_PARAMS_MIN("triggerClientEvent", 2);
+	CHECK_TYPE("triggerClientEvent", 1, 2, OT_INTEGER);
+	CHECK_TYPE("triggerClientEvent", 2, 3, OT_STRING);
+
+	SQInteger playerId;
+	sq_getinteger(pVM, 2, &playerId);
+	CSquirrelArguments arguments(pVM, 3);
+
+	CBitStream bsSend;
+	arguments.serialize(&bsSend);
+	g_pNetworkManager->RPC(RPC_ScriptingEventCall, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+// setPlayerColor(playerid, rgba)
+SQInteger CPlayerNatives::SetColor(SQVM * pVM)
+{
+	EntityId playerId;
+	SQInteger color;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getinteger(pVM, -1, &color);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		pPlayer->SetColor(color);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::GetColor(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, 2, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetColor());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::GetPing(SQVM* pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, 2, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetPing());
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::SetClothes(SQVM * pVM)
+{
+	SQInteger iPlayerId, iBodyPart, iClothes;
+	sq_getinteger(pVM, 2, &iPlayerId);
+	sq_getinteger(pVM, 3, &iBodyPart);
+	sq_getinteger(pVM, 4, &iClothes);
+
+	if(g_pPlayerManager->DoesExist(iPlayerId) && iBodyPart >= 0 && iBodyPart <= 10 && iClothes >= 0 && iClothes <= 255)
+	{
+		g_pPlayerManager->GetAt(iPlayerId)->SetClothes((unsigned char)iBodyPart, (unsigned char)iClothes);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::GetClothes(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, 2, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		sq_newarray(pVM, 0);
+
+		for(unsigned char uc = 0; uc < 11; uc ++ )
+		{
+			sq_pushinteger(pVM, pPlayer->GetClothes(uc));
+			sq_arrayappend(pVM, -2);
+		}
+
+		return 1;
+	}
+	
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
 SQInteger CPlayerNatives::ResetClothes(SQVM * pVM)
 {
 	EntityId playerId;
@@ -1471,6 +1910,7 @@ SQInteger CPlayerNatives::ResetClothes(SQVM * pVM)
 	sq_pushbool(pVM, false);
 	return 1;
 }
+
 SQInteger CPlayerNatives::Respawn(SQVM * pVM)
 {
 	EntityId playerId;
@@ -1483,6 +1923,127 @@ SQInteger CPlayerNatives::Respawn(SQVM * pVM)
 		CBitStream bitStream;
 		bitStream.WriteCompressed(playerId);
 		g_pNetworkManager->RPC(RPC_PlayerSpawn, &bitStream, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, pPlayer->GetPlayerId(), false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::GiveHelmet(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		pPlayer->GiveHelmet();
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::RemoveHelmet(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		pPlayer->RemoveHelmet();
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+	
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// togglePlayerHelmet(playerid, toggle)
+SQInteger CPlayerNatives::ToggleHelmet(SQVM * pVM)
+{
+	EntityId playerId;
+	SQBool sqbToggle;
+	sq_getentity(pVM, -2, &playerId);
+	sq_getbool(pVM, -1, &sqbToggle);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+
+	if(pPlayer)
+	{
+		bool bToggle = (sqbToggle != 0);
+		if(bToggle)
+			pPlayer->GiveHelmet();
+		else
+			pPlayer->RemoveHelmet();
+
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerCameraPos(playerid, x, y, z)
+SQInteger CPlayerNatives::SetCameraPos(SQVM * pVM)
+{
+	EntityId playerId;
+	CVector3 vecPos;
+	sq_getentity(pVM, -4, &playerId);
+	sq_getvector3(pVM, -3, &vecPos);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(vecPos);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraPos, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// setPlayerCameraLookAt(playerid, x, y, z)
+SQInteger CPlayerNatives::SetCameraLookAt(SQVM * pVM)
+{
+	EntityId playerId;
+	CVector3 vecPos;
+	sq_getentity(pVM, -4, &playerId);
+	sq_getvector3(pVM, -3, &vecPos);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		CBitStream bsSend;
+		bsSend.Write(vecPos);
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCameraLookAt, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
+		sq_pushbool(pVM, true);
+		return 1;
+	}
+
+	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// resetPlayerCamera(playerid)
+SQInteger CPlayerNatives::ResetCamera(SQVM * pVM)
+{
+	EntityId playerId;
+	sq_getentity(pVM, -1, &playerId);
+
+	if(g_pPlayerManager->DoesExist(playerId))
+	{
+		g_pNetworkManager->RPC(RPC_ScriptingResetPlayerCamera, NULL, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 		sq_pushbool(pVM, true);
 		return 1;
 	}
@@ -2015,6 +2576,46 @@ SQInteger CPlayerNatives::DriveAutomatic(SQVM * pVM)
 		}
 	}
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+SQInteger CPlayerNatives::SetDimension(SQVM * pVM)
+{
+	SQInteger iDimension;
+	EntityId playerId;
+
+	sq_getinteger(pVM, -1, &iDimension);
+	sq_getentity(pVM, -2, &playerId);
+	
+	CPlayer* pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer) {
+		pPlayer->SetDimension(iDimension);
+		CBitStream bsSend;
+		bsSend.Write(playerId);
+		bsSend.Write(iDimension);
+
+		g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+		sq_pushbool(pVM, true);
+		return true;
+	}
+	sq_pushbool(pVM, false);
+	return false;
+}
+
+SQInteger CPlayerNatives::GetDimension(SQVM * pVM)
+{ 
+	EntityId playerId;
+
+	sq_getentity(pVM, -1, &playerId);
+
+	CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
+	if(pPlayer)
+	{
+		sq_pushinteger(pVM, pPlayer->GetDimension());
+		return 1;
+	}
+
+	sq_pushinteger(pVM, -1);
 	return 1;
 }
 

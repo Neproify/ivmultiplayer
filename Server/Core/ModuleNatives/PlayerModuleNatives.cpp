@@ -168,14 +168,16 @@ namespace Modules
 	}
 
 	// setPlayerCoordinates(playerid, x, y, z)
-	bool CPlayerModuleNatives::SetCoordinates(EntityId playerId, CVector3 vecCoordinates)
+	bool CPlayerModuleNatives::SetCoordinates(EntityId playerId, CVector3 vecPos)
 	{
-		CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-		if(pPlayer)
+		if(g_pPlayerManager->DoesExist(playerId))
 		{
-			pPlayer->SetCoordinates(vecCoordinates);
+			CBitStream bsSend;
+			bsSend.Write(vecPos);
+			g_pNetworkManager->RPC(RPC_ScriptingSetPlayerCoordinates, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 			return true;
 		}
+
 		return false;
 	}
 
@@ -186,9 +188,9 @@ namespace Modules
 
 		if(pPlayer)
 		{
-			CVector3 vecCoordinates;
-			pPlayer->GetCoordinates(vecCoordinates);
-			return vecCoordinates;
+			CVector3 vecPosition;
+			pPlayer->GetPosition(vecPosition);
+			return vecPosition;
 		}
 
 		return CVector3();
@@ -448,11 +450,11 @@ namespace Modules
 	// setPlayerHeading(playerid, heading)
 	bool CPlayerModuleNatives::SetHeading(EntityId playerId, float fHeading)
 	{
-		CPlayer * pPlayer = g_pPlayerManager->GetAt(playerId);
-
-		if(pPlayer)
+		if(g_pPlayerManager->DoesExist(playerId))
 		{
-			pPlayer->SetHeading(fHeading);
+			CBitStream bsSend;
+			bsSend.Write(fHeading);
+			g_pNetworkManager->RPC(RPC_ScriptingSetHeading, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 			return true;
 		}
 
@@ -466,7 +468,7 @@ namespace Modules
 
 		if(pPlayer)
 		{
-			return pPlayer->GetHeading();
+			return pPlayer->GetCurrentHeading();
 		}
 
 		return -1.0f;
@@ -692,7 +694,7 @@ namespace Modules
 		if(pPlayer)
 		{
 			CVector3 vecMoveSpeed;
-			pPlayer->GetVelocity(vecMoveSpeed);
+			pPlayer->GetMoveSpeed(vecMoveSpeed);
 			return vecMoveSpeed;
 		}
 

@@ -86,11 +86,9 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 	SQInteger iModelId;
 	CVector3 vecPosition;
 	CVector3 vecRotation;
-	SQInteger iDimension; 
 	SQInteger respawn_delay = -1;
 	SQInteger color1 = 0, color2 = 0, color3 = 0, color4 = 0;
 	sq_getinteger(pVM, 2, &iModelId);
-	
 
 	if(iModelId < 0 || iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111 || iModelId > 123)
 	{
@@ -116,19 +114,16 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 			{
 				sq_getinteger(pVM, 11, &color3);
 				sq_getinteger(pVM, 12, &color4);
-				
-				
-				if(sq_gettop(pVM) >= 13)
-						sq_getinteger(pVM, 13, &iDimension);
 
-				if(sq_gettop(pVM) >= 14)
-						sq_getinteger(pVM, 14, &respawn_delay);
+				if(sq_gettop(pVM) >= 13)
+					sq_getinteger(pVM, 13, &respawn_delay);
 			}
 		}
-	}	
+	}
+
 	if(iModelId >= 0 && iModelId <= 125)
 	{
-		EntityId vehicleId =  g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4, iDimension, respawn_delay);
+		EntityId vehicleId =  g_pVehicleManager->Add(iModelId, vecPosition, vecRotation, color1, color2, color3, color4, respawn_delay);
 		sq_pushinteger(pVM,vehicleId);
 		return 1;
 	}
@@ -1225,16 +1220,16 @@ SQInteger CVehicleNatives::RepairVehicle(SQVM * pVM)
 	return 1;
 }
 
-// setVehicleDimension(vehicleid, demnsion) //ViruZz: Switched playerId to vehicleId *Ts ts ts*
+// setVehicleDimension(vehicleid, demnsion)
 SQInteger CVehicleNatives::SetDimension(SQVM * pVM)
 {
 	SQInteger iDimension;
-	EntityId iModelId;
+	EntityId playerId;
 
 	sq_getinteger(pVM, -1, &iDimension);
-	sq_getentity(pVM, -2, &iModelId);
+	sq_getentity(pVM, -2, &playerId);
 	
-	CVehicle* pVehicle = g_pVehicleManager->GetAt(iModelId);
+	CVehicle* pVehicle = g_pVehicleManager->GetAt(playerId);
 	if(pVehicle == NULL) {
 		sq_pushbool(pVM, false);
 		CLogFile::Print("SetDimension failed");
@@ -1243,11 +1238,11 @@ SQInteger CVehicleNatives::SetDimension(SQVM * pVM)
 
 	pVehicle->SetDimension(iDimension);
 	CBitStream bsSend;
-	bsSend.Write(iModelId);
+	bsSend.Write(playerId);
 	bsSend.Write(iDimension);
 
 	//CLogFile::Printf("Set dimension of player(%i) to %i", (int)playerId, iDimension);
-	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 	sq_pushbool(pVM, true);
 	return 1;
 }

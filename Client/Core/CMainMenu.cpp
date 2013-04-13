@@ -87,12 +87,14 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 	{
 		g_pClient->GetChatWindow()->SetEnabled(false); //We don't want to show the chatbox anymore so we set it to FALSE not true derp
 
-		g_pClient->ResetGame(true);
+		//g_pClient->ResetGame(true); //Let's not reset the game because then you wont be able to reconnect due to the game not being loaded.
 		// jenksta: wtf?
 		// This is to give a quick timer, not to rush everything you know?
-		Sleep(500);
-		SetDisconnectButtonVisible(false);
-		SetVisible(true);
+		//pNetworkManager->Disconnect(); //Disconnect from the server *Disabled temporary, causing issues and will re-write it later.*
+		g_pClient->GetMainMenu()->ResetNetworkStats(); //Reset the Network Stats
+		g_pClient->ResetMainMenuCamera(); //Reset the Main Menu Camera
+		SetDisconnectButtonVisible(false); //Get rid of the Disconnect Button
+		//SetVisible(true);
 	}
 	return true;
 }
