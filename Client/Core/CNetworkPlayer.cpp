@@ -1629,6 +1629,11 @@ void CNetworkPlayer::ResetInterpolation()
 	RemoveTargetRotation();
 }
 
+void CNetworkPlayer::Init()
+{
+	return;
+}	
+
 void CNetworkPlayer::SetColor(unsigned int uiColor)
 {
 	THIS_CHECK(__FUNCTION__);

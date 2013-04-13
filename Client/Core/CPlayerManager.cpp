@@ -297,7 +297,7 @@ bool CPlayerManager::Remove(EntityId playerId)
 	return true;
 }
 
-void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos, float fSpawnHeading, int ucDimension)
+void CPlayerManager::Spawn(EntityId playerId, int iModelId, CVector3 vecSpawnPos, float fSpawnHeading)
 {
 	if(!DoesExist(playerId))
 		return;
