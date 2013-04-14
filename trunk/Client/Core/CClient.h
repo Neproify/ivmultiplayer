@@ -93,6 +93,8 @@ private:
 	String                 m_strHost;
 	String                 m_strNick;
 	String                 m_strPassword;
+	int			           m_iCameraState;
+	int			           m_iCameraTime;
 	bool		           m_bNetworkStatsDisplayed;
 	bool                   m_bResetGame;
 
