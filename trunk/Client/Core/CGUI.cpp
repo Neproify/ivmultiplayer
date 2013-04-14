@@ -170,6 +170,9 @@ bool CGUI::Initialize()
 		// Set the default gui window size
 		m_pDefaultWindow->setSize(CEGUI::UVector2(CEGUI::UDim(1, 0), CEGUI::UDim(1, 0)));
 
+		// Set the default gui window alpha
+		m_pDefaultWindow->setAlpha(1.0f);
+
 		// Subscribe to our global key down event
 		CEGUI::GlobalEventSet::getSingletonPtr()->subscribeEvent(CEGUI::Window::EventNamespace + "/" + CEGUI::Window::EventKeyDown, CEGUI::Event::Subscriber(&CGUI::OnGUIKeyDown, this));
 

@@ -1462,7 +1462,7 @@ void CClientRPCHandler::NameChange(CBitStream * pBitStream, CPlayerSocket * pSen
 		if(pPlayer->IsLocalPlayer())
 		{
 			g_pClient->SetNick(strName);
-			g_pClient->GetMainMenu()->m_pSettingsWindowNickEditBox->setText(strName.Get());
+			g_pClient->GetMainMenu()->GetSettingsMenu()->SetNick(strName.Get());
 			CVAR_SET_STRING("nick", strName);
 		}
 	}

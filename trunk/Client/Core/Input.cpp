@@ -140,53 +140,25 @@ String GetKeyNameByCode(DWORD dwCode)
 
 LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	// Are we focused?
-	// jenksta: This is bad, but the only way i could get it working
 	bool bFocused = (GetForegroundWindow() == hWnd);
 
-	// Have we gained focus?
-	if(bFocused && !CGame::IsFocused())
+	// Have we gained or lost focus recently?
+	if(bFocused != CGame::IsFocused())
 	{
-		// Set the game focused flag
-		CGame::SetFocused(true);
+		// Update game focused flag
+		CGame::SetFocused(bFocused);
 
+		// (John) - why is this needed?
 		CActorManager * pActorManager = g_pClient->GetActorManager();
-
 		if(pActorManager)
-			pActorManager->bGameFocused = true;
+			pActorManager->bGameFocused = bFocused;
 
-		// Hide the cursor
-		//ShowCursor(FALSE);
-		ShowCursor(true);
-		CLogFile::Print("Gained window focus");
+		ShowCursor(bFocused);
 
-		// Get our main menu
-		CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-
-		if(pMainMenu)
-			pMainMenu->HideLoadingScreen();
-
-		return 1;
-	}
-	// Have we lost focus?
-	else if(!bFocused && CGame::IsFocused())
-	{
-		// Set the game focused flag
-		CGame::SetFocused(false);
-
-		CActorManager * pActorManager = g_pClient->GetActorManager();
-
-		if(pActorManager)
-			pActorManager->bGameFocused = false;
-
-		// Show the cursor
-		//ShowCursor(TRUE);
-		ShowCursor(false);
-		CLogFile::Print("Lost window focus");
-		return 1;
 	}
 
 	// Are we focused?
+	// (John) - This should all be moved elsewhere..
 	if(bFocused)
 	{
 		// Get our input window and local player
