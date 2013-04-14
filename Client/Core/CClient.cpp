@@ -33,12 +33,8 @@ CClient::CClient() : m_pDevice(NULL), m_pChatWindow(NULL), m_pInputWindow(NULL),
 					 m_pMainMenu(NULL), m_pFPSCounter(NULL), m_pDebugView(NULL), m_pVersionIdentifier(NULL), 
 					 m_pFileTransfer(NULL), m_pStreamer(NULL), m_pTime(NULL), m_pEvents(NULL), m_pTrafficLights(NULL), 
 					 m_pCredits(NULL), m_pNameTags(NULL), m_pClientTaskManager(NULL), m_pFireManager(NULL), m_p3DLabelManager(NULL), 
-					 m_pAudioManager(NULL), 
-#ifdef IVMP_WEBKIT
-					 m_pWebKit(NULL), m_pWebView(NULL), 
-#endif
-					 m_bGameLoaded(false), m_bWindowedMode(false), m_bFPSToggle(false), m_usPort(0), m_iCameraState(1), 
-					 m_iCameraTime(0), m_bNetworkStatsDisplayed(false), m_bResetGame(false), m_pHttpClient(NULL)
+					 m_pAudioManager(NULL), m_bGameLoaded(false), m_bWindowedMode(false), m_bFPSToggle(false), m_usPort(0), 
+					 m_bNetworkStatsDisplayed(false), m_bResetGame(false), m_pHttpClient(NULL)
 {
 
 }
@@ -384,15 +380,6 @@ void CClient::OnD3DEndScene()
 	if(m_pGUI)
 		m_pGUI->Render();
 
-	// If our WebKit class exists render it
-	/*	
-	#ifdef IVMP_WEBKIT
-		if(m_pWebkit)
-		{
-			m_pWebkit->RenderAll();
-		}
-	#endif
-	*/
 	// If our main menu exists process it
 	if(m_pMainMenu)
 		m_pMainMenu->Process();
@@ -432,53 +419,6 @@ void CClient::OnD3DEndScene()
 		CScreenShot::Reset();
 	}
 	
-	// Moving Camera for main menu, problem: m_pCamera->SetLookAt() cause an crash at change
-	if(m_pNetworkManager && m_pCamera)
-	{
-		if(!m_pNetworkManager->IsConnected() && CGame::IsGameLoaded())
-		{
-			if(m_iCameraTime > 500)
-			{
-				if(m_iCameraState == 1)
-					m_iCameraState = 2;
-				else if(m_iCameraState == 2)
-					m_iCameraState = 3;
-				else if(m_iCameraState == 3)
-					m_iCameraState = 1;
-
-				m_iCameraTime = 0;
-
-				if(m_iCameraState == 1)
-				{
-					m_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
-					m_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT),false);
-				}
-				else if(m_iCameraState == 2)
-				{
-					m_pCamera->SetPosition(CVector3(TRIANGLE_CAMERA_POS));
-					m_pCamera->SetLookAt(CVector3(TRIANGLE_CAMERA_LOOK_AT),false);
-				}
-				else if(m_iCameraState == 3)
-				{
-					m_pCamera->SetPosition(CVector3(TRIANGLE_CAMERA_POS_OLD));
-					m_pCamera->SetLookAt(CVector3(TRIANGLE_CAMERA_LOOK_AT_OLD),false);
-				}
-			}
-			else
-			{
-				m_iCameraTime++;
-
-				CVector3 vecPosition;
-				m_pCamera->GetPosition(vecPosition);
-
-				vecPosition.fX += 0.1f;
-				vecPosition.fY += 0.1f;
-
-				m_pCamera->SetPosition(vecPosition);
-			}
-		}
-	}
-
 	if(CGame::GetState() == GAME_STATE_MAIN_MENU)
 	{
 		if(m_pHttpClient->IsBusy())
@@ -563,43 +503,38 @@ void CClient::OnD3DEndScene()
 			CGame::SetDayOfWeek(m_pTime->GetDayOfWeek());
 		}
 
-		if(m_pLocalPlayer)
+#ifdef IVMP_DEBUG
+		if(m_pVehicleManager)
 		{
-			if(m_pLocalPlayer->GetVehicleInfos())
+			CVector3 vecWorldPosition;
+			Vector2 vecScreenPosition;
+
+			for(EntityId i = 0; i < MAX_VEHICLES; i++)
 			{
-				if(m_pVehicleManager)
+				CNetworkVehicle * pVehicle = m_pVehicleManager->Get(i);
+				if(pVehicle)
 				{
-					CVector3 vecWorldPosition;
-					Vector2 vecScreenPosition;
+					if(!pVehicle->IsStreamedIn())
+						continue;
 
-					for(EntityId i = 0; i < MAX_VEHICLES; i++)
-					{
-						CNetworkVehicle * pVehicle = m_pVehicleManager->Get(i);
-
-						if(pVehicle)
-						{
-							if(!pVehicle->IsStreamedIn())
-								continue;
-
-							if(!pVehicle->IsOnScreen())
-								continue;
+					if(!pVehicle->IsOnScreen())
+						continue;
 					
-							pVehicle->GetPosition(vecWorldPosition); 
-							if(!CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition))
-								continue;
+					pVehicle->GetPosition(vecWorldPosition); 
+					if(!CGame::GetScreenPositionFromWorldPosition(vecWorldPosition, vecScreenPosition))
+						continue;
 
 							
-							int health = pVehicle->GetHealth();
-							int model = pVehicle->GetEngineState();
-							float petrol = pVehicle->GetPetrolTankHealth();
-							CVector3 vecPos; pVehicle->GetPosition(vecPos);
-							CVector3 vecRot; pVehicle->GetRotation(vecRot);
-							m_pGUI->DrawText(String("VehicleId %d, Enginestate: %d, Health: %d, PetrolTankHealth: %f\nPosition(%.3f,%.3f,%.3f), Rot(%.3f,%.3f,%.3f)", i, model, health, petrol, vecPos.fX,vecPos.fY,vecPos.fZ,vecRot.fX,vecRot.fY,vecRot.fZ), CEGUI::Vector2(vecScreenPosition.fX, vecScreenPosition.fY));
-						}
-					}
+					int iHealth = pVehicle->GetHealth();
+					int iModel = pVehicle->GetEngineState();
+					float fPetrol = pVehicle->GetPetrolTankHealth();
+					CVector3 vecPos; pVehicle->GetPosition(vecPos);
+					CVector3 vecRot; pVehicle->GetRotation(vecRot);
+					m_pGUI->DrawText(String("VehicleId %d, Enginestate: %d, Health: %d, PetrolTankHealth: %f\nPosition(%.3f,%.3f,%.3f), Rot(%.3f,%.3f,%.3f)", i, model, health, petrol, vecPos.fX,vecPos.fY,vecPos.fZ,vecRot.fX,vecRot.fY,vecRot.fZ), CEGUI::Vector2(vecScreenPosition.fX, vecScreenPosition.fY));
 				}
 			}
 		}
+#endif
 
 		if(m_pNameTags)
 			m_pNameTags->Draw();
@@ -651,11 +586,6 @@ void CClient::OnD3DResetDevice()
 			m_pVersionIdentifier->setProperty("TextColours", "tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF");
 			m_pVersionIdentifier->setAlpha(0.6f);
 			m_pVersionIdentifier->setVisible(true);
-
-			/*#ifdef IVMP_WEBKIT
-				m_pWebkit = new CD3D9WebKit();
-			#endif
-			*/
 
 			// TODO: Make the default stuff (Chat window, main menu, e.t.c) a xml layout so it
 			// can be edited by users
@@ -744,33 +674,32 @@ void CClient::OnGameProcess()
 	if(m_pNetworkManager)
 		m_pNetworkManager->Process();
 
-	//Scripting::SetTextScale(0.40f,0.30f);
-	//Scripting::DisplayTextWithLiteralString(0.025f, 0.960f, "STRING", "Testmessage");
-	//Scripting::DisplayTextWithString(0.832f, 0.069f, "STRING", "SPECAL"); 
-	//Scripting::PrintHelpForever("TX_H07");
-
-	// Restore vehicle engine statuses:
 	// HACKY!
 	// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
 	//		       ...If the player is in the vehicle, it will turn it automatic on -.-
+	if(m_pLocalPlayer)
+	{
+		if(m_pLocalPlayer->GetVehicle())
+		{
+			// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
+			//		 ...If the player is in the vehicle, it will turn it automatic on -.-
+			// jenksta: Then find all references to CVehicle::TurnEngineOn and find which call is for when 
+			// the player enters the vehicle?
+			if(!m_pLocalPlayer->GetVehicle()->GetEngineState())
+				m_pLocalPlayer->GetVehicle()->SetEngineState(false);
+		}
+	}
 	for(EntityId playerId = 0; playerId < MAX_PLAYERS; playerId++)
 	{
-		// jenksta: Then find all references to CVehicle::TurnEngineOn and find which call is for when 
-		// the player enters the vehicle?
-		CNetworkPlayer* pPlayer = m_pPlayerManager->GetAt(playerId);
-		if(pPlayer)
+		if(m_pPlayerManager->DoesExist(playerId))
 		{
-			if(pPlayer->IsInVehicle())
+			if(m_pPlayerManager->GetAt(playerId)->GetVehicle() != NULL)
 			{
-				CNetworkVehicle* pVehicle = pPlayer->GetVehicle();
-				if(pVehicle->GetEngineState() == false)
-					pVehicle->SetEngineState(false);
+				if(!m_pPlayerManager->GetAt(playerId)->GetVehicle()->GetEngineState() != NULL)
+					m_pPlayerManager->GetAt(playerId)->GetVehicle()->SetEngineState(false);
 			}
 		}
 	}
-
-	// Hide the loading screens
-	m_pMainMenu->HideLoadingScreen();
 
 	// If we have text to draw draw it
 	if(iTextTime > 0)
@@ -801,6 +730,7 @@ void CClient::ExceptionHandlerCallback(String& strReportData)
 		CLogFile::Printf("Failed to start crash reporter.");
 }
 
+// (John) TODO: Only SAFE_DELETE and re-instantiate things that really need it, otherwise give them a Reset() method.
 void CClient::InternalResetGame(bool bAutoConnect)
 {
 	CLogFile::Printf("Initializing game for multiplayer activities");
@@ -881,6 +811,7 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	m_pLocalPlayer->RemoveAllWeapons();
 	m_pLocalPlayer->ResetMoney();
 	m_pLocalPlayer->SetHealth(200);
+	m_pLocalPlayer->SetControl(true);
 	CLogFile::Printf("Reset local player instance");
 
 	SAFE_DELETE(m_pPlayerManager);
@@ -907,6 +838,7 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	// Clear our file transfer list
 	m_pFileTransfer->Clear(true);
 
+	// Reset game world
 	m_pTime->SetDayOfWeek(2);
 	m_pTime->SetMinuteDuration(0);
 	m_pTrafficLights->Reset();
@@ -926,6 +858,16 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	Scripting::SetRandomCarDensityMultiplier(0);
 	//
 
+	// Reset radio logo
+	CGame::LoadRadioLogo();
+
+	// Reset HUD
+	CGame::LoadHUD();
+
+	// Set the time and weather after the camera set, one of the camera stuff changes the time and the weather
+	CGame::GetWeather()->SetWeather(WEATHER_SUNNY);
+	m_pTime->SetTime(0, 0);
+	CGame::SetTime(0, 0);
 	// SetCanBurstCarTyres(bool canburst);
 	Scripting::SetMaxWantedLevel(0);
 	Scripting::SetCreateRandomCops(false);
@@ -937,45 +879,20 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	SAFE_DELETE(m_pCamera);
 	m_pCamera = new CCamera();
 
-	CLogFile::Printf("Created/Reseted camera instance");
-
-	if(m_pCamera)
-	{
-		m_pCamera->ActivateScriptCam();
-		m_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
-		//if(!m_pNetworkManager->IsConnected())
-		m_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT),false);
-		CLogFile::Printf("Reset camera stuff");
-	}
-
-	// Reset radio logo
-	CGame::LoadRadioLogo();
-
-	// Reset HUD
-	CGame::LoadHUD();
-
-	// Set the time and weather after the camera set, one of the camera stuff changes the time and the weather
-	CGame::GetWeather()->SetWeather(WEATHER_SUNNY);
-	m_pTime->SetTime(0, 0);
-	CGame::SetTime(0, 0);
-
-	// TODO: Remove all gui stuff(images etc, after disconnect)
-
-	if(m_pLocalPlayer)
-		m_pLocalPlayer->SetControl(true);
-
 	// Mark the game as loaded.
 	if(!m_bGameLoaded)
 		m_bGameLoaded = true;
 
 	CGame::SetGameLoaded(m_bGameLoaded);
 
-	// Reset the network statsg
+	// Reset the network stats
 	m_pMainMenu->ResetNetworkStats();
 
-	// Auto connect(if needed)
+	// Auto-connect if needed, otherwise show the main menu.
 	if(m_pNetworkManager && bAutoConnect)
 		m_pNetworkManager->Connect();
+	else
+		m_pMainMenu->SetVisible(true);
 
 	CLogFile::Printf("Sucessfully (re)initialized game for multiplayer activities");
 }
@@ -985,24 +902,24 @@ void CClient::ResetGame(bool bResetNow, bool bAutoConnect)
 {
 	// If requested reset the game now
 	if(bResetNow)
-	{
 		InternalResetGame(bAutoConnect);
-	} else {	
+	else 
 		m_bResetGame = true;
-	}	
 }
-	
+
 void CClient::ResetMainMenuCamera()
 {
 	SAFE_DELETE(m_pCamera);
 	m_pCamera = new CCamera();
 	
-	CLogFile::Printf("Attempting to reset the Main Menu Camera.");
+	CLogFile::Printf("Attempting to reset the Main Menu Camera...");
 	if(m_pCamera)
 	{
 		m_pCamera->ActivateScriptCam();
 		m_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
 		m_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT),false);
-		CLogFile::Printf("Successfully Reset the Main Menu Camera.");
-	}	
+		CLogFile::Printf("Successfully Reset the Main Menu Camera!");
+	} else {
+		CLogFile::Printf("Failed to Reset the Main Menu Camera!");
+	}
 }	

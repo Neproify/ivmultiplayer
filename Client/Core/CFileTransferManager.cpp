@@ -207,7 +207,6 @@ void CFileTransferManager::Process()
 				String strErrorMessage("Failed to download file %s (%s)", pFileTransfer->GetName().Get(), pFileTransfer->GetError().Get());
 				CLogFile::Print(strErrorMessage);
 				g_pClient->GetNetworkManager()->Disconnect();
-				g_pClient->GetChatWindow()->SetEnabled(false);
 
 				// Get our main menu
 				CMainMenu * pMainMenu = g_pClient->GetMainMenu();
