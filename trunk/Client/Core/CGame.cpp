@@ -72,11 +72,6 @@ void CGame::SetFocused(bool bFocused)
 		// Unmute our audio
 		g_pClient->GetAudioManager()->UnmuteAll();
 
-		// Hide our loading screen
-		CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-
-		if(pMainMenu)
-			pMainMenu->HideLoadingScreen();
 	}
 	else // We do not have focus
 	{
@@ -211,7 +206,7 @@ void CGame::Initialize()
 	}
 
 	// Replace "Loading .." with "IV:MP is loading...", some user say that the label sometimes is shown
-	//Scripting::SetMsgForLoadingScreen("IV:MP is loading....");
+	// Scripting::SetMsgForLoadingScreen("IV:MP is loading....");
 
 	SetInputState(true);
 	SetState(GAME_STATE_NONE);
@@ -744,7 +739,8 @@ bool CGame::Patch()
 
 		// jenksta: this will also disable things that we actually want so disabling it...
 		// Disable auto vehicle start when player enter to it
-		//CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (DWORD)CTaskSimpleStartVehicle__Process);
+		// CrackHD: PROBLEM: this thing disables auto vehicle engine start after entry, BUT this also disables "Flight from car windshield in a collision with the wall"
+		// CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (DWORD)CTaskSimpleStartVehicle__Process);
 
 		// Adds a lot of world stuff which was disabled since Alpha >.<
 		//PatchWorldAndTrain();
