@@ -15,17 +15,6 @@
 
 extern CClient * g_pClient;
 
-void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
-{
-	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
-	pNetworkManager->Disconnect();
-	g_pClient->GetMainMenu()->ResetNetworkStats();
-	g_pClient->ResetMainMenuCamera();
-	pMainMenu->ShowMessageBox("The server rejected your connection request!", "Connection failed", true, false, false);
-	pMainMenu->SetDisconnectButtonVisible(false);
-}
-
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	g_pClient->GetChatWindow()->AddInfoMessage("Connection established, please wait..");
@@ -44,60 +33,109 @@ void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerS
 	g_pClient->GetNetworkManager()->RPC(RPC_PlayerConnect, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED);
 }
 
+
+void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Disconnect from the server
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	pNetworkManager->Disconnect();
+
+	// Show the main menu
+	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+	pMainMenu->ResetNetworkStats();
+	pMainMenu->SetVisible(true);
+	pMainMenu->ShowMessageBox("The server rejected your connection!", "Connection Failed", true, false, false);
+}
+
 void CClientPacketHandler::ConnectionFailed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetChatWindow()->AddInfoMessage("Connection failed (Timed out), retrying...");
-	g_pClient->GetMainMenu()->ResetNetworkStats();
-	g_pClient->GetNetworkManager()->Connect();
+	// Disconnect from the server
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	pNetworkManager->Disconnect();
+
+	// Show the main menu
+	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+	pMainMenu->ResetNetworkStats();
+	pMainMenu->SetVisible(true);
+	pMainMenu->ShowMessageBox("Failed to connect to the server.", "Connection Failed", true, false, false);
 }
 
 void CClientPacketHandler::AlreadyConnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetMainMenu()->ShowMessageBox("You're already on that server!", "Connection failed", true, false, false);
+	g_pClient->GetMainMenu()->ShowMessageBox("You are already connect to this server!", "Connection Failed", true, false, false);
 }
 
 void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetChatWindow()->AddInfoMessage("Connection failed (server is full), retrying...");
-	g_pClient->GetMainMenu()->ResetNetworkStats();
-	g_pClient->GetNetworkManager()->Connect();
+	// Disconnect from the server
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	pNetworkManager->Disconnect();
+
+	// Show the main menu
+	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+	pMainMenu->ResetNetworkStats();
+	pMainMenu->SetVisible(true);
+	pMainMenu->ShowMessageBox("This server is full, try again later.", "Server Full", true, false, false);
 }
 
 void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetChatWindow()->AddInfoMessage("Server closed the connection.");
+	// Formally close the connection
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
-	
 	if(pNetworkManager && pNetworkManager->IsConnected())
-	{
 		pNetworkManager->Disconnect();
-		g_pClient->GetMainMenu()->ResetNetworkStats();
-		g_pClient->ResetMainMenuCamera();
-	}
+
+	// Reset the game
+	g_pClient->ResetGame(true);
+
+	// Show a message box (main menu should already be shown due to reset)
+	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+	pMainMenu->ResetNetworkStats();
+	pMainMenu->ShowMessageBox("You were disconnected from the server.", "Disconnected", true, false, false);
 }	
 
 void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetMainMenu()->ResetNetworkStats();
-	g_pClient->ResetMainMenuCamera();
+	// Formally close the connection
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	if(pNetworkManager && pNetworkManager->IsConnected())
+		pNetworkManager->Disconnect();
+
+	// Reset the game
+	g_pClient->ResetGame(true);
+
+	// Show a message box (main menu should already be shown due to reset)
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-	pMainMenu->ShowMessageBox("The connection to the server has been lost!", "Connection lost...", false, false, false);
-	pMainMenu->SetDisconnectButtonVisible(false);
+	pMainMenu->ResetNetworkStats();
+	pMainMenu->ShowMessageBox("The connection to the server timed out.", "Disconnected", true, false, false);
 }	
 
 void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-	pMainMenu->ShowMessageBox("You are banned from this server!", "Connection failed", false, false, false);
+	// Disconnect from the server
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
 	pNetworkManager->Disconnect();
-	g_pClient->GetMainMenu()->ResetNetworkStats();
-	g_pClient->ResetMainMenuCamera();
+	
+	// Reset the game
+	g_pClient->ResetGame(true);
+
+	// Show a message box (main menu should already be shown due to reset)
+	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+	pMainMenu->ResetNetworkStats();
+	pMainMenu->ShowMessageBox("You are banned from this server!", "Banned", true, false, false);
 }
 
 void CClientPacketHandler::PasswordInvalid(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	g_pClient->GetMainMenu()->ShowMessageBox("Incorrect password!", "Connection failed", true, false, false);
+	// Disconnect from the server
+	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	pNetworkManager->Disconnect();
+
+	// Show the main menu
+	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+	pMainMenu->ResetNetworkStats();
+	pMainMenu->SetVisible(true);
+	pMainMenu->ShowMessageBox("The password you entered was incorrect.", "Invalid Password", true, false, false);
 }
 
 void CClientPacketHandler::Register()
