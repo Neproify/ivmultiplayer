@@ -160,9 +160,16 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		ShowCursor(true);
 		CLogFile::Print("Gained window focus");
 
+		// Get our main menu
+		CMainMenu * pMainMenu = g_pClient->GetMainMenu();
+
+		if(pMainMenu)
+			pMainMenu->HideLoadingScreen();
+
 		return 1;
 	}
-	// Have we lost focus?	else if(!bFocused && CGame::IsFocused())
+	// Have we lost focus?
+	else if(!bFocused && CGame::IsFocused())
 	{
 		// Set the game focused flag
 		CGame::SetFocused(false);

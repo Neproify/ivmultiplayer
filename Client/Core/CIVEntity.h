@@ -78,9 +78,6 @@ public:
 	CVector3 m_vecPosition;      // 10-1C
 	float m_fHeading;            // 1C-20
 	Matrix34 * m_pMatrix;        // 20-24
-	// Flag 1 - Has collision model (Set to enable col, unset to disable col)
-	// Flag 8 - Fixed waiting for world collision (Don't load collision)
-	// flags 0 - has col model, 3 - don't load cols, 5 - visible, 12 - draw last
 	DWORD m_dwFlags1;            // 24-28 - Bits 0: has collision model, 1: use collision, 3: don't load collisions, 4: fixed, 5: is visible, 8: fixed waiting for collision, 12: draw last, 32: visible
 	DWORD m_dwFlags2;            // 28-2C - Bits 2: lights, 21: on fire
 	WORD field_2C;               // 2C-2E
@@ -133,7 +130,6 @@ public:
 	void       GetRoll(CVector3& vecRoll);
 	void       SetDirection(const CVector3& vecDirection);
 	void       GetDirection(CVector3& vecDirection);
-	void       SetHeading(float fHeading);
 	void       SetModelIndex(WORD wModelIndex);
 	WORD       GetModelIndex();
 	void       SetAlpha(BYTE byteAlpha);
