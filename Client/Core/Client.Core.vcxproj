@@ -138,6 +138,9 @@
     <ClInclude Include="CIVTrain.h" />
     <ClInclude Include="CIVWeapon.h" />
     <ClInclude Include="Commands.h" />
+    <ClInclude Include="CQuickConnect.h" />
+    <ClInclude Include="CServerBrowser.h" />
+    <ClInclude Include="CSettingsMenu.h" />
     <ClInclude Include="CTrains.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="CChatWindow.h" />
@@ -324,6 +327,9 @@
     <ClCompile Include="CIVTrain.cpp" />
     <ClCompile Include="CIVWeapon.cpp" />
     <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="CQuickConnect.cpp" />
+    <ClCompile Include="CServerBrowser.cpp" />
+    <ClCompile Include="CSettingsMenu.cpp" />
     <ClCompile Include="CTrains.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
