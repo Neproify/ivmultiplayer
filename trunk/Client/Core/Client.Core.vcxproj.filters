@@ -747,6 +747,15 @@
     <ClInclude Include="..\..\Vendor\md5\md5.h">
       <Filter>Header Files\Shared\md5</Filter>
     </ClInclude>
+    <ClInclude Include="CServerBrowser.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="CSettingsMenu.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="CQuickConnect.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">
@@ -1213,6 +1222,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Vendor\md5\md5.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CQuickConnect.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="CServerBrowser.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="CSettingsMenu.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
