@@ -118,6 +118,9 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	// Set the disconnect button visible
 	g_pClient->GetMainMenu()->SetDisconnectButtonVisible(true);
 
+	if(g_pClient->GetChatWindow())
+			g_pClient->GetChatWindow()->SetEnabled(!g_pClient->GetChatWindow()->IsEnabled());
+
 	CGame::SetInputState(true);
 	CGame::SetKickedFromServer(false);
 	CGame::SetState(GAME_STATE_INGAME);
