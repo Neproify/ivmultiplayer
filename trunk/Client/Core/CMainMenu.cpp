@@ -565,8 +565,11 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
 	if(pNetworkManager && pNetworkManager->IsConnected())
 	{
-		pNetworkManager->Disconnect();
-		g_pClient->ResetGame(true);
+		//pNetworkManager->Disconnect(); //Disconnect from the server *Disabled temporary, causing issues and will re-write it later.*
+		// Reset the game
+		//g_pClient->ResetGame(true); ViruZz: No, just no!
+		g_pClient->GetMainMenu()->ResetNetworkStats(); //Reset the Network Stats
+		g_pClient->ResetMainMenuCamera();
 		SetDisconnectButtonVisible(false);
 	}
 	return true;

@@ -17,12 +17,18 @@ extern CClient * g_pClient;
 
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
+	if(g_pClient->GetChatWindow())
+		g_pClient->GetChatWindow()->SetEnabled(!g_pClient->GetChatWindow()->IsEnabled());
+	Sleep(10); //ViruZz: I don't like to rush everything!
+	// Set the disconnect button visible
+	g_pClient->GetMainMenu()->SetDisconnectButtonVisible(true);
 	g_pClient->GetChatWindow()->AddInfoMessage("Connection established, please wait..");
 	CBitStream bsSend;
 	bsSend.Write(NETWORK_VERSION);
 	bsSend.Write(g_pClient->GetNick());
 
 	// jenksta: wtf?
+	//We're checking to see if the client have any modified game files before passing into the server
 	CheckGTAFiles pCheckFiles;
 	pCheckFiles.uiHandleFileChecksum = CGameFileChecker::CheckGameFile(0);
 	pCheckFiles.uiGTAFileChecksum = CGameFileChecker::CheckGameFile(1);
@@ -38,12 +44,13 @@ void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSo
 {
 	// Disconnect from the server
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
-	pNetworkManager->Disconnect();
+	//pNetworkManager->Disconnect(); The server already rejected our connection so we're already disconnected
 
 	// Show the main menu
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	pMainMenu->ResetNetworkStats();
 	pMainMenu->SetVisible(true);
+	g_pClient->ResetMainMenuCamera();
 	pMainMenu->ShowMessageBox("The server rejected your connection!", "Connection Failed", true, false, false);
 }
 
@@ -51,12 +58,13 @@ void CClientPacketHandler::ConnectionFailed(CBitStream * pBitStream, CPlayerSock
 {
 	// Disconnect from the server
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
-	pNetworkManager->Disconnect();
+	//pNetworkManager->Disconnect(); What are we disconnecting from lul?
 
 	// Show the main menu
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	pMainMenu->ResetNetworkStats();
 	pMainMenu->SetVisible(true);
+	g_pClient->ResetMainMenuCamera();
 	pMainMenu->ShowMessageBox("Failed to connect to the server.", "Connection Failed", true, false, false);
 }
 
@@ -69,11 +77,12 @@ void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * p
 {
 	// Disconnect from the server
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
-	pNetworkManager->Disconnect();
+	//pNetworkManager->Disconnect(); //Disconnect from the server *Disabled temporary, causing issues and will re-write it later.*
 
 	// Show the main menu
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	pMainMenu->ResetNetworkStats();
+	g_pClient->ResetMainMenuCamera();
 	pMainMenu->SetVisible(true);
 	pMainMenu->ShowMessageBox("This server is full, try again later.", "Server Full", true, false, false);
 }
@@ -83,14 +92,15 @@ void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket *
 	// Formally close the connection
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
 	if(pNetworkManager && pNetworkManager->IsConnected())
-		pNetworkManager->Disconnect();
+		//pNetworkManager->Disconnect(); //Disconnect from the server *Disabled temporary, causing issues and will re-write it later.*
 
 	// Reset the game
-	g_pClient->ResetGame(true);
+	//g_pClient->ResetGame(true); ViruZz: No, just no!
 
 	// Show a message box (main menu should already be shown due to reset)
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	pMainMenu->ResetNetworkStats();
+	g_pClient->ResetMainMenuCamera();
 	pMainMenu->ShowMessageBox("You were disconnected from the server.", "Disconnected", true, false, false);
 }	
 
@@ -99,14 +109,15 @@ void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket
 	// Formally close the connection
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
 	if(pNetworkManager && pNetworkManager->IsConnected())
-		pNetworkManager->Disconnect();
+		//pNetworkManager->Disconnect(); //Don't need to disconnect if the player already lost connection!
 
 	// Reset the game
-	g_pClient->ResetGame(true);
+	//g_pClient->ResetGame(true); ViruZz: No, just no!
 
 	// Show a message box (main menu should already be shown due to reset)
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	pMainMenu->ResetNetworkStats();
+	g_pClient->ResetMainMenuCamera();
 	pMainMenu->ShowMessageBox("The connection to the server timed out.", "Disconnected", true, false, false);
 }	
 
@@ -117,11 +128,12 @@ void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSend
 	pNetworkManager->Disconnect();
 	
 	// Reset the game
-	g_pClient->ResetGame(true);
+	//g_pClient->ResetGame(true); ViruZz: No, just no!
 
 	// Show a message box (main menu should already be shown due to reset)
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	pMainMenu->ResetNetworkStats();
+	g_pClient->ResetMainMenuCamera();
 	pMainMenu->ShowMessageBox("You are banned from this server!", "Banned", true, false, false);
 }
 
@@ -135,6 +147,7 @@ void CClientPacketHandler::PasswordInvalid(CBitStream * pBitStream, CPlayerSocke
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	pMainMenu->ResetNetworkStats();
 	pMainMenu->SetVisible(true);
+	g_pClient->ResetMainMenuCamera();
 	pMainMenu->ShowMessageBox("The password you entered was incorrect.", "Invalid Password", true, false, false);
 }
 
