@@ -91,34 +91,38 @@ void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket *
 {
 	// Formally close the connection
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	if(pNetworkManager && pNetworkManager->IsConnected())
+	{
 		//pNetworkManager->Disconnect(); //Disconnect from the server *Disabled temporary, causing issues and will re-write it later.*
 
 	// Reset the game
 	//g_pClient->ResetGame(true); ViruZz: No, just no!
 
 	// Show a message box (main menu should already be shown due to reset)
-	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-	pMainMenu->ResetNetworkStats();
-	g_pClient->ResetMainMenuCamera();
-	pMainMenu->ShowMessageBox("You were disconnected from the server.", "Disconnected", true, false, false);
+		pMainMenu->ResetNetworkStats();		
+		g_pClient->ResetMainMenuCamera();
+		pMainMenu->ShowMessageBox("You have successfully disconnected!", "Disconnected.", true, false, false);
+	}	
 }	
 
 void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Formally close the connection
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	if(pNetworkManager && pNetworkManager->IsConnected())
+	{	
 		//pNetworkManager->Disconnect(); //Don't need to disconnect if the player already lost connection!
 
 	// Reset the game
 	//g_pClient->ResetGame(true); ViruZz: No, just no!
 
 	// Show a message box (main menu should already be shown due to reset)
-	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
-	pMainMenu->ResetNetworkStats();
-	g_pClient->ResetMainMenuCamera();
-	pMainMenu->ShowMessageBox("The connection to the server timed out.", "Disconnected", true, false, false);
+		pMainMenu->ResetNetworkStats();
+		g_pClient->ResetMainMenuCamera();
+		pMainMenu->ShowMessageBox("The connection to the server timed out.", "Disconnected", true, false, false);
+	}	
 }	
 
 void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
