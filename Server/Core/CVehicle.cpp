@@ -75,7 +75,7 @@ void CVehicle::Reset()
 void CVehicle::SpawnForPlayer(EntityId playerId)
 {
 	CBitStream bsSend;
-	bsSend.Write(m_vehicleId);
+	bsSend.WriteCompressed(m_vehicleId);
 	bsSend.Write(m_iModelId);
 	bsSend.Write(m_uiHealth);
 	bsSend.Write(m_fPetrolTankHealth);
@@ -153,7 +153,7 @@ void CVehicle::SpawnForPlayer(EntityId playerId)
 void CVehicle::DestroyForPlayer(EntityId playerId)
 {
 	CBitStream bsSend;
-	bsSend.Write(m_vehicleId);
+	bsSend.WriteCompressed(m_vehicleId);
 	g_pNetworkManager->RPC(RPC_DeleteVehicle, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 }
 
@@ -301,7 +301,7 @@ void CVehicle::SetHealth(unsigned int uHealth)
 	m_uiHealth = uHealth;
 
 	CBitStream bsSend;
-	bsSend.Write(m_vehicleId);
+	bsSend.WriteCompressed(m_vehicleId);
 	bsSend.Write(uHealth);
 	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleHealth, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
