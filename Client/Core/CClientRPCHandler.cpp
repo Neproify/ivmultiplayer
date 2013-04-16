@@ -115,11 +115,6 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	g_pClient->GetNetworkManager()->SetJoinedServer(true);
 
-	// Set the disconnect button visible
-	g_pClient->GetMainMenu()->SetDisconnectButtonVisible(true);
-
-	if(g_pClient->GetChatWindow())
-			g_pClient->GetChatWindow()->SetEnabled(!g_pClient->GetChatWindow()->IsEnabled());
 
 	CGame::SetInputState(true);
 	CGame::SetKickedFromServer(false);
@@ -982,6 +977,15 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pPlayer->SetHealth(200);
 
 			// If the player is already spawned(connected) -> clear die task
+			pPlayer->ClearDieTask();
+
+			// Temporary fix to reset the player animation
+			pPlayer->RemoveFromWorld();
+			Sleep(10);
+			pPlayer->AddToWorld();
+
+			// Since we removed the player from the world, we need to give him back his health and clear his death tasks
+			pPlayer->SetHealth(200);
 			pPlayer->ClearDieTask();
 
 			// Spawn player

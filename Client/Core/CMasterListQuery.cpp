@@ -35,11 +35,6 @@ bool CMasterListQuery::Query(int iType)
 {
 	String strPostPath("/list.php?version=01RC2");
 
-	if(iType == 1)
-		strPostPath += "&category=sponsors";
-	else if(iType == 2)
-		strPostPath += "&category=featured";
-
 	if(!m_pHttpClient->Get(strPostPath))
 	{
 		CLogFile::Print("FAILED TO CONTACT MASTERLIST");
