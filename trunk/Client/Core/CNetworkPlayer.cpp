@@ -70,6 +70,10 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	
 	if(IsLocalPlayer())
 	{
+
+        // Places all peds vars/variables to false/null
+        InitNetworkPlayerPedStuff();
+
 		// Create a new player ped instance with the local player ped
 		m_pPlayerPed = new CIVPlayerPed(CGame::GetPools()->GetPlayerInfoFromIndex(0)->m_pPlayerPed);
 
@@ -102,8 +106,6 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 
 	if(!IsLocalPlayer())
 		SetCanBeStreamedIn(true);
-
-	InitNetworkPlayerPedStuff();
 
 }
 
