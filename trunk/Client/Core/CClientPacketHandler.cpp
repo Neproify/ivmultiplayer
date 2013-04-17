@@ -73,7 +73,7 @@ void CClientPacketHandler::ServerFull(CBitStream * pBitStream, CPlayerSocket * p
 {
 	// Disconnect from the server
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
-	//pNetworkManager->Disconnect(); //Disconnect from the server *Disabled temporary, causing issues and will re-write it later.*
+	pNetworkManager->Disconnect(); //Disconnect from the server
 
 	// Show the main menu
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
@@ -90,13 +90,13 @@ void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket *
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();
 	if(pNetworkManager && pNetworkManager->IsConnected())
 	{
-		//pNetworkManager->Disconnect(); //Disconnect from the server *Disabled temporary, causing issues and will re-write it later.*
+		pNetworkManager->Disconnect(); //Disconnect from the server
 
-	// Reset the game
-	//g_pClient->ResetGame(true); ViruZz: No, just no!
+		// Reset the game
+		//g_pClient->ResetGame(true); ViruZz: No, just no!
 
-	// Show a message box (main menu should already be shown due to reset)
-		pMainMenu->ResetNetworkStats();		
+		// Show a message box (main menu should already be shown due to reset)
+		pMainMenu->ResetNetworkStats();
 		g_pClient->ResetMainMenuCamera();
 		pMainMenu->ShowMessageBox("You have successfully disconnected!", "Disconnected.", true, false, false);
 	}	

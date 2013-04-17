@@ -39,17 +39,23 @@ CNetworkManager::CNetworkManager()
 
 CNetworkManager::~CNetworkManager()
 {
-	// Unregister the rpcs
-	m_pClientRPCHandler->Unregister();
+	if(m_pClientRPCHandler)
+	{
+		// Unregister the rpcs
+		m_pClientRPCHandler->Unregister();
 
-	// Delete the rpc handler instance
-	SAFE_DELETE(m_pClientRPCHandler);
+		// Delete the rpc handler instance
+		delete m_pClientRPCHandler;
+	}
 
-	// Unregister the packets
-	m_pClientPacketHandler->Unregister();
+	if(m_pClientPacketHandler)
+	{
+		// Unregister the packets
+		m_pClientPacketHandler->Unregister();
 
-	// Delete the packet handler instance
-	SAFE_DELETE(m_pClientPacketHandler);
+		// Delete the packet handler instance
+		delete m_pClientPacketHandler;
+	}
 
 	// Shutdown the net client instance
 	m_pNetClient->Shutdown(500);
