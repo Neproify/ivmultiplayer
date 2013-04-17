@@ -63,6 +63,9 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	pBitStream->Read(ucTrafficLightState);
 	pBitStream->Read(uiTrafficLightTimePassed);
 
+	//Lets reset the camera *Fixing the camera issue when joining a server*
+	g_pClient->ResetMainMenuCamera();
+
 	if(ucTrafficLightState != CTrafficLights::TRAFFIC_LIGHT_STATE_DISABLED_DISABLED)
 	{
 		pTrafficLights->SetLocked(pBitStream->ReadBit());
@@ -115,6 +118,8 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 
 	g_pClient->GetNetworkManager()->SetJoinedServer(true);
 
+	if(g_pClient->GetChatWindow())
+		g_pClient->GetChatWindow()->SetEnabled(!g_pClient->GetChatWindow()->IsEnabled());
 
 	CGame::SetInputState(true);
 	CGame::SetKickedFromServer(false);
@@ -1017,6 +1022,9 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			// Is there a helmet?
 			if(bHelmet)
 				pPlayer->GiveHelmet();
+
+			// Little hack to fix the death animation when spawning
+			pPlayer->SetModel(SkinIdToModelHash(iModelId));
 
 			pBitStream->Read(vehicleId);
 			CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);

@@ -247,9 +247,11 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		}
 		if(uMsg == WM_KEYUP && wParam == VK_F3)
 		{
+			/* ViruZz: Temporary disabled to avoid crash issues
 			IVVehicle * pGameVehicle = pLocalPlayer->GetVehicle()->GetGameVehicle()->GetVehicle();
 			*(BYTE *)(pGameVehicle + 0xF71) |= 1;
-			*((BYTE *)pGameVehicle + 3953) = *((BYTE *)pGameVehicle + 3953) & 0xFE | 2;
+			*((BYTE *)pGameVehicle + 3953) = *((BYTE *)pGameVehicle + 3953) & 0xFE | 2;*/
+			return 1;
 		}
 		/*
 		if(uMsg == WM_KEYUP && wParam == VK_F4)
