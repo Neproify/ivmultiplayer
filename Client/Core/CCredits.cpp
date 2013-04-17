@@ -28,6 +28,8 @@ CreditText creditsItems[] =
 	{4000, "tahoma-bold", 40, "Marcus \"mabako\" Bauer"},
 	{4000, "tahoma-bold", 40, "Vladislav \"adamix\" Grishin"},
 	{4000, "tahoma-bold", 40, "Einstein"},
+	{4000, "tahoma-bold", 40, "crackHD"},
+	{4000, "tahoma-bold", 40, "Nathan \"ViruZz\" Mallett"},
 	{4000, "tahoma-bold", 40, "Christopher \"Christopher\" Martino"},
 	{4000, "tahoma-bold", 40, "Sebas \"x86\" Lamers"},
 	{4000, "tahoma-bold", 40, "Testing By"},
@@ -48,6 +50,7 @@ CreditText creditsItems[] =
 	{4000, "tahoma-bold", 40, "Squirrel (http://www.squirrel-lang.org)"},
 	{4000, "tahoma-bold", 40, "Mongoose (http://code.google.com/p/mongoose/)"},
 	{4000, "tahoma-bold", 40, "TinyXML (http://sourceforge.net/projects/tinyxml/)"}
+	{4000, "tahoma-bold", 40, "Gorilla-Audio (http://code.google.com/p/gorilla-audio/)"}
 };
 
 CCredits::CCredits(CGUI * pGUI)

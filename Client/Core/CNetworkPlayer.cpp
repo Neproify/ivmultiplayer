@@ -19,8 +19,23 @@
 extern CClient * g_pClient;
 extern bool              m_bControlsDisabled;
 
+IVPlayerPed * g_pCreatedPlayerPeds[32];
+bool          g_bPlayerPedsUsed[32];
+CIVPlayerInfo * g_pPlayerInfos[32];
+
 #define THIS_CHECK(func) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s[ Type 1 | Func %s() ]",__FILE__,func); } return; }
 #define THIS_CHECK_R(func,x) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s [ Type 2 | Func %s() ]",__FILE__,func); } return x; }
+
+void InitNetworkPlayerPedStuff()
+{
+    for(int i = 0; i < 32; i++)
+    {
+        g_pCreatedPlayerPeds[i] = NULL;
+        g_bPlayerPedsUsed[i] = false;
+        g_pPlayerInfos[i] = NULL;
+    }
+}
+
 
 CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	: CStreamableEntity(STREAM_ENTITY_PLAYER, -1),
@@ -51,6 +66,7 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	memset(&m_previousControlState, 0, sizeof(CControlState));
 	memset(&m_currentControlState, 0, sizeof(CControlState));
 	ResetVehicleEnterExit();
+
 	
 	if(IsLocalPlayer())
 	{
@@ -87,6 +103,8 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	if(!IsLocalPlayer())
 		SetCanBeStreamedIn(true);
 
+	InitNetworkPlayerPedStuff();
+
 }
 
 CNetworkPlayer::~CNetworkPlayer()
@@ -100,156 +118,197 @@ CNetworkPlayer::~CNetworkPlayer()
 
 bool CNetworkPlayer::Create()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+        THIS_CHECK_R(__FUNCTION__,false)
+ 
+        // Are we already spawned or are we the local player?
+        if(IsSpawned() || IsLocalPlayer())
+                return false;
+ 
+        // jenksta: hack
+        // do we have any unused player peds created already?
+        IVPlayerPed * pOldPlayerPed = NULL;
+        CIVPlayerInfo * pOldPlayerInfo = NULL;
+ 
+        for(int i = 0; i < 32; i++)
+        {
+            if(g_pCreatedPlayerPeds[i] && g_bPlayerPedsUsed[i] == false)
+            {
+                pOldPlayerPed = g_pCreatedPlayerPeds[i];
+                g_bPlayerPedsUsed[i] = true;
+                pOldPlayerInfo = g_pPlayerInfos[i];
+                break;
+            }
+        }
+ 
+        if(pOldPlayerPed)
+        {
+            // Set the player info instance
+            m_pPlayerInfo = pOldPlayerInfo;
+ 
+            // Create player ped instance
+            m_pPlayerPed = new CIVPlayerPed(pOldPlayerPed);
+ 
+            // Create a context data instance for this player
+            m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
+ 
+            // Set the context data player ped pointer
+            m_pContextData->SetPlayerPed(m_pPlayerPed);
+        }
+        else
+        {
+ 
+        		//ViruZz: Ignore the tab size here k?
 
-	// Are we already spawned or are we the local player?
-	if(IsSpawned() || IsLocalPlayer())
-		return false;
+                // Find a free player number
+                m_byteGamePlayerNumber = (BYTE)CGame::GetPools()->FindFreePlayerInfoIndex();
+ 
+                // Invalid player number?
+                if(m_byteGamePlayerNumber == INVALID_PLAYER_PED)
+                        return false;
+ 
+                // Add our model info reference
+                m_pModelInfo->AddReference(true);
+ 
+                // Get our model index
+                int iModelIndex = m_pModelInfo->GetIndex();
+ 
+                // Create player info instance
+                m_pPlayerInfo = new CIVPlayerInfo(m_byteGamePlayerNumber);
+ 
+                // Create a context data instance for this player
+                m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
+ 
+                // Set game player info pointer
+                CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, m_pPlayerInfo->GetPlayerInfo());
+ 
+                // Allocate the player ped
+                IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();
+ 
+                // Ensure the player ped pointer is valid
+                if(!pPlayerPed)
+                {
+                        Destroy();
+                        return false;
+                }
+ 
+                // Call the CPlayerPed constructor
+                unsigned int uiPlayerIndex = (unsigned int)m_byteGamePlayerNumber;
+                WORD wPlayerData = MAKEWORD(0, 1);
+                WORD * pwPlayerData = &wPlayerData;
+                _asm
+                {
+                        push uiPlayerIndex
+                        push iModelIndex
+                        push pwPlayerData
+                        mov ecx, pPlayerPed
+                        call COffsets::FUNC_CPlayerPed__Constructor
+                }
+ 
+                if(!pPlayerPed)
+                        return false;
+ 
+                /*
+                void SetupPed(CMatrix * pMatrix<edi>, CPed * pPed<esi>, int iModelIndex)
+                {
+                        CPedMoveBlendOnFoot * pMoveBlendOnFoot = g_pPedMoveBlendPool->Allocate();
+ 
+                        if(pMoveBlendOnFoot)
+                        {
+                                CPedMoveBlendOnFoot::CPedMoveBlendOnFoot(pMoveBlendOnFoot, pPed);
+                                pPed->m_pMoveBlendOnFoot = pMoveBlendOnFoot;
+                        }
+ 
+                        if(pMatrix)
+                                CMatrix::CopyFromMatrix(pPed->m_pMatrix, pMatrix);
+ 
+                        CPlayerPed::SetModelIndex(pPed, iModelIndex);
+ 
+                        CPedData * pPedData = g_pPedDataPool->Allocate();
+ 
+                        if(pPedData)
+                        {
+                                CPedData::CPedData(pPedData);
+                                pPed->m_pPedData = pPedData;
+                        }
+                }
+                */
+                Matrix34 * pMatrix = NULL;
+                _asm
+                {
+                        push iModelIndex
+                        push COffsets::VAR_Ped_Factory
+                        mov edi, pMatrix
+                        mov esi, pPlayerPed
+                        call COffsets::FUNC_Setup_Ped
+                }
+ 
+                // Set our player info ped pointer
+                m_pPlayerInfo->SetPlayerPed(pPlayerPed);
+ 
+                // Set our player info state
+                m_pPlayerInfo->GetPlayerInfo()->m_dwState = 2;
+ 
+                SET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
+ 
+                // Set our player peds player info pointer
+                pPlayerPed->m_pPlayerInfo = m_pPlayerInfo->GetPlayerInfo();
+ 
+                // Create player ped instance
+                m_pPlayerPed = new CIVPlayerPed(pPlayerPed);
+ 
+                // Set the context data player ped pointer
+                m_pContextData->SetPlayerPed(m_pPlayerPed);
+ 
+                /*
+                pPlayerPed->m_byteCreatedBy = 2;
+                pPlayerPed->SetDefaultDecisionMaker();
+                pPlayerPed->GetPedIntelligence()->SetSenseRange1(30.0f);
+                pPlayerPed->GetPedIntelligence()->SetSenseRange0(30.0f);
+                sub_B2A8F0(pPlayerPed->m_pPortalTracker, 1);
+                sub_B29E50(pPlayerPed->m_pPortalTracker);
+                */
+                _asm
+                {
+                        push 2
+                        mov ecx, pPlayerPed
+                        call COffsets::FUNC_SetupPedIntelligence
+                }
+ 
+                // jenksta: hack
+                g_pCreatedPlayerPeds[m_byteGamePlayerNumber] = pPlayerPed;
+                g_bPlayerPedsUsed[m_byteGamePlayerNumber] = true;
+                g_pPlayerInfos[m_byteGamePlayerNumber] = m_pPlayerInfo;
+        }
+ 
+        // Add to world
+        m_pPlayerPed->AddToWorld();
+ 
+        // jenksta: wtf is this doing here??
+        // Delete player helmet
+        m_bHelmet = false;
+        SetHelmet(m_bHelmet);
+ 
+        // Flag as spawned
+        m_bSpawned = true;
+ 
+        // Set health
+        SetHealth(200);
+ 
+        // Set the interior
+        SetInterior(g_pClient->GetLocalPlayer()->GetInterior());
+ 
+        // Assign our default task
+        // (Part of player ped creation)
+        CIVTaskComplexPlayerOnFoot * pTask = new CIVTaskComplexPlayerOnFoot();
+        if(pTask)
+                pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
+ 
+        // Remember that we might have clothes
+        m_bUseCustomClothesOnSpawn = true;
 
-	// Find a free player number
-	m_byteGamePlayerNumber = (BYTE)CGame::GetPools()->FindFreePlayerInfoIndex();
-
-	// Invalid player number?
-	if(m_byteGamePlayerNumber == INVALID_PLAYER_PED)
-		return false;
-
-	// Add our model info reference
-	m_pModelInfo->AddReference(true);
-
-	// Get our model index
-	int iModelIndex = m_pModelInfo->GetIndex();
-
-	// Create player info instance
-	m_pPlayerInfo = new CIVPlayerInfo(m_byteGamePlayerNumber);
-
-	// Create a context data instance for this player
-	m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
-
-	// Set game player info pointer
-	CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, m_pPlayerInfo->GetPlayerInfo());
-
-	// Allocate the player ped
-	IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();
-
-	// Ensure the player ped pointer is valid
-	if(!pPlayerPed)
-	{
-		Destroy();
-		return false;
-	}
-
-	// Call the CPlayerPed constructor
-	unsigned int uiPlayerIndex = (unsigned int)m_byteGamePlayerNumber;
-	WORD wPlayerData = MAKEWORD(0, 1);
-	WORD * pwPlayerData = &wPlayerData;
-	_asm
-	{
-		push uiPlayerIndex
-		push iModelIndex
-		push pwPlayerData
-		mov ecx, pPlayerPed
-		call COffsets::FUNC_CPlayerPed__Constructor
-	}
-
-	if(!pPlayerPed)
-		return false;
-
-	/*
-	void SetupPed(CMatrix * pMatrix<edi>, CPed * pPed<esi>, int iModelIndex)
-	{
-		CPedMoveBlendOnFoot * pMoveBlendOnFoot = g_pPedMoveBlendPool->Allocate();
-
-		if(pMoveBlendOnFoot)
-		{
-			CPedMoveBlendOnFoot::CPedMoveBlendOnFoot(pMoveBlendOnFoot, pPed);
-			pPed->m_pMoveBlendOnFoot = pMoveBlendOnFoot;
-		}
-
-		if(pMatrix)
-			CMatrix::CopyFromMatrix(pPed->m_pMatrix, pMatrix);
-
-		CPlayerPed::SetModelIndex(pPed, iModelIndex);
-
-		CPedData * pPedData = g_pPedDataPool->Allocate();
-
-		if(pPedData)
-		{
-			CPedData::CPedData(pPedData);
-			pPed->m_pPedData = pPedData;
-		}
-	}
-	*/
-	Matrix34 * pMatrix = NULL;
-	_asm
-	{
-		push iModelIndex
-		push COffsets::VAR_Ped_Factory
-		mov edi, pMatrix
-		mov esi, pPlayerPed
-		call COffsets::FUNC_Setup_Ped
-	}
-
-	// Set our player info ped pointer
-	m_pPlayerInfo->SetPlayerPed(pPlayerPed);
-
-	// Set our player info state
-	m_pPlayerInfo->GetPlayerInfo()->m_dwState = 2;
-
-	SET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
-
-	// Set our player peds player info pointer
-	pPlayerPed->m_pPlayerInfo = m_pPlayerInfo->GetPlayerInfo();
-
-	// Create player ped instance
-	m_pPlayerPed = new CIVPlayerPed(pPlayerPed);
-
-	// Set the context data player ped pointer
-	m_pContextData->SetPlayerPed(m_pPlayerPed);
-
-	/*
-	pPlayerPed->m_byteCreatedBy = 2;
-	pPlayerPed->SetDefaultDecisionMaker();
-	pPlayerPed->GetPedIntelligence()->SetSenseRange1(30.0f);
-	pPlayerPed->GetPedIntelligence()->SetSenseRange0(30.0f);
-	sub_B2A8F0(pPlayerPed->m_pPortalTracker, 1);
-	sub_B29E50(pPlayerPed->m_pPortalTracker);
-	*/
-	_asm
-	{
-		push 2
-		mov ecx, pPlayerPed
-		call COffsets::FUNC_SetupPedIntelligence
-	}
-
-	// Add to world
-	m_pPlayerPed->AddToWorld();
-
-	// jenksta: wtf is this doing here??
-	// Delete player helemt
-	m_bHelmet = false;
-	SetHelmet(m_bHelmet);
-
-	// Flag as spawned
-	m_bSpawned = true;
-
-	// Set health
-	SetHealth(200);
-
-	// Set the interior
-	SetInterior(g_pClient->GetLocalPlayer()->GetInterior());
-
-	// Assign our default task
-	// (Part of player ped creation)
-	CIVTaskComplexPlayerOnFoot * pTask = new CIVTaskComplexPlayerOnFoot();
-	if(pTask)
-		pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
-
-	// Remember that we might have clothes
-	m_bUseCustomClothesOnSpawn = true;
-
-	// Reset interpolation
-	ResetInterpolation();
-	return true;
+        // Reset interpolation
+        ResetInterpolation();
+        return true;
 }
 
 void CNetworkPlayer::Init()
@@ -261,69 +320,81 @@ void CNetworkPlayer::Init()
 
 void CNetworkPlayer::Destroy()
 {
-	THIS_CHECK(__FUNCTION__);
-	// Are we not the local player?
-	if(!IsLocalPlayer())
-	{
-		// Are we spawned?
-		if(IsSpawned())
-		{
-			// Get the player ped pointer
-			IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
-
-			IVPedIntelligence * pPedIntelligence = pPlayerPed->m_pPedIntelligence;
-			_asm
-			{
-				push 0
-				mov ecx, pPedIntelligence
-				call COffsets::FUNC_CPedIntelligence__Reset
-			}
-
-			UNSET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
-
-			// Remove the player ped from the world
-			m_pPlayerPed->RemoveFromWorld();
-
-			_asm
-			{
-				push 1
-				mov ecx, pPlayerPed
-				call COffsets::FUNC_CPed__ScalarDeletingDestructor
-			}
-
-			// Remove our model info reference
-			m_pModelInfo->RemoveReference();
-		}
-	}
-
-	// Do we have a context data instance
-	if(m_pContextData)
-	{
-		// Delete the context data instance
-		CContextDataManager::DestroyContextData(m_pContextData);
-
-		// Set the context data pointer to NULL
-		m_pContextData = NULL;
-	}
-
-	// Delete the player ped instance
-	SAFE_DELETE(m_pPlayerPed);
-
-	// Delete our player info instance
-	SAFE_DELETE(m_pPlayerInfo);
-
-	// Are we not the local player ped and do we have a valid player number?
-	if(!IsLocalPlayer() && m_byteGamePlayerNumber != INVALID_PLAYER_PED)
-	{
-		// Reset game player info pointer
-		CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
-
-		// Invalidate the player number
-		m_byteGamePlayerNumber = INVALID_PLAYER_PED;
-	}
-
-	// Flag ourselves as despawned
-	m_bSpawned = false;
+    THIS_CHECK(__FUNCTION__);
+        // Are we not the local player?
+        if(!IsLocalPlayer())
+        {
+            // Are we spawned?
+            if(IsSpawned())
+            {
+                // jenksta: hacky hack hack
+                // jenksta: keep player ped for future use...
+                g_bPlayerPedsUsed[m_byteGamePlayerNumber] = false;
+                m_pPlayerPed->RemoveFromWorld();
+#if 0
+					 	ViruZz: Don't worry about the tab size here k?
+                        // Get the player ped pointer
+                        IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
+ 
+                        IVPedIntelligence * pPedIntelligence = pPlayerPed->m_pPedIntelligence;
+                        _asm
+                        {
+                                push 0
+                                mov ecx, pPedIntelligence
+                                call COffsets::FUNC_CPedIntelligence__Reset
+                        }
+ 
+                        UNSET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
+ 
+                        // Remove the player ped from the world
+                        m_pPlayerPed->RemoveFromWorld();
+ 
+                        _asm
+                        {
+                                push 1
+                                mov ecx, pPlayerPed
+                                call COffsets::FUNC_CPed__ScalarDeletingDestructor
+                        }
+ 
+                        // Remove our model info reference
+                        m_pModelInfo->RemoveReference();
+#endif
+            }
+        }
+ 
+        // Do we have a context data instance
+        if(m_pContextData)
+        {
+                // Delete the context data instance
+                CContextDataManager::DestroyContextData(m_pContextData);
+ 
+                // Set the context data pointer to NULL
+                m_pContextData = NULL;
+        }
+ 
+        // Delete the player ped instance
+        SAFE_DELETE(m_pPlayerPed);
+ 
+        // jenksta: player ped is kept so keep player info too
+        // jenksta: invalidate the player number only
+        m_byteGamePlayerNumber = INVALID_PLAYER_PED;
+#if 0
+        // Delete our player info instance
+        SAFE_DELETE(m_pPlayerInfo);
+ 
+        // Are we not the local player ped and do we have a valid player number?
+        if(!IsLocalPlayer() && m_byteGamePlayerNumber != INVALID_PLAYER_PED)
+        {
+                // Reset game player info pointer
+                CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
+ 
+                // Invalidate the player number
+                m_byteGamePlayerNumber = INVALID_PLAYER_PED;
+        }
+#endif
+ 
+        // Flag ourselves as despawned
+        m_bSpawned = false;
 }
 
 void CNetworkPlayer::StreamIn()

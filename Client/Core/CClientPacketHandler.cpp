@@ -17,10 +17,6 @@ extern CClient * g_pClient;
 
 void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
-	if(g_pClient->GetChatWindow())
-		g_pClient->GetChatWindow()->SetEnabled(!g_pClient->GetChatWindow()->IsEnabled());
-	Sleep(10); //ViruZz: I don't like to rush everything!
-	// Set the disconnect button visible
 	g_pClient->GetMainMenu()->SetDisconnectButtonVisible(true);
 	g_pClient->GetChatWindow()->AddInfoMessage("Connection established, please wait..");
 	CBitStream bsSend;
