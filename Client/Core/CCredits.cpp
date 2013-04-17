@@ -49,7 +49,7 @@ CreditText creditsItems[] =
 	{4000, "tahoma-bold", 40, "CEGUI (http://www.cegui.org.uk)"},
 	{4000, "tahoma-bold", 40, "Squirrel (http://www.squirrel-lang.org)"},
 	{4000, "tahoma-bold", 40, "Mongoose (http://code.google.com/p/mongoose/)"},
-	{4000, "tahoma-bold", 40, "TinyXML (http://sourceforge.net/projects/tinyxml/)"}
+	{4000, "tahoma-bold", 40, "TinyXML (http://sourceforge.net/projects/tinyxml/)"},
 	{4000, "tahoma-bold", 40, "Gorilla-Audio (http://code.google.com/p/gorilla-audio/)"}
 };
 
