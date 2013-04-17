@@ -465,10 +465,10 @@ void CServer::OnUnload()
 	SAFE_DELETE(g_pCheckpointManager);
 	SAFE_DELETE(g_pPickupManager);
 	SAFE_DELETE(g_pObjectManager);
-	SAFE_DELETE(g_pBlipManager);
 	SAFE_DELETE(g_pActorManager);
 	SAFE_DELETE(g_pVehicleManager);
 	SAFE_DELETE(g_pPlayerManager);
+	SAFE_DELETE(g_pBlipManager);
 	SAFE_DELETE(g_pNetworkManager);
 	CNetworkModule::Shutdown();
 	SAFE_DELETE(g_pClientResourceFileManager);
