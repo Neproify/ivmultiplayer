@@ -39,23 +39,17 @@ CNetworkManager::CNetworkManager()
 
 CNetworkManager::~CNetworkManager()
 {
-	if(m_pClientRPCHandler)
-	{
-		// Unregister the rpcs
-		m_pClientRPCHandler->Unregister();
+	// Unregister the rpcs
+	m_pClientRPCHandler->Unregister();
 
-		// Delete the rpc handler instance
-		delete m_pClientRPCHandler;
-	}
+	// Delete the rpc handler instance
+	SAFE_DELETE(m_pClientRPCHandler);
 
-	if(m_pClientPacketHandler)
-	{
-		// Unregister the packets
-		m_pClientPacketHandler->Unregister();
+	// Unregister the packets
+	m_pClientPacketHandler->Unregister();
 
-		// Delete the packet handler instance
-		delete m_pClientPacketHandler;
-	}
+	// Delete the packet handler instance
+	SAFE_DELETE(m_pClientPacketHandler);
 
 	// Shutdown the net client instance
 	m_pNetClient->Shutdown(500);
@@ -114,6 +108,29 @@ void CNetworkManager::PacketHandler(CPacket * pPacket)
 				g_pClient->GetChatWindow()->AddNetworkMessage("[NETWORK] Unhandled packet (Type: %d)", pPacket->packetId);
 		} 
 	}
+}
+
+void CNetworkManager::Reset()
+{
+	// Unregister the packets
+	if(m_pClientPacketHandler)
+		m_pClientPacketHandler->Unregister();
+
+	// Unregister the rpcs
+	if(m_pClientRPCHandler)
+		m_pClientRPCHandler->Unregister();
+
+	// Reset network module
+	if(m_pNetClient)
+	{
+		m_pNetClient->Shutdown(500);
+		m_pNetClient->SetPacketHandler(PacketHandler);
+		Startup(g_pClient->GetHost(), g_pClient->GetPort(), g_pClient->GetPassword());
+	}
+
+	m_bJoinedServer = false;
+	m_bJoinedGame = false;
+	m_sHostName.Set("IV:MP");
 }
 
 void CNetworkManager::Process()

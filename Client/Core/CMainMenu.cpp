@@ -262,7 +262,8 @@ void CMainMenu::Process()
 		
 		// Process the cinematic main menu view, as long as we arent connected and the game is loaded.
 		CCamera * pCamera = g_pClient->GetCamera();
-		if(!g_pClient->GetNetworkManager()->IsConnected() && pCamera)
+		CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+		if(pNetworkManager && !pNetworkManager->IsConnected() && pCamera)
 		{
 			if(m_iCameraTime > 1000)
 			{
@@ -418,25 +419,15 @@ void CMainMenu::OnConnect(String strHost, unsigned short usPort, String strPassw
 
 	if(pNetworkManager && pNetworkManager->IsConnected())
 	{
-		// Reset the game
-		g_pClient->ResetGame();
-
-		// Disable the menu
-		CGame::SetState(GAME_STATE_INGAME);
-		g_pClient->GetChatWindow()->SetEnabled(true);
+		pNetworkManager->Disconnect(); // Disconnect from the current server
+		g_pClient->ResetGame(false, true); // Reset the game
+		CGame::SetState(GAME_STATE_INGAME); // Disable the menu
 	}
 	else if(pNetworkManager && !pNetworkManager->IsConnected() && g_pClient->IsGameLoaded())
 	{
-		// Just connect to the server
-		SAFE_DELETE(pNetworkManager);
-		pNetworkManager = new CNetworkManager();
-
-		pNetworkManager->Startup(g_pClient->GetHost(), g_pClient->GetPort(), g_pClient->GetPassword());
-		pNetworkManager->Connect();
-
-		// Disable the menu
-		CGame::SetState(GAME_STATE_INGAME);
-		g_pClient->GetChatWindow()->SetEnabled(true);
+		pNetworkManager->Reset(); // Reset network manager
+		pNetworkManager->Connect(); // Connect to the server
+		CGame::SetState(GAME_STATE_INGAME); // Disable the menu
 	}
 	else
 	{
@@ -565,9 +556,8 @@ bool CMainMenu::OnDisconnectButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
 	if(pNetworkManager && pNetworkManager->IsConnected())
 	{
-		//pNetworkManager->Disconnect(); //Disconnect from the server *Disabled temporary, causing issues and will re-write it later.*
-		// Reset the game
-		//g_pClient->ResetGame(true); ViruZz: No, just no!
+		pNetworkManager->Disconnect(); //Disconnect from the server
+		g_pClient->ResetGame(); // Reset the game
 		g_pClient->GetMainMenu()->ResetNetworkStats(); //Reset the Network Stats
 		g_pClient->ResetMainMenuCamera();
 		SetDisconnectButtonVisible(false);

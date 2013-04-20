@@ -39,7 +39,7 @@ void CClientPacketHandler::ConnectionSucceeded(CBitStream * pBitStream, CPlayerS
 void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Disconnect from the server
-	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	//CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
 	//pNetworkManager->Disconnect(); The server already rejected our connection so we're already disconnected
 
 	// Show the main menu
@@ -53,7 +53,7 @@ void CClientPacketHandler::ConnectionRejected(CBitStream * pBitStream, CPlayerSo
 void CClientPacketHandler::ConnectionFailed(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Disconnect from the server
-	CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
+	//CNetworkManager * pNetworkManager = g_pClient->GetNetworkManager();
 	//pNetworkManager->Disconnect(); What are we disconnecting from lul?
 
 	// Show the main menu
@@ -93,7 +93,7 @@ void CClientPacketHandler::Disconnected(CBitStream * pBitStream, CPlayerSocket *
 		pNetworkManager->Disconnect(); //Disconnect from the server
 
 		// Reset the game
-		//g_pClient->ResetGame(true); ViruZz: No, just no!
+		g_pClient->ResetGame();
 
 		// Show a message box (main menu should already be shown due to reset)
 		pMainMenu->ResetNetworkStats();
@@ -111,10 +111,10 @@ void CClientPacketHandler::LostConnection(CBitStream * pBitStream, CPlayerSocket
 	{	
 		//pNetworkManager->Disconnect(); //Don't need to disconnect if the player already lost connection!
 
-	// Reset the game
-	//g_pClient->ResetGame(true); ViruZz: No, just no!
+		// Reset the game
+		g_pClient->ResetGame();
 
-	// Show a message box (main menu should already be shown due to reset)
+		// Show a message box (main menu should already be shown due to reset)
 		pMainMenu->ResetNetworkStats();
 		g_pClient->ResetMainMenuCamera();
 		pMainMenu->ShowMessageBox("The connection to the server timed out.", "Disconnected", true, false, false);
@@ -128,7 +128,7 @@ void CClientPacketHandler::Banned(CBitStream * pBitStream, CPlayerSocket * pSend
 	pNetworkManager->Disconnect();
 	
 	// Reset the game
-	//g_pClient->ResetGame(true); ViruZz: No, just no!
+	g_pClient->ResetGame();
 
 	// Show a message box (main menu should already be shown due to reset)
 	CMainMenu * pMainMenu = g_pClient->GetMainMenu();

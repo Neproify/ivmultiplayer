@@ -49,6 +49,7 @@ public:
 	bool                     HasJoinedGame() { return m_bJoinedGame; }
 	void                     Startup(String strHost, unsigned short usPort, String strPassword);
 	static void              PacketHandler(CPacket * pPacket);
+	void                     Reset();
 	void                     Process();
 	void                     Connect();
 	bool                     IsConnected();
