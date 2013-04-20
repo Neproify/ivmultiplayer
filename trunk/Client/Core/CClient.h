@@ -95,6 +95,7 @@ private:
 	String                 m_strPassword;
 	bool		           m_bNetworkStatsDisplayed;
 	bool                   m_bResetGame;
+	bool                   m_bAutoConnect;
 
 	CHttpClient          * m_pHttpClient;
 

@@ -119,7 +119,7 @@ void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSen
 	g_pClient->GetNetworkManager()->SetJoinedServer(true);
 
 	if(g_pClient->GetChatWindow())
-		g_pClient->GetChatWindow()->SetEnabled(!g_pClient->GetChatWindow()->IsEnabled());
+		g_pClient->GetChatWindow()->SetEnabled(true);
 
 	CGame::SetInputState(true);
 	CGame::SetKickedFromServer(false);

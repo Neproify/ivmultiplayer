@@ -34,7 +34,7 @@ CClient::CClient() : m_pDevice(NULL), m_pChatWindow(NULL), m_pInputWindow(NULL),
 					 m_pFileTransfer(NULL), m_pStreamer(NULL), m_pTime(NULL), m_pEvents(NULL), m_pTrafficLights(NULL), 
 					 m_pCredits(NULL), m_pNameTags(NULL), m_pClientTaskManager(NULL), m_pFireManager(NULL), m_p3DLabelManager(NULL), 
 					 m_pAudioManager(NULL), m_bGameLoaded(false), m_bWindowedMode(false), m_bFPSToggle(false), m_usPort(0), 
-					 m_bNetworkStatsDisplayed(false), m_bResetGame(false), m_pHttpClient(NULL)
+					 m_bNetworkStatsDisplayed(false), m_bResetGame(false), m_pHttpClient(NULL), m_bAutoConnect(false)
 {
 
 }
@@ -664,7 +664,10 @@ void CClient::OnGameProcess()
 	if(m_bResetGame)
 	{
 		// Reset the game
-		InternalResetGame(true);
+		InternalResetGame(m_bAutoConnect);
+
+		// Flag as default value
+		m_bAutoConnect = false;
 
 		// Flag the game as no longer needed to reset
 		m_bResetGame = false;
@@ -818,22 +821,16 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	m_pPlayerManager = new CPlayerManager();
 	CLogFile::Printf("Created player manager instance");
 
-	// Do we have a network manager instance?
-	if(m_pNetworkManager)
+	// Create network manager if it doesn't exist
+	if(!m_pNetworkManager)
 	{
-		// If we are connected disconnect
-		if(m_pNetworkManager->IsConnected())
-			m_pNetworkManager->Disconnect();
-
-		// Delete our network manager instance
-		SAFE_DELETE(m_pNetworkManager);
+		m_pNetworkManager = new CNetworkManager();
+		CLogFile::Printf("Created network manager instance");
 	}
-
-	m_pNetworkManager = new CNetworkManager();
-	CLogFile::Printf("Created network manager instance");
-
-	m_pNetworkManager->Startup(m_strHost, m_usPort, m_strPassword);
-	CLogFile::Printf("Started network manager instance");
+	
+	// Reset network manager
+	m_pNetworkManager->Reset();
+	CLogFile::Printf("Reset network manager instance");
 
 	// Clear our file transfer list
 	m_pFileTransfer->Clear(true);
@@ -903,8 +900,11 @@ void CClient::ResetGame(bool bResetNow, bool bAutoConnect)
 	// If requested reset the game now
 	if(bResetNow)
 		InternalResetGame(bAutoConnect);
-	else 
+	else
+	{
 		m_bResetGame = true;
+		m_bAutoConnect = bAutoConnect;
+	}
 }
 
 void CClient::ResetMainMenuCamera()
@@ -919,7 +919,7 @@ void CClient::ResetMainMenuCamera()
 		m_pCamera->SetPosition(CVector3(HAPPINESS_CAMERA_POS));
 		m_pCamera->SetLookAt(CVector3(HAPPINESS_CAMERA_LOOK_AT),false);
 		CLogFile::Printf("Successfully Reset the Main Menu Camera!");
-	} else {
-		CLogFile::Printf("Failed to Reset the Main Menu Camera!");
 	}
+	else
+		CLogFile::Printf("Failed to Reset the Main Menu Camera!");
 }	
