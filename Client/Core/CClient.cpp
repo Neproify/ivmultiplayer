@@ -174,8 +174,10 @@ bool CClient::OnLoad()
 	CDirectInputHook::Install();
 
 	// Install the Cursor hook
+	CCursorHook::Install();
+
+
 #ifdef IVMP_DEBUG
-	//CCursorHook::Install();
 	m_pDebugView = new CDebugView();
 #endif
 
@@ -530,7 +532,7 @@ void CClient::OnD3DEndScene()
 					float fPetrol = pVehicle->GetPetrolTankHealth();
 					CVector3 vecPos; pVehicle->GetPosition(vecPos);
 					CVector3 vecRot; pVehicle->GetRotation(vecRot);
-					m_pGUI->DrawText(String("VehicleId %d, Enginestate: %d, Health: %d, PetrolTankHealth: %f\nPosition(%.3f,%.3f,%.3f), Rot(%.3f,%.3f,%.3f)", i, model, health, petrol, vecPos.fX,vecPos.fY,vecPos.fZ,vecRot.fX,vecRot.fY,vecRot.fZ), CEGUI::Vector2(vecScreenPosition.fX, vecScreenPosition.fY));
+					m_pGUI->DrawText(String("VehicleId %d, Enginestate: %d, Health: %d, PetrolTankHealth: %f\nPosition(%.3f,%.3f,%.3f), Rot(%.3f,%.3f,%.3f)", i, iModel, iHealth, fPetrol, vecPos.fX,vecPos.fY,vecPos.fZ,vecRot.fX,vecRot.fY,vecRot.fZ), CEGUI::Vector2(vecScreenPosition.fX, vecScreenPosition.fY));
 				}
 			}
 		}
@@ -742,6 +744,11 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	if(m_pLocalPlayer)
 		m_pLocalPlayer->RemoveFromVehicle();
 
+	// Remove all current GUIs
+	m_pClientScriptManager->RemoveAll();
+	m_pClientScriptManager->GetGUIManager()->DeleteAll();
+
+
 	SAFE_DELETE(m_pClientScriptManager);
 	m_pClientScriptManager = new CClientScriptManager();
 	m_pEvents->clear();
@@ -853,13 +860,6 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	Scripting::SetPedDensityMultiplier(0);
 	Scripting::SetParkedCarDensityMultiplier(0);
 	Scripting::SetRandomCarDensityMultiplier(0);
-	//
-
-	// Reset radio logo
-	CGame::LoadRadioLogo();
-
-	// Reset HUD
-	CGame::LoadHUD();
 
 	// Set the time and weather after the camera set, one of the camera stuff changes the time and the weather
 	CGame::GetWeather()->SetWeather(WEATHER_SUNNY);

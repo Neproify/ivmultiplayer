@@ -77,7 +77,10 @@ void CClientScriptGUIManager::Delete(CEGUI::Window * pWindow)
 void CClientScriptGUIManager::DeleteAll()
 {
 	for(std::list<GUIElement *>::iterator iter = m_elements.begin(); iter != m_elements.end(); iter++)
+	{
+		(*iter)->pScript->Unload();
 		(*iter)->pWindow->hide();
+	}	
 			
 	// CrackHD: who did this lol to iterate elements and call SAFE_DELETE on every iter??
 	m_elements.clear();

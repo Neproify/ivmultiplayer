@@ -145,7 +145,7 @@ void CCamera::SetLookAt(const CVector3& vecLookAt, bool bWorldLoad)
 		CGame::GetStreaming()->LoadWorldAtPosition(vecLookAt);
 
 	unsigned int uiCam = CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam());
-	// Set the script cam look at | Or we have to use the hook code?(CGame)
+
 	if(uiCam)
 		Scripting::PointCamAtCoord(uiCam, vecLookAt.fX, vecLookAt.fY, vecLookAt.fZ);
 }
@@ -191,9 +191,9 @@ void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer, int iPointTyp
 		m_uiCameraAttachedHandle = uiHandle;
 		// Check if the camera should be attached to a vehicle or player
 		if(bVehicleOrPlayer)
-			Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+			Scripting::AttachCamToVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), uiHandle);
 		else
-			Scripting::AttachCamToPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+			Scripting::AttachCamToPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), uiHandle);
 
 		Scripting::SetCamAttachOffset(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecOffset.fX, vecOffset.fY, vecOffset.fZ);
 	}
@@ -203,11 +203,9 @@ void CCamera::Attach(unsigned int uiHandle, bool bVehicleOrPlayer, int iPointTyp
 		m_uiCameraAttachedHandle = uiHandle;
 		// Check if the camera should be attached to a vehicle or player
 		if(bVehicleOrPlayer)
-			Scripting::PointCamAtVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
+			Scripting::PointCamAtVehicle(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), uiHandle);
 		else
-			Scripting::PointCamAtPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()),uiHandle);
-
-		//Scripting::SetCamAttachOffset(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), vecOffset.fX, vecOffset.fY, vecOffset.fZ);
+			Scripting::PointCamAtPed(CGame::GetPools()->GetCamPool()->HandleOf(m_pScriptCam->GetCam()), uiHandle);
 	}
 }
 
@@ -238,8 +236,6 @@ bool CCamera::IsOnScreen(const CVector3& vecPosition)
 
 	D3DXVECTOR3 vecSPos;
 	D3DXVec3Project(&vecSPos, CVEC_TO_D3DVEC(vecPosition), &viewport, &matProj, &matView, &matWorld);
-
-	//g_pClient->GetChatWindow()->AddInfoMessage("W2S (%f|%f|%f)", vecSPos.x, vecSPos.y, vecSPos.z);
 
 	return ( vecSPos.z < 1.f );
 }
