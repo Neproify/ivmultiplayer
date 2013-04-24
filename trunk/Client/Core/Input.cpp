@@ -155,6 +155,9 @@ LRESULT APIENTRY WndProc_Hook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
 		ShowCursor(bFocused);
 
+		if(!g_pClient->GetChatWindow())
+				g_pClient->GetChatWindow()->SetEnabled(g_pClient->GetChatWindow()->IsEnabled());
+
 	}
 
 	// Are we focused?

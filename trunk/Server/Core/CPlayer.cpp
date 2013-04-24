@@ -891,7 +891,7 @@ void CPlayer::SetDimension(unsigned char ucDimension)
 	CBitStream bsSend;
 	bsSend.Write(this->GetPlayerId());
 	bsSend.Write(this->GetDimension());
-	g_pNetworkManager->RPC(RPC_ScriptingSetVehicleDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+	g_pNetworkManager->RPC(RPC_ScriptingSetPlayerDimension, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 
 unsigned int CPlayer::GetFileChecksum(int iFile)
