@@ -965,10 +965,11 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 				bsSend.Write(m_fHeading);
 			Serverside end */
 
-			int iModelId;
+			int iModelId
 			bool bHelmet;
 			CVector3 vecSpawnPos;
 			float fHeading;
+
 
 			EntityId vehicleId;
 
@@ -977,6 +978,14 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			pBitStream->Read(vecSpawnPos);
 			pBitStream->Read(fHeading);
 
+			int hashModel = SkinIdToModelHash(iModelId);
+
+			// Hacky hacky hacky xD
+			pPlayer->RemoveFromWorld();
+			Sleep(50); 
+			pPlayer->AddToWorld();
+
+
 
 			// Reset health to 200(IV Health + 100), otherwise player is "dead"
 			pPlayer->SetHealth(200);
@@ -984,17 +993,9 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			// If the player is already spawned(connected) -> clear die task
 			pPlayer->ClearDieTask();
 
-			// Temporary fix to reset the player animation
-			pPlayer->RemoveFromWorld();
-			Sleep(10);
-			pPlayer->AddToWorld();
-
-			// Since we removed the player from the world, we need to give him back his health and clear his death tasks
-			pPlayer->SetHealth(200);
-			pPlayer->ClearDieTask();
-
 			// Spawn player
-			pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
+			// ViruZz: Why are we setting a player model that wasn't even set yet?
+			pPlayerManager->Spawn(playerId, hashModel, vecSpawnPos, fHeading);
 
 			DWORD dwModelHash = SkinIdToModelHash(iModelId);
 			if(pPlayer)
@@ -1023,8 +1024,11 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			if(bHelmet)
 				pPlayer->GiveHelmet();
 
-			// Little hack to fix the death animation when spawning
-			pPlayer->SetModel(SkinIdToModelHash(iModelId));
+			// Little hacky to fix the death animation when spawning
+			// ViruZz: No need to hash it since its already hash due to the top variable
+			// So you're causing confusion by hashing a hash that was just hashed
+			// We're not setting the dwModelHash either, we're just setting the actual ModelID that was just hashed
+			pPlayer->SetModel(iModelId);
 
 			pBitStream->Read(vehicleId);
 			CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
@@ -1037,8 +1041,8 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 				pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
 			}
 
-			// Custom clothing
-			if(pBitStream->ReadBit())
+			// Custom clothing ViruZz: Causing Crash issues, temporary disaled
+			/*if(pBitStream->ReadBit())
 			{
 				unsigned char ucClothes = 0;
 
@@ -1047,7 +1051,7 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 					pBitStream->Read(ucClothes);
 					pPlayerManager->GetAt(playerId)->SetClothes(uc, ucClothes);
 				}
-			}
+			}*/
 		}
 	}
 }
@@ -1284,6 +1288,27 @@ void CClientRPCHandler::SmallSync(CBitStream * pBitStream, CPlayerSocket * pSend
 			}
 		}
 	}
+}
+
+void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
+{
+	// Ensure we have a valid bit stream
+	if(!pBitStream)
+		return;
+
+	EntityId playerId;
+	CVector3 vecAim;
+
+	pBitStream->ReadCompressed(playerId);
+	pBitStream->Read(vecAim.fX);
+	pBitStream->Read(vecAim.fY);
+	pBitStream->Read(vecAim.fZ);
+
+	// Get the player
+	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
+
+	if(pPlayer && pPlayer->IsSpawned())
+		pPlayer->TaskLookAtCoord(vecAim.fX, vecAim.fY, vecAim.fZ);
 }
 
 void CClientRPCHandler::EmptyVehicleSync(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
