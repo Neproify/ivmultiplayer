@@ -181,11 +181,11 @@ void CPlayer::SpawnForPlayer(EntityId playerId)
 
 	bsSend.WriteBit(bModifiedClothing);
 
-	if(bModifiedClothing)
+	/*if(bModifiedClothing)
 	{
 		for(unsigned char uc = 0; uc < 11; ++ uc)
 			bsSend.Write(m_ucClothes[uc]);
-	}
+	}*/
 
 	g_pNetworkManager->RPC(RPC_PlayerSpawn, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, playerId, false);
 }
