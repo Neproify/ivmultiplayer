@@ -8,7 +8,7 @@
 //==============================================================================
 
 #include "CCursorHook.h"
-#ifdef IVMP_DEBUG
+#ifndef IVMP_DEBUG
 #include "Patcher/CPatcher.h"
 #include <CLogFile.h>
 
