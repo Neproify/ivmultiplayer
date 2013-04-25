@@ -965,7 +965,7 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 				bsSend.Write(m_fHeading);
 			Serverside end */
 
-			int iModelId
+			int iModelId;
 			bool bHelmet;
 			CVector3 vecSpawnPos;
 			float fHeading;
@@ -1040,21 +1040,10 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 				pBitStream->Read(byteVehicleSeatId);
 				pPlayer->PutInVehicle(pVehicle, byteVehicleSeatId);
 			}
-
-			// Custom clothing ViruZz: Causing Crash issues, temporary disaled
-			/*if(pBitStream->ReadBit())
-			{
-				unsigned char ucClothes = 0;
-
-				for(unsigned char uc = 0; uc < 11; ++ uc)
-				{
-					pBitStream->Read(ucClothes);
-					pPlayerManager->GetAt(playerId)->SetClothes(uc, ucClothes);
-				}
-			}*/
 		}
 	}
 }
+
 void CClientRPCHandler::PlayerDeath(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	// Ensure we have a valid bit stream
@@ -1288,27 +1277,6 @@ void CClientRPCHandler::SmallSync(CBitStream * pBitStream, CPlayerSocket * pSend
 			}
 		}
 	}
-}
-
-void CClientRPCHandler::HeadMovement(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
-{
-	// Ensure we have a valid bit stream
-	if(!pBitStream)
-		return;
-
-	EntityId playerId;
-	CVector3 vecAim;
-
-	pBitStream->ReadCompressed(playerId);
-	pBitStream->Read(vecAim.fX);
-	pBitStream->Read(vecAim.fY);
-	pBitStream->Read(vecAim.fZ);
-
-	// Get the player
-	CNetworkPlayer * pPlayer = g_pClient->GetPlayerManager()->GetAt(playerId);
-
-	if(pPlayer && pPlayer->IsSpawned())
-		pPlayer->TaskLookAtCoord(vecAim.fX, vecAim.fY, vecAim.fZ);
 }
 
 void CClientRPCHandler::EmptyVehicleSync(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
