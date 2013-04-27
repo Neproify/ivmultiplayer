@@ -657,7 +657,10 @@ void CClient::OnGameLoad()
 	CLogFile::Printf("Initialized pools");
 
 	// Reset the game
-	InternalResetGame(true);
+	InternalResetGame(m_bAutoConnect);
+
+	// Flag as default
+	m_bAutoConnect = false;
 }
 
 void CClient::OnGameProcess()
@@ -827,6 +830,7 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	SAFE_DELETE(m_pPlayerManager);
 	m_pPlayerManager = new CPlayerManager();
 	CLogFile::Printf("Created player manager instance");
+
 
 	// Create network manager if it doesn't exist
 	if(!m_pNetworkManager)
