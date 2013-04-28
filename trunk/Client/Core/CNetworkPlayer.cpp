@@ -1814,7 +1814,7 @@ void CNetworkPlayer::Pulse()
 				{
 					if(m_pVehicle->GetDriver() == NULL)
 					{
-						if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(m_pVehicle->GetScriptingHandle()) && CGame::GetSpecialData(1)))
+						if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()) || (m_pVehicle->GetVehicleModelType() < 116 && Scripting::IsCarInWater(m_pVehicle->GetScriptingHandle()) && CGame::GetSpecialData(1)))
 						{
 							CBitStream bsDeath;
 							bsDeath.Write(m_pVehicle->GetVehicleId());

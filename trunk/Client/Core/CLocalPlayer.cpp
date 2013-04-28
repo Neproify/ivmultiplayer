@@ -496,7 +496,7 @@ void CLocalPlayer::SendInVehicleSync()
 
 		// jenksta: this is completely wrong, fix/remove it
 		// Check if our car is dead(exploded or in water)
-		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(pVehicle->GetScriptingHandle()) && CGame::GetSpecialData(1)))
+		if(Scripting::IsCarDead(pVehicle->GetScriptingHandle()) || (pVehicle->GetVehicleModelType() < 116 && Scripting::IsCarInWater(pVehicle->GetScriptingHandle()) && CGame::GetSpecialData(1)))
 		{
 			CBitStream bsDeath;
 			bsDeath.Write(pVehicle->GetVehicleId());

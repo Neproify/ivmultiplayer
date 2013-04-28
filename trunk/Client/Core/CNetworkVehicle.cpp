@@ -868,7 +868,7 @@ bool CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 
 		if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f || vecPos.fZ < -1.0f)
 		{
-			if(Scripting::IsCarDead(GetScriptingHandle()) || (Scripting::IsCarInWater(GetScriptingHandle()) && CGame::GetSpecialData(1)))
+			if(Scripting::IsCarDead(GetScriptingHandle()) || (GetVehicleModelType() < 116 && Scripting::IsCarInWater(GetScriptingHandle()) && CGame::GetSpecialData(1)))
 			{
 				CBitStream bsDeath;
 				bsDeath.Write(GetVehicleId());
