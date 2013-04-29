@@ -602,7 +602,7 @@ _MEMBER_FUNCTION_IMPL(GUIFont, getTextExtent)
 		return 1;
 	}
 
-	sq_pushfloat(pVM, pFont->getTextExtent(text));
+	sq_pushfloat(pVM, pFont->getTextExtent(g_pClient->GetGUI()->AnsiToCeguiFriendlyString(text)));
 	return 1;
 }
 
