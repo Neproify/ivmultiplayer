@@ -34,7 +34,7 @@ CClient::CClient() : m_pDevice(NULL), m_pChatWindow(NULL), m_pInputWindow(NULL),
 					 m_pFileTransfer(NULL), m_pStreamer(NULL), m_pTime(NULL), m_pEvents(NULL), m_pTrafficLights(NULL), 
 					 m_pCredits(NULL), m_pNameTags(NULL), m_pClientTaskManager(NULL), m_pFireManager(NULL), m_p3DLabelManager(NULL), 
 					 m_pAudioManager(NULL), m_bGameLoaded(false), m_bWindowedMode(false), m_bFPSToggle(false), m_usPort(0), 
-					 m_bNetworkStatsDisplayed(false), m_bResetGame(false), m_pHttpClient(NULL), m_bAutoConnect(false)
+					 m_bNetworkStatsDisplayed(false), m_bResetGame(false), m_pHttpClient(NULL), m_bAutoConnect(true)
 {
 
 }
@@ -361,7 +361,10 @@ void CClient::OnD3DEndScene()
 	else
 	{
 		if(m_pMainMenu->IsVisible())
+		{
 			m_pMainMenu->SetVisible(false);
+			m_pChatWindow->SetEnabled(true);
+		}
 	}
 
 	if(m_pClientScriptManager && m_pClientScriptManager->GetGUIManager())
@@ -659,7 +662,7 @@ void CClient::OnGameLoad()
 	// Reset the game
 	InternalResetGame(m_bAutoConnect);
 
-	// Flag as default
+	// Flag as no longer needed to auto connect
 	m_bAutoConnect = false;
 }
 
@@ -671,7 +674,7 @@ void CClient::OnGameProcess()
 		// Reset the game
 		InternalResetGame(m_bAutoConnect);
 
-		// Flag as default value
+		// Flag as no longer needed to auto connect
 		m_bAutoConnect = false;
 
 		// Flag the game as no longer needed to reset
@@ -748,9 +751,9 @@ void CClient::InternalResetGame(bool bAutoConnect)
 		m_pLocalPlayer->RemoveFromVehicle();
 
 	// Remove all current GUIs
-	m_pClientScriptManager->RemoveAll();
-	m_pClientScriptManager->GetGUIManager()->DeleteAll();
-
+	// CClientScriptManager destructor will take care of this
+	//m_pClientScriptManager->RemoveAll();
+	//m_pClientScriptManager->GetGUIManager()->DeleteAll();
 
 	SAFE_DELETE(m_pClientScriptManager);
 	m_pClientScriptManager = new CClientScriptManager();

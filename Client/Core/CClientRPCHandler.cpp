@@ -20,7 +20,7 @@
 
 extern CClient * g_pClient;
 
-bool m_bControlsDisabled = false;
+bool g_bControlsDisabled = false;
 
 void CClientRPCHandler::JoinedGame(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
@@ -1675,8 +1675,7 @@ void CClientRPCHandler::ScriptingToggleControls(CBitStream * pBitStream, CPlayer
 	g_pClient->GetLocalPlayer()->SetControl(bToggle);
 
 	CGame::SetInputState(bToggle);
-	m_bControlsDisabled = !bToggle;
-
+	g_bControlsDisabled = !bToggle;
 }
 
 void CClientRPCHandler::ScriptingSetHeading(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

@@ -761,7 +761,7 @@ function onPlayerCommand(playerid, command)
 	if(cmd[0] == "/controls")
 	{
 		if(cmd.len() == 2)
-			togglePlayerControls(playerid, cmd[1].tointeger());
+			togglePlayerControls(playerid, cmd[1].tointeger() ? true : false);
 
 		return 1;
 	}

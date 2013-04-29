@@ -78,7 +78,7 @@ void CClientScriptGUIManager::DeleteAll()
 {
 	for(std::list<GUIElement *>::iterator iter = m_elements.begin(); iter != m_elements.end(); iter++)
 	{
-		(*iter)->pScript->Unload();
+		// (*iter)->pScript->Unload(); Why do we unload script here?
 		(*iter)->pWindow->hide();
 	}	
 			

@@ -19,7 +19,7 @@
 #include "COffsets.h"
 
 extern CClient * g_pClient;
-extern bool      m_bControlsDisabled;
+extern bool      g_bControlsDisabled;
 
 void GetLocalPlayerSpawnPosition(int, CVector3 * vecSpawnPosition, float * fAngle)
 {
@@ -102,7 +102,7 @@ void CLocalPlayer::HandleSpawn()
 	CLogFile::Printf("HandleSpawn(LocalPlayer)");
 
 	// Enable input if needed
-	if(!g_pClient->GetInputWindow()->IsEnabled() && !m_bControlsDisabled)
+	if(!g_pClient->GetInputWindow()->IsEnabled() && !g_bControlsDisabled)
 		CGame::SetInputState(true);
 
 	CLogFile::Printf("Reset vehicle entry/exit flags");
