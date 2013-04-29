@@ -77,7 +77,7 @@ String GetKeyNameByScan(DWORD dwCode)
 	case 0x1b:
 		return "rightbracket";
 	case 0x1c:
-		return "return ";
+		return "return";
 	case 0x1d:
 		return "leftcontrol";
 	case 0x1e:
