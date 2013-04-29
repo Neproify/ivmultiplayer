@@ -17,7 +17,7 @@
 #include "CPools.h"
 
 extern CClient * g_pClient;
-extern bool              m_bControlsDisabled;
+extern bool      g_bControlsDisabled;
 
 IVPlayerPed * g_pCreatedPlayerPeds[32];
 bool          g_bPlayerPedsUsed[32];
@@ -2328,7 +2328,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 {
 	THIS_CHECK(__FUNCTION__);
 	// Are we spawned and is input enabled and are our controls not disabled?
-	if(IsSpawned() && CGame::GetInputState() && !m_bControlsDisabled)
+	if(IsSpawned() && CGame::GetInputState() && !g_bControlsDisabled)
 	{
 		// Has the enter/exit vehicle key just been pressed?
 		if(m_currentControlState.IsUsingEnterExitVehicle() && !m_previousControlState.IsUsingEnterExitVehicle())

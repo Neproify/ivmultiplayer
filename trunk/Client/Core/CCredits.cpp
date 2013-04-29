@@ -30,7 +30,7 @@ CreditText creditsItems[] =
 	{4000, "tahoma-bold", 40, "Einstein"},
 	{4000, "tahoma-bold", 40, "crackHD"},
 	{4000, "tahoma-bold", 40, "Nathan \"ViruZz\" Mallett"},	
-	{4000, "tahoma-bold", 40, "Float"},
+	{4000, "tahoma-bold", 40, "Micha³ \"Float\" Dziechciarz"},
 	{4000, "tahoma-bold", 40, "Christopher \"Christopher\" Martino"},
 	{4000, "tahoma-bold", 40, "Sebas \"x86\" Lamers"},
 	{4000, "tahoma-bold", 40, "Testing By"},

@@ -204,8 +204,10 @@ void CClientScriptManager::RemoveScript(String strName)
 
 		if(pClientScript->strName == strName)
 		{
-			SAFE_DELETE (pClientScript);
+			if(pClientScript)
+				delete pClientScript;
 			m_clientScripts.remove(pClientScript);
+			pClientScript = NULL;
 			CLogFile::Printf("ClientScript %s removed.", strName.Get());
 			return;
 		}

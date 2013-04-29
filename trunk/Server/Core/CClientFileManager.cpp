@@ -14,8 +14,9 @@
 #include <map>
 #include <CLogFile.h>
 
-extern CNetworkManager * g_pNetworkManager;
-extern CWebServer * g_pWebserver;
+extern CNetworkManager	* g_pNetworkManager;
+extern CWebServer		* g_pWebserver;
+extern CServer			* g_pServer;
 
 CClientFileManager::CClientFileManager(bool bScriptManager)
 {
@@ -50,10 +51,14 @@ bool CClientFileManager::Stop(String strName)
 	{
 		if((*iter).first == strName)
 		{
-			CBitStream bsSend;
-			bsSend.Write(bIsScriptManager);
-			bsSend.Write(strName);
-			g_pNetworkManager->RPC(RPC_DeleteFile, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+			// If server isn't active don't delete file - client will do it itself
+			if(g_pServer->IsActive())
+			{
+				CBitStream bsSend;
+				bsSend.Write(bIsScriptManager);
+				bsSend.Write(strName);
+				g_pNetworkManager->RPC(RPC_DeleteFile, &bsSend, PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
+			}
 			erase(iter);
 			return true;
 		}

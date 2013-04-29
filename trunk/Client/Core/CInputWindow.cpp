@@ -15,7 +15,7 @@
 #include <CSettings.h>
 
 extern CClient * g_pClient;
-extern bool m_bControlsDisabled;
+extern bool g_bControlsDisabled;
 
 CInputWindow::CInputWindow()
 	: m_bEnabled(false),
@@ -269,7 +269,7 @@ void CInputWindow::Enable()
 
 void CInputWindow::Disable()
 {
-	if(!m_bControlsDisabled)
+	if(!g_bControlsDisabled)
 		CGame::SetInputState(true);
 
 	m_pEditBox->setVisible(false);

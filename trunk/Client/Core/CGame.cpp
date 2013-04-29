@@ -41,6 +41,7 @@
 #endif*/
 
 extern CClient * g_pClient;
+extern bool	g_bControlsDisabled;
 
 unsigned int   CGame::m_uiBaseAddress = 0;
 bool           CGame::m_bInputState = false;
@@ -67,7 +68,7 @@ void CGame::SetFocused(bool bFocused)
 	if(bFocused) // We have focus
 	{
 		// Enable input
-		SetInputState(true);
+		SetInputState(!g_bControlsDisabled);
 
 		// Unmute our audio
 		g_pClient->GetAudioManager()->UnmuteAll();
