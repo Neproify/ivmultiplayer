@@ -148,6 +148,9 @@ bool CNetworkPlayer::Create()
         {
             // Set the player info instance
             m_pPlayerInfo = pOldPlayerInfo;
+
+			// Get the player number
+			m_byteGamePlayerNumber = m_pPlayerInfo->GetPlayerNumber();
  
             // Create player ped instance
             m_pPlayerPed = new CIVPlayerPed(pOldPlayerPed);
