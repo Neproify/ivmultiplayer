@@ -65,7 +65,8 @@ private:
 	bool              m_bUseCustomClothesOnSpawn;
 	CControlState     m_previousControlState;
 	CControlState     m_currentControlState;
-	CVector3          m_vecAimTarget;
+	float             m_fArmHeading;
+	float             m_fArmUpDown;
 	CVector3          m_vecShotSource;
 	CVector3          m_vecShotTarget;
 	unsigned short    m_usPing;
@@ -197,8 +198,10 @@ public:
 	void                     GetPreviousControlState(CControlState * controlState);
 	void                     GetControlState(CControlState * controlState);
 
-	void                     SetAimTarget(const CVector3& vecAimTarget);
-	void                     GetAimTarget(CVector3& vecAimTarget);
+	void                     SetArmHeading(const float fArmHeading);
+	void                     GetArmHeading(float& fArmHeading);
+	void                     SetArmUpDown(const float fArmUpDown);
+	void                     GetArmUpDown(float& fArmUpDown);
 	void                     SetShotSource(const CVector3& vecShotSource);
 	void                     GetShotSource(CVector3& vecShotSource);
 	void                     SetShotTarget(const CVector3& vecShotTarget);

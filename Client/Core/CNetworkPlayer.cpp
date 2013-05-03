@@ -47,6 +47,8 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	m_pModelInfo(CGame::GetModelInfo(MODEL_PLAYER_INDEX)),
 	m_bSpawned(false),
 	m_uiColor(0xFFFFFFFF),
+	m_fArmHeading(0.0f),
+	m_fArmUpDown(0.0f),
 	m_usPing(0),
 	m_pVehicle(NULL),
 	m_byteVehicleSeatId(0),
@@ -1307,7 +1309,7 @@ void CNetworkPlayer::GetControlState(CControlState * controlState)
 	memcpy(controlState, &m_currentControlState, sizeof(CControlState));
 }
 
-void CNetworkPlayer::SetAimTarget(const CVector3& vecAimTarget)
+void CNetworkPlayer::SetArmHeading(const float fArmHeading)
 {
 	THIS_CHECK(__FUNCTION__);
 	// Are we spawned?
@@ -1315,13 +1317,13 @@ void CNetworkPlayer::SetAimTarget(const CVector3& vecAimTarget)
 	{
 		// Do we have a valid context data pointer?
 		if(m_pContextData)
-			m_pContextData->SetWeaponAimTarget(vecAimTarget);
+			m_pContextData->SetArmHeading(fArmHeading);
 	}
 
-	m_vecAimTarget = vecAimTarget;
+	m_fArmHeading = fArmHeading;
 }
 
-void CNetworkPlayer::GetAimTarget(CVector3& vecAimTarget)
+void CNetworkPlayer::GetArmHeading(float& fArmHeading)
 {
 	THIS_CHECK(__FUNCTION__);
 	// Are we spawned?
@@ -1330,12 +1332,43 @@ void CNetworkPlayer::GetAimTarget(CVector3& vecAimTarget)
 		// Do we have a valid context data pointer?
 		if(m_pContextData)
 		{
-			m_pContextData->GetWeaponAimTarget(vecAimTarget);
+			m_pContextData->GetArmHeading(fArmHeading);
 			return;
 		}
 	}
 
-	vecAimTarget = m_vecAimTarget;
+	fArmHeading = m_fArmHeading;
+}
+
+void CNetworkPlayer::SetArmUpDown(const float fArmUpDown)
+{
+	THIS_CHECK(__FUNCTION__);
+	// Are we spawned?
+	if(IsSpawned())
+	{
+		// Do we have a valid context data pointer?
+		if(m_pContextData)
+			m_pContextData->SetArmUpDown(fArmUpDown);
+	}
+
+	m_fArmUpDown = fArmUpDown;
+}
+
+void CNetworkPlayer::GetArmUpDown(float& fArmUpDown)
+{
+	THIS_CHECK(__FUNCTION__);
+	// Are we spawned?
+	if(IsSpawned())
+	{
+		// Do we have a valid context data pointer?
+		if(m_pContextData)
+		{
+			m_pContextData->GetArmUpDown(fArmUpDown);
+			return;
+		}
+	}
+
+	fArmUpDown = m_fArmUpDown;
 }
 
 void CNetworkPlayer::SetShotSource(const CVector3& vecShotSource)
@@ -1405,8 +1438,11 @@ void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
 	{
-		// Set the aim target
-		SetAimTarget(aimSyncData->vecAimTarget);
+		// Set the arm heading
+		SetArmHeading(aimSyncData->fArmHeading);
+
+		// Set the arm up/down
+		SetArmUpDown(aimSyncData->fArmUpDown);
 
 		// Set the shot source
 		SetShotSource(aimSyncData->vecShotSource);
@@ -1421,8 +1457,11 @@ void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
 	{
-		// Get the aim target
-		GetAimTarget(aimSyncData->vecAimTarget);
+		// Get the arm heading
+		GetArmHeading(aimSyncData->fArmHeading);
+
+		// Get the arm up/down
+		GetArmHeading(aimSyncData->fArmUpDown);
 
 		// Get the aim source
 		GetShotSource(aimSyncData->vecShotSource);

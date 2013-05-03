@@ -173,11 +173,11 @@ bool CClient::OnLoad()
 	// Install the DirectInput hook
 	CDirectInputHook::Install();
 
+#ifdef IVMP_DEBUG
 	// Install the Cursor hook
 	CCursorHook::Install();
 
-
-#ifdef IVMP_DEBUG
+	// Create our Debug View
 	m_pDebugView = new CDebugView();
 #endif
 

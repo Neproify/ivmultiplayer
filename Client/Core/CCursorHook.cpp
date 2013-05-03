@@ -8,6 +8,7 @@
 //==============================================================================
 
 #include "CCursorHook.h"
+#ifdef IVMP_DEBUG
 #include "Patcher/CPatcher.h"
 #include <CLogFile.h>
 
@@ -56,3 +57,4 @@ void CCursorHook::Uninstall()
 		m_bHookInstalled = false;
 	}
 }
+#endif
