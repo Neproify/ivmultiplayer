@@ -130,7 +130,7 @@ public:
 	void           SetClothes(unsigned char ucBodyPart, unsigned char ucClothes);
 	unsigned char  GetClothes(unsigned char ucBodyPart);
 	void		   UseMobilePhone(bool bUse) { m_bMobilePhoneUse = bUse; }
-	bool		   UpdateWeaponSync(CVector3 vecAim, CVector3 vecShotm, CVector3 vecLookAt);
+	bool		   UpdateWeaponSync(float fArmHeading, float fArmUpDown, CVector3 vecShotSource, CVector3 vecShotTarget, CVector3 vecLookAt);
 	void		   UpdateHeadMoveSync(CVector3 vecHead);
 
 	void		   SetDimension(DimensionId ucDimension);

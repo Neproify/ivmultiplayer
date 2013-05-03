@@ -268,7 +268,7 @@ void CPlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyncData,
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
-		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource, aimSyncData->vecLookAt);
+		UpdateWeaponSync(aimSyncData->fArmHeading, aimSyncData->fArmUpDown, aimSyncData->vecShotSource, aimSyncData->vecShotTarget, aimSyncData->vecLookAt);
 		/*
 		// Shitcode, we can detect it clientside, only for tests
 		aimSyncData->bShooting = false;
@@ -345,7 +345,7 @@ void CPlayer::StoreInVehicleSync(CVehicle * pVehicle, InVehicleSyncData * syncPa
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
-		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource,aimSyncData->vecLookAt);
+		UpdateWeaponSync(aimSyncData->fArmHeading, aimSyncData->fArmUpDown, aimSyncData->vecShotSource, aimSyncData->vecShotTarget, aimSyncData->vecLookAt);
 	}
 
 	// Set the state to in vehicle
@@ -414,7 +414,7 @@ void CPlayer::StorePassengerSync(CVehicle * pVehicle, PassengerSyncData * syncPa
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
-		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource,aimSyncData->vecLookAt);
+		UpdateWeaponSync(aimSyncData->fArmHeading, aimSyncData->fArmUpDown, aimSyncData->vecShotSource, aimSyncData->vecShotTarget, aimSyncData->vecLookAt);
 	}
 
 	// Set the state to passenger
@@ -461,7 +461,7 @@ void CPlayer::StoreSmallSync(SmallSyncData * syncPacket, bool bHasAimSyncData, A
 	{
 		// Set the aim sync data
 		memcpy(&m_aimSyncData, aimSyncData, sizeof(AimSyncData));
-		UpdateWeaponSync(aimSyncData->vecAimTarget,aimSyncData->vecShotSource,aimSyncData->vecLookAt);
+		UpdateWeaponSync(aimSyncData->fArmHeading, aimSyncData->fArmUpDown, aimSyncData->vecShotSource, aimSyncData->vecShotTarget, aimSyncData->vecLookAt);
 	}
 
 	// Send the sync to all other players
@@ -831,36 +831,13 @@ unsigned char CPlayer::GetClothes(unsigned char ucBodyPart)
 	return m_ucClothes[ucBodyPart];
 }
 
-bool CPlayer::UpdateWeaponSync(CVector3 vecAim, CVector3 vecShot, CVector3 vecLookAt)
+bool CPlayer::UpdateWeaponSync(float fArmHeading, float fArmUpDown, CVector3 vecShotSource, CVector3 vecShotTarget, CVector3 vecLookAt)
 {
-	CSquirrelArguments pArguments;
+	/*CSquirrelArguments pArguments;
 	pArguments.push(m_playerId);
-	if((vecShot-m_vecLastShot).Length() != 0)
-	{
-		m_vecLastAim = vecAim;
-		m_vecLastShot = vecShot;
-		pArguments.push(vecShot.fX);
-		pArguments.push(vecShot.fY);
-		pArguments.push(vecShot.fZ);
-		pArguments.push(vecLookAt.fX);
-		pArguments.push(vecLookAt.fY);
-		pArguments.push(vecLookAt.fZ);
-		pArguments.push(true);
-		return true;
-	}
-	else
-	{
-		m_vecLastAim = vecAim;
-		pArguments.push(vecAim.fX);
-		pArguments.push(vecAim.fY);
-		pArguments.push(vecAim.fZ);
-		pArguments.push(vecLookAt.fX);
-		pArguments.push(vecLookAt.fY);
-		pArguments.push(vecLookAt.fZ);
-		pArguments.push(false);
-		return false;
-	}
-	g_pEvents->Call("playerShot", &pArguments);
+	// TODO
+	g_pEvents->Call("playerShot", &pArguments);*/
+	return true;
 }
 
 void CPlayer::UpdateHeadMoveSync(CVector3 vecHead)

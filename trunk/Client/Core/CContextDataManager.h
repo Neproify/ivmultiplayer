@@ -21,7 +21,8 @@ private:
 	CIVPlayerInfo * m_pPlayerInfo;
 	CIVPlayerPed  * m_pPlayerPed;
 	CIVPad        * m_pPad;
-	CVector3        m_vecWeaponAimTarget;
+	float           m_fArmHeading;
+	float           m_fArmUpDown;
 	CVector3        m_vecWeaponShotSource;
 	CVector3        m_vecWeaponShotTarget;
 
@@ -31,6 +32,8 @@ public:
 		m_pPlayerInfo = NULL;
 		m_pPlayerPed = NULL;
 		m_pPad = new CIVPad();
+		m_fArmHeading = 0.0f;
+		m_fArmUpDown = 0.0f;
 	}
 
 	CContextData(CIVPlayerInfo * pPlayerInfo)
@@ -39,6 +42,8 @@ public:
 		m_pPlayerPed = NULL;
 		m_pPad = new CIVPad();
 		m_pPlayerInfo = pPlayerInfo;
+		m_fArmHeading = 0.0f;
+		m_fArmUpDown = 0.0f;
 	}
 
 	~CContextData()
@@ -51,8 +56,10 @@ public:
 	void            SetPlayerPed(CIVPlayerPed * pPlayerPed) { m_pPlayerPed = pPlayerPed; }
 	CIVPlayerPed  * GetPlayerPed() { return m_pPlayerPed; }
 	CIVPad        * GetPad() { return m_pPad; }
-	void            SetWeaponAimTarget(const CVector3& vecWeaponAimTarget) { m_vecWeaponAimTarget = vecWeaponAimTarget; }
-	void            GetWeaponAimTarget(CVector3& vecWeaponAimTarget) { vecWeaponAimTarget = m_vecWeaponAimTarget; }
+	void            SetArmHeading(const float fArmHeading) { m_fArmHeading = fArmHeading; }
+	void            GetArmHeading(float& fArmHeading) { fArmHeading = m_fArmHeading; }
+	void            SetArmUpDown(const float fArmUpDown) { m_fArmUpDown = fArmUpDown; }
+	void            GetArmUpDown(float& fArmUpDown) { fArmUpDown = m_fArmUpDown; }
 	void            SetWeaponShotSource(const CVector3& vecWeaponShotSource) { m_vecWeaponShotSource = vecWeaponShotSource; }
 	void            GetWeaponShotSource(CVector3& vecWeaponShotSource) { vecWeaponShotSource = m_vecWeaponShotSource; }
 	void            SetWeaponShotTarget(const CVector3& vecWeaponShotTarget) { m_vecWeaponShotTarget = vecWeaponShotTarget; }

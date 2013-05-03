@@ -10,7 +10,7 @@
 #pragma once
 
 #include <Common.h>
-#ifndef IVMP_DEBUG
+#ifdef IVMP_DEBUG
 #include <winsock2.h>
 #include <windows.h>
 

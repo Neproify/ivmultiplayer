@@ -291,7 +291,8 @@ struct EMPTYVEHICLESYNCPACKET
 
 struct AimSyncData
 {
-	CVector3 vecAimTarget;		// aim target
+	float    fArmHeading;       // arm heading
+	float    fArmUpDown;        // arm up/down
 	CVector3 vecShotSource;		// shot source
 	CVector3 vecShotTarget;		// shot target
 	// jenksta: remove this or use it for head sync or something
