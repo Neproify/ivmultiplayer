@@ -175,15 +175,6 @@
     <Filter Include="libcurl">
       <UniqueIdentifier>{04b62ec6-b06b-44b4-86d4-dda4af047ba7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libcurl">
-      <UniqueIdentifier>{04b62ec6-b06b-44b4-86d4-dda4af047ba7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libcurl\header">
-      <UniqueIdentifier>{93a617e3-ab85-4a9e-9ae0-170d5a06bf13}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libcurl\source">
-      <UniqueIdentifier>{2fc01058-b236-4c67-972e-eb01fa6d8afc}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Commands.h">

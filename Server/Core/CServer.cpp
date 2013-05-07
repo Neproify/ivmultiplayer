@@ -25,6 +25,7 @@
 #include "CClientFileManager.h"
 #include "Natives.h"
 #include "CModuleManager.h"
+#include "Scripting\CGlobalsManager.h"
 #include "Scripting/CScriptTimerManager.h"
 #include "CMasterList.h"
 #include "tinyxml/tinyxml.h"
@@ -73,6 +74,7 @@ CTrafficLights                    * g_pTrafficLights = NULL;
 CEvents                           * g_pEvents = NULL;
 unsigned long                       g_ulStartTick = 0;
 CQuery                            * g_pQuery = NULL;
+CGlobalsManager					  * g_pGlobalsManager = NULL;
 
 C3DLabelManager		              * g_p3DLabelManager = NULL;
 
@@ -205,6 +207,7 @@ bool CServer::OnLoad(int argc, char ** argv)
 	g_pCheckpointManager = new CCheckpointManager();
 	g_pModuleManager = new CModuleManager();
 	g_pScriptTimerManager = new CScriptTimerManager();
+	g_pGlobalsManager = new CGlobalsManager();
 	g_p3DLabelManager = new C3DLabelManager();
 
 	g_pWebserver = new CWebServer(CVAR_GET_INTEGER("httpport"));
@@ -312,6 +315,9 @@ bool CServer::OnLoad(int argc, char ** argv)
 
 	// Register the timer natives
 	RegisterTimerNatives(g_pScriptingManager);
+
+	// Register the global vairables natives
+	CGlobalsManager::RegisterNatives(g_pScriptingManager);
 
 	// Register the default constants
 	g_pScriptingManager->RegisterDefaultConstants();
