@@ -20,6 +20,7 @@
 #include "CModuleManager.h"
 #include "CEvents.h"
 #include "CBlipManager.h"
+#include <Scripting/CGlobalsManager.h>
 
 extern CNetworkManager * g_pNetworkManager;
 extern CScriptingManager * g_pScriptingManager;
@@ -27,6 +28,7 @@ extern CVehicleManager * g_pVehicleManager;
 extern CModuleManager * g_pModuleManager;
 extern CEvents * g_pEvents;
 extern CBlipManager * g_pBlipManager;
+extern CGlobalsManager * g_pGlobalsManager;
 
 CPlayerManager::CPlayerManager()
 {
@@ -91,6 +93,9 @@ bool CPlayerManager::Remove(EntityId playerId, BYTE byteReason)
 	pArguments.push(playerId);
 	pArguments.push(byteReason);
 	g_pEvents->Call("playerDisconnect", &pArguments);
+
+	// Clear player variables:
+	g_pGlobalsManager->Remove(playerId);
 
 	// Delete player blip
 	g_pBlipManager->DeleteForPlayer(playerId);

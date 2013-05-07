@@ -101,6 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Shared\Scripting\CGlobalsManager.h" />
     <ClInclude Include="C3DLabels.h" />
     <ClInclude Include="CServer.h" />
     <ClInclude Include="Main.h" />
@@ -262,6 +263,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Shared\CEvents.cpp" />
+    <ClCompile Include="..\..\Shared\Scripting\CGlobalsManager.cpp" />
     <ClCompile Include="C3DLabels.cpp" />
     <ClCompile Include="CServer.cpp" />
     <ClCompile Include="CModule.cpp" />

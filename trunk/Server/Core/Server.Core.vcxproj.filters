@@ -624,6 +624,9 @@
     <ClInclude Include="CServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\CGlobalsManager.h">
+      <Filter>Header Files\Scripting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CModule.cpp">
@@ -937,6 +940,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Vendor\md5\md5.cpp">
       <Filter>Source Files\Shared\md5</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\CGlobalsManager.cpp">
+      <Filter>Source Files\Scripting</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
