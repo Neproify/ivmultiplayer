@@ -21,7 +21,7 @@ public:
 	CGlobal(String key, CSquirrelArgument value) : Key(key), Value(value) { }
 };
 
-class CGlobalsManager : std::map<EntityId, std::list<CGlobal>>
+class CGlobalsManager : std::map< EntityId, std::list< CGlobal > >
 {
 private:
 	static SQInteger IsSet(SQVM * pVM);
@@ -33,7 +33,7 @@ private:
 	static SQInteger SetPVar(SQVM * pVM);
 	static SQInteger IsPVarSet(SQVM * pVM);
 	static SQInteger RemovePVar(SQVM * pVM);
-	static SQInteger ClearPVars(SQVM * pVM);
+	//static SQInteger ClearPVars(SQVM * pVM);
 
 public:
 	static void RegisterNatives(CScriptingManager * pScriptingManager);
@@ -44,7 +44,7 @@ public:
 		if(i != end())
 		{
 			// ID exists, check if key exists:
-			for(std::list<CGlobal>::iterator i2 = (*i).second.begin(); i2 != (*i).second.end(); ++ i2)
+			for(std::list< CGlobal >::iterator i2 = (*i).second.begin(); i2 != (*i).second.end(); ++ i2)
 			{
 				if((*i2).Key == key)
 					return true;
@@ -59,7 +59,7 @@ public:
 		if(i != end())
 		{
 			// ID exists, check if Key is exists already:
-			for(std::list<CGlobal>::iterator i2 = (*i).second.begin(); i2 != (*i).second.end(); ++ i2)
+			for(std::list< CGlobal >::iterator i2 = (*i).second.begin(); i2 != (*i).second.end(); ++ i2)
 			{
 				if((*i2).Key == key)
 				{
@@ -74,7 +74,7 @@ public:
 		else
 		{
 			// Create an entry for this ID:
-			std::list<CGlobal> list = std::list<CGlobal>();
+			std::list< CGlobal > list = std::list< CGlobal >();
 			list.insert(list.begin(), CGlobal(key, value));
 			insert(std::make_pair(id, list));
 		}
@@ -86,7 +86,7 @@ public:
 		if(i != end())
 		{
 			// ID exists, check if Key is exists already:
-			for(std::list<CGlobal>::iterator i2 = (*i).second.begin(); i2 != (*i).second.end(); ++ i2)
+			for(std::list< CGlobal >::iterator i2 = (*i).second.begin(); i2 != (*i).second.end(); ++ i2)
 			{
 				if((*i2).Key == key)
 					return (*i2).Value;
@@ -103,7 +103,7 @@ public:
 		if(i != end())
 		{
 			// ID exists, check if Key is exists:
-			for(std::list<CGlobal>::iterator i2 = (*i).second.begin(); i2 != (*i).second.end(); ++ i2)
+			for(std::list< CGlobal >::iterator i2 = (*i).second.begin(); i2 != (*i).second.end(); ++ i2)
 			{
 				if((*i2).Key == key)
 				{
