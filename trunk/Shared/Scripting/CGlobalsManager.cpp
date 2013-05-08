@@ -138,7 +138,7 @@ SQInteger CGlobalsManager::RemovePVar(SQVM* pVM)
 /*SQInteger CGlobalsManager::ClearPVars(SQVM* pVM)
 {
 	EntityId playerId;
-	sq_getentity(pVM, -2, &playerId);
+	sq_getentity(pVM, -1, &playerId);
 	
 	if(IvmpNatives::IsPlayerConnected(playerId))
 		sq_pushbool(pVM, g_pGlobalsManager->Remove(playerId));
