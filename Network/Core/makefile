@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-m32 -c -g -w -D_SERVER -D_LINUX -I../Core/RakNet -I../../Shared -I. -I../../Shared/Network -I./
+CFLAGS=-m32 -c -g -w -fpermissive -D_SERVER -D_LINUX -I../Core/RakNet -I../../Shared -I. -I../../Shared/Network -I./
 
 SOURCES=$(wildcard *.cpp)
 SOURCES+=../../Shared/SharedUtility.cpp ../../Shared/CString.cpp ../../Shared/Network/CBitStream.cpp ../../Shared/Game/CControlState.cpp ../../Shared/Linux.cpp

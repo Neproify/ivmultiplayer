@@ -58,15 +58,8 @@ public:
 		iterator i = find(id);
 		if(i != end())
 		{
-			// ID exists, check if Key is exists already:
-			for(std::list< CGlobal >::iterator i2 = (*i).second.begin(); i2 != (*i).second.end(); ++ i2)
-			{
-				if((*i2).Key == key)
-				{
-					(*i2).Value = value;
-					return;
-				}
-			}
+			if(IsSet(id, key))
+				Remove(id, key);
 
 			// If not, create new CGlobal here:
 			(*i).second.insert((*i).second.end(), CGlobal(key, value));

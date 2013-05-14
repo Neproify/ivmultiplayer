@@ -25,7 +25,7 @@
 #include "CClientFileManager.h"
 #include "Natives.h"
 #include "CModuleManager.h"
-#include "Scripting\CGlobalsManager.h"
+#include "Scripting/CGlobalsManager.h"
 #include "Scripting/CScriptTimerManager.h"
 #include "CMasterList.h"
 #include "tinyxml/tinyxml.h"
