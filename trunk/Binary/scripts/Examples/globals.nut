@@ -1,5 +1,9 @@
 // Globals are global variables
-// PVars is global variables for players
+// PVars are global variables for players
+
+// Global variable can be set, removed or accesed from any script,
+// Types supported: int, string, float, bool, table, array
+// Use of other types may cause crash.
 
 // Globals usage example:
 // Script 1.nut:

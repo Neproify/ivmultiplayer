@@ -8,11 +8,10 @@
 //==============================================================================
 
 #include <Scripting/Natives/Natives.h>
-#include "Squirrel.h"
+#include "CSquirrel.h"
 #include <Squirrel/sqstate.h>
 #include <Squirrel/sqvm.h>
 #include "CGlobalsManager.h"
-
 extern CGlobalsManager * g_pGlobalsManager;
 
 void CGlobalsManager::RegisterNatives(CScriptingManager * pScriptingManager)
