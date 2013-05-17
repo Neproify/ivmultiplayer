@@ -970,22 +970,15 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 			CVector3 vecSpawnPos;
 			float fHeading;
 
-
-			EntityId vehicleId;
-
 			pBitStream->Read(iModelId);
 			pBitStream->Read(bHelmet);
 			pBitStream->Read(vecSpawnPos);
 			pBitStream->Read(fHeading);
 
-			int hashModel = SkinIdToModelHash(iModelId);
-
 			// Hacky hacky hacky xD
 			pPlayer->RemoveFromWorld();
 			Sleep(50); 
 			pPlayer->AddToWorld();
-
-
 
 			// Reset health to 200(IV Health + 100), otherwise player is "dead"
 			pPlayer->SetHealth(200);
@@ -995,9 +988,10 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 
 			// Spawn player
 			// ViruZz: Why are we setting a player model that wasn't even set yet?
-			pPlayerManager->Spawn(playerId, hashModel, vecSpawnPos, fHeading);
+			pPlayerManager->Spawn(playerId, iModelId, vecSpawnPos, fHeading);
 
-			DWORD dwModelHash = SkinIdToModelHash(iModelId);
+			// Float: What's the point of this code? 
+			/*DWORD dwModelHash = SkinIdToModelHash(iModelId);
 			if(pPlayer)
 			{
 				CNetworkVehicle * pVehicle = NULL;
@@ -1018,18 +1012,20 @@ void CClientRPCHandler::PlayerSpawn(CBitStream * pBitStream, CPlayerSocket * pSe
 				}
 				else
 					pPlayer->Init();
-			}
-
-			// Is there a helmet?
-			if(bHelmet)
-				pPlayer->GiveHelmet();
+			}*/
 
 			// Little hacky to fix the death animation when spawning
 			// ViruZz: No need to hash it since its already hash due to the top variable
 			// So you're causing confusion by hashing a hash that was just hashed
 			// We're not setting the dwModelHash either, we're just setting the actual ModelID that was just hashed
-			pPlayer->SetModel(iModelId);
+			DWORD dwModelHash = SkinIdToModelHash(iModelId);
+			pPlayer->SetModel(dwModelHash);
 
+			// Is there a helmet?
+			if(bHelmet)
+				pPlayer->GiveHelmet();
+
+			EntityId vehicleId;
 			pBitStream->Read(vehicleId);
 			CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
