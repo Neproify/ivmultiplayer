@@ -766,6 +766,8 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 
 			Scripting::ChangePlayerModel(m_byteGamePlayerNumber, (Scripting::eModel)dwModelHash);
 			m_pPlayerPed->SetPed(m_pPlayerInfo->GetPlayerPed());
+			if(!IsLocalPlayer())
+				g_pCreatedPlayerPeds[m_byteGamePlayerNumber] = m_pPlayerInfo->GetPlayerPed();
 			SetHealth(uiHealth);
 			SetArmour(uiArmour);
 			SetCurrentHeading(fHeading);
