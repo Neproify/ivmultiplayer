@@ -839,12 +839,15 @@ void CClient::InternalResetGame(bool bAutoConnect)
 	if(!m_pNetworkManager)
 	{
 		m_pNetworkManager = new CNetworkManager();
+		m_pNetworkManager->Startup(GetHost(), GetPort(), GetPassword());
 		CLogFile::Printf("Created network manager instance");
 	}
-	
-	// Reset network manager
-	m_pNetworkManager->Reset();
-	CLogFile::Printf("Reset network manager instance");
+	else
+	{
+		// Reset network manager
+		m_pNetworkManager->Reset();
+		CLogFile::Printf("Reset network manager instance");
+	}
 
 	// Clear our file transfer list
 	m_pFileTransfer->Clear(true);
