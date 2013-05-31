@@ -15,6 +15,7 @@
 #include <Squirrel/squirrel.h>
 #include <Squirrel/sqobject.h>
 #include "CSquirrelArguments.h"
+#include <Threading/CMutex.h>
 
 #if defined(WIN32) && defined(RegisterClass)
 #undef RegisterClass
@@ -45,6 +46,7 @@ class CSquirrel
 {
 private:
 	SQVM * m_pVM;
+	CMutex m_squirrelCallMutex;
 	String m_strName;
 	String m_strPath;
 

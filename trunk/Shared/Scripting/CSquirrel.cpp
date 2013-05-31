@@ -323,6 +323,9 @@ void CSquirrel::RegisterConstant(String strConstantName, CSquirrelArgument value
 
 void CSquirrel::Call(SQObjectPtr pFunction, CSquirrelArguments * pArguments, CSquirrelArgument * pReturn)
 {
+	// Lock the squirrel call mutex
+	m_squirrelCallMutex.Lock();
+
 	// Get the stack top
 	int iTop = sq_gettop(m_pVM);
 
@@ -347,4 +350,7 @@ void CSquirrel::Call(SQObjectPtr pFunction, CSquirrelArguments * pArguments, CSq
 
 	// Restore the stack top
 	sq_settop(m_pVM, iTop);
+
+	// Unlock the squirrel call mutex
+	m_squirrelCallMutex.Unlock();
 }
