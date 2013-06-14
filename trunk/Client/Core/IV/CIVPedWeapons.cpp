@@ -10,8 +10,8 @@
 #include "CIVPedWeapons.h"
 #include "CIVPed.h"
 #include "CIVObject.h"
-#include "CGame.h"
-#include "COffsets.h"
+#include "../CGame.h"
+#include "../COffsets.h"
 #include <CLogFile.h>
 
 CIVPedWeapons::CIVPedWeapons(IVPedWeapons * pPedWeapons, CIVPed * pPed) : m_pPedWeapons(pPedWeapons), m_pPed(pPed)

@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "IVCommon.h"
+#include "../IVCommon.h"
 
 #define NUM_WeaponInfos 60
 #define ARRAY_WeaponInfos 0x1540A20

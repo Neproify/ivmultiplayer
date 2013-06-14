@@ -24,16 +24,10 @@ CIVDynamicEntity::~CIVDynamicEntity()
 
 void CIVDynamicEntity::SetDynamicEntity(IVDynamicEntity * pDynamicEntity)
 {
-#ifdef EXT_LOG
-	CLogFile::Printf(__FUNCSIG__);
-#endif
 	SetEntity((IVEntity *)pDynamicEntity);
 }
 
 IVDynamicEntity * CIVDynamicEntity::GetDynamicEntity()
 {
-#ifdef EXT_LOG
-	//CLogFile::Printf(__FUNCSIG__);
-#endif
 	return (IVDynamicEntity *)GetEntity();
 }

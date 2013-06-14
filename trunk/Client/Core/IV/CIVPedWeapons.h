@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "IVCommon.h"
+#include "../IVCommon.h"
 #include "CIVWeapon.h"
 #include "CIVPedWeaponSlot.h"
 

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "IVCommon.h"
+#include "../IVCommon.h"
 
 #define NUM_ModelInfos 31000
 #define ARRAY_ModelInfos 0x15F73B0
@@ -108,6 +108,7 @@ public:
 	// 0x4 - DWORD
 	// 0x8 - DWORD
 	// 0xC - DWORD
+	// 0x10 - Matrix34
 	// 0x10 - float
 	// 0x14 - float
 	// 0x18 - float
