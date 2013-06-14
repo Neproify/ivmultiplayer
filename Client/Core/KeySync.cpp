@@ -10,8 +10,8 @@
 #include "KeySync.h"
 #include "COffsets.h"
 #include <Patcher/CPatcher.h>
-#include "CIVPed.h"
-#include "CIVVehicle.h"
+#include "IV/CIVPed.h"
+#include "IV/CIVVehicle.h"
 #include "CContextDataManager.h"
 #include "CPools.h"
 #include <CLogFile.h>

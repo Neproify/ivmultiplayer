@@ -16,12 +16,12 @@
 #include <Common.h>
 #include <Math/CMath.h>
 #include <CString.h>
-#include "CIVPad.h"
-#include "CIVModelInfo.h"
-#include "CIVWeaponInfo.h"
-#include "CIVStreaming.h"
-#include "CIVWeather.h"
-#include "CIVWorld.h"
+#include "IV/CIVPad.h"
+#include "IV/CIVModelInfo.h"
+#include "IV/CIVWeaponInfo.h"
+#include "IV/CIVStreaming.h"
+#include "IV/CIVWeather.h"
+#include "IV/CIVWorld.h"
 #include "Patcher/CPatcher.h"
 #include <CLogFile.h>
 
@@ -130,7 +130,7 @@ public:
 	static String          GetCurrentAreaName();
 	static String          GetCurrentStreetName();
 	static void            RemoveInitialLoadingScreens();
-	static bool            GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition);
+	static bool            GetScreenPositionFromWorldPosition(CVector3 &vecWorldPosition, Vector2 &vecScreenPosition);
 	static void            CreateExplosion(CVector3& vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound = true, bool bInvisible = false, float fCameraShake = 0.0f);
 	static unsigned int    CreateFire(CVector3 vecPosition, unsigned int uiStrength = 1, unsigned char ucAllowedGenerations = 0);
 	static bool            DeleteFire(unsigned int uiFire);

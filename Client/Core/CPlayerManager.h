@@ -11,7 +11,7 @@
 #pragma once
 
 #include "CNetworkPlayer.h"
-#include "CIVPed.h"
+#include "IV/CIVPed.h"
 
 DWORD SkinIdToModelHash(int modelid);
 int ModelHashToSkinId(DWORD modelhash);

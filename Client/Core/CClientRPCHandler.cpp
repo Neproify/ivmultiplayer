@@ -14,7 +14,7 @@
 #include "Scripting.h"
 #include <SharedUtility.h>
 #include "COffsets.h"
-#include "CIVWeather.h"
+#include "IV/CIVWeather.h"
 #include "CFireManager.h"
 #include "CGame.h"
 
@@ -286,7 +286,7 @@ void CClientRPCHandler::NewVehicle(CBitStream * pBitStream, CPlayerSocket * pSen
 	pVehicle->SetVehicleId(vehicleId);
 
 	// Set the vehicle position
-	pVehicle->SetPosition(vecPosition);
+	pVehicle->SetPosition(vecPosition, true);
 
 	// Set the vehicle rotation
 	pVehicle->SetRotation(vecRotation);

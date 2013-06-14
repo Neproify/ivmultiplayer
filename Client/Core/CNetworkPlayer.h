@@ -11,10 +11,10 @@
 
 #include "Scripting.h"
 #include "CStreamer.h"
-#include "CIVPlayerPed.h"
-#include "CIVPlayerInfo.h"
+#include "IV/CIVPlayerPed.h"
+#include "IV/CIVPlayerInfo.h"
 #include "CContextDataManager.h"
-#include "CIVTask.h"
+#include "IV/CIVTask.h"
 #include "IVTasks.h"
 
 class CNetworkVehicle;

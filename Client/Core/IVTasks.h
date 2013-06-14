@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "CIVTask.h"
-#include "CIVVehicle.h"
+#include "IV/CIVTask.h"
+#include "IV/CIVVehicle.h"
 
 class CIVTaskComplexNewGetInVehicle : public CIVTaskComplex
 {

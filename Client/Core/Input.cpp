@@ -20,7 +20,7 @@
 #include <SharedUtility.h>
 #include "CScreenShot.h"
 #include "CGame.h"
-#include "CIVTrain.h"
+#include "IV/CIVTrain.h"
 #include "Patcher/CPatcher.h"
 
 WNDPROC           m_wWndProc = NULL;

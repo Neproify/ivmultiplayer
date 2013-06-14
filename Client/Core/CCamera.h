@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "CIVCam.h"
-#include "CIVPed.h"
+#include "IV/CIVCam.h"
+#include "IV/CIVPed.h"
 
 class CCamera
 {

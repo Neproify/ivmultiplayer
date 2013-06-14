@@ -1,28 +1,26 @@
 //============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
-// File: CIVTrain.h
+// File: CIVPhysics.h
 // Project: Client.Core
-// Author(s): DMA, FRi
+// Author(s): XForce
 // License: See LICENSE in root directory
 //
 //==============================================================================
 
 #pragma once
 
-#include "IV/CIVTrain.h"
+class IVPhysics
+{
+public:
+	virtual ~IVPhysics();
+};
 
-class CTrains
+class CIVPhysics
 {
 private:
-	CIVTrain	*	m_pTrain[4];
-	DWORD			dwTrains[4];
+	IVPhysics* m_pPhysics;
 
-	bool			m_bTrainActive[4];
-	bool			m_bTrainCreated[4];
 public:
-	CTrains();	
-	~CTrains();
-
-	void CreateTrains();
-	void ShutdownAndDeleteTrains();
+	CIVPhysics();
+	~CIVPhysics();
 };

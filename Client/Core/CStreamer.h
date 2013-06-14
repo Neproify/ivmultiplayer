@@ -13,7 +13,7 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <list>
-#include "CIVVehicle.h"
+#include "IV/CIVVehicle.h"
 
 // TODO: Adjust?
 #define STREAMING_TICK 1000

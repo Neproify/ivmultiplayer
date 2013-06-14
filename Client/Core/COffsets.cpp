@@ -187,6 +187,7 @@ unsigned int COffsets::FUNC_ReleaseResource = 0;
 unsigned int COffsets::FUNC_GetModelIndexFromHash = 0;
 unsigned int COffsets::FUNC_CAnimStore__GetIndexFromHash = 0;
 unsigned int COffsets::FUNC_LoadWorldAtPosition = 0;
+unsigned int COffsets::FUNC_LoadWorldAtPositionStream = 0;
 
 // Ped
 unsigned int COffsets::FUNC_CPed__SetDucking = 0;
@@ -211,6 +212,11 @@ unsigned int COffsets::FUNC_CTaskComplexJump__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskSimpleTriggerLookAt__Constructor = 0;
 unsigned int COffsets::FUNC_CTaskComplexPlayerOnFoot__Constructor = 0;
 
+#define OFF_INIT(x) unsigned int COffsets::x = 0;
+OFF_INIT(VAR_IPedDataNY);
+OFF_INIT(FUNC_CPedMoveBlendOnFoot__Constructor);
+OFF_INIT(FUNC_NEW_CPedData);
+
 // Weapons
 unsigned int COffsets::FUNC_CPedWeapons__RemoveWeapon = 0;
 unsigned int COffsets::FUNC_CPedWeapons__RemoveAllWeapons = 0;
@@ -225,6 +231,10 @@ void COffsets::Init(unsigned int uiBase)
 		// 1.0.7.0
 		case 0x1006E857:
 			m_GameVersion = GAME_VERSION_7;
+
+			VAR_IPedDataNY									= (uiBase + 0xE9EC50);
+			FUNC_CPedMoveBlendOnFoot__Constructor			= (uiBase + 0xA35410);
+			FUNC_NEW_CPedData								= (uiBase + 0x43A960);
 
 			// Player
 			FUNC_CreatePlayerPed                            = (uiBase + 0x81CB90);
@@ -401,6 +411,7 @@ void COffsets::Init(unsigned int uiBase)
 			FUNC_GetModelIndexFromHash                      = (uiBase +  0x98AAE0);
 			FUNC_CAnimStore__GetIndexFromHash               = (uiBase +  0x862C90);
 			FUNC_LoadWorldAtPosition                        = (uiBase +  0xB2BBA0);
+			FUNC_LoadWorldAtPositionStream					= (uiBase +  0xA74790);
 
 			// Ped
 			FUNC_CPed__SetDucking                           = (uiBase +  0x8A70C0);

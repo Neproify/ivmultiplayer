@@ -119,6 +119,45 @@ CNetworkPlayer::~CNetworkPlayer()
 		OnDelete();
 	}
 }
+#include "IV/CIVPedMoveBlend.h"
+
+
+/* Does not work atm */
+void SetupPed(Matrix34 * pMatrix, IVPed * pPed, int iModelIndex)
+{
+	IVPedMoveBlendOnFoot * pMoveBlendOnFoot = (IVPedMoveBlendOnFoot*)CGame::GetPools()->GetPedMoveBlendPool()->Allocate();
+
+	if(pMoveBlendOnFoot)
+	{
+		_asm
+		{
+			push pPed
+			mov ecx, pMoveBlendOnFoot
+			call COffsets::FUNC_CPedMoveBlendOnFoot__Constructor
+			mov pMoveBlendOnFoot, eax
+		}
+		pPed->m_pPedMoveBlendOnFoot = pMoveBlendOnFoot;
+	}
+
+	//if(pMatrix)
+		//CMatrix::CopyFromMatrix(pPed->m_pMatrix, pMatrix);
+
+	pPed->SetModelIndex(iModelIndex);
+
+	IVPedData * pPedData;
+	DWORD dwFunc = CGame::GetBase() + 0x43A960;
+	_asm
+	{
+		call dwFunc
+		mov pPedData, eax
+	}
+	if(pPedData)
+	{
+		pPedData->dword4 = *(DWORD*)(pPed->m_pPedBase + 0x12C);
+		((int**)pPedData)[0] = (int*)COffsets::VAR_IPedDataNY;
+		pPed->m_pPedData = pPedData;
+	}
+}
 
 bool CNetworkPlayer::Create()
 {
@@ -214,31 +253,6 @@ bool CNetworkPlayer::Create()
                 if(!pPlayerPed)
                         return false;
  
-                /*
-                void SetupPed(CMatrix * pMatrix<edi>, CPed * pPed<esi>, int iModelIndex)
-                {
-                        CPedMoveBlendOnFoot * pMoveBlendOnFoot = g_pPedMoveBlendPool->Allocate();
- 
-                        if(pMoveBlendOnFoot)
-                        {
-                                CPedMoveBlendOnFoot::CPedMoveBlendOnFoot(pMoveBlendOnFoot, pPed);
-                                pPed->m_pMoveBlendOnFoot = pMoveBlendOnFoot;
-                        }
- 
-                        if(pMatrix)
-                                CMatrix::CopyFromMatrix(pPed->m_pMatrix, pMatrix);
- 
-                        CPlayerPed::SetModelIndex(pPed, iModelIndex);
- 
-                        CPedData * pPedData = g_pPedDataPool->Allocate();
- 
-                        if(pPedData)
-                        {
-                                CPedData::CPedData(pPedData);
-                                pPed->m_pPedData = pPedData;
-                        }
-                }
-                */
                 Matrix34 * pMatrix = NULL;
                 _asm
                 {
@@ -248,6 +262,7 @@ bool CNetworkPlayer::Create()
                         mov esi, pPlayerPed
                         call COffsets::FUNC_Setup_Ped
                 }
+                //SetupPed(pMatrix, pPlayerPed, iModelIndex);
  
                 // Set our player info ped pointer
                 m_pPlayerInfo->SetPlayerPed(pPlayerPed);
@@ -819,22 +834,7 @@ void CNetworkPlayer::Teleport(const CVector3& vecPosition, bool bResetInterpolat
 		// Are we not in a vehicle?
 		if(!IsInVehicle())
 		{
-			// FIXUPDATE
-			// Reverse code from below native and use it here
-			Scripting::SetCharCoordinatesNoOffset(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
-
-			/*
-			// This still causes players to be invisible occasionally
-			
-			// Remove the ped from the world
-			m_pPlayerPed->RemoveFromWorld();
-
-			// Set the position in the matrix
-			m_pPlayerPed->Teleport(vecPosition);
-
-			// Re add the ped to the world to apply the matrix change
-			m_pPlayerPed->AddToWorld();
-			*/
+			m_pPlayerPed->SetPosition(vecPosition);
 		}
 		else
 			Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
@@ -848,8 +848,6 @@ void CNetworkPlayer::Teleport(const CVector3& vecPosition, bool bResetInterpolat
 void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpolation)
 {
 	THIS_CHECK(__FUNCTION__);
-	// FIXUPDATE
-	// This doesn't work for long distances
 
 	// Are we spawned?
 	if(IsSpawned())
@@ -857,9 +855,6 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 		// Are we not in a vehicle and not entering a vehicle?
 		if(!InternalIsInVehicle() && !HasVehicleEnterExit())
 		{
-			// Remove the player ped from the world
-			m_pPlayerPed->RemoveFromWorld();
-
 			// Set the position in the matrix
 			m_pPlayerPed->SetPosition(vecPosition);
 
@@ -874,9 +869,6 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 				if(GetInterior() != uiLocalPlayerInterior)
 					SetInterior(uiLocalPlayerInterior);
 			}
-
-			// Re add the ped to the world to apply the matrix change
-			m_pPlayerPed->AddToWorld();
 		}
 	}
 

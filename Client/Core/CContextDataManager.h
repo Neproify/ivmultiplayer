@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include "CIVPlayerInfo.h"
-#include "CIVPlayerPed.h"
-#include "CIVPad.h"
+#include "IV/CIVPlayerInfo.h"
+#include "IV/CIVPlayerPed.h"
+#include "IV/CIVPad.h"
 #include <Math/CMath.h>
 #include <list>
 

@@ -10,8 +10,8 @@
 #pragma once
 
 #include <CString.h>
-#include "CIVTask.h"
-#include "CIVPedTaskManager.h"
+#include "IV/CIVTask.h"
+#include "IV/CIVPedTaskManager.h"
 #include "CNetworkPlayer.h"
 
 class CDebugView

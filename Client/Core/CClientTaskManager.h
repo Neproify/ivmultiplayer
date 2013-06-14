@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "CIVTask.h"
+#include "IV/CIVTask.h"
 #include <list>
 
 struct ClientTaskPair

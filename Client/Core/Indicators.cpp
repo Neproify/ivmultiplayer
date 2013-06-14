@@ -8,7 +8,7 @@
 //
 //==============================================================================
 
-#include "CIVVehicle.h"
+#include "IV/CIVVehicle.h"
 #include "CClient.h"
 #include "COffsets.h"
 #include "Patcher/CPatcher.h"
