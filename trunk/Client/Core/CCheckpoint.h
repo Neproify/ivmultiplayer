@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "CIVCheckpoint.h"
+#include "IV/CIVCheckpoint.h"
 #include "CStreamer.h"
 
 class CCheckpoint : public CStreamableEntity

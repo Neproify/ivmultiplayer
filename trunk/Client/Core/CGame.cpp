@@ -29,7 +29,7 @@
 #include "AnimGroups.h"
 #include "CHooks.h"
 #include <SharedUtility.h>
-#include "CIVObject.h"
+#include "IV/CIVObject.h"
 
 // Enable one of them if we want/don't want trains
 #ifdef IVMP_TRAINS
@@ -1224,30 +1224,23 @@ void CGame::RemoveInitialLoadingScreens()
 	}
 }
 
-bool CGame::GetScreenPositionFromWorldPosition(CVector3 vecWorldPosition, Vector2 &vecScreenPosition)
+bool CGame::GetScreenPositionFromWorldPosition(CVector3 &vecWorldPosition, Vector2 &vecScreenPosition)
 {
 	// AFEA30 // AFF290 // B002E0
 	DWORD dwAddress = (CGame::GetBase() + 0xAFF3A0);
     CVector3 * pWorldPosition = &vecWorldPosition;
     Vector2 * pScreenPosition = &vecScreenPosition;
-	int iOnScreen;
-    _asm
+
+	_asm
     {
             push pScreenPosition
             push 2					;game viewport id ; 1= mapicon
             push pWorldPosition
             call dwAddress
-			mov eax, [esp+4]
-			mov iOnScreen, eax
 	}
 
-	CVector3 vecScreenPos;
-	
-	/*vecScreenPosition.X = vecScreenPos.fX;
-	vecScreenPosition.Y = vecScreenPos.fY;*/
 
 	return g_pClient->GetCamera()->IsOnScreen(vecWorldPosition);
-	//CLogFile::Printf("[W2S]WORLD(%f,%f,%f),SCREEN(%f,%f), BOOLOnSCREEN(%d,%d)",vecWorldPosition.fX,vecWorldPosition.fY,vecWorldPosition.fZ,fX,fY,iOnScreen,iResult);
 }
 
 void CGame::CreateExplosion(CVector3& vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound, bool bInvisible, float fCameraShake)

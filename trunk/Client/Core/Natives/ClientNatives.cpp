@@ -15,7 +15,7 @@
 #include "Squirrel/sqstring.h"
 #include "../CClient.h"
 #include "../Scripting.h"
-#include "../CIVWeather.h"
+#include "../IV/CIVWeather.h"
 
 extern CClient * g_pClient;
 
@@ -423,7 +423,7 @@ int sq_getScreenPositionFromWorldPosition(SQVM * pVM)
 {
 	CVector3 vecWorldPos;
 	Vector2 vecScreenPos;
-	sq_getvector3(pVM, -1, &vecWorldPos);
+	sq_getvector3(pVM, -3, &vecWorldPos);
 	CGame::GetScreenPositionFromWorldPosition(vecWorldPos, vecScreenPos);
 	sq_newarray(pVM, 0);
 	sq_pushfloat(pVM, vecScreenPos.fX);

@@ -13,7 +13,7 @@
 #include "CClient.h"
 #include "CChatWindow.h"
 #include <CLogfile.h>
-#include "CIVPool.h"
+#include "IV/CIVPool.h"
 #include "CPools.h"
 
 extern CClient * g_pClient;

@@ -273,69 +273,6 @@
     <ClInclude Include="ScriptingEnums.h">
       <Filter>Header Files\Game\Scripting</Filter>
     </ClInclude>
-    <ClInclude Include="CIVCam.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVCheckpoint.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVDynamicEntity.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVEntity.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVEvent.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVModelInfo.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVPad.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVPadData.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVPed.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVPedTaskManager.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVPedWeapons.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVPhysical.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVPlayerInfo.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVPlayerPed.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVPool.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVStreaming.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVTask.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVVehicle.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVWeaponInfo.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVWeather.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVWorld.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
     <ClInclude Include="IVCommon.h">
       <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
@@ -684,9 +621,6 @@
     <ClInclude Include="AimSync.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="CIVPedWeaponSlot.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
     <ClInclude Include="CD3D9Webkit.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -696,17 +630,11 @@
     <ClInclude Include="AimSync.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="CIVPedWeaponSlot.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
     <ClInclude Include="CFireManager.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
     <ClInclude Include="AnimGroups.h">
       <Filter>Header Files\Game\Scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVTrain.h">
-      <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
     <ClInclude Include="CTrains.h">
       <Filter>Header Files\Game</Filter>
@@ -726,12 +654,6 @@
     <ClInclude Include="CAudioManager.h">
       <Filter>Header Files\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="CIVWeapon.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
-    <ClInclude Include="CIVObject.h">
-      <Filter>Header Files\Game\IV</Filter>
-    </ClInclude>
     <ClInclude Include="C3DLabels.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -746,6 +668,90 @@
     </ClInclude>
     <ClInclude Include="CQuickConnect.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVCam.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVCheckpoint.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVDynamicEntity.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVEntity.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVEvent.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVModelInfo.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVObject.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPad.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPadData.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPed.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPedTaskManager.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPedWeapons.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPedWeaponSlot.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPhysical.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPlayerInfo.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPlayerPed.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPool.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVStreaming.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVTask.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVTrain.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVVehicle.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVWeapon.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVWeaponInfo.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVWeather.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVWorld.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPhysics.h">
+      <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVPedFactory.h">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="IV\CIVVehicleFactory.h">
+      <Filter>Source Files\Game\IV</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -823,66 +829,6 @@
     </ClCompile>
     <ClCompile Include="ScriptHook.cpp">
       <Filter>Source Files\Game\Scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVCam.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVCheckpoint.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVDynamicEntity.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVEntity.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVEvent.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVModelInfo.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVPad.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVPadData.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVPed.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVPedTaskManager.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVPedWeapons.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVPhysical.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVPlayerInfo.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVPlayerPed.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVStreaming.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVTask.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVVehicle.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVWeaponInfo.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVWeather.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVWorld.cpp">
-      <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
     <ClCompile Include="IVTasks.cpp">
       <Filter>Source Files\Game\IV</Filter>
@@ -1160,26 +1106,17 @@
     <ClCompile Include="AimSync.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="CIVPedWeaponSlot.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
     <ClCompile Include="Natives\AudioNatives.cpp">
       <Filter>Source Files\Scripting\Natives</Filter>
     </ClCompile>
     <ClCompile Include="AimSync.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="CIVPedWeaponSlot.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
     <ClCompile Include="CFireManager.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
     <ClCompile Include="CScreenShot.cpp">
       <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVTrain.cpp">
-      <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
     <ClCompile Include="CTrains.cpp">
       <Filter>Source Files\Game</Filter>
@@ -1205,12 +1142,6 @@
     <ClCompile Include="CAudioManager.cpp">
       <Filter>Source Files\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="CIVWeapon.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
-    <ClCompile Include="CIVObject.cpp">
-      <Filter>Source Files\Game\IV</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Vendor\md5\md5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1222,6 +1153,78 @@
     </ClCompile>
     <ClCompile Include="CSettingsMenu.cpp">
       <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVCam.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVCheckpoint.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVDynamicEntity.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVEntity.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVEvent.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVModelInfo.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVObject.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPad.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPadData.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPed.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPedTaskManager.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPedWeapons.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPedWeaponSlot.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPhysical.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPlayerInfo.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPlayerPed.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVStreaming.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVTask.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVTrain.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVVehicle.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVWeapon.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVWeaponInfo.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVWeather.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVWorld.cpp">
+      <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

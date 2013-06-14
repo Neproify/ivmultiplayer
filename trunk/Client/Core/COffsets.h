@@ -30,6 +30,11 @@ private:
 public:
 	static void         Init(unsigned int uiBase);
 	static eGameVersion GetVersion() { return m_GameVersion; }
+	
+#define OFF_(x) static unsigned int x;
+	OFF_(VAR_IPedDataNY);
+	OFF_(FUNC_CPedMoveBlendOnFoot__Constructor);
+	OFF_(FUNC_NEW_CPedData);
 
 	// Players
 	static unsigned int FUNC_CreatePlayerPed;
@@ -206,6 +211,7 @@ public:
 	static unsigned int FUNC_GetModelIndexFromHash;
 	static unsigned int FUNC_CAnimStore__GetIndexFromHash;
 	static unsigned int FUNC_LoadWorldAtPosition;
+	static unsigned int FUNC_LoadWorldAtPositionStream;
 
 	// Ped
 	static unsigned int FUNC_CPed__SetDucking;

@@ -9,14 +9,15 @@
 
 #pragma once
 
-#include "CIVPool.h"
-#include "CIVPlayerPed.h"
-#include "CIVVehicle.h"
-#include "CIVTask.h"
-#include "CIVPlayerInfo.h"
-#include "CIVCam.h"
-#include "CIVCheckpoint.h"
-#include "CIVTrain.h"
+#include "IV/CIVPool.h"
+#include "IV/CIVPlayerPed.h"
+#include "IV/CIVVehicle.h"
+#include "IV/CIVTask.h"
+#include "IV/CIVPlayerInfo.h"
+#include "IV/CIVCam.h"
+#include "IV/CIVCheckpoint.h"
+#include "IV/CIVTrain.h"
+#include "IV/CIVPedMoveBlend.h"
 
 // Player info array size
 #define PLAYER_INFO_ARRAY_SIZE 32 // 32
@@ -43,6 +44,7 @@ private:
 	CIVPool<IVCam>     * m_pCamPool;
 	//#define VAR_TaskInfoPool_7 0x1618040
 	CIVPool<IVTrain>	* m_pTrainPool;
+	CIVPool<IVPedMoveBlendOnFoot> * m_pPedMoveBlendPool;
 
 	// Custom checkpoint array
 	IVCheckpoint         m_checkpoints[CHECKPOINT_ARRAY_SIZE];
@@ -58,6 +60,7 @@ public:
 	CIVPool<IVVehicle> * GetVehiclePool() { return m_pVehiclePool; }
 	CIVPool<IVTask>    * GetTaskPool() { return m_pTaskPool; }
 	CIVPool<IVCam>     * GetCamPool() { return m_pCamPool; }
+	CIVPool<IVPedMoveBlendOnFoot> * GetPedMoveBlendPool() { return m_pPedMoveBlendPool; }
 
 	// Player Infos (An array not a pool)
 	IVPlayerInfo       * GetPlayerInfoFromIndex(unsigned int uiIndex);

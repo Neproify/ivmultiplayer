@@ -11,8 +11,8 @@
 #include "CClient.h"
 #include "COffsets.h"
 #include <Patcher/CPatcher.h>
-#include "CIVPed.h"
-#include "CIVPlayerPed.h"
+#include "IV/CIVPed.h"
+#include "IV/CIVPlayerPed.h"
 #include "CContextDataManager.h"
 #include <CLogFile.h>
 

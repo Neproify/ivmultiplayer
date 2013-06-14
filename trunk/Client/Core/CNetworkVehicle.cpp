@@ -231,7 +231,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 			SetPetrolTankHealth(m_fPetrolTankHealth);
 
 			// Set the initial position
-			SetPosition(m_vecPosition);
+			SetPosition(m_vecPosition, true);
 
 			// Set the initial rotation
 			SetRotation(m_vecRotation);
@@ -255,7 +255,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 		SetPetrolTankHealth(1000.0f);
 
 		// Set the initial position
-		SetPosition(m_vecPosition);
+		SetPosition(m_vecPosition, true);
 
 		// Set the initial rotation
 		SetRotation(m_vecRotation);
@@ -317,7 +317,7 @@ void CNetworkVehicle::Destroy()
 		*(BYTE *)(pVehicle + 0xF6B) &= 0xDF;
 
 		// Delete the vehicle
-		dwFunc = pVehicle->m_VFTable->ScalarDeletingDestructor;
+		dwFunc = *((int**)pVehicle)[0];
 		_asm
 		{
 			push 1
@@ -355,7 +355,7 @@ void CNetworkVehicle::StreamIn()
 		SetEngineState(m_bEngineStatus);
 
 		// Set the position
-		SetPosition(m_vecPosition);
+		SetPosition(m_vecPosition, true);
 
 		// Set the rotation
 		SetRotation(m_vecRotation);
@@ -606,14 +606,8 @@ void CNetworkVehicle::SetPosition(const CVector3& vecPosition, bool bDontCancelT
 			Scripting::SetCarCoordinatesNoOffset(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
 		else
 		{
-			// Remove the vehicle from the world
-			m_pVehicle->RemoveFromWorld();
-
 			// Set the position in the matrix
 			m_pVehicle->SetPosition(vecPosition);
-
-			// Re add the vehicle to the world to apply the matrix change
-			m_pVehicle->AddToWorld();
 		}
 	}
 	
@@ -638,9 +632,6 @@ void CNetworkVehicle::SetRotation(const CVector3& vecRotation, bool bResetInterp
 	THIS_CHECK(__FUNCTION__);
 	if(IsSpawned())
 	{
-		// Remove the vehicle from the world
-		m_pVehicle->RemoveFromWorld();
-
 		// Get the vehicle matrix
 		Matrix matMatrix;
 		m_pVehicle->GetMatrix(matMatrix);
@@ -653,9 +644,6 @@ void CNetworkVehicle::SetRotation(const CVector3& vecRotation, bool bResetInterp
 
 		// Set the new vehicle matrix
 		m_pVehicle->SetMatrix(matMatrix);
-
-		// Re add the vehicle to the world to apply the matrix change
-		m_pVehicle->AddToWorld();
 	}
 	
 	m_vecRotation = vecRotation;

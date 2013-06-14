@@ -25,7 +25,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -58,7 +58,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor\bass;..\..\Vendor;..\..\Vendor\Squirrel;..\..\Client\Core\EA;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -66,6 +66,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4996;4409;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalOptions>/ignore:4099 /nodefaultlib:libcmtd.lib %(AdditionalOptions)</AdditionalOptions>
@@ -134,9 +135,6 @@
     <ClInclude Include="CD3D9Webkit.hpp" />
     <ClInclude Include="AnimGroups.h" />
     <ClInclude Include="CDebugView.h" />
-    <ClInclude Include="CIVObject.h" />
-    <ClInclude Include="CIVTrain.h" />
-    <ClInclude Include="CIVWeapon.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="CQuickConnect.h" />
     <ClInclude Include="CServerBrowser.h" />
@@ -164,6 +162,34 @@
     <ClInclude Include="COffsets.h" />
     <ClInclude Include="CPools.h" />
     <ClInclude Include="Indicators.h" />
+    <ClInclude Include="IV\CIVCam.h" />
+    <ClInclude Include="IV\CIVCheckpoint.h" />
+    <ClInclude Include="IV\CIVDynamicEntity.h" />
+    <ClInclude Include="IV\CIVEntity.h" />
+    <ClInclude Include="IV\CIVEvent.h" />
+    <ClInclude Include="IV\CIVModelInfo.h" />
+    <ClInclude Include="IV\CIVObject.h" />
+    <ClInclude Include="IV\CIVPad.h" />
+    <ClInclude Include="IV\CIVPadData.h" />
+    <ClInclude Include="IV\CIVPed.h" />
+    <ClInclude Include="IV\CIVPedFactory.h" />
+    <ClInclude Include="IV\CIVPedTaskManager.h" />
+    <ClInclude Include="IV\CIVPedWeapons.h" />
+    <ClInclude Include="IV\CIVPedWeaponSlot.h" />
+    <ClInclude Include="IV\CIVPhysical.h" />
+    <ClInclude Include="IV\CIVPhysics.h" />
+    <ClInclude Include="IV\CIVPlayerInfo.h" />
+    <ClInclude Include="IV\CIVPlayerPed.h" />
+    <ClInclude Include="IV\CIVPool.h" />
+    <ClInclude Include="IV\CIVStreaming.h" />
+    <ClInclude Include="IV\CIVTask.h" />
+    <ClInclude Include="IV\CIVTrain.h" />
+    <ClInclude Include="IV\CIVVehicle.h" />
+    <ClInclude Include="IV\CIVVehicleFactory.h" />
+    <ClInclude Include="IV\CIVWeapon.h" />
+    <ClInclude Include="IV\CIVWeaponInfo.h" />
+    <ClInclude Include="IV\CIVWeather.h" />
+    <ClInclude Include="IV\CIVWorld.h" />
     <ClInclude Include="KeySync.h" />
     <ClInclude Include="TrafficLights.h" />
     <ClInclude Include="NativeContext.h" />
@@ -173,28 +199,6 @@
     <ClInclude Include="Scripting.h" />
     <ClInclude Include="ScriptingDirty.h" />
     <ClInclude Include="ScriptingEnums.h" />
-    <ClInclude Include="CIVCam.h" />
-    <ClInclude Include="CIVCheckpoint.h" />
-    <ClInclude Include="CIVDynamicEntity.h" />
-    <ClInclude Include="CIVEntity.h" />
-    <ClInclude Include="CIVEvent.h" />
-    <ClInclude Include="CIVModelInfo.h" />
-    <ClInclude Include="CIVPad.h" />
-    <ClInclude Include="CIVPadData.h" />
-    <ClInclude Include="CIVPed.h" />
-    <ClInclude Include="CIVPedTaskManager.h" />
-    <ClInclude Include="CIVPedWeapons.h" />
-    <ClInclude Include="CIVPhysical.h" />
-    <ClInclude Include="CIVPlayerInfo.h" />
-    <ClInclude Include="CIVPlayerPed.h" />
-    <ClInclude Include="CIVPool.h" />
-    <ClInclude Include="CIVStreaming.h" />
-    <ClInclude Include="CIVTask.h" />
-    <ClInclude Include="CIVVehicle.h" />
-    <ClInclude Include="CIVPedWeaponSlot.h" />
-    <ClInclude Include="CIVWeaponInfo.h" />
-    <ClInclude Include="CIVWeather.h" />
-    <ClInclude Include="CIVWorld.h" />
     <ClInclude Include="IVCommon.h" />
     <ClInclude Include="IVTasks.h" />
     <ClInclude Include="..\..\Shared\Game\CControlState.h" />
@@ -323,15 +327,36 @@
     <ClCompile Include="CFileTransferManager.cpp" />
     <ClCompile Include="CHooks.cpp" />
     <ClCompile Include="CDebugView.cpp" />
-    <ClCompile Include="CIVObject.cpp" />
-    <ClCompile Include="CIVTrain.cpp" />
-    <ClCompile Include="CIVWeapon.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="CQuickConnect.cpp" />
     <ClCompile Include="CServerBrowser.cpp" />
     <ClCompile Include="CSettingsMenu.cpp" />
     <ClCompile Include="CTrains.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="IV\CIVCam.cpp" />
+    <ClCompile Include="IV\CIVCheckpoint.cpp" />
+    <ClCompile Include="IV\CIVDynamicEntity.cpp" />
+    <ClCompile Include="IV\CIVEntity.cpp" />
+    <ClCompile Include="IV\CIVEvent.cpp" />
+    <ClCompile Include="IV\CIVModelInfo.cpp" />
+    <ClCompile Include="IV\CIVObject.cpp" />
+    <ClCompile Include="IV\CIVPad.cpp" />
+    <ClCompile Include="IV\CIVPadData.cpp" />
+    <ClCompile Include="IV\CIVPed.cpp" />
+    <ClCompile Include="IV\CIVPedTaskManager.cpp" />
+    <ClCompile Include="IV\CIVPedWeapons.cpp" />
+    <ClCompile Include="IV\CIVPedWeaponSlot.cpp" />
+    <ClCompile Include="IV\CIVPhysical.cpp" />
+    <ClCompile Include="IV\CIVPlayerInfo.cpp" />
+    <ClCompile Include="IV\CIVPlayerPed.cpp" />
+    <ClCompile Include="IV\CIVStreaming.cpp" />
+    <ClCompile Include="IV\CIVTask.cpp" />
+    <ClCompile Include="IV\CIVTrain.cpp" />
+    <ClCompile Include="IV\CIVVehicle.cpp" />
+    <ClCompile Include="IV\CIVWeapon.cpp" />
+    <ClCompile Include="IV\CIVWeaponInfo.cpp" />
+    <ClCompile Include="IV\CIVWeather.cpp" />
+    <ClCompile Include="IV\CIVWorld.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="CDirectInput8Proxy.cpp" />
     <ClCompile Include="CDirectInputDevice8Proxy.cpp" />
@@ -356,27 +381,6 @@
     <ClCompile Include="KeySync.cpp" />
     <ClCompile Include="TrafficLights.cpp" />
     <ClCompile Include="ScriptHook.cpp" />
-    <ClCompile Include="CIVCam.cpp" />
-    <ClCompile Include="CIVCheckpoint.cpp" />
-    <ClCompile Include="CIVDynamicEntity.cpp" />
-    <ClCompile Include="CIVEntity.cpp" />
-    <ClCompile Include="CIVEvent.cpp" />
-    <ClCompile Include="CIVModelInfo.cpp" />
-    <ClCompile Include="CIVPad.cpp" />
-    <ClCompile Include="CIVPadData.cpp" />
-    <ClCompile Include="CIVPed.cpp" />
-    <ClCompile Include="CIVPedTaskManager.cpp" />
-    <ClCompile Include="CIVPedWeapons.cpp" />
-    <ClCompile Include="CIVPhysical.cpp" />
-    <ClCompile Include="CIVPlayerInfo.cpp" />
-    <ClCompile Include="CIVPlayerPed.cpp" />
-    <ClCompile Include="CIVStreaming.cpp" />
-    <ClCompile Include="CIVTask.cpp" />
-    <ClCompile Include="CIVVehicle.cpp" />
-    <ClCompile Include="CIVPedWeaponSlot.cpp" />
-    <ClCompile Include="CIVWeaponInfo.cpp" />
-    <ClCompile Include="CIVWeather.cpp" />
-    <ClCompile Include="CIVWorld.cpp" />
     <ClCompile Include="IVTasks.cpp" />
     <ClCompile Include="..\..\Shared\Game\CControlState.cpp" />
     <ClCompile Include="..\..\Shared\Game\CTime.cpp" />
