@@ -10,7 +10,7 @@
 #pragma once
 
 #include <Math/CMath.h>
-#include "IVCommon.h"
+#include "../IVCommon.h"
 
 class IVCamData
 {

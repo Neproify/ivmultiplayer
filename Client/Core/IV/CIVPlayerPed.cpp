@@ -25,16 +25,10 @@ CIVPlayerPed::~CIVPlayerPed()
 
 void CIVPlayerPed::SetPlayerPed(IVPlayerPed * pPlayerPed)
 {
-#ifdef EXT_LOG
-	CLogFile::Printf(__FUNCSIG__);
-#endif
 	SetPed(pPlayerPed);
 }
 
 IVPlayerPed * CIVPlayerPed::GetPlayerPed()
 {
-#ifdef EXT_LOG
-	//CLogFile::Printf(__FUNCSIG__);
-#endif
 	return (IVPlayerPed *)GetPed();
 }

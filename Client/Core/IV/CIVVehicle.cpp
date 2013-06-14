@@ -8,9 +8,9 @@
 //==============================================================================
 
 #include "CIVVehicle.h"
-#include "COffsets.h"
-#include "CPools.h"
-#include "Scripting.h"
+#include "../COffsets.h"
+#include "../CPools.h"
+#include "../Scripting.h"
 #include <CLogFile.h>
 
 CIVVehicle::CIVVehicle() : CIVPhysical()

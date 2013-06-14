@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "IVCommon.h"
+#include "../IVCommon.h"
 #include "CIVPadData.h"
 #include <Game/CControlState.h>
 

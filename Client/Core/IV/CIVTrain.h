@@ -11,7 +11,7 @@
 
 #pragma once
 #include <Common.h>
-#include "CGame.h"
+#include "../CGame.h"
 #include "CLogFile.h"
 
 // Not sure.. 

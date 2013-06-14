@@ -8,7 +8,7 @@
 //==============================================================================
 
 #include "CIVStreaming.h"
-#include "COffsets.h"
+#include "../COffsets.h"
 #include <SharedUtility.h>
 #include <CLogFile.h>
 

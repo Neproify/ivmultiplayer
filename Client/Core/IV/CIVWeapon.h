@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include "IVCommon.h"
+#include "../IVCommon.h"
 #include "CIVWeaponInfo.h"
-#include "CXLiveHook.h"
+#include "../CXLiveHook.h"
 
 class IVaudWeaponAudioEntity
 {
