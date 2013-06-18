@@ -214,6 +214,8 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 		// Add the vehicle to the world
 		m_pVehicle->AddToWorld();
 
+        // We dont need the model after adding vehicle to world
+        m_pModelInfo->RemoveReference();
 		// Set initial colors
 		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
 
@@ -326,7 +328,7 @@ void CNetworkVehicle::Destroy()
 		}
 
 		// Remove our model info reference
-		m_pModelInfo->RemoveReference();
+		//m_pModelInfo->RemoveReference();
 
 		// Delete the vehicle instance
 		SAFE_DELETE(m_pVehicle);
