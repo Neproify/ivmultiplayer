@@ -182,6 +182,9 @@ bool CNetworkPlayer::Create()
                 break;
             }
         }
+        
+        // Add our model info reference
+        m_pModelInfo->AddReference(true);
  
         if(pOldPlayerPed)
         {
@@ -211,9 +214,6 @@ bool CNetworkPlayer::Create()
                 // Invalid player number?
                 if(m_byteGamePlayerNumber == INVALID_PLAYER_PED)
                         return false;
- 
-                // Add our model info reference
-                m_pModelInfo->AddReference(true);
  
                 // Get our model index
                 int iModelIndex = m_pModelInfo->GetIndex();
@@ -304,6 +304,9 @@ bool CNetworkPlayer::Create()
  
         // Add to world
         m_pPlayerPed->AddToWorld();
+        
+        // We dont need the model after adding player to world
+        m_pModelInfo->RemoveReference();
  
         // jenksta: wtf is this doing here??
         // Delete player helmet
@@ -751,7 +754,7 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 	}
 
 	// Remove our model info reference from the old model info
-	m_pModelInfo->RemoveReference();
+	//m_pModelInfo->RemoveReference();
 
 	// Set the new model info
 	m_pModelInfo = pNewModelInfo;
@@ -801,6 +804,7 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 		}
 		// End hacky code that needs to be changed
 
+        m_pModelInfo->RemoveReference();
 		// Do we not have any custom clothes?
 		if(!m_bUseCustomClothesOnSpawn)
 		{
@@ -834,7 +838,10 @@ void CNetworkPlayer::Teleport(const CVector3& vecPosition, bool bResetInterpolat
 		// Are we not in a vehicle?
 		if(!IsInVehicle())
 		{
-			m_pPlayerPed->SetPosition(vecPosition);
+            Scripting::SetCharCoordinatesNoOffset(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
+            
+            // bug with z coord
+			//m_pPlayerPed->SetPosition(vecPosition);
 		}
 		else
 			Scripting::WarpCharFromCarToCoord(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
@@ -855,6 +862,9 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 		// Are we not in a vehicle and not entering a vehicle?
 		if(!InternalIsInVehicle() && !HasVehicleEnterExit())
 		{
+            // Remove the player ped from the world     	
+        	m_pPlayerPed->RemoveFromWorld();
+            
 			// Set the position in the matrix
 			m_pPlayerPed->SetPosition(vecPosition);
 
@@ -869,6 +879,10 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 				if(GetInterior() != uiLocalPlayerInterior)
 					SetInterior(uiLocalPlayerInterior);
 			}
+            
+            // Re add the ped to the world to apply the matrix change 
+            // This will calculate the correct z coord
+         	m_pPlayerPed->AddToWorld();
 		}
 	}
 

@@ -40,10 +40,15 @@ void CIVEntity::SetMatrix(const Matrix& matMatrix)
 {
 	if(m_pEntity && m_pEntity->m_pMatrix) 
 	{
+#if 0
 		Matrix34* mat = new Matrix34();
 		mat->FromMatrix((Matrix*)&matMatrix);
 		m_pEntity->SetMatrix(mat, 0, 0);
-		delete mat;
+#endif
+		memcpy(&m_pEntity->m_pMatrix->vecRight, &matMatrix.vecRight, sizeof(CVector3));
+		memcpy(&m_pEntity->m_pMatrix->vecForward, &matMatrix.vecForward, sizeof(CVector3));
+		memcpy(&m_pEntity->m_pMatrix->vecUp, &matMatrix.vecUp, sizeof(CVector3));
+		memcpy(&m_pEntity->m_pMatrix->vecPosition, &matMatrix.vecPosition, sizeof(CVector3));
 	}
 }
 
@@ -64,6 +69,11 @@ void CIVEntity::SetPosition(const CVector3& vecPosition)
 {
 	if(m_pEntity) 
 	{
+        if(m_pEntity->m_pMatrix)
+            memcpy(&m_pEntity->m_pMatrix->vecPosition, &vecPosition, sizeof(CVector3));
+        else
+            memcpy(&m_pEntity->m_vecPosition, &vecPosition, sizeof(CVector3));
+#if 0
 		Vector4 vecPos;
 		vecPos.fX = vecPosition.fX;
 		vecPos.fY = vecPosition.fY;
@@ -72,6 +82,7 @@ void CIVEntity::SetPosition(const CVector3& vecPosition)
 		m_pEntity->SetCoordinates(&vecPos, 0, 0);
 
 		m_pEntity->UpdatePhysicsMatrix(true);
+#endif
 	}
 }
 
@@ -88,19 +99,21 @@ void CIVEntity::GetPosition(CVector3& vecPosition)
 		vecPosition.fX = vecPos.fX;
 		vecPosition.fY = vecPos.fY;
 		vecPosition.fZ = vecPos.fZ;
-
-		//if(lastLoaded + 5000 <= SharedUtility::GetTime())
-		//{
-		//	Scripting::AllowGameToPauseForStreaming(false);
-		//	DWORD dwFunc = (CGame::GetBase() + 0x7B7600);
-		//	Vector4* pPos = &vecPos;
-		//	__asm
-		//	{
-		//		push pPos
-		//		call dwFunc
-		//	}
-		//	lastLoaded = SharedUtility::GetTime();
-		//}
+        
+#if 0
+		if(lastLoaded + 5000 <= SharedUtility::GetTime())
+		{
+			Scripting::AllowGameToPauseForStreaming(false);
+			DWORD dwFunc = (CGame::GetBase() + 0x7B7600);
+			Vector4* pPos = &vecPos;
+			__asm
+			{
+				push pPos
+				call dwFunc
+			}
+			lastLoaded = SharedUtility::GetTime();
+		}
+#endif
 	}
 }
 

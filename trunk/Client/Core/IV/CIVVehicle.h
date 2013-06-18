@@ -238,7 +238,7 @@ public:
 	virtual void		Function98();
 	virtual void		Function99(); // return 0;
 	virtual void		Function100(); // nullsub
-	virtual void		Function101();
+	virtual void		ResetVisualDamage();
 	virtual void		Function102(); // nullsub
 	virtual void		Function103(); // nullsub
 	virtual void		Function104(); // nullsub
