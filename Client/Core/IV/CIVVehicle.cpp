@@ -403,7 +403,7 @@ void CIVVehicle::SetDirtLevel(float fDirtLevel)
 	IVVehicle * pVehicle = GetVehicle();
 
 	if(pVehicle)
-		pVehicle->m_fDirtLevel = fDirtLevel;
+		pVehicle->m_fDirtLevel = Math::Clamp(0.0f, fDirtLevel, 15.0f);
 }
 
 float CIVVehicle::GetDirtLevel()

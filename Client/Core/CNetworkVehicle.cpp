@@ -33,7 +33,7 @@ CNetworkVehicle::CNetworkVehicle(DWORD dwModelHash, int iModelId)
 	m_ulHornDurationEnd(0),
 	m_uiHealth(1000),
 	m_fPetrolTankHealth(1000.0f),
-	m_fDirtLevel(1000.0f),
+	m_fDirtLevel(0.0f),
 	m_ucVariation(0),
 	m_bEngineStatus(false),
 	m_bTaxiLights(false),
