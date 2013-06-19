@@ -33,7 +33,7 @@ CreditText creditsItems[] =
 	{4000, "tahoma-bold", 40, "Micha³ \"Float\" Dziechciarz"},
 	{4000, "tahoma-bold", 40, "Christopher \"Christopher\" Martino"},
 	{4000, "tahoma-bold", 40, "Sebas \"x86\" Lamers"},
-	{4000, "tahoma-bold", 40, "Alex \"AlexR\" Rathbone"},
+	{4000, "tahoma-bold", 40, "Alex \"Alex.\" Rathbone"},
 	{4000, "tahoma-bold", 40, "Testing By"},
 	{4000, "tahoma-bold", 40, "Boylett"},
 	{4000, "tahoma-bold", 40, "Cameron \"Cameron\" Banfield"},
@@ -60,14 +60,7 @@ CCredits::CCredits(CGUI * pGUI)
 	m_ulStartTime(0),
 	m_pCurrentFont(NULL),
 	m_pCurrentCreditText(NULL)
-{
-
-	// Pre-load all needed fonts
-	// jenksta: don't think this is really needed
-	//for(size_t i = 0; i < (sizeof(creditsItems) / sizeof(CreditText)); i++)
-	//	pGUI->GetFont(creditsItems[i].strFont, creditsItems[i].uiFontSize);
-}
-
+	
 CCredits::~CCredits()
 {
 
