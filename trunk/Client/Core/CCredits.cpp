@@ -60,6 +60,9 @@ CCredits::CCredits(CGUI * pGUI)
 	m_ulStartTime(0),
 	m_pCurrentFont(NULL),
 	m_pCurrentCreditText(NULL)
+{
+
+}
 	
 CCredits::~CCredits()
 {

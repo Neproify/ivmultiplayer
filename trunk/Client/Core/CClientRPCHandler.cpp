@@ -3538,7 +3538,9 @@ void CClientRPCHandler::ScriptingFixVehicle(CBitStream * pBitStream, CPlayerSock
 	CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
 
 	if(pVehicle)
-		Scripting::FixCar(pVehicle->GetScriptingHandle());
+	{
+		pVehicle->Fix();
+	}
 }
 
 

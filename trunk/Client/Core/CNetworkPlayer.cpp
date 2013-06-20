@@ -23,17 +23,17 @@ IVPlayerPed * g_pCreatedPlayerPeds[32];
 bool          g_bPlayerPedsUsed[32];
 CIVPlayerInfo * g_pPlayerInfos[32];
 
-#define THIS_CHECK(func) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s[ Type 1 | Func %s() ]",__FILE__,func); } return; }
-#define THIS_CHECK_R(func,x) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s [ Type 2 | Func %s() ]",__FILE__,func); } return x; }
+#define THIS_CHECK if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s[ Func %s() ]",__FILE__,__FUNCTION__); } return; }
+#define THIS_CHECK_R(x) if(!this) { if(g_pClient->GetChatWindow()) { g_pClient->GetChatWindow()->AddErrorMessage("[WARNING] Internal error occured in %s [ Func %s() ]",__FILE__,__FUNCTION__); } return x; }
 
 void InitNetworkPlayerPedStuff()
 {
-    for(int i = 0; i < 32; i++)
-    {
-        g_pCreatedPlayerPeds[i] = NULL;
-        g_bPlayerPedsUsed[i] = false;
-        g_pPlayerInfos[i] = NULL;
-    }
+	for(int i = 0; i < 32; i++)
+	{
+		g_pCreatedPlayerPeds[i] = NULL;
+		g_bPlayerPedsUsed[i] = false;
+		g_pPlayerInfos[i] = NULL;
+	}
 }
 
 
@@ -73,8 +73,8 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	if(IsLocalPlayer())
 	{
 
-        // Places all peds vars/variables to false/null
-        InitNetworkPlayerPedStuff();
+		// Places all peds vars/variables to false/null
+		InitNetworkPlayerPedStuff();
 
 		// Create a new player ped instance with the local player ped
 		m_pPlayerPed = new CIVPlayerPed(CGame::GetPools()->GetPlayerInfoFromIndex(0)->m_pPlayerPed);
@@ -161,270 +161,271 @@ void SetupPed(Matrix34 * pMatrix, IVPed * pPed, int iModelIndex)
 
 bool CNetworkPlayer::Create()
 {
-        THIS_CHECK_R(__FUNCTION__,false)
- 
-        // Are we already spawned or are we the local player?
-        if(IsSpawned() || IsLocalPlayer())
-                return false;
- 
-        // jenksta: hack
-        // do we have any unused player peds created already?
-        IVPlayerPed * pOldPlayerPed = NULL;
-        CIVPlayerInfo * pOldPlayerInfo = NULL;
- 
-        for(int i = 0; i < 32; i++)
-        {
-            if(g_pCreatedPlayerPeds[i] && g_bPlayerPedsUsed[i] == false)
-            {
-                pOldPlayerPed = g_pCreatedPlayerPeds[i];
-                g_bPlayerPedsUsed[i] = true;
-                pOldPlayerInfo = g_pPlayerInfos[i];
-                break;
-            }
-        }
-        
-        // Add our model info reference
-        m_pModelInfo->AddReference(true);
- 
-        if(pOldPlayerPed)
-        {
-            // Set the player info instance
-            m_pPlayerInfo = pOldPlayerInfo;
+	THIS_CHECK_R(false);
 
-			// Get the player number
-			m_byteGamePlayerNumber = m_pPlayerInfo->GetPlayerNumber();
- 
-            // Create player ped instance
-            m_pPlayerPed = new CIVPlayerPed(pOldPlayerPed);
- 
-            // Create a context data instance for this player
-            m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
- 
-            // Set the context data player ped pointer
-            m_pContextData->SetPlayerPed(m_pPlayerPed);
-        }
-        else
-        {
- 
-        		//ViruZz: Ignore the tab size here k?
+	// Are we already spawned or are we the local player?
+	if(IsSpawned() || IsLocalPlayer())
+		return false;
 
-                // Find a free player number
-                m_byteGamePlayerNumber = (BYTE)CGame::GetPools()->FindFreePlayerInfoIndex();
- 
-                // Invalid player number?
-                if(m_byteGamePlayerNumber == INVALID_PLAYER_PED)
-                        return false;
- 
-                // Get our model index
-                int iModelIndex = m_pModelInfo->GetIndex();
- 
-                // Create player info instance
-                m_pPlayerInfo = new CIVPlayerInfo(m_byteGamePlayerNumber);
- 
-                // Create a context data instance for this player
-                m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
- 
-                // Set game player info pointer
-                CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, m_pPlayerInfo->GetPlayerInfo());
- 
-                // Allocate the player ped
-                IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();
- 
-                // Ensure the player ped pointer is valid
-                if(!pPlayerPed)
-                {
-                        Destroy();
-                        return false;
-                }
- 
-                // Call the CPlayerPed constructor
-                unsigned int uiPlayerIndex = (unsigned int)m_byteGamePlayerNumber;
-                WORD wPlayerData = MAKEWORD(0, 1);
-                WORD * pwPlayerData = &wPlayerData;
-                _asm
-                {
-                        push uiPlayerIndex
-                        push iModelIndex
-                        push pwPlayerData
-                        mov ecx, pPlayerPed
-                        call COffsets::FUNC_CPlayerPed__Constructor
-                }
- 
-                if(!pPlayerPed)
-                        return false;
- 
-                Matrix34 * pMatrix = NULL;
-                _asm
-                {
-                        push iModelIndex
-                        push COffsets::VAR_Ped_Factory
-                        mov edi, pMatrix
-                        mov esi, pPlayerPed
-                        call COffsets::FUNC_Setup_Ped
-                }
-                //SetupPed(pMatrix, pPlayerPed, iModelIndex);
- 
-                // Set our player info ped pointer
-                m_pPlayerInfo->SetPlayerPed(pPlayerPed);
- 
-                // Set our player info state
-                m_pPlayerInfo->GetPlayerInfo()->m_dwState = 2;
- 
-                SET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
- 
-                // Set our player peds player info pointer
-                pPlayerPed->m_pPlayerInfo = m_pPlayerInfo->GetPlayerInfo();
- 
-                // Create player ped instance
-                m_pPlayerPed = new CIVPlayerPed(pPlayerPed);
- 
-                // Set the context data player ped pointer
-                m_pContextData->SetPlayerPed(m_pPlayerPed);
- 
-                /*
-                pPlayerPed->m_byteCreatedBy = 2;
-                pPlayerPed->SetDefaultDecisionMaker();
-                pPlayerPed->GetPedIntelligence()->SetSenseRange1(30.0f);
-                pPlayerPed->GetPedIntelligence()->SetSenseRange0(30.0f);
-                sub_B2A8F0(pPlayerPed->m_pPortalTracker, 1);
-                sub_B29E50(pPlayerPed->m_pPortalTracker);
-                */
-                _asm
-                {
-                        push 2
-                        mov ecx, pPlayerPed
-                        call COffsets::FUNC_SetupPedIntelligence
-                }
- 
-                // jenksta: hack
-                g_pCreatedPlayerPeds[m_byteGamePlayerNumber] = pPlayerPed;
-                g_bPlayerPedsUsed[m_byteGamePlayerNumber] = true;
-                g_pPlayerInfos[m_byteGamePlayerNumber] = m_pPlayerInfo;
-        }
- 
-        // Add to world
-        m_pPlayerPed->AddToWorld();
-        
-        // We dont need the model after adding player to world
-        m_pModelInfo->RemoveReference();
- 
-        // jenksta: wtf is this doing here??
-        // Delete player helmet
-        m_bHelmet = false;
-        SetHelmet(m_bHelmet);
- 
-        // Flag as spawned
-        m_bSpawned = true;
- 
-        // Set health
-        SetHealth(200);
- 
-        // Set the interior
-        SetInterior(g_pClient->GetLocalPlayer()->GetInterior());
- 
-        // Assign our default task
-        // (Part of player ped creation)
-        CIVTaskComplexPlayerOnFoot * pTask = new CIVTaskComplexPlayerOnFoot();
-        if(pTask)
-                pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
- 
-        // Remember that we might have clothes
-        m_bUseCustomClothesOnSpawn = true;
+	// jenksta: hack
+	// do we have any unused player peds created already?
+	IVPlayerPed * pOldPlayerPed = NULL;
+	CIVPlayerInfo * pOldPlayerInfo = NULL;
 
-        // Reset interpolation
-        ResetInterpolation();
-        return true;
+	for(int i = 0; i < 32; i++)
+	{
+		if(g_pCreatedPlayerPeds[i] && g_bPlayerPedsUsed[i] == false)
+		{
+			pOldPlayerPed = g_pCreatedPlayerPeds[i];
+			g_bPlayerPedsUsed[i] = true;
+			pOldPlayerInfo = g_pPlayerInfos[i];
+			break;
+		}
+	}
+
+	// Add our model info reference
+	m_pModelInfo->AddReference(true);
+
+	if(pOldPlayerPed)
+	{
+		// Set the player info instance
+		m_pPlayerInfo = pOldPlayerInfo;
+
+		// Get the player number
+		m_byteGamePlayerNumber = m_pPlayerInfo->GetPlayerNumber();
+
+		// Create player ped instance
+		m_pPlayerPed = new CIVPlayerPed(pOldPlayerPed);
+
+		// Create a context data instance for this player
+		m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
+
+		// Set the context data player ped pointer
+		m_pContextData->SetPlayerPed(m_pPlayerPed);
+	}
+	else
+	{
+
+		//ViruZz: Ignore the tab size here k?
+
+		// Find a free player number
+		m_byteGamePlayerNumber = (BYTE)CGame::GetPools()->FindFreePlayerInfoIndex();
+
+		// Invalid player number?
+		if(m_byteGamePlayerNumber == INVALID_PLAYER_PED)
+			return false;
+
+		// Get our model index
+		int iModelIndex = m_pModelInfo->GetIndex();
+
+		// Create player info instance
+		m_pPlayerInfo = new CIVPlayerInfo(m_byteGamePlayerNumber);
+
+		// Create a context data instance for this player
+		m_pContextData = CContextDataManager::CreateContextData(m_pPlayerInfo);
+
+		// Set game player info pointer
+		CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, m_pPlayerInfo->GetPlayerInfo());
+
+		// Allocate the player ped
+		IVPlayerPed * pPlayerPed = (IVPlayerPed *)CGame::GetPools()->GetPedPool()->Allocate();
+
+		// Ensure the player ped pointer is valid
+		if(!pPlayerPed)
+		{
+			Destroy();
+			return false;
+		}
+
+		// Call the CPlayerPed constructor
+		unsigned int uiPlayerIndex = (unsigned int)m_byteGamePlayerNumber;
+		WORD wPlayerData = MAKEWORD(0, 1);
+		WORD * pwPlayerData = &wPlayerData;
+		_asm
+		{
+			push uiPlayerIndex
+			push iModelIndex
+			push pwPlayerData
+			mov ecx, pPlayerPed
+			call COffsets::FUNC_CPlayerPed__Constructor
+		}
+
+		if(!pPlayerPed)
+			return false;
+
+		Matrix34 * pMatrix = NULL;
+		_asm
+		{
+			push iModelIndex
+			push COffsets::VAR_Ped_Factory
+			mov edi, pMatrix
+			mov esi, pPlayerPed
+			call COffsets::FUNC_Setup_Ped
+		}
+		//SetupPed(pMatrix, pPlayerPed, iModelIndex);
+
+		// Set our player info ped pointer
+		m_pPlayerInfo->SetPlayerPed(pPlayerPed);
+
+		// Set our player info state
+		m_pPlayerInfo->GetPlayerInfo()->m_dwState = 2;
+
+		SET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
+
+		// Set our player peds player info pointer
+		pPlayerPed->m_pPlayerInfo = m_pPlayerInfo->GetPlayerInfo();
+
+		// Create player ped instance
+		m_pPlayerPed = new CIVPlayerPed(pPlayerPed);
+
+		// Set the context data player ped pointer
+		m_pContextData->SetPlayerPed(m_pPlayerPed);
+
+		/*
+		pPlayerPed->m_byteCreatedBy = 2;
+		pPlayerPed->SetDefaultDecisionMaker();
+		pPlayerPed->GetPedIntelligence()->SetSenseRange1(30.0f);
+		pPlayerPed->GetPedIntelligence()->SetSenseRange0(30.0f);
+		sub_B2A8F0(pPlayerPed->m_pPortalTracker, 1);
+		sub_B29E50(pPlayerPed->m_pPortalTracker);
+		*/
+		_asm
+		{
+			push 2
+			mov ecx, pPlayerPed
+			call COffsets::FUNC_SetupPedIntelligence
+		}
+
+		// jenksta: hack
+		g_pCreatedPlayerPeds[m_byteGamePlayerNumber] = pPlayerPed;
+		g_bPlayerPedsUsed[m_byteGamePlayerNumber] = true;
+		g_pPlayerInfos[m_byteGamePlayerNumber] = m_pPlayerInfo;
+	}
+
+	// Add to world
+	m_pPlayerPed->AddToWorld();
+
+	// jenksta: wtf is this doing here??
+	// Delete player helmet
+	m_bHelmet = false;
+	SetHelmet(m_bHelmet);
+
+	// Flag as spawned
+	m_bSpawned = true;
+
+	// Set health
+	SetHealth(200);
+
+	// Set the interior
+	SetInterior(g_pClient->GetLocalPlayer()->GetInterior());
+
+	// Assign our default task
+	// (Part of player ped creation)
+	CIVTaskComplexPlayerOnFoot * pTask = new CIVTaskComplexPlayerOnFoot();
+	if(pTask)
+		pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
+
+	// Remember that we might have clothes
+	m_bUseCustomClothesOnSpawn = true;
+
+	// Reset interpolation
+	ResetInterpolation();
+	return true;
 }
 
 void CNetworkPlayer::Init()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Set again model
 	//SetModel(m_pModelInfo->GetHash());
 }
 
 void CNetworkPlayer::Destroy()
 {
-    THIS_CHECK(__FUNCTION__);
-        // Are we not the local player?
-        if(!IsLocalPlayer())
-        {
-            // Are we spawned?
-            if(IsSpawned())
-            {
-                // jenksta: hacky hack hack
-                // jenksta: keep player ped for future use...
-                g_bPlayerPedsUsed[m_byteGamePlayerNumber] = false;
-                m_pPlayerPed->RemoveFromWorld();
+	THIS_CHECK;
+	// Are we not the local player?
+	if(!IsLocalPlayer())
+	{
+		// Are we spawned?
+		if(IsSpawned())
+		{
+			// jenksta: hacky hack hack
+			// jenksta: keep player ped for future use...
+			g_bPlayerPedsUsed[m_byteGamePlayerNumber] = false;
+			m_pPlayerPed->RemoveFromWorld();
+			m_pPlayerPed->GetPlayerPed()->m_pLivery = 0;
+
+			// Remove our model info reference
+			m_pModelInfo->RemoveReference();
 #if 0
-					 	ViruZz: Don't worry about the tab size here k?
-                        // Get the player ped pointer
-                        IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
- 
-                        IVPedIntelligence * pPedIntelligence = pPlayerPed->m_pPedIntelligence;
-                        _asm
-                        {
-                                push 0
-                                mov ecx, pPedIntelligence
-                                call COffsets::FUNC_CPedIntelligence__Reset
-                        }
- 
-                        UNSET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
- 
-                        // Remove the player ped from the world
-                        m_pPlayerPed->RemoveFromWorld();
- 
-                        _asm
-                        {
-                                push 1
-                                mov ecx, pPlayerPed
-                                call COffsets::FUNC_CPed__ScalarDeletingDestructor
-                        }
- 
-                        // Remove our model info reference
-                        m_pModelInfo->RemoveReference();
+		ViruZz: Don't worry about the tab size here k?
+		// Get the player ped pointer
+		IVPlayerPed * pPlayerPed = m_pPlayerPed->GetPlayerPed();
+
+		IVPedIntelligence * pPedIntelligence = pPlayerPed->m_pPedIntelligence;
+		_asm
+		{
+			push 0
+			mov ecx, pPedIntelligence
+			call COffsets::FUNC_CPedIntelligence__Reset
+		}
+
+		UNSET_BIT(*(DWORD *)(pPlayerPed + 0x260), 1);
+
+		// Remove the player ped from the world
+		m_pPlayerPed->RemoveFromWorld();
+
+		_asm
+		{
+			push 1
+			mov ecx, pPlayerPed
+			call COffsets::FUNC_CPed__ScalarDeletingDestructor
+		}
+
+		// Remove our model info reference
+		m_pModelInfo->RemoveReference();
 #endif
-            }
-        }
- 
-        // Do we have a context data instance
-        if(m_pContextData)
-        {
-                // Delete the context data instance
-                CContextDataManager::DestroyContextData(m_pContextData);
- 
-                // Set the context data pointer to NULL
-                m_pContextData = NULL;
-        }
- 
-        // Delete the player ped instance
-        SAFE_DELETE(m_pPlayerPed);
- 
-        // jenksta: player ped is kept so keep player info too
-        // jenksta: invalidate the player number only
-        m_byteGamePlayerNumber = INVALID_PLAYER_PED;
+		}
+	}
+
+	// Do we have a context data instance
+	if(m_pContextData)
+	{
+		// Delete the context data instance
+		CContextDataManager::DestroyContextData(m_pContextData);
+
+		// Set the context data pointer to NULL
+		m_pContextData = NULL;
+	}
+
+	// Delete the player ped instance
+	SAFE_DELETE(m_pPlayerPed);
+
+	// jenksta: player ped is kept so keep player info too
+	// jenksta: invalidate the player number only
+	m_byteGamePlayerNumber = INVALID_PLAYER_PED;
 #if 0
-        // Delete our player info instance
-        SAFE_DELETE(m_pPlayerInfo);
- 
-        // Are we not the local player ped and do we have a valid player number?
-        if(!IsLocalPlayer() && m_byteGamePlayerNumber != INVALID_PLAYER_PED)
-        {
-                // Reset game player info pointer
-                CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
- 
-                // Invalidate the player number
-                m_byteGamePlayerNumber = INVALID_PLAYER_PED;
-        }
+	// Delete our player info instance
+	SAFE_DELETE(m_pPlayerInfo);
+
+	// Are we not the local player ped and do we have a valid player number?
+	if(!IsLocalPlayer() && m_byteGamePlayerNumber != INVALID_PLAYER_PED)
+	{
+		// Reset game player info pointer
+		CGame::GetPools()->SetPlayerInfoAtIndex((unsigned int)m_byteGamePlayerNumber, NULL);
+
+		// Invalidate the player number
+		m_byteGamePlayerNumber = INVALID_PLAYER_PED;
+	}
 #endif
- 
-        // Flag ourselves as despawned
-        m_bSpawned = false;
+
+	// Flag ourselves as despawned
+	m_bSpawned = false;
 }
 
 void CNetworkPlayer::StreamIn()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(Create())
 	{
 		SetPosition(m_vecPos);
@@ -434,7 +435,7 @@ void CNetworkPlayer::StreamIn()
 
 void CNetworkPlayer::StreamOut()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 
 	// Check if the camera is attached to our player
 	if(g_pClient->GetLocalPlayer()->IsCameraAttachedToEntity(GetScriptingHandle()))
@@ -447,7 +448,7 @@ void CNetworkPlayer::StreamOut()
 
 void CNetworkPlayer::Kill(bool bInstantly)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned and not already dead?
 	if(IsSpawned() && !IsDead())
 	{
@@ -466,7 +467,6 @@ void CNetworkPlayer::Kill(bool bInstantly)
 				// Set it as the ped task
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_DEFAULT);
 			}
-			
 			*/
 		}
 		else // We are not getting killed instantly
@@ -506,7 +506,7 @@ void CNetworkPlayer::Kill(bool bInstantly)
 
 bool CNetworkPlayer::IsDying()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
@@ -523,7 +523,7 @@ bool CNetworkPlayer::IsDying()
 
 bool CNetworkPlayer::IsDead()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		// jenksta: HACK: code below never seems to trigger so use IsDying instead
@@ -542,7 +542,7 @@ bool CNetworkPlayer::IsDead()
 
 IVEntity * CNetworkPlayer::GetLastDamageEntity()
 {
-	THIS_CHECK_R(__FUNCTION__,NULL)
+	THIS_CHECK_R(NULL);
 	if(IsSpawned())
 		return m_pPlayerPed->GetLastDamageEntity();
 
@@ -551,7 +551,7 @@ IVEntity * CNetworkPlayer::GetLastDamageEntity()
 
 bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId, EntityId * weaponId)
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -620,7 +620,7 @@ bool CNetworkPlayer::GetKillInfo(EntityId * playerId, EntityId * vehicleId, Enti
 
 bool CNetworkPlayer::IsMoving()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		CVector3 vecMoveSpeed;
@@ -636,14 +636,14 @@ bool CNetworkPlayer::IsMoving()
 
 void CNetworkPlayer::StopMoving()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		SetMoveSpeed(CVector3());
 }
 
 bool CNetworkPlayer::InternalIsInVehicle()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	// Are we spawned?
 	if(IsSpawned())
 		return (m_pPlayerPed->IsInVehicle() && m_pPlayerPed->GetCurrentVehicle());
@@ -653,7 +653,7 @@ bool CNetworkPlayer::InternalIsInVehicle()
 
 CNetworkVehicle * CNetworkPlayer::InternalGetVehicle()
 {
-	THIS_CHECK_R(__FUNCTION__,NULL)
+	THIS_CHECK_R(NULL);
 	// Are we spawned and in a vehicle?
 	if(IsSpawned() && InternalIsInVehicle())
 		return g_pClient->GetStreamer()->GetVehicleFromGameVehicle(m_pPlayerPed->GetCurrentVehicle());
@@ -663,7 +663,7 @@ CNetworkVehicle * CNetworkPlayer::InternalGetVehicle()
 
 void CNetworkPlayer::InternalPutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned and not in a vehicle?
 	if(IsSpawned() && !InternalIsInVehicle())
 	{
@@ -696,7 +696,7 @@ void CNetworkPlayer::InternalPutInVehicle(CNetworkVehicle * pVehicle, BYTE byteS
 
 void CNetworkPlayer::InternalRemoveFromVehicle()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned and in a vehicle?
 	if(IsSpawned() && m_pVehicle)
 	{
@@ -720,7 +720,7 @@ void CNetworkPlayer::InternalRemoveFromVehicle()
 
 unsigned int CNetworkPlayer::GetScriptingHandle()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(IsSpawned())
 		return CGame::GetPools()->GetPedPool()->HandleOf(m_pPlayerPed->GetPed());
 
@@ -729,7 +729,7 @@ unsigned int CNetworkPlayer::GetScriptingHandle()
 
 void CNetworkPlayer::SetModel(DWORD dwModelHash)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	CLogFile::PrintDebugf("SETMODEL %p | PlayerId: %d",dwModelHash,m_playerId);
 
 	// Get the model index from the model hash
@@ -754,7 +754,7 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 	}
 
 	// Remove our model info reference from the old model info
-	//m_pModelInfo->RemoveReference();
+	m_pModelInfo->RemoveReference();
 
 	// Set the new model info
 	m_pModelInfo = pNewModelInfo;
@@ -783,6 +783,8 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 				GetWeaponInSlot(i, uiWeaponInfo[i][0], uiWeaponInfo[i][1]);
 
 			Scripting::ChangePlayerModel(m_byteGamePlayerNumber, (Scripting::eModel)dwModelHash);
+			//m_pPlayerPed->SetModelIndex(m_pModelInfo->GetIndex());
+
 			m_pPlayerPed->SetPed(m_pPlayerInfo->GetPlayerPed());
 			if(!IsLocalPlayer())
 				g_pCreatedPlayerPeds[m_byteGamePlayerNumber] = m_pPlayerInfo->GetPlayerPed();
@@ -804,7 +806,6 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 		}
 		// End hacky code that needs to be changed
 
-        m_pModelInfo->RemoveReference();
 		// Do we not have any custom clothes?
 		if(!m_bUseCustomClothesOnSpawn)
 		{
@@ -831,16 +832,14 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 
 void CNetworkPlayer::Teleport(const CVector3& vecPosition, bool bResetInterpolation)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
 		// Are we not in a vehicle?
 		if(!IsInVehicle())
 		{
-            Scripting::SetCharCoordinatesNoOffset(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
-            
-            // bug with z coord
+			Scripting::SetCharCoordinatesNoOffset(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
 			//m_pPlayerPed->SetPosition(vecPosition);
 		}
 		else
@@ -854,7 +853,7 @@ void CNetworkPlayer::Teleport(const CVector3& vecPosition, bool bResetInterpolat
 
 void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpolation)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 
 	// Are we spawned?
 	if(IsSpawned())
@@ -862,9 +861,9 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 		// Are we not in a vehicle and not entering a vehicle?
 		if(!InternalIsInVehicle() && !HasVehicleEnterExit())
 		{
-            // Remove the player ped from the world     	
-        	m_pPlayerPed->RemoveFromWorld();
-            
+			// Remove the player ped from the world     	
+			m_pPlayerPed->RemoveFromWorld();
+
 			// Set the position in the matrix
 			m_pPlayerPed->SetPosition(vecPosition);
 
@@ -879,10 +878,10 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 				if(GetInterior() != uiLocalPlayerInterior)
 					SetInterior(uiLocalPlayerInterior);
 			}
-            
-            // Re add the ped to the world to apply the matrix change 
-            // This will calculate the correct z coord
-         	m_pPlayerPed->AddToWorld();
+
+			// Re add the ped to the world to apply the matrix change 
+			// This will calculate the correct z coord
+			m_pPlayerPed->AddToWorld();
 		}
 	}
 
@@ -893,7 +892,7 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 
 void CNetworkPlayer::GetPosition(CVector3& vecPosition)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		// If we are in a vehicle use our vehicles position
@@ -908,25 +907,25 @@ void CNetworkPlayer::GetPosition(CVector3& vecPosition)
 
 void CNetworkPlayer::SetCurrentHeading(float fHeading)
 {
-	THIS_CHECK(__FUNCTION__);
-    if(IsSpawned())
-    {
-            float fHeadingRadians = Math::ConvertDegreesToRadians(fHeading);
-            m_pPlayerPed->SetCurrentHeading(fHeadingRadians);
-			SetDesiredHeading(fHeading);
-			m_pPlayerPed->SetHeading(fHeadingRadians);
-    }
+	THIS_CHECK;
+	if(IsSpawned())
+	{
+		float fHeadingRadians = Math::ConvertDegreesToRadians(fHeading);
+		m_pPlayerPed->SetCurrentHeading(fHeadingRadians);
+		SetDesiredHeading(fHeading);
+		m_pPlayerPed->SetHeading(fHeadingRadians);
+	}
 }
 
 void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 {
- 	THIS_CHECK(__FUNCTION__);
- 	if(IsSpawned())
- 	{
+	THIS_CHECK;
+	if(IsSpawned())
+	{
 		// Check if the player has already the same pos
-	 	if(GetCurrentHeading() == fHeading)
-				return;
-				
+		if(GetCurrentHeading() == fHeading)
+			return;
+
 		// Check if the player isn't moving
 		CVector3 vecMoveSpeed; m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
 		if(vecMoveSpeed.Length() < 2.0f)
@@ -944,16 +943,16 @@ void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 		{
 			float fHeadingFinal;
 			if(fHeading > GetCurrentHeading())
-					fHeadingFinal = fHeading-GetCurrentHeading();
-			
+				fHeadingFinal = fHeading-GetCurrentHeading();
+
 			else if(GetCurrentHeading() > fHeading)
-					fHeadingFinal = GetCurrentHeading()-fHeading;
-			
+				fHeadingFinal = GetCurrentHeading()-fHeading;
+
 			for(int i = 0; i < 10; i++)
 			{
-			if(fHeading > GetCurrentHeading())
+				if(fHeading > GetCurrentHeading())
 					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()+fHeadingFinal/10);
-			else if(GetCurrentHeading() > fHeading)
+				else if(GetCurrentHeading() > fHeading)
 					m_pPlayerPed->SetCurrentHeading(GetCurrentHeading()-fHeadingFinal/10);
 			}
 		}
@@ -962,7 +961,7 @@ void CNetworkPlayer::SetCurrentSyncHeading(float fHeading)
 
 float CNetworkPlayer::GetCurrentHeading()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(IsSpawned())
 		return m_pPlayerPed->GetCurrentHeading();
 		//return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetCurrentHeading());
@@ -972,7 +971,7 @@ float CNetworkPlayer::GetCurrentHeading()
 
 void CNetworkPlayer::SetDesiredHeading(float fHeading)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->SetDesiredHeading(fHeading);
 		//m_pPlayerPed->SetDesiredHeading(Math::ConvertDegreesToRadians(fHeading));
@@ -980,7 +979,7 @@ void CNetworkPlayer::SetDesiredHeading(float fHeading)
 
 float CNetworkPlayer::GetDesiredHeading()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(IsSpawned())
 		return m_pPlayerPed->GetDesiredHeading();
 		//return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetDesiredHeading());
@@ -1008,14 +1007,14 @@ CVector3 CNetworkPlayer::GetBonePosition(int iBone)
 
 void CNetworkPlayer::SetMoveSpeed(const CVector3& vecMoveSpeed)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->SetMoveSpeed(vecMoveSpeed);
 }
 
 void CNetworkPlayer::GetMoveSpeed(CVector3& vecMoveSpeed)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->GetMoveSpeed(vecMoveSpeed);
 	else
@@ -1024,14 +1023,14 @@ void CNetworkPlayer::GetMoveSpeed(CVector3& vecMoveSpeed)
 
 void CNetworkPlayer::SetTurnSpeed(const CVector3& vecTurnSpeed)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->SetTurnSpeed(vecTurnSpeed);
 }
 
 void CNetworkPlayer::GetTurnSpeed(CVector3& vecTurnSpeed)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->GetTurnSpeed(vecTurnSpeed);
 	else
@@ -1040,7 +1039,7 @@ void CNetworkPlayer::GetTurnSpeed(CVector3& vecTurnSpeed)
 
 void CNetworkPlayer::SetHealth(unsigned int uiHealth)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 		Scripting::SetCharHealth(GetScriptingHandle(), uiHealth);
@@ -1051,7 +1050,7 @@ void CNetworkPlayer::SetHealth(unsigned int uiHealth)
 
 void CNetworkPlayer::LockHealth(unsigned int uiHealth)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Set our health
 	SetHealth(uiHealth);
 
@@ -1064,7 +1063,7 @@ void CNetworkPlayer::LockHealth(unsigned int uiHealth)
 
 unsigned int CNetworkPlayer::GetHealth()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	// If our health is locked return our locked health
 	if(m_bHealthLocked)
 		return m_uiLockedHealth;
@@ -1083,7 +1082,7 @@ unsigned int CNetworkPlayer::GetHealth()
 
 void CNetworkPlayer::SetArmour(unsigned int uiArmour)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 		Scripting::AddArmourToChar(GetScriptingHandle(), (uiArmour - GetArmour()));
@@ -1094,7 +1093,7 @@ void CNetworkPlayer::SetArmour(unsigned int uiArmour)
 
 void CNetworkPlayer::LockArmour(unsigned int uiArmour)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Set our armour
 	SetArmour(uiArmour);
 
@@ -1107,7 +1106,7 @@ void CNetworkPlayer::LockArmour(unsigned int uiArmour)
 
 unsigned int CNetworkPlayer::GetArmour()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	// If our armour is locked return our locked armour
 	if(m_bArmourLocked)
 		return m_uiLockedArmour;
@@ -1126,7 +1125,7 @@ unsigned int CNetworkPlayer::GetArmour()
 
 void CNetworkPlayer::GiveWeapon(unsigned int uiWeaponId, unsigned int uiAmmo)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		Scripting::GiveWeaponToChar(GetScriptingHandle(), (Scripting::eWeapon)uiWeaponId, uiAmmo, true);
@@ -1137,21 +1136,21 @@ void CNetworkPlayer::GiveWeapon(unsigned int uiWeaponId, unsigned int uiAmmo)
 
 void CNetworkPlayer::RemoveWeapon(unsigned int uiWeaponId)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->GetPedWeapons()->RemoveWeapon((eWeaponType)uiWeaponId);
 }
 
 void CNetworkPlayer::RemoveAllWeapons()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->GetPedWeapons()->RemoveAllWeapons();
 }
 
 void CNetworkPlayer::SetCurrentWeapon(unsigned int uiWeaponId)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		m_pPlayerPed->GetPedWeapons()->SetCurrentWeaponByType((eWeaponType)uiWeaponId);
@@ -1161,7 +1160,7 @@ void CNetworkPlayer::SetCurrentWeapon(unsigned int uiWeaponId)
 
 unsigned int CNetworkPlayer::GetCurrentWeapon()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(IsSpawned())
 		return (unsigned int)m_pPlayerPed->GetPedWeapons()->GetCurrentWeaponType();
 
@@ -1170,14 +1169,14 @@ unsigned int CNetworkPlayer::GetCurrentWeapon()
 
 void CNetworkPlayer::SetAmmo(unsigned int uiWeaponId, unsigned int uiAmmo)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->GetPedWeapons()->SetAmmoByType((eWeaponType)uiWeaponId, uiAmmo);
 }
 
 unsigned int CNetworkPlayer::GetAmmo(unsigned int uiWeaponId)
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(IsSpawned())
 		return m_pPlayerPed->GetPedWeapons()->GetAmmoByType((eWeaponType)uiWeaponId);
 
@@ -1186,7 +1185,7 @@ unsigned int CNetworkPlayer::GetAmmo(unsigned int uiWeaponId)
 
 void CNetworkPlayer::GetWeaponInSlot(unsigned int uiWeaponSlot, unsigned int &uiWeaponId, unsigned int &uiAmmo)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		uiWeaponId = (unsigned int)m_pPlayerPed->GetPedWeapons()->GetWeaponInSlot((eWeaponSlot)uiWeaponSlot);
@@ -1196,7 +1195,7 @@ void CNetworkPlayer::GetWeaponInSlot(unsigned int uiWeaponSlot, unsigned int &ui
 
 unsigned int CNetworkPlayer::GetAmmoInClip()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(IsSpawned())
 		return m_pPlayerPed->GetPedWeapons()->GetAmmoInClip();
 
@@ -1205,14 +1204,14 @@ unsigned int CNetworkPlayer::GetAmmoInClip()
 
 void CNetworkPlayer::SetAmmoInClip(unsigned int uiAmmoInClip)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->GetPedWeapons()->SetAmmoInClip(uiAmmoInClip);
 }
 
 unsigned int CNetworkPlayer::GetMaxAmmoInClip(unsigned int uiWeapon)
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(IsSpawned())
 	{
 		CIVWeaponInfo * pWeaponInfo = CGame::GetWeaponInfo((eWeaponType)uiWeapon);
@@ -1226,7 +1225,7 @@ unsigned int CNetworkPlayer::GetMaxAmmoInClip(unsigned int uiWeapon)
 
 void CNetworkPlayer::GiveMoney(int iAmount)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		// this shows +/-$12345
@@ -1240,7 +1239,7 @@ void CNetworkPlayer::GiveMoney(int iAmount)
 
 void CNetworkPlayer::SetMoney(int iAmount)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		m_pPlayerInfo->SetScore(iAmount);
@@ -1255,7 +1254,7 @@ void CNetworkPlayer::SetMoney(int iAmount)
 
 void CNetworkPlayer::ResetMoney()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		m_pPlayerInfo->SetScore(0);
@@ -1265,7 +1264,7 @@ void CNetworkPlayer::ResetMoney()
 
 int CNetworkPlayer::GetMoney()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(IsSpawned())
 		return m_pPlayerInfo->GetScore();
 
@@ -1274,7 +1273,7 @@ int CNetworkPlayer::GetMoney()
 
 void CNetworkPlayer::SetControlState(CControlState * controlState)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1308,21 +1307,21 @@ void CNetworkPlayer::SetControlState(CControlState * controlState)
 
 void CNetworkPlayer::GetPreviousControlState(CControlState * controlState)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Copy the previous control state to the control state
 	memcpy(controlState, &m_previousControlState, sizeof(CControlState));
 }
 
 void CNetworkPlayer::GetControlState(CControlState * controlState)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Copy the current control state to the control state
 	memcpy(controlState, &m_currentControlState, sizeof(CControlState));
 }
 
 void CNetworkPlayer::SetArmHeading(const float fArmHeading)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1336,7 +1335,7 @@ void CNetworkPlayer::SetArmHeading(const float fArmHeading)
 
 void CNetworkPlayer::GetArmHeading(float& fArmHeading)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1353,7 +1352,7 @@ void CNetworkPlayer::GetArmHeading(float& fArmHeading)
 
 void CNetworkPlayer::SetArmUpDown(const float fArmUpDown)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1367,7 +1366,7 @@ void CNetworkPlayer::SetArmUpDown(const float fArmUpDown)
 
 void CNetworkPlayer::GetArmUpDown(float& fArmUpDown)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1384,7 +1383,7 @@ void CNetworkPlayer::GetArmUpDown(float& fArmUpDown)
 
 void CNetworkPlayer::SetShotSource(const CVector3& vecShotSource)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1398,7 +1397,7 @@ void CNetworkPlayer::SetShotSource(const CVector3& vecShotSource)
 
 void CNetworkPlayer::GetShotSource(CVector3& vecShotSource)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1415,7 +1414,7 @@ void CNetworkPlayer::GetShotSource(CVector3& vecShotSource)
 
 void CNetworkPlayer::SetShotTarget(const CVector3& vecShotTarget)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1429,7 +1428,7 @@ void CNetworkPlayer::SetShotTarget(const CVector3& vecShotTarget)
 
 void CNetworkPlayer::GetShotTarget(CVector3& vecShotTarget)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1446,7 +1445,7 @@ void CNetworkPlayer::GetShotTarget(CVector3& vecShotTarget)
 
 void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		// Set the arm heading
@@ -1465,7 +1464,7 @@ void CNetworkPlayer::SetAimSyncData(AimSyncData * aimSyncData)
 
 void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		// Get the arm heading
@@ -1487,14 +1486,14 @@ void CNetworkPlayer::GetAimSyncData(AimSyncData * aimSyncData)
 
 void CNetworkPlayer::AddToWorld()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->AddToWorld();
 }
 
 void CNetworkPlayer::RemoveFromWorld(bool bStopMoving)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		// Stop the player from moving to avoid some weird bugs
@@ -1507,7 +1506,7 @@ void CNetworkPlayer::RemoveFromWorld(bool bStopMoving)
 
 void CNetworkPlayer::GiveHelmet()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		Scripting::GivePedHelmet(GetScriptingHandle());
@@ -1517,7 +1516,7 @@ void CNetworkPlayer::GiveHelmet()
 
 void CNetworkPlayer::RemoveHelmet()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		Scripting::RemovePedHelmet(GetScriptingHandle(),true);
@@ -1528,7 +1527,7 @@ void CNetworkPlayer::RemoveHelmet()
 // TODO: Don't use natives for this
 void CNetworkPlayer::SetInterior(unsigned int uiInterior)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned() && GetInterior() != uiInterior)
 		Scripting::SetRoomForCharByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
 }
@@ -1536,7 +1535,7 @@ void CNetworkPlayer::SetInterior(unsigned int uiInterior)
 // TODO: Don't use natives for this
 unsigned int CNetworkPlayer::GetInterior()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(IsSpawned())
 	{
 		unsigned int uiInterior;
@@ -1548,7 +1547,7 @@ unsigned int CNetworkPlayer::GetInterior()
 
 void CNetworkPlayer::UpdateTargetPosition()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(HasTargetPosition())
 	{
 		unsigned long ulCurrentTime = SharedUtility::GetTime();
@@ -1593,7 +1592,7 @@ void CNetworkPlayer::UpdateTargetPosition()
 
 void CNetworkPlayer::UpdateTargetRotation()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(HasTargetRotation())
 	{
 		unsigned long ulCurrentTime = SharedUtility::GetTime();
@@ -1629,7 +1628,7 @@ void CNetworkPlayer::UpdateTargetRotation()
 
 void CNetworkPlayer::Interpolate()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we not getting in/out of a vehicle?
 	// jenksta: why is this vehicle entry/exit check disabled?
 	if(true)
@@ -1641,7 +1640,7 @@ void CNetworkPlayer::Interpolate()
 
 void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned long ulDelay)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1670,7 +1669,7 @@ void CNetworkPlayer::SetTargetPosition(const CVector3 &vecPosition, unsigned lon
 
 void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int iMoveType)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		float tX = (vecPos.fX + (vecMove.fX * 10));
@@ -1694,7 +1693,7 @@ void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int i
 
 void CNetworkPlayer::SetTargetRotation(float fHeading, unsigned long ulDelay)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1722,26 +1721,26 @@ void CNetworkPlayer::SetTargetRotation(float fHeading, unsigned long ulDelay)
 
 void CNetworkPlayer::RemoveTargetPosition()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	m_interp.pos.ulFinishTime = 0;
 }
 
 void CNetworkPlayer::RemoveTargetRotation()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	m_interp.rot.ulFinishTime = 0;
 }
 
 void CNetworkPlayer::ResetInterpolation()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	RemoveTargetPosition();
 	RemoveTargetRotation();
 }
 
 void CNetworkPlayer::SetColor(unsigned int uiColor)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerInfo->SetColour(uiColor);
 
@@ -1750,13 +1749,13 @@ void CNetworkPlayer::SetColor(unsigned int uiColor)
 
 unsigned int CNetworkPlayer::GetColor()
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	return m_uiColor;
 }
 
 void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothes)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(ucBodyPart > 10)
 		return;
 
@@ -1794,7 +1793,7 @@ void CNetworkPlayer::SetClothes(unsigned char ucBodyPart, unsigned char ucClothe
 
 unsigned char CNetworkPlayer::GetClothes(unsigned char ucBodyPart)
 {
-	THIS_CHECK_R(__FUNCTION__,0)
+	THIS_CHECK_R(0);
 	if(ucBodyPart > 10)
 		return 0;
 
@@ -1803,14 +1802,14 @@ unsigned char CNetworkPlayer::GetClothes(unsigned char ucBodyPart)
 
 void CNetworkPlayer::SetDucking(bool bDucking)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->SetDucking(bDucking);
 }
 
 bool CNetworkPlayer::IsDucking()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 		return m_pPlayerPed->IsDucking();
 
@@ -1819,14 +1818,14 @@ bool CNetworkPlayer::IsDucking()
 
 void CNetworkPlayer::SetCameraBehind()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		g_pClient->GetCamera()->SetBehindPed(m_pPlayerPed);
 }
 
 void CNetworkPlayer::Pulse()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -1893,7 +1892,7 @@ void CNetworkPlayer::Pulse()
 
 void CNetworkPlayer::SetName(String strName)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	m_strName = strName;
 
 	if(!CGame::GetNameTags())
@@ -1913,7 +1912,7 @@ void CNetworkPlayer::SetName(String strName)
 
 bool CNetworkPlayer::IsGettingInToAVehicle()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1930,7 +1929,7 @@ bool CNetworkPlayer::IsGettingInToAVehicle()
 
 bool CNetworkPlayer::IsGettingOutOfAVehicle()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1947,7 +1946,7 @@ bool CNetworkPlayer::IsGettingOutOfAVehicle()
 
 bool CNetworkPlayer::IsJackingAVehicle()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1964,7 +1963,7 @@ bool CNetworkPlayer::IsJackingAVehicle()
 
 bool CNetworkPlayer::IsGettingJackedFromVehicle()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1981,7 +1980,7 @@ bool CNetworkPlayer::IsGettingJackedFromVehicle()
 
 bool CNetworkPlayer::ClearVehicleEntryTask()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -1994,16 +1993,6 @@ bool CNetworkPlayer::ClearVehicleEntryTask()
 				return true;
 			}
 		}
-		
-		//// testcode(maybe it works)
-		//unsigned int uiPlayerIndex = GetScriptingHandle();
-		//DWORD dwAddress = (CGame::GetBase() + 0x8067A0);
-		//_asm
-		//{
-		//	push 11
-		//	push 0
-		//	call dwAddress
-		//}
 	}
 
 	return false;
@@ -2011,7 +2000,7 @@ bool CNetworkPlayer::ClearVehicleEntryTask()
 
 bool CNetworkPlayer::ClearVehicleExitTask()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_PRIMARY);
@@ -2031,7 +2020,7 @@ bool CNetworkPlayer::ClearVehicleExitTask()
 
 bool CNetworkPlayer::ClearDieTask()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	if(IsSpawned())
 	{
 		CIVTask * pTask = m_pPlayerPed->GetPedTaskManager()->GetTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
@@ -2052,7 +2041,7 @@ bool CNetworkPlayer::ClearDieTask()
 
 bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehicle, BYTE &byteSeatId)
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	// TODO: Get closest vehicle door not vehicle and add door parameter
 	// Are we spawned?
 	if(IsSpawned())
@@ -2132,7 +2121,7 @@ bool CNetworkPlayer::GetClosestVehicle(bool bPassenger, CNetworkVehicle ** pVehi
 
 void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -2184,7 +2173,7 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 				// Set it as the ped task
 				pTask->SetAsPedTask(m_pPlayerPed, TASK_PRIORITY_PRIMARY);
 			}
-			
+
 			// Restore engine
 			if(byteSeatId == 0)
 				pVehicle->SetEngineState(pVehicle->GetEngineState());
@@ -2202,7 +2191,7 @@ void CNetworkPlayer::EnterVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 
 void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 
 	// Are we spawned?
 	if(IsSpawned())
@@ -2211,9 +2200,9 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 		if(m_pVehicle)
 		{
 			/* iExitMode values - 0xF - Get out animation (used when exiting a non-moving vehicle)
-			                    - 0x9C4 - Get out animation (used when smb jacks your vehicle).
-			                    - 0x40B - Dive out animation (used in trucks).
-			                    - 0x100E - Dive out animation (used in the other vehicles). */
+								- 0x9C4 - Get out animation (used when smb jacks your vehicle).
+								- 0x40B - Dive out animation (used in trucks).
+								- 0x100E - Dive out animation (used in the other vehicles). */
 
 			// Simulate the way GTA IV handles vehicle exits.
 			CVector3 vecMoveSpeed;
@@ -2229,14 +2218,14 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 				{
 					switch(modelId)
 					{
-						case 2: case 4: case 5: case 7: case 8: case 10: case 11:
-						case 31: case 32: case 49: case 50: case 51: case 52:
-						case 53: case 55: case 56: case 60: case 66: case 73:
-						 case 85: case 86: case 94: case 104:
-							iExitMode = 0x40B;
+					case 2: case 4: case 5: case 7: case 8: case 10: case 11:
+					case 31: case 32: case 49: case 50: case 51: case 52:
+					case 53: case 55: case 56: case 60: case 66: case 73:
+					case 85: case 86: case 94: case 104:
+						iExitMode = 0x40B;
 						break;
 
-						default:
+					default:
 						{
 							if(modelId != 12 && modelId < 166)
 								iExitMode = 0x100E;
@@ -2283,7 +2272,7 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 		}
 
 		// Reset Driver
-		THIS_CHECK(__FUNCTION__);
+		THIS_CHECK;
 		if(m_pVehicle)
 			m_pVehicle->SetDriver(NULL);
 
@@ -2294,7 +2283,7 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 
 void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -2332,7 +2321,7 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 		m_pVehicle->SetDamageable(true);
 		m_byteVehicleSeatId = byteSeatId;
 		pVehicle->SetOccupant(byteSeatId, this);
-							
+
 		// Is this a network vehicle?
 		if(m_pVehicle->IsNetworkVehicle())
 		{
@@ -2349,7 +2338,7 @@ void CNetworkPlayer::PutInVehicle(CNetworkVehicle * pVehicle, BYTE byteSeatId)
 
 void CNetworkPlayer::RemoveFromVehicle()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -2376,7 +2365,7 @@ void CNetworkPlayer::RemoveFromVehicle()
 
 void CNetworkPlayer::CheckVehicleEntryExitKey()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned and is input enabled and are our controls not disabled?
 	if(IsSpawned() && CGame::GetInputState() && !g_bControlsDisabled)
 	{
@@ -2506,7 +2495,7 @@ void CNetworkPlayer::CheckVehicleEntryExitKey()
 
 void CNetworkPlayer::ProcessVehicleEntryExit()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Are we spawned?
 	if(IsSpawned())
 	{
@@ -2684,10 +2673,10 @@ void CNetworkPlayer::ProcessVehicleEntryExit()
 
 void CNetworkPlayer::ResetVehicleEnterExit()
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	// Reset the vehicle enter/exit flags
 	RemoveFromVehicle();
-	
+
 	m_vehicleEnterExit.bEntering = false;
 	m_vehicleEnterExit.pVehicle = NULL;
 	m_vehicleEnterExit.byteSeatId = 0;
@@ -2703,35 +2692,25 @@ void CNetworkPlayer::ResetVehicleEnterExit()
 
 void CNetworkPlayer::ToggleRagdoll(bool bToggle)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		m_pPlayerPed->SetRagdoll(bToggle);
 }
 
 bool CNetworkPlayer::IsOnScreen()
 {
-	THIS_CHECK_R(__FUNCTION__,false)
+	THIS_CHECK_R(false);
 	// Are we spawned?
-	if(IsSpawned()) {
-		/* // crash at 0x62F042
-		unsigned int uiPlayerIndex = GetScriptingHandle();
-		DWORD dwAddress = (CGame::GetBase() + 0xB999E0);
-		bool bOnScreen = false;
-		_asm
-		{
-			push uiPlayerIndex
-			push 2
-			call dwAddress
-			mov al, bOnScreen
-		}
-		return bOnScreen;//*/return true;
+	if(IsSpawned()) 
+	{
+		return true;
 	}
 	return false;
 }
 
 void CNetworkPlayer::SetHelmet(bool bHelmet)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(bHelmet)
 		Scripting::GivePedHelmet(GetScriptingHandle());
 	if(!bHelmet)
@@ -2742,12 +2721,12 @@ void CNetworkPlayer::SetHelmet(bool bHelmet)
 
 void CNetworkPlayer::TaskLookAtCoord(float fX, float fY, float fZ)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 	{
 		CVector3 vecLookAt(fX, fY, fZ);
 		CIVTaskSimpleTriggerLookAt * pTask = new CIVTaskSimpleTriggerLookAt(NULL, TICK_RATE, -1, &vecLookAt);
-		
+
 		// Did the task create successfully?
 		if(pTask)
 		{
@@ -2759,7 +2738,7 @@ void CNetworkPlayer::TaskLookAtCoord(float fX, float fY, float fZ)
 
 void CNetworkPlayer::UseMobilePhone(bool bUse)
 {
-	THIS_CHECK(__FUNCTION__);
+	THIS_CHECK;
 	if(IsSpawned())
 		Scripting::TaskUseMobilePhone(GetScriptingHandle(),bUse);
 

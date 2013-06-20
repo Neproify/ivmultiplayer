@@ -73,6 +73,8 @@ void CIVEntity::SetPosition(const CVector3& vecPosition)
             memcpy(&m_pEntity->m_pMatrix->vecPosition, &vecPosition, sizeof(CVector3));
         else
             memcpy(&m_pEntity->m_vecPosition, &vecPosition, sizeof(CVector3));
+
+		//m_pEntity->UpdatePhysicsMatrix(true);
 #if 0
 		Vector4 vecPos;
 		vecPos.fX = vecPosition.fX;
@@ -92,13 +94,19 @@ void CIVEntity::GetPosition(CVector3& vecPosition)
 {
 	if(m_pEntity)
 	{
-		Vector4 vecPos;
-		
-		m_pEntity->GetCoordinates(&vecPos);
+		if(m_pEntity->m_pMatrix)
+			memcpy(&vecPosition, &m_pEntity->m_pMatrix->vecPosition, sizeof(CVector3));
+		else
+			memcpy(&vecPosition, &m_pEntity->m_vecPosition, sizeof(CVector3));
 
-		vecPosition.fX = vecPos.fX;
-		vecPosition.fY = vecPos.fY;
-		vecPosition.fZ = vecPos.fZ;
+
+		//Vector4 vecPos;
+		//
+		//m_pEntity->GetCoordinates(&vecPos);
+
+		//vecPosition.fX = vecPos.fX;
+		//vecPosition.fY = vecPos.fY;
+		//vecPosition.fZ = vecPos.fZ;
         
 #if 0
 		if(lastLoaded + 5000 <= SharedUtility::GetTime())

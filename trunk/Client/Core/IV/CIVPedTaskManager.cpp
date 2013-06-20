@@ -183,7 +183,12 @@ CIVTask * CIVPedTaskManager::GetTaskMovement(int iType)
 	{
 		// Ensure the task type is valid
 		if(iType < TASK_MOVEMENT_MAX)
-			return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_pMovementTasks[iType]);
+		{
+			if(g_pClient->GetClientTaskManager())
+			{
+				return g_pClient->GetClientTaskManager()->GetClientTaskFromGameTask(m_pPedTaskManager->m_pMovementTasks[iType]);
+			}
+		}
 	}
 
 	return NULL;

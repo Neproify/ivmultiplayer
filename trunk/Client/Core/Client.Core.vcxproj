@@ -349,6 +349,7 @@
     <ClCompile Include="IV\CIVPhysical.cpp" />
     <ClCompile Include="IV\CIVPlayerInfo.cpp" />
     <ClCompile Include="IV\CIVPlayerPed.cpp" />
+    <ClCompile Include="IV\CIVPool.cpp" />
     <ClCompile Include="IV\CIVStreaming.cpp" />
     <ClCompile Include="IV\CIVTask.cpp" />
     <ClCompile Include="IV\CIVTrain.cpp" />

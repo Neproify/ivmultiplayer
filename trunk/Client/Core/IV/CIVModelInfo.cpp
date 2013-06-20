@@ -56,17 +56,7 @@ BYTE CIVModelInfo::GetType()
 	IVBaseModelInfo * pModelInfo = GetModelInfo();
 
 	if(pModelInfo)
-	{
-		DWORD dwFunc = pModelInfo->m_VFTable->GetType;
-		BYTE byteType = 0;
-		_asm
-		{
-			mov ecx, pModelInfo
-			call dwFunc
-			mov byteType, al
-		}
-		return byteType;
-	}
+		return pModelInfo->GetType();
 
 	return 0;
 }

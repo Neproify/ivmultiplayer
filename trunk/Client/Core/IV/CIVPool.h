@@ -10,10 +10,13 @@
 
 #pragma once
 
-#include "CGame.h"
-#include "COffsets.h"
+#include "../CGame.h"
+#include "../COffsets.h"
 #include <Patcher/CPatcher.h>
 #include <CLogFile.h>
+
+void QuadPoolSizes();
+
 
 // From OpenLC by listener
 class IVPool
