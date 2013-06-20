@@ -14,14 +14,21 @@
 
 // This is how to increase the pool size of all pools in IV
 static int mulPoolSize = 1;
-
-void __stdcall CPool_hook(int maxObjects, const char* Name, int entrySize)
+int __stdcall  CPool_hook_chunk(void* this_, int maxObjects, int Name, int entrySize);
+__declspec(naked) void __stdcall CPool_hook()
 {
-	IVPool *pPool;
 	_asm
 	{
-		mov pPool, ecx
+		pop eax
+		push ecx
+		push eax
+		jmp CPool_hook_chunk
 	}
+}
+
+int __stdcall  CPool_hook_chunk(void* this_, int maxObjects, int Name, int entrySize)
+{
+	IVPool *pPool = (IVPool*)this_;
 
 
 	// Here we simply increase the size buf we could also replace the entire pool with our own
@@ -29,6 +36,8 @@ void __stdcall CPool_hook(int maxObjects, const char* Name, int entrySize)
 	// to increase only the task pool replace maxObjects *= mulPoolSize with if(!strcmp("Task", Name)) maxObjects *= mulPoolSize;
 	if(pPool)
 	{
+		CLogFile::Printf("Increaing %sPool from %i Objects to %i Objects", Name, maxObjects, maxObjects*mulPoolSize);
+
 		maxObjects *= mulPoolSize;
 		pPool->m_dwEntrySize = entrySize;
 		pPool->m_pObjects = (BYTE*)malloc(entrySize * maxObjects);
@@ -48,26 +57,22 @@ void __stdcall CPool_hook(int maxObjects, const char* Name, int entrySize)
 		
 		CLogFile::Printf("Increased %sPool to %i Objects", Name, maxObjects);
 		
-		_asm
-		{
-			mov eax, pPool
-			retn
-		}
+
+		return (int)pPool;
 	}
+
+	CLogFile::Printf("Something wrong (%i %s)", pPool, Name);
 	
-	_asm
-	{
-		xor eax, eax
-		retn
-	}
+	return 0;
 };
 
 void QuadPoolSizes()
 {
-	mulPoolSize = 4;
+	mulPoolSize = 2;
 	CPatcher::InstallJmpPatch(CGame::GetBase() + 0xC72F10, (DWORD)CPool_hook);
 };
 
+/*
 CPool::CPool(IVPool* pPool)
 {
 	// TODO
@@ -163,3 +168,4 @@ int CPool::Release(BYTE* pObject)
 		this->m_nTop = index;
 	return index;
 };
+*/

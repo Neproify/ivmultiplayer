@@ -748,10 +748,10 @@
       <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
     <ClInclude Include="IV\CIVPedFactory.h">
-      <Filter>Source Files\Game\IV</Filter>
+      <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
     <ClInclude Include="IV\CIVVehicleFactory.h">
-      <Filter>Source Files\Game\IV</Filter>
+      <Filter>Header Files\Game\IV</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1224,6 +1224,9 @@
       <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
     <ClCompile Include="IV\CIVWorld.cpp">
+      <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="IV\CIVPool.cpp">
       <Filter>Source Files\Game\IV</Filter>
     </ClCompile>
   </ItemGroup>

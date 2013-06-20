@@ -213,4 +213,6 @@ public:
 	bool			 GetVehicleGPSState();
 
 	void			 MarkAsActorVehicle(bool bToggle) { m_bActorVehicle = bToggle; }
+
+	void			 Fix();
 };

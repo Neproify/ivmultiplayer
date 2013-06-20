@@ -103,7 +103,6 @@ class IVPedModelInfoVFTable : public IVBaseModelInfoVFTable
 class IVBaseModelInfo
 {
 public:
-	IVBaseModelInfoVFTable * m_VFTable; // 00-04
 	PAD(IVBaseModelInfo, pad0, 0x38);   // 04-3C
 	// 0x4 - DWORD
 	// 0x8 - DWORD
@@ -147,6 +146,22 @@ public:
 	BYTE byteTextureVariationCount;     // C2-C3
 	// 0xCC - IVVehicleStruct * m_pVehicleStruct (Vehicle Struct Size = 0x20C)
 	// TODO: Find size(s)
+
+	virtual ~IVBaseModelInfo();
+	virtual int		Function1();
+	virtual int 	Function2();
+	virtual int 	GetType();
+	virtual int		Function4();
+	virtual int 	Function5();
+	virtual int		Function6(int a1);
+	virtual void	Function7();
+	virtual int		Function8();
+	virtual int		Function9(int a1);
+	virtual int		Function10(int a1);
+	virtual int		Function11();
+	virtual int		Function12(); // return this+0x70
+	virtual int		Function13(); // return this+0x78
+	virtual int		Function14(int a1);
 };
 
 class CIVModelInfo
