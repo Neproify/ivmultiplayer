@@ -1,7 +1,7 @@
-SQUIRREL= ..
+SQUIRREL= .
 
 
-OUT= $(SQUIRREL)/lib/libsquirrel.a
+OUT= $(SQUIRREL)/libsquirrel.a
 INCZ= -I$(SQUIRREL)/include -I. -Iinclude
 DEFS= 
 LIB=	
@@ -37,12 +37,12 @@ SRCS= \
 	
 	
 sq32:
-	gcc -O2 -fno-exceptions -fno-rtti -Wall -fno-strict-aliasing -c $(SRCS) $(INCZ) $(DEFS)
+	gcc -m32 -O2 -fno-exceptions -fno-rtti -Wall -fno-strict-aliasing -c $(SRCS) $(INCZ) $(DEFS)
 	ar rc $(OUT) *.o
 	rm *.o
 
 sqprof:
-	gcc -O2 -pg -fno-exceptions -fno-rtti -pie -gstabs -g3 -Wall -fno-strict-aliasing -c $(SRCS) $(INCZ) $(DEFS)
+	gcc -m32 -O2 -pg -fno-exceptions -fno-rtti -pie -gstabs -g3 -Wall -fno-strict-aliasing -c $(SRCS) $(INCZ) $(DEFS)
 	ar rc $(OUT) *.o
 	rm *.o
 
