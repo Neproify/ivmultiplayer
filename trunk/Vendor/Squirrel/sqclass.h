@@ -71,18 +71,17 @@ public:
 	SQClass *_base;
 	SQClassMemberVec _defaultvalues;
 	SQClassMemberVec _methods;
-	SQObjectPtrVec _metamethods;
+	SQObjectPtr _metamethods[MT_LAST];
 	SQObjectPtr _attributes;
 	SQUserPointer _typetag;
 	SQRELEASEHOOK _hook;
 	bool _locked;
 	SQInteger _constructoridx;
 	SQInteger _udsize;
-	SQUserPointer _userpointer;
 };
 
 #define calcinstancesize(_theclass_) \
-	(_theclass_->_udsize + sizeof(SQInstance) + (sizeof(SQObjectPtr)*(_theclass_->_defaultvalues.size()>0?_theclass_->_defaultvalues.size()-1:0)))
+	(_theclass_->_udsize + sq_aligning(sizeof(SQInstance) +  (sizeof(SQObjectPtr)*(_theclass_->_defaultvalues.size()>0?_theclass_->_defaultvalues.size()-1:0))))
 
 struct SQInstance : public SQDelegable 
 {

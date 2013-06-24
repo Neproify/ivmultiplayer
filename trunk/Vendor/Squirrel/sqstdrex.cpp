@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <setjmp.h>
-#include "sqstdstring.h"
+#include <sqstdstring.h>
 
 #ifdef _UINCODE
 #define scisprint iswprint
@@ -263,7 +263,6 @@ static SQInteger sqstd_rex_element(SQRex *exp)
 	}
 
 
-	SQInteger op;
 	SQBool isgreedy = SQFalse;
 	unsigned short p0 = 0, p1 = 0;
 	switch(*exp->_p){
@@ -297,7 +296,6 @@ static SQInteger sqstd_rex_element(SQRex *exp)
 	}
 	if(isgreedy) {
 		SQInteger nnode = sqstd_rex_newnode(exp,OP_GREEDY);
-		op = OP_GREEDY;
 		exp->_nodes[nnode].left = ret;
 		exp->_nodes[nnode].right = ((p0)<<16)|p1;
 		ret = nnode;
@@ -498,25 +496,25 @@ static const SQChar *sqstd_rex_matchnode(SQRex* exp,SQRexNode *node,const SQChar
 		if(str == exp->_eol) return str;
 		return NULL;
 	case OP_DOT:{
-		*str++;
+		str++;
 				}
 		return str;
 	case OP_NCLASS:
 	case OP_CLASS:
 		if(sqstd_rex_matchclass(exp,&exp->_nodes[node->left],*str)?(type == OP_CLASS?SQTrue:SQFalse):(type == OP_NCLASS?SQTrue:SQFalse)) {
-			*str++;
+			str++;
 			return str;
 		}
 		return NULL;
 	case OP_CCLASS:
 		if(sqstd_rex_matchcclass(node->left,*str)) {
-			*str++;
+			str++;
 			return str;
 		}
 		return NULL;
 	default: /* char */
 		if(*str != node->type) return NULL;
-		*str++;
+		str++;
 		return str;
 	}
 	return NULL;
@@ -606,7 +604,7 @@ SQBool sqstd_rex_searchrange(SQRex* exp,const SQChar* text_begin,const SQChar* t
 				break;
 			node = exp->_nodes[node].next;
 		}
-		*text_begin++;
+		text_begin++;
 	} while(cur == NULL && text_begin != text_end);
 
 	if(cur == NULL)

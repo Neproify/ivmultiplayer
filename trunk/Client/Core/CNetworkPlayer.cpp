@@ -305,6 +305,8 @@ bool CNetworkPlayer::Create()
 	// Add to world
 	m_pPlayerPed->AddToWorld();
 
+	m_pModelInfo->RemoveReference();
+
 	// jenksta: wtf is this doing here??
 	// Delete player helmet
 	m_bHelmet = false;
@@ -356,7 +358,7 @@ void CNetworkPlayer::Destroy()
 			m_pPlayerPed->GetPlayerPed()->m_pLivery = 0;
 
 			// Remove our model info reference
-			m_pModelInfo->RemoveReference();
+			//m_pModelInfo->RemoveReference();
 #if 0
 		ViruZz: Don't worry about the tab size here k?
 		// Get the player ped pointer
@@ -805,6 +807,8 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			SetAmmoInClip(uiAmmoInClip);
 		}
 		// End hacky code that needs to be changed
+
+		m_pModelInfo->RemoveReference();
 
 		// Do we not have any custom clothes?
 		if(!m_bUseCustomClothesOnSpawn)
@@ -2259,7 +2263,7 @@ void CNetworkPlayer::ExitVehicle(eExitVehicleMode exitmode)
 			}
 		}
 
-		if((int)m_pVehicle->GetHealth() < 0 || (float)m_pVehicle->GetPetrolTankHealth() < 0.0f)
+		if(m_pVehicle && (m_pVehicle->GetHealth() < 0 || m_pVehicle->GetPetrolTankHealth() < 0.0f))
 		{
 			m_bVehicleDeathCheck = true;
 			if(Scripting::IsCarDead(m_pVehicle->GetScriptingHandle()) || (Scripting::IsCarInWater(m_pVehicle->GetScriptingHandle()) && CGame::GetSpecialData(1)))

@@ -4,21 +4,16 @@
 #include <squirrel.h>
 #include <sqstdio.h>
 #include "sqstdstream.h"
-#include "../../Shared/CString.h"
-#include "../../Shared/SharedUtility.h"
 
 #define SQSTD_FILE_TYPE_TAG (SQSTD_STREAM_TYPE_TAG | 0x00000001)
-
-#ifdef SQUNICODE
-#define scrfopen _wfopen
-#else
-#define scrfopen fopen
-#endif
-
 //basic API
 SQFILE sqstd_fopen(const SQChar *filename ,const SQChar *mode)
 {
-	return (SQFILE)scrfopen(filename, mode);
+#ifndef SQUNICODE
+	return (SQFILE)fopen(filename,mode);
+#else
+	return (SQFILE)_wfopen(filename,mode);
+#endif
 }
 
 SQInteger sqstd_fread(void* buffer, SQInteger size, SQInteger count, SQFILE file)
@@ -122,7 +117,8 @@ static SQInteger _file__typeof(HSQUIRRELVM v)
 static SQInteger _file_releasehook(SQUserPointer p, SQInteger size)
 {
 	SQFile *self = (SQFile*)p;
-	delete self;
+	self->~SQFile();
+	sq_free(self,sizeof(SQFile));
 	return 1;
 }
 
@@ -135,9 +131,7 @@ static SQInteger _file_constructor(HSQUIRRELVM v)
 	if(sq_gettype(v,2) == OT_STRING && sq_gettype(v,3) == OT_STRING) {
 		sq_getstring(v, 2, &filename);
 		sq_getstring(v, 3, &mode);
-		String strFileName(filename);
-		SharedUtility::RemoveIllegalCharacters(strFileName);
-		newf = sqstd_fopen(SharedUtility::GetAbsolutePath("files/%s", strFileName.Get()), mode);
+		newf = sqstd_fopen(filename, mode);
 		if(!newf) return sq_throwerror(v, _SC("cannot open file"));
 	} else if(sq_gettype(v,2) == OT_USERPOINTER) {
 		owns = !(sq_gettype(v,3) == OT_NULL);
@@ -145,12 +139,25 @@ static SQInteger _file_constructor(HSQUIRRELVM v)
 	} else {
 		return sq_throwerror(v,_SC("wrong parameter"));
 	}
-	f = new SQFile(newf,owns);
+	
+	f = new (sq_malloc(sizeof(SQFile)))SQFile(newf,owns);
 	if(SQ_FAILED(sq_setinstanceup(v,1,f))) {
-		delete f;
+		f->~SQFile();
+		sq_free(f,sizeof(SQFile));
 		return sq_throwerror(v, _SC("cannot create blob with negative size"));
 	}
 	sq_setreleasehook(v,1,_file_releasehook);
+	return 0;
+}
+
+static SQInteger _file_close(HSQUIRRELVM v)
+{
+	SQFile *self = NULL;
+	if(SQ_SUCCEEDED(sq_getinstanceup(v,1,(SQUserPointer*)&self,(SQUserPointer)SQSTD_FILE_TYPE_TAG))
+		&& self != NULL)
+	{
+		self->Close();
+	}
 	return 0;
 }
 
@@ -159,6 +166,7 @@ static SQInteger _file_constructor(HSQUIRRELVM v)
 static SQRegFunction _file_methods[] = {
 	_DECL_FILE_FUNC(constructor,3,_SC("x")),
 	_DECL_FILE_FUNC(_typeof,1,_SC("x")),
+	_DECL_FILE_FUNC(close,1,_SC("x")),
 	{0,0,0,0},
 };
 
@@ -200,7 +208,7 @@ SQRESULT sqstd_getfile(HSQUIRRELVM v, SQInteger idx, SQFILE *file)
 
 
 
-static SQInteger _io_file_lexfeed_ASCII(SQUserPointer file)
+static SQInteger _io_file_lexfeed_PLAIN(SQUserPointer file)
 {
 	SQInteger ret;
 	char c;
@@ -209,6 +217,7 @@ static SQInteger _io_file_lexfeed_ASCII(SQUserPointer file)
 	return 0;
 }
 
+#ifdef SQUNICODE
 static SQInteger _io_file_lexfeed_UTF8(SQUserPointer file)
 {
 #define READ() \
@@ -245,6 +254,7 @@ static SQInteger _io_file_lexfeed_UTF8(SQUserPointer file)
 	}
 	return c;
 }
+#endif
 
 static SQInteger _io_file_lexfeed_UCS2_LE(SQUserPointer file)
 {
@@ -284,7 +294,7 @@ SQRESULT sqstd_loadfile(HSQUIRRELVM v,const SQChar *filename,SQBool printerror)
 	SQInteger ret;
 	unsigned short us;
 	unsigned char uc;
-	SQLEXREADFUNC func = _io_file_lexfeed_ASCII;
+	SQLEXREADFUNC func = _io_file_lexfeed_PLAIN;
 	if(file){
 		ret = sqstd_fread(&us,1,2,file);
 		if(ret != 2) {
@@ -313,7 +323,11 @@ SQRESULT sqstd_loadfile(HSQUIRRELVM v,const SQChar *filename,SQBool printerror)
 						sqstd_fclose(file); 
 						return sq_throwerror(v,_SC("Unrecognozed ecoding")); 
 					}
+#ifdef SQUNICODE
 					func = _io_file_lexfeed_UTF8;
+#else
+					func = _io_file_lexfeed_PLAIN;
+#endif
 					break;//UTF-8 ;
 				default: sqstd_fseek(file,0,SQ_SEEK_SET); break; // ascii
 			}
@@ -362,9 +376,7 @@ SQInteger _g_io_loadfile(HSQUIRRELVM v)
 	if(sq_gettop(v) >= 3) {
 		sq_getbool(v,3,&printerror);
 	}
-	String strFileName(filename);
-	SharedUtility::RemoveIllegalCharacters(strFileName);
-	if(SQ_SUCCEEDED(sqstd_loadfile(v,SharedUtility::GetAbsolutePath(strFileName),printerror)))
+	if(SQ_SUCCEEDED(sqstd_loadfile(v,filename,printerror)))
 		return 1;
 	return SQ_ERROR; //propagates the error
 }
@@ -373,9 +385,7 @@ SQInteger _g_io_writeclosuretofile(HSQUIRRELVM v)
 {
 	const SQChar *filename;
 	sq_getstring(v,2,&filename);
-	String strFileName(filename);
-	SharedUtility::RemoveIllegalCharacters(strFileName);
-	if(SQ_SUCCEEDED(sqstd_writeclosuretofile(v,SharedUtility::GetAbsolutePath(strFileName))))
+	if(SQ_SUCCEEDED(sqstd_writeclosuretofile(v,filename)))
 		return 1;
 	return SQ_ERROR; //propagates the error
 }
@@ -389,9 +399,7 @@ SQInteger _g_io_dofile(HSQUIRRELVM v)
 		sq_getbool(v,3,&printerror);
 	}
 	sq_push(v,1); //repush the this
-	String strFileName(filename);
-	SharedUtility::RemoveIllegalCharacters(strFileName);
-	if(SQ_SUCCEEDED(sqstd_dofile(v,SharedUtility::GetAbsolutePath(strFileName),SQTrue,printerror)))
+	if(SQ_SUCCEEDED(sqstd_dofile(v,filename,SQTrue,printerror)))
 		return 1;
 	return SQ_ERROR; //propagates the error
 }
@@ -411,13 +419,13 @@ SQRESULT sqstd_register_iolib(HSQUIRRELVM v)
 	declare_stream(v,_SC("file"),(SQUserPointer)SQSTD_FILE_TYPE_TAG,_SC("std_file"),_file_methods,iolib_funcs);
 	sq_pushstring(v,_SC("stdout"),-1);
 	sqstd_createfile(v,stdout,SQFalse);
-	sq_createslot(v,-3);
+	sq_newslot(v,-3,SQFalse);
 	sq_pushstring(v,_SC("stdin"),-1);
 	sqstd_createfile(v,stdin,SQFalse);
-	sq_createslot(v,-3);
+	sq_newslot(v,-3,SQFalse);
 	sq_pushstring(v,_SC("stderr"),-1);
 	sqstd_createfile(v,stderr,SQFalse);
-	sq_createslot(v,-3);
+	sq_newslot(v,-3,SQFalse);
 	sq_settop(v,top);
 	return SQ_OK;
 }
