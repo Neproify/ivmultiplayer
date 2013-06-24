@@ -134,15 +134,9 @@ private:
 #define rsl(l) (l)
 #endif
 
-extern SQObjectPtr _null_;
-//extern SQObjectPtr _true_;
-//extern SQObjectPtr _false_;
-//extern SQObjectPtr _one_;
-//extern SQObjectPtr _minusone_;
+//extern SQObjectPtr _null_;
 
 bool CompileTypemask(SQIntVec &res,const SQChar *typemask);
 
-void *sq_vm_malloc(SQUnsignedInteger size);
-void *sq_vm_realloc(void *p,SQUnsignedInteger oldsize,SQUnsignedInteger size);
-void sq_vm_free(void *p,SQUnsignedInteger size);
+
 #endif //_SQSTATE_H_

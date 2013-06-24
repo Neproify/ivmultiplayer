@@ -12,7 +12,7 @@
 #include "squserdata.h"
 #include "sqclass.h"
 
-SQObjectPtr _null_;
+//SQObjectPtr _null_;
 //SQObjectPtr _true_(true);
 //SQObjectPtr _false_(false);
 //SQObjectPtr _one_((SQInteger)1);
@@ -84,7 +84,7 @@ SQTable *CreateDefaultDelegate(SQSharedState *ss,SQRegFunction *funcz)
 	SQInteger i=0;
 	SQTable *t=SQTable::Create(ss,0);
 	while(funcz[i].name!=0){
-		SQNativeClosure *nc = SQNativeClosure::Create(ss,funcz[i].f);
+		SQNativeClosure *nc = SQNativeClosure::Create(ss,funcz[i].f,0);
 		nc->_nparamscheck = funcz[i].nparamscheck;
 		nc->_name = SQString::Create(ss,funcz[i].name);
 		if(funcz[i].typemask && !CompileTypemask(nc->_typecheck,funcz[i].typemask))
@@ -190,17 +190,18 @@ SQSharedState::~SQSharedState()
 #ifndef NO_GARBAGE_COLLECTOR
 	SQCollectable *t = _gc_chain;
 	SQCollectable *nx = NULL;
-	while(t) {
+	if(t) {
 		t->_uiRef++;
-		t->Finalize();
-		nx = t->_next;
-		if(--t->_uiRef == 0)
-			t->Release();
-		t=nx;
+		while(t) {
+			t->Finalize();
+			nx = t->_next;
+			if(nx) nx->_uiRef++;
+			if(--t->_uiRef == 0)
+				t->Release();
+			t = nx;
+		}
 	}
-// jenksta: disabled this assertion
-// ADAMIX: crash on linux here.
-//	assert(_gc_chain==NULL); //just to proove a theory
+	assert(_gc_chain==NULL); //just to proove a theory
 	while(_gc_chain){
 		_gc_chain->_uiRef++;
 		_gc_chain->Release();
@@ -327,21 +328,24 @@ SQInteger SQSharedState::ResurrectUnreachable(SQVM *vm)
 
 SQInteger SQSharedState::CollectGarbage(SQVM *vm)
 {
-	SQInteger n=0;
-	SQCollectable *tchain=NULL;
+	SQInteger n = 0;
+	SQCollectable *tchain = NULL;
 
 	RunMark(vm,&tchain);
 
 	SQCollectable *t = _gc_chain;
 	SQCollectable *nx = NULL;
-	while(t) {
+	if(t) {
 		t->_uiRef++;
-		t->Finalize();
-		nx = t->_next;
-		if(--t->_uiRef == 0)
-			t->Release();
-		t = nx;
-		n++;
+		while(t) {
+			t->Finalize();
+			nx = t->_next;
+			if(nx) nx->_uiRef++;
+			if(--t->_uiRef == 0)
+				t->Release();
+			t = nx;
+			n++;
+		}
 	}
 
 	t = tchain;
@@ -585,20 +589,21 @@ SQString *SQStringTable::Add(const SQChar *news,SQInteger len)
 {
 	if(len<0)
 		len = (SQInteger)scstrlen(news);
-	SQHash h = ::_hashstr(news,len)&(_numofslots-1);
+	SQHash newhash = ::_hashstr(news,len);
+	SQHash h = newhash&(_numofslots-1);
 	SQString *s;
 	for (s = _strings[h]; s; s = s->_next){
 		if(s->_len == len && (!memcmp(news,s->_val,rsl(len))))
 			return s; //found
 	}
 
-	SQString *t=(SQString *)SQ_MALLOC(rsl(len)+sizeof(SQString));
+	SQString *t = (SQString *)SQ_MALLOC(rsl(len)+sizeof(SQString));
 	new (t) SQString;
 	t->_sharedstate = _sharedstate;
 	memcpy(t->_val,news,rsl(len));
 	t->_val[len] = _SC('\0');
 	t->_len = len;
-	t->_hash = ::_hashstr(news,len);
+	t->_hash = newhash;
 	t->_next = _strings[h];
 	_strings[h] = t;
 	_slotused++;

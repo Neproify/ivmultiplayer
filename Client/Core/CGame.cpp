@@ -674,7 +674,7 @@ bool CGame::Patch()
 		CPatcher::InstallCallPatch((GetBase() + 0x424B26), (DWORD)RemoveInitialLoadingScreens);
 
 		// Does not work atm
-		//QuadPoolSizes();
+		QuadPoolSizes();
 
 		// jenksta: dont think you realise what your doing here, so disabling it...
 		//CPatcher::InstallJmpPatch((GetBase() + 0xD549DC), (GetBase() + 0xD549C0));// Disables loading music, reduces gta loading time & fix crash

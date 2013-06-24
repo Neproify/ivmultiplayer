@@ -4,32 +4,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sqstdsystem.h>
-#include "../../Shared/CString.h"
-#include "../../Shared/SharedUtility.h"
-
-#ifdef _LINUX
-#include <sys/stat.h>
-#include <sys/types.h>
-#define mkdir(x) mkdir(x, 0777)
-#else
-#include <direct.h>
-#endif
 
 #ifdef SQUNICODE
 #include <wchar.h>
 #define scgetenv _wgetenv
 #define scsystem _wsystem
 #define scasctime _wasctime
-#define scrmkdir _wmkdir
-#define scrrmdir _wrmdir
 #define scremove _wremove
 #define screname _wrename
 #else
 #define scgetenv getenv
 #define scsystem system
 #define scasctime asctime
-#define scrmkdir mkdir
-#define scrrmdir rmdir
 #define scremove remove
 #define screname rename
 #endif
@@ -70,42 +56,12 @@ static SQInteger _system_time(HSQUIRRELVM v)
 	return 1;
 }
 
-static SQInteger _system_mkdir(HSQUIRRELVM v)
-{
-	const SQChar *s;
-	sq_getstring(v,2,&s);
-	String strPath(s);
-	SharedUtility::RemoveIllegalCharacters(strPath);
-
-	if(scrmkdir(SharedUtility::GetAbsolutePath("files/%s", strPath.Get())) == -1)
-		return sq_throwerror(v,_SC("mkdir() failed"));
-
-	return 0;
-}
-
-static SQInteger _system_rmdir(HSQUIRRELVM v)
-{
-	const SQChar *s;
-	sq_getstring(v,2,&s);
-	String strPath(s);
-	SharedUtility::RemoveIllegalCharacters(strPath);
-
-	if(scrrmdir(SharedUtility::GetAbsolutePath("files/%s", strPath.Get())) == -1)
-		return sq_throwerror(v,_SC("rmdir() failed"));
-
-	return 0;
-}
-
 static SQInteger _system_remove(HSQUIRRELVM v)
 {
 	const SQChar *s;
 	sq_getstring(v,2,&s);
-	String strPath(s);
-	SharedUtility::RemoveIllegalCharacters(strPath);
-
-	if(scremove(SharedUtility::GetAbsolutePath("files/%s", strPath.Get())) == -1)
+	if(scremove(s)==-1)
 		return sq_throwerror(v,_SC("remove() failed"));
-
 	return 0;
 }
 
@@ -114,14 +70,8 @@ static SQInteger _system_rename(HSQUIRRELVM v)
 	const SQChar *oldn,*newn;
 	sq_getstring(v,2,&oldn);
 	sq_getstring(v,3,&newn);
-	String strOldName(oldn);
-	String strNewName(newn);
-	SharedUtility::RemoveIllegalCharacters(strOldName);
-	SharedUtility::RemoveIllegalCharacters(strNewName);
-
-	if(screname(SharedUtility::GetAbsolutePath("files/%s", strOldName.Get()), SharedUtility::GetAbsolutePath("files/%s", strNewName.Get())) == -1)
+	if(screname(oldn,newn)==-1)
 		return sq_throwerror(v,_SC("rename() failed"));
-
 	return 0;
 }
 
@@ -170,18 +120,16 @@ static SQInteger _system_date(HSQUIRRELVM v)
 
 #define _DECL_FUNC(name,nparams,pmask) {_SC(#name),_system_##name,nparams,pmask}
 static SQRegFunction systemlib_funcs[]={
-	//_DECL_FUNC(getenv,2,_SC(".s")),
-	//_DECL_FUNC(system,2,_SC(".s")),
+	_DECL_FUNC(getenv,2,_SC(".s")),
+	_DECL_FUNC(system,2,_SC(".s")),
 	_DECL_FUNC(clock,0,NULL),
 	_DECL_FUNC(time,1,NULL),
 	_DECL_FUNC(date,-1,_SC(".nn")),
-	_DECL_FUNC(mkdir,2,_SC(".s")),
-	_DECL_FUNC(rmdir,2,_SC(".s")),
 	_DECL_FUNC(remove,2,_SC(".s")),
 	_DECL_FUNC(rename,3,_SC(".ss")),
 	{0,0}
 };
-
+#undef _DECL_FUNC
 
 SQInteger sqstd_register_systemlib(HSQUIRRELVM v)
 {
@@ -192,7 +140,7 @@ SQInteger sqstd_register_systemlib(HSQUIRRELVM v)
 		sq_newclosure(v,systemlib_funcs[i].f,0);
 		sq_setparamscheck(v,systemlib_funcs[i].nparamscheck,systemlib_funcs[i].typemask);
 		sq_setnativeclosurename(v,-1,systemlib_funcs[i].name);
-		sq_createslot(v,-3);
+		sq_newslot(v,-3,SQFalse);
 		i++;
 	}
 	return 1;

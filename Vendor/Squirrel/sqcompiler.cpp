@@ -578,7 +578,7 @@ public:
 		MultExp();
 		for(;;) switch(_token) {
 		case _SC('+'): case _SC('-'):
-			BIN_EXP(ChooseArithOpByToken(_token), &SQCompiler::MultExp,_token); break;
+			BIN_EXP(ChooseArithOpByToken(_token), &SQCompiler::MultExp); break;
 		default: return;
 		}
 	}
@@ -588,7 +588,7 @@ public:
 		PrefixedExpr();
 		for(;;) switch(_token) {
 		case _SC('*'): case _SC('/'): case _SC('%'):
-			BIN_EXP(ChooseArithOpByToken(_token), &SQCompiler::PrefixedExpr,_token); break;
+			BIN_EXP(ChooseArithOpByToken(_token), &SQCompiler::PrefixedExpr); break;
 		default: return;
 		}
 	}
@@ -1147,6 +1147,7 @@ public:
 		_fs->SetIntructionParam(foreachpos + 1, 1, _fs->GetCurrentPos() - foreachpos);
 		END_BREAKBLE_BLOCK(foreachpos - 1);
 		//restore the local variable stack(remove index,val and ref idx)
+		_fs->PopTarget();
 		END_SCOPE();
 	}
 	void SwitchStatement()
@@ -1334,7 +1335,8 @@ public:
 	void FunctionExp(SQInteger ftype,bool lambda = false)
 	{
 		Lex(); Expect(_SC('('));
-		CreateFunction(_null_,lambda);
+		SQObjectPtr dummy;
+		CreateFunction(dummy,lambda);
 		_fs->AddInstruction(_OP_CLOSURE, _fs->PushTarget(), _fs->_functions.size() - 1, ftype == TK_FUNCTION?0:1);
 	}
 	void ClassExp()

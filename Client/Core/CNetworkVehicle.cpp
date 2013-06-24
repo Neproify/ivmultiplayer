@@ -197,6 +197,7 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 
 		// We dont need the model after adding vehicle to world
 		m_pModelInfo->RemoveReference();
+
 		// Set initial colors
 		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
 
@@ -449,10 +450,6 @@ void CNetworkVehicle::StreamOut()
 	// Save the color
 	GetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
 
-	// Save the health
-	m_uiHealth = GetHealth();
-	m_fPetrolTankHealth = GetPetrolTankHealth();
-
 	// Save the siren state
 	m_bSirenState = GetSirenState();
 
@@ -462,7 +459,7 @@ void CNetworkVehicle::StreamOut()
 	// Save the engine state
 	m_bEngineStatus = GetEngineState();
 
-	// Save the vehicle basic health
+	// Save the vehicle health
 	m_uiHealth = GetHealth();
 
 	// Save the petrol tank health
@@ -831,7 +828,7 @@ bool CNetworkVehicle::StoreEmptySync(EMPTYVEHICLESYNCPACKET * emptyVehicleSync)
 
 		CVector3 vecPos; GetPosition(vecPos);
 
-		if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f || vecPos.fZ < -1.0f)
+		if(GetHealth() < 0 || GetPetrolTankHealth() < 0.0f || vecPos.fZ < -1.0f)
 		{
 			if(Scripting::IsCarDead(GetScriptingHandle()) || (GetVehicleModelType() < 116 && Scripting::IsCarInWater(GetScriptingHandle()) && CGame::GetSpecialData(1)))
 			{
@@ -1167,7 +1164,8 @@ void CNetworkVehicle::UpdateInterior(bool bHasDriver)
 	THIS_CHECK;
 	if(!bHasDriver)
 	{
-		if(GetInterior() != m_uiInterior) {
+		if(GetInterior() != m_uiInterior) 
+		{
 			SetInterior(GetInterior());
 		}
 	}
@@ -1177,10 +1175,12 @@ void CNetworkVehicle::UpdateInterior(bool bHasDriver)
 		if(pPlayer && pPlayer->IsSpawned())
 		{
 			unsigned int uiInterior = pPlayer->GetInterior();
-			if(GetInterior() == uiInterior) {
+			if(GetInterior() == uiInterior) 
+			{
 				SetInterior(uiInterior);
 			}
-			else if(GetInterior() != uiInterior) {
+			else if(GetInterior() != uiInterior) 
+			{
 				SetInterior(pPlayer->GetInterior());
 			}
 		}
@@ -1305,7 +1305,11 @@ bool CNetworkVehicle::IsOnScreen()
 	THIS_CHECK_R(false);
 	// Are we spawned?
 	if(IsSpawned())
-		return /*Scripting::IsCarOnScreen(GetScriptingHandle())*/ true;
+	{
+		CVector3 vecPos;
+		m_pVehicle->GetPosition(vecPos);
+		return g_pClient->GetCamera()->IsOnScreen(vecPos);
+	}
 
 	return false;
 }
@@ -1417,20 +1421,22 @@ void CNetworkVehicle::SetDamageable(bool bToggle)
 	// Are we spawned?
 	if(IsSpawned() && m_pVehicle)
 	{
-		if(m_bActorVehicle) {
+		if(m_bActorVehicle) 
+		{
 			Scripting::SetCarCanBeDamaged(GetScriptingHandle(),false);
 			Scripting::SetCarCanBurstTyres(GetScriptingHandle(),false);
 			return;
 		}
 
-		if(CGame::GetSpecialData(0)) {
+		if(CGame::GetSpecialData(0)) 
+		{
 			Scripting::SetCarCanBeDamaged(GetScriptingHandle(),true);
 			Scripting::SetCarCanBurstTyres(GetScriptingHandle(),true);
 		}
 		else
 		{
 			// Check if we are "burning" -> if let the car burn out and than explode
-			if((int)GetHealth() < 0 || (float)GetPetrolTankHealth() < 0.0f)
+			if(GetHealth() < 0 || GetPetrolTankHealth() < 0.0f)
 			{
 				Scripting::SetCarCanBeDamaged(GetScriptingHandle(),true);
 				Scripting::SetCarCanBurstTyres(GetScriptingHandle(),true);
