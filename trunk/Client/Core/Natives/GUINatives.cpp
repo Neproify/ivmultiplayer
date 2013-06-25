@@ -394,6 +394,32 @@ bool OnEditboxTextChanged(const CEGUI::EventArgs &eventArgs)
 	return true;
 }
 
+// event rowClick(string guiName)
+bool OnRowClick(const CEGUI::EventArgs &eventArgs)
+{
+	CEvents * pEvents = g_pClient->GetEvents();
+	String eventName ("rowClick");
+
+	if(!pEvents->IsEventRegistered(eventName))
+		return false;
+
+	const CEGUI::WindowEventArgs eArgs = static_cast<const CEGUI::WindowEventArgs&>(eventArgs);
+	CEGUI::Window * pWindow = eArgs.window;
+	CSquirrel * pScript = g_pClient->GetClientScriptManager()->GetGUIManager()->GetScript(pWindow);
+
+	CEGUI::MultiColumnList * pMultiColumnList = static_cast<CEGUI::MultiColumnList*>(eArgs.window);
+	int iItemID = pMultiColumnList->getItemRowIndex(pMultiColumnList->getFirstSelectedItem());
+
+	CSquirrelArguments pArguments;
+	pArguments.push(eArgs.window->getName().c_str()); // Window Name
+	pArguments.push(iItemID); // Row
+
+	CLogFile::Printf("Value: %i",iItemID);
+
+	pEvents->Call(eventName, &pArguments, pScript);
+	return true;
+}
+
 // event guiClick(guiName, mouseButton)
 bool OnClick(const CEGUI::EventArgs &eventArgs)
 {
@@ -1100,6 +1126,7 @@ _MEMBER_FUNCTION_IMPL(GUIEditBox, constructor)
 	sq_pushbool(pVM, true);
 	return 1;
 }
+
 // GUIMultiLineEditBox
 _MEMBER_FUNCTION_IMPL(GUIMultiLineEditBox, constructor)
 {
@@ -1120,6 +1147,79 @@ _MEMBER_FUNCTION_IMPL(GUIMultiLineEditBox, constructor)
 	pWindow->subscribeEvent(CEGUI::Editbox::EventTextChanged, CEGUI::Event::Subscriber(&OnEditboxTextChanged));
 
 	sq_pushbool(pVM, true);
+	return 1;
+}
+
+// GUIMultiColumnList
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, constructor)
+{
+	CEGUI::Window * pWindow = g_pClient->GetGUI()->CreateGUIMultiColumnList();
+	if(!pWindow || SQ_FAILED(sq_setinstance(pVM, pWindow)))
+	{
+		CLogFile::Printf("Can't create GUIMultiColumnList.");
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	//_SET_RELEASE_HOOK(GUIElement);
+	CClientScriptManager * pClientScriptManager = g_pClient->GetClientScriptManager();
+	pClientScriptManager->GetGUIManager()->Add(pWindow, pClientScriptManager->GetScriptingManager()->Get(pVM));
+	pWindow->setVisible(true);	
+
+	SubscribeGuiEvents(pWindow);
+	pWindow->subscribeEvent(CEGUI::MultiColumnList::EventSelectionChanged, CEGUI::Event::Subscriber(&OnRowClick));
+
+	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, addRow)
+{
+	CEGUI::MultiColumnList * pWindow = sq_getinstance<CEGUI::MultiColumnList *>(pVM);
+
+	if(!pWindow)
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	sq_pushinteger(pVM, pWindow->addRow());
+	return 1;
+}
+
+// Custom ListboxTextItem class to automatically set the selection brush image on creation
+class MultiColumnListItem : public CEGUI::ListboxTextItem
+{
+public:
+	MultiColumnListItem(const CEGUI::String& text) : ListboxTextItem(text)
+	{
+		setSelectionColours(CEGUI::colour(0x0073AAFF));
+		setSelectionBrushImage("WindowsLook", "Background");
+	}
+};
+
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, setItem)
+{
+	SQInteger sqiRow;
+	sq_getinteger(pVM, -1, &sqiRow);
+
+	SQInteger sqiColumn;
+	sq_getinteger(pVM, -2, &sqiColumn);
+
+	const char * value;
+	sq_getstring(pVM, -3, &value);
+
+
+	CEGUI::MultiColumnList * pWindow = sq_getinstance<CEGUI::MultiColumnList *>(pVM);
+
+	if(!pWindow)
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	pWindow->setItem(new MultiColumnListItem(value), sqiColumn, sqiRow);
+	sq_pushinteger(pVM, true);
 	return 1;
 }
 
@@ -1258,6 +1358,7 @@ _MEMBER_FUNCTION_IMPL(GUIProgressBar, constructor)
  	sq_pushbool(pVM, true);
 	return 1;
 }
+
 _MEMBER_FUNCTION_IMPL(GUIProgressBar, setValue)
 {
  	CEGUI::Window * pWindow = sq_getinstance<CEGUI::Window *>(pVM);

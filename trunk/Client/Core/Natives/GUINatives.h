@@ -50,6 +50,11 @@ _MEMBER_FUNCTION_IMPL(GUIEditBox, constructor);
 // GUIMultiLineEditBox
 _MEMBER_FUNCTION_IMPL(GUIMultiLineEditBox, constructor);
 
+// GUIMultiColumnList
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, constructor);
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, addRow);
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, setItem);
+
 // GUICheckBox
 _MEMBER_FUNCTION_IMPL(GUICheckBox, constructor);
 _MEMBER_FUNCTION_IMPL(GUICheckBox, setChecked);
