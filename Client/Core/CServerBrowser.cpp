@@ -20,7 +20,8 @@ class ServerBrowserListItem : public CEGUI::ListboxTextItem
 public:
 	ServerBrowserListItem(const CEGUI::String& text) : ListboxTextItem(text)
 	{
-		setSelectionBrushImage("WindowsLook", "MultiListSelectionBrush");
+		setSelectionColours(CEGUI::colour(0x0073AAFF));
+		setSelectionBrushImage("WindowsLook", "Background");
 	}
 };
 

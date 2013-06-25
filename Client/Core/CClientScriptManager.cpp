@@ -65,6 +65,13 @@ _BEGIN_CLASS(GUIMultiLineEditBox)
 _MEMBER_FUNCTION(GUIMultiLineEditBox, constructor, 0, NULL)
 _END_CLASS_BASE(GUIMultiLineEditBox, GUIElement)
 
+// GUIMultiColumnList
+_BEGIN_CLASS(GUIMultiColumnList)
+_MEMBER_FUNCTION(GUIMultiColumnList, constructor, 0, NULL)
+_MEMBER_FUNCTION(GUIMultiColumnList, addRow, 0, NULL)
+_MEMBER_FUNCTION(GUIMultiColumnList, setItem, 3, "sii")
+_END_CLASS_BASE(GUIMultiColumnList, GUIElement)
+
 //GUIProgressBar
 _BEGIN_CLASS(GUIProgressBar)
 _MEMBER_FUNCTION(GUIProgressBar, constructor, 0, NULL)
@@ -169,6 +176,7 @@ CClientScriptManager::CClientScriptManager()
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIButton));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIEditBox));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIMultiLineEditBox));
+	m_pScripting->RegisterClass(&_CLASS_DECL(GUIMultiColumnList));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUICheckBox));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIImage));
 	m_pScripting->RegisterClass(&_CLASS_DECL(GUIProgressBar));

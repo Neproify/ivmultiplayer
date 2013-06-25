@@ -764,6 +764,11 @@ void CGUI::RemoveGUIWindow(CGUIMultiLineEditBox * pMultiLineEditBox)
 	RemoveGUIWindow((CEGUI::Window *)pMultiLineEditBox);
 }
 
+void CGUI::RemoveGUIWindow(CGUIMultiColumnList * pMultiColumnList)
+{
+	RemoveGUIWindow((CEGUI::Window *)pMultiColumnList);
+}
+
 void CGUI::RemoveGUIWindow(CGUIStaticImage * pStaticText)
 {
 	RemoveGUIWindow((CEGUI::Window *)pStaticText);

@@ -135,6 +135,7 @@ public:
 	void                       RemoveGUIWindow(CGUIFrameWindow * pFrameWindow);
 	void                       RemoveGUIWindow(CGUIEditBox * pEditBox);
 	void                       RemoveGUIWindow(CGUIMultiLineEditBox * pMultiLineEditBox);
+	void                       RemoveGUIWindow(CGUIMultiColumnList * pMultiColumnList);
 	void                       RemoveGUIWindow(CGUIStaticImage * pStaticText);
 	void                       RemoveGUIWindow(CGUIStaticText * pStaticText);
 	void                       RemoveGUIWindow(CGUICheckBox * pCheckBox);
