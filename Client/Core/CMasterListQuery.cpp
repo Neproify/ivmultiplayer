@@ -33,7 +33,7 @@ void CMasterListQuery::Reset()
 
 bool CMasterListQuery::Query(int iType)
 {
-	String strPostPath("/list.php?version=01RC2");
+	String strPostPath("/list.php?version=01RC3");
 
 	if(!m_pHttpClient->Get(strPostPath))
 	{
