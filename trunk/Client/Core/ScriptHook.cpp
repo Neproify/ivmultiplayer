@@ -66,10 +66,8 @@ void CScriptVM__Process()
 	}
 	else
 	{
-		Scripting::EnableSceneStreaming(false);
 		// Call the game process callback
 		g_pClient->OnGameProcess();
-		Scripting::EnableSceneStreaming(true);
 	}
 
 	if(iFrames < 2)

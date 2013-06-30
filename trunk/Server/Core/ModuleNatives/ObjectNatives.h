@@ -31,7 +31,7 @@ namespace Modules
 		bool SetDimension(EntityId objectId, unsigned char ucDimension);
 		unsigned char GetDimension(EntityId objectId);
 
-		void CreateExplosion(CVector3 vecPos, float fDensity);
+		void CreateExplosion(CVector3 vecPos, unsigned int uiExplosionType, float fRadius, bool bSound, bool bInvisible, float fCameraShake);
 		EntityId CreateFire(CVector3 vecPos, float fDensity);
 		void DeleteFire(EntityId fireId);
 		bool AttachPed(EntityId objectId, EntityId playerId, CVector3 vecPos, CVector3 vecRot);

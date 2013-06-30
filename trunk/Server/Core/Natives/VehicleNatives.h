@@ -69,6 +69,7 @@ private:
 	static SQInteger GetRespawnDelay(SQVM * pVM);
 	static SQInteger SetDimension(SQVM * pVM);
 	static SQInteger GetDimension(SQVM * pVM);
+	static SQInteger IsAnyVehicleInBall(SQVM * pVM);
 
 public:
 	static void      Register(CScriptingManager * pScriptingManager);

@@ -27,15 +27,9 @@
 extern CEvents * g_pEvents;
 CMutex           g_webMutex;
 
-/*int MongooseEventHandler(struct mg_connection* conn) {
-	g_webMutext.Lock();	
-	const struct mg_request_info *ri = mg_get_request_info(conn);
-	
-}*/
-#ifdef OLD_MONGOOSE
-void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn)
+static int begin_request_handler(struct mg_connection *conn) 
 {
-	if(event == MG_NEW_REQUEST)
+	if(conn)
 	{
 		// Lock the web mutex
 		g_webMutex.Lock();
@@ -51,23 +45,27 @@ void * CWebServer::MongooseEventHandler(mg_event event, mg_connection * conn)
 		args.push(request_info->uri);
 		args.push(szIpAddress);
 		args.push(request_info->request_method);
-		g_pEvents->Call("webRequest", &args);
+		CSquirrelArgument ret = g_pEvents->Call("webRequest", &args);
 
-		// Output the string to the web client
-		/*const char * out = "yes";
-		mg_printf(conn, out);*/
-
-		// Unlock the web mutex
-		g_webMutex.Unlock();
-
-		// Handled
-		//return (void *)"yes";
+		// Do we have a string returned?
+		if(ret.GetType() == SQObjectType::OT_BOOL)
+		{
+			g_webMutex.Unlock();
+			return !ret.GetBool();
+		}
+		else if(ret.GetType() == SQObjectType::OT_INTEGER)
+		{
+			g_webMutex.Unlock();
+			return ret.GetInteger() ? 0 : 1;
+		}
+		else
+		{
+			printf("wrong return type in webRequest\n");
+			g_webMutex.Unlock();
+			return 0;
+		}
 	}
-
-	// Not handled
-	return NULL;
 }
-#endif
 
 CWebServer::CWebServer(unsigned short usHTTPPort) 
 {
@@ -82,16 +80,6 @@ CWebServer::CWebServer(unsigned short usHTTPPort)
 
 		for(int i = 0; i < 6; i++)
 			options[i] = new char[256];
-		
-		/*const char* options[] = {
-			"listening_ports",
-			String("%d", usHTTPPort).Get());
-			"document_root",
-			SharedUtility::GetAbsolutePath("webserver").Get(),
-			"num_threads",
-			"50",
-			NULL	
-		};*/
 
 		// Set the options
 		strcpy(options[0], "listening_ports");
@@ -104,6 +92,7 @@ CWebServer::CWebServer(unsigned short usHTTPPort)
 
 		struct mg_callbacks callbacks;
 		memset(&callbacks, 0, sizeof(callbacks));
+		callbacks.begin_request = begin_request_handler;
 		// Start the mongoose context
 		m_pMongooseContext = mg_start(&callbacks, NULL, (const char**)options);
 

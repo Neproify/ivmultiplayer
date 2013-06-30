@@ -195,9 +195,6 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 		// Add the vehicle to the world
 		m_pVehicle->AddToWorld();
 
-		// We dont need the model after adding vehicle to world
-		m_pModelInfo->RemoveReference();
-
 		// Set initial colors
 		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
 
@@ -287,6 +284,7 @@ void CNetworkVehicle::Destroy()
 		unsigned int handle = GetScriptingHandle();
 		Scripting::DeleteCar(&handle);
 
+		m_pModelInfo->RemoveReference();
 #if 0
 		*(BYTE *)(pVehicle + 0xF6D) |= 8;
 
@@ -591,12 +589,12 @@ void CNetworkVehicle::SetPosition(const CVector3& vecPosition, bool bDontCancelT
 			Scripting::SetCarCoordinatesNoOffset(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
 		else
 		{
-			m_pVehicle->RemoveFromWorld();
+			m_pVehicle->GetVehicle()->Remove();
 
 			// Set the position in the matrix
 			m_pVehicle->SetPosition(vecPosition);
 
-			m_pVehicle->AddToWorld(); 
+			m_pVehicle->GetVehicle()->Add(); 
 		}
 	}
 
@@ -621,7 +619,7 @@ void CNetworkVehicle::SetRotation(const CVector3& vecRotation, bool bResetInterp
 	THIS_CHECK;
 	if(IsSpawned())
 	{
-		m_pVehicle->RemoveFromWorld();
+		m_pVehicle->GetVehicle()->Remove();
 
 		// Get the vehicle matrix
 		Matrix matMatrix;
@@ -636,7 +634,7 @@ void CNetworkVehicle::SetRotation(const CVector3& vecRotation, bool bResetInterp
 		// Set the new vehicle matrix
 		m_pVehicle->SetMatrix(matMatrix);
 
-		m_pVehicle->AddToWorld();
+		m_pVehicle->GetVehicle()->Add();
 	}
 
 	m_vecRotation = vecRotation;

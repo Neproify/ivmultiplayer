@@ -305,8 +305,6 @@ bool CNetworkPlayer::Create()
 	// Add to world
 	m_pPlayerPed->AddToWorld();
 
-	m_pModelInfo->RemoveReference();
-
 	// jenksta: wtf is this doing here??
 	// Delete player helmet
 	m_bHelmet = false;
@@ -358,7 +356,7 @@ void CNetworkPlayer::Destroy()
 			m_pPlayerPed->GetPlayerPed()->m_pLivery = 0;
 
 			// Remove our model info reference
-			//m_pModelInfo->RemoveReference();
+			m_pModelInfo->RemoveReference();
 #if 0
 		ViruZz: Don't worry about the tab size here k?
 		// Get the player ped pointer
@@ -808,8 +806,6 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 		}
 		// End hacky code that needs to be changed
 
-		m_pModelInfo->RemoveReference();
-
 		// Do we not have any custom clothes?
 		if(!m_bUseCustomClothesOnSpawn)
 		{
@@ -865,8 +861,8 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 		// Are we not in a vehicle and not entering a vehicle?
 		if(!InternalIsInVehicle() && !HasVehicleEnterExit())
 		{
-			// Remove the player ped from the world     	
-			m_pPlayerPed->RemoveFromWorld();
+			// Remove the player ped from the world    
+			m_pPlayerPed->GetPlayerPed()->Remove();
 
 			// Set the position in the matrix
 			m_pPlayerPed->SetPosition(vecPosition);
@@ -885,7 +881,7 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 
 			// Re add the ped to the world to apply the matrix change 
 			// This will calculate the correct z coord
-			m_pPlayerPed->AddToWorld();
+			m_pPlayerPed->GetPlayerPed()->Add();
 		}
 	}
 
@@ -993,14 +989,16 @@ float CNetworkPlayer::GetDesiredHeading()
 
 void CNetworkPlayer::SetBonePosition(CVector3 vecBone)
 {
-	if(IsSpawned()) {
+	if(IsSpawned()) 
+	{
 		//TODO
 	}
 }
 
 CVector3 CNetworkPlayer::GetBonePosition(int iBone)
 {
-	if(IsSpawned()) {
+	if(IsSpawned()) 
+	{
 		CVector3 vecPos; m_pPlayerPed->GetPosition(vecPos);
 		CVector3 vecBone;
 		Scripting::GetPedBonePosition(GetScriptingHandle(), (Scripting::ePedBone)iBone, vecPos.fX, vecPos.fY, vecPos.fZ, &vecBone);

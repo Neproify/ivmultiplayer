@@ -77,6 +77,45 @@ void CVehicleNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getVehicleRespawnDelay", GetRespawnDelay, -1, NULL);
 	pScriptingManager->RegisterFunction("setVehicleDimension", SetDimension, 2, "ii");
 	pScriptingManager->RegisterFunction("getVehicleDimension", GetDimension, 1, "i");
+
+	pScriptingManager->RegisterFunction("isAnyVehicleInBall", IsAnyVehicleInBall, 4, "ffff");
+}
+
+
+SQInteger CVehicleNatives::IsAnyVehicleInBall(SQVM * pVM)
+{
+	CVector3 vecPosition;
+	sq_getvector3(pVM, -3, &vecPosition);
+
+	float x, y, z, distance;
+
+	sq_getfloat(pVM, -4, &x);
+	sq_getfloat(pVM, -3, &y);
+	sq_getfloat(pVM, -2, &z);
+	sq_getfloat(pVM, -1, &distance);
+
+	for(int i = 0; i < MAX_VEHICLES; ++i)
+	{
+		CVehicle* pVehicle = g_pVehicleManager->GetAt(i);
+		if(pVehicle)
+		{
+			CVector3 vecVehiclePos;
+			pVehicle->GetPosition(vecVehiclePos);
+			float xx, yy, zz;
+			xx = vecVehiclePos.fX;
+			yy = vecVehiclePos.fY;
+			zz = vecVehiclePos.fZ;
+
+
+			if(Math::IsPointInBall(x, y, z, distance, xx, yy, zz))
+			{
+				sq_pushbool(pVM, true);
+				return 1;
+			}
+		}
+	}
+	sq_pushbool(pVM, false);
+	return 1;
 }
 
 // createVehicle(model, x, y, z, rx, ry, rz, color1, color2, color3, color4, respawn_delay)
@@ -90,7 +129,7 @@ SQInteger CVehicleNatives::Create(SQVM * pVM)
 	SQInteger color1 = 0, color2 = 0, color3 = 0, color4 = 0;
 	sq_getinteger(pVM, 2, &iModelId);
 
-	if(iModelId < 0 || iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111 || iModelId > 123)
+	if(iModelId < 0 /*|| iModelId == 41 || iModelId == 96 || iModelId == 107 || iModelId == 111*/ || iModelId > 123)
 	{
 		#ifdef IVMP_DEBUG
 			CLogFile::Printf("Invalid vehicle model (%d)", iModelId);

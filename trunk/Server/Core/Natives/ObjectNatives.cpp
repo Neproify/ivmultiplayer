@@ -16,7 +16,6 @@ extern CObjectManager * g_pObjectManager;
 extern CNetworkManager * g_pNetworkManager;
 
 // Object functions
-
 void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 {
 	pScriptingManager->RegisterFunction("createObject", Create, 7, "iffffff");
@@ -28,7 +27,7 @@ void CObjectNatives::Register(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("getObjectPosition", GetCoordinates, 1, "i");
 	pScriptingManager->RegisterFunction("setObjectRotation", SetRotation, 4, "ifff");
 	pScriptingManager->RegisterFunction("getObjectRotation", GetRotation, 1, "i");
-	pScriptingManager->RegisterFunction("createExplosion", CreateExplosion, 4, "ffff");
+	pScriptingManager->RegisterFunction("createExplosion", CreateExplosion, 8, "fffifbbf");
 	pScriptingManager->RegisterFunction("createFire", CreateFire, 4, "ffff");
 	pScriptingManager->RegisterFunction("deleteFire", DeleteFire, 1, "i");
 	pScriptingManager->RegisterFunction("attachObjectToPlayer", AttachPed, 8, "iiffffff");
@@ -179,12 +178,22 @@ SQInteger CObjectNatives::GetRotation(SQVM * pVM)
 SQInteger CObjectNatives::CreateExplosion(SQVM * pVM)
 {
 	CVector3 vecPos;
-	float fdensity;
-	sq_getfloat(pVM,-4,&vecPos.fX);
-	sq_getfloat(pVM,-3,&vecPos.fY);
-	sq_getfloat(pVM,-2,&vecPos.fZ);
-	sq_getfloat(pVM,-1,&fdensity);
-	g_pObjectManager->CreateExplosion(vecPos, fdensity);
+	SQInteger uiExplosionType;
+	float fRadius;
+	SQBool bSound;
+	SQBool bInvisible;
+	float fCameraShake;
+
+	sq_getfloat(pVM,-8,&vecPos.fX);
+	sq_getfloat(pVM,-7,&vecPos.fY);
+	sq_getfloat(pVM,-6,&vecPos.fZ);
+	sq_getinteger(pVM,-5,&uiExplosionType);
+	sq_getfloat(pVM,-4,&fRadius);
+	sq_getbool(pVM,-3,&bSound);
+	sq_getbool(pVM,-2,&bInvisible);
+	sq_getfloat(pVM,-1,&fCameraShake);
+
+	g_pObjectManager->CreateExplosion(vecPos, uiExplosionType, fRadius, bSound, bInvisible, fCameraShake);
 
 	sq_pushbool(pVM,true);
 	return 1;

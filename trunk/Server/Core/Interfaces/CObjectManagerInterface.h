@@ -27,5 +27,5 @@ public:
 	virtual EntityId CreateFire(const CVector3& vecPosition, float fdensity) = 0;
 	virtual void DeleteFire(EntityId fireId) = 0;
 	virtual void HandleClientJoinFire(EntityId playerId) = 0;
-	virtual void CreateExplosion(const CVector3& vecPosition, float fdensity) = 0;
+	virtual void CreateExplosion(const CVector3& vecPosition, unsigned int uiExplosionType, float fRadius, bool Sound, bool Invisible, float fCameraShake) = 0;
 };

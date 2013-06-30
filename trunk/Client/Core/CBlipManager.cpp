@@ -32,6 +32,8 @@ CBlipManager::~CBlipManager()
 
 void CBlipManager::Create(EntityId blipId, int iSprite, CVector3 vecPosition)
 {
+	if(blipId >= MAX_BLIPS)
+		return;
 	// If a blip already exists in this slot delete it
 	if(m_bActive[blipId])
 		Delete(blipId);
@@ -69,6 +71,8 @@ void CBlipManager::Create(EntityId blipId, int iSprite, CVector3 vecPosition)
 
 bool CBlipManager::Delete(EntityId blipId)
 {
+	if(blipId >= MAX_BLIPS)
+		return false;
 	// Does no blip exist in this slot?
 	if(!m_bActive[blipId])
 	{
@@ -85,6 +89,8 @@ bool CBlipManager::Delete(EntityId blipId)
 
 void CBlipManager::SetColor(EntityId blipId, unsigned int uiColor)
 {
+	if(blipId >= MAX_BLIPS)
+		return;
 	if(m_bActive[blipId])
 	{
 		// Change the blip color
@@ -99,6 +105,8 @@ void CBlipManager::SetColor(EntityId blipId, unsigned int uiColor)
 
 void CBlipManager::SetSize(EntityId blipId, float fSize)
 {
+	if(blipId >= MAX_BLIPS)
+		return;
 	if(m_bActive[blipId])
 	{
 		Scripting::ChangeBlipScale(m_Blips[blipId].uiBlipIndex, fSize);
@@ -108,6 +116,8 @@ void CBlipManager::SetSize(EntityId blipId, float fSize)
 
 void CBlipManager::Flash(EntityId blipId, bool bFlash, int iFlashType)
 {
+	if(blipId >= MAX_BLIPS)
+		return;
 	if(m_bActive[blipId])
 	{
 		bool bBlipFlash[2];
@@ -137,6 +147,8 @@ void CBlipManager::Flash(EntityId blipId, bool bFlash, int iFlashType)
 
 void CBlipManager::ToggleShortRange(EntityId blipId, bool bToggle)
 {
+	if(blipId >= MAX_BLIPS)
+		return;
 	if(m_bActive[blipId])
 	{
 		Scripting::SetBlipAsShortRange(m_Blips[blipId].uiBlipIndex, bToggle);
@@ -146,6 +158,8 @@ void CBlipManager::ToggleShortRange(EntityId blipId, bool bToggle)
 
 void CBlipManager::ToggleRouteBlip(EntityId blipId, bool bToggle)
 {
+	if(blipId >= MAX_BLIPS)
+		return;
 	if(m_bActive[blipId])
 	{
 		DWORD dwFunction = (CGame::GetBase()+0x810DC0);
@@ -172,12 +186,16 @@ void CBlipManager::ToggleRouteBlip(EntityId blipId, bool bToggle)
 
 void CBlipManager::SetName(EntityId blipId, String strName)
 {
+	if(blipId >= MAX_BLIPS)
+		return;
 	if(m_bActive[blipId])
 		Scripting::ChangeBlipNameFromAscii(m_Blips[blipId].uiBlipIndex, strName.Get());
 }
 
 void CBlipManager::AttachToVehicle(EntityId blipId, EntityId vehicleId) 
 {
+	if(blipId >= MAX_BLIPS)
+		return;
 	if(m_bActive[blipId])
 	{
 		CNetworkVehicle * pVehicle = g_pClient->GetVehicleManager()->Get(vehicleId);
@@ -212,6 +230,8 @@ void CBlipManager::AttachToVehicle(EntityId blipId, EntityId vehicleId)
 
 void CBlipManager::Show(EntityId blipId, bool bShow)
 {
+	if(blipId >= MAX_BLIPS)
+		return;
 	if(m_bActive[blipId])
 	{
 		if(bShow)

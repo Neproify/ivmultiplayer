@@ -15,8 +15,10 @@
 #include <Patcher/CPatcher.h>
 #include <CLogFile.h>
 
-void QuadPoolSizes();
-
+/*
+This will multiply the size of the given pools by the value in multi [default: 4]
+*/
+void IncreasePoolSizes(int multi = 4);
 
 // From OpenLC by listener
 class IVPool
