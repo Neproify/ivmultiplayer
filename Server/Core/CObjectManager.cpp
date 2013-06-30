@@ -279,11 +279,15 @@ void CObjectManager::HandleClientJoinFire(EntityId playerId)
 	}
 }
 
-void CObjectManager::CreateExplosion(const CVector3& vecPos, float fdensity)
+void CObjectManager::CreateExplosion(const CVector3& vecPos, unsigned int uiExplosionType, float fRadius, bool bSound, bool bInvisible, float fCameraShake)
 {
 	CBitStream bsSend;
 	bsSend.Write(vecPos);
-	bsSend.Write(fdensity);
+	bsSend.Write(uiExplosionType);
+	bsSend.Write(fRadius);
+	bsSend.Write(bSound);
+	bsSend.Write(bInvisible);
+	bsSend.Write(fCameraShake);
 	g_pNetworkManager->RPC(RPC_ScriptingCreateExplosion,&bsSend,PRIORITY_HIGH, RELIABILITY_RELIABLE_ORDERED, INVALID_ENTITY_ID, true);
 }
 

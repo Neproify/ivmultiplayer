@@ -2858,9 +2858,22 @@ void CClientRPCHandler::ScriptingCreateExplosion(CBitStream * pBitStream, CPlaye
 	CVector3 vecPos;
 	pBitStream->Read(vecPos);
 
-	float fdensity;
-	pBitStream->Read(fdensity);
-	CGame::CreateExplosion(vecPos, 1, fdensity);
+	unsigned int uiExplosionType;
+	pBitStream->Read(uiExplosionType);
+
+	float fRadius;
+	pBitStream->Read(fRadius);
+
+	bool bSound;
+	pBitStream->Read(bSound);
+
+	bool bInvisible;
+	pBitStream->Read(bInvisible);
+
+	float fCameraShake;
+	pBitStream->Read(fCameraShake);
+
+	CGame::CreateExplosion(vecPos, uiExplosionType, fRadius, bSound, bInvisible, fCameraShake);
 }
 
 void CClientRPCHandler::ScriptingForcePlayerAnimation(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)

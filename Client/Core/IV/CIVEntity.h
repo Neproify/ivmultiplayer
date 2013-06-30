@@ -53,7 +53,7 @@ public:
 	DWORD field_64;              // 64-68
 	DWORD field_68;              // 68-6C
 	DWORD m_pNetworkObject;      // 6C-70
-	DWORD field_70;              // 70-74
+	DWORD m_pEntryInfoNode;      // 70-74
 
 	virtual 			~IVEntity();
 	virtual Matrix34* 	SetMatrix(Matrix34* pMatrix, int a2, int a3);
@@ -97,7 +97,7 @@ public:
 	virtual Vector4*	GetCoordinates(Vector4* pCoordinates);
 	virtual IVPhysics*	GetPhysics();
 	virtual void		Function41(); // return 0;
-	virtual int 		GetModelIndex(); // something with model and physics
+	virtual int 		Function42(); // something with model and physics
 	virtual int 		Add();
 	virtual int 		Remove();
 	virtual Matrix34*	UpdatePhysicsMatrix(bool); // updates physics matrix

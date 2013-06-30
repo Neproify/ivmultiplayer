@@ -4,6 +4,8 @@
 #include <squirrel.h>
 #include <sqstdio.h>
 #include "sqstdstream.h"
+#include "../../Shared/CString.h" 		
+#include "../../Shared/SharedUtility.h"
 
 #define SQSTD_FILE_TYPE_TAG (SQSTD_STREAM_TYPE_TAG | 0x00000001)
 //basic API
@@ -131,7 +133,10 @@ static SQInteger _file_constructor(HSQUIRRELVM v)
 	if(sq_gettype(v,2) == OT_STRING && sq_gettype(v,3) == OT_STRING) {
 		sq_getstring(v, 2, &filename);
 		sq_getstring(v, 3, &mode);
-		newf = sqstd_fopen(filename, mode);
+		String strFileName(filename);
+ 		SharedUtility::RemoveIllegalCharacters(strFileName); 		
+		newf = sqstd_fopen(SharedUtility::GetAbsolutePath("files/%s", strFileName.Get()), mode);
+		//newf = sqstd_fopen(filename, mode);
 		if(!newf) return sq_throwerror(v, _SC("cannot open file"));
 	} else if(sq_gettype(v,2) == OT_USERPOINTER) {
 		owns = !(sq_gettype(v,3) == OT_NULL);
@@ -376,7 +381,9 @@ SQInteger _g_io_loadfile(HSQUIRRELVM v)
 	if(sq_gettop(v) >= 3) {
 		sq_getbool(v,3,&printerror);
 	}
-	if(SQ_SUCCEEDED(sqstd_loadfile(v,filename,printerror)))
+	String strFileName(filename);
+	SharedUtility::RemoveIllegalCharacters(strFileName);
+	if(SQ_SUCCEEDED(sqstd_loadfile(v,SharedUtility::GetAbsolutePath(strFileName),printerror))) //if(SQ_SUCCEEDED(sqstd_loadfile(v,filename,printerror)))
 		return 1;
 	return SQ_ERROR; //propagates the error
 }
@@ -385,7 +392,9 @@ SQInteger _g_io_writeclosuretofile(HSQUIRRELVM v)
 {
 	const SQChar *filename;
 	sq_getstring(v,2,&filename);
-	if(SQ_SUCCEEDED(sqstd_writeclosuretofile(v,filename)))
+	String strFileName(filename);
+	SharedUtility::RemoveIllegalCharacters(strFileName);
+	if(SQ_SUCCEEDED(sqstd_writeclosuretofile(v,SharedUtility::GetAbsolutePath(strFileName)))) //if(SQ_SUCCEEDED(sqstd_writeclosuretofile(v,filename)))
 		return 1;
 	return SQ_ERROR; //propagates the error
 }
@@ -399,7 +408,9 @@ SQInteger _g_io_dofile(HSQUIRRELVM v)
 		sq_getbool(v,3,&printerror);
 	}
 	sq_push(v,1); //repush the this
-	if(SQ_SUCCEEDED(sqstd_dofile(v,filename,SQTrue,printerror)))
+	String strFileName(filename);
+	SharedUtility::RemoveIllegalCharacters(strFileName);
+	if(SQ_SUCCEEDED(sqstd_dofile(v,SharedUtility::GetAbsolutePath(strFileName),SQTrue,printerror))) //if(SQ_SUCCEEDED(sqstd_dofile(v,filename,SQTrue,printerror)))
 		return 1;
 	return SQ_ERROR; //propagates the error
 }

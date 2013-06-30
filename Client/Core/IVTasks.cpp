@@ -17,21 +17,25 @@ CIVTaskComplexNewGetInVehicle::CIVTaskComplexNewGetInVehicle(CIVVehicle * pVehic
 #ifdef EXT_LOG
 	CLogFile::Printf(__FUNCSIG__);
 #endif
-	// Create the task
-	Create();
-
-	// Call the task constructor
-	IVVehicle * pGameVehicle = pVehicle->GetVehicle();
-	IVTask * pTask = GetTask();
-	_asm
+	if(pVehicle)
 	{
-		push a6
-		push a5
-		push a4
-		push a3
-		push pGameVehicle
-		mov ecx, pTask
-		call COffsets::FUNC_CTaskComplexNewGetInVehicle__Constructor
+
+		// Create the task
+		Create();
+
+		// Call the task constructor
+		IVVehicle * pGameVehicle = pVehicle->GetVehicle();
+		IVTask * pTask = GetTask();
+		_asm
+		{
+			push a6
+			push a5
+			push a4
+			push a3
+			push pGameVehicle
+			mov ecx, pTask
+			call COffsets::FUNC_CTaskComplexNewGetInVehicle__Constructor
+		}
 	}
 }
 
@@ -40,20 +44,23 @@ CIVTaskComplexNewExitVehicle::CIVTaskComplexNewExitVehicle(CIVVehicle * pVehicle
 #ifdef EXT_LOG
 	CLogFile::Printf(__FUNCSIG__);
 #endif
-	// Create the task
-	Create();
-
-	// Call the task constructor
-	IVVehicle * pGameVehicle = pVehicle->GetVehicle();
-	IVTask * pTask = GetTask();
-	_asm
+	if(pVehicle)
 	{
-		push a5
-		push a4
-		push iExitMode
-		push pGameVehicle
-		mov ecx, pTask
-		call COffsets::FUNC_CTaskComplexNewExitVehicle__Constructor
+		// Create the task
+		Create();
+
+		// Call the task constructor
+		IVVehicle * pGameVehicle = pVehicle->GetVehicle();
+		IVTask * pTask = GetTask();
+		_asm
+		{
+			push a5
+			push a4
+			push iExitMode
+			push pGameVehicle
+			mov ecx, pTask
+			call COffsets::FUNC_CTaskComplexNewExitVehicle__Constructor
+		}
 	}
 	/*
 	    {
@@ -116,20 +123,23 @@ CIVTaskSimpleCarSetPedInVehicle::CIVTaskSimpleCarSetPedInVehicle(CIVVehicle * pV
 #ifdef EXT_LOG
 	CLogFile::Printf(__FUNCSIG__);
 #endif
-	// Create the task
-	Create();
-
-	// Call the task constructor
-	IVVehicle * pGameVehicle = pVehicle->GetVehicle();
-	IVTask * pTask = GetTask();
-	_asm
+	if(pVehicle)
 	{
-		push a5
-		push a4
-		push a3
-		push pGameVehicle
-		mov ecx, pTask
-		call COffsets::FUNC_CTaskSimpleCarSetPedInVehicle__Constructor
+		// Create the task
+		Create();
+
+		// Call the task constructor
+		IVVehicle * pGameVehicle = pVehicle->GetVehicle();
+		IVTask * pTask = GetTask();
+		_asm
+		{
+			push a5
+			push a4
+			push a3
+			push pGameVehicle
+			mov ecx, pTask
+			call COffsets::FUNC_CTaskSimpleCarSetPedInVehicle__Constructor
+		}
 	}
 }
 
@@ -138,20 +148,23 @@ CIVTaskSimpleCarSetPedOut::CIVTaskSimpleCarSetPedOut(CIVVehicle * pVehicle, int 
 #ifdef EXT_LOG
 	CLogFile::Printf(__FUNCSIG__);
 #endif
-	// Create the task
-	Create();
-
-	// Call the task constructor
-	IVVehicle * pGameVehicle = pVehicle->GetVehicle();
-	IVTask * pTask = GetTask();
-	_asm
+	if(pVehicle)
 	{
-		push a5
-		push a4
-		push a3
-		push pGameVehicle
-		mov ecx, pTask
-		call COffsets::FUNC_CTaskSimpleCarSetPedOut__Constructor
+		// Create the task
+		Create();
+
+		// Call the task constructor
+		IVVehicle * pGameVehicle = pVehicle->GetVehicle();
+		IVTask * pTask = GetTask();
+		_asm
+		{
+			push a5
+			push a4
+			push a3
+			push pGameVehicle
+			mov ecx, pTask
+			call COffsets::FUNC_CTaskSimpleCarSetPedOut__Constructor
+		}
 	}
 }
 
@@ -179,23 +192,26 @@ CIVTaskSimpleTriggerLookAt::CIVTaskSimpleTriggerLookAt(CIVEntity * pEntity, int 
 #ifdef EXT_LOG
 	CLogFile::Printf(__FUNCSIG__);
 #endif
-	// Create the task
-	Create();
-
-	// Call the task constructor
-	IVTask * pTask = GetTask();
-	_asm
+	if(pEntity)
 	{
-		push iPriority
-		push iBlendTime
-		push fSpeed
-		push dwFlags
-		push pOffsetPos
-		push iOffsetBoneTag
-		push iTime
-		push pEntity
-		mov ecx, pTask
-		call COffsets::FUNC_CTaskSimpleTriggerLookAt__Constructor
+		// Create the task
+		Create();
+
+		// Call the task constructor
+		IVTask * pTask = GetTask();
+		_asm
+		{
+			push iPriority
+			push iBlendTime
+			push fSpeed
+			push dwFlags
+			push pOffsetPos
+			push iOffsetBoneTag
+			push iTime
+			push pEntity
+			mov ecx, pTask
+			call COffsets::FUNC_CTaskSimpleTriggerLookAt__Constructor
+		}
 	}
 }
 

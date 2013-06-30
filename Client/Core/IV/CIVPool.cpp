@@ -10,34 +10,8 @@
 #include "CIVPool.h"
 #include <CLogFile.h>
 #include "../CGame.h"
-struct stPoolData
-{
-	int maxObjects;
-	const char* Name;
-	int entrySize;
-};
-
-struct stPoolHookData
-{
-	DWORD callPatch;
-	DWORD call;
-};
 
 
-stPoolHookData PoolHooks[] = {
-	{ 0x439E3F, 0x43A9E0 },
-};
-
-enum PoolIndex
-{
-
-};
-
-stPoolData PoolData[] = {
-	{},
-};
-
-// This is how to increase the pool size of all pools in IV
 static int mulPoolSize = 1;
 int __stdcall  CPool_hook_chunk(void* this_, int maxObjects, const char* Name, int entrySize);
 __declspec(naked) void __stdcall CPool_hook()
@@ -50,6 +24,96 @@ __declspec(naked) void __stdcall CPool_hook()
 		jmp CPool_hook_chunk
 	}
 }
+
+int __stdcall  CPool_hook_chunk(void* this_, int maxObjects, const char* Name, int entrySize)
+{
+	IVPool *pPool = (IVPool*)this_;
+
+	// Here we simply increase the size but we could also replace the entire pool with our own
+	// Or we can filter the pools by their name for example Task and only modify this pool
+	// to increase only the task pool replace maxObjects *= mulPoolSize with if(!strcmp("Task", Name)) maxObjects *= mulPoolSize;
+	if(pPool)
+	{
+
+		if(!strcmp("PtrNode Double", (const char*)Name)
+			|| !strcmp("EntryInfoNodes", Name)
+			|| !strcmp("PtrNode Single", Name)
+/*			|| !strcmp("Vehicles", (const char*)Name)
+			|| !strcmp("Task", Name)
+			|| !strcmp("VehicleStruct", Name)
+			|| !strcmp("DrawblDictStore", Name)
+			|| !strcmp("IplStore", Name)
+			|| !strcmp("Object", Name)*/)
+		{
+			CLogFile::Printf("Increaing %sPool from %i Objects to %i Objects", Name, maxObjects, maxObjects*mulPoolSize);
+			maxObjects *= mulPoolSize;
+
+			pPool->m_dwEntrySize = entrySize;
+			pPool->m_pObjects = (BYTE*)CGame::Alloc(entrySize * maxObjects);
+			pPool->m_pFlags = (BYTE*)CGame::Alloc(maxObjects);
+
+			pPool->m_bAllocated = 1;
+			pPool->m_dwCount = maxObjects;
+			pPool->m_nTop = -1;
+
+			int n = 0;
+			char flag;
+			int v5 = 0;
+			BYTE* v8;
+			BYTE v7;
+			BYTE* v6;
+			for(pPool->m_dwUsed = 0; v5 < maxObjects; *v8 = v7 & 0x81 | 1)
+			{
+				*(pPool->m_pFlags + v5) |= 0x80;
+				v6 = pPool->m_pFlags;
+				v7 = *(v6 + v5);
+				v8 = v5++ +v6;
+			}
+			
+			CLogFile::Printf("Increased %sPool to %i Objects", Name, maxObjects);
+		}
+		else
+		{
+			pPool->m_dwEntrySize = entrySize;
+			pPool->m_pObjects = (BYTE*)CGame::Alloc(entrySize * maxObjects);
+			pPool->m_pFlags = (BYTE*)CGame::Alloc(maxObjects);
+
+			pPool->m_bAllocated = 1;
+			pPool->m_dwCount = maxObjects;
+			pPool->m_nTop = -1;
+
+			int n = 0;
+			char flag;
+			int v5 = 0;
+			BYTE* v8;
+			BYTE v7;
+			BYTE* v6;
+			for(pPool->m_dwUsed = 0; v5 < maxObjects; *v8 = v7 & 0x81 | 1)
+			{
+				*(pPool->m_pFlags + v5) |= 0x80;
+				v6 = pPool->m_pFlags;
+				v7 = *(v6 + v5);
+				v8 = v5++ +v6;
+			}
+		}
+		return (int)pPool;
+	}
+
+	CLogFile::Printf("Something wrong (%i %s)", pPool, Name);
+	
+	return 0;
+};
+
+/*
+This will multiply the size of the given pools by the value in multi [default: 4]
+*/
+void IncreasePoolSizes(int multi)
+{
+	mulPoolSize = multi;
+	CPatcher::InstallJmpPatch(CGame::GetBase() + 0xC72F10, (DWORD)CPool_hook);
+	/*CPatcher::InstallJmpPatch(CGame::GetBase() + 0x43AA61, (DWORD)SetupPool_Hook);*/ //PedPool
+	/*CPatcher::InstallJmpPatch(CGame::GetBase() + 0x43A8C1, (DWORD)SetupPool_Hook);*/
+};
 
 
 _declspec(naked) void __stdcall SetupPool_Hook()
@@ -105,88 +169,6 @@ _declspec(naked) void __stdcall SetupPool_Hook()
 		retn
 	}
 }
-
-int __stdcall  CPool_hook_chunk(void* this_, int maxObjects, const char* Name, int entrySize)
-{
-	IVPool *pPool = (IVPool*)this_;
-
-
-	// Here we simply increase the size but we could also replace the entire pool with our own
-	// Or we can filter the pools by their name for example Task and only modify this pool
-	// to increase only the task pool replace maxObjects *= mulPoolSize with if(!strcmp("Task", Name)) maxObjects *= mulPoolSize;
-	if(pPool)
-	{
-		CLogFile::Printf("Increaing %sPool from %i Objects to %i Objects", Name, maxObjects, maxObjects*mulPoolSize);
-		if(!strcmp("PtrNode Double", (const char*)Name)
-			|| !strcmp("Vehicles", (const char*)Name)
-			|| !strcmp("Task", Name)
-			|| !strcmp("VehicleStruct", Name)
-			|| !strcmp("DrawblDictStore", Name)
-			|| !strcmp("IplStore", Name)
-			|| !strcmp("Object", Name)
-			/*|| !strcmp("EntryInfoNodes", Name)*/)
-			maxObjects *= mulPoolSize;
-		
-		//_asm
-		//{
-		//	push entrySize
-		//	push Name
-		//	push maxObjects
-		//	mov ecx, this_
-		//	mov eax, [esp+12]
-		//	push esi
-		//	push edi
-		//	jmp dwFunc
-		//}
-		
-		pPool->m_dwEntrySize = entrySize;
-		pPool->m_pObjects = (BYTE*)CGame::Alloc(entrySize * maxObjects);
-		pPool->m_pFlags = (BYTE*)CGame::Alloc(maxObjects);
-		
-		pPool->m_bAllocated = 1;
-		pPool->m_dwCount = maxObjects;
-		pPool->m_nTop = -1;
-		
-		int n = 0;
-		char flag;
-		int v5 = 0;
-		BYTE* v8;
-		BYTE v7;
-		BYTE* v6;
-		for(pPool->m_dwUsed = 0; v5 < maxObjects; *v8 = v7 & 0x81 | 1)
-		{
-			*(pPool->m_pFlags + v5) |= 0x80;
-			v6 = pPool->m_pFlags;
-			v7 = *(v6 + v5);
-			v8 = v5++ +v6;
-		}
-
-
-		//for(pPool->m_dwUsed = 0; n < maxObjects; pPool->m_pFlags[n] = flag & 0x81 | 1)
-		//{
-		//	pPool->m_pFlags[n] |= 0x80u;
-		//	flag = pPool->m_pFlags[n];
-		//				++n;
-		//}
-		
-
-		CLogFile::Printf("Increased %sPool to %i Objects", Name, maxObjects);
-
-		return (int)pPool;
-	}
-
-	CLogFile::Printf("Something wrong (%i %s)", pPool, Name);
-	
-	return 0;
-};
-
-void QuadPoolSizes()
-{
-	mulPoolSize = 4;
-	CPatcher::InstallJmpPatch(CGame::GetBase() + 0xC72F10, (DWORD)CPool_hook);
-	/*CPatcher::InstallJmpPatch(CGame::GetBase() + 0x43AA61, (DWORD)SetupPool_Hook);*/ //PedPool
-	/*CPatcher::InstallJmpPatch(CGame::GetBase() + 0x43A8C1, (DWORD)SetupPool_Hook);*/
-};
 
 /*
 CPool::CPool(IVPool* pPool)

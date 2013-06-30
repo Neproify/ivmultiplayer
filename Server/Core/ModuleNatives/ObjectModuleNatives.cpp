@@ -148,9 +148,9 @@ namespace Modules
 		return 0;
 	}
 
-	void CObjectModuleNatives::CreateExplosion(CVector3 vecPos, float fDensity)
+	void CObjectModuleNatives::CreateExplosion(CVector3 vecPos, unsigned int uiExplosionType, float fRadius, bool bSound, bool bInvisible, float fCameraShake)
 	{
-		g_pObjectManager->CreateExplosion(vecPos, fDensity);
+		g_pObjectManager->CreateExplosion(vecPos, uiExplosionType, fRadius, bSound, bInvisible, fCameraShake);
 	}
 
 	EntityId CObjectModuleNatives::CreateFire(CVector3 vecPos, float fDensity)

@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sqstdsystem.h>
+#include "../../Shared/CString.h"
+#include "../../Shared/SharedUtility.h"
 
 #ifdef SQUNICODE
 #include <wchar.h>
@@ -60,7 +62,9 @@ static SQInteger _system_remove(HSQUIRRELVM v)
 {
 	const SQChar *s;
 	sq_getstring(v,2,&s);
-	if(scremove(s)==-1)
+	String strPath(s);
+	SharedUtility::RemoveIllegalCharacters(strPath);
+	if(scremove(SharedUtility::GetAbsolutePath("files/%s", strPath.Get())) == -1) // if(scremove(s)==-1)
 		return sq_throwerror(v,_SC("remove() failed"));
 	return 0;
 }
@@ -70,7 +74,11 @@ static SQInteger _system_rename(HSQUIRRELVM v)
 	const SQChar *oldn,*newn;
 	sq_getstring(v,2,&oldn);
 	sq_getstring(v,3,&newn);
-	if(screname(oldn,newn)==-1)
+	String strOldName(oldn);
+	String strNewName(newn);
+	SharedUtility::RemoveIllegalCharacters(strOldName);
+	SharedUtility::RemoveIllegalCharacters(strNewName);
+	if(screname(SharedUtility::GetAbsolutePath("files/%s", strOldName.Get()), SharedUtility::GetAbsolutePath("files/%s", strNewName.Get())) == -1) // if(screname(oldn,newn)==-1)
 		return sq_throwerror(v,_SC("rename() failed"));
 	return 0;
 }

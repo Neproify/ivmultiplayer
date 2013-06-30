@@ -69,7 +69,7 @@ public:
 	EntityId		CreateFire(const CVector3& vecPosition, float fdensity);
 	void			DeleteFire(EntityId fireId);
 	void			HandleClientJoinFire(EntityId playerId);
-	void			CreateExplosion(const CVector3& vecPosition, float fdensity);
+	void			CreateExplosion(const CVector3& vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound, bool bInvisible, float fCameraShake);
 	void			SetDimension(EntityId objectId, DimensionId ucDimension);
 	DimensionId 	GetDimension(EntityId objectId) { if(DoesExist(objectId)) return m_Objects[objectId].ucDimension; else return 0; }
 
