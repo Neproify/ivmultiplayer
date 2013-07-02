@@ -69,8 +69,17 @@ void CObject::SetPosition(const CVector3& vecPosition)
 
 void CObject::GetPosition(CVector3& vecPosition)
 {
-	vecPosition = m_vecPosition;
+	if(Scripting::IsObjectAttached(m_uiObjectHandle))
+	{
+		CVector3 vecRealPosition;
+		Scripting::GetObjectCoordinates(m_uiObjectHandle,&vecRealPosition.fX,&vecRealPosition.fY,&vecRealPosition.fZ);
+
+		vecPosition = vecRealPosition;
+	}
+	else
+		vecPosition = m_vecPosition;
 }
+
 
 void CObject::SetRotation(const CVector3& vecRotation)
 {
