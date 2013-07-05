@@ -19,7 +19,6 @@
 #include "Scripting.h"
 #include "KeySync.h"
 #include "AimSync.h"
-#include "Indicators.h"
 #include "TrafficLights.h"
 #include "ScriptHook.h"
 #include "COffsets.h"
@@ -192,7 +191,6 @@ void CGame::Initialize()
 		InstallAimSyncHooks();
 		CLogFile::Printf("Applied key sync/aim sync hooks");
 
-		InstallIndicatorHooks();
 		InstallTrafficLightHooks();
 		CLogFile::Printf("Applied misc hooks");
 
@@ -226,12 +224,6 @@ void CGame::Initialize()
 	// Initialize the model infos
 	for(int i = 0; i < NUM_ModelInfos; i++)
 		m_modelInfos[i].SetIndex(i);
-
-	// Disable invalid models
-	//m_modelInfos[125].SetIndex(-1); // Ingot (FIX) //41
-	//m_modelInfos[180].SetIndex(-1); // Uranus (FIX) //96
-	//m_modelInfos[191].SetIndex(-1); // Hellfury (FIX) // 107
-	//m_modelInfos[195].SetIndex(-1); // Zombieb (FIX) // 111
 
 	// Initialize the weapon infos
 	for(int i = 0; i < NUM_WeaponInfos; i++)
@@ -644,6 +636,7 @@ void _declspec(naked) LoadTexture_Hook()
 
 }
 
+
 bool CGame::Patch()
 {
 	// Unprotect .text and .rdata memory and leave it unprotected
@@ -677,7 +670,7 @@ bool CGame::Patch()
 		/* Some pools are not to increase/hook but I will get it to work in the future
 		   atm we increase only PtrNode pools
 		*/
-		IncreasePoolSizes(2);
+		IncreasePoolSizes(4);
 
 		// This disables some calculate for modelinfo but it seems this is not necessary
 		CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCBA1F0), (CGame::GetBase() + 0xCBA230));
@@ -692,6 +685,9 @@ bool CGame::Patch()
 		   this function checks some flags in modelInfos and loading some models they seems to be not needed
 		*/
 		CPatcher::InstallRetnPatch(GetBase() + 0x8F2F40);
+
+		// Always draw vehicle hazzard lights
+		CPatcher::InstallNopPatch(COffsets::PATCH_CVehicle__HazzardLightsOn, 2);
 
 		// jenksta: dont think you realise what your doing here, so disabling it...
 		//CPatcher::InstallJmpPatch((GetBase() + 0xD549DC), (GetBase() + 0xD549C0));// Disables loading music, reduces gta loading time & fix crash
@@ -801,8 +797,6 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC190) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
 
-		// Install crash fixes
-		//CHooks::Install();
 		return true;
 	}
 

@@ -182,6 +182,7 @@ public:
 	float m_fHeadingLimit[2];               // D58-D60
 	PAD(IVPed, pad18, 0x1A0);               // BC4-F00
 
+	virtual ~IVPed();
 	virtual void		Function72(); // something with death and maybe respawn
 	virtual void		Function73(); // something with player info
 	virtual void		Function74(); // return 0;

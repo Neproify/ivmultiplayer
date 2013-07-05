@@ -15,6 +15,7 @@ class IVPlayerPed : public IVPed
 {
 public:
 	// 000-F00
+	virtual ~IVPlayerPed();
 	virtual int		Function81(int a1); 
 };
 

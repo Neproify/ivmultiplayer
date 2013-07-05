@@ -3543,7 +3543,7 @@ void CClientRPCHandler::ScriptingTogglePlayerLabelForPlayer(CBitStream * pBitStr
 void CClientRPCHandler::ScriptingFixVehicle(CBitStream * pBitStream, CPlayerSocket * pSenderSocket)
 {
 	if(!pBitStream)
-			return;
+		return;
 	
 	EntityId vehicleId;
 	pBitStream->Read(vehicleId);

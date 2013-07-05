@@ -48,12 +48,12 @@ static int begin_request_handler(struct mg_connection *conn)
 		CSquirrelArgument ret = g_pEvents->Call("webRequest", &args);
 
 		// Do we have a string returned?
-		if(ret.GetType() == SQObjectType::OT_BOOL)
+		if(ret.GetType() == ::OT_BOOL)
 		{
 			g_webMutex.Unlock();
 			return !ret.GetBool();
 		}
-		else if(ret.GetType() == SQObjectType::OT_INTEGER)
+		else if(ret.GetType() == ::OT_INTEGER)
 		{
 			g_webMutex.Unlock();
 			return ret.GetInteger() ? 0 : 1;
@@ -65,6 +65,7 @@ static int begin_request_handler(struct mg_connection *conn)
 			return 0;
 		}
 	}
+	return 0;
 }
 
 CWebServer::CWebServer(unsigned short usHTTPPort) 
