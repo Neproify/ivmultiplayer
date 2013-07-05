@@ -19,6 +19,8 @@ public:
 	PAD(IVObject, pad0, 0x4C); // 210-25C
 	IVWeapon * m_pWeapon;      // 25C-260
 	PAD(IVObject, pad1, 0xC0); // 210-320
+
+	virtual ~IVObject();
 };
 
 class CIVObject : public CIVPhysical

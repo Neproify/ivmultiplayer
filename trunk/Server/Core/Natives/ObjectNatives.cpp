@@ -351,7 +351,7 @@ SQInteger CObjectNatives::MoveObject(SQVM * pVM)
 
 	if(g_pObjectManager->DoesExist(objectId))
 	{
-		if(sq_gettop(pVM) > 5)
+		if(iParams > 5)
 		{
 			sq_getfloat(pVM, 7, &vecMoveRot.fX);
 			sq_getfloat(pVM, 8, &vecMoveRot.fY);

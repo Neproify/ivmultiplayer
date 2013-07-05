@@ -187,7 +187,9 @@ public:
 	PAD(IVVehicle, pad15, 0x4);   // 111C-1120
 	BYTE m_byteSirenHealth[8];    // 1120-1128
 	float m_fPetrolTankHealth;    // 1128-112C
-	PAD(IVVehicle, pad16, 0xC4); // 112C-11F0
+	PAD(IVVehicle, pad16, 0xB8); // 112C-11F0
+	BYTE indicators[4];			// 11E4 - 11E8
+	PAD(IVVehicle, pad17, 0x8);
 	//PAD(IVVehicle, pad16, 0x88);  // 112C-11B4
 	//IVDamageManager *m_pDamageManager; // 11B4-11B8
 	//PAD(IVVehicle, pad17, 0x38);  // 11B8-11F0
@@ -209,44 +211,45 @@ public:
 	// 0x1354 - eVehicleType m_type;
 	// 1120-12DC Damage
 
-	virtual 			~IVVehicle();
+	//virtual 			~IVVehicle();
 	virtual void		Function72();					// m120
 	virtual void		Function73(); // something with release model
 	virtual void		IsPretendOccupants();			// m128
 	virtual void		Function75();					// m12C
 	virtual bool 		Function76(bool);				// m130
-	virtual bool		Function78(bool, bool, int);	// m134
-	virtual bool		Function79(int);				// m138
-	virtual bool		Function80();					// m13C
-	virtual bool		Function81();					// m140 returns 1 updates field_210[3340] this +0x0F1Ch
-	virtual bool		Function82();					// m144
-	virtual bool		Function83();					// m148
-	virtual bool		Function84();					// m14C
-	virtual void		Function85(int);				// m150
-	virtual signed int	Function86(); // nullsub		// m154
-	virtual void		Function87(int); // nullsub
-	virtual int			Function88(int id, int id2, char *format, ...); // nullsub
-	virtual void		Function89(int); // return 0
-	virtual void		Function90();
-	virtual void		Function91(int id, int id2, char *format, ...);
+	virtual bool		Function77(bool, bool, int);	// m134
+	virtual bool		Function78(int);				// m138
+	virtual bool		Function79();					// m13C
+	virtual bool		Function80();					// m140 returns 1 updates field_210[3340] this +0x0F1Ch
+	virtual bool		Function81();					// m144
+	virtual bool		Function82();					// m148
+	virtual bool		Function83();					// m14C
+	virtual void		Function84(int);				// m150
+	virtual signed int	Function85(); // nullsub		// m154
+	virtual void		Function86(int); // nullsub
+	virtual int			Function87(int id, int id2, char *format, ...); // nullsub
+	virtual void		Function88(int); // return 0
+	virtual void		Function89();
+	virtual void		Function90(int id, int id2, char *format, ...);
+	virtual void		Function91(); // return 0
 	virtual void		Function92(); // return 0
 	virtual void		Function93(); // return 0
-	virtual void		Function94(); // return 0
+	virtual void		Function94(); // nullsub
 	virtual void		Function95(); // nullsub
 	virtual void		Function96(); // nullsub
-	virtual void		Function97(); // nullsub
-	virtual void		Function98();
-	virtual void		Function99(); // return 0;
-	virtual void		Function100(); // nullsub
-	virtual void		ResetVisualDamage();
+	virtual void		Function97();
+	virtual void		Function98(); // return 0;
+	virtual void		Function99(); // nullsub
+	virtual void		Function100();
+	virtual void		Repair();
 	virtual void		Function102(); // nullsub
 	virtual void		Function103(); // nullsub
-	virtual void		Function104(); // nullsub
-	virtual void		Function105();
-	virtual void		Function106(); // nullsub
-	virtual void		Function107();
-	virtual void		Function108(); 
-	virtual void		Function109();
+	virtual void		Function104();
+	virtual void		Function105(); // nullsub
+	virtual void		Function106();
+	virtual void		Function107(); 
+	virtual void		Function108();
+	virtual void		Function109(); 
 	virtual void		Function110(); // return -1;
 };
 

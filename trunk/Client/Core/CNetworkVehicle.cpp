@@ -1220,10 +1220,23 @@ unsigned int CNetworkVehicle::GetInterior()
 void CNetworkVehicle::SetIndicatorState(bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight)
 {
 	THIS_CHECK;
+
 	m_bIndicatorState[0] = bFrontLeft;
 	m_bIndicatorState[1] = bFrontRight;
 	m_bIndicatorState[2] = bBackLeft;
 	m_bIndicatorState[3] = bBackRight;
+	
+	if(m_pVehicle)
+	{
+		IVVehicle* pVehicle = m_pVehicle->GetVehicle();
+		if(pVehicle)
+		{
+			pVehicle->indicators[0] = !bFrontLeft;
+			pVehicle->indicators[1] = !bFrontRight;
+			pVehicle->indicators[2] = !bBackLeft;
+			pVehicle->indicators[3] = !bBackRight;
+		}
+	}
 }
 
 bool CNetworkVehicle::GetIndicatorState(unsigned char ucSlot)
@@ -1526,9 +1539,8 @@ void CNetworkVehicle::Fix()
 		IVVehicle* pVehicle = m_pVehicle->GetVehicle();
 		if(pVehicle)
 		{
-			// this cause crash while render car in next frame
-			//pVehicle->ResetVisualDamage();
-			pVehicle->SetHealth(1000.0, 0);
+			pVehicle->Repair();
+			SetIndicatorState(m_bIndicatorState[0], m_bIndicatorState[1], m_bIndicatorState[2], m_bIndicatorState[3]);
 		}
 	}
 }

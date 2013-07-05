@@ -20,6 +20,7 @@ public:
 	// 0x80 - 0xCC = CPortalTracker m_portalTracker; (+0x30 = CDynamicEntity * m_pDynamicEntity)
 	PAD(IVDynamicEntity, pad1, 0x90); // 07C-10C
 
+	virtual ~IVDynamicEntity();
 	virtual void 		Function51(); // idk
 	virtual void		Function52(); // return 0;
 	virtual void		Function53(); // return 0;

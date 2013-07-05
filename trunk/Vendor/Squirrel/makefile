@@ -1,7 +1,7 @@
 SQUIRREL= .
 
 OUT= $(SQUIRREL)/libsquirrel.a
-INCZ= -I$(SQUIRREL)/include -I. -Iinclude
+INCZ= -I$(SQUIRREL)/include -I. -Iinclude -I../../Shared -D_LINUX
 DEFS= 
 LIB=	
 

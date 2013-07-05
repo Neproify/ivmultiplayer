@@ -97,7 +97,7 @@ public:
 	virtual Vector4*	GetCoordinates(Vector4* pCoordinates);
 	virtual IVPhysics*	GetPhysics();
 	virtual void		Function41(); // return 0;
-	virtual int 		Function42(); // something with model and physics
+	virtual int 		GetModelIndex(); // something with model and physics
 	virtual int 		Add();
 	virtual int 		Remove();
 	virtual Matrix34*	UpdatePhysicsMatrix(bool); // updates physics matrix
