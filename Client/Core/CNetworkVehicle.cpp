@@ -193,7 +193,8 @@ bool CNetworkVehicle::Create(bool bStreamIn)
 		m_pVehicle->SetLoadCollision(true);
 
 		// Add the vehicle to the world
-		m_pVehicle->AddToWorld();
+		// Note: 0x8415D0 is already adding entity to world, adding it more than once cause further crashes
+		//m_pVehicle->AddToWorld();
 
 		// Set initial colors
 		SetColors(m_byteColors[0], m_byteColors[1], m_byteColors[2], m_byteColors[3]);
@@ -284,7 +285,6 @@ void CNetworkVehicle::Destroy()
 		unsigned int handle = GetScriptingHandle();
 		Scripting::DeleteCar(&handle);
 
-		m_pModelInfo->RemoveReference();
 #if 0
 		*(BYTE *)(pVehicle + 0xF6D) |= 8;
 
