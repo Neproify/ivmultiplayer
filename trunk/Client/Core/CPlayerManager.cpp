@@ -190,7 +190,7 @@ DWORD dwPlayerModelHashes[] =
 
 DWORD SkinIdToModelHash(int modelid)
 {
-	if(modelid >= 0 || modelid < sizeof(dwPlayerModelHashes))
+	if(modelid >= 0 || modelid < ARRAY_LENGTH(dwPlayerModelHashes))
 		return dwPlayerModelHashes[modelid];
 
 	return 0x00;
@@ -198,7 +198,7 @@ DWORD SkinIdToModelHash(int modelid)
 
 int ModelHashToSkinId(DWORD modelhash)
 {
-	for(int i = 0; i < sizeof(dwPlayerModelHashes); i++)
+	for(int i = 0; i < ARRAY_LENGTH(dwPlayerModelHashes); i++)
 	{
 		if(modelhash == dwPlayerModelHashes[i])
 			return i;
