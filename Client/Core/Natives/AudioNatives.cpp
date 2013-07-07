@@ -30,6 +30,9 @@ _MEMBER_FUNCTION_IMPL(Audio, constructor)
 	const char * szSoundName;
 	sq_getstring(pVM, -1, &szSoundName);
 
+	if(!bIsOnlineStream)
+		szSoundName = SharedUtility::GetAbsolutePath("clientfiles\\resources\\%s", szSoundName);
+
 	CAudio * pAudio = new CAudio(szSoundName, bReplay, bIsOnlineStream);
 
 	if(!pAudio || !pAudio->Load() || SQ_FAILED(sq_setinstance(pVM, pAudio)))
@@ -48,6 +51,11 @@ _MEMBER_FUNCTION_IMPL(Audio, constructor)
 _MEMBER_FUNCTION_IMPL(Audio, deleteSound)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	g_pClient->GetAudioManager()->Remove(pAudio);
 	sq_pushbool(pVM, true);
 	return 1;
@@ -56,6 +64,11 @@ _MEMBER_FUNCTION_IMPL(Audio, deleteSound)
 _MEMBER_FUNCTION_IMPL(Audio, play)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	sq_pushbool(pVM, pAudio->Play());
 	return 1;
 }
@@ -63,6 +76,12 @@ _MEMBER_FUNCTION_IMPL(Audio, play)
 _MEMBER_FUNCTION_IMPL(Audio, stop)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
+	
 	pAudio->Stop();
 	sq_pushbool(pVM, true);
 	return 1;
@@ -71,6 +90,11 @@ _MEMBER_FUNCTION_IMPL(Audio, stop)
 _MEMBER_FUNCTION_IMPL(Audio, pause)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	pAudio->Pause();
 	sq_pushbool(pVM, true);
 	return 1;
@@ -79,6 +103,11 @@ _MEMBER_FUNCTION_IMPL(Audio, pause)
 _MEMBER_FUNCTION_IMPL(Audio, isStarted)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	sq_pushbool(pVM, (pAudio->IsPlaying() || pAudio->IsStalled()));
 	return 1;
 }
@@ -86,6 +115,11 @@ _MEMBER_FUNCTION_IMPL(Audio, isStarted)
 _MEMBER_FUNCTION_IMPL(Audio, isPlaying)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	sq_pushbool( pVM, pAudio->IsPlaying() );
 	return 1;
 }
@@ -93,6 +127,11 @@ _MEMBER_FUNCTION_IMPL(Audio, isPlaying)
 _MEMBER_FUNCTION_IMPL(Audio, isPaused)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	sq_pushbool( pVM, pAudio->IsPaused() );
 	return 1;
 }
@@ -100,6 +139,11 @@ _MEMBER_FUNCTION_IMPL(Audio, isPaused)
 _MEMBER_FUNCTION_IMPL(Audio, isStalled)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	sq_pushbool( pVM, pAudio->IsStalled() );
 	return 1;
 }
@@ -107,6 +151,11 @@ _MEMBER_FUNCTION_IMPL(Audio, isStalled)
 _MEMBER_FUNCTION_IMPL(Audio, setVolume)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	float fVolume;
 	sq_getfloat ( pVM, 2, &fVolume );
 	
@@ -119,6 +168,11 @@ _MEMBER_FUNCTION_IMPL(Audio, setVolume)
 _MEMBER_FUNCTION_IMPL(Audio, restoreVolume)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 
 	pAudio->Unmute( );
 
@@ -129,6 +183,11 @@ _MEMBER_FUNCTION_IMPL(Audio, restoreVolume)
 _MEMBER_FUNCTION_IMPL(Audio, getVolume)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	sq_pushfloat ( pVM, pAudio->GetVolume( ) );
 	return 1;
 }
@@ -136,6 +195,11 @@ _MEMBER_FUNCTION_IMPL(Audio, getVolume)
 _MEMBER_FUNCTION_IMPL(Audio, setPosition)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 
 	float fX, fY, fZ, fR;
 
@@ -153,6 +217,11 @@ _MEMBER_FUNCTION_IMPL(Audio, setPosition)
 _MEMBER_FUNCTION_IMPL(Audio, clearPosition)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 
 	pAudio->SetUsePosition(false);
 
@@ -163,6 +232,11 @@ _MEMBER_FUNCTION_IMPL(Audio, clearPosition)
 _MEMBER_FUNCTION_IMPL(Audio, usePositionSystem)
 {
 	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
 	SQBool bGet;
 	sq_getbool(pVM, -1, &bGet );
 	bool bToggle = (bGet != 0);

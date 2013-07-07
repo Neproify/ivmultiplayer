@@ -39,10 +39,10 @@ int __stdcall  CPool_hook_chunk(void* this_, int maxObjects, const char* Name, i
 			|| !strcmp("EntryInfoNodes", Name)
 			|| !strcmp("PtrNode Single", Name)
 			|| !strcmp("Vehicles", (const char*)Name)
-			|| !strcmp("VehicleStruct", Name)
-			|| !strcmp("fragInstGta", Name)
-			|| !strcmp("phInstGta", Name)
-			|| !strcmp("fragInstNMGta", Name))
+			|| !strcmp("VehicleStruct", Name))
+			//|| !strcmp("fragInstGta", Name)
+			//|| !strcmp("phInstGta", Name)
+			//|| !strcmp("fragInstNMGta", Name))
 		{
 			CLogFile::Printf("Increaing %sPool from %i Objects to %i Objects", Name, maxObjects, maxObjects*mulPoolSize);
 			maxObjects *= mulPoolSize;
