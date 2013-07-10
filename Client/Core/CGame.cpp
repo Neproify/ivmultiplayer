@@ -670,7 +670,7 @@ bool CGame::Patch()
 		/* Some pools are not to increase/hook but I will get it to work in the future
 		   atm we increase only PtrNode pools
 		*/
-		IncreasePoolSizes(4);
+		IncreasePoolSizes(2);
 
 		// This disables some calculate for modelinfo but it seems this is not necessary
 		CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCBA1F0), (CGame::GetBase() + 0xCBA230));
