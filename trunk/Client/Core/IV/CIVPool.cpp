@@ -12,7 +12,7 @@
 #include "../CGame.h"
 
 
-static int mulPoolSize = 1;
+/*static int mulPoolSize = 1;
 int __stdcall  CPool_hook_chunk(void* this_, int maxObjects, const char* Name, int entrySize);
 __declspec(naked) void __stdcall CPool_hook()
 {
@@ -37,12 +37,12 @@ int __stdcall  CPool_hook_chunk(void* this_, int maxObjects, const char* Name, i
 
 		if(!strcmp("PtrNode Double", (const char*)Name)
 			|| !strcmp("EntryInfoNodes", Name)
-			|| !strcmp("PtrNode Single", Name)
-			|| !strcmp("Vehicles", (const char*)Name)
-			|| !strcmp("VehicleStruct", Name))
-			//|| !strcmp("fragInstGta", Name)
-			//|| !strcmp("phInstGta", Name)
-			//|| !strcmp("fragInstNMGta", Name))
+ 			|| !strcmp("PtrNode Single", Name)
+ 			|| !strcmp("Vehicles", (const char*)Name)
+-			|| !strcmp("VehicleStruct", Name))
+-			//|| !strcmp("fragInstGta", Name)
+-			//|| !strcmp("phInstGta", Name)
+-			//|| !strcmp("fragInstNMGta", Name))
 		{
 			CLogFile::Printf("Increaing %sPool from %i Objects to %i Objects", Name, maxObjects, maxObjects*mulPoolSize);
 			maxObjects *= mulPoolSize;
@@ -101,21 +101,33 @@ int __stdcall  CPool_hook_chunk(void* this_, int maxObjects, const char* Name, i
 	CLogFile::Printf("Something wrong (%i %s)", pPool, Name);
 	
 	return 0;
-};
+};*/
 
 /*
 This will multiply the size of the given pools by the value in multi [default: 4]
 */
 void IncreasePoolSizes(int multi)
 {
-	mulPoolSize = multi;
-	CPatcher::InstallJmpPatch(CGame::GetBase() + 0xC72F10, (DWORD)CPool_hook);
+	//mulPoolSize = multi;
+	DWORD * dwPtrNodeDoubleMaxObjects	= (DWORD*)(CGame::GetBase() + 0xB534F6);
+	DWORD * dwEntryInfoNodesMaxObjects	= (DWORD*)(CGame::GetBase() + 0xC796D6);
+	DWORD * dwPtrNodeSingleMaxObjects	= (DWORD*)(CGame::GetBase() + 0xB534B6);
+	DWORD * dwVehiclesMaxObjects		= (DWORD*)(CGame::GetBase() + 0x9D43B9);
+	BYTE * byteVehicleStructMaxObjects	= (BYTE*)(CGame::GetBase() + 0xBEA871);
+
+	*dwPtrNodeDoubleMaxObjects		*= multi;
+	*dwEntryInfoNodesMaxObjects		*= multi;
+	*dwPtrNodeSingleMaxObjects		*= multi;
+	*dwVehiclesMaxObjects			*= multi;
+	*byteVehicleStructMaxObjects	= (BYTE)124; // 123 vehicles are in gta + 1 spare just in case
+	
+	//CPatcher::InstallJmpPatch(CGame::GetBase() + 0xC72F10, (DWORD)CPool_hook);
 	/*CPatcher::InstallJmpPatch(CGame::GetBase() + 0x43AA61, (DWORD)SetupPool_Hook);*/ //PedPool
 	/*CPatcher::InstallJmpPatch(CGame::GetBase() + 0x43A8C1, (DWORD)SetupPool_Hook);*/
 };
 
 
-_declspec(naked) void __stdcall SetupPool_Hook()
+/*_declspec(naked) void __stdcall SetupPool_Hook()
 {
 	IVPool *pPool;
 	_asm
@@ -167,7 +179,7 @@ _declspec(naked) void __stdcall SetupPool_Hook()
 		mov eax, pPool
 		retn
 	}
-}
+}*/
 
 /*
 CPool::CPool(IVPool* pPool)
