@@ -589,12 +589,10 @@ void CNetworkVehicle::SetPosition(const CVector3& vecPosition, bool bDontCancelT
 			Scripting::SetCarCoordinatesNoOffset(GetScriptingHandle(), vecPosition.fX, vecPosition.fY, vecPosition.fZ);
 		else
 		{
-			m_pVehicle->GetVehicle()->Remove();
-
 			// Set the position in the matrix
 			m_pVehicle->SetPosition(vecPosition);
 
-			m_pVehicle->GetVehicle()->Add(); 
+			m_pVehicle->GetVehicle()->UpdatePhysicsMatrix(true);
 		}
 	}
 

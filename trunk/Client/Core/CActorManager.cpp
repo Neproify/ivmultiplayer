@@ -78,7 +78,6 @@ void CActorManager::Create(EntityId actorId, int iModelId, CVector3 vecPosition,
 	Scripting::SetCharHeading(m_Actors[actorId].uiActorIndex, fHeading);
 	Scripting::AllowReactionAnims(m_Actors[actorId].uiActorIndex,false);
     
-	pModelInfo->RemoveReference();
 
 	if(bFrozen)
 		Scripting::FreezeCharPosition(m_Actors[actorId].uiActorIndex, true);

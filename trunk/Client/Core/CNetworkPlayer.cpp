@@ -182,7 +182,7 @@ bool CNetworkPlayer::Create()
 			break;
 		}
 	}
-
+	
 	// Add our model info reference
 	m_pModelInfo->AddReference(true);
 
@@ -771,6 +771,7 @@ void CNetworkPlayer::SetModel(DWORD dwModelHash)
 			// TODO: Use StreamIn/Out for this for remote players, and for local players use this and restore all info like in StreamIn/Out
 			// or perhaps make StreamIn/Out only get/set info and not create/destroy player if its the local player that way we can use it
 			// for local and remote players
+
 			unsigned int uiHealth = GetHealth();
 			unsigned int uiArmour = GetArmour();
 			float fHeading = GetCurrentHeading();
@@ -861,27 +862,13 @@ void CNetworkPlayer::SetPosition(const CVector3& vecPosition, bool bResetInterpo
 		// Are we not in a vehicle and not entering a vehicle?
 		if(!InternalIsInVehicle() && !HasVehicleEnterExit())
 		{
-			// Remove the player ped from the world    
-			m_pPlayerPed->GetPlayerPed()->Remove();
-
 			// Set the position in the matrix
 			m_pPlayerPed->SetPosition(vecPosition);
 
-			// Are we not the local player?
-			if(!IsLocalPlayer())
-			{
-				// Get the local players interior
-				unsigned int uiLocalPlayerInterior = g_pClient->GetLocalPlayer()->GetInterior();
+			m_pPlayerPed->GetPed()->UpdatePhysicsMatrix(true);
 
-				// If our interior is not the same as the local players interior force it
-				// to the same as the local players
-				if(GetInterior() != uiLocalPlayerInterior)
-					SetInterior(uiLocalPlayerInterior);
-			}
-
-			// Re add the ped to the world to apply the matrix change 
-			// This will calculate the correct z coord
-			m_pPlayerPed->GetPlayerPed()->Add();
+			if(GetHealth() > 0 && IsDying())
+				m_pPlayerPed->GetPedTaskManager()->RemoveTask(TASK_PRIORITY_EVENT_RESPONSE_NONTEMP);
 		}
 	}
 
@@ -1689,6 +1676,7 @@ void CNetworkPlayer::SetMoveToDirection(CVector3 vecPos, CVector3 vecMove, int i
 			push tX
 			push uiPlayerIndex
 			call dwAddress
+			add  esp, 18h
 		}
 	}
 }	

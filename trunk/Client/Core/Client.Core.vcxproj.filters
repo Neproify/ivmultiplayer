@@ -639,9 +639,6 @@
     <ClInclude Include="CTrains.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="CHooks.h">
-      <Filter>Header Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="CFileTransferManager.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
@@ -752,6 +749,9 @@
     </ClInclude>
     <ClInclude Include="IV\CIVVehicleFactory.h">
       <Filter>Header Files\Game\IV</Filter>
+    </ClInclude>
+    <ClInclude Include="CCrashFixes.h">
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1121,9 +1121,6 @@
     <ClCompile Include="CTrains.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="CHooks.cpp">
-      <Filter>Source Files\Game</Filter>
-    </ClCompile>
     <ClCompile Include="C3DLabels.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -1228,6 +1225,9 @@
     </ClCompile>
     <ClCompile Include="IV\CIVPool.cpp">
       <Filter>Source Files\Game\IV</Filter>
+    </ClCompile>
+    <ClCompile Include="CCrashFixes.cpp">
+      <Filter>Source Files\Game</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

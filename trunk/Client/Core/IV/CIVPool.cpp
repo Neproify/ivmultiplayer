@@ -115,10 +115,7 @@ void IncreasePoolSizes(int multi)
 	DWORD * dwVehiclesMaxObjects		= (DWORD*)(CGame::GetBase() + 0x9D43B9);
 	BYTE * byteVehicleStructMaxObjects	= (BYTE*)(CGame::GetBase() + 0xBEA871);
 
-	*dwPtrNodeDoubleMaxObjects		*= multi;
-	*dwEntryInfoNodesMaxObjects		*= multi;
-	*dwPtrNodeSingleMaxObjects		*= multi;
-	*dwVehiclesMaxObjects			*= multi;
+	*dwVehiclesMaxObjects			= MAX_STREAMED_VEHICLES;
 	*byteVehicleStructMaxObjects	= (BYTE)124; // 123 vehicles are in gta + 1 spare just in case
 	
 	//CPatcher::InstallJmpPatch(CGame::GetBase() + 0xC72F10, (DWORD)CPool_hook);

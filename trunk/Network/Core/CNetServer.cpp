@@ -258,7 +258,7 @@ CPacket * CNetServer::Receive()
 			if(uiLength > 0)
 			{
 				// Allocate and set the packet data
-				pPacket->ucData = (unsigned char *)malloc(uiLength);
+				pPacket->ucData = new unsigned char[uiLength];//(unsigned char *)malloc(uiLength);
 
 				// Copy the packet data
 				memcpy(pPacket->ucData, ucData, uiLength);
@@ -297,8 +297,8 @@ void CNetServer::DeallocatePacket(CPacket * pPacket)
 			m_playerSocketList.remove(pPlayerSocket);
 	}
 
-	// Free the packet data
-	SAFE_FREE(pPacket->ucData);
+	// Delete the packet data
+	SAFE_DELETE(pPacket->ucData);
 
 	// Delete the packet
 	SAFE_DELETE(pPacket);
