@@ -26,7 +26,7 @@
 #include "CContextDataManager.h"
 #include "AimSync.h"
 #include "AnimGroups.h"
-#include "CHooks.h"
+#include "CCrashFixes.h"
 #include <SharedUtility.h>
 #include "IV/CIVObject.h"
 
@@ -267,36 +267,6 @@ void UnprotectMemory()
 }
 
 DWORD dwJmp;
-DWORD dwTestHandle;
-
-void _declspec(naked) IVTrain__Constructor()
-{
-	_asm 
-	{		
-		mov dwTestHandle, ecx
-		pushad
-	}
-
-	CLogFile::Printf("Train-Handle(0x%x)", dwTestHandle);
-	dwJmp = (CGame::GetBase() + 0x949BA6);
-
-	_asm
-	{
-		popad
-		push ebp
-		mov ebp, esp
-		and esp, 0FFFFFFF0h
-		jmp dwJmp
-	}
-}
-
-void _declspec(naked) IVTrain__Create()
-{
-	// TODO
-	_asm
-	{
-	}
-}
 
 IVTask * ___pTask = NULL;
 
@@ -348,30 +318,6 @@ DWORD dwModel;
 DWORD dwModelArray = 0x15F73B0;
 int iVehType = 0;
 
-void _declspec(naked) CVehicleFactory__CreateVehicle_Part1()
-{
-    _asm
-    {
-            mov eax, [esp]         
-            mov dwAddress2, eax
-            mov edx, [esp + 4] // get the model
-            mov edx, dwModelArray[edx * 4]
-            mov dwModel, edx
-            pushad
-    }
-    CLogFile::Printf("model (0x%x) - (0x%x)", dwModel, dwAddress2);
-    //iVehType = *(int *)(dwModel + 0x6C);
-    //CLogFile::Printf("type %d", iVehType);
-    dwJmp2 = (CGame::GetBase() + 0x443D66);
-    _asm
-    {
-            popad
-            push ebp
-            push edi
-            mov edi, [esp + 4]
-            jmp dwJmp2
-    }
-}
 unsigned int          uiPlayerInfoIndex = 0;
 IVPlayerInfo        * pReturnedPlayerInfo = NULL;
 unsigned int          uiReturnedIndex = 0;
@@ -574,69 +520,6 @@ void _declspec(naked) CameraPointAtCoord(CVector3 * vecLookAt)
 	}
 }
 
-void _declspec(naked) CTaskSimpleStartVehicle__Process()
-{
-	_asm
-	{
-		xor al, al
-		retn 4
-	}
-}
-
-HANDLE hFile;
-LPVOID lpBuffer;
-DWORD dwRFile;
- 
-void _declspec(naked) OpenFile_Hook()
-{
-    _asm
-    {
-            mov eax, [esp+4]
-            mov hFile, eax
-            mov eax, [esp+8]
-            mov lpBuffer, eax  
-            pushad
-    }
- 
-    strcpy((char *)hFile, "common/data/loadingscreens_ivmp.dat");
- 
-    dwRFile = (CGame::GetBase() + 0x7B2740);
-    _asm
-    {
-            popad
-            push lpBuffer
-            push hFile
-            call dwRFile
-            add esp, 8
-            retn
-    }
-}
-char *szFile;
-String strFile;
-DWORD dwAddress4;
-void _declspec(naked) LoadTexture_Hook()
-{
-	_asm
-	{
-		mov eax, [esp+4]
-		mov szFile, eax
-		pushad
-	}
-	strFile = szFile;
-	CLogFile::Printf("LoadTexture: %s", strFile.Get());
-	dwAddress4 = (CGame::GetBase() + 0xA712B0);
-	_asm
-	{
-		popad
-		push szFile
-		call dwAddress4
-		add esp, 8 ; should be 8
-		retn
-	}
-
-}
-
-
 bool CGame::Patch()
 {
 	// Unprotect .text and .rdata memory and leave it unprotected
@@ -672,30 +555,12 @@ bool CGame::Patch()
 		*/
 		IncreasePoolSizes(2);
 
-		// This disables some calculate for modelinfo but it seems this is not necessary
-		CPatcher::InstallJmpPatch((CGame::GetBase() + 0xCBA1F0), (CGame::GetBase() + 0xCBA230));
-
-		// this disables a call of a destructor of a member in rageResourceCache [field_244] 
-		// I was not able yet to get what the member is but it seems similar to PtrNode
-		CPatcher::InstallJmpPatch((GetBase() + 0x625F15), (GetBase() + 0x625F1D));
-
-		// This needs to be disabled due to some crashes and to enable the blocked vehicles such as uranus, hellfury, etc.
-		/* INFO: crash occure exactly when accessing dword_13BEEE0 this is related to ZonesNames, but disabling this function dont destroy anything
-		   TODO: find what this function does
-		   this function checks some flags in modelInfos and loading some models they seems to be not needed
-		*/
-		CPatcher::InstallRetnPatch(GetBase() + 0x8F2F40);
-
 		// Always draw vehicle hazzard lights
 		CPatcher::InstallNopPatch(COffsets::PATCH_CVehicle__HazzardLightsOn, 2);
 
 		// jenksta: dont think you realise what your doing here, so disabling it...
 		//CPatcher::InstallJmpPatch((GetBase() + 0xD549DC), (GetBase() + 0xD549C0));// Disables loading music, reduces gta loading time & fix crash
 		//CPatcher::InstallJmpPatch((GetBase() + 0xD549EC), (GetBase() + 0xD549D0));// Disables loading music, reduces gta loading time & fix crash
-		//CPatcher::InstallJmpPatch((GetBase() + 0xA714F0), (DWORD)LoadTexture_Hook);
-		
-		// IMG/.DAT loading function(later useful for importing .dat or .wtd or .wft files(vehicles etc.))
-		//CPatcher::InstallJmpPatch((GetBase() + 0x8D79A0), (GetBase() + 0x8D7BB2));
 
 		// Make the game think we are not connected to the internet
 		*(BYTE *)(GetBase() + 0x10F1390) = 0; // byteInternetConnectionState
@@ -707,20 +572,11 @@ bool CGame::Patch()
 		// Always start a new game
 		CPatcher::InstallJmpPatch((GetBase() + 0x5B0311), (GetBase() + 0x5B03BF));
 
-#ifdef IVMP_TRAINS
-		// Hook for CVehicleFactory__CreateVehicle
-		// CPatcher::InstallJmpPatch((GetBase() + 0x443D60), (DWORD)CVehicleFactory__CreateVehicle_Part1);
-		CPatcher::InstallJmpPatch((GetBase() + 0x949BA0), (DWORD)IVTrain__Constructor);
-
-		// Load train track nodes
-		//DWORD dwAddress = (CGame::GetBase() + 0x94A700);
-		//_asm call dwAddress;
-#else
 		// Disable parked cars
 		CPatcher::InstallRetnPatch(GetBase() + 0xB3EDF0);
 
 		// Disable emergency services and garbage trucks
-		CPatcher::InstallNopPatch((GetBase() + 0x4215CF/*4215D4*/), 5);
+		CPatcher::InstallNopPatch((GetBase() + 0x4215CF), 5);
 
 		// Disable vehicle entries
 		*(DWORD *)(GetBase() + 0x9B1ED0) = 0x0CC2C033;
@@ -734,12 +590,6 @@ bool CGame::Patch()
 		CPatcher::InstallNopPatch((GetBase() + 0x421610), 5);
 		CPatcher::InstallNopPatch((GetBase() + 0x81B22E), 5);
 
-		// Disable vehicle generation
-		//CPatcher::InstallJmpPatch((GetBase() + 0x438D00),(GetBase() + 0x438D62));
-
-		// Disable train track node loading
-		//CPatcher::InstallJmpPatch((GetBase() + 0x94A700),(GetBase() + 0x94A9F4));
-#endif
 		// Disable scenario peds
 		*(BYTE *)(GetBase() + 0x9F72C0) = 0xB8; // mov eax,
 		*(DWORD *)(GetBase() + 0x9F72C1) = 0x0; // 0
@@ -750,14 +600,6 @@ bool CGame::Patch()
 
 		// Disable long sleep in CGame::Run
 		*(DWORD *)(GetBase() + 0x401835) = 1;
-
-		// Hook for pointcamatcoord
-		//CPatcher::InstallJmpPatch((GetBase() + 0xAFE840), (DWORD)CameraPointAtCoord);
-
-		// jenksta: this will also disable things that we actually want so disabling it...
-		// Disable auto vehicle start when player enter to it
-		// CrackHD: PROBLEM: this thing disables auto vehicle engine start after entry, BUT this also disables "Flight from car windshield in a collision with the wall"
-		// CPatcher::InstallJmpPatch((GetBase() + 0xA9F300), (DWORD)CTaskSimpleStartVehicle__Process);
 
 		// Don't initialize error reporting
 		CPatcher::InstallRetnPatch(GetBase() + 0xD356D0);
@@ -773,11 +615,6 @@ bool CGame::Patch()
 
 		// NOP; MOV [g_rgsc], eax
 		*(WORD *)(GetBase() + 0x402883) = 0xA390;
-
-		// Disable VDS100/VDS110/VDS120 and other error 
-		//CPatcher::InstallJmpPatch((GetBase() + 0x40262D), (GetBase() + 0x40265C));
-		//CPatcher::InstallJmpPatch((GetBase() + 0x402605), (GetBase() + 0x402613));
-		// -> uses other hook
 
 		// Disable VDS102 error
 		CPatcher::InstallNopPatch((GetBase() + 0x4028ED), 42);
@@ -797,6 +634,8 @@ bool CGame::Patch()
 		*(DWORD *)(GetBase() + 0xBAC190) = 0x90C301B0;
 		*(DWORD *)(GetBase() + 0xBAC1C0) = 0x90C301B0;
 
+
+		CCrashFixes::Install();
 		return true;
 	}
 

@@ -80,12 +80,25 @@
 #define MAX_PICKUPS 0xFFFE // Streamed. Pickup Pool Size: TODO: 1500?
 #define MAX_FIRE 32
 #define MAX_ACTORS 85
+#define MAX_3D_LABELS 512
+
+#define MAX_STREAMED_VEHICLES 256
+#define MAX_STREAMED_PICKUPS 128
+#define MAX_STREAMED_OBJECTS 512
+#define MAX_STREAMED_CHECKPOINTS 64
+#define MAX_STREAMED_PLAYERS 32
+#define MAX_STREAMED_LABELS MAX_3D_LABELS
+#define MAX_STREAMED_ACTORS 85
 
 // Max amount of characters a player can use in their name
 #define MAX_NAME_LENGTH 18
 
 // Max vehicle passengers (NOTE: This is also a GTA limit)
 #define MAX_VEHICLE_PASSENGERS 8
+
+// Type used for label ids
+// NOTE: MUST be unsigned!
+typedef unsigned long LabelId;
 
 // Type used for entity ids
 // NOTE: MUST be unsigned!

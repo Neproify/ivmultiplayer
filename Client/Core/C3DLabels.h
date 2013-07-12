@@ -16,9 +16,6 @@
 #include "CGraphics.h"
 #include "CStreamer.h"
 
-typedef unsigned long LabelId;
-#define MAX_3D_LABELS 512 //0xFFFFFF
-
 class C3DLabel : public CStreamableEntity
 {
 private:

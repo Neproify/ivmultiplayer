@@ -59,7 +59,7 @@
       <AdditionalIncludeDirectories>..\..\Shared;.\CEGUI\cegui\include;..\..\Vendor\zlib-1.2.5;..\..\Vendor\DXSDK\include;..\..\Vendor\bass;..\..\Vendor;..\..\Vendor\Squirrel;..\..\Client\Core\EA;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CLIENT_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;CEGUI_STATIC;LOGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -131,7 +131,7 @@
     <ClInclude Include="CAudioManager.h" />
     <ClInclude Include="CClient.h" />
     <ClInclude Include="CFileTransferManager.h" />
-    <ClInclude Include="CHooks.h" />
+    <ClInclude Include="CCrashFixes.h" />
     <ClInclude Include="CD3D9Webkit.hpp" />
     <ClInclude Include="AnimGroups.h" />
     <ClInclude Include="CDebugView.h" />
@@ -325,7 +325,7 @@
     <ClCompile Include="CAudioManager.cpp" />
     <ClCompile Include="CClient.cpp" />
     <ClCompile Include="CFileTransferManager.cpp" />
-    <ClCompile Include="CHooks.cpp" />
+    <ClCompile Include="CCrashFixes.cpp" />
     <ClCompile Include="CDebugView.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="CQuickConnect.cpp" />

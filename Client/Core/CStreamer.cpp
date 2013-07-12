@@ -111,12 +111,12 @@ CStreamer::CStreamer()
 	m_pInstance = this;
 
 	// Set the streaming limits (Adjust if needed)
-	m_uiStreamingLimits[STREAM_ENTITY_VEHICLE] = 256; // no more than vehicle pool size
-	m_uiStreamingLimits[STREAM_ENTITY_PICKUP] = 128; // no more than pickup pool size
-	m_uiStreamingLimits[STREAM_ENTITY_OBJECT] = 512; // no more than object pool size
-	m_uiStreamingLimits[STREAM_ENTITY_CHECKPOINT] = 64; // no more than INTERNAL_CHECKPOINT_LIMIT
-	m_uiStreamingLimits[STREAM_ENTITY_PLAYER] = 32;
-	m_uiStreamingLimits[STREAM_ENTITY_LABEL] = 512;
+	m_uiStreamingLimits[STREAM_ENTITY_VEHICLE]	  = MAX_STREAMED_VEHICLES; // no more than vehicle pool size
+	m_uiStreamingLimits[STREAM_ENTITY_PICKUP]	  =	MAX_STREAMED_PICKUPS; // no more than pickup pool size
+	m_uiStreamingLimits[STREAM_ENTITY_OBJECT]	  = MAX_STREAMED_OBJECTS; // no more than object pool size
+	m_uiStreamingLimits[STREAM_ENTITY_CHECKPOINT] = MAX_STREAMED_CHECKPOINTS; // no more than INTERNAL_CHECKPOINT_LIMIT
+	m_uiStreamingLimits[STREAM_ENTITY_PLAYER]	  =	MAX_STREAMED_PLAYERS;
+	m_uiStreamingLimits[STREAM_ENTITY_LABEL]	  = MAX_STREAMED_LABELS;
 
 	// Reset the streamer
 	Reset();

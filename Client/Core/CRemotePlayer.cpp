@@ -121,6 +121,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 					push 0
 					push uiPlayerIndex
 					call dwAddress
+					add  esp, 0Ch
 				}
 			}
 			SetMoveSpeed(syncPacket->vecMoveSpeed);
@@ -152,6 +153,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 				push 0
 				push uiPlayerIndex
 				call dwAddress
+				add  esp, 0Ch
 			}
 			uiPlayerIndex = GetScriptingHandle();
 			dwAddress = (CGame::GetBase() + 0xB868E0);
@@ -159,6 +161,7 @@ void CRemotePlayer::StoreOnFootSync(OnFootSyncData * syncPacket, bool bHasAimSyn
 				push 1
 				push uiPlayerIndex
 				call dwAddress
+				add	 esp, 8
 			}
 		}
 		SetTargetPosition(syncPacket->vecPos, TICK_RATE*2);
