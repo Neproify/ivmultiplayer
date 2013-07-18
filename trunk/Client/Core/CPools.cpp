@@ -14,7 +14,8 @@ CPools::CPools()
 	: m_pPedPool(NULL),
 	m_pVehiclePool(NULL),
 	m_pTaskPool(NULL),
-	m_pCamPool(NULL)
+	m_pCamPool(NULL),
+	m_pPedMoveBlendPool(NULL)
 {
 	// Clear our custom checkpoint array
 	memset(&m_checkpoints, 0, sizeof(m_checkpoints));
@@ -52,6 +53,14 @@ void CPools::SetEntryInfoNodePoolLimit(DWORD dwLimit)
 	*(DWORD *)(CGame::GetBase() + 0xC796D6) = dwLimit;
 }
 
+void CPools::SetPedPoolLimit(BYTE byteLimit)
+{
+	*(DWORD *)(CGame::GetBase() + 0x43A9FC) = (byteLimit * 0xF00); // sizeof(CPed) // for object memory chunk
+	*(BYTE *)(CGame::GetBase() + 0x43AA1A) = byteLimit; // for flag memory chunk
+	*(BYTE *)(CGame::GetBase() + 0x43AA27) = byteLimit; // for pool object count
+	*(BYTE *)(CGame::GetBase() + 0x43AA5C) = byteLimit; // for constructor init loop
+}
+
 void CPools::SetVehiclePoolLimit(DWORD dwLimit)
 {
 	*(DWORD *)(CGame::GetBase() + 0x9D43B9) = dwLimit;
@@ -70,7 +79,6 @@ void CPools::Initialize()
     m_pTaskPool = new CIVPool<IVTask>(*(IVPool **)COffsets::VAR_TaskPool);
     m_pCamPool = new CIVPool<IVCam>(*(IVPool **)COffsets::VAR_CamPool);
     m_pPedMoveBlendPool = new CIVPool<IVPedMoveBlendOnFoot>(*(IVPool **)COffsets::VAR_PedMoveBlendPool);
-    //m_pTrainPool = new CIVPool<IVTrain>(*(IVPool **)COffsets::VAR_TrainPool);
 }
 
 IVPlayerInfo * CPools::GetPlayerInfoFromIndex(unsigned int uiIndex)
