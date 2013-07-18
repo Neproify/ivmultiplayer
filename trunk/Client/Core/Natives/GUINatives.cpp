@@ -362,7 +362,7 @@ bool OnKeyPress(const CEGUI::KeyEventArgs &eArgs, String keyState)
 	pArguments.push(keyState);
 
 	CSquirrelArgument pReturn = pEvents->Call(eventName, &pArguments, pScript);
-	return pReturn.GetInteger();
+	return pReturn.GetBool();
 }
 bool OnKeyDown(const CEGUI::EventArgs &eventArgs)
 {

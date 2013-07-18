@@ -98,9 +98,9 @@ public:
 	static CIVWorld      * GetWorld() { return m_pWorld; }
 	static HWND            GetHWnd();
 	static DWORD           GetTime();
+	static void            UnprotectMemory();
 	static void            Initialize();
 	static void            Shutdown();
-	static bool            Patch();
 	static bool            IsMenuActive();
 	static void            SetTime(int uHour, int uMinute);
 	static void            SetDayOfWeek(int uDay);
@@ -129,7 +129,6 @@ public:
 	static unsigned int    GetScrollBarColor();
 	static String          GetCurrentAreaName();
 	static String          GetCurrentStreetName();
-	static void            RemoveInitialLoadingScreens();
 	static bool            GetScreenPositionFromWorldPosition(CVector3 &vecWorldPosition, Vector2 &vecScreenPosition);
 	static void            CreateExplosion(CVector3& vecPosition, unsigned int uiExplosionType, float fRadius, bool bSound = true, bool bInvisible = false, float fCameraShake = 0.0f);
 	static unsigned int    CreateFire(CVector3 vecPosition, unsigned int uiStrength = 1, unsigned char ucAllowedGenerations = 0);

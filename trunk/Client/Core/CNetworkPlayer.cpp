@@ -950,8 +950,7 @@ float CNetworkPlayer::GetCurrentHeading()
 {
 	THIS_CHECK_R(0);
 	if(IsSpawned())
-		return m_pPlayerPed->GetCurrentHeading();
-		//return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetCurrentHeading());
+		return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetCurrentHeading());
 
 	return 0.0f;
 }
@@ -960,16 +959,14 @@ void CNetworkPlayer::SetDesiredHeading(float fHeading)
 {
 	THIS_CHECK;
 	if(IsSpawned())
-		m_pPlayerPed->SetDesiredHeading(fHeading);
-		//m_pPlayerPed->SetDesiredHeading(Math::ConvertDegreesToRadians(fHeading));
+		m_pPlayerPed->SetDesiredHeading(Math::ConvertDegreesToRadians(fHeading));
 }
 
 float CNetworkPlayer::GetDesiredHeading()
 {
 	THIS_CHECK_R(0);
 	if(IsSpawned())
-		return m_pPlayerPed->GetDesiredHeading();
-		//return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetDesiredHeading());
+		return Math::ConvertRadiansToDegrees(m_pPlayerPed->GetDesiredHeading());
 
 	return 0.0f;
 }
