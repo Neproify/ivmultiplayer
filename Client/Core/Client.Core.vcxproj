@@ -136,6 +136,7 @@
     <ClInclude Include="AnimGroups.h" />
     <ClInclude Include="CDebugView.h" />
     <ClInclude Include="Commands.h" />
+    <ClInclude Include="CPatches.h" />
     <ClInclude Include="CQuickConnect.h" />
     <ClInclude Include="CServerBrowser.h" />
     <ClInclude Include="CSettingsMenu.h" />
@@ -328,6 +329,7 @@
     <ClCompile Include="CCrashFixes.cpp" />
     <ClCompile Include="CDebugView.cpp" />
     <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="CPatches.cpp" />
     <ClCompile Include="CQuickConnect.cpp" />
     <ClCompile Include="CServerBrowser.cpp" />
     <ClCompile Include="CSettingsMenu.cpp" />

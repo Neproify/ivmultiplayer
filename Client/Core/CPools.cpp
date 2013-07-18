@@ -37,6 +37,31 @@ CPools::~CPools()
 	SAFE_DELETE(m_pPedPool);
 }
 
+void CPools::SetPtrNodeSinglePoolLimit(DWORD dwLimit)
+{
+	*(DWORD *)(CGame::GetBase() + 0xB534B6) = dwLimit;
+}
+
+void CPools::SetPtrNodeDoublePoolLimit(DWORD dwLimit)
+{
+	*(DWORD *)(CGame::GetBase() + 0xB534F6) = dwLimit;
+}
+
+void CPools::SetEntryInfoNodePoolLimit(DWORD dwLimit)
+{
+	*(DWORD *)(CGame::GetBase() + 0xC796D6) = dwLimit;
+}
+
+void CPools::SetVehiclePoolLimit(DWORD dwLimit)
+{
+	*(DWORD *)(CGame::GetBase() + 0x9D43B9) = dwLimit;
+}
+
+void CPools::SetVehicleStructPoolLimit(BYTE byteLimit)
+{
+	*(BYTE *)(CGame::GetBase() + 0xBEA871) = byteLimit;
+}
+
 void CPools::Initialize()
 {
     // Initialize game pools

@@ -53,6 +53,13 @@ public:
 	CPools();
 	~CPools();
 
+	// Pool increases (These must be called before pools are created obviously...)
+	void                 SetPtrNodeSinglePoolLimit(DWORD dwLimit);  // 80000 default
+	void                 SetPtrNodeDoublePoolLimit(DWORD dwLimit);  // 16000 default
+	void                 SetEntryInfoNodePoolLimit(DWORD dwLimit);  // 16000 default
+	void                 SetVehiclePoolLimit(DWORD dwLimit);        // 140 default
+	void                 SetVehicleStructPoolLimit(BYTE byteLimit); // 50 default
+
 	void                 Initialize();
 
 	// Pools

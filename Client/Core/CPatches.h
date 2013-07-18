@@ -1,15 +1,15 @@
 //============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
 //
-// File: CCrashFixes.h
+// File: CPatches.h
 // Project: Client.Core
-// Author(s): XForce
+// Author(s): jenksta
 // License: See LICENSE in root directory
 //
 //==============================================================================
 
 #pragma once
 
-class CCrashFixes
+class CPatches
 {
 public:
 	static void Apply();

@@ -434,17 +434,17 @@ void CClient::OnD3DEndScene()
 			// Get the data
 			String * strData = m_pHttpClient->GetData();
 
-			// Did we not get any data?
-			if(strData->IsEmpty())
-				return;
-
-#ifndef IVMP_DEBUG
-			if(strcmp(strData->Get(), MOD_VERSION_STRING))
+			// Did we get any data?
+			if(!strData->IsEmpty())
 			{
-				if(m_pGUI)
-					m_pGUI->ShowMessageBox(String("A new version of IV:MP is available (Version %s)", strData->Get()).Get(), "New Version available");
-			}
+#ifndef IVMP_DEBUG
+				if(strcmp(strData->Get(), MOD_VERSION_STRING))
+				{
+					if(m_pGUI)
+						m_pGUI->ShowMessageBox(String("A new version of IV:MP is available (Version %s)", strData->Get()).Get(), "New Version available");
+				}
 #endif
+			}
 		}
 	}
 

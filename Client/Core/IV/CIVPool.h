@@ -15,17 +15,12 @@
 #include <Patcher/CPatcher.h>
 #include <CLogFile.h>
 
-/*
-This will multiply the size of the given pools by the value in multi [default: 4]
-*/
-void IncreasePoolSizes(int multi = 4);
-
 // From OpenLC by listener
 class IVPool
 {
 public:
 	BYTE *  m_pObjects;    // 00-04
-	BYTE *  m_pFlags;      // 04-08
+	BYTE *  m_pFlags;      // 04-08 (Bit 8: slot is free)
 	DWORD   m_dwCount;     // 08-0C
 	DWORD   m_dwEntrySize; // 0C-10
 	int     m_nTop;        // 10-14

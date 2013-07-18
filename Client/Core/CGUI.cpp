@@ -513,7 +513,7 @@ void CGUI::ShowMessageBox(const CEGUI::String &sText, const CEGUI::String &sTitl
 
 		// Create the message box window
 
-		// IF any messagebox already exist, destroy it
+		// If any messagebox already exist, destroy it
 		if(m_messageBox.pWindow)
 			m_messageBox.pWindow->destroy();
 
@@ -556,12 +556,12 @@ void CGUI::ShowMessageBox(const CEGUI::String &sText, const CEGUI::String &sTitl
 			if(style == GUI_MESSAGEBOXTYPE_YESNO)
 			{
 				m_messageBox.pButtons[0]->setSize(CEGUI::UVector2(CEGUI::UDim(0.25f, 0), CEGUI::UDim(0.15f, 0)));
-				m_messageBox.pButtons[0]->setPosition(CEGUI::UVector2(CEGUI::UDim(0.25f, 0), CEGUI::UDim(0.75f, 0)));
+				m_messageBox.pButtons[0]->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.75f, 0)));
 			}
 			else if(style == GUI_MESSAGEBOXTYPE_YESNOCANCEL)
 			{
 				m_messageBox.pButtons[0]->setSize(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.15f, 0)));
-				m_messageBox.pButtons[0]->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.75f, 0)));
+				m_messageBox.pButtons[0]->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15f, 0), CEGUI::UDim(0.75f, 0)));
 			}
 
 			m_messageBox.pButtons[0]->setVisible(true);
@@ -574,7 +574,7 @@ void CGUI::ShowMessageBox(const CEGUI::String &sText, const CEGUI::String &sTitl
 			if(style == GUI_MESSAGEBOXTYPE_YESNO)
 			{
 				m_messageBox.pButtons[1]->setSize(CEGUI::UVector2(CEGUI::UDim(0.25f, 0), CEGUI::UDim(0.15f, 0)));
-				m_messageBox.pButtons[1]->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5f, 0), CEGUI::UDim(0.75f, 0)));
+				m_messageBox.pButtons[1]->setPosition(CEGUI::UVector2(CEGUI::UDim(0.55f, 0), CEGUI::UDim(0.75f, 0)));
 			}
 			else if(style == GUI_MESSAGEBOXTYPE_YESNOCANCEL)
 			{
@@ -591,7 +591,7 @@ void CGUI::ShowMessageBox(const CEGUI::String &sText, const CEGUI::String &sTitl
 				m_messageBox.pButtons[2] = CreateGUIButton(m_messageBox.pWindow);
 				m_messageBox.pButtons[2]->setText("Cancel");
 				m_messageBox.pButtons[2]->setSize(CEGUI::UVector2(CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.15f, 0)));
-				m_messageBox.pButtons[2]->setPosition(CEGUI::UVector2(CEGUI::UDim(0.7f, 0), CEGUI::UDim(0.75f, 0)));
+				m_messageBox.pButtons[2]->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75f, 0), CEGUI::UDim(0.75f, 0)));
 				m_messageBox.pButtons[2]->setVisible(true);
 				m_messageBox.pButtons[2]->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&CGUI::OnMessageBoxClick, this));
 			}
