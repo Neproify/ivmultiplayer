@@ -35,19 +35,18 @@ class CPools
 {
 private:
 	// Game pools
-	CIVPool<IVPed>     * m_pPedPool;
-	CIVPool<IVVehicle> * m_pVehiclePool; // Size: 140
+	CIVPool<IVPed>                * m_pPedPool;
+	CIVPool<IVVehicle>            * m_pVehiclePool; // Size: 140
 	//#define VAR_BuildingPool_7 0x168FED0
 	//#define VAR_ObjectPool_7 0x1350CE0
-	CIVPool<IVTask>    * m_pTaskPool; // Size: 1200
+	CIVPool<IVTask>               * m_pTaskPool; // Size: 1200
 	//#define VAR_EventPool_7 0x152F4B4 // Size: 300
-	CIVPool<IVCam>     * m_pCamPool;
+	CIVPool<IVCam>                * m_pCamPool;
 	//#define VAR_TaskInfoPool_7 0x1618040
-	CIVPool<IVTrain>	* m_pTrainPool;
 	CIVPool<IVPedMoveBlendOnFoot> * m_pPedMoveBlendPool;
 
 	// Custom checkpoint array
-	IVCheckpoint         m_checkpoints[CHECKPOINT_ARRAY_SIZE];
+	IVCheckpoint                    m_checkpoints[CHECKPOINT_ARRAY_SIZE];
 
 public:
 	CPools();
@@ -57,6 +56,7 @@ public:
 	void                 SetPtrNodeSinglePoolLimit(DWORD dwLimit);  // 80000 default
 	void                 SetPtrNodeDoublePoolLimit(DWORD dwLimit);  // 16000 default
 	void                 SetEntryInfoNodePoolLimit(DWORD dwLimit);  // 16000 default
+	void                 SetPedPoolLimit(BYTE byteLimit);           // 120 default
 	void                 SetVehiclePoolLimit(DWORD dwLimit);        // 140 default
 	void                 SetVehicleStructPoolLimit(BYTE byteLimit); // 50 default
 

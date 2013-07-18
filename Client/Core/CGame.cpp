@@ -231,7 +231,7 @@ void CGame::Initialize()
 
 	// Increase our pool limits
 	m_pPools->SetVehiclePoolLimit(MAX_STREAMED_VEHICLES);
-	m_pPools->SetVehicleStructPoolLimit(124); // 123 vehicle in gta +1 for good luck
+	m_pPools->SetVehicleStructPoolLimit(124); // 123 vehicles in game +1 for good luck
 	CLogFile::Printf("Increased pool limits");
 
 	// Create the pad instance
