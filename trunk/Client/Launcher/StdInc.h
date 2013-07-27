@@ -18,3 +18,4 @@
 #include <Common.h>
 #include <CString.h>
 #include <SharedUtility.h>
+#include <CSettings.h>

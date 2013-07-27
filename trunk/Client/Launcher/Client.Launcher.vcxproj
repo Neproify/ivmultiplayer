@@ -107,12 +107,12 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.;../../Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;../../Vendor;../../Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -140,6 +140,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Shared\CLogFile.cpp" />
+    <ClCompile Include="..\..\Shared\CSettings.cpp" />
+    <ClCompile Include="..\..\Shared\CXML.cpp" />
+    <ClCompile Include="..\..\Shared\Threading\CMutex.cpp" />
+    <ClCompile Include="..\..\Shared\Threading\CThread.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\ticpp.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinystr.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxml.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlparser.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -161,6 +171,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Shared\CLogFile.h" />
+    <ClInclude Include="..\..\Shared\CSettings.h" />
+    <ClInclude Include="..\..\Shared\Threading\CMutex.h" />
+    <ClInclude Include="..\..\Shared\Threading\CThread.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="..\..\Shared\Common.h" />

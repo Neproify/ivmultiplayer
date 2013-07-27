@@ -20,6 +20,44 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	char szInstallDirectory[MAX_PATH];
 	bool bFoundCustomDirectory = false;
 
+	// Check if protocol 'ivmp' and 'ivmultiplayer' is avaiable in registry
+	if(!SharedUtility::ReadRegistryString(HKEY_CLASSES_ROOT, "ivmultiplayer2", NULL, "", NULL, NULL)
+		|| !SharedUtility::ReadRegistryString(HKEY_CLASSES_ROOT, "ivmultiplayer2", NULL, "", NULL, NULL))
+	{
+		// Update
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmp","","IVMultiplayer",strlen("IVMultiplayer"));
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmultiplayer","","IVMultiplayer",strlen("IVMultiplayer"));
+		
+		String strcommand = String("\"%s\" \"%%1\"",SharedUtility::GetAbsolutePath("Client.Launcher.exe"));
+
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmp","Url Protocol","",0);
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmp\\shell\\open\\command\\","",strcommand.GetData(),strcommand.GetLength());
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmp\\DefaultIcon","",String("Client.Launcher.exe,1").GetData(),strlen("Client.Launcher.exe,1"));
+
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmultiplayer","Url Protocol","",0);
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmultiplayer\\shell\\open\\command\\","",strcommand.GetData(),strcommand.GetLength());
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmultiplayer\\DefaultIcon","",String("Client.Launcher.exe,1").GetData(),strlen("Client.Launcher.exe,1"));
+	}
+
+	// Check if protocol 'ivmp' and 'ivmultiplayer' is avaiable in registry
+	if(!SharedUtility::ReadRegistryString(HKEY_CLASSES_ROOT, "ivmp", NULL, "", NULL, NULL)
+		|| !SharedUtility::ReadRegistryString(HKEY_CLASSES_ROOT, "ivmultiplayer", NULL, "", NULL, NULL))
+	{
+		// Update
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmp","","IVMultiplayer",strlen("IVMultiplayer"));
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmultiplayer","","IVMultiplayer",strlen("IVMultiplayer"));
+		
+		String strcommand = String("\"%s\" \"%%1\"",SharedUtility::GetAbsolutePath("Client.Launcher.exe"));
+
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmp","Url Protocol","",0);
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmp\\shell\\open\\command\\","",strcommand.GetData(),strcommand.GetLength());
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmp\\DefaultIcon","",String("Client.Launcher.exe,1").GetData(),strlen("Client.Launcher.exe,1"));
+
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmultiplayer","Url Protocol","",0);
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmultiplayer\\shell\\open\\command\\","",strcommand.GetData(),strcommand.GetLength());
+		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmultiplayer\\DefaultIcon","",String("Client.Launcher.exe,1").GetData(),strlen("Client.Launcher.exe,1"));
+	}
+
 	// TODO: Steam registry entry support
 	if(!SharedUtility::ReadRegistryString(HKEY_LOCAL_MACHINE, "Software\\Rockstar Games\\Grand Theft Auto IV", 
 		"InstallFolder", NULL, szInstallDirectory, sizeof(szInstallDirectory)) || 
@@ -139,8 +177,74 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 	}
 
+	// Check if we have an server connect command
+	String strServer;
+	String strPort;
+	String strNewCommandLine = String(lpCmdLine);
+	std::string strServerCheck = String(lpCmdLine);
+
+	int iOffset = 0;
+	bool bFound = false;
+	std::size_t found = strServerCheck.find("-ivmp");// -[1]i[2]v[3]m[4]p[5]*space*[6]***.***.***.***
+	if(found != std::string::npos)
+	{
+		iOffset = 6;
+		bFound = true;
+	}
+
+	// check for ivmp commandline
+	if(!bFound)
+	{
+		 found = strServerCheck.find("ivmp://");
+		 iOffset = 7;
+		 bFound = true;
+	}
+
+	// check for ivmultiplayer commandline
+	if(!bFound)
+	{
+		 found = strServerCheck.find("ivmultiplayer://");
+		 iOffset = 16;
+		 bFound = true;
+	}
+
+	// Open default clientsettings
+	CSettings::Open(SharedUtility::GetAbsolutePath("clientsettings.xml"));
+
+	if(bFound)
+	{
+		std::string strServerInst = strServerCheck.substr(found+iOffset,strServerCheck.length());
+		std::size_t pos2 = strServerInst.find(":");
+
+		if(pos2 != std::string::npos) 
+		{
+			// Grab our connect data
+			strServer = String("%s",strServerInst.substr(0,pos2).c_str());
+			strPort = String("%s",strServerInst.substr(pos2+1,strServerInst.length()).c_str());
+
+			// Parse the command line
+			CSettings::ParseCommandLine(GetCommandLine());
+
+			// Write connect data to settings xml
+			CVAR_SET_STRING("currentconnect_server",strServer.Get());
+			CVAR_SET_INTEGER("currentconnect_port",strPort.ToInteger());
+			
+			// Generate new commandline
+			strNewCommandLine = String("%s -ivmp %s %s", lpCmdLine, strServer.Get(), strPort.Get());
+		}
+	}
+	else
+	{
+		//TODO: remove old entries if they were not removed by the client
+		CVAR_SET_STRING("currentconnect_server","0.0.0.0");
+		CVAR_SET_INTEGER("currentconnect_port",9999);
+	}
+	
+	// Close settings...
+	CSettings::Close();
+
 	// Generate the command line
-	String strCommandLine("%s %s", strApplicationPath.Get(), lpCmdLine);
+	String strCommandLine("%s %s", strApplicationPath.Get(), strNewCommandLine.Get());
 
 	// Start LaunchGTAIV.exe
 	STARTUPINFO siStartupInfo;

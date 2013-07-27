@@ -623,3 +623,17 @@ bool CMainMenu::OnAboutButtonMouseClick(const CEGUI::EventArgs &eventArgs)
 	g_pClient->GetCredits()->Start();
 	return true;
 }
+
+void CMainMenu::OnDirectConnectMessageBoxResponse(eGUIMessageBoxResponse type)
+{
+	if(type == GUI_MESSAGEBOX_YES)
+	{
+		CMainMenu::GetSingleton()->OnConnect(g_pClient->GetDirectHost(), g_pClient->GetDirectPort(), String(""), true);
+	}
+}
+
+void CMainMenu::OnDirectConnect(String strHost, unsigned short usPort)
+{
+	CMainMenu::GetSingleton()->OnConnect(g_pClient->GetDirectHost(), g_pClient->GetDirectPort(), String(""), true);
+	//g_pClient->GetGUI()->ShowMessageBox(String("Are you sure you want to connect to the server %s:%d ?",strHost.Get(),usPort).Get(), "DirectConnect", GUI_MESSAGEBOXTYPE_YESNO, OnDirectConnectMessageBoxResponse);
+}

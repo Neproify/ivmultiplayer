@@ -91,6 +91,10 @@ private:
 	bool                   m_bFPSToggle;
 	unsigned short         m_usPort;
 	String                 m_strHost;
+
+	String				   m_strConnectHost;
+	unsigned short		   m_usConnectPort;
+
 	String                 m_strNick;
 	String                 m_strPassword;
 	bool		           m_bNetworkStatsDisplayed;
@@ -159,6 +163,8 @@ public:
 	String                 GetNick() { return m_strNick; }
 	void                   SetPassword(String strPassword) { m_strPassword = strPassword; }
 	String                 GetPassword() { return m_strPassword; }
+	String				   GetDirectHost() { return m_strConnectHost; }
+	unsigned short		   GetDirectPort() { return m_usConnectPort; }
 
 	bool                   OnLoad();
 	void                   OnUnload();
