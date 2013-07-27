@@ -19,6 +19,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Source Files\Shared\XML">
+      <UniqueIdentifier>{ecddc2ba-4e2f-44f1-82b1-03a3f34cfd98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shared\XML\TinyXML">
+      <UniqueIdentifier>{ba1db4ab-cbd9-485f-a21d-06ad49cb0e0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -31,6 +37,36 @@
       <Filter>Source Files\Shared</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Shared\SharedUtility.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CSettings.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CXML.cpp">
+      <Filter>Source Files\Shared\XML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\ticpp.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinystr.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxml.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlerror.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Vendor\tinyxml\tinyxmlparser.cpp">
+      <Filter>Source Files\Shared\XML\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\CLogFile.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Threading\CThread.cpp">
+      <Filter>Source Files\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Threading\CMutex.cpp">
       <Filter>Source Files\Shared</Filter>
     </ClCompile>
   </ItemGroup>
@@ -48,6 +84,18 @@
       <Filter>Header Files\Shared</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Shared\SharedUtility.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CSettings.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\CLogFile.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Threading\CMutex.h">
+      <Filter>Header Files\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\Threading\CThread.h">
       <Filter>Header Files\Shared</Filter>
     </ClInclude>
   </ItemGroup>

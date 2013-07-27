@@ -90,6 +90,9 @@ public:
 	void             SetDisconnectButtonVisible(bool bDisconnectButtonVisible);
 	void			 SetNetworkStats(String strHost, int players, int maxplayers, String strName);
 	void			 ResetNetworkStats();
+	static void	     OnDirectConnectMessageBoxResponse(eGUIMessageBoxResponse type);
+	void			 OnDirectConnect(String strHost, unsigned short usPort);
+
 	// ShowMessageBox?
 	void			 ShowMessageBox(const char * szMessage, const char * szHeader, bool bGameMenu, bool bResetGame, bool bAllowReconnect);
 	CSettingsMenu *	GetSettingsMenu() { return m_pSettingsMenu; }

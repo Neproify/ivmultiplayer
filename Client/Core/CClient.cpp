@@ -77,6 +77,8 @@ bool CClient::OnLoad()
 	m_strPassword = CVAR_GET_STRING("pass");
 	m_bWindowedMode = CVAR_GET_BOOL("windowed");
 	m_bFPSToggle = CVAR_GET_BOOL("fps");
+	m_strConnectHost = CVAR_GET_STRING("currentconnect_server");
+	m_usConnectPort = CVAR_GET_INTEGER("currentconnect_port");
 
 	// IE9 fix - disabled if disableie9fix is set or shift is pressed
 	if(!CVAR_GET_BOOL("disableie9fix") || GetAsyncKeyState(VK_SHIFT) > 0)
@@ -355,6 +357,16 @@ void CClient::OnD3DEndScene()
 			{
 				String strPostPath("/getlatestversion.php");
 				m_pHttpClient->Get(strPostPath);
+
+				if(strcmp(m_strConnectHost,"0.0.0.0"))
+				{
+					// Send connect event
+					m_pMainMenu->OnDirectConnect(m_strConnectHost,m_usConnectPort);
+
+					// Remove current connect entries from xml file
+					CVAR_SET_STRING("currentconnect_server","0.0.0.0");
+					CVAR_SET_INTEGER("currentconnect_port",9999);
+				}
 			}
 		}
 	}
@@ -428,7 +440,6 @@ void CClient::OnD3DEndScene()
 	{
 		if(m_pHttpClient->IsBusy())
 			m_pHttpClient->Process();
-
 		if(m_pHttpClient->GotData())
 		{
 			// Get the data
