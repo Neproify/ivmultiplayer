@@ -159,49 +159,52 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	// Check if we have an server connect command
-	String strServer;
-	String strPort;
-	String strNewCommandLine = String(lpCmdLine);
-	std::string strServerCheck = String(lpCmdLine);
-
+	String strServer, strPort;
+	std::size_t sizetCMDFound;
 	int iOffset = 0;
-	bool bFound = false;
-	std::size_t found = strServerCheck.find("-ivmp");// -[1]i[2]v[3]m[4]p[5]*space*[6]***.***.***.***
-	if(found != std::string::npos)
+	bool bCommandFound = false;
+	String strNewCommandLine = lpCmdLine;
+	std::string strServerCheck = String(lpCmdLine);
+	
+	// Check for shortcut commandline
+	if(sizetCMDFound != std::string::npos)
 	{
+		sizetCMDFound = strServerCheck.find("-ivmp");// -[1]i[2]v[3]m[4]p[5]*space*[6]***.***.***.***
 		iOffset = 6;
-		bFound = true;
+		bCommandFound = true;
 	}
 
-	// check for ivmp commandline
-	if(!bFound)
+	// Check for ivmp protocol
+	if(!bCommandFound)
 	{
-		 found = strServerCheck.find("ivmp://");
+		 sizetCMDFound = strServerCheck.find("ivmp://"); // i[1]v[2]m[3]p[4]:[5]/[6]/[7]***.***.***
 		 iOffset = 7;
-		 bFound = true;
+		 bCommandFound = true;
 	}
 
-	// check for ivmultiplayer commandline
-	if(!bFound)
+	// Check for ivmultiplayer protocol
+	if(!bCommandFound)
 	{
-		 found = strServerCheck.find("ivmultiplayer://");
+		 sizetCMDFound = strServerCheck.find("ivmultiplayer://");// i[1]v[2]m[3]u[4]l[5]t[6]i[7]p[8]l[9]a[10]y[11]e[12]r[13]:[14]/[15]/[16]***.***.***
 		 iOffset = 16;
-		 bFound = true;
+		 bCommandFound = true;
 	}
 
 	// Open default clientsettings
 	CSettings::Open(SharedUtility::GetAbsolutePath("clientsettings.xml"));
 
-	if(bFound)
+	// If we have found an direct connect force
+	if(bCommandFound)
 	{
-		std::string strServerInst = strServerCheck.substr(found+iOffset,strServerCheck.length());
-		std::size_t pos2 = strServerInst.find(":");
+		std::string strServerInst = strServerCheck.substr(sizetCMDFound+iOffset,strServerCheck.length());
+		std::size_t sizetCMDFound_2 = strServerInst.find(":");
 
-		if(pos2 != std::string::npos) 
+		// Have we an : in our instruction
+		if(sizetCMDFound_2 != std::string::npos) 
 		{
 			// Grab our connect data
-			strServer = String("%s",strServerInst.substr(0,pos2).c_str());
-			strPort = String("%s",strServerInst.substr(pos2+1,strServerInst.length()).c_str());
+			strServer = String("%s",strServerInst.substr(0,sizetCMDFound_2).c_str());
+			strPort = String("%s",strServerInst.substr(sizetCMDFound_2+1,strServerInst.length()).c_str());
 
 			// Parse the command line
 			CSettings::ParseCommandLine(GetCommandLine());
@@ -211,12 +214,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			CVAR_SET_INTEGER("currentconnect_port",strPort.ToInteger());
 			
 			// Generate new commandline
-			strNewCommandLine = String("%s -ivmp %s %s", lpCmdLine, strServer.Get(), strPort.Get());
+			strNewCommandLine = String("%s -directconnect", lpCmdLine);
+		}
+		else // Something is wrong with our URI
+		{
+			if(ShowMessageBox("Something is wrong with your server directconnect URI, do you want to start IV:MP without direct connect", MB_ICONQUESTION | MB_YESNO ) == IDYES)
+			{
+				// Set default server direct connect values
+				CVAR_SET_STRING("currentconnect_server","0.0.0.0");
+				CVAR_SET_INTEGER("currentconnect_port",9999);
+
+				strNewCommandLine = lpCmdLine;
+			}
+			else // Terminate IV:MP
+			{
+				if(!SharedUtility::_TerminateProcess("LaunchGTAIV.exe"))
+				{
+					return ShowMessageBox("LaunchGTAIV.exe could not be terminated. Cannot launch IV: Multiplayer.");
+				}
+			}
+
 		}
 	}
 	else
 	{
-		//TODO: remove old entries if they were not removed by the client
+		// If we haven't found a server connect command, delte the old instructions( if the client had crashed before )
 		CVAR_SET_STRING("currentconnect_server","0.0.0.0");
 		CVAR_SET_INTEGER("currentconnect_port",9999);
 	}
