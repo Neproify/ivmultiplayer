@@ -39,7 +39,7 @@ bool CAudio::Load()
 		if(m_bIsOnlineStream)
 			m_dwChannel = BASS_StreamCreateURL(m_strStreamName, 0, (BASS_STREAM_BLOCK | BASS_STREAM_STATUS | BASS_STREAM_AUTOFREE), 0, 0);
 		else
-			m_dwChannel = BASS_StreamCreateFile(FALSE, m_strStreamName, 0, 0, 0);
+			m_dwChannel = BASS_StreamCreateFile(FALSE, m_strStreamName, 0, 0, BASS_STREAM_PRESCAN);
 
 		// Did our stream create successfully?
 		if(m_dwChannel != 0)
@@ -219,3 +219,48 @@ void CAudio::Process()
 			SetVolume(0.0f);
 	}
 }
+
+int CAudio::GetLength()
+{
+	if (m_bIsOnlineStream)
+		return -1;
+	
+	if (m_dwChannel)
+	{
+		// get the length
+		long length = BASS_ChannelGetLength (m_dwChannel, BASS_POS_BYTE);
+		
+		// convert it into seconds and return it
+		return BASS_ChannelBytes2Seconds(m_dwChannel, length);
+	}
+	return -1;
+}
+
+bool CAudio::SetAt (int time)
+{
+	if (m_bIsOnlineStream)
+		return false;
+
+	if (m_dwChannel)
+	{
+		long lTime =BASS_ChannelSeconds2Bytes (m_dwChannel, time);
+		BASS_ChannelSetPosition(m_dwChannel, lTime, BASS_POS_BYTE);
+		return true;
+	}
+	return false;
+}	
+
+int CAudio::GetAt ()
+{
+	
+	if (m_bIsOnlineStream)
+		return -1;
+
+	if (m_dwChannel)
+	{
+		long length = BASS_ChannelGetPosition(m_dwChannel, BASS_POS_BYTE);
+		return BASS_ChannelBytes2Seconds (m_dwChannel, length);
+	}
+	return -1;
+}
+

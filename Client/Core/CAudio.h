@@ -53,4 +53,7 @@ public:
 	bool  IsMuted();
 	void  Unmute();
 	void  Process();
+	int	  GetLength();
+	bool  SetAt(int time);
+	int	  GetAt();
 };
