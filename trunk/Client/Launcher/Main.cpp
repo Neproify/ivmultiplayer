@@ -20,9 +20,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	char szInstallDirectory[MAX_PATH];
 	bool bFoundCustomDirectory = false;
 
+	std::string strReNewEntries = lpCmdLine;
+
 	// Check if protocol 'ivmp' and 'ivmultiplayer' is avaiable in registry
 	if(!SharedUtility::ReadRegistryString(HKEY_CLASSES_ROOT, "ivmp", NULL, "", NULL, NULL)
-		|| !SharedUtility::ReadRegistryString(HKEY_CLASSES_ROOT, "ivmultiplayer", NULL, "", NULL, NULL))
+		|| !SharedUtility::ReadRegistryString(HKEY_CLASSES_ROOT, "ivmultiplayer", NULL, "", NULL, NULL)
+		|| strReNewEntries.find("-renewprotocol") != std::string::npos)
 	{
 		// Update
 		SharedUtility::WriteRegistryString(HKEY_CLASSES_ROOT,"ivmp","","IVMultiplayer",strlen("IVMultiplayer"));
