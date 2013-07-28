@@ -246,3 +246,46 @@ _MEMBER_FUNCTION_IMPL(Audio, usePositionSystem)
 	sq_pushbool ( pVM, true );
 	return 1;
 }
+
+_MEMBER_FUNCTION_IMPL(Audio, getLength)
+{
+	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushinteger (pVM, -1);
+		return 1;
+	}
+	sq_pushinteger (pVM, pAudio->GetLength());
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(Audio, setAt)
+{
+	
+	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushbool (pVM, false);
+		return 1;
+	}
+
+	int time;
+	sq_getinteger (pVM, -1, &time);
+
+	sq_pushbool (pVM, pAudio->SetAt(time));
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(Audio, getAt)
+{
+	
+	CAudio * pAudio = sq_getinstance<CAudio *>(pVM);
+	if (!pAudio)
+	{
+		sq_pushinteger (pVM, -1);
+		return 1;
+	}
+
+	sq_pushinteger (pVM, pAudio->GetAt());
+	return 1;
+}

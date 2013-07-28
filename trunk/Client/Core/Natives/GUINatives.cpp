@@ -814,6 +814,37 @@ _MEMBER_FUNCTION_IMPL(GUIElement, setPosition)
 	return 1;
 }
 
+_MEMBER_FUNCTION_IMPL(GUIElement, getPosition)
+{
+	SQBool relative;
+	sq_getbool(pVM, -1, &relative);
+
+	CGUIFrameWindow * pWindow = sq_getinstance<CGUIFrameWindow *>(pVM);
+
+	if(!pWindow)
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	CEGUI::Vector2 pos;
+
+	if(relative != 0)
+	{
+		pos = pWindow->getPosition().asRelative((CEGUI::Size(g_pClient->GetGUI()->GetDisplayWidth (), g_pClient->GetGUI()->GetDisplayHeight())));
+	}
+	else
+	{
+		pos = pWindow->getPosition().asAbsolute((CEGUI::Size(g_pClient->GetGUI()->GetDisplayWidth (), g_pClient->GetGUI()->GetDisplayHeight())));
+	}
+
+	CSquirrelArguments args;
+	args.push(pos.d_x);
+	args.push(pos.d_y);
+	sq_pusharg(pVM, CSquirrelArgument(args, true));
+	return 1;
+}
+
 _MEMBER_FUNCTION_IMPL(GUIElement, setRotation)
 {
 	float x, y, z;
@@ -939,6 +970,11 @@ _MEMBER_FUNCTION_IMPL(GUIElement, setFont)
 		sq_pushbool(pVM, false);
 		return 1;
 	}
+
+	// Adjust the size of the element when the font is changed
+	float fTextWidth = pFont->getTextExtent(pWindow->getText());
+	float fTextHeight = pFont->getFontHeight();
+	pWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0, fTextWidth), CEGUI::UDim(0, fTextHeight)));
 
 	pWindow->setFont(pFont);
 	return 1;
@@ -1072,7 +1108,9 @@ _MEMBER_FUNCTION_IMPL(GUIText, setText)
 
 	CClientScriptManager * pClientScriptManager = g_pClient->GetClientScriptManager();
 	pClientScriptManager->GetGUIManager()->Add(pWindow, pClientScriptManager->GetScriptingManager()->Get(pVM));
-	CEGUI::Font * pFont = g_pClient->GetGUI()->GetFont("tahoma-bold");
+
+	// We have to use the element's font to get the real extent 
+	CEGUI::Font * pFont = pWindow->getFont (true);
 	float fTextWidth = pFont->getTextExtent(text);
 	float fTextHeight = pFont->getFontHeight();
 	pWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0, fTextWidth), CEGUI::UDim(0, fTextHeight)));
