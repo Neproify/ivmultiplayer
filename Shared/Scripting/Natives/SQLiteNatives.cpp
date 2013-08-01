@@ -99,7 +99,6 @@ _MEMBER_FUNCTION_IMPL(db, query)
 
 		while(sqlite3_step(stmt) == SQLITE_ROW)
 		{
-			rowCount++;
 			SQInteger colCount = sqlite3_column_count(stmt);
 
 			sq_pushinteger(pVM, rowCount);
@@ -107,45 +106,35 @@ _MEMBER_FUNCTION_IMPL(db, query)
 
 			for(SQInteger i = 0; i < colCount; i++)
 			{
+				
+				// Column
 				SQInteger columnType = sqlite3_column_type(stmt, i);
 				const char * columnName = sqlite3_column_name(stmt, i);
 
 				sq_pushstring(pVM, columnName, strlen(columnName));
 
-				SQInteger type = sqlite3_column_type(stmt, i);
+				// Value
+				sqlite3_value * columnValue = sqlite3_column_value(stmt, i);
+				SQInteger valueType = sqlite3_value_type(columnValue);
 
-				switch(type)
+				switch(valueType)
 				{
 				case SQLITE_NULL:
+					sq_pushstring(pVM,"",0);
 					break;
 				case SQLITE_INTEGER:
-					sq_pushinteger(pVM, sqlite3_column_int(stmt, i));
-					break;
-				case SQLITE_FLOAT:
-					sq_pushfloat(pVM, (float)sqlite3_column_double(stmt, i));
-					break;
-				case SQLITE_BLOB:
-					/*SQInteger length = sqlite3_column_bytes(stmt, i);
-					if(length > 0) {
-					new unsigned char val[length];
-					memcpy(val, (const void *)sqlite3_column_blob(stmt, i), length);
-					sq_pushstring(vm, val, sizeof(val));
-					}*/
+					sq_pushinteger(pVM,sqlite3_value_int(columnValue));
 					break;
 				default:
-					/*SQInteger length = sqlite3_column_bytes(stmt, i) + 1;
-					new unsigned char val[length];
-					memcpy(val, sqlite3_column_text(stmt, i), length);
-
-					sq_pushstring(vm, val, sizeof(val));*/
-					break;
-
+					sq_pushstring(pVM,(const char*)sqlite3_value_text(columnValue), sqlite3_value_bytes(columnValue));
 				}
+				
 
 				sq_createslot(pVM, -3);
 			}
 
 			sq_createslot(pVM, -3);
+			rowCount++;
 		}
 
 		sqlite3_finalize(stmt);
