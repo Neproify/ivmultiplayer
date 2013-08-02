@@ -27,6 +27,7 @@ _MEMBER_FUNCTION_IMPL(GUIElement, getPosition);
 _MEMBER_FUNCTION_IMPL(GUIElement, setRotation);
 _MEMBER_FUNCTION_IMPL(GUIElement, setAlpha);
 _MEMBER_FUNCTION_IMPL(GUIElement, setVisible);
+_MEMBER_FUNCTION_IMPL(GUIElement, getVisible);
 _MEMBER_FUNCTION_IMPL(GUIElement, setParent);
 _MEMBER_FUNCTION_IMPL(GUIElement, getName);
 _MEMBER_FUNCTION_IMPL(GUIElement, getText);
@@ -55,6 +56,8 @@ _MEMBER_FUNCTION_IMPL(GUIMultiLineEditBox, constructor);
 _MEMBER_FUNCTION_IMPL(GUIMultiColumnList, constructor);
 _MEMBER_FUNCTION_IMPL(GUIMultiColumnList, addRow);
 _MEMBER_FUNCTION_IMPL(GUIMultiColumnList, setItem);
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, getItem);
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, removeRow);
 
 // GUICheckBox
 _MEMBER_FUNCTION_IMPL(GUICheckBox, constructor);

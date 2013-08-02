@@ -885,19 +885,31 @@ _MEMBER_FUNCTION_IMPL(GUIElement, setAlpha)
 
 _MEMBER_FUNCTION_IMPL(GUIElement, setVisible)
 {
-	SQBool visible;
-	sq_getbool(pVM, -1, &visible);
-
 	CGUIFrameWindow * pWindow = sq_getinstance<CGUIFrameWindow *>(pVM);
-
 	if(!pWindow)
 	{
 		sq_pushbool(pVM, false);
 		return 1;
 	}
 
+	SQBool visible;
+	sq_getbool(pVM, -1, &visible);
+
 	pWindow->setVisible(visible != 0);
 	sq_pushbool(pVM, true);
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIElement, getVisible)
+{
+	CGUIFrameWindow * pWindow = sq_getinstance<CGUIFrameWindow *>(pVM);
+	if(!pWindow)
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	sq_pushbool(pVM, pWindow->isVisible());
 	return 1;
 }
 
@@ -1211,20 +1223,6 @@ _MEMBER_FUNCTION_IMPL(GUIMultiColumnList, constructor)
 	return 1;
 }
 
-_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, addRow)
-{
-	CEGUI::MultiColumnList * pWindow = sq_getinstance<CEGUI::MultiColumnList *>(pVM);
-
-	if(!pWindow)
-	{
-		sq_pushbool(pVM, false);
-		return 1;
-	}
-
-	sq_pushinteger(pVM, pWindow->addRow());
-	return 1;
-}
-
 // Custom ListboxTextItem class to automatically set the selection brush image on creation
 class MultiColumnListItem : public CEGUI::ListboxTextItem
 {
@@ -1236,28 +1234,103 @@ public:
 	}
 };
 
-_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, setItem)
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, addRow)
 {
-	SQInteger sqiRow;
-	sq_getinteger(pVM, -1, &sqiRow);
-
-	SQInteger sqiColumn;
-	sq_getinteger(pVM, -2, &sqiColumn);
-
-	const char * value;
-	sq_getstring(pVM, -3, &value);
-
-
 	CEGUI::MultiColumnList * pWindow = sq_getinstance<CEGUI::MultiColumnList *>(pVM);
-
 	if(!pWindow)
 	{
 		sq_pushbool(pVM, false);
 		return 1;
 	}
 
-	pWindow->setItem(new MultiColumnListItem(value), sqiColumn, sqiRow);
-	sq_pushinteger(pVM, true);
+	// Add row or insert at index
+	if(sq_gettop(pVM) > 1)
+	{
+		SQInteger sqiInsert = 0;
+		sq_getinteger(pVM, -1, &sqiInsert);
+		sq_pushinteger(pVM, pWindow->insertRow(sqiInsert));
+	}
+	else
+		sq_pushinteger(pVM, pWindow->addRow());
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, setItem)
+{
+	CEGUI::MultiColumnList * pWindow = sq_getinstance<CEGUI::MultiColumnList *>(pVM);
+	if(!pWindow)
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	SQInteger sqiRow;
+	SQInteger sqiColumn;
+	const char * value;
+	//CEGUI::colour color(0xFFFFFFFF); // TODO: color from hex param
+
+	// FIXME: order of params -> invert	
+	sq_getstring(pVM, 2, &value);
+	sq_getinteger(pVM, 3, &sqiColumn);
+	sq_getinteger(pVM, 4, &sqiRow);
+	
+	try
+	{
+		MultiColumnListItem* pItem = new MultiColumnListItem(value);
+		//pItem->setTextColours(color);
+		pWindow->setItem(pItem, sqiColumn, sqiRow);
+		
+		sq_pushbool(pVM, true);
+	}
+	catch(...)
+	{
+		sq_pushbool(pVM, false);
+	}
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, getItem)
+{
+	CEGUI::MultiColumnList * pWindow = sq_getinstance<CEGUI::MultiColumnList *>(pVM);
+	if(!pWindow)
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	SQInteger sqiRow;
+	SQInteger sqiColumn;
+
+	sq_getinteger(pVM, -2, &sqiRow);
+	sq_getinteger(pVM, -1, &sqiColumn);
+
+	try
+	{
+		CEGUI::MCLGridRef grid_ref(sqiRow, sqiColumn);
+		CEGUI::ListboxItem* pItem = pWindow->getItemAtGridReference(grid_ref);
+		sq_pushstring(pVM, pItem->getText().c_str(), -1);
+	}
+	catch(...)
+	{
+		sq_pushbool(pVM, false);
+	}
+	return 1;
+}
+
+_MEMBER_FUNCTION_IMPL(GUIMultiColumnList, removeRow)
+{
+	CEGUI::MultiColumnList * pWindow = sq_getinstance<CEGUI::MultiColumnList *>(pVM);
+	if(!pWindow)
+	{
+		sq_pushbool(pVM, false);
+		return 1;
+	}
+
+	SQInteger sqiRow;
+	sq_getinteger(pVM, -1, &sqiRow);
+
+	pWindow->removeRow(sqiRow);
+	sq_pushbool(pVM, true);
 	return 1;
 }
 

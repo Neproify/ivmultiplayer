@@ -47,6 +47,7 @@ void RegisterClientNatives(CScriptingManager * pScriptingManager)
 	pScriptingManager->RegisterFunction("triggerServerEvent", sq_triggerServerEvent, -1, NULL);
 	pScriptingManager->RegisterFunction("getGameLanguage", sq_getGameLanguage, -1, NULL);
 	pScriptingManager->RegisterFunction("importAndLoadGameFile", sq_importAndLoadGameFile, 1, "s");
+	pScriptingManager->RegisterFunction("getGroundZ", sq_getGroundZ, 3, "fff");
 }
 
 // addChatMessage(string)
@@ -491,7 +492,7 @@ int sq_getActorCoordinates(SQVM * pVM)
 		return 1;
 	}
 
-	sq_pushbool(pVM,false);
+	sq_pushbool(pVM, false);
 	return 1;
 }
 
@@ -630,5 +631,22 @@ int sq_importAndLoadGameFile(SQVM * pVM)
 	}
 
 	sq_pushbool(pVM, false);
+	return 1;
+}
+
+// getGroundZ(float x, float y, float z) : float
+SQInteger sq_getGroundZ(SQVM * pVM)
+{
+	// Read call arguments
+	float x, y, z;
+	sq_getfloat(pVM, -3, &x);
+	sq_getfloat(pVM, -2, &y);
+	sq_getfloat(pVM, -1, &z);
+
+	// Get ground z-coord
+	float fGroundZ;
+	Scripting::GetGroundZFor3DCoord(x, y, z, &fGroundZ);
+
+	sq_pushfloat(pVM, fGroundZ);
 	return 1;
 }
