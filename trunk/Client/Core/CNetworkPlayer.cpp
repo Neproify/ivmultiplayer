@@ -69,10 +69,8 @@ CNetworkPlayer::CNetworkPlayer(bool bIsLocalPlayer)
 	memset(&m_currentControlState, 0, sizeof(CControlState));
 	ResetVehicleEnterExit();
 
-	
 	if(IsLocalPlayer())
 	{
-
 		// Places all peds vars/variables to false/null
 		InitNetworkPlayerPedStuff();
 

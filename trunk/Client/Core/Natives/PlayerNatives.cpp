@@ -807,15 +807,14 @@ SQInteger CPlayerNatives::GetWayPointCoords(SQVM * pVM)
 
 	if(pLocalPlayer && pLocalPlayer->IsSpawned())
 	{
-		unsigned int uiWayPointHandle = Scripting::GetFirstBlipInfoId(Scripting::BLIP_WAYPOINT) ? Scripting::GetFirstBlipInfoId(Scripting::BLIP_WAYPOINT) : -1;
+		unsigned int uiWayPointHandle = Scripting::GetFirstBlipInfoId(Scripting::BLIP_WAYPOINT);
 
-		if(uiWayPointHandle != -1)
+		if(uiWayPointHandle != 0)
 		{
 			CVector3 vecPos;
 			Scripting::GetBlipCoords(uiWayPointHandle, &vecPos);
 
-			if(vecPos.fZ == 0.0f)
-				Scripting::GetGroundZFor3DCoord(vecPos.fX, vecPos.fY, 1000, &vecPos.fZ);
+			Scripting::GetGroundZFor3DCoord(vecPos.fX, vecPos.fY, 1000, &vecPos.fZ);
 
 			CSquirrelArguments args;
 			args.push(vecPos.fX);

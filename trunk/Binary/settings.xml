@@ -24,7 +24,7 @@
 	<listed>true</listed>
 
 	<!-- The hostname players will see -->
-	<hostname>IV:MP Server</hostname>
+	<hostname>World of opportunity</hostname>
 
 	<!-- The address the server will bind to -->
 	<!-- hostaddress>127.0.0.1</hostaddress -->
@@ -48,20 +48,14 @@
 	<vehiclewaterdeath>true</vehiclewaterdeath>
 	
 	<!-- The scripts the server will load and run -->
-	<script>cp.nut</script>
-	<script>whisper.nut</script>
-	<script>namecheck.nut</script>
-	<script>runcode.nut</script>
+	<script>simple_gamemode.nut</script>	
 	<script>indicators.nut</script>
-	<script>busdriver.nut</script>
 	
 	<!-- The scripts the client will download and run -->
-	<clientscript>scoreboard.nut</clientscript>
-	<!-- clientscript>audio.nut</clientscript -->
-	<!-- clientscript>webbrowser.nut</clientscript -->
+	<clientscript>scoreboard2.nut</clientscript>
+	<!-- clientscript>audio_test.nut</clientscript -->
 	
 	<!-- The resources the client will download and used by clientscripts -->
-	<!-- clientresource>ivmp.png</clientresource -->
 	<clientresource>hud.dat</clientresource>
 	<clientresource>RadioLogo.dat</clientresource>
 	

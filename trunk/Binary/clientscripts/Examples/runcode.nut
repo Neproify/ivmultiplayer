@@ -1,3 +1,5 @@
+// This example shows how you can compile squirrel code from string variable and execute
+
 function runCode(code)
 {
 	local scriptBuffer;

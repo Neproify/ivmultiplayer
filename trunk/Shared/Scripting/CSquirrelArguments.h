@@ -94,7 +94,7 @@ public:
 	void                 SetInstance(SQInstance * pInstance) { reset(); type = OT_INSTANCE; data.pInstance = pInstance; }
 
 	int                  GetInteger() const { return (type == OT_INTEGER) ? data.i : 0; }
-	bool                 GetBool()    const { return (type == OT_BOOL)    ? data.b : false; }
+	bool                 GetBool()    const { return (type == OT_BOOL)    ? data.b : (type == OT_INTEGER ? data.i != 0 : false); }
 	float                GetFloat()   const { return (type == OT_FLOAT)   ? data.f : 0.0f; }
 	const char         * GetString()  const { return (type == OT_STRING)  ? data.str->Get() : NULL; }
 	CSquirrelArguments * GetTable() const { return (type == OT_TABLE) ? data.pArray : NULL; }

@@ -50,3 +50,4 @@ SQUIRREL_FUNCTION(drawLightWithRange);
 SQUIRREL_FUNCTION(tuneRadio);
 SQUIRREL_FUNCTION(getGameLanguage);
 SQUIRREL_FUNCTION(importAndLoadGameFile);
+SQUIRREL_FUNCTION(getGroundZ);

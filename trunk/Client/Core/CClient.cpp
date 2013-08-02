@@ -696,30 +696,17 @@ void CClient::OnGameProcess()
 	if(m_pNetworkManager)
 		m_pNetworkManager->Process();
 
-	// HACKY!
+	// HACKY! FIXME, for real
 	// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
 	//		       ...If the player is in the vehicle, it will turn it automatic on -.-
 	if(m_pLocalPlayer)
 	{
 		if(m_pLocalPlayer->GetVehicle())
 		{
-			// TEMP! TODO: Anywhere in GTA there's a function which checks if the engine is turned on or off...
-			//		 ...If the player is in the vehicle, it will turn it automatic on -.-
 			// jenksta: Then find all references to CVehicle::TurnEngineOn and find which call is for when 
 			// the player enters the vehicle?
-			if(!m_pLocalPlayer->GetVehicle()->GetEngineState())
+			if(m_pLocalPlayer->GetVehicle()->GetEngineState() == false)
 				m_pLocalPlayer->GetVehicle()->SetEngineState(false);
-		}
-	}
-	for(EntityId playerId = 0; playerId < MAX_PLAYERS; playerId++)
-	{
-		if(m_pPlayerManager->DoesExist(playerId))
-		{
-			if(m_pPlayerManager->GetAt(playerId)->GetVehicle() != NULL)
-			{
-				if(!m_pPlayerManager->GetAt(playerId)->GetVehicle()->GetEngineState() != NULL)
-					m_pPlayerManager->GetAt(playerId)->GetVehicle()->SetEngineState(false);
-			}
 		}
 	}
 

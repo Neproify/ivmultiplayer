@@ -441,10 +441,9 @@ SQInteger CBlipNatives::CreatePlayerBlip(SQVM * pVM)
 	{
 		g_pBlipManager->CreateForPlayer(playerId, (int)iSprite, true);
 		sq_pushbool(pVM,true);
-		return 1;
 	}
-
-	sq_pushbool(pVM,false);
+	else
+		sq_pushbool(pVM,false);
 	return 1;
 }
 

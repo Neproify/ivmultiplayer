@@ -16,7 +16,7 @@
 extern CClient * g_pClient;
 
 CCheckpoint::CCheckpoint(EntityId checkpointId, eCheckpointType type, CVector3 vecPosition, CVector3 vecTargetPosition, float fRadius)
-	: CStreamableEntity(STREAM_ENTITY_CHECKPOINT, 5.0f * fRadius + 150.0f),
+	: CStreamableEntity(STREAM_ENTITY_CHECKPOINT, 5.0f * fRadius + 250.0f),
 	m_pCheckpoint(NULL),
 	m_checkpointId(checkpointId),
 	m_eType(type),

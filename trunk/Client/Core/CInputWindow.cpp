@@ -209,7 +209,7 @@ void CInputWindow::ProcessInput()
 					if(pEvents)
 					{
 						CSquirrelArguments pArguments;
-						pArguments.push(szInput);
+						pArguments.push(m_szInput);
 						pEvents->Call("playerCommand", &pArguments);
 					}
 
