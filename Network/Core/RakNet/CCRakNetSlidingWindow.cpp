@@ -16,6 +16,7 @@ static const CCTimeType SYN=10000;
 #include <stdlib.h>
 #include "RakAssert.h"
 #include "RakAlloca.h"
+#include <cmath>
 
 using namespace RakNet;
 

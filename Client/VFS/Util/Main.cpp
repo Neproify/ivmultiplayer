@@ -225,7 +225,7 @@ int main(int argc, char **argv)
 	char szKey[512];
 
 	printf("Please enter image key: ");
-	gets(szKey);
+	gets_s(szKey);
 	printf("\n\n");
 
 	pInterface->SetKey(szKey);

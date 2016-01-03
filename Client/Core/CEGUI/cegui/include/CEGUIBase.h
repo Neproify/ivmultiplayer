@@ -40,6 +40,7 @@
 
 // add CEGUI version defines
 #include "CEGUIVersion.h"
+#include <algorithm>
 
 /*************************************************************************
 	Dynamic Library import / export control conditional
