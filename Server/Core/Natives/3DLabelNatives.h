@@ -1,4 +1,4 @@
-//============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
+//============== IV:Multiplayer - https://github.com/Neproify/ivmultiplayer ==============
 //
 // File: 3DLabelNatives.h
 // Project: Server.Core

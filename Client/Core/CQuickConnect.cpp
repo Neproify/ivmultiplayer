@@ -1,4 +1,4 @@
-//============== IV: Multiplayer - http://code.iv-multiplayer.com ==============
+//============== IV:Multiplayer - https://github.com/Neproify/ivmultiplayer ==============
 //
 // File: CQuickConnect.cpp
 // Project: Client.Core
