@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CMasterListQuery.h"
+#include "Common.h"
 #include <CLogFile.h>
 
 CMasterListQuery::CMasterListQuery(String strHost, String strVersion)
@@ -33,7 +34,7 @@ void CMasterListQuery::Reset()
 
 bool CMasterListQuery::Query(int iType)
 {
-	String strPostPath("/list.php?version=01RC3");
+	String strPostPath("/list.php?version=" MASTERLIST_VERSION);
 
 	if(!m_pHttpClient->Get(strPostPath))
 	{
