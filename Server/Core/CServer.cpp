@@ -296,7 +296,7 @@ bool CServer::OnLoad(int argc, char ** argv)
 	CAreaNatives::Register(g_pScriptingManager);
 
 	// Register the hash natives
-	CHashNatives::Register(g_pScriptingManager);
+	RegisterHashNatives(g_pScriptingManager);
 
 	// Register the event natives
 	CEventNatives::Register(g_pScriptingManager);

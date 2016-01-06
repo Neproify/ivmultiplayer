@@ -161,7 +161,7 @@ CClientScriptManager::CClientScriptManager()
 	CAreaNatives::Register(m_pScripting);
 
 	// Register the hash natives
-	CHashNatives::Register(m_pScripting);
+	RegisterHashNatives(m_pScripting);
 
 	// Register the script natives
 	RegisterScriptNatives(m_pScripting);

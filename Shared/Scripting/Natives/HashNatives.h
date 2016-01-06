@@ -2,7 +2,7 @@
 //
 // File: HashNatives.h
 // Project: Shared
-// Author(s): Einstein
+// Author(s): Einstein, Neproify
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -11,12 +11,7 @@
 
 #include "Natives.h"
 
-class CHashNatives
-{
-private:
-	static SQInteger md5(SQVM * pVM);
-	static SQInteger md5File(SQVM * pVM);
+void RegisterHashNatives(CScriptingManager * pScriptingManager);
 
-public:
-	static void      Register(CScriptingManager * pScriptingManager);
-};
+_MEMBER_FUNCTION_IMPL(hash, md5);
+_MEMBER_FUNCTION_IMPL(hash, md5File);
