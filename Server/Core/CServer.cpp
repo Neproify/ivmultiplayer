@@ -299,7 +299,7 @@ bool CServer::OnLoad(int argc, char ** argv)
 	RegisterHashNatives(g_pScriptingManager);
 
 	// Register the event natives
-	CEventNatives::Register(g_pScriptingManager);
+	RegisterEventNatives(g_pScriptingManager);
 
 	// Register the 3dlabel natives
 	_3DLabelNatives::Register(g_pScriptingManager);

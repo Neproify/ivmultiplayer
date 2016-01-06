@@ -12,13 +12,8 @@
 
 #include "Natives.h"
 
-class CEventNatives
-{
-private:
-	static SQInteger Add(SQVM * pVM);
-	static SQInteger Call(SQVM * pVM);
-	static SQInteger Remove(SQVM * pVM);
+void RegisterEventNatives(CScriptingManager * pScriptingManager);
 
-public:
-	static void      Register(CScriptingManager * pScriptingManager);
-};
+_MEMBER_FUNCTION_IMPL(event, constructor);
+_MEMBER_FUNCTION_IMPL(event, call);
+_MEMBER_FUNCTION_IMPL(event, remove);

@@ -149,7 +149,7 @@ CClientScriptManager::CClientScriptManager()
 	RegisterGUINatives(m_pScripting);
 
 	// Register the event natives
-	CEventNatives::Register(m_pScripting);
+	RegisterEventNatives(m_pScripting);
 
 	// Register the player natives
 	CPlayerNatives::Register(m_pScripting);

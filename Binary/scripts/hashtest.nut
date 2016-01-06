@@ -4,4 +4,4 @@ function onScriptInitHash()
   log(result);
 	return 1;
 }
-addEvent("scriptInit", onScriptInitHash);
+event("scriptInit", onScriptInitHash);

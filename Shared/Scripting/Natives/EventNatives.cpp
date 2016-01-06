@@ -15,16 +15,19 @@
 #include "CEvents.h"
 
 // Event functions
+_BEGIN_CLASS(event)
+_MEMBER_FUNCTION(event, constructor, -1, NULL)
+_MEMBER_FUNCTION(event, call, -1, NULL)
+_MEMBER_FUNCTION(event, remove, 2, "sc")
+_END_CLASS(event)
 
-void CEventNatives::Register(CScriptingManager * pScriptingManager)
+void RegisterEventNatives(CScriptingManager * pScriptingManager)
 {
-	pScriptingManager->RegisterFunction("addEvent", Add, -1, NULL);
-	pScriptingManager->RegisterFunction("callEvent", Call, -1, NULL);
-	pScriptingManager->RegisterFunction("removeEvent", Remove, 2, "sc");
+	pScriptingManager->RegisterClass(&_CLASS_DECL(event));
 }
 
-// addEvent(eventname, function, ...)
-SQInteger CEventNatives::Add(SQVM * pVM)
+// add(eventName, function, ...)
+_MEMBER_FUNCTION_IMPL(event, constructor)
 {
 	const char * szEventName;
 	SQObjectPtr pFunction;
@@ -35,9 +38,8 @@ SQInteger CEventNatives::Add(SQVM * pVM)
 	return 1;
 }
 
-// TODO: 'Call for this script only' argument
-// callEvent(eventname, defaultretval, ...)
-SQInteger CEventNatives::Call(SQVM * pVM)
+// call(eventname, defaultretval, ...)
+_MEMBER_FUNCTION_IMPL(event, call)
 {
 	CHECK_PARAMS_MIN("callEvent", 2);
 	CHECK_TYPE("callEvent", 1, 2, OT_STRING);
@@ -47,10 +49,10 @@ SQInteger CEventNatives::Call(SQVM * pVM)
 	// Get the name
 	const char * szEventName;
 	sq_getstring(pVM, 2, &szEventName);
-	
+
 	// Grab all arguments
 	CSquirrelArguments pArguments;
-	for(SQInteger i = 3; i <= iTop; ++ i)
+	for (SQInteger i = 3; i <= iTop; ++i)
 		pArguments.pushFromStack(pVM, i);
 
 	// Call the event
@@ -59,8 +61,8 @@ SQInteger CEventNatives::Call(SQVM * pVM)
 	return 1;
 }
 
-// removeEvent(eventname, function)
-SQInteger CEventNatives::Remove(SQVM * pVM)
+// remove(eventname, function)
+_MEMBER_FUNCTION_IMPL(event, remove)
 {
 	const char * szEventName;
 	SQObjectPtr pFunction;
