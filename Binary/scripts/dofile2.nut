@@ -1,4 +1,0 @@
-function dofileTest() 
-{
-	log("worked");
-}
