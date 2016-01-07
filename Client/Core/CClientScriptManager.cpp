@@ -143,7 +143,7 @@ CClientScriptManager::CClientScriptManager()
 	RegisterClientNatives(m_pScripting);
 
 	// Register the world natives
-	CWorldNatives::Register(m_pScripting);
+	RegisterWorldNatives(m_pScripting);
 
 	// Register the GUI natives
 	RegisterGUINatives(m_pScripting);

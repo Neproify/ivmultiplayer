@@ -11,23 +11,11 @@
 
 #include "Natives.h"
 
-class CWorldNatives
-{
-private:
-	static SQInteger SetTime(SQVM * pVM);
-	static SQInteger GetTime(SQVM * pVM);
-	static SQInteger SetMinuteDuration(SQVM * pVM);
-	static SQInteger GetMinuteDuration(SQVM * pVM);
-	static SQInteger SetDayOfWeek(SQVM * pVM);
-	static SQInteger GetDayOfWeek(SQVM * pVM);
-	static SQInteger SetTrafficLightsState(SQVM * pVM);
-	static SQInteger GetTrafficLightsState(SQVM * pVM);
-	static SQInteger SetTrafficLightsLocked(SQVM * pVM);
-	static SQInteger AreTrafficLightsLocked(SQVM * pVM);
-	static SQInteger SetTrafficLightsPhaseDuration(SQVM * pVM);
-	static SQInteger GetTrafficLightsPhaseDuration(SQVM * pVM);
-	static SQInteger ResetTrafficLightsPhaseDuration(SQVM * pVM);
+void RegisterWorldNatives(CScriptingManager * pScriptingManager);
 
-public:
-	static void      Register(CScriptingManager * pScriptingManager);
-};
+_MEMBER_FUNCTION_IMPL(world, setTime);
+_MEMBER_FUNCTION_IMPL(world, getTime);
+_MEMBER_FUNCTION_IMPL(world, setMinuteDuration);
+_MEMBER_FUNCTION_IMPL(world, getMinuteDuration);
+_MEMBER_FUNCTION_IMPL(world, setDayOfWeek);
+_MEMBER_FUNCTION_IMPL(world, getDayOfWeek);

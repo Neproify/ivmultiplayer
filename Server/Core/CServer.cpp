@@ -269,7 +269,7 @@ bool CServer::OnLoad(int argc, char ** argv)
 	CServerNatives::Register(g_pScriptingManager);
 
 	// Register the world natives
-	CWorldNatives::Register(g_pScriptingManager);
+	RegisterWorldNatives(g_pScriptingManager);
 
 	// Register the player natives
 	CPlayerNatives::Register(g_pScriptingManager);
