@@ -292,9 +292,6 @@ bool CServer::OnLoad(int argc, char ** argv)
 	// Register the pickup natives
 	CPickupNatives::Register(g_pScriptingManager);
 
-	// Register the area natives
-	CAreaNatives::Register(g_pScriptingManager);
-
 	// Register the hash natives
 	RegisterHashNatives(g_pScriptingManager);
 

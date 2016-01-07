@@ -157,9 +157,6 @@ CClientScriptManager::CClientScriptManager()
 	// Register the vehicle natives
 	CVehicleNatives::Register(m_pScripting);
 
-	// Register the area natives
-	CAreaNatives::Register(m_pScripting);
-
 	// Register the hash natives
 	RegisterHashNatives(m_pScripting);
 

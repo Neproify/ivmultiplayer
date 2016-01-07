@@ -105,7 +105,7 @@ static void sq_getarg(SQVM * pVM, SQInteger iIndex, CSquirrelArgument * arg)
 // Natives
 
 #include "EventNatives.h"
-#include "AreaNatives.h"
+//#include "AreaNatives.h"
 #include "XMLNatives.h"
 #include "SQLiteNatives.h"
 #include "TimerNatives.h"

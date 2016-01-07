@@ -10,9 +10,8 @@
 #include "Natives.h"
 #include "../CScriptingManager.h"
 
-// Area functions
-
-void CAreaNatives::Register(CScriptingManager * pScriptingManager)
+// Move it to own classes(Circle, Tube, etc.)
+/*void CAreaNatives::Register(CScriptingManager * pScriptingManager)
 {
 	pScriptingManager->RegisterFunction("getDistanceBetweenPoints2D", Points2D, 4, "ffff");
 	pScriptingManager->RegisterFunction("getDistanceBetweenPoints3D", Points3D, 6, "ffffff");
@@ -170,4 +169,4 @@ SQInteger CAreaNatives::PointInPolygon(SQVM * pVM)
 
 	sq_pushbool(pVM, Math::IsPointInPolygon(currentPoly, polyX, polyY, pointX, pointY));
 	return 1;
-}
+}*/
