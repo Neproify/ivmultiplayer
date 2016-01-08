@@ -2,7 +2,7 @@
 //
 // File: WorldNatives.h
 // Project: Shared
-// Author(s): mabako
+// Author(s): mabako, Neproify
 // License: See LICENSE in root directory
 //
 //==============================================================================

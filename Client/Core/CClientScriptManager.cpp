@@ -145,6 +145,9 @@ CClientScriptManager::CClientScriptManager()
 	// Register the world natives
 	RegisterWorldNatives(m_pScripting);
 
+	// Register the traffic lights natives
+	RegisterTrafficLightsNatives(m_pScripting);
+
 	// Register the GUI natives
 	RegisterGUINatives(m_pScripting);
 

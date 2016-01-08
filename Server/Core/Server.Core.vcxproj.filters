@@ -627,6 +627,9 @@
     <ClInclude Include="..\..\Shared\Scripting\CGlobalsManager.h">
       <Filter>Header Files\Scripting</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Shared\Scripting\Natives\TrafficLightsNatives.h">
+      <Filter>Header Files\Scripting\Natives\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CModule.cpp">
@@ -943,6 +946,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Shared\Scripting\CGlobalsManager.cpp">
       <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\Scripting\Natives\TrafficLightsNatives.cpp">
+      <Filter>Source Files\Scripting\Natives\Shared</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

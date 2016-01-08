@@ -271,6 +271,9 @@ bool CServer::OnLoad(int argc, char ** argv)
 	// Register the world natives
 	RegisterWorldNatives(g_pScriptingManager);
 
+	// Register the traffic lights natives
+	RegisterTrafficLightsNatives(g_pScriptingManager);
+
 	// Register the player natives
 	CPlayerNatives::Register(g_pScriptingManager);
 
