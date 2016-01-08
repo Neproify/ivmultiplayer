@@ -143,13 +143,13 @@ CClientScriptManager::CClientScriptManager()
 	RegisterClientNatives(m_pScripting);
 
 	// Register the world natives
-	RegisterWorldNatives(m_pScripting);
+	CWorldNatives::Register(m_pScripting);
 
 	// Register the GUI natives
 	RegisterGUINatives(m_pScripting);
 
 	// Register the event natives
-	RegisterEventNatives(m_pScripting);
+	CEventNatives::Register(m_pScripting);
 
 	// Register the player natives
 	CPlayerNatives::Register(m_pScripting);
@@ -157,8 +157,11 @@ CClientScriptManager::CClientScriptManager()
 	// Register the vehicle natives
 	CVehicleNatives::Register(m_pScripting);
 
+	// Register the area natives
+	CAreaNatives::Register(m_pScripting);
+
 	// Register the hash natives
-	RegisterHashNatives(m_pScripting);
+	CHashNatives::Register(m_pScripting);
 
 	// Register the script natives
 	RegisterScriptNatives(m_pScripting);

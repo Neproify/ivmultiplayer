@@ -269,7 +269,7 @@ bool CServer::OnLoad(int argc, char ** argv)
 	CServerNatives::Register(g_pScriptingManager);
 
 	// Register the world natives
-	RegisterWorldNatives(g_pScriptingManager);
+	CWorldNatives::Register(g_pScriptingManager);
 
 	// Register the player natives
 	CPlayerNatives::Register(g_pScriptingManager);
@@ -292,11 +292,14 @@ bool CServer::OnLoad(int argc, char ** argv)
 	// Register the pickup natives
 	CPickupNatives::Register(g_pScriptingManager);
 
+	// Register the area natives
+	CAreaNatives::Register(g_pScriptingManager);
+
 	// Register the hash natives
-	RegisterHashNatives(g_pScriptingManager);
+	CHashNatives::Register(g_pScriptingManager);
 
 	// Register the event natives
-	RegisterEventNatives(g_pScriptingManager);
+	CEventNatives::Register(g_pScriptingManager);
 
 	// Register the 3dlabel natives
 	_3DLabelNatives::Register(g_pScriptingManager);

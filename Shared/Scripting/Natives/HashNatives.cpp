@@ -2,7 +2,7 @@
 //
 // File: HashNatives.cpp
 // Project: Shared
-// Author(s): Einstein, Neproify
+// Author(s): Einstein
 // License: See LICENSE in root directory
 //
 //==============================================================================
@@ -14,17 +14,13 @@
 
 // Hash functions
 
-_BEGIN_CLASS(hash)
-_MEMBER_FUNCTION(hash, md5, 1, "s")
-_MEMBER_FUNCTION(hash, md5File, 1, "s")
-_END_CLASS(hash)
-
-void RegisterHashNatives(CScriptingManager * pScriptingManager)
+void CHashNatives::Register(CScriptingManager * pScriptingManager)
 {
-	pScriptingManager->RegisterClass(&_CLASS_DECL(hash));
+	pScriptingManager->RegisterFunction("md5", md5, 1, "s");
+	pScriptingManager->RegisterFunction("md5File", md5File, 1, "s");
 }
 
-_MEMBER_FUNCTION_IMPL(hash, md5)
+SQInteger CHashNatives::md5(SQVM * pVM)
 {
 	const char * toHash;
 	char result[33];
@@ -41,7 +37,7 @@ _MEMBER_FUNCTION_IMPL(hash, md5)
 	return 1;
 }
 
-_MEMBER_FUNCTION_IMPL(hash, md5File)
+SQInteger CHashNatives::md5File(SQVM * pVM)
 {
 	const char * szFileName;
 	char result[33];
