@@ -756,9 +756,6 @@
     <ClInclude Include="CPatches.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Shared\Scripting\Natives\TrafficLightsNatives.h">
-      <Filter>Header Files\Scripting\Natives\Shared</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp">
@@ -1237,9 +1234,6 @@
     </ClCompile>
     <ClCompile Include="CPatches.cpp">
       <Filter>Source Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Shared\Scripting\Natives\TrafficLightsNatives.cpp">
-      <Filter>Source Files\Scripting\Natives\Shared</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
