@@ -1,4 +1,4 @@
-for /f %%i in ('svnversion') do set VERSION=r%%i-Win32-Nightly
+for /f %%i in ('git rev-list --count HEAD') do set VERSION=r%%i-Win32-Nightly
 mkdir sdk_release
 cd ..\Server\Core\Interfaces
 call copy.bat

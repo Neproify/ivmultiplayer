@@ -57,8 +57,10 @@ Binary/*.lib
 Binary/*.exp
 Binary/*.iobj
 Binary/*.ipdb
+Binary/sdk/
 Client/Core/CEGUI/lib/*
 Binary/webserver/resources/*.dat
+Release Tools/sdk_release/
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/

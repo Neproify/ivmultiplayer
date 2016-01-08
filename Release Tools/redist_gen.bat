@@ -1,16 +1,18 @@
 @echo off
-SET /P VERSION=Please enter the IV:MP version (No spaces/invalid filename chars!): 
-7z a IVMP-%VERSION%-Server.zip ../Binary/ivmp-svr.exe
-7z a IVMP-%VERSION%-Server.zip ../Binary/Server.Core.dll
-7z a IVMP-%VERSION%-Server.zip ../Binary/Network.Core.dll
-7z a IVMP-%VERSION%-Server.zip ../Binary/settings.xml
-7z a -xr!?svn\ IVMP-%VERSION%-Server.zip ../Binary/files
-7z a -xr!?svn\ IVMP-%VERSION%-Server.zip ../Binary/modules
-7z a -xr!?svn\ IVMP-%VERSION%-Server.zip ../Binary/scripts
-7z a -xr!?svn\ IVMP-%VERSION%-Server.zip ../Binary/clientscripts
-7z a -xr!?svn\ IVMP-%VERSION%-Server.zip ../Binary/resources
-7z a -xr!?svn\ IVMP-%VERSION%-Server.zip ../Binary/webserver
-7z a IVMP-%VERSION%-Server.zip LICENSE
+FOR /F "tokens=* USEBACKQ" %%F IN (`git rev-list --count HEAD`) DO (
+SET VERSION=r%%F
+)
+7z a IVMP-%VERSION%-Win32-Server.zip ../Binary/ivmp-svr.exe
+7z a IVMP-%VERSION%-Win32-Server.zip ../Binary/Server.Core.dll
+7z a IVMP-%VERSION%-Win32-Server.zip ../Binary/Network.Core.dll
+7z a IVMP-%VERSION%-Win32-Server.zip ../Binary/settings.xml
+7z a -xr!?svn\ IVMP-%VERSION%-Win32-Server.zip ../Binary/files
+7z a -xr!?svn\ IVMP-%VERSION%-Win32-Server.zip ../Binary/modules
+7z a -xr!?svn\ IVMP-%VERSION%-Win32-Server.zip ../Binary/scripts
+7z a -xr!?svn\ IVMP-%VERSION%-Win32-Server.zip ../Binary/clientscripts
+7z a -xr!?svn\ IVMP-%VERSION%-Win32-Server.zip ../Binary/resources
+7z a -xr!?svn\ IVMP-%VERSION%-Win32-Server.zip ../Binary/webserver
+7z a IVMP-%VERSION%-Win32-Server.zip LICENSE
 cd installer_generator
 Build_Install_Script.exe %VERSION%
 cd nsis
