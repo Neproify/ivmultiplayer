@@ -10,7 +10,7 @@
 ;======================================================
 ; Configuration
 !define NAME 'IVMP'
-!define VERSION 'RC2'
+!define VERSION 'RC3'
 
 ;======================================================
 ; Modern Interface Configuration
@@ -126,9 +126,9 @@ Section "Install" SecDummy
 	; Copy New Files
 
 	SetOutPath "$GTAIVDirectory"
-	
+
 	File ..\..\Binary\bass.dll
-	
+
 	SetOutPath "$INSTDIR"
 
 	File ..\LICENSE
@@ -145,9 +145,9 @@ Section "Install" SecDummy
 	CreateDirectory "$INSTDIR\CEGUI\looknfeel"
 	CreateDirectory "$INSTDIR\CEGUI\schemes"
 	CreateDirectory "$INSTDIR\CEGUI\xml_schemas"
-	
+
 	SetOutPath "$INSTDIR\CEGUI\fonts"
-	
+
 	File ..\..\Binary\CEGUI\fonts\*
 
 	SetOutPath "$INSTDIR\CEGUI\imagesets"
@@ -159,16 +159,16 @@ Section "Install" SecDummy
 	;
 
 	SetOutPath "$INSTDIR\CEGUI\looknfeel"
-	
+
 	File ..\..\Binary\CEGUI\looknfeel\WindowsLook.looknfeel
 
 	SetOutPath "$INSTDIR\CEGUI\schemes"
-	
+
 	File ..\..\Binary\CEGUI\schemes\WindowsLook.scheme
 	File ..\..\Binary\CEGUI\schemes\WindowsLookWidgets.scheme
 
 	SetOutPath "$INSTDIR\CEGUI\xml_schemas"
-	
+
 	File ..\..\Binary\CEGUI\xml_schemas\CEGUIConfig.xsd
 	File ..\..\Binary\CEGUI\xml_schemas\Falagard.xsd
 	File ..\..\Binary\CEGUI\xml_schemas\Font.xsd
@@ -189,7 +189,7 @@ Section "Install" SecDummy
 	${EndIf}
 
 	; Create Desktop Shortcut If Requested
-	
+
 	${If} $CreateDesktopShortcut == ${BST_CHECKED}
 		CreateShortCut "$DESKTOP\${NAME}.lnk" "$INSTDIR\Client.Launcher.exe"
 	${EndIf}
@@ -197,7 +197,7 @@ Section "Install" SecDummy
 	; Create Uninstaller
 
 	WriteUninstaller "$INSTDIR\Uninstall_${NAME}.exe"
-	
+
 SectionEnd
 
 Section "Uninstall"
@@ -231,13 +231,13 @@ Section "Uninstall"
 	; Delete The Desktop Shortcut
 
 	Delete "$DESKTOP\${NAME}.lnk"
-	
+
 	; Delete the bass library and load screen files
 
 	Delete "$GTAIVDirectory\bass.dll"
 	Delete "$GTAIVDirectory\common\data\loadingscreens_ivmp.dat"
 	Delete "$GTAIVDirectory\pc\textures\loadingscreens_ivmp_textures.wtd"
-	
+
 	; Delete Installer
 
 	Delete "$INSTDIR\Uninstall_${NAME}.exe"
