@@ -1512,7 +1512,7 @@ void CNetworkPlayer::RemoveHelmet()
 void CNetworkPlayer::SetInterior(unsigned int uiInterior)
 {
 	THIS_CHECK;
-	if(IsSpawned() && GetInterior() != uiInterior && !IsDead())
+	if(IsSpawned() && GetInterior() != uiInterior)
 		Scripting::SetRoomForCharByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
 }
 
@@ -1520,7 +1520,7 @@ void CNetworkPlayer::SetInterior(unsigned int uiInterior)
 unsigned int CNetworkPlayer::GetInterior()
 {
 	THIS_CHECK_R(0);
-	if(IsSpawned() && !IsDead())
+	if(IsSpawned())
 	{
 		unsigned int uiInterior;
 		Scripting::GetKeyForCharInRoom(GetScriptingHandle(), (Scripting::eInteriorRoomKey *)&uiInterior);

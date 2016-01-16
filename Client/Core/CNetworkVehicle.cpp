@@ -1195,7 +1195,7 @@ void CNetworkVehicle::SetInterior(unsigned int uiInterior)
 	{
 		if(pLocalPlayer->GetVehicle() != this)
 		{
-			//Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
+			Scripting::SetRoomForCarByKey(GetScriptingHandle(), (Scripting::eInteriorRoomKey)uiInterior);
 			m_uiInterior = uiInterior;
 		}
 	}
@@ -1204,7 +1204,7 @@ void CNetworkVehicle::SetInterior(unsigned int uiInterior)
 unsigned int CNetworkVehicle::GetInterior()
 {
 	THIS_CHECK_R(0);
-	/*// Are we spawned?
+	// Are we spawned?
 	if(IsSpawned())
 	{
 		unsigned int uiInterior;
@@ -1212,8 +1212,7 @@ unsigned int CNetworkVehicle::GetInterior()
 		return uiInterior;
 	}
 
-	return 0;*/
-	return m_uiInterior;
+	return 0;
 }
 
 void CNetworkVehicle::SetIndicatorState(bool bFrontLeft, bool bFrontRight, bool bBackLeft, bool bBackRight)
