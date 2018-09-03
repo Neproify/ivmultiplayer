@@ -62,6 +62,15 @@ Client/Core/CEGUI/lib/*
 Binary/webserver/resources/*.dat
 Release Tools/sdk_release/
 
+Binary/Client.Core.Debug.dll
+Binary/Client.LaunchHelper.Debug.dll
+Binary/Client.Launcher.Debug.exe
+Binary/Client.VFS.Debug.dll
+Binary/Client.VFS.Utility.Debug.exe
+Binary/Network.Core.Debug.dll
+Binary/Server.Core.Debug.dll
+Binary/ivmp-svr.Debug.exe
+
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
 
